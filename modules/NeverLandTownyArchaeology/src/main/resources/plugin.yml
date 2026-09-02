@@ -1,5 +1,5 @@
 name: NeverLandTownyArchaeology
-version: '0.1.4'
+version: '0.1.5'
 main: ru.neverland.archaeology.TownyArchaeology
 api-version: '26.2'
 authors: [Alexander Sokolov]
@@ -7,8 +7,7 @@ website: https://neverland.ru
 description: Раскопки, артефакты, музейные коллекции и Чудеса Света проекта NeverLand.
 provides: [TownyArchaeology]
 depend: [Towny]
-softdepend: [ItemsAdder, PlaceholderAPI, NeverLandTownyReputation]
-loadbefore: [NeverLandTownyBuilds]
+softdepend: [ItemsAdder, PlaceholderAPI]
 commands:
   archaeology:
     aliases: [arch, археология]

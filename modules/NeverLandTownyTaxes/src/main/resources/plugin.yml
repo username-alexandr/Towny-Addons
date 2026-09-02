@@ -1,5 +1,5 @@
 name: NeverLandTownyTaxes
-version: '0.1.0'
+version: '0.1.1'
 main: ru.neverland.townytaxes.NeverLandTownyTaxes
 api-version: '26.2'
 authors: [Alexander Sokolov]
@@ -7,7 +7,7 @@ website: https://neverland.ru
 description: Налоги, санкции и политико-экономические соглашения проекта NeverLand.
 provides: [TaxyTowny]
 depend: [Towny]
-softdepend: [Vault, PlaceholderAPI, ItemsAdder, NeverLandTownyTrade, NeverLandTownyGovernance, NeverLandTownyReputation]
+softdepend: [Vault, PlaceholderAPI, ItemsAdder]
 commands:
   townytaxes:
     description: Администрирование налогов, санкций и соглашений NeverLand

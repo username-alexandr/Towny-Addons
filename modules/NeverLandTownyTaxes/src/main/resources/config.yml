@@ -1,4 +1,4 @@
-# NeverLandTownyTaxes 0.1.0
+# NeverLandTownyTaxes 0.1.1
 scheduler:
   check-seconds: 20
   autosave-seconds: 60

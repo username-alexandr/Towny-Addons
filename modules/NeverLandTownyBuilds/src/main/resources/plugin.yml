@@ -6,7 +6,7 @@ authors: [Alexander Sokolov]
 website: https://neverland.ru
 description: Городские здания, Чудеса Света, склад и эффекты проекта NeverLand.
 depend: [Towny]
-softdepend: [ItemsAdder, NeverLandTownyArchaeology]
+softdepend: [ItemsAdder]
 commands:
   buildeditor:
     description: Внутриигровой редактор городских построек

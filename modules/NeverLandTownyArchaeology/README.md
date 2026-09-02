@@ -1,4 +1,4 @@
-# NeverLandTownyArchaeology 0.1.4
+# NeverLandTownyArchaeology 0.1.5
 
 Основные команды: `/t archaeology`, `/t archaeology journal`, `/t archaeology donate [all]`, `/t archaeology nearest`, `/t museum`. Команда `/archaeology` сохранена как прямая запасная форма. Артефакты выдаются администраторами через `/artifact give <игрок> <артефакт> [количество]`; прежняя `/townyarchaeology give` также работает.
 

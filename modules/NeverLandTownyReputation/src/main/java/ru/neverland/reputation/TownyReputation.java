@@ -30,7 +30,7 @@ public final class TownyReputation extends JavaPlugin {
         AdminCommand adminExecutor = new AdminCommand(this, towny, reputation, messages); PluginCommand admin = getCommand("townyreputation"); if (admin != null) { admin.setExecutor(adminExecutor); admin.setTabCompleter(adminExecutor); }
         boolean townCommand = towny.registerTown("reputation", new ReputationCommand(this, ReputationScope.TOWN, towny, reputation, menus, messages)); boolean nationCommand = towny.registerNation("reputation", new ReputationCommand(this, ReputationScope.NATION, towny, reputation, menus, messages));
         getServer().getServicesManager().register(TownyReputationApi.class, new ReputationApiService(this, reputation), this, ServicePriority.Normal); boolean placeholders = PlaceholderHook.register(this, towny, reputation); reputation.start();
-        getLogger().info("NeverLandTownyReputation 0.1.2 включён: связей " + repository.all().size() + ", уровней " + registry.tiers().size() + ", /t=" + townCommand + ", /n=" + nationCommand + ", PlaceholderAPI=" + placeholders + ".");
+        getLogger().info("NeverLandTownyReputation " + getPluginMeta().getVersion() + " включён: связей " + repository.all().size() + ", уровней " + registry.tiers().size() + ", /t=" + townCommand + ", /n=" + nationCommand + ", PlaceholderAPI=" + placeholders + ".");
     }
     @Override public void onDisable() { if (reputation != null) reputation.shutdown(); if (towny != null) { towny.unregisterTown("reputation"); towny.unregisterNation("reputation"); } getServer().getServicesManager().unregisterAll(this); }
     public void reloadPlugin() { reloadConfig(); messages.reload(); itemsAdder.reload(); registry.reload(); reputation.start(); }

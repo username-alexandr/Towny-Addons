@@ -1,6 +1,6 @@
-# NeverLand Towny Suite 0.5.2
+# NeverLand Towny Suite 0.5.3
 
-Полный релиз 14 аддонов с обновлением **NeverLandTownyBuilds 0.5.0**.
+Исправленный полный релиз 14 аддонов для Paper/Purpur 26.2. Устранён аварийный циклический порядок загрузки, обнаруженный при первом запуске Suite 0.5.2.
 
 ## Главное
 
@@ -12,18 +12,25 @@
 - `/t builds` расширено до **62 городских проектов** и разбито на три страницы по 28 позиций.
 - Старые уровни, строительные площадки, `projects.yml` и `custom-projects.yml` сохраняются.
 
+## Исправление запуска
+
+- Builds 0.5.1, Archaeology 0.1.5, Governance 0.1.3, Reputation 0.1.3 и Taxes 0.1.1 больше не образуют циклы `softdepend/loadbefore`.
+- Обязательные связи сохранены: Contracts и Trade требуют Builds; Expeditions требует Camps.
+- Флаг `-Dpaper.useLegacyPluginLoading=true` не требуется.
+- CI отклоняет релиз, если внутренний граф `depend`, `softdepend` и `loadbefore` снова станет циклическим.
+
 ## Проверка
 
 Исходные JSON-модели конвертируются в компактные `.nltb`-ресурсы без новой runtime-зависимости. CI проверяет число моделей, координат, этапов, дверей, крыш, регистрацию проектов, YAML, сборку всех 14 модулей и исполняемый smoke-набор NeverLandTownyBuilds.
 
 ## Файлы релиза
 
-- `NeverLandTownyBuilds-0.5.0.jar` — обновлённый аддон со встроенными моделями;
+- `NeverLandTownyBuilds-0.5.1.jar` — обновлённый аддон со встроенными моделями;
 - отдельные JAR-файлы остальных 13 аддонов;
-- `NeverLandTownySuite-0.5.2-plugins.zip` — все готовые плагины;
-- `NeverLandTownySuite-0.5.2-sources.zip` — исходники и документация;
-- `NeverLandTownySuite-0.5.2-full.zip` — полный комплект;
+- `NeverLandTownySuite-0.5.3-plugins.zip` — все готовые плагины;
+- `NeverLandTownySuite-0.5.3-sources.zip` — исходники и документация;
+- `NeverLandTownySuite-0.5.3-full.zip` — полный комплект;
 - `NeverLandTownyBuilds-Models-0.1.0.zip` — исходные JSON-модели;
 - `SHA256SUMS.txt` — контрольные суммы.
 
-Перед установкой остановите сервер, сделайте резервную копию мира, Towny и каталога `plugins/NeverLandTownyBuilds`, удалите старый `NeverLandTownyBuilds-0.4.0.jar`, затем установите `0.5.0` и полностью запустите сервер.
+Перед установкой остановите сервер и сделайте резервную копию. Удалите старые JAR этих 14 аддонов, распакуйте весь `NeverLandTownySuite-0.5.3-plugins.zip` в каталог `plugins` и убедитесь, что рядом с Expeditions присутствует `NeverLandTownyCamps-0.1.6.jar`. Затем выполните полный запуск сервера.

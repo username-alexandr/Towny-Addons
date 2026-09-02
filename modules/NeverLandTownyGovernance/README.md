@@ -1,4 +1,4 @@
-# NeverLandTownyGovernance 0.1.2
+# NeverLandTownyGovernance 0.1.3
 
 Аддон для Paper/Purpur 26.2 и Towny 0.103.2.0: городской совет, должности, законы и голосования.
 
