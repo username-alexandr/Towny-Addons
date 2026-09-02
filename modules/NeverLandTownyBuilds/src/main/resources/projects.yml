@@ -426,7 +426,7 @@ buildings:
     itemsadder-icon: ""
     slot: 16
     order: 109
-    description: ["Торговые договоры, экспорт и купеческие связи.", "Пять физических этапов строительства."]
+    description: ["Снижает риск мошенничества и повышает торговую репутацию.", "С III уровня позволяет открыть городскую лавку на спавне."]
     levels:
       1: {money: 7500, bonus-blocks: 1, resources: ["STONE_BRICKS:143"], effects: []}
       2: {money: 15000, bonus-blocks: 2, resources: ["STONE_BRICKS:244"], effects: ["LUCK:1"]}
@@ -785,6 +785,217 @@ buildings:
       4: {money: 80000, bonus-blocks: 4, resources: ["STONE_BRICKS:288", "CYAN_STAINED_GLASS_PANE:6"], effects: ["LUCK:2", "REGENERATION:1"]}
       5: {money: 160000, bonus-blocks: 6, resources: ["SEA_LANTERN:23"], effects: ["LUCK:2", "REGENERATION:2"]}
   # END GENERATED 37-MODEL EXPANSION
+
+  # BEGIN MUNICIPAL EXPANSION 0.6.0
+  printing_house:
+    name: "&#E7D7A5&lТипография"
+    icon: LECTERN
+    itemsadder-icon: ""
+    slot: 16
+    order: 200
+    description: ["Печатает городские бюллетени и объявления.", "Увеличивает охват официальных сообщений."]
+    levels:
+      1: {money: 6000, bonus-blocks: 1, resources: ["BRICKS:180", "OAK_PLANKS:96", "PAPER:64"], effects: []}
+      2: {money: 12000, bonus-blocks: 2, resources: ["BRICKS:256", "BOOK:64", "INK_SAC:32"], effects: ["LUCK:1"]}
+      3: {money: 24000, bonus-blocks: 3, resources: ["DARK_OAK_LOG:128", "PAPER:256", "COPPER_INGOT:48"], effects: ["LUCK:1"]}
+      4: {money: 48000, bonus-blocks: 4, resources: ["DEEPSLATE_TILES:192", "BOOKSHELF:48", "GOLD_INGOT:24"], effects: ["LUCK:2"]}
+      5: {money: 96000, bonus-blocks: 6, resources: ["QUARTZ_BLOCK:128", "BOOKSHELF:96", "EMERALD:24"], effects: ["LUCK:2", "HASTE:1"]}
+  forestry:
+    name: "&#74C365&lЛесничество"
+    icon: OAK_SAPLING
+    itemsadder-icon: ""
+    slot: 19
+    order: 201
+    description: ["Высаживает саженцы на выделенной территории.", "Берёт саженцы со склада здания, затем из /t inv."]
+    levels:
+      1: {money: 5500, bonus-blocks: 1, resources: ["MOSSY_COBBLESTONE:160", "OAK_LOG:128", "OAK_SAPLING:32"], effects: []}
+      2: {money: 11000, bonus-blocks: 2, resources: ["OAK_PLANKS:256", "BIRCH_SAPLING:32", "COMPOSTER:8"], effects: ["HASTE:1"]}
+      3: {money: 22000, bonus-blocks: 3, resources: ["STONE_BRICKS:256", "SPRUCE_SAPLING:48", "IRON_INGOT:48"], effects: ["HASTE:1", "LUCK:1"]}
+      4: {money: 44000, bonus-blocks: 4, resources: ["MOSS_BLOCK:256", "CHERRY_SAPLING:48", "GOLD_INGOT:24"], effects: ["HASTE:2", "LUCK:1"]}
+      5: {money: 88000, bonus-blocks: 6, resources: ["OAK_LOG:512", "DARK_OAK_SAPLING:64", "EMERALD:32"], effects: ["HASTE:2", "LUCK:2"]}
+  customs:
+    name: "&#FFD45B&lТаможня"
+    icon: WRITABLE_BOOK
+    itemsadder-icon: ""
+    slot: 20
+    order: 202
+    description: ["Контролирует ввоз, вывоз и торговые сборы.", "Повышает эффективность внешней торговли."]
+    levels:
+      1: {money: 7500, bonus-blocks: 1, resources: ["STONE_BRICKS:224", "SPRUCE_LOG:96", "BARREL:12"], effects: []}
+      2: {money: 15000, bonus-blocks: 2, resources: ["CUT_COPPER:128", "PAPER:96", "IRON_INGOT:64"], effects: ["LUCK:1"]}
+      3: {money: 30000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:192", "LECTERN:12", "GOLD_INGOT:32"], effects: ["LUCK:1", "SPEED:1"]}
+      4: {money: 60000, bonus-blocks: 4, resources: ["STONE_BRICKS:512", "COPPER_BLOCK:32", "EMERALD:24"], effects: ["LUCK:2", "SPEED:1"]}
+      5: {money: 120000, bonus-blocks: 6, resources: ["QUARTZ_BLOCK:256", "GOLD_BLOCK:12", "EMERALD_BLOCK:8"], effects: ["LUCK:2", "SPEED:2"]}
+  trade_port:
+    name: "&#4EC9D8&lТорговый порт"
+    icon: OAK_BOAT
+    itemsadder-icon: ""
+    slot: 21
+    order: 203
+    description: ["Морской узел импорта и экспорта.", "Увеличивает объём городской торговли."]
+    levels:
+      1: {money: 9000, bonus-blocks: 1, resources: ["STONE_BRICKS:256", "DARK_OAK_LOG:192", "BARREL:16"], effects: []}
+      2: {money: 18000, bonus-blocks: 2, resources: ["DARK_PRISMARINE:192", "DARK_OAK_PLANKS:256", "CHAIN:24"], effects: ["SPEED:1"]}
+      3: {money: 36000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:256", "IRON_BLOCK:24", "LANTERN:24"], effects: ["SPEED:1", "LUCK:1"]}
+      4: {money: 72000, bonus-blocks: 4, resources: ["PRISMARINE_BRICKS:384", "COPPER_BLOCK:32", "EMERALD:32"], effects: ["SPEED:2", "LUCK:1"]}
+      5: {money: 144000, bonus-blocks: 7, resources: ["DARK_PRISMARINE:512", "GOLD_BLOCK:16", "EMERALD_BLOCK:12"], effects: ["SPEED:2", "LUCK:2"]}
+  mint:
+    name: "&#F6C85F&lМонетный двор"
+    icon: GOLD_INGOT
+    itemsadder-icon: ""
+    slot: 22
+    order: 204
+    description: ["Чеканит городскую монету и обслуживает казну.", "Снижает финансовые издержки города."]
+    levels:
+      1: {money: 10000, bonus-blocks: 1, resources: ["SMOOTH_STONE:256", "COPPER_INGOT:128", "IRON_INGOT:64"], effects: []}
+      2: {money: 20000, bonus-blocks: 2, resources: ["SMOOTH_QUARTZ:192", "COPPER_BLOCK:24", "GOLD_INGOT:32"], effects: ["LUCK:1"]}
+      3: {money: 40000, bonus-blocks: 3, resources: ["CUT_COPPER:256", "IRON_BLOCK:32", "GOLD_BLOCK:8"], effects: ["LUCK:1", "HASTE:1"]}
+      4: {money: 80000, bonus-blocks: 4, resources: ["QUARTZ_BLOCK:384", "GOLD_BLOCK:16", "DIAMOND:16"], effects: ["LUCK:2", "HASTE:1"]}
+      5: {money: 160000, bonus-blocks: 7, resources: ["QUARTZ_BLOCK:512", "GOLD_BLOCK:32", "EMERALD_BLOCK:12"], effects: ["LUCK:2", "HASTE:2"]}
+  stables:
+    name: "&#D7A86E&lКонюшни"
+    icon: SADDLE
+    itemsadder-icon: ""
+    slot: 23
+    order: 205
+    description: ["Содержание городских лошадей и курьерских животных.", "Повышает скорость верховых животных жителей."]
+    levels:
+      1: {money: 5500, bonus-blocks: 1, resources: ["COBBLESTONE:192", "OAK_PLANKS:192", "HAY_BLOCK:32"], effects: []}
+      2: {money: 11000, bonus-blocks: 2, resources: ["OAK_LOG:192", "OAK_FENCE:96", "LEAD:12"], effects: ["SPEED:1"]}
+      3: {money: 22000, bonus-blocks: 3, resources: ["SPRUCE_PLANKS:256", "SADDLE:8", "IRON_INGOT:48"], effects: ["SPEED:1"]}
+      4: {money: 44000, bonus-blocks: 4, resources: ["STONE_BRICKS:384", "HAY_BLOCK:96", "GOLDEN_CARROT:64"], effects: ["SPEED:2"]}
+      5: {money: 88000, bonus-blocks: 6, resources: ["DARK_OAK_LOG:384", "SADDLE:16", "GOLD_BLOCK:8"], effects: ["SPEED:2", "JUMP_BOOST:1"]}
+  fortress_wall:
+    name: "&#AEB6C2&lКрепостная стена"
+    icon: STONE_BRICKS
+    itemsadder-icon: ""
+    slot: 24
+    order: 206
+    description: ["Линейный оборонительный проект.", "Маршрут задаётся двумя точками через /t civic select."]
+    levels:
+      1: {money: 8000, bonus-blocks: 2, resources: ["STONE_BRICKS:384", "COBBLESTONE:192"], effects: []}
+      2: {money: 16000, bonus-blocks: 3, resources: ["STONE_BRICKS:512", "POLISHED_ANDESITE:192"], effects: ["RESISTANCE:1"]}
+      3: {money: 32000, bonus-blocks: 4, resources: ["DEEPSLATE_BRICKS:512", "IRON_INGOT:96"], effects: ["RESISTANCE:1"]}
+      4: {money: 64000, bonus-blocks: 6, resources: ["DEEPSLATE_BRICKS:768", "IRON_BLOCK:24"], effects: ["RESISTANCE:2"]}
+      5: {money: 128000, bonus-blocks: 8, resources: ["REINFORCED_DEEPSLATE:16", "OBSIDIAN:192", "DIAMOND:16"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
+  city_moat:
+    name: "&#5AAFE6&lГородской ров"
+    icon: WATER_BUCKET
+    itemsadder-icon: ""
+    slot: 25
+    order: 207
+    description: ["Линейная водная линия обороны.", "Усиливает стены и снижает угрозу штурма."]
+    levels:
+      1: {money: 6500, bonus-blocks: 1, resources: ["MUD_BRICKS:256", "WATER_BUCKET:8"], effects: []}
+      2: {money: 13000, bonus-blocks: 2, resources: ["STONE_BRICKS:384", "WATER_BUCKET:16"], effects: ["RESISTANCE:1"]}
+      3: {money: 26000, bonus-blocks: 3, resources: ["MOSSY_STONE_BRICKS:384", "DARK_OAK_PLANKS:96"], effects: ["RESISTANCE:1"]}
+      4: {money: 52000, bonus-blocks: 4, resources: ["DEEPSLATE_BRICKS:512", "CHAIN:48"], effects: ["RESISTANCE:2"]}
+      5: {money: 104000, bonus-blocks: 6, resources: ["OBSIDIAN:128", "SEA_LANTERN:24"], effects: ["RESISTANCE:2"]}
+  archery_range:
+    name: "&#E08B52&lСтрельбище"
+    icon: TARGET
+    itemsadder-icon: ""
+    slot: 28
+    order: 208
+    description: ["Тренирует лучников и арбалетчиков города.", "Даёт бонус дальнобойным подразделениям через API."]
+    levels:
+      1: {money: 5000, bonus-blocks: 1, resources: ["COBBLESTONE:160", "SPRUCE_PLANKS:160", "TARGET:8"], effects: []}
+      2: {money: 10000, bonus-blocks: 2, resources: ["SPRUCE_LOG:192", "ARROW:256", "HAY_BLOCK:32"], effects: ["SPEED:1"]}
+      3: {money: 20000, bonus-blocks: 3, resources: ["STONE_BRICKS:256", "FLETCHING_TABLE:12", "CROSSBOW:8"], effects: ["SPEED:1", "STRENGTH:1"]}
+      4: {money: 40000, bonus-blocks: 4, resources: ["DEEPSLATE_TILES:192", "SPECTRAL_ARROW:128", "IRON_BLOCK:16"], effects: ["SPEED:2", "STRENGTH:1"]}
+      5: {money: 80000, bonus-blocks: 6, resources: ["STONE_BRICKS:512", "TARGET:32", "DIAMOND:16"], effects: ["SPEED:2", "STRENGTH:2"]}
+  port_fort:
+    name: "&#8094A8&lПортовый форт"
+    icon: CROSSBOW
+    itemsadder-icon: ""
+    slot: 29
+    order: 209
+    description: ["Защищает гавань, причалы и торговые суда.", "Усиливает оборону при наличии торгового порта."]
+    levels:
+      1: {money: 9000, bonus-blocks: 2, resources: ["DEEPSLATE_BRICKS:256", "STONE_BRICKS:192"], effects: []}
+      2: {money: 18000, bonus-blocks: 3, resources: ["POLISHED_BASALT:192", "IRON_INGOT:96"], effects: ["RESISTANCE:1"]}
+      3: {money: 36000, bonus-blocks: 4, resources: ["DEEPSLATE_TILES:256", "CROSSBOW:12", "CHAIN:32"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      4: {money: 72000, bonus-blocks: 6, resources: ["DEEPSLATE_BRICKS:768", "IRON_BLOCK:32", "TNT:16"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
+      5: {money: 144000, bonus-blocks: 8, resources: ["OBSIDIAN:192", "DIAMOND_BLOCK:4", "BEACON:1"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
+  census_bureau:
+    name: "&#C8B7E8&lБюро переписи населения"
+    icon: WRITABLE_BOOK
+    itemsadder-icon: ""
+    slot: 30
+    order: 210
+    description: ["Ведёт реестр жителей и городскую статистику.", "Открывает точные сведения в /t civic status."]
+    levels:
+      1: {money: 5000, bonus-blocks: 1, resources: ["STONE_BRICKS:192", "PAPER:128", "BOOK:32"], effects: []}
+      2: {money: 10000, bonus-blocks: 2, resources: ["CALCITE:192", "BOOKSHELF:32", "INK_SAC:32"], effects: ["LUCK:1"]}
+      3: {money: 20000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:224", "LECTERN:16", "COMPASS:8"], effects: ["LUCK:1"]}
+      4: {money: 40000, bonus-blocks: 4, resources: ["QUARTZ_BLOCK:256", "BOOKSHELF:64", "GOLD_INGOT:24"], effects: ["LUCK:2"]}
+      5: {money: 80000, bonus-blocks: 6, resources: ["QUARTZ_BLOCK:384", "EMERALD:24", "CLOCK:16"], effects: ["LUCK:2", "NIGHT_VISION:1"]}
+  insurance_chamber:
+    name: "&#69C1A5&lСтраховая палата"
+    icon: SHIELD
+    itemsadder-icon: ""
+    slot: 31
+    order: 211
+    description: ["Создаёт городской страховой резерв.", "Компенсации доступны событиям и другим аддонам через API."]
+    levels:
+      1: {money: 7500, bonus-blocks: 1, resources: ["POLISHED_ANDESITE:224", "PAPER:96", "IRON_INGOT:48"], effects: []}
+      2: {money: 15000, bonus-blocks: 2, resources: ["SMOOTH_QUARTZ:192", "BOOK:64", "GOLD_INGOT:24"], effects: ["RESISTANCE:1"]}
+      3: {money: 30000, bonus-blocks: 3, resources: ["CUT_COPPER:224", "IRON_BLOCK:24", "EMERALD:16"], effects: ["RESISTANCE:1", "LUCK:1"]}
+      4: {money: 60000, bonus-blocks: 4, resources: ["QUARTZ_BLOCK:384", "GOLD_BLOCK:12", "DIAMOND:12"], effects: ["RESISTANCE:2", "LUCK:1"]}
+      5: {money: 120000, bonus-blocks: 6, resources: ["QUARTZ_BLOCK:512", "EMERALD_BLOCK:8", "DIAMOND_BLOCK:4"], effects: ["RESISTANCE:2", "LUCK:2"]}
+  pumping_station:
+    name: "&#54C7D8&lНасосная станция"
+    icon: CAULDRON
+    itemsadder-icon: ""
+    slot: 32
+    order: 212
+    description: ["Создаёт давление в городской водной сети.", "Требует водонапорную башню и резервуар."]
+    levels:
+      1: {money: 8000, bonus-blocks: 1, resources: ["BRICKS:224", "COPPER_INGOT:128", "CAULDRON:8"], effects: []}
+      2: {money: 16000, bonus-blocks: 2, resources: ["COPPER_BLOCK:32", "IRON_INGOT:96", "WATER_BUCKET:8"], effects: ["SPEED:1"]}
+      3: {money: 32000, bonus-blocks: 3, resources: ["CUT_COPPER:256", "IRON_BLOCK:32", "REDSTONE:96"], effects: ["SPEED:1", "RESISTANCE:1"]}
+      4: {money: 64000, bonus-blocks: 4, resources: ["OXIDIZED_COPPER:256", "PISTON:32", "GOLD_INGOT:24"], effects: ["SPEED:2", "RESISTANCE:1"]}
+      5: {money: 128000, bonus-blocks: 7, resources: ["COPPER_BLOCK:128", "IRON_BLOCK:64", "HEART_OF_THE_SEA:2"], effects: ["SPEED:2", "RESISTANCE:2"]}
+  irrigation_station:
+    name: "&#6FCF8D&lИрригационная станция"
+    icon: WATER_BUCKET
+    itemsadder-icon: ""
+    slot: 33
+    order: 213
+    description: ["Поддерживает влажность полей на выделенной территории.", "Работает только при активной водной цепочке."]
+    levels:
+      1: {money: 6500, bonus-blocks: 1, resources: ["MUD_BRICKS:224", "OAK_LOG:128", "WATER_BUCKET:8"], effects: []}
+      2: {money: 13000, bonus-blocks: 2, resources: ["OAK_PLANKS:256", "COPPER_INGOT:64", "HOPPER:8"], effects: ["HASTE:1"]}
+      3: {money: 26000, bonus-blocks: 3, resources: ["STONE_BRICKS:256", "WATER_BUCKET:16", "REDSTONE:64"], effects: ["HASTE:1", "LUCK:1"]}
+      4: {money: 52000, bonus-blocks: 4, resources: ["MUD_BRICKS:512", "COPPER_BLOCK:24", "PISTON:16"], effects: ["HASTE:2", "LUCK:1"]}
+      5: {money: 104000, bonus-blocks: 6, resources: ["PRISMARINE_BRICKS:384", "HEART_OF_THE_SEA:1", "EMERALD:24"], effects: ["HASTE:2", "LUCK:2"]}
+  recycling_yard:
+    name: "&#91B77A&lПерерабатывающий двор"
+    icon: CRAFTER
+    itemsadder-icon: ""
+    slot: 34
+    order: 214
+    description: ["Перерабатывает городские отходы в полезные материалы.", "Сырьё и результат хранятся в отдельном складе."]
+    levels:
+      1: {money: 6500, bonus-blocks: 1, resources: ["STONE_BRICKS:224", "IRON_INGOT:64", "BARREL:12"], effects: []}
+      2: {money: 13000, bonus-blocks: 2, resources: ["IRON_BLOCK:24", "HOPPER:12", "COMPOSTER:12"], effects: ["HASTE:1"]}
+      3: {money: 26000, bonus-blocks: 3, resources: ["CUT_COPPER:224", "CRAFTER:8", "REDSTONE:96"], effects: ["HASTE:1", "LUCK:1"]}
+      4: {money: 52000, bonus-blocks: 4, resources: ["STONE_BRICKS:512", "PISTON:24", "COPPER_BLOCK:24"], effects: ["HASTE:2", "LUCK:1"]}
+      5: {money: 104000, bonus-blocks: 6, resources: ["IRON_BLOCK:64", "CRAFTER:24", "DIAMOND:16"], effects: ["HASTE:2", "LUCK:2"]}
+  dam:
+    name: "&#4A9BC4&lДамба"
+    icon: DEEPSLATE_BRICKS
+    itemsadder-icon: ""
+    slot: 37
+    order: 215
+    description: ["Линейное гидротехническое сооружение.", "Снижает последствия наводнений и усиливает водную сеть."]
+    levels:
+      1: {money: 10000, bonus-blocks: 2, resources: ["DEEPSLATE_BRICKS:384", "STONE_BRICKS:256"], effects: []}
+      2: {money: 20000, bonus-blocks: 3, resources: ["POLISHED_ANDESITE:384", "IRON_INGOT:96"], effects: ["RESISTANCE:1"]}
+      3: {money: 40000, bonus-blocks: 4, resources: ["STONE_BRICKS:768", "IRON_BLOCK:32", "REDSTONE:64"], effects: ["RESISTANCE:1"]}
+      4: {money: 80000, bonus-blocks: 6, resources: ["DEEPSLATE_BRICKS:1024", "IRON_BLOCK:64", "PISTON:32"], effects: ["RESISTANCE:2"]}
+      5: {money: 160000, bonus-blocks: 9, resources: ["OBSIDIAN:256", "DIAMOND_BLOCK:4", "HEART_OF_THE_SEA:2"], effects: ["RESISTANCE:2", "CONDUIT_POWER:1"]}
+  # END MUNICIPAL EXPANSION 0.6.0
 
 wonders:
   sun_pyramid:

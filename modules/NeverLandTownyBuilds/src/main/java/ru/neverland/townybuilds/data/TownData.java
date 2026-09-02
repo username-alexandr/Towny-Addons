@@ -1,6 +1,8 @@
 package ru.neverland.townybuilds.data;
 
 import org.bukkit.inventory.ItemStack;
+import ru.neverland.townybuilds.civic.CivicArea;
+import ru.neverland.townybuilds.civic.CivicLine;
 import ru.neverland.townybuilds.construction.ConstructionSite;
 
 import java.util.HashMap;
@@ -12,7 +14,14 @@ public final class TownData {
     private final Map<String, Integer> levels = new HashMap<>();
     private final Map<String, ConstructionSite> constructionSites = new HashMap<>();
     private final Map<String, ResourceFund> resourceFunds = new HashMap<>();
+    private final Map<String, CivicArea> civicAreas = new HashMap<>();
+    private final Map<String, CivicLine> civicLines = new HashMap<>();
+    private final Map<String, ItemStack[]> civicInventories = new HashMap<>();
+    private final Map<String, Double> shopPrices = new HashMap<>();
     private ItemStack[] storage;
+    private String shopStall = "";
+    private double insuranceReserve;
+    private String bulletin = "";
 
     public TownData(UUID townId, int storageSize) {
         this.townId = townId;
@@ -102,4 +111,86 @@ public final class TownData {
             storage[index] = contents[index] == null ? null : contents[index].clone();
         }
     }
+
+    public CivicArea civicArea(String projectId) {
+        return civicAreas.get(projectId);
+    }
+
+    public void setCivicArea(String projectId, CivicArea area) {
+        if (area == null) civicAreas.remove(projectId); else civicAreas.put(projectId, area);
+    }
+
+    public Map<String, CivicArea> civicAreas() {
+        return Map.copyOf(civicAreas);
+    }
+
+    public void loadCivicAreas(Map<String, CivicArea> loaded) {
+        civicAreas.clear();
+        civicAreas.putAll(loaded);
+    }
+
+    public CivicLine civicLine(String projectId) {
+        return civicLines.get(projectId);
+    }
+
+    public void setCivicLine(String projectId, CivicLine line) {
+        if (line == null) civicLines.remove(projectId); else civicLines.put(projectId, line);
+    }
+
+    public Map<String, CivicLine> civicLines() {
+        return Map.copyOf(civicLines);
+    }
+
+    public void loadCivicLines(Map<String, CivicLine> loaded) {
+        civicLines.clear();
+        civicLines.putAll(loaded);
+    }
+
+    public ItemStack[] civicInventory(String projectId, int size) {
+        ItemStack[] source = civicInventories.get(projectId);
+        ItemStack[] result = new ItemStack[size];
+        if (source == null) return result;
+        for (int index = 0; index < Math.min(source.length, size); index++) {
+            result[index] = source[index] == null ? null : source[index].clone();
+        }
+        return result;
+    }
+
+    public void setCivicInventory(String projectId, ItemStack[] contents) {
+        ItemStack[] copy = new ItemStack[contents.length];
+        for (int index = 0; index < contents.length; index++) {
+            copy[index] = contents[index] == null ? null : contents[index].clone();
+        }
+        civicInventories.put(projectId, copy);
+    }
+
+    public Map<String, ItemStack[]> civicInventories() {
+        Map<String, ItemStack[]> copy = new HashMap<>();
+        civicInventories.forEach((id, contents) -> copy.put(id, civicInventory(id, contents.length)));
+        return Map.copyOf(copy);
+    }
+
+    public void loadCivicInventories(Map<String, ItemStack[]> loaded) {
+        civicInventories.clear();
+        loaded.forEach(this::setCivicInventory);
+    }
+
+    public String shopStall() { return shopStall; }
+    public void setShopStall(String value) { shopStall = value == null ? "" : value; }
+
+    public Map<String, Double> shopPrices() { return Map.copyOf(shopPrices); }
+    public double shopPrice(String material) { return shopPrices.getOrDefault(material, 0.0); }
+    public void setShopPrice(String material, double price) {
+        if (price <= 0) shopPrices.remove(material); else shopPrices.put(material, price);
+    }
+    public void loadShopPrices(Map<String, Double> loaded) {
+        shopPrices.clear();
+        shopPrices.putAll(loaded);
+    }
+
+    public double insuranceReserve() { return insuranceReserve; }
+    public void setInsuranceReserve(double value) { insuranceReserve = Math.max(0, value); }
+
+    public String bulletin() { return bulletin; }
+    public void setBulletin(String value) { bulletin = value == null ? "" : value; }
 }

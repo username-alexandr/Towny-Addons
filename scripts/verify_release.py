@@ -169,8 +169,8 @@ def main() -> int:
     catalog = load_yaml(imported_dir / "catalog.json")
     imported_ids = {entry["id"] for entry in catalog["models"]}
     configured_ids = set(projects["buildings"])
-    if len(configured_ids) != 62 or len(projects["wonders"]) != 5:
-        errors.append("NeverLandTownyBuilds must contain 62 buildings and 5 wonders")
+    if len(configured_ids) != 78 or len(projects["wonders"]) != 5:
+        errors.append("NeverLandTownyBuilds must contain 78 buildings and 5 wonders")
     if not imported_ids.issubset(configured_ids) or len(imported_ids) != 37:
         errors.append("37-model catalog and projects.yml are not synchronized")
     resource_files = sorted(imported_dir.glob("*.nltb"))
@@ -188,7 +188,7 @@ def main() -> int:
         return 1
 
     jar_status = "source-only" if args.source_only else f"{len(actual_jars)} JARs"
-    print(f"OK: {len(addons)} modules, {jar_status}, {yaml_count} YAML files, 37 models / 25,497 blocks")
+    print(f"OK: {len(addons)} modules, {jar_status}, {yaml_count} YAML files, 78 buildings / 5 wonders")
     return 0
 
 

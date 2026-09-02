@@ -22,6 +22,49 @@ settings:
     # Персональная подпись над ближайшей точкой: название блока, координаты и расстояние.
     guide-label-enabled: true
     guide-label-height: 1.35
+  civic:
+    # Автоматизация работает только в уже загруженных чанках и никогда не загружает их принудительно.
+    automation-interval-ticks: 1200
+    # Максимальная длина стены, рва или дамбы: значение умножается на уровень проекта.
+    linear-blocks-per-level: 32
+    spawn-shops:
+      # Администратор создаёт точки командой /townybuilds stall set <id>.
+      claim-radius: 8
+      browse-radius: 8
+      maximum-unit-price: 1000000
+      # Только обычные ванильные предметы без имени, lore, зачарований и PDC можно продать.
+      allowed-materials:
+        - COBBLESTONE
+        - STONE
+        - STONE_BRICKS
+        - OAK_LOG
+        - SPRUCE_LOG
+        - BIRCH_LOG
+        - OAK_PLANKS
+        - SPRUCE_PLANKS
+        - COAL
+        - COPPER_INGOT
+        - IRON_INGOT
+        - GOLD_INGOT
+        - REDSTONE
+        - LAPIS_LAZULI
+        - DIAMOND
+        - EMERALD
+        - QUARTZ
+        - WHEAT
+        - CARROT
+        - POTATO
+        - BEETROOT
+        - BREAD
+        - LEATHER
+        - PAPER
+        - BOOK
+        - HONEYCOMB
+        - STRING
+        - BONE
+        - ARROW
+        - GLASS
+      stalls: {}
   economy:
     withdraw-reason: "Развитие городской постройки: {project} уровень {level}"
   announcements:

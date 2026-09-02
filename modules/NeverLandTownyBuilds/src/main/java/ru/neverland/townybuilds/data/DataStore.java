@@ -6,6 +6,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.block.BlockFace;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.neverland.townybuilds.construction.ConstructionSite;
+import ru.neverland.townybuilds.civic.CivicArea;
+import ru.neverland.townybuilds.civic.CivicLine;
 import ru.neverland.townybuilds.util.ItemCodec;
 
 import java.io.File;
@@ -97,6 +99,7 @@ public final class DataStore {
                 if (section != null) {
                     ItemStack[] contents = ItemCodec.decode(section.getString("inventory"), storageSize);
                     data.setStorage(contents, storageSize);
+                    loadCivicData(section, data);
                 }
                 towns.put(townId, data);
             } catch (IllegalArgumentException | IOException | ClassNotFoundException exception) {
@@ -166,10 +169,39 @@ public final class DataStore {
             }
             try {
                 yaml.set(path + ".inventory", ItemCodec.encode(data.storage()));
+                for (Map.Entry<String, ItemStack[]> inventory : data.civicInventories().entrySet()) {
+                    yaml.set(path + ".civic-inventories." + inventory.getKey(), ItemCodec.encode(inventory.getValue()));
+                }
             } catch (IOException exception) {
                 plugin.getLogger().severe("Не удалось сериализовать склад города " + data.townId() + ": " + exception.getMessage());
                 return;
             }
+            for (Map.Entry<String, CivicArea> areaEntry : data.civicAreas().entrySet()) {
+                CivicArea area = areaEntry.getValue();
+                String root = path + ".civic-areas." + areaEntry.getKey();
+                yaml.set(root + ".world", area.worldId().toString());
+                yaml.set(root + ".min-x", area.minX());
+                yaml.set(root + ".max-x", area.maxX());
+                yaml.set(root + ".min-z", area.minZ());
+                yaml.set(root + ".max-z", area.maxZ());
+            }
+            for (Map.Entry<String, CivicLine> lineEntry : data.civicLines().entrySet()) {
+                CivicLine line = lineEntry.getValue();
+                String root = path + ".civic-lines." + lineEntry.getKey();
+                yaml.set(root + ".world", line.worldId().toString());
+                yaml.set(root + ".x1", line.x1());
+                yaml.set(root + ".y1", line.y1());
+                yaml.set(root + ".z1", line.z1());
+                yaml.set(root + ".x2", line.x2());
+                yaml.set(root + ".y2", line.y2());
+                yaml.set(root + ".z2", line.z2());
+            }
+            yaml.set(path + ".shop.stall", data.shopStall().isBlank() ? null : data.shopStall());
+            for (Map.Entry<String, Double> price : data.shopPrices().entrySet()) {
+                yaml.set(path + ".shop.prices." + price.getKey(), price.getValue());
+            }
+            yaml.set(path + ".insurance-reserve", data.insuranceReserve() <= 0 ? null : data.insuranceReserve());
+            yaml.set(path + ".bulletin", data.bulletin().isBlank() ? null : data.bulletin());
         }
         try {
             yaml.save(file);
@@ -177,5 +209,65 @@ public final class DataStore {
         } catch (IOException exception) {
             plugin.getLogger().severe("Не удалось сохранить town-data.yml: " + exception.getMessage());
         }
+    }
+
+    private void loadCivicData(ConfigurationSection section, TownData data)
+            throws IOException, ClassNotFoundException {
+        Map<String, CivicArea> areas = new HashMap<>();
+        ConfigurationSection areaRoot = section.getConfigurationSection("civic-areas");
+        if (areaRoot != null) {
+            for (String projectId : areaRoot.getKeys(false)) {
+                ConfigurationSection area = areaRoot.getConfigurationSection(projectId);
+                if (area == null) continue;
+                try {
+                    areas.put(projectId, new CivicArea(UUID.fromString(area.getString("world", "")),
+                            area.getInt("min-x"), area.getInt("max-x"), area.getInt("min-z"), area.getInt("max-z")));
+                } catch (IllegalArgumentException exception) {
+                    plugin.getLogger().warning("Пропущена повреждённая территория " + projectId
+                            + " города " + data.townId() + ": " + exception.getMessage());
+                }
+            }
+        }
+        data.loadCivicAreas(areas);
+
+        Map<String, CivicLine> lines = new HashMap<>();
+        ConfigurationSection lineRoot = section.getConfigurationSection("civic-lines");
+        if (lineRoot != null) {
+            for (String projectId : lineRoot.getKeys(false)) {
+                ConfigurationSection line = lineRoot.getConfigurationSection(projectId);
+                if (line == null) continue;
+                try {
+                    lines.put(projectId, new CivicLine(UUID.fromString(line.getString("world", "")),
+                            line.getInt("x1"), line.getInt("y1"), line.getInt("z1"),
+                            line.getInt("x2"), line.getInt("y2"), line.getInt("z2")));
+                } catch (IllegalArgumentException exception) {
+                    plugin.getLogger().warning("Пропущена повреждённая линия " + projectId
+                            + " города " + data.townId() + ": " + exception.getMessage());
+                }
+            }
+        }
+        data.loadCivicLines(lines);
+
+        Map<String, ItemStack[]> inventories = new HashMap<>();
+        ConfigurationSection inventoryRoot = section.getConfigurationSection("civic-inventories");
+        if (inventoryRoot != null) {
+            for (String projectId : inventoryRoot.getKeys(false)) {
+                inventories.put(projectId, ItemCodec.decode(inventoryRoot.getString(projectId), 54));
+            }
+        }
+        data.loadCivicInventories(inventories);
+
+        data.setShopStall(section.getString("shop.stall", ""));
+        Map<String, Double> prices = new HashMap<>();
+        ConfigurationSection priceRoot = section.getConfigurationSection("shop.prices");
+        if (priceRoot != null) {
+            for (String material : priceRoot.getKeys(false)) {
+                double price = priceRoot.getDouble(material);
+                if (price > 0) prices.put(material, price);
+            }
+        }
+        data.loadShopPrices(prices);
+        data.setInsuranceReserve(section.getDouble("insurance-reserve"));
+        data.setBulletin(section.getString("bulletin", ""));
     }
 }

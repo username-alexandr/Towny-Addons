@@ -11,6 +11,7 @@ import java.util.Map;
 public final class ProjectDefinition {
     private final String id;
     private final ProjectType type;
+    private ProjectCategory category;
     private String name;
     private Material icon;
     private String itemsAdderIcon;
@@ -30,6 +31,7 @@ public final class ProjectDefinition {
                              int slot, int order, List<String> description, Map<Integer, LevelDefinition> levels) {
         this.id = id;
         this.type = type;
+        this.category = type == ProjectType.BUILDING ? ProjectCategory.parse(null, id) : ProjectCategory.OTHER;
         this.name = name;
         this.icon = icon;
         this.itemsAdderIcon = itemsAdderIcon;
@@ -41,6 +43,7 @@ public final class ProjectDefinition {
 
     public String id() { return id; }
     public ProjectType type() { return type; }
+    public ProjectCategory category() { return category; }
     public String name() { return name; }
     public Material icon() { return icon; }
     public String itemsAdderIcon() { return itemsAdderIcon; }
@@ -54,6 +57,7 @@ public final class ProjectDefinition {
     public boolean custom() { return custom; }
 
     public void setName(String name) { this.name = name; }
+    public void setCategory(ProjectCategory category) { this.category = category == null ? ProjectCategory.OTHER : category; }
     public void setIcon(Material icon) { this.icon = icon; }
     public void setItemsAdderIcon(String itemsAdderIcon) { this.itemsAdderIcon = itemsAdderIcon; }
     public void setSlot(int slot) { this.slot = slot; }

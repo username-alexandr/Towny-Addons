@@ -11,6 +11,7 @@ import org.bukkit.potion.PotionEffectType;
 import ru.neverland.townybuilds.integration.ItemsAdderHook;
 import ru.neverland.townybuilds.model.LevelDefinition;
 import ru.neverland.townybuilds.model.ProjectDefinition;
+import ru.neverland.townybuilds.model.ProjectCategory;
 import ru.neverland.townybuilds.model.ProjectType;
 import ru.neverland.townybuilds.util.ItemCodec;
 
@@ -110,6 +111,8 @@ public final class DefinitionRegistry {
                 Math.max(0, Math.min(53, section.getInt("slot", 10))),
                 Math.max(0, section.getInt("order", section.getInt("slot", 10))),
                 section.getStringList("description"), levels);
+        definition.setCategory(type == ProjectType.BUILDING
+                ? ProjectCategory.parse(section.getString("category"), id) : ProjectCategory.OTHER);
         String encodedIcon = section.getString("icon-base64");
         if (encodedIcon != null && !encodedIcon.isBlank()) {
             try {
@@ -197,6 +200,14 @@ public final class DefinitionRegistry {
         return projects.values().stream().filter(project -> project.type() == type)
                 .sorted(Comparator.comparingInt(ProjectDefinition::order)
                         .thenComparingInt(ProjectDefinition::slot)
+                .thenComparing(ProjectDefinition::id)).toList();
+    }
+
+    public List<ProjectDefinition> category(ProjectCategory category) {
+        return projects.values().stream().filter(project -> project.type() == ProjectType.BUILDING)
+                .filter(project -> project.category() == category)
+                .sorted(Comparator.comparingInt(ProjectDefinition::order)
+                        .thenComparingInt(ProjectDefinition::slot)
                         .thenComparing(ProjectDefinition::id)).toList();
     }
 
@@ -238,6 +249,7 @@ public final class DefinitionRegistry {
             }
             String root = (project.type() == ProjectType.BUILDING ? "buildings." : "wonders.") + project.id();
             yaml.set(root + ".name", project.name());
+            yaml.set(root + ".category", project.category().name());
             yaml.set(root + ".icon", project.icon().name());
             yaml.set(root + ".itemsadder-icon", project.itemsAdderIcon());
             yaml.set(root + ".slot", project.slot());
