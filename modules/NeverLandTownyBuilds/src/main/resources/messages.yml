@@ -21,6 +21,7 @@ construction-no-target: "Наведитесь на твёрдый блок зе�
 construction-outside-town: "Здание не помещается на территории города. &7{details}"
 construction-uneven-ground: "Для этого чертежа нужна ровная площадка с прочным основанием. &7{details}"
 construction-obstructed: "Строительной площадке мешают существующие блоки. &7{details}"
+construction-excavated: "Подземная часть площадки подготовлена: безопасно расчищено блоков — &f{count}&r."
 construction-unavailable: "Для этой постройки не найден процедурный чертёж. Обратитесь к администратору."
 construction-not-resident: "Строить городское здание могут только жители этого города."
 construction-protected: "Этот блок относится к городскому зданию и защищён чертежом."

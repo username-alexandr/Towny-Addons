@@ -1,4 +1,4 @@
-# NeverLandTownyBuilds 0.5.1
+# NeverLandTownyBuilds 0.5.2
 
 Аддон городского развития для **Paper/Purpur 26.2** и **Towny 0.103.2.0**.
 
@@ -32,7 +32,7 @@
 1. Используйте Paper или Purpur 26.2 на Java 25.
 2. Установите Towny 0.103.2.0 и его экономическую зависимость.
 3. Необязательно установите ItemsAdder 4.x.
-4. Поместите `NeverLandTownyBuilds-0.5.1.jar` в папку `plugins`.
+4. Поместите `NeverLandTownyBuilds-0.5.2.jar` в папку `plugins`.
 5. Полностью перезапустите сервер. Не используйте PlugMan и аналоги.
 
 После первого запуска появятся:
