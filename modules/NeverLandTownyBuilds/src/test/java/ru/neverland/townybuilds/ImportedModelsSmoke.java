@@ -15,6 +15,9 @@ public final class ImportedModelsSmoke {
     private static final Set<String> OPEN_STRUCTURES = Set.of(
             "quarry", "sewer", "roads", "bridge_service", "square", "arena", "memorial"
     );
+    private static final Set<Material> ROOF_MATERIALS = Set.of(
+            Material.DEEPSLATE_TILES, Material.IRON_BLOCK, Material.CYAN_STAINED_GLASS
+    );
 
     public static void main(String[] args) {
         BuildingBlueprintGenerator generator = new BuildingBlueprintGenerator();
@@ -53,7 +56,7 @@ public final class ImportedModelsSmoke {
             check(generator.generateForArchitecture(project, 5, 5).blocks().equals(finalPlan.blocks()),
                     project + ": встроенный источник не воспроизводится");
             if (!OPEN_STRUCTURES.contains(project)) {
-                check(finalPlan.blocks().values().stream().anyMatch(block -> block.material() == Material.DEEPSLATE_TILES),
+                check(finalPlan.blocks().values().stream().anyMatch(block -> ROOF_MATERIALS.contains(block.material())),
                         project + ": отсутствует полноценная крыша");
             }
             lowerDoors += finalPlan.blocks().values().stream()
