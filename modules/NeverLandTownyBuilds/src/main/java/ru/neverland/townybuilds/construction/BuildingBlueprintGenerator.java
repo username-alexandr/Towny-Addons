@@ -25,7 +25,9 @@ public final class BuildingBlueprintGenerator {
     );
     private static final ExpansionBlueprintGenerator EXPANSION_GENERATOR = new ExpansionBlueprintGenerator();
     private static final Set<String> EXPANSION_BUILDINGS = EXPANSION_GENERATOR.supportedProjects();
-    private static final Set<String> BUILDINGS = union(CORE_BUILDINGS, EXPANSION_BUILDINGS);
+    private static final ImportedModelBlueprintGenerator IMPORTED_GENERATOR = new ImportedModelBlueprintGenerator();
+    private static final Set<String> IMPORTED_BUILDINGS = IMPORTED_GENERATOR.supportedProjects();
+    private static final Set<String> BUILDINGS = union(union(CORE_BUILDINGS, EXPANSION_BUILDINGS), IMPORTED_BUILDINGS);
     private static final Set<String> WONDERS = Set.of(
             "sun_pyramid", "great_colosseum", "alexandria_lighthouse", "hanging_gardens",
             "archmage_spire"
@@ -59,6 +61,9 @@ public final class BuildingBlueprintGenerator {
         if (!SUPPORTED.contains(projectId)) return null;
         if (EXPANSION_BUILDINGS.contains(projectId)) {
             return EXPANSION_GENERATOR.generate(projectId, level);
+        }
+        if (IMPORTED_BUILDINGS.contains(projectId)) {
+            return IMPORTED_GENERATOR.generate(projectId, level);
         }
         Builder builder = new Builder(level, ConstructionSite.CURRENT_ARCHITECTURE_VERSION);
         switch (projectId) {
@@ -123,6 +128,7 @@ public final class BuildingBlueprintGenerator {
     public BlueprintPlan generateForArchitecture(String projectId, int level, int architectureVersion) {
         String normalized = projectId == null ? "" : projectId.toLowerCase(Locale.ROOT);
         if (WONDERS.contains(normalized)) return generate(normalized, level);
+        if (IMPORTED_BUILDINGS.contains(normalized)) return IMPORTED_GENERATOR.generate(normalized, level);
         // Процедурный источник версии 5 остаётся доступным после будущего перехода на .schem,
         // чтобы активные площадки можно было безопасно восстановить и перенести.
         if (EXPANSION_BUILDINGS.contains(normalized)) return EXPANSION_GENERATOR.generate(normalized, level);
@@ -155,6 +161,9 @@ public final class BuildingBlueprintGenerator {
     public String stageName(String projectId, int level) {
         if (projectId != null && EXPANSION_BUILDINGS.contains(projectId.toLowerCase(Locale.ROOT))) {
             return EXPANSION_GENERATOR.stageName(projectId.toLowerCase(Locale.ROOT), level);
+        }
+        if (projectId != null && IMPORTED_BUILDINGS.contains(projectId.toLowerCase(Locale.ROOT))) {
+            return IMPORTED_GENERATOR.stageName(projectId.toLowerCase(Locale.ROOT), level);
         }
         String[] stages = switch (projectId) {
             case "town_hall" -> new String[]{"Дом городского совета", "Дом писаря", "Архивная изба", "Деревенская звонница", "Площадь совета"};

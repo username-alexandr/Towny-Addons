@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ru.neverland"
-version = "0.4.0"
+version = "0.5.0"
 
 repositories {
     mavenCentral()
@@ -45,4 +45,34 @@ tasks {
     jar {
         archiveBaseName.set("NeverLandTownyBuilds")
     }
+}
+
+val smokeClasses = listOf(
+    "ru.neverland.townybuilds.ImportedModelsSmoke",
+    "ru.neverland.townybuilds.ExpansionIntegrationSmoke",
+    "ru.neverland.townybuilds.BlueprintGeometrySmoke",
+    "ru.neverland.townybuilds.BlueprintLocalizationSmoke",
+    "ru.neverland.townybuilds.BlueprintSeamSmoke",
+    "ru.neverland.townybuilds.WonderBlueprintSmoke",
+    "ru.neverland.townybuilds.BlockOrientationSmoke",
+    "ru.neverland.townybuilds.ResourceFundSmoke",
+    "ru.neverland.townybuilds.ResourceTransferSmoke",
+    "ru.neverland.townybuilds.OptionalArchaeologySmoke",
+    "ru.neverland.townybuilds.ColorCompatibilitySmoke"
+)
+
+val smokeTasks = smokeClasses.map { className ->
+    val suffix = className.substringAfterLast('.')
+    tasks.register<JavaExec>("smoke$suffix") {
+        group = "verification"
+        dependsOn(tasks.named("testClasses"))
+        classpath = sourceSets.test.get().runtimeClasspath
+        mainClass.set(className)
+    }
+}
+
+tasks.register("smokeTest") {
+    group = "verification"
+    description = "Runs the executable NeverLand Towny Builds regression suite."
+    dependsOn(smokeTasks)
 }

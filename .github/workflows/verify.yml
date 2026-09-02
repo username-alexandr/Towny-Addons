@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: '3.13'
       - run: python -m pip install PyYAML
-      - run: python scripts/verify_release.py
+      - run: python scripts/verify_release.py --source-only
 
   build:
     runs-on: ubuntu-latest
@@ -38,7 +38,11 @@ jobs:
           set -euo pipefail
           for module in modules/*; do
             if [[ -f "$module/build.gradle.kts" ]]; then
-              gradle --no-daemon -p "$module" clean jar testClasses
+              if [[ "${module##*/}" == "NeverLandTownyBuilds" ]]; then
+                gradle --no-daemon -p "$module" clean jar smokeTest
+              else
+                gradle --no-daemon -p "$module" clean jar testClasses
+              fi
             else
               mvn -B -f "$module/pom.xml" clean package
             fi

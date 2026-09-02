@@ -44,6 +44,7 @@ import java.util.UUID;
 
 public final class MenuManager implements Listener {
     private static final DecimalFormat MONEY = new DecimalFormat("#,##0.##");
+    private static final int PROJECTS_PER_PAGE = 28;
     private final JavaPlugin plugin;
     private final DefinitionRegistry definitions;
     private final DataStore dataStore;
@@ -71,18 +72,35 @@ public final class MenuManager implements Listener {
     }
 
     public void openProjects(Player player, ProjectType type) {
+        openProjects(player, type, 0);
+    }
+
+    private void openProjects(Player player, ProjectType type, int requestedPage) {
         Town town = towny.town(player);
         if (town == null) {
             messages.send(player, "no-town");
             return;
         }
-        Inventory inventory = Bukkit.createInventory(new ProjectListHolder(type), 54,
-                ColorUtil.component(type == ProjectType.BUILDING ? "&#B65CFFГородские постройки" : "&#FFD45AВеликие чудеса света"));
+        List<ProjectDefinition> projects = definitions.type(type);
+        int pages = Math.max(1, (projects.size() + PROJECTS_PER_PAGE - 1) / PROJECTS_PER_PAGE);
+        int page = Math.max(0, Math.min(pages - 1, requestedPage));
+        String title = type == ProjectType.BUILDING ? "&#B65CFFГородские постройки" : "&#FFD45AВеликие чудеса света";
+        if (pages > 1) title += " &8[&f" + (page + 1) + "&8/&f" + pages + "&8]";
+        Inventory inventory = Bukkit.createInventory(new ProjectListHolder(type, page), 54,
+                ColorUtil.component(title));
         decorate(inventory);
         TownData data = dataStore.town(town.getUUID());
-        for (ProjectDefinition project : definitions.type(type)) {
-            inventory.setItem(project.slot(), projectIcon(project, data.level(project.id())));
+        List<Integer> slots = projectSlots();
+        int start = page * PROJECTS_PER_PAGE;
+        int end = Math.min(projects.size(), start + PROJECTS_PER_PAGE);
+        for (int index = start; index < end; index++) {
+            ProjectDefinition project = projects.get(index);
+            inventory.setItem(slots.get(index - start), projectIcon(project, data.level(project.id())));
         }
+        if (page > 0) inventory.setItem(47, actionItem("projects-previous", backItem(),
+                "&#B65CFFПредыдущая страница", List.of("&7Страница " + page + " из " + pages)));
+        if (page + 1 < pages) inventory.setItem(51, actionItem("projects-next", new ItemStack(Material.ARROW),
+                "&#B65CFFСледующая страница", List.of("&7Страница " + (page + 2) + " из " + pages)));
         ItemStack storage = menuItem(Material.CHEST, "&#63E6BEГородской склад",
                 List.of("&7Общее хранилище ресурсов.", "&7Открыть: &f/t inv"));
         inventory.setItem(49, storage);
@@ -90,6 +108,10 @@ public final class MenuManager implements Listener {
     }
 
     public void openDetails(Player player, ProjectDefinition project) {
+        openDetails(player, project, pageFor(project));
+    }
+
+    private void openDetails(Player player, ProjectDefinition project, int page) {
         Town town = towny.town(player);
         if (town == null) {
             messages.send(player, "no-town");
@@ -98,7 +120,7 @@ public final class MenuManager implements Listener {
         TownData data = dataStore.town(town.getUUID());
         int current = data.level(project.id());
         ConstructionProgress construction = builds.constructionProgress(town, project);
-        Inventory inventory = Bukkit.createInventory(new DetailsHolder(project.id()), 27,
+        Inventory inventory = Bukkit.createInventory(new DetailsHolder(project.id(), page), 27,
                 ColorUtil.component(project.name()));
         decorate(inventory);
         inventory.setItem(11, projectIcon(project, current));
@@ -195,9 +217,18 @@ public final class MenuManager implements Listener {
         }
         if (holder instanceof ProjectListHolder list) {
             event.setCancelled(true);
+            String action = actionFrom(event.getCurrentItem());
+            if ("projects-previous".equals(action)) {
+                openProjects(player, list.type(), list.page() - 1);
+                return;
+            }
+            if ("projects-next".equals(action)) {
+                openProjects(player, list.type(), list.page() + 1);
+                return;
+            }
             ProjectDefinition project = projectFrom(event.getCurrentItem());
             if (project != null && project.type() == list.type()) {
-                openDetails(player, project);
+                openDetails(player, project, list.page());
             } else if (event.getSlot() == 49) {
                 openStorage(player);
             }
@@ -212,16 +243,16 @@ public final class MenuManager implements Listener {
             }
             String action = actionFrom(event.getCurrentItem());
             if ("back".equals(action)) {
-                openProjects(player, project.type());
+                openProjects(player, project.type(), details.page());
             } else if ("upgrade".equals(action)) {
-                handleUpgrade(player, project);
+                handleUpgrade(player, project, details.page());
             } else if ("contribute".equals(action)) {
                 // Инвентарь меняется после завершения отменённого GUI-клика. Иначе Paper/Purpur
                 // может восстановить снимок события: прогресс фонда изменится, а предметы вернутся игроку.
                 boolean cityStorage = event.isShiftClick();
                 player.closeInventory();
                 plugin.getServer().getScheduler().runTask(plugin,
-                        () -> handleContribution(player, project, cityStorage));
+                        () -> handleContribution(player, project, cityStorage, details.page()));
             }
             return;
         }
@@ -267,16 +298,16 @@ public final class MenuManager implements Listener {
         }
     }
 
-    private void handleUpgrade(Player player, ProjectDefinition project) {
+    private void handleUpgrade(Player player, ProjectDefinition project, int page) {
         UpgradeResult result = builds.upgrade(player, project);
         switch (result.status()) {
             case SUCCESS -> {
                 messages.send(player, "upgrade-success", Map.of("project", project.name(), "level", result.newLevel()));
-                openDetails(player, project);
+                openDetails(player, project, page);
             }
             case CONSTRUCTION_STARTED -> {
                 messages.send(player, "construction-started", Map.of("project", project.name(), "level", result.newLevel()));
-                openDetails(player, project);
+                openDetails(player, project, page);
             }
             case CONSTRUCTION_IN_PROGRESS -> messages.send(player, "construction-already-active");
             case CONSTRUCTION_NO_TARGET -> messages.send(player, "construction-no-target");
@@ -299,7 +330,7 @@ public final class MenuManager implements Listener {
         }
     }
 
-    private void handleContribution(Player player, ProjectDefinition project, boolean cityStorage) {
+    private void handleContribution(Player player, ProjectDefinition project, boolean cityStorage, int page) {
         ContributionResult result = cityStorage
                 ? builds.contributeFromStorage(player, project)
                 : builds.contributeFromPlayer(player, project);
@@ -313,7 +344,7 @@ public final class MenuManager implements Listener {
             case NOTHING_MATCHED -> messages.send(player, "contribution-nothing-matched");
             case INVENTORY_SYNC_FAILED -> messages.send(player, "contribution-sync-failed");
         }
-        openDetails(player, project);
+        openDetails(player, project, page);
     }
 
     private ItemStack projectIcon(ProjectDefinition project, int level) {
@@ -421,6 +452,19 @@ public final class MenuManager implements Listener {
         return itemNames.name(item);
     }
 
+    private int pageFor(ProjectDefinition project) {
+        int index = definitions.type(project.type()).indexOf(project);
+        return index < 0 ? 0 : index / PROJECTS_PER_PAGE;
+    }
+
+    private List<Integer> projectSlots() {
+        List<Integer> slots = new ArrayList<>(PROJECTS_PER_PAGE);
+        for (int row = 1; row <= 4; row++) {
+            for (int column = 1; column <= 7; column++) slots.add(row * 9 + column);
+        }
+        return slots;
+    }
+
     private interface MenuHolder extends InventoryHolder {
         @Override
         default Inventory getInventory() {
@@ -428,7 +472,7 @@ public final class MenuManager implements Listener {
         }
     }
 
-    private record ProjectListHolder(ProjectType type) implements MenuHolder { }
-    private record DetailsHolder(String projectId) implements MenuHolder { }
+    private record ProjectListHolder(ProjectType type, int page) implements MenuHolder { }
+    private record DetailsHolder(String projectId, int page) implements MenuHolder { }
     private record StorageHolder(UUID townId, boolean mayor) implements MenuHolder { }
 }
