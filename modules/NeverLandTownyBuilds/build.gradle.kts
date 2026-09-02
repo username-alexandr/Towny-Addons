@@ -31,6 +31,10 @@ configurations.named("testCompileClasspath") {
     extendsFrom(configurations.named("compileOnly").get())
 }
 
+configurations.named("testRuntimeClasspath") {
+    extendsFrom(configurations.named("compileOnly").get())
+}
+
 tasks {
     compileJava {
         options.encoding = "UTF-8"
