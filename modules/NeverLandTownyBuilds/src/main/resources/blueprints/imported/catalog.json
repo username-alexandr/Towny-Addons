@@ -1,0 +1,526 @@
+{
+  "schema": 1,
+  "source_version": "0.1.0",
+  "models": [
+    {
+      "id": "sawmill",
+      "name": "Лесопилка",
+      "category": "production",
+      "kind": "workshop",
+      "blocks": 522,
+      "doors": 2,
+      "roofs": 132,
+      "dimensions": {
+        "width": 17,
+        "height": 13,
+        "depth": 12
+      }
+    },
+    {
+      "id": "quarry",
+      "name": "Каменоломня",
+      "category": "production",
+      "kind": "quarry",
+      "blocks": 329,
+      "doors": 0,
+      "roofs": 11,
+      "dimensions": {
+        "width": 15,
+        "height": 11,
+        "depth": 13
+      }
+    },
+    {
+      "id": "foundry",
+      "name": "Литейная",
+      "category": "production",
+      "kind": "workshop",
+      "blocks": 574,
+      "doors": 2,
+      "roofs": 131,
+      "dimensions": {
+        "width": 12,
+        "height": 13,
+        "depth": 13
+      }
+    },
+    {
+      "id": "mill",
+      "name": "Мельница",
+      "category": "production",
+      "kind": "windmill",
+      "blocks": 628,
+      "doors": 2,
+      "roofs": 147,
+      "dimensions": {
+        "width": 13,
+        "height": 15,
+        "depth": 12
+      }
+    },
+    {
+      "id": "bakery",
+      "name": "Пекарня",
+      "category": "production",
+      "kind": "house",
+      "blocks": 433,
+      "doors": 2,
+      "roofs": 100,
+      "dimensions": {
+        "width": 11,
+        "height": 12,
+        "depth": 11
+      }
+    },
+    {
+      "id": "apiary",
+      "name": "Пасека",
+      "category": "production",
+      "kind": "apiary",
+      "blocks": 415,
+      "doors": 2,
+      "roofs": 64,
+      "dimensions": {
+        "width": 14,
+        "height": 9,
+        "depth": 13
+      }
+    },
+    {
+      "id": "warehouse",
+      "name": "Городской склад",
+      "category": "trade",
+      "kind": "warehouse",
+      "blocks": 800,
+      "doors": 2,
+      "roofs": 192,
+      "dimensions": {
+        "width": 16,
+        "height": 15,
+        "depth": 14
+      }
+    },
+    {
+      "id": "caravanserai",
+      "name": "Караван-сарай",
+      "category": "trade",
+      "kind": "courtyard",
+      "blocks": 711,
+      "doors": 4,
+      "roofs": 60,
+      "dimensions": {
+        "width": 17,
+        "height": 7,
+        "depth": 15
+      }
+    },
+    {
+      "id": "auction",
+      "name": "Аукционный дом",
+      "category": "trade",
+      "kind": "hall",
+      "blocks": 732,
+      "doors": 4,
+      "roofs": 167,
+      "dimensions": {
+        "width": 15,
+        "height": 16,
+        "depth": 13
+      }
+    },
+    {
+      "id": "merchant_guild",
+      "name": "Торговая гильдия",
+      "category": "trade",
+      "kind": "guild",
+      "blocks": 759,
+      "doors": 2,
+      "roofs": 145,
+      "dimensions": {
+        "width": 13,
+        "height": 15,
+        "depth": 13
+      }
+    },
+    {
+      "id": "cargo_terminal",
+      "name": "Грузовой терминал",
+      "category": "trade",
+      "kind": "terminal",
+      "blocks": 1000,
+      "doors": 12,
+      "roofs": 230,
+      "dimensions": {
+        "width": 19,
+        "height": 17,
+        "depth": 16
+      }
+    },
+    {
+      "id": "water_tower",
+      "name": "Водонапорная башня",
+      "category": "infrastructure",
+      "kind": "water_tower",
+      "blocks": 325,
+      "doors": 0,
+      "roofs": 80,
+      "dimensions": {
+        "width": 11,
+        "height": 17,
+        "depth": 10
+      }
+    },
+    {
+      "id": "sewer",
+      "name": "Канализация",
+      "category": "infrastructure",
+      "kind": "sewer",
+      "blocks": 586,
+      "doors": 2,
+      "roofs": 0,
+      "dimensions": {
+        "width": 15,
+        "height": 8,
+        "depth": 11
+      }
+    },
+    {
+      "id": "baths",
+      "name": "Городские бани",
+      "category": "infrastructure",
+      "kind": "baths",
+      "blocks": 781,
+      "doors": 4,
+      "roofs": 244,
+      "dimensions": {
+        "width": 17,
+        "height": 13,
+        "depth": 14
+      }
+    },
+    {
+      "id": "roads",
+      "name": "Дороги",
+      "category": "infrastructure",
+      "kind": "road",
+      "blocks": 115,
+      "doors": 0,
+      "roofs": 0,
+      "dimensions": {
+        "width": 19,
+        "height": 3,
+        "depth": 7
+      }
+    },
+    {
+      "id": "bridge_service",
+      "name": "Мостовая служба",
+      "category": "infrastructure",
+      "kind": "bridge",
+      "blocks": 215,
+      "doors": 2,
+      "roofs": 0,
+      "dimensions": {
+        "width": 19,
+        "height": 7,
+        "depth": 8
+      }
+    },
+    {
+      "id": "reservoir",
+      "name": "Резервуар",
+      "category": "infrastructure",
+      "kind": "reservoir",
+      "blocks": 556,
+      "doors": 0,
+      "roofs": 108,
+      "dimensions": {
+        "width": 13,
+        "height": 12,
+        "depth": 15
+      }
+    },
+    {
+      "id": "guard",
+      "name": "Городская стража",
+      "category": "security",
+      "kind": "guardhouse",
+      "blocks": 637,
+      "doors": 2,
+      "roofs": 145,
+      "dimensions": {
+        "width": 19,
+        "height": 14,
+        "depth": 13
+      }
+    },
+    {
+      "id": "arsenal",
+      "name": "Арсенал",
+      "category": "security",
+      "kind": "secure_store",
+      "blocks": 558,
+      "doors": 2,
+      "roofs": 170,
+      "dimensions": {
+        "width": 15,
+        "height": 12,
+        "depth": 12
+      }
+    },
+    {
+      "id": "armory",
+      "name": "Оружейная",
+      "category": "security",
+      "kind": "workshop",
+      "blocks": 510,
+      "doors": 2,
+      "roofs": 120,
+      "dimensions": {
+        "width": 12,
+        "height": 13,
+        "depth": 12
+      }
+    },
+    {
+      "id": "watchtower",
+      "name": "Дозорная башня",
+      "category": "security",
+      "kind": "watchtower",
+      "blocks": 692,
+      "doors": 2,
+      "roofs": 140,
+      "dimensions": {
+        "width": 12,
+        "height": 18,
+        "depth": 12
+      }
+    },
+    {
+      "id": "fortress_gate",
+      "name": "Крепостные ворота",
+      "category": "security",
+      "kind": "gate",
+      "blocks": 947,
+      "doors": 4,
+      "roofs": 78,
+      "dimensions": {
+        "width": 18,
+        "height": 12,
+        "depth": 9
+      }
+    },
+    {
+      "id": "counterintel",
+      "name": "Палата контрразведки",
+      "category": "security",
+      "kind": "fortified_office",
+      "blocks": 642,
+      "doors": 2,
+      "roofs": 170,
+      "dimensions": {
+        "width": 15,
+        "height": 13,
+        "depth": 12
+      }
+    },
+    {
+      "id": "alchemy",
+      "name": "Алхимическая лаборатория",
+      "category": "science",
+      "kind": "alchemy",
+      "blocks": 622,
+      "doors": 2,
+      "roofs": 159,
+      "dimensions": {
+        "width": 14,
+        "height": 14,
+        "depth": 12
+      }
+    },
+    {
+      "id": "archive",
+      "name": "Архив",
+      "category": "science",
+      "kind": "archive",
+      "blocks": 730,
+      "doors": 2,
+      "roofs": 154,
+      "dimensions": {
+        "width": 14,
+        "height": 15,
+        "depth": 13
+      }
+    },
+    {
+      "id": "cartography",
+      "name": "Академия картографов",
+      "category": "science",
+      "kind": "academy",
+      "blocks": 816,
+      "doors": 2,
+      "roofs": 167,
+      "dimensions": {
+        "width": 15,
+        "height": 17,
+        "depth": 13
+      }
+    },
+    {
+      "id": "research",
+      "name": "Исследовательский институт",
+      "category": "science",
+      "kind": "institute",
+      "blocks": 896,
+      "doors": 2,
+      "roofs": 252,
+      "dimensions": {
+        "width": 19,
+        "height": 15,
+        "depth": 14
+      }
+    },
+    {
+      "id": "botanical",
+      "name": "Ботанический сад",
+      "category": "science",
+      "kind": "greenhouse",
+      "blocks": 1000,
+      "doors": 4,
+      "roofs": 206,
+      "dimensions": {
+        "width": 17,
+        "height": 17,
+        "depth": 14
+      }
+    },
+    {
+      "id": "theater",
+      "name": "Театр",
+      "category": "culture",
+      "kind": "theater",
+      "blocks": 938,
+      "doors": 4,
+      "roofs": 223,
+      "dimensions": {
+        "width": 17,
+        "height": 17,
+        "depth": 15
+      }
+    },
+    {
+      "id": "square",
+      "name": "Городская площадь",
+      "category": "culture",
+      "kind": "square",
+      "blocks": 366,
+      "doors": 0,
+      "roofs": 0,
+      "dimensions": {
+        "width": 17,
+        "height": 6,
+        "depth": 17
+      }
+    },
+    {
+      "id": "arena",
+      "name": "Арена",
+      "category": "culture",
+      "kind": "arena",
+      "blocks": 962,
+      "doors": 6,
+      "roofs": 0,
+      "dimensions": {
+        "width": 19,
+        "height": 9,
+        "depth": 15
+      }
+    },
+    {
+      "id": "gallery",
+      "name": "Художественная галерея",
+      "category": "culture",
+      "kind": "gallery",
+      "blocks": 725,
+      "doors": 4,
+      "roofs": 216,
+      "dimensions": {
+        "width": 17,
+        "height": 14,
+        "depth": 13
+      }
+    },
+    {
+      "id": "park",
+      "name": "Парк",
+      "category": "culture",
+      "kind": "park",
+      "blocks": 578,
+      "doors": 0,
+      "roofs": 40,
+      "dimensions": {
+        "width": 17,
+        "height": 9,
+        "depth": 15
+      }
+    },
+    {
+      "id": "guild_house",
+      "name": "Дом гильдий",
+      "category": "culture",
+      "kind": "guild_house",
+      "blocks": 1434,
+      "doors": 4,
+      "roofs": 233,
+      "dimensions": {
+        "width": 27,
+        "height": 18,
+        "depth": 15
+      }
+    },
+    {
+      "id": "memorial",
+      "name": "Мемориал",
+      "category": "culture",
+      "kind": "memorial",
+      "blocks": 361,
+      "doors": 0,
+      "roofs": 0,
+      "dimensions": {
+        "width": 13,
+        "height": 11,
+        "depth": 13
+      }
+    },
+    {
+      "id": "shelter",
+      "name": "Приют",
+      "category": "culture",
+      "kind": "shelter",
+      "blocks": 708,
+      "doors": 2,
+      "roofs": 182,
+      "dimensions": {
+        "width": 15,
+        "height": 15,
+        "depth": 14
+      }
+    },
+    {
+      "id": "cathedral",
+      "name": "Собор",
+      "category": "culture",
+      "kind": "cathedral",
+      "blocks": 1894,
+      "doors": 4,
+      "roofs": 269,
+      "dimensions": {
+        "width": 17,
+        "height": 16,
+        "depth": 21
+      }
+    }
+  ],
+  "model_count": 37,
+  "total_blocks": 25497
+}

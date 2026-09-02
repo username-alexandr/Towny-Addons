@@ -302,6 +302,490 @@ buildings:
       4: {money: 64000, bonus-blocks: 6, resources: ["DEEPSLATE_TILES:1152", "IRON_BLOCK:56", "OBSIDIAN:96"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
       5: {money: 128000, bonus-blocks: 9, resources: ["POLISHED_BLACKSTONE_BRICKS:1536", "REINFORCED_DEEPSLATE:12", "DIAMOND_BLOCK:6"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
 
+  # BEGIN GENERATED 37-MODEL EXPANSION
+  sawmill:
+    name: "&#E89A4A&lЛесопилка"
+    icon: IRON_AXE
+    itemsadder-icon: ""
+    slot: 41
+    order: 100
+    description: ["Лесной производственный двор и склад древесины.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 5000, bonus-blocks: 1, resources: ["STONE_BRICKS:130"], effects: []}
+      2: {money: 10000, bonus-blocks: 2, resources: ["STONE_BRICKS:168"], effects: ["HASTE:1"]}
+      3: {money: 20000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:132", "SPRUCE_PLANKS:24", "SPRUCE_DOOR:2"], effects: ["HASTE:1"]}
+      4: {money: 40000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:24", "CYAN_STAINED_GLASS_PANE:10", "IRON_BLOCK:2"], effects: ["HASTE:2"]}
+      5: {money: 80000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:16", "SEA_LANTERN:14"], effects: ["HASTE:2", "SPEED:1"]}
+  quarry:
+    name: "&#E89A4A&lКаменоломня"
+    icon: STONE_PICKAXE
+    itemsadder-icon: ""
+    slot: 42
+    order: 101
+    description: ["Городская добыча и сортировка каменных пород.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 3500, bonus-blocks: 1, resources: ["STONE_BRICKS:151"], effects: []}
+      2: {money: 7000, bonus-blocks: 2, resources: ["STONE_BRICKS:128"], effects: ["HASTE:1"]}
+      3: {money: 14000, bonus-blocks: 3, resources: ["SPRUCE_PLANKS:23"], effects: ["HASTE:1"]}
+      4: {money: 28000, bonus-blocks: 4, resources: ["IRON_BLOCK:6", "SPRUCE_PLANKS:5"], effects: ["HASTE:2"]}
+      5: {money: 56000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:16"], effects: ["HASTE:2", "SPEED:1"]}
+  foundry:
+    name: "&#E89A4A&lЛитейная"
+    icon: BLAST_FURNACE
+    itemsadder-icon: ""
+    slot: 43
+    order: 102
+    description: ["Переработка руды и металлических ресурсов.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 5500, bonus-blocks: 1, resources: ["STONE_BRICKS:132"], effects: []}
+      2: {money: 11000, bonus-blocks: 2, resources: ["STONE_BRICKS:192"], effects: ["HASTE:1"]}
+      3: {money: 22000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:131", "SPRUCE_PLANKS:24", "SPRUCE_DOOR:2"], effects: ["HASTE:1"]}
+      4: {money: 44000, bonus-blocks: 4, resources: ["BRICKS:26", "CYAN_STAINED_GLASS_PANE:24", "SEA_LANTERN:1"], effects: ["HASTE:2"]}
+      5: {money: 88000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:22", "SEA_LANTERN:12", "BRICKS:8"], effects: ["HASTE:2", "SPEED:1"]}
+  mill:
+    name: "&#E89A4A&lМельница"
+    icon: WHEAT
+    itemsadder-icon: ""
+    slot: 10
+    order: 103
+    description: ["Мельничный комплекс для зерна и фермерских задач.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 6500, bonus-blocks: 1, resources: ["STONE_BRICKS:110"], effects: []}
+      2: {money: 13000, bonus-blocks: 2, resources: ["STONE_BRICKS:276"], effects: ["HASTE:1"]}
+      3: {money: 26000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:147", "SPRUCE_DOOR:2"], effects: ["HASTE:1"]}
+      4: {money: 52000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:20", "SPRUCE_PLANKS:17"], effects: ["HASTE:2"]}
+      5: {money: 104000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:44", "SEA_LANTERN:12"], effects: ["HASTE:2", "SPEED:1"]}
+  bakery:
+    name: "&#E89A4A&lПекарня"
+    icon: BREAD
+    itemsadder-icon: ""
+    slot: 11
+    order: 104
+    description: ["Городское производство и хранение продовольствия.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 4500, bonus-blocks: 1, resources: ["STONE_BRICKS:99"], effects: []}
+      2: {money: 9000, bonus-blocks: 2, resources: ["STONE_BRICKS:140"], effects: ["HASTE:1"]}
+      3: {money: 18000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:100", "SPRUCE_PLANKS:20", "SPRUCE_DOOR:2"], effects: ["HASTE:1"]}
+      4: {money: 36000, bonus-blocks: 4, resources: ["BRICKS:26", "CYAN_STAINED_GLASS_PANE:10", "SEA_LANTERN:1"], effects: ["HASTE:2"]}
+      5: {money: 72000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:16", "SEA_LANTERN:12", "BRICKS:7"], effects: ["HASTE:2", "SPEED:1"]}
+  apiary:
+    name: "&#E89A4A&lПасека"
+    icon: HONEYCOMB
+    itemsadder-icon: ""
+    slot: 12
+    order: 105
+    description: ["Производство мёда, сот и лечебных запасов.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 4000, bonus-blocks: 1, resources: ["STONE_BRICKS:64"], effects: []}
+      2: {money: 8000, bonus-blocks: 2, resources: ["SPRUCE_PLANKS:64"], effects: ["HASTE:1"]}
+      3: {money: 16000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:64", "SPRUCE_PLANKS:16", "SPRUCE_DOOR:2"], effects: ["HASTE:1"]}
+      4: {money: 32000, bonus-blocks: 4, resources: ["OAK_LEAVES:103", "SPRUCE_PLANKS:64", "CYAN_STAINED_GLASS_PANE:4"], effects: ["HASTE:2"]}
+      5: {money: 64000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:12", "DEEPSLATE_TILES:8", "SEA_LANTERN:8"], effects: ["HASTE:2", "SPEED:1"]}
+  warehouse:
+    name: "&#FFD45B&lГородской склад"
+    icon: CHEST
+    itemsadder-icon: ""
+    slot: 13
+    order: 106
+    description: ["Центральный узел хранения городских ресурсов.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 8000, bonus-blocks: 1, resources: ["STONE_BRICKS:192"], effects: []}
+      2: {money: 16000, bonus-blocks: 2, resources: ["BRICKS:244"], effects: ["LUCK:1"]}
+      3: {money: 32000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:192", "SPRUCE_PLANKS:32", "SPRUCE_DOOR:2"], effects: ["LUCK:1", "SPEED:1"]}
+      4: {money: 64000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:72", "CYAN_STAINED_GLASS_PANE:28"], effects: ["LUCK:2", "SPEED:1"]}
+      5: {money: 128000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:22", "SEA_LANTERN:16"], effects: ["LUCK:2", "SPEED:2"]}
+  caravanserai:
+    name: "&#FFD45B&lКараван-сарай"
+    icon: LEAD
+    itemsadder-icon: ""
+    slot: 14
+    order: 107
+    description: ["Опорная точка сухопутных торговых маршрутов.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 7000, bonus-blocks: 1, resources: ["STONE_BRICKS:255"], effects: []}
+      2: {money: 14000, bonus-blocks: 2, resources: ["STONE_BRICKS:261"], effects: ["LUCK:1"]}
+      3: {money: 28000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:60", "SPRUCE_DOOR:4", "SPRUCE_PLANKS:1"], effects: ["LUCK:1", "SPEED:1"]}
+      4: {money: 56000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:96"], effects: ["LUCK:2", "SPEED:1"]}
+      5: {money: 112000, bonus-blocks: 6, resources: ["SEA_LANTERN:18", "SPRUCE_PLANKS:16"], effects: ["LUCK:2", "SPEED:2"]}
+  auction:
+    name: "&#FFD45B&lАукционный дом"
+    icon: EMERALD
+    itemsadder-icon: ""
+    slot: 15
+    order: 108
+    description: ["Площадка городских торгов и крупных сделок.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 7500, bonus-blocks: 1, resources: ["STONE_BRICKS:165"], effects: []}
+      2: {money: 15000, bonus-blocks: 2, resources: ["STONE_BRICKS:263"], effects: ["LUCK:1"]}
+      3: {money: 30000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:167", "SPRUCE_PLANKS:29", "SPRUCE_DOOR:4"], effects: ["LUCK:1", "SPEED:1"]}
+      4: {money: 60000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:33", "CYAN_STAINED_GLASS_PANE:28"], effects: ["LUCK:2", "SPEED:1"]}
+      5: {money: 120000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:24", "SEA_LANTERN:19"], effects: ["LUCK:2", "SPEED:2"]}
+  merchant_guild:
+    name: "&#FFD45B&lТорговая гильдия"
+    icon: EMERALD_BLOCK
+    itemsadder-icon: ""
+    slot: 16
+    order: 109
+    description: ["Торговые договоры, экспорт и купеческие связи.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 7500, bonus-blocks: 1, resources: ["STONE_BRICKS:143"], effects: []}
+      2: {money: 15000, bonus-blocks: 2, resources: ["STONE_BRICKS:244"], effects: ["LUCK:1"]}
+      3: {money: 30000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:145", "SPRUCE_PLANKS:24", "SPRUCE_DOOR:2"], effects: ["LUCK:1", "SPEED:1"]}
+      4: {money: 60000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:87", "SPRUCE_PLANKS:72"], effects: ["LUCK:2", "SPEED:1"]}
+      5: {money: 120000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:24", "SEA_LANTERN:18"], effects: ["LUCK:2", "SPEED:2"]}
+  cargo_terminal:
+    name: "&#FFD45B&lГрузовой терминал"
+    icon: MINECART
+    itemsadder-icon: ""
+    slot: 19
+    order: 110
+    description: ["Логистический узел склада, рынка и маршрутов.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 10000, bonus-blocks: 1, resources: ["STONE_BRICKS:228"], effects: []}
+      2: {money: 20000, bonus-blocks: 2, resources: ["IRON_BLOCK:302"], effects: ["LUCK:1"]}
+      3: {money: 40000, bonus-blocks: 3, resources: ["IRON_BLOCK:230", "SPRUCE_PLANKS:38", "SPRUCE_DOOR:12"], effects: ["LUCK:1", "SPEED:1"]}
+      4: {money: 80000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:153", "CYAN_STAINED_GLASS_PANE:32"], effects: ["LUCK:2", "SPEED:1"]}
+      5: {money: 160000, bonus-blocks: 6, resources: ["SEA_LANTERN:5"], effects: ["LUCK:2", "SPEED:2"]}
+  water_tower:
+    name: "&#58CFE8&lВодонапорная башня"
+    icon: WATER_BUCKET
+    itemsadder-icon: ""
+    slot: 20
+    order: 111
+    description: ["Сбор и передача воды в городскую систему.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 3500, bonus-blocks: 1, resources: ["STONE_BRICKS:81"], effects: []}
+      2: {money: 7000, bonus-blocks: 2, resources: ["IRON_BLOCK:28"], effects: ["SPEED:1"]}
+      3: {money: 14000, bonus-blocks: 3, resources: ["IRON_BLOCK:94", "WATER_BUCKET:2"], effects: ["SPEED:1", "RESISTANCE:1"]}
+      4: {money: 28000, bonus-blocks: 4, resources: ["DEEPSLATE_TILES:80", "CYAN_STAINED_GLASS:7"], effects: ["SPEED:2", "RESISTANCE:1"]}
+      5: {money: 56000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:11"], effects: ["SPEED:2", "RESISTANCE:2"]}
+  sewer:
+    name: "&#58CFE8&lКанализация"
+    icon: CAULDRON
+    itemsadder-icon: ""
+    slot: 21
+    order: 112
+    description: ["Подземная санитарная инфраструктура города.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 6000, bonus-blocks: 1, resources: ["STONE_BRICKS:160"], effects: []}
+      2: {money: 12000, bonus-blocks: 2, resources: ["STONE_BRICKS:274"], effects: ["SPEED:1"]}
+      3: {money: 24000, bonus-blocks: 3, resources: ["WATER_BUCKET:6", "BRICKS:30"], effects: ["SPEED:1", "RESISTANCE:1"]}
+      4: {money: 48000, bonus-blocks: 4, resources: ["BRICKS:25", "SPRUCE_DOOR:2"], effects: ["SPEED:2", "RESISTANCE:1"]}
+      5: {money: 96000, bonus-blocks: 6, resources: ["IRON_BLOCK:5"], effects: ["SPEED:2", "RESISTANCE:2"]}
+  baths:
+    name: "&#58CFE8&lГородские бани"
+    icon: HEART_OF_THE_SEA
+    itemsadder-icon: ""
+    slot: 22
+    order: 113
+    description: ["Общественные бани для здоровья жителей.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 8000, bonus-blocks: 1, resources: ["STONE_BRICKS:180"], effects: []}
+      2: {money: 16000, bonus-blocks: 2, resources: ["STONE_BRICKS:231"], effects: ["SPEED:1"]}
+      3: {money: 32000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:228", "SPRUCE_DOOR:4", "SPRUCE_PLANKS:1"], effects: ["SPEED:1", "RESISTANCE:1"]}
+      4: {money: 64000, bonus-blocks: 4, resources: ["WATER_BUCKET:4", "CYAN_STAINED_GLASS_PANE:28"], effects: ["SPEED:2", "RESISTANCE:1"]}
+      5: {money: 128000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:20", "SEA_LANTERN:19", "CYAN_STAINED_GLASS:16"], effects: ["SPEED:2", "RESISTANCE:2"]}
+  roads:
+    name: "&#58CFE8&lДороги"
+    icon: STONE_BRICKS
+    itemsadder-icon: ""
+    slot: 23
+    order: 114
+    description: ["Линейный дорожный участок по направлению взгляда.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 3500, bonus-blocks: 1, resources: ["STONE_BRICKS:11"], effects: []}
+      2: {money: 7000, bonus-blocks: 2, resources: ["BRICKS:38", "STONE_BRICKS:11"], effects: ["SPEED:1"]}
+      3: {money: 14000, bonus-blocks: 3, resources: ["STONE_BRICKS:12"], effects: ["SPEED:1", "RESISTANCE:1"]}
+      4: {money: 28000, bonus-blocks: 4, resources: ["STONE_BRICKS:11", "SPRUCE_PLANKS:10", "LANTERN:10"], effects: ["SPEED:2", "RESISTANCE:1"]}
+      5: {money: 56000, bonus-blocks: 6, resources: ["STONE_BRICKS:8", "SEA_LANTERN:4"], effects: ["SPEED:2", "RESISTANCE:2"]}
+  bridge_service:
+    name: "&#58CFE8&lМостовая служба"
+    icon: OAK_FENCE
+    itemsadder-icon: ""
+    slot: 24
+    order: 115
+    description: ["Линейный мостовой участок через преграды.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 3500, bonus-blocks: 1, resources: ["SPRUCE_PLANKS:18"], effects: []}
+      2: {money: 7000, bonus-blocks: 2, resources: ["STONE_BRICKS:40", "SPRUCE_PLANKS:18"], effects: ["SPEED:1"]}
+      3: {money: 14000, bonus-blocks: 3, resources: ["SPRUCE_FENCE:38", "SPRUCE_PLANKS:20"], effects: ["SPEED:1", "RESISTANCE:1"]}
+      4: {money: 28000, bonus-blocks: 4, resources: ["STONE_BRICKS:38", "SPRUCE_PLANKS:18", "SPRUCE_DOOR:2"], effects: ["SPEED:2", "RESISTANCE:1"]}
+      5: {money: 56000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:13", "SEA_LANTERN:10"], effects: ["SPEED:2", "RESISTANCE:2"]}
+  reservoir:
+    name: "&#58CFE8&lРезервуар"
+    icon: BLUE_CONCRETE
+    itemsadder-icon: ""
+    slot: 25
+    order: 116
+    description: ["Накопление воды для служб и хозяйства города.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 5500, bonus-blocks: 1, resources: ["STONE_BRICKS:169"], effects: []}
+      2: {money: 11000, bonus-blocks: 2, resources: ["STONE_BRICKS:175", "WATER_BUCKET:3"], effects: ["SPEED:1"]}
+      3: {money: 22000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:108"], effects: ["SPEED:1", "RESISTANCE:1"]}
+      4: {money: 44000, bonus-blocks: 4, resources: ["WATER_BUCKET:3"], effects: ["SPEED:2", "RESISTANCE:1"]}
+      5: {money: 88000, bonus-blocks: 6, resources: ["CYAN_STAINED_GLASS:24"], effects: ["SPEED:2", "RESISTANCE:2"]}
+  guard:
+    name: "&#C0C7D1&lГородская стража"
+    icon: SHIELD
+    itemsadder-icon: ""
+    slot: 28
+    order: 117
+    description: ["Патрули, караульные помещения и защита жителей.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 6500, bonus-blocks: 1, resources: ["STONE_BRICKS:188"], effects: []}
+      2: {money: 13000, bonus-blocks: 2, resources: ["STONE_BRICKS:204"], effects: ["RESISTANCE:1"]}
+      3: {money: 26000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:145", "SPRUCE_PLANKS:24", "SPRUCE_DOOR:2"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      4: {money: 52000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:24", "SPRUCE_PLANKS:13", "IRON_BLOCK:3"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
+      5: {money: 104000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:20", "SEA_LANTERN:14"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
+  arsenal:
+    name: "&#C0C7D1&lАрсенал"
+    icon: CROSSBOW
+    itemsadder-icon: ""
+    slot: 29
+    order: 118
+    description: ["Защищённый городской запас оружия и щитов.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 5500, bonus-blocks: 1, resources: ["STONE_BRICKS:130"], effects: []}
+      2: {money: 11000, bonus-blocks: 2, resources: ["BRICKS:196"], effects: ["RESISTANCE:1"]}
+      3: {money: 22000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:170", "SPRUCE_DOOR:2"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      4: {money: 44000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:20", "IRON_BLOCK:3", "SPRUCE_PLANKS:3"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
+      5: {money: 88000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:20", "SEA_LANTERN:14"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
+  armory:
+    name: "&#C0C7D1&lОружейная"
+    icon: SMITHING_TABLE
+    itemsadder-icon: ""
+    slot: 30
+    order: 119
+    description: ["Изготовление и обслуживание экипировки стражи.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 5000, bonus-blocks: 1, resources: ["STONE_BRICKS:120"], effects: []}
+      2: {money: 10000, bonus-blocks: 2, resources: ["STONE_BRICKS:184"], effects: ["RESISTANCE:1"]}
+      3: {money: 20000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:120", "SPRUCE_PLANKS:24", "SPRUCE_DOOR:2"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      4: {money: 40000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:20", "IRON_BLOCK:3", "SPRUCE_PLANKS:3"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
+      5: {money: 80000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:22", "SEA_LANTERN:12"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
+  watchtower:
+    name: "&#C0C7D1&lДозорная башня"
+    icon: SPYGLASS
+    itemsadder-icon: ""
+    slot: 31
+    order: 120
+    description: ["Раннее обнаружение набегов и опасных событий.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 7000, bonus-blocks: 1, resources: ["STONE_BRICKS:64"], effects: []}
+      2: {money: 14000, bonus-blocks: 2, resources: ["STONE_BRICKS:262"], effects: ["RESISTANCE:1"]}
+      3: {money: 28000, bonus-blocks: 3, resources: ["SPRUCE_PLANKS:200", "DEEPSLATE_TILES:140", "SPRUCE_DOOR:2"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      4: {money: 56000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:16"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
+      5: {money: 112000, bonus-blocks: 6, resources: ["SEA_LANTERN:8"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
+  fortress_gate:
+    name: "&#C0C7D1&lКрепостные ворота"
+    icon: IRON_DOOR
+    itemsadder-icon: ""
+    slot: 32
+    order: 121
+    description: ["Контролируемый укреплённый вход в город.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 9500, bonus-blocks: 1, resources: ["STONE_BRICKS:119"], effects: []}
+      2: {money: 19000, bonus-blocks: 2, resources: ["STONE_BRICKS:703"], effects: ["RESISTANCE:1"]}
+      3: {money: 38000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:78", "IRON_BLOCK:35"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      4: {money: 76000, bonus-blocks: 4, resources: ["SPRUCE_DOOR:4"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
+      5: {money: 152000, bonus-blocks: 6, resources: ["SEA_LANTERN:8"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
+  counterintel:
+    name: "&#C0C7D1&lПалата контрразведки"
+    icon: ENDER_EYE
+    itemsadder-icon: ""
+    slot: 33
+    order: 122
+    description: ["Защита города от шпионов и разведчиков.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 6500, bonus-blocks: 1, resources: ["STONE_BRICKS:130"], effects: []}
+      2: {money: 13000, bonus-blocks: 2, resources: ["STONE_BRICKS:234"], effects: ["RESISTANCE:1"]}
+      3: {money: 26000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:170", "SPRUCE_DOOR:2"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      4: {money: 52000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:48", "CYAN_STAINED_GLASS_PANE:20"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
+      5: {money: 104000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:24", "SEA_LANTERN:14"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
+  alchemy:
+    name: "&#8C8CFF&lАлхимическая лаборатория"
+    icon: BREWING_STAND
+    itemsadder-icon: ""
+    slot: 34
+    order: 123
+    description: ["Лекарства, реагенты и алхимические исследования.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 6000, bonus-blocks: 1, resources: ["STONE_BRICKS:120"], effects: []}
+      2: {money: 12000, bonus-blocks: 2, resources: ["BRICKS:256"], effects: ["NIGHT_VISION:1"]}
+      3: {money: 24000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:159", "SPRUCE_DOOR:2"], effects: ["NIGHT_VISION:1", "LUCK:1"]}
+      4: {money: 48000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:20", "BRICKS:5", "IRON_BLOCK:4"], effects: ["NIGHT_VISION:1", "LUCK:2"]}
+      5: {money: 96000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:30", "SEA_LANTERN:12", "CYAN_STAINED_GLASS:10"], effects: ["NIGHT_VISION:1", "LUCK:2", "HASTE:1"]}
+  archive:
+    name: "&#8C8CFF&lАрхив"
+    icon: BOOK
+    itemsadder-icon: ""
+    slot: 37
+    order: 124
+    description: ["Хранилище законов, договоров и городской истории.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 7500, bonus-blocks: 1, resources: ["STONE_BRICKS:154"], effects: []}
+      2: {money: 15000, bonus-blocks: 2, resources: ["STONE_BRICKS:252"], effects: ["NIGHT_VISION:1"]}
+      3: {money: 30000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:154", "SPRUCE_PLANKS:28", "SPRUCE_DOOR:2"], effects: ["NIGHT_VISION:1", "LUCK:1"]}
+      4: {money: 60000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:72", "CYAN_STAINED_GLASS_PANE:28"], effects: ["NIGHT_VISION:1", "LUCK:2"]}
+      5: {money: 120000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:26", "SEA_LANTERN:14"], effects: ["NIGHT_VISION:1", "LUCK:2", "HASTE:1"]}
+  cartography:
+    name: "&#8C8CFF&lАкадемия картографов"
+    icon: FILLED_MAP
+    itemsadder-icon: ""
+    slot: 38
+    order: 125
+    description: ["Карты экспедиций, событий и дальних маршрутов.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 8000, bonus-blocks: 1, resources: ["STONE_BRICKS:165"], effects: []}
+      2: {money: 16000, bonus-blocks: 2, resources: ["STONE_BRICKS:310"], effects: ["NIGHT_VISION:1"]}
+      3: {money: 32000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:167", "SPRUCE_PLANKS:28", "SPRUCE_DOOR:2"], effects: ["NIGHT_VISION:1", "LUCK:1"]}
+      4: {money: 64000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS:72", "CYAN_STAINED_GLASS_PANE:28"], effects: ["NIGHT_VISION:1", "LUCK:2"]}
+      5: {money: 128000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:28", "SEA_LANTERN:16"], effects: ["NIGHT_VISION:1", "LUCK:2", "HASTE:1"]}
+  research:
+    name: "&#8C8CFF&lИсследовательский институт"
+    icon: SCULK_SENSOR
+    itemsadder-icon: ""
+    slot: 39
+    order: 126
+    description: ["Общие научные исследования и развитие города.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 9000, bonus-blocks: 1, resources: ["STONE_BRICKS:204"], effects: []}
+      2: {money: 18000, bonus-blocks: 2, resources: ["STONE_BRICKS:352"], effects: ["NIGHT_VISION:1"]}
+      3: {money: 36000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:252", "SPRUCE_DOOR:2"], effects: ["NIGHT_VISION:1", "LUCK:1"]}
+      4: {money: 72000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:32", "IRON_BLOCK:4", "CYAN_STAINED_GLASS:4"], effects: ["NIGHT_VISION:1", "LUCK:2"]}
+      5: {money: 144000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:28", "SEA_LANTERN:18"], effects: ["NIGHT_VISION:1", "LUCK:2", "HASTE:1"]}
+  botanical:
+    name: "&#8C8CFF&lБотанический сад"
+    icon: FLOWERING_AZALEA
+    itemsadder-icon: ""
+    slot: 40
+    order: 127
+    description: ["Редкие растения для лечения и алхимии.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 10000, bonus-blocks: 1, resources: ["STONE_BRICKS:204"], effects: []}
+      2: {money: 20000, bonus-blocks: 2, resources: ["CYAN_STAINED_GLASS:373"], effects: ["NIGHT_VISION:1"]}
+      3: {money: 40000, bonus-blocks: 3, resources: ["CYAN_STAINED_GLASS:206", "SPRUCE_PLANKS:33", "SPRUCE_DOOR:4"], effects: ["NIGHT_VISION:1", "LUCK:1"]}
+      4: {money: 80000, bonus-blocks: 4, resources: ["OAK_LEAVES:144"], effects: ["NIGHT_VISION:1", "LUCK:2"]}
+      5: {money: 160000, bonus-blocks: 6, resources: ["IRON_BLOCK:28", "OAK_LEAVES:8"], effects: ["NIGHT_VISION:1", "LUCK:2", "HASTE:1"]}
+  theater:
+    name: "&#DFA7FF&lТеатр"
+    icon: RED_BANNER
+    itemsadder-icon: ""
+    slot: 41
+    order: 128
+    description: ["Культурные представления и городские фестивали.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 9500, bonus-blocks: 1, resources: ["STONE_BRICKS:221"], effects: []}
+      2: {money: 19000, bonus-blocks: 2, resources: ["BRICKS:313"], effects: ["LUCK:1"]}
+      3: {money: 38000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:223", "SPRUCE_PLANKS:33", "SPRUCE_DOOR:4"], effects: ["LUCK:1", "REGENERATION:1"]}
+      4: {money: 76000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:67"], effects: ["LUCK:2", "REGENERATION:1"]}
+      5: {money: 152000, bonus-blocks: 6, resources: ["CYAN_STAINED_GLASS_PANE:32", "SPRUCE_PLANKS:24", "SEA_LANTERN:21"], effects: ["LUCK:2", "REGENERATION:2"]}
+  square:
+    name: "&#DFA7FF&lГородская площадь"
+    icon: BELL
+    itemsadder-icon: ""
+    slot: 42
+    order: 129
+    description: ["Место собраний, объявлений и праздников.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 3500, bonus-blocks: 1, resources: ["STONE_BRICKS:270"], effects: []}
+      2: {money: 7000, bonus-blocks: 2, resources: ["BRICKS:19"], effects: ["LUCK:1"]}
+      3: {money: 14000, bonus-blocks: 3, resources: ["STONE_BRICKS:16"], effects: ["LUCK:1", "REGENERATION:1"]}
+      4: {money: 28000, bonus-blocks: 4, resources: ["WATER_BUCKET:1", "SPRUCE_PLANKS:4", "LANTERN:4"], effects: ["LUCK:2", "REGENERATION:1"]}
+      5: {money: 56000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:48"], effects: ["LUCK:2", "REGENERATION:2"]}
+  arena:
+    name: "&#DFA7FF&lАрена"
+    icon: IRON_SWORD
+    itemsadder-icon: ""
+    slot: 43
+    order: 130
+    description: ["Турниры игроков и состязания между городами.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 9500, bonus-blocks: 1, resources: ["SMOOTH_SANDSTONE:285"], effects: []}
+      2: {money: 19000, bonus-blocks: 2, resources: ["STONE_BRICKS:471", "SPRUCE_PLANKS:192"], effects: ["LUCK:1"]}
+      3: {money: 38000, bonus-blocks: 3, resources: ["SPRUCE_DOOR:6", "STONE_BRICKS:3"], effects: ["LUCK:1", "REGENERATION:1"]}
+      4: {money: 76000, bonus-blocks: 4, resources: ["DEEPSLATE_TILES:4"], effects: ["LUCK:2", "REGENERATION:1"]}
+      5: {money: 152000, bonus-blocks: 6, resources: ["SEA_LANTERN:1"], effects: ["LUCK:2", "REGENERATION:2"]}
+  gallery:
+    name: "&#DFA7FF&lХудожественная галерея"
+    icon: PAINTING
+    itemsadder-icon: ""
+    slot: 10
+    order: 131
+    description: ["Художественные коллекции и престиж города.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 7000, bonus-blocks: 1, resources: ["STONE_BRICKS:165"], effects: []}
+      2: {money: 14000, bonus-blocks: 2, resources: ["STONE_BRICKS:263"], effects: ["LUCK:1"]}
+      3: {money: 28000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:216", "SPRUCE_DOOR:4", "SPRUCE_PLANKS:1"], effects: ["LUCK:1", "REGENERATION:1"]}
+      4: {money: 56000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:28", "SEA_LANTERN:4", "CYAN_STAINED_GLASS:4"], effects: ["LUCK:2", "REGENERATION:1"]}
+      5: {money: 112000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:24", "SEA_LANTERN:16"], effects: ["LUCK:2", "REGENERATION:2"]}
+  park:
+    name: "&#DFA7FF&lПарк"
+    icon: OAK_SAPLING
+    itemsadder-icon: ""
+    slot: 11
+    order: 132
+    description: ["Общественный сад и пространство для отдыха.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 6000, bonus-blocks: 1, resources: ["OAK_LEAVES:195"], effects: []}
+      2: {money: 12000, bonus-blocks: 2, resources: ["STONE_BRICKS:60"], effects: ["LUCK:1"]}
+      3: {money: 24000, bonus-blocks: 3, resources: ["SPRUCE_PLANKS:52", "DEEPSLATE_TILES:40"], effects: ["LUCK:1", "REGENERATION:1"]}
+      4: {money: 48000, bonus-blocks: 4, resources: ["OAK_LEAVES:216"], effects: ["LUCK:2", "REGENERATION:1"]}
+      5: {money: 96000, bonus-blocks: 6, resources: ["OAK_LEAVES:11", "SEA_LANTERN:4"], effects: ["LUCK:2", "REGENERATION:2"]}
+  guild_house:
+    name: "&#DFA7FF&lДом гильдий"
+    icon: NAME_TAG
+    itemsadder-icon: ""
+    slot: 12
+    order: 133
+    description: ["Общий дом городских профессий и гильдий.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 10000, bonus-blocks: 1, resources: ["STONE_BRICKS:291"], effects: []}
+      2: {money: 20000, bonus-blocks: 2, resources: ["STONE_BRICKS:365"], effects: ["LUCK:1"]}
+      3: {money: 40000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:223", "SPRUCE_PLANKS:33", "SPRUCE_DOOR:4"], effects: ["LUCK:1", "REGENERATION:1"]}
+      4: {money: 80000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:420", "CYAN_STAINED_GLASS_PANE:32", "SEA_LANTERN:5"], effects: ["LUCK:2", "REGENERATION:1"]}
+      5: {money: 160000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:28", "SEA_LANTERN:18", "DEEPSLATE_TILES:10"], effects: ["LUCK:2", "REGENERATION:2"]}
+  memorial:
+    name: "&#DFA7FF&lМемориал"
+    icon: CHISELED_STONE_BRICKS
+    itemsadder-icon: ""
+    slot: 13
+    order: 134
+    description: ["Память о мэрах, войнах и важных событиях.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 3500, bonus-blocks: 1, resources: ["STONE_BRICKS:169"], effects: []}
+      2: {money: 7000, bonus-blocks: 2, resources: ["STONE_BRICKS:98"], effects: ["LUCK:1"]}
+      3: {money: 14000, bonus-blocks: 3, resources: ["BRICKS:75"], effects: ["LUCK:1", "REGENERATION:1"]}
+      4: {money: 28000, bonus-blocks: 4, resources: ["IRON_BLOCK:7"], effects: ["LUCK:2", "REGENERATION:1"]}
+      5: {money: 56000, bonus-blocks: 6, resources: ["SEA_LANTERN:12"], effects: ["LUCK:2", "REGENERATION:2"]}
+  shelter:
+    name: "&#DFA7FF&lПриют"
+    icon: WHITE_BED
+    itemsadder-icon: ""
+    slot: 14
+    order: 135
+    description: ["Помощь новичкам и пострадавшим жителям.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 7000, bonus-blocks: 1, resources: ["STONE_BRICKS:180"], effects: []}
+      2: {money: 14000, bonus-blocks: 2, resources: ["STONE_BRICKS:234"], effects: ["LUCK:1"]}
+      3: {money: 28000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:182", "SPRUCE_PLANKS:28", "SPRUCE_DOOR:2"], effects: ["LUCK:1", "REGENERATION:1"]}
+      4: {money: 56000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:28", "SPRUCE_PLANKS:18"], effects: ["LUCK:2", "REGENERATION:1"]}
+      5: {money: 112000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:20", "SEA_LANTERN:16"], effects: ["LUCK:2", "REGENERATION:2"]}
+  cathedral:
+    name: "&#DFA7FF&lСобор"
+    icon: TOTEM_OF_UNDYING
+    itemsadder-icon: ""
+    slot: 15
+    order: 136
+    description: ["Развитый духовный и общественный центр.", "Пять физических этапов строительства."]
+    levels:
+      1: {money: 10000, bonus-blocks: 1, resources: ["STONE_BRICKS:323"], effects: []}
+      2: {money: 20000, bonus-blocks: 2, resources: ["STONE_BRICKS:933"], effects: ["LUCK:1"]}
+      3: {money: 40000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:269", "SPRUCE_PLANKS:48", "SPRUCE_DOOR:4"], effects: ["LUCK:1", "REGENERATION:1"]}
+      4: {money: 80000, bonus-blocks: 4, resources: ["STONE_BRICKS:288", "CYAN_STAINED_GLASS_PANE:6"], effects: ["LUCK:2", "REGENERATION:1"]}
+      5: {money: 160000, bonus-blocks: 6, resources: ["SEA_LANTERN:23"], effects: ["LUCK:2", "REGENERATION:2"]}
+  # END GENERATED 37-MODEL EXPANSION
+
 wonders:
   sun_pyramid:
     name: "&#FFD34E&lПирамида Солнца"

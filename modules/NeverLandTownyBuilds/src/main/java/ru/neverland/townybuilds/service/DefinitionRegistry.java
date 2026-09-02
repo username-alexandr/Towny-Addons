@@ -108,6 +108,7 @@ public final class DefinitionRegistry {
         ProjectDefinition definition = new ProjectDefinition(id, type,
                 section.getString("name", id), icon, section.getString("itemsadder-icon", ""),
                 Math.max(0, Math.min(53, section.getInt("slot", 10))),
+                Math.max(0, section.getInt("order", section.getInt("slot", 10))),
                 section.getStringList("description"), levels);
         String encodedIcon = section.getString("icon-base64");
         if (encodedIcon != null && !encodedIcon.isBlank()) {
@@ -187,12 +188,16 @@ public final class DefinitionRegistry {
 
     public Collection<ProjectDefinition> all() {
         return projects.values().stream().sorted(Comparator.comparing(ProjectDefinition::type)
-                .thenComparingInt(ProjectDefinition::slot)).toList();
+                .thenComparingInt(ProjectDefinition::order)
+                .thenComparingInt(ProjectDefinition::slot)
+                .thenComparing(ProjectDefinition::id)).toList();
     }
 
     public List<ProjectDefinition> type(ProjectType type) {
         return projects.values().stream().filter(project -> project.type() == type)
-                .sorted(Comparator.comparingInt(ProjectDefinition::slot)).toList();
+                .sorted(Comparator.comparingInt(ProjectDefinition::order)
+                        .thenComparingInt(ProjectDefinition::slot)
+                        .thenComparing(ProjectDefinition::id)).toList();
     }
 
     public ProjectDefinition create(String id, ProjectType type) {
@@ -236,6 +241,7 @@ public final class DefinitionRegistry {
             yaml.set(root + ".icon", project.icon().name());
             yaml.set(root + ".itemsadder-icon", project.itemsAdderIcon());
             yaml.set(root + ".slot", project.slot());
+            yaml.set(root + ".order", project.order());
             yaml.set(root + ".description", project.description());
             if (project.editorIcon() != null) {
                 try {

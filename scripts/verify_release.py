@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import re
 import sys
 import zipfile
@@ -38,6 +39,10 @@ def project_version(module: Path) -> str | None:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source-only", action="store_true",
+                        help="validate sources and metadata without requiring freshly built JARs")
+    args = parser.parse_args()
     matrix = load_yaml(ROOT / "versions.yml")
     addons: dict[str, object] = matrix["addons"]
     modules_dir = ROOT / "modules"
@@ -50,7 +55,7 @@ def main() -> int:
 
     expected_jars = {f"{name}-{version}.jar" for name, version in addons.items()}
     actual_jars = {path.name for path in plugins_dir.glob("*.jar")}
-    if expected_jars != actual_jars:
+    if not args.source_only and expected_jars != actual_jars:
         errors.append(f"JAR set differs: expected={sorted(expected_jars)}, actual={sorted(actual_jars)}")
 
     yaml_count = 0
@@ -80,6 +85,8 @@ def main() -> int:
         if declared != version:
             errors.append(f"{name}: build version is {declared!r}, expected {version}")
 
+        if args.source_only:
+            continue
         jar = plugins_dir / f"{name}-{version}.jar"
         if not jar.exists():
             continue
@@ -103,13 +110,32 @@ def main() -> int:
     except Exception as exc:  # noqa: BLE001
         errors.append(f"cannot inspect model pack: {exc}")
 
+    builds = modules_dir / "NeverLandTownyBuilds"
+    projects = load_yaml(builds / "src/main/resources/projects.yml")
+    imported_dir = builds / "src/main/resources/blueprints/imported"
+    catalog = load_yaml(imported_dir / "catalog.json")
+    imported_ids = {entry["id"] for entry in catalog["models"]}
+    configured_ids = set(projects["buildings"])
+    if len(configured_ids) != 62 or len(projects["wonders"]) != 5:
+        errors.append("NeverLandTownyBuilds must contain 62 buildings and 5 wonders")
+    if not imported_ids.issubset(configured_ids) or len(imported_ids) != 37:
+        errors.append("37-model catalog and projects.yml are not synchronized")
+    resource_files = sorted(imported_dir.glob("*.nltb"))
+    resource_blocks = sum(
+        1 for path in resource_files for line in path.read_text(encoding="utf-8").splitlines()
+        if line and not line.startswith("#")
+    )
+    if len(resource_files) != 37 or catalog.get("total_blocks") != 25_497 or resource_blocks != 25_497:
+        errors.append(f"imported model resources differ: files={len(resource_files)}, blocks={resource_blocks}")
+
     if errors:
         print("Release verification failed:")
         for error in errors:
             print(f"- {error}")
         return 1
 
-    print(f"OK: {len(addons)} modules, {len(actual_jars)} JARs, {yaml_count} YAML files, model pack")
+    jar_status = "source-only" if args.source_only else f"{len(actual_jars)} JARs"
+    print(f"OK: {len(addons)} modules, {jar_status}, {yaml_count} YAML files, 37 models / 25,497 blocks")
     return 0
 
 
