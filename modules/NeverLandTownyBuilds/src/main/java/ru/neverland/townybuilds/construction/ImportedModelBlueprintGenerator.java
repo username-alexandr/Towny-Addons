@@ -130,7 +130,7 @@ public final class ImportedModelBlueprintGenerator {
                     Material material = Material.valueOf(parts[4]);
                     BlockRole role = BlockRole.valueOf(parts[5]);
                     BlockFace facing = enumValue(BlockFace.class, parts[6]);
-                    Bisected.Half half = enumValue(Bisected.Half.class, parts[7]);
+                    Bisected.Half half = halfValue(parts[7]);
                     Door.Hinge hinge = enumValue(Door.Hinge.class, parts[8]);
                     BlueprintBlock block = new BlueprintBlock(material, role, stage, facing, Axis.Y, half, hinge);
                     blocks.add(new EncodedBlock(offset, block));
@@ -151,6 +151,12 @@ public final class ImportedModelBlueprintGenerator {
 
     private <T extends Enum<T>> T enumValue(Class<T> type, String value) {
         return "-".equals(value) || value.isBlank() ? null : Enum.valueOf(type, value);
+    }
+
+    private Bisected.Half halfValue(String value) {
+        if ("LOWER".equals(value)) return Bisected.Half.BOTTOM;
+        if ("UPPER".equals(value)) return Bisected.Half.TOP;
+        return enumValue(Bisected.Half.class, value);
     }
 
     private record EncodedBlock(BlockOffset offset, BlueprintBlock block) { }
