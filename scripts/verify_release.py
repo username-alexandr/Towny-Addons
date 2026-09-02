@@ -38,6 +38,55 @@ def project_version(module: Path) -> str | None:
     return None
 
 
+def plugin_load_order_errors(metadata: dict[str, dict]) -> list[str]:
+    """Mirror Paper's plugin ordering rules and reject internal dependency cycles."""
+    errors: list[str] = []
+    edges: dict[str, set[str]] = {name: set() for name in metadata}
+
+    for name, plugin in metadata.items():
+        for field in ("depend", "softdepend"):
+            values = plugin.get(field, []) or []
+            if not isinstance(values, list):
+                errors.append(f"{name}: {field} must be a YAML list")
+                continue
+            for dependency in values:
+                dependency = str(dependency)
+                if dependency in metadata:
+                    edges[dependency].add(name)
+                elif field == "depend" and dependency.startswith("NeverLandTowny"):
+                    errors.append(f"{name}: required internal dependency {dependency} is absent")
+
+        values = plugin.get("loadbefore", []) or []
+        if not isinstance(values, list):
+            errors.append(f"{name}: loadbefore must be a YAML list")
+            continue
+        for target in values:
+            target = str(target)
+            if target in metadata:
+                edges[name].add(target)
+
+    indegree = {name: 0 for name in metadata}
+    for targets in edges.values():
+        for target in targets:
+            indegree[target] += 1
+
+    ready = sorted(name for name, degree in indegree.items() if degree == 0)
+    visited = 0
+    while ready:
+        name = ready.pop(0)
+        visited += 1
+        for target in sorted(edges[name]):
+            indegree[target] -= 1
+            if indegree[target] == 0:
+                ready.append(target)
+                ready.sort()
+
+    if visited != len(metadata):
+        cycle_members = sorted(name for name, degree in indegree.items() if degree > 0)
+        errors.append("circular plugin loading order: " + " -> ".join(cycle_members))
+    return errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source-only", action="store_true",
@@ -66,6 +115,7 @@ def main() -> int:
         except Exception as exc:  # noqa: BLE001
             errors.append(f"invalid YAML {yaml_path.relative_to(ROOT)}: {exc}")
 
+    source_metadata: dict[str, dict] = {}
     for name, raw_version in addons.items():
         version = str(raw_version)
         module = modules_dir / name
@@ -75,6 +125,7 @@ def main() -> int:
             continue
 
         source_meta = load_yaml(source_plugin)
+        source_metadata[name] = source_meta
         if source_meta.get("name") != name:
             errors.append(f"{name}: source plugin name is {source_meta.get('name')!r}")
         source_version = str(source_meta.get("version"))
@@ -100,6 +151,8 @@ def main() -> int:
                     errors.append(f"{jar.name}: plugin.yml identity/version mismatch")
         except Exception as exc:  # noqa: BLE001
             errors.append(f"cannot inspect {jar.name}: {exc}")
+
+    errors.extend(plugin_load_order_errors(source_metadata))
 
     models = ROOT / "assets" / "models" / "NeverLandTownyBuilds-Models-0.1.0.zip"
     try:

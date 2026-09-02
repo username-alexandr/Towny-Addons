@@ -1,4 +1,4 @@
-# NeverLandTownyTaxes 0.1.0
+# NeverLandTownyTaxes 0.1.1
 
 Налоги, экономические санкции и соглашения для Paper/Purpur 26.2 и Towny 0.103.2.0.
 

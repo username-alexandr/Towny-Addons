@@ -39,7 +39,7 @@ public final class TownyGovernance extends JavaPlugin {
         TownyGovernanceApi api = new GovernanceApiService(towny, governance);
         getServer().getServicesManager().register(TownyGovernanceApi.class, api, this, ServicePriority.Normal);
         boolean placeholders = PlaceholderHook.register(this, towny, governance); governance.start();
-        getLogger().info("NeverLandTownyGovernance 0.1.2 включён: законов " + definitions.laws().size() + ", должностей " + definitions.offices().size()
+        getLogger().info("NeverLandTownyGovernance " + getPluginMeta().getVersion() + " включён: законов " + definitions.laws().size() + ", должностей " + definitions.offices().size()
                 + ", открытых голосований " + repository.open().size() + ", PlaceholderAPI=" + placeholders + ".");
     }
 

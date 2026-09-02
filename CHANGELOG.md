@@ -1,5 +1,13 @@
 # История изменений
 
+## NeverLand Towny Suite 0.5.3 — 2026-09-02
+
+- устранён циклический порядок загрузки между Builds, Archaeology, Reputation, Governance, Taxes и связанными аддонами;
+- сохранены только реальные обязательные зависимости, а необязательные API-интеграции больше не создают барьеры старта Paper/Purpur;
+- добавлена автоматическая проверка `depend`, `softdepend` и `loadbefore` на циклы по правилам загрузчика Paper;
+- обновлены Archaeology до 0.1.5, Builds до 0.5.1, Governance до 0.1.3, Reputation до 0.1.3 и Taxes до 0.1.1;
+- подтверждено, что Expeditions требует установленный NeverLandTownyCamps 0.1.6.
+
 ## NeverLand Towny Suite 0.5.2 — 2026-09-02
 
 - NeverLandTownyBuilds обновлён до 0.5.0 и получил все 37 подготовленных моделей;

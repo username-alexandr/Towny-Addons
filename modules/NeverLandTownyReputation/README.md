@@ -1,4 +1,4 @@
-# NeverLandTownyReputation 0.1.2
+# NeverLandTownyReputation 0.1.3
 
 Система репутации между игроками, городами и нациями для Paper/Purpur 26.2 и Towny 0.103.2.0.
 
