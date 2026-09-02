@@ -1,3 +1,5 @@
+import org.gradle.api.attributes.java.TargetJvmVersion
+
 plugins { java }
 group = "ru.neverland"
 version = "0.1.4"
@@ -13,6 +15,9 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.12.3")
 }
 java { toolchain.languageVersion.set(JavaLanguageVersion.of(25)) }
+configurations.configureEach {
+    if (isCanBeResolved) attributes.attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
+}
 tasks {
     compileJava { options.encoding = "UTF-8"; options.release.set(17) }
     jar { archiveBaseName.set("NeverLandTownyExpeditions") }
