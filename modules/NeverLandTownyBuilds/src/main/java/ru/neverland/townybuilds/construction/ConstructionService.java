@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public final class ConstructionService implements Listener {
@@ -146,6 +147,10 @@ public final class ConstructionService implements Listener {
         data.setConstructionSite(preparation.site());
         dataStore.markDirty();
         dataStore.save();
+        int cleared = clearExcavation(preparation.site(), preparation.plan());
+        if (cleared > 0) {
+            messages.send(player, "construction-excavated", Map.of("count", cleared));
+        }
         checkCompletion(player, town, preparation.site());
     }
 
@@ -222,6 +227,7 @@ public final class ConstructionService implements Listener {
         List<String> problems = new ArrayList<>();
         int maximum = Math.max(1, plugin.getConfig().getInt("settings.construction.validation-max-errors", 5));
         BlueprintPlan previous = currentLevel <= 0 ? null : generator.generate(site.projectId(), currentLevel);
+        Set<BlockOffset> excavation = ExcavationPlanner.offsets(plan, fromStage);
         for (Map.Entry<BlockOffset, BlueprintBlock> entry : plan.blocks().entrySet()) {
             if (entry.getValue().stage() < fromStage) continue;
             Location location = site.location(world, entry.getKey());
@@ -234,16 +240,53 @@ public final class ConstructionService implements Listener {
             if (entry.getKey().y() == 0 && !location.clone().add(0, -1, 0).getBlock().getType().isSolid()) {
                 addProblem(problems, "Рельеф: под фундаментом " + coordinates(location) + " нет опоры", maximum);
             }
-            if (!replaceable(current.getType()) && current.getType() != entry.getValue().material()) {
-                BlueprintBlock old = previous == null ? null : previous.blocks().get(entry.getKey());
-                if (old == null || current.getType() != old.material()) {
+            BlueprintBlock old = previous == null ? null : previous.blocks().get(entry.getKey());
+            boolean expectedBlock = current.getType() == entry.getValue().material();
+            boolean completedBlock = old != null && current.getType() == old.material();
+            if (!expectedBlock && !completedBlock) {
+                boolean safeExcavation = excavation.contains(entry.getKey())
+                        && ExcavationPlanner.canClear(current.getType());
+                boolean blocked = excavation.contains(entry.getKey())
+                        ? !safeExcavation
+                        : !replaceable(current.getType());
+                if (blocked) {
                     addProblem(problems, "Препятствие: " + materialName(current.getType())
                             + " на " + coordinates(location), maximum);
                 }
             }
             if (problems.size() >= maximum) break;
         }
+        if (problems.size() < maximum) {
+            for (BlockOffset offset : excavation) {
+                if (plan.blocks().containsKey(offset)) continue;
+                Location location = site.location(world, offset);
+                Town owner = towny.townAt(location);
+                if (owner == null || !owner.getUUID().equals(town.getUUID())) {
+                    addProblem(problems, "Территория: расчистка " + coordinates(location)
+                            + " находится вне города", maximum);
+                } else if (!ExcavationPlanner.canClear(location.getBlock().getType())) {
+                    addProblem(problems, "Препятствие: " + materialName(location.getBlock().getType())
+                            + " в подземном объёме " + coordinates(location), maximum);
+                }
+                if (problems.size() >= maximum) break;
+            }
+        }
         return problems;
+    }
+
+    private int clearExcavation(ConstructionSite site, BlueprintPlan plan) {
+        World world = Bukkit.getWorld(site.worldId());
+        if (world == null) return 0;
+        int cleared = 0;
+        for (BlockOffset offset : ExcavationPlanner.offsets(plan, site.buildFromStage())) {
+            Block block = site.location(world, offset).getBlock();
+            BlueprintBlock expected = plan.blocks().get(offset);
+            if (expected != null && block.getType() == expected.material()) continue;
+            if (!ExcavationPlanner.canClear(block.getType()) || block.getType().isAir()) continue;
+            block.setType(Material.AIR, false);
+            cleared++;
+        }
+        return cleared;
     }
 
     private void addProblem(List<String> problems, String problem, int maximum) {
