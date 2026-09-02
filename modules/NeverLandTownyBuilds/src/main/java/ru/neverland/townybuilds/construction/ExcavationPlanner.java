@@ -44,7 +44,8 @@ public final class ExcavationPlanner {
     }
 
     public static boolean canClear(Material material) {
-        if (material == null || material.isAir()) return true;
+        if (material == null || material == Material.AIR
+                || material == Material.CAVE_AIR || material == Material.VOID_AIR) return true;
         return NATURAL_TERRAIN.contains(material) || material.name().endsWith("_ORE");
     }
 
