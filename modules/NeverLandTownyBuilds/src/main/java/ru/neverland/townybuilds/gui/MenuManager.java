@@ -37,13 +37,16 @@ import ru.neverland.townybuilds.construction.ConstructionProgress;
 import ru.neverland.townybuilds.util.ColorUtil;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 import java.util.UUID;
 
 public final class MenuManager implements Listener {
-    private static final DecimalFormat MONEY = new DecimalFormat("#,##0.##");
+    private static final DecimalFormat MONEY = new DecimalFormat("#,##0.##",
+            DecimalFormatSymbols.getInstance(Locale.forLanguageTag("ru-RU")));
     private static final int PROJECTS_PER_PAGE = 28;
     private final JavaPlugin plugin;
     private final DefinitionRegistry definitions;
@@ -173,11 +176,14 @@ public final class MenuManager implements Listener {
                 lore.add("&#E6C363Сдать находки: &f/t archaeology donate all");
             }
             lore.add("");
-            boolean procedural = builds.usesConstruction(project);
+            boolean procedural = builds.usesConstruction(project, current + 1);
+            boolean upgrading = current > 0 && !procedural;
             lore.add(procedural
-                    ? "&#63E6BEНаведитесь на землю и начните стройку" : "&#63E6BEНажмите, чтобы построить");
+                    ? "&#63E6BEНаведитесь на землю и начните стройку"
+                    : upgrading ? "&#63E6BEНажмите, чтобы улучшить" : "&#63E6BEНажмите, чтобы построить");
             inventory.setItem(15, actionItem("upgrade", upgradeItem(),
-                    procedural ? "&#63E6BE&lНАЧАТЬ СТРОИТЕЛЬСТВО" : "&#63E6BE&lПОСТРОИТЬ", lore));
+                    procedural ? "&#63E6BE&lНАЧАТЬ СТРОИТЕЛЬСТВО"
+                            : upgrading ? "&#63E6BE&lУЛУЧШИТЬ" : "&#63E6BE&lПОСТРОИТЬ", lore));
             if (!next.resources().isEmpty()) {
                 List<String> contributionLore = new ArrayList<>();
                 contributionLore.add("&7Ресурсы сохраняются в фонде проекта");

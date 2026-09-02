@@ -98,8 +98,17 @@ public final class ConstructionService implements Listener {
         return generator.supportedProjects().contains(projectId);
     }
 
+    public boolean supports(String projectId, int targetLevel) {
+        return supports(projectId) && ConstructionStagePolicy.requiresConstruction(
+                generator.maximumStage(projectId), targetLevel);
+    }
+
     public ConstructionPreparation prepare(Player player, Town town, ProjectDefinition project,
                                            int currentLevel, int targetLevel) {
+        if (!supports(project.id(), targetLevel)) {
+            return ConstructionPreparation.failed(ConstructionPreparation.Status.UNKNOWN_BLUEPRINT,
+                    "Для уровня " + targetLevel + " физическая стадия не предусмотрена");
+        }
         BlueprintPlan plan = generator.generate(project.id(), targetLevel);
         if (plan == null) return ConstructionPreparation.failed(ConstructionPreparation.Status.UNKNOWN_BLUEPRINT, project.id());
         TownData data = dataStore.town(town.getUUID());
@@ -237,7 +246,9 @@ public final class ConstructionService implements Listener {
                 continue;
             }
             Block current = location.getBlock();
-            if (entry.getKey().y() == 0 && !location.clone().add(0, -1, 0).getBlock().getType().isSolid()) {
+            if (entry.getKey().y() == 0
+                    && !location.clone().add(0, -1, 0).getBlock().getType().isSolid()
+                    && !FoundationSupportPolicy.hasPlannedSupport(plan, entry.getKey(), fromStage)) {
                 addProblem(problems, "Рельеф: под фундаментом " + coordinates(location) + " нет опоры", maximum);
             }
             BlueprintBlock old = previous == null ? null : previous.blocks().get(entry.getKey());
