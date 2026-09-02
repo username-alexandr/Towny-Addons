@@ -29,6 +29,9 @@ configurations.configureEach {
         attributes.attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
     }
 }
+configurations.named("testCompileClasspath") {
+    extendsFrom(configurations.named("compileOnly").get())
+}
 
 tasks {
     compileJava {

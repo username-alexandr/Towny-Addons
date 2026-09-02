@@ -18,6 +18,9 @@ java { toolchain.languageVersion.set(JavaLanguageVersion.of(25)) }
 configurations.configureEach {
     if (isCanBeResolved) attributes.attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
 }
+configurations.named("testCompileClasspath") {
+    extendsFrom(configurations.named("compileOnly").get())
+}
 tasks {
     compileJava { options.encoding = "UTF-8"; options.release.set(17) }
     processResources { filteringCharset = "UTF-8" }
