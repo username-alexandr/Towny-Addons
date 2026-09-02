@@ -1,8 +1,8 @@
-name: Publish release 0.5.3
+name: Publish release 0.5.4
 
 on:
   push:
-    branches: [release/v0.5.3]
+    branches: [release/v0.5.4]
   workflow_dispatch:
 
 permissions:
@@ -34,7 +34,7 @@ jobs:
             name="${module##*/}"
             version="$(python -c 'import sys,yaml; print(yaml.safe_load(open("versions.yml"))["addons"][sys.argv[1]])' "$name")"
             if [[ -f "$module/build.gradle.kts" ]]; then
-              if [[ "$name" == "NeverLandTownyBuilds" ]]; then
+              if [[ "$name" == "NeverLandTownyBuilds" || "$name" == "NeverLandTownyChronicles" ]]; then
                 gradle --no-daemon -p "$module" clean jar smokeTest
               else
                 gradle --no-daemon -p "$module" clean jar testClasses
