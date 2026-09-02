@@ -1,0 +1,23 @@
+name: NeverLandTownyTrade
+version: '0.1.3'
+main: ru.neverland.minttrade.MintTownyTrade
+api-version: '26.2'
+authors: [Alexander Sokolov]
+website: https://neverland.ru
+description: Торговые договоры, караваны, пошлины и экспорт проекта NeverLand.
+provides: [MintTownyTrade]
+depend: [Towny, NeverLandTownyBuilds]
+softdepend: [NeverLandTownyCamps, NeverLandTownyTaxes, PlaceholderAPI, ItemsAdder]
+commands:
+  townytrade:
+    description: Администрирование городской торговли
+    usage: /townytrade <list|complete|cancel|reload>
+    aliases: [minttrade, mtrade, neverlandtownytrade, nlttrade]
+    permission: minttrade.admin
+permissions:
+  minttrade.use:
+    default: true
+  minttrade.manage:
+    default: true
+  minttrade.admin:
+    default: op

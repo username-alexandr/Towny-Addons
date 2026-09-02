@@ -1,0 +1,83 @@
+# DELIVERY — предметы из инвентаря сразу перемещаются в склад /t inv.
+# MOB_KILL, BLOCK_BREAK и FISH — совместный прогресс всех жителей города.
+templates:
+  lumber_delivery:
+    name: "&#8BE06A&lЗапас древесины"
+    type: DELIVERY
+    icon: OAK_LOG
+    slot: 28
+    description: ["Городу требуются материалы", "для строительства новых кварталов."]
+    target: OAK_LOG
+    goal: 512
+    reward: 2500
+    duration-hours: 48
+  stone_supply:
+    name: "&#AAB4C4&lКаменный резерв"
+    type: DELIVERY
+    icon: STONE_BRICKS
+    slot: 29
+    description: ["Пополните городской склад", "строительным камнем."]
+    target: COBBLESTONE
+    goal: 1024
+    reward: 3000
+    duration-hours: 48
+  iron_reserve:
+    name: "&#D7DDE8&lЖелезный резерв"
+    type: DELIVERY
+    icon: IRON_INGOT
+    slot: 30
+    description: ["Кузницам необходим", "стратегический запас железа."]
+    target: IRON_INGOT
+    goal: 256
+    reward: 6000
+    duration-hours: 48
+  food_supply:
+    name: "&#FFB56B&lПродовольственный запас"
+    type: DELIVERY
+    icon: COOKED_BEEF
+    slot: 31
+    description: ["Подготовьте продовольствие", "для жителей и гарнизона."]
+    target: COOKED_BEEF
+    goal: 384
+    reward: 3500
+    duration-hours: 36
+  undead_hunt:
+    name: "&#7CD37C&lОхота на нежить"
+    type: MOB_KILL
+    icon: ROTTEN_FLESH
+    slot: 32
+    description: ["Очистите городские земли", "от наступающей нежити."]
+    target: ZOMBIE
+    goal: 150
+    reward: 5000
+    duration-hours: 24
+  pillager_patrol:
+    name: "&#FF6B62&lРазбойничий патруль"
+    type: MOB_KILL
+    icon: CROSSBOW
+    slot: 33
+    description: ["Уничтожьте отряды разбойников", "в окрестностях города."]
+    target: PILLAGER
+    goal: 50
+    reward: 6500
+    duration-hours: 36
+  miners_duty:
+    name: "&#65B8FF&lШахтёрская смена"
+    type: BLOCK_BREAK
+    icon: DEEPSLATE
+    slot: 34
+    description: ["Совместная разработка", "глубинных пород."]
+    target: DEEPSLATE
+    goal: 1500
+    reward: 4500
+    duration-hours: 48
+  fishermen:
+    name: "&#74D7FF&lБольшой улов"
+    type: FISH
+    icon: FISHING_ROD
+    slot: 37
+    description: ["Рыбацкая артель объявляет", "общегородской сезон ловли."]
+    target: ANY
+    goal: 128
+    reward: 4000
+    duration-hours: 36

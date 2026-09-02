@@ -1,0 +1,32 @@
+contracts:
+  max-active-per-town: 3
+  allow-duplicate-template: false
+  partial-payout-on-expire: true
+  partial-payout-on-cancel: true
+  expiration-check-seconds: 30
+  history-limit-per-town: 30
+  save-immediately: true
+
+management:
+  mayor: true
+  allowed-town-ranks: [assistant]
+
+warehouse:
+  plugin: NeverLandTownyBuilds
+  storage-size: 54
+  block-deposits-while-open: true
+
+economy:
+  reserve-reason: "Резерв награды городского заказа: %contract%"
+  payout-reason: "Награда за городской заказ: %contract%"
+  refund-reason: "Возврат резерва городского заказа: %contract%"
+
+gui:
+  title: "&#241A33Доска городских заказов"
+  history-title: "&#241A33История городских заказов"
+  filler: BLACK_STAINED_GLASS_PANE
+
+announcements:
+  contract-start: true
+  contract-complete: true
+  contract-expire: true

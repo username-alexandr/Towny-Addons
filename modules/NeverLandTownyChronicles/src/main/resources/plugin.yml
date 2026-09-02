@@ -1,0 +1,28 @@
+name: NeverLandTownyChronicles
+version: '0.1.2'
+main: ru.neverland.townychronicles.TownyChronicles
+api-version: '26.2'
+authors: [Alexander Sokolov]
+website: https://neverland.ru
+description: Автоматическая история городов Towny проекта NeverLand.
+provides: [TownyChronicles]
+depend: [Towny]
+softdepend: [NeverLandTownyBuilds, SiegeWar, FlagWar, PlaceholderAPI, ItemsAdder]
+commands:
+  chronicles:
+    description: Летопись вашего города
+    aliases: [chronicle, townhistory]
+    usage: /chronicles [book|stats|категория]
+    permission: townychronicles.use
+  townychronicles:
+    description: Администрирование NeverLandTownyChronicles
+    aliases: [tchronicles, neverlandtownychronicles, nltchronicles]
+    usage: /townychronicles <add|remove|rescan|reload>
+    permission: townychronicles.admin
+permissions:
+  townychronicles.use:
+    default: true
+  townychronicles.book:
+    default: true
+  townychronicles.admin:
+    default: op

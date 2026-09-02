@@ -1,0 +1,345 @@
+# Предметы ItemsAdder задаются как itemsadder:namespace:id:количество.
+# Обычные предметы: MATERIAL:количество. Уровень эффекта начинается с 1.
+buildings:
+  town_hall:
+    name: "&#D9B6FF&lРатуша"
+    icon: "BELL"
+    itemsadder-icon: "neverland:building_town_hall"
+    slot: 10
+    description: ["Центр управления городом.", "Даёт удачу и дополнительные чанки."]
+    levels:
+      1: {money: 5000, bonus-blocks: 2, resources: ["STONE_BRICKS:512", "OAK_PLANKS:256"], effects: []}
+      2: {money: 10000, bonus-blocks: 3, resources: ["STONE_BRICKS:1024", "OAK_LOG:384", "IRON_INGOT:64"], effects: ["LUCK:1"]}
+      3: {money: 20000, bonus-blocks: 4, resources: ["POLISHED_ANDESITE:1024", "COPPER_INGOT:192", "GOLD_INGOT:48"], effects: ["LUCK:1"]}
+      4: {money: 40000, bonus-blocks: 5, resources: ["QUARTZ_BLOCK:768", "GOLD_INGOT:128", "EMERALD:32"], effects: ["LUCK:2"]}
+      5: {money: 80000, bonus-blocks: 8, resources: ["QUARTZ_BLOCK:1536", "DIAMOND:48", "EMERALD_BLOCK:16"], effects: ["LUCK:2"], commands: ["say Город {town} возвёл Ратушу V уровня!"]}
+  forge:
+    name: "&#FF8A5B&lКузница"
+    icon: "ANVIL"
+    itemsadder-icon: "neverland:building_forge"
+    slot: 11
+    description: ["Сердце городской металлургии.", "Повышает стойкость и защиту от огня."]
+    levels:
+      1: {money: 4500, bonus-blocks: 1, resources: ["COBBLESTONE:512", "IRON_INGOT:96", "COAL:256"], effects: []}
+      2: {money: 9000, bonus-blocks: 2, resources: ["STONE_BRICKS:768", "IRON_BLOCK:24", "LAVA_BUCKET:8"], effects: ["FIRE_RESISTANCE:1"]}
+      3: {money: 18000, bonus-blocks: 3, resources: ["DEEPSLATE_BRICKS:1024", "IRON_BLOCK:48", "COPPER_BLOCK:24"], effects: ["FIRE_RESISTANCE:1"]}
+      4: {money: 36000, bonus-blocks: 4, resources: ["POLISHED_BLACKSTONE_BRICKS:1024", "GOLD_BLOCK:16", "DIAMOND:24"], effects: ["FIRE_RESISTANCE:1", "RESISTANCE:1"]}
+      5: {money: 72000, bonus-blocks: 6, resources: ["POLISHED_BLACKSTONE_BRICKS:1536", "NETHERITE_INGOT:4", "DIAMOND_BLOCK:8"], effects: ["FIRE_RESISTANCE:1", "RESISTANCE:1"]}
+  barracks:
+    name: "&#FF5E6C&lКазармы"
+    icon: "IRON_SWORD"
+    itemsadder-icon: "neverland:building_barracks"
+    slot: 12
+    description: ["Военная школа и городской гарнизон.", "Усиливает урон и выносливость жителей."]
+    levels:
+      1: {money: 6000, bonus-blocks: 1, resources: ["STONE_BRICKS:640", "IRON_INGOT:128", "OAK_LOG:256"], effects: []}
+      2: {money: 12000, bonus-blocks: 2, resources: ["STONE_BRICKS:1024", "IRON_BLOCK:32", "REDSTONE:128"], effects: ["STRENGTH:1"]}
+      3: {money: 24000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:1024", "IRON_BLOCK:64", "GOLD_INGOT:64"], effects: ["STRENGTH:1", "RESISTANCE:1"]}
+      4: {money: 48000, bonus-blocks: 4, resources: ["DEEPSLATE_TILES:1536", "DIAMOND:32", "OBSIDIAN:128"], effects: ["STRENGTH:1", "RESISTANCE:1"]}
+      5: {money: 96000, bonus-blocks: 7, resources: ["REINFORCED_DEEPSLATE:16", "NETHERITE_INGOT:4", "DIAMOND_BLOCK:12"], effects: ["STRENGTH:2", "RESISTANCE:1"]}
+  market:
+    name: "&#63E6BE&lРынок"
+    icon: "EMERALD"
+    itemsadder-icon: "neverland:building_market"
+    slot: 13
+    description: ["Торговый центр города.", "Даёт скорость и удачу торговцам."]
+    levels:
+      1: {money: 4000, bonus-blocks: 1, resources: ["OAK_PLANKS:512", "WHITE_WOOL:128", "BARREL:32"], effects: []}
+      2: {money: 8000, bonus-blocks: 2, resources: ["SPRUCE_PLANKS:768", "COPPER_INGOT:128", "EMERALD:16"], effects: ["SPEED:1"]}
+      3: {money: 16000, bonus-blocks: 3, resources: ["BRICKS:768", "GOLD_INGOT:64", "EMERALD:32"], effects: ["SPEED:1", "LUCK:1"]}
+      4: {money: 32000, bonus-blocks: 4, resources: ["QUARTZ_BLOCK:640", "GOLD_BLOCK:12", "EMERALD_BLOCK:8"], effects: ["SPEED:2", "LUCK:1"]}
+      5: {money: 64000, bonus-blocks: 6, resources: ["QUARTZ_BLOCK:1280", "DIAMOND:24", "EMERALD_BLOCK:20"], effects: ["SPEED:2", "LUCK:2"]}
+  miners_guild:
+    name: "&#AAB4C4&lШахтёрская гильдия"
+    icon: "DIAMOND_PICKAXE"
+    itemsadder-icon: "neverland:building_miners_guild"
+    slot: 14
+    description: ["Объединение шахтёров и геологов.", "Даёт спешку и ночное зрение."]
+    levels:
+      1: {money: 5500, bonus-blocks: 1, resources: ["COBBLESTONE:1024", "OAK_LOG:256", "TORCH:128"], effects: ["HASTE:1"]}
+      2: {money: 11000, bonus-blocks: 2, resources: ["DEEPSLATE:1024", "IRON_BLOCK:24", "LANTERN:64"], effects: ["HASTE:1", "NIGHT_VISION:1"]}
+      3: {money: 22000, bonus-blocks: 3, resources: ["DEEPSLATE_BRICKS:1280", "GOLD_INGOT:96", "REDSTONE_BLOCK:16"], effects: ["HASTE:2", "NIGHT_VISION:1"]}
+      4: {money: 44000, bonus-blocks: 5, resources: ["TUFF_BRICKS:1536", "DIAMOND:32", "GLOWSTONE:64"], effects: ["HASTE:2", "NIGHT_VISION:1"]}
+      5: {money: 88000, bonus-blocks: 8, resources: ["TUFF_BRICKS:2048", "DIAMOND_BLOCK:10", "NETHERITE_INGOT:3"], effects: ["HASTE:3", "NIGHT_VISION:1"]}
+  temple:
+    name: "&#FFE38A&lСвященный Храм"
+    icon: "TOTEM_OF_UNDYING"
+    itemsadder-icon: "neverland:building_temple"
+    slot: 15
+    description: ["Духовный оплот жителей.", "Дарует восстановление и защиту."]
+    levels:
+      1: {money: 7000, bonus-blocks: 1, resources: ["STONE_BRICKS:768", "CANDLE:64", "GOLD_INGOT:32"], effects: []}
+      2: {money: 14000, bonus-blocks: 2, resources: ["QUARTZ_PILLAR:512", "GOLD_INGOT:96", "AMETHYST_SHARD:128"], effects: ["REGENERATION:1"]}
+      3: {money: 28000, bonus-blocks: 3, resources: ["QUARTZ_BLOCK:1024", "GOLD_BLOCK:16", "GHAST_TEAR:8"], effects: ["REGENERATION:1", "RESISTANCE:1"]}
+      4: {money: 56000, bonus-blocks: 5, resources: ["QUARTZ_BLOCK:1536", "EMERALD_BLOCK:12", "GHAST_TEAR:16"], effects: ["REGENERATION:1", "RESISTANCE:1", "ABSORPTION:1"]}
+      5: {money: 112000, bonus-blocks: 8, resources: ["QUARTZ_BLOCK:2048", "NETHER_STAR:1", "DIAMOND_BLOCK:12"], effects: ["REGENERATION:2", "RESISTANCE:1", "ABSORPTION:1"]}
+  great_library:
+    name: "&#65B8FF&lВеликая Библиотека"
+    icon: "ENCHANTED_BOOK"
+    itemsadder-icon: "neverland:building_great_library"
+    slot: 16
+    description: ["Хранилище знаний и магических трудов.", "Усиливает удачу и ночное зрение."]
+    levels:
+      1: {money: 6500, bonus-blocks: 1, resources: ["BOOKSHELF:96", "OAK_PLANKS:512", "PAPER:256"], effects: []}
+      2: {money: 13000, bonus-blocks: 2, resources: ["BOOKSHELF:192", "LECTERN:16", "LAPIS_LAZULI:128"], effects: ["LUCK:1"]}
+      3: {money: 26000, bonus-blocks: 3, resources: ["CHISELED_BOOKSHELF:128", "AMETHYST_BLOCK:32", "EXPERIENCE_BOTTLE:64"], effects: ["LUCK:1", "NIGHT_VISION:1"]}
+      4: {money: 52000, bonus-blocks: 5, resources: ["CHISELED_BOOKSHELF:256", "LAPIS_BLOCK:32", "DIAMOND:24"], effects: ["LUCK:2", "NIGHT_VISION:1"]}
+      5: {money: 104000, bonus-blocks: 8, resources: ["CHISELED_BOOKSHELF:384", "ENCHANTING_TABLE:16", "NETHER_STAR:1"], effects: ["LUCK:3", "NIGHT_VISION:1"]}
+  agrarian_complex:
+    name: "&#8BE06A&lАграрный Комплекс"
+    icon: "WHEAT"
+    itemsadder-icon: "neverland:building_agrarian_complex"
+    slot: 19
+    description: ["Фермы, сады и продовольственные склады.", "Повышает скорость и насыщение жителей."]
+    levels:
+      1: {money: 3500, bonus-blocks: 2, resources: ["OAK_LOG:256", "WHEAT:512", "HAY_BLOCK:64"], effects: []}
+      2: {money: 7000, bonus-blocks: 3, resources: ["SPRUCE_LOG:384", "HAY_BLOCK:128", "WATER_BUCKET:16"], effects: ["SPEED:1"]}
+      3: {money: 14000, bonus-blocks: 4, resources: ["BRICKS:512", "HAY_BLOCK:256", "GOLDEN_CARROT:64"], effects: ["SPEED:1", "SATURATION:1"]}
+      4: {money: 28000, bonus-blocks: 6, resources: ["BRICKS:1024", "HONEY_BLOCK:64", "GOLDEN_CARROT:128"], effects: ["SPEED:2", "SATURATION:1"]}
+      5: {money: 56000, bonus-blocks: 10, resources: ["BRICKS:1536", "EMERALD_BLOCK:10", "ENCHANTED_GOLDEN_APPLE:1"], effects: ["SPEED:2", "SATURATION:1", "HEALTH_BOOST:1"]}
+  infirmary:
+    name: "&#E8F4FF&lЛазарет"
+    icon: "BREWING_STAND"
+    itemsadder-icon: ""
+    slot: 20
+    description: ["Городская лечебница и аптекарский сад.", "Ускоряет восстановление здоровья жителей."]
+    levels:
+      1: {money: 5500, bonus-blocks: 1, resources: ["QUARTZ_BLOCK:384", "OAK_PLANKS:192", "WHITE_WOOL:64"], effects: []}
+      2: {money: 11000, bonus-blocks: 2, resources: ["STONE_BRICKS:512", "QUARTZ_BLOCK:256", "GOLDEN_CARROT:32"], effects: ["REGENERATION:1"]}
+      3: {money: 22000, bonus-blocks: 3, resources: ["QUARTZ_BLOCK:640", "GLASS:192", "AMETHYST_SHARD:64"], effects: ["REGENERATION:1", "HEALTH_BOOST:1"]}
+      4: {money: 44000, bonus-blocks: 4, resources: ["QUARTZ_BLOCK:896", "GOLD_INGOT:96", "GHAST_TEAR:6"], effects: ["REGENERATION:1", "HEALTH_BOOST:2"]}
+      5: {money: 88000, bonus-blocks: 6, resources: ["QUARTZ_BLOCK:1280", "GOLD_BLOCK:12", "GHAST_TEAR:12"], effects: ["REGENERATION:2", "HEALTH_BOOST:2"]}
+  fire_station:
+    name: "&#FF6A47&lПожарная часть"
+    icon: "WATER_BUCKET"
+    itemsadder-icon: ""
+    slot: 21
+    description: ["Депо городской пожарной команды.", "Защищает жителей от огня и повышает стойкость."]
+    levels:
+      1: {money: 5000, bonus-blocks: 1, resources: ["BRICKS:384", "STONE_BRICKS:256", "WATER_BUCKET:8"], effects: []}
+      2: {money: 10000, bonus-blocks: 2, resources: ["BRICKS:512", "IRON_INGOT:96", "WATER_BUCKET:16"], effects: ["FIRE_RESISTANCE:1"]}
+      3: {money: 20000, bonus-blocks: 3, resources: ["STONE_BRICKS:640", "IRON_BLOCK:24", "COPPER_INGOT:128"], effects: ["FIRE_RESISTANCE:1"]}
+      4: {money: 40000, bonus-blocks: 4, resources: ["BRICKS:896", "COPPER_BLOCK:32", "IRON_BLOCK:32"], effects: ["FIRE_RESISTANCE:1", "RESISTANCE:1"]}
+      5: {money: 80000, bonus-blocks: 6, resources: ["STONE_BRICKS:1280", "COPPER_BLOCK:48", "DIAMOND:16"], effects: ["FIRE_RESISTANCE:1", "RESISTANCE:2"]}
+  tavern_inn:
+    name: "&#E9B873&lТаверна и постоялый двор"
+    icon: "HONEY_BOTTLE"
+    itemsadder-icon: ""
+    slot: 22
+    description: ["Место отдыха жителей и путешественников.", "Даёт насыщение, скорость и удачу."]
+    levels:
+      1: {money: 4500, bonus-blocks: 1, resources: ["OAK_PLANKS:384", "SPRUCE_LOG:192", "BARREL:16"], effects: []}
+      2: {money: 9000, bonus-blocks: 2, resources: ["SPRUCE_PLANKS:512", "BRICKS:256", "BARREL:24"], effects: ["SATURATION:1"]}
+      3: {money: 18000, bonus-blocks: 3, resources: ["OAK_PLANKS:640", "HAY_BLOCK:96", "GOLDEN_CARROT:32"], effects: ["SATURATION:1", "SPEED:1"]}
+      4: {money: 36000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:896", "BARREL:48", "GOLD_INGOT:48"], effects: ["SATURATION:1", "SPEED:1", "LUCK:1"]}
+      5: {money: 72000, bonus-blocks: 6, resources: ["OAK_PLANKS:1280", "HONEY_BLOCK:32", "EMERALD_BLOCK:8"], effects: ["SATURATION:1", "SPEED:2", "LUCK:1"]}
+  city_bank:
+    name: "&#FFD45B&lГородской банк"
+    icon: "GOLD_INGOT"
+    itemsadder-icon: ""
+    slot: 23
+    description: ["Казначейство и защищённое городское хранилище.", "Повышает удачу и устойчивость жителей."]
+    levels:
+      1: {money: 8000, bonus-blocks: 1, resources: ["STONE_BRICKS:512", "IRON_INGOT:96", "GOLD_INGOT:24"], effects: []}
+      2: {money: 16000, bonus-blocks: 2, resources: ["POLISHED_ANDESITE:640", "IRON_BLOCK:24", "GOLD_INGOT:48"], effects: ["LUCK:1"]}
+      3: {money: 32000, bonus-blocks: 3, resources: ["QUARTZ_BLOCK:640", "IRON_BLOCK:40", "GOLD_BLOCK:8"], effects: ["LUCK:1", "RESISTANCE:1"]}
+      4: {money: 64000, bonus-blocks: 5, resources: ["QUARTZ_BLOCK:896", "GOLD_BLOCK:16", "EMERALD_BLOCK:8"], effects: ["LUCK:2", "RESISTANCE:1"]}
+      5: {money: 128000, bonus-blocks: 8, resources: ["QUARTZ_BLOCK:1280", "GOLD_BLOCK:32", "DIAMOND_BLOCK:6"], effects: ["LUCK:2", "RESISTANCE:2"]}
+  embassy:
+    name: "&#75D7FF&lПосольство"
+    icon: "GLOBE_BANNER_PATTERN"
+    itemsadder-icon: ""
+    slot: 24
+    description: ["Дом дипломатических встреч и иностранных гостей.", "Даёт скорость и дипломатическую удачу."]
+    levels:
+      1: {money: 6500, bonus-blocks: 1, resources: ["SANDSTONE:384", "WHITE_WOOL:96", "PAPER:128"], effects: []}
+      2: {money: 13000, bonus-blocks: 2, resources: ["CUT_SANDSTONE:512", "QUARTZ_PILLAR:128", "PAPER:192"], effects: ["LUCK:1"]}
+      3: {money: 26000, bonus-blocks: 3, resources: ["SMOOTH_SANDSTONE:640", "QUARTZ_PILLAR:192", "GOLD_INGOT:48"], effects: ["LUCK:1", "SPEED:1"]}
+      4: {money: 52000, bonus-blocks: 4, resources: ["QUARTZ_BLOCK:768", "GOLD_BLOCK:12", "EMERALD:32"], effects: ["LUCK:2", "SPEED:1"]}
+      5: {money: 104000, bonus-blocks: 7, resources: ["QUARTZ_BLOCK:1152", "GOLD_BLOCK:20", "EMERALD_BLOCK:10"], effects: ["LUCK:2", "SPEED:2"]}
+  museum:
+    name: "&#CFA7FF&lМузей"
+    icon: "DECORATED_POT"
+    itemsadder-icon: ""
+    slot: 25
+    description: ["Галереи городской истории и редких находок.", "Усиливает удачу и ночное зрение."]
+    levels:
+      1: {money: 7000, bonus-blocks: 1, resources: ["POLISHED_ANDESITE:384", "GLASS:128", "QUARTZ_BLOCK:128"], effects: []}
+      2: {money: 14000, bonus-blocks: 2, resources: ["STONE_BRICKS:512", "GLASS:192", "AMETHYST_SHARD:48"], effects: ["LUCK:1"]}
+      3: {money: 28000, bonus-blocks: 3, resources: ["QUARTZ_BLOCK:640", "GLASS:256", "AMETHYST_BLOCK:24"], effects: ["LUCK:1", "NIGHT_VISION:1"]}
+      4: {money: 56000, bonus-blocks: 5, resources: ["QUARTZ_BLOCK:896", "COPPER_BLOCK:32", "GOLD_BLOCK:10"], effects: ["LUCK:2", "NIGHT_VISION:1"]}
+      5: {money: 112000, bonus-blocks: 8, resources: ["QUARTZ_BLOCK:1280", "AMETHYST_BLOCK:64", "DIAMOND:24"], effects: ["LUCK:3", "NIGHT_VISION:1"]}
+  shipyard:
+    name: "&#63CBE8&lВерфь"
+    icon: "OAK_BOAT"
+    itemsadder-icon: ""
+    slot: 28
+    description: ["Стапели, склады и причалы корабельных мастеров.", "Помогает жителям работать на воде."]
+    levels:
+      1: {money: 6000, bonus-blocks: 2, resources: ["SPRUCE_PLANKS:512", "SPRUCE_LOG:192", "IRON_INGOT:64"], effects: []}
+      2: {money: 12000, bonus-blocks: 3, resources: ["SPRUCE_PLANKS:640", "IRON_INGOT:128", "BARREL:24"], effects: ["WATER_BREATHING:1"]}
+      3: {money: 24000, bonus-blocks: 4, resources: ["STONE_BRICKS:512", "SPRUCE_LOG:384", "IRON_BLOCK:24"], effects: ["WATER_BREATHING:1", "DOLPHINS_GRACE:1"]}
+      4: {money: 48000, bonus-blocks: 5, resources: ["SPRUCE_PLANKS:1024", "IRON_BLOCK:40", "COPPER_BLOCK:24"], effects: ["WATER_BREATHING:1", "DOLPHINS_GRACE:1"]}
+      5: {money: 96000, bonus-blocks: 8, resources: ["SPRUCE_PLANKS:1408", "IRON_BLOCK:56", "DIAMOND:16"], effects: ["WATER_BREATHING:1", "DOLPHINS_GRACE:2"]}
+  university:
+    name: "&#6FAFFF&lУниверситет"
+    icon: "ENCHANTING_TABLE"
+    itemsadder-icon: ""
+    slot: 29
+    description: ["Учебные корпуса, лаборатории и башня знаний.", "Дарует спешку, удачу и ночное зрение."]
+    levels:
+      1: {money: 8500, bonus-blocks: 1, resources: ["STONE_BRICKS:512", "BOOKSHELF:64", "PAPER:192"], effects: []}
+      2: {money: 17000, bonus-blocks: 2, resources: ["BRICKS:640", "BOOKSHELF:128", "LAPIS_LAZULI:96"], effects: ["HASTE:1"]}
+      3: {money: 34000, bonus-blocks: 4, resources: ["STONE_BRICKS:768", "CHISELED_BOOKSHELF:96", "AMETHYST_SHARD:96"], effects: ["HASTE:1", "LUCK:1"]}
+      4: {money: 68000, bonus-blocks: 6, resources: ["QUARTZ_BLOCK:896", "LAPIS_BLOCK:24", "EXPERIENCE_BOTTLE:48"], effects: ["HASTE:2", "LUCK:1", "NIGHT_VISION:1"]}
+      5: {money: 136000, bonus-blocks: 9, resources: ["QUARTZ_BLOCK:1408", "CHISELED_BOOKSHELF:192", "ENCHANTING_TABLE:8"], effects: ["HASTE:2", "LUCK:2", "NIGHT_VISION:1"]}
+  courthouse:
+    name: "&#E8D39F&lСуд"
+    icon: "IRON_AXE"
+    itemsadder-icon: ""
+    slot: 30
+    description: ["Зал правосудия, архив и башня закона.", "Повышает стойкость и удачу жителей."]
+    levels:
+      1: {money: 7000, bonus-blocks: 1, resources: ["STONE_BRICKS:512", "QUARTZ_PILLAR:96", "PAPER:128"], effects: []}
+      2: {money: 14000, bonus-blocks: 2, resources: ["SMOOTH_STONE:640", "IRON_INGOT:96", "PAPER:192"], effects: ["RESISTANCE:1"]}
+      3: {money: 28000, bonus-blocks: 3, resources: ["QUARTZ_BLOCK:640", "IRON_BLOCK:24", "GOLD_INGOT:48"], effects: ["RESISTANCE:1", "LUCK:1"]}
+      4: {money: 56000, bonus-blocks: 5, resources: ["STONE_BRICKS:896", "QUARTZ_PILLAR:256", "GOLD_BLOCK:10"], effects: ["RESISTANCE:2", "LUCK:1"]}
+      5: {money: 112000, bonus-blocks: 8, resources: ["QUARTZ_BLOCK:1280", "IRON_BLOCK:48", "DIAMOND:20"], effects: ["RESISTANCE:2", "LUCK:2"]}
+  aqueduct:
+    name: "&#58CFE8&lАкведук"
+    icon: "WATER_BUCKET"
+    itemsadder-icon: ""
+    slot: 31
+    description: ["Монументальный городской водовод.", "Поддерживает снабжение водой и здоровье жителей."]
+    levels:
+      1: {money: 6000, bonus-blocks: 2, resources: ["STONE_BRICKS:512", "POLISHED_ANDESITE:192", "WATER_BUCKET:8"], effects: []}
+      2: {money: 12000, bonus-blocks: 3, resources: ["STONE_BRICKS:640", "SMOOTH_STONE:256", "WATER_BUCKET:12"], effects: ["WATER_BREATHING:1"]}
+      3: {money: 24000, bonus-blocks: 4, resources: ["STONE_BRICKS:896", "QUARTZ_BLOCK:192", "WATER_BUCKET:16"], effects: ["WATER_BREATHING:1", "SATURATION:1"]}
+      4: {money: 48000, bonus-blocks: 6, resources: ["POLISHED_ANDESITE:1024", "QUARTZ_BLOCK:320", "IRON_BLOCK:16"], effects: ["WATER_BREATHING:1", "SATURATION:1", "HEALTH_BOOST:1"]}
+      5: {money: 96000, bonus-blocks: 9, resources: ["STONE_BRICKS:1408", "QUARTZ_BLOCK:512", "DIAMOND:12"], effects: ["WATER_BREATHING:1", "SATURATION:1", "HEALTH_BOOST:2"]}
+  workshop:
+    name: "&#F08B55&lМастерская"
+    icon: "SMITHING_TABLE"
+    itemsadder-icon: ""
+    slot: 32
+    description: ["Ремесленные залы, склады и подъёмный кран.", "Ускоряет работу и защищает от жара."]
+    levels:
+      1: {money: 5000, bonus-blocks: 1, resources: ["COBBLESTONE:384", "OAK_PLANKS:256", "IRON_INGOT:64"], effects: []}
+      2: {money: 10000, bonus-blocks: 2, resources: ["STONE_BRICKS:512", "IRON_INGOT:128", "COPPER_INGOT:64"], effects: ["HASTE:1"]}
+      3: {money: 20000, bonus-blocks: 3, resources: ["BRICKS:640", "IRON_BLOCK:24", "COPPER_BLOCK:16"], effects: ["HASTE:1", "FIRE_RESISTANCE:1"]}
+      4: {money: 40000, bonus-blocks: 4, resources: ["DEEPSLATE_BRICKS:896", "IRON_BLOCK:40", "GOLD_INGOT:48"], effects: ["HASTE:2", "FIRE_RESISTANCE:1"]}
+      5: {money: 80000, bonus-blocks: 7, resources: ["DEEPSLATE_BRICKS:1280", "COPPER_BLOCK:48", "DIAMOND:16"], effects: ["HASTE:2", "FIRE_RESISTANCE:1"]}
+  watch_fortress:
+    name: "&#B8C0CC&lСторожевая крепость"
+    icon: "SHIELD"
+    itemsadder-icon: ""
+    slot: 33
+    description: ["Укреплённые ворота, башни и гарнизонный двор.", "Даёт силу и сопротивление."]
+    levels:
+      1: {money: 9000, bonus-blocks: 2, resources: ["STONE_BRICKS:640", "COBBLED_DEEPSLATE:256", "IRON_INGOT:96"], effects: []}
+      2: {money: 18000, bonus-blocks: 3, resources: ["STONE_BRICKS:768", "IRON_BLOCK:32", "OAK_LOG:256"], effects: ["RESISTANCE:1"]}
+      3: {money: 36000, bonus-blocks: 5, resources: ["DEEPSLATE_BRICKS:896", "IRON_BLOCK:48", "OBSIDIAN:64"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      4: {money: 72000, bonus-blocks: 7, resources: ["DEEPSLATE_TILES:1152", "IRON_BLOCK:64", "OBSIDIAN:96"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
+      5: {money: 144000, bonus-blocks: 10, resources: ["POLISHED_BLACKSTONE_BRICKS:1536", "OBSIDIAN:128", "DIAMOND_BLOCK:6"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
+  hunting_lodge:
+    name: "&#8BC96F&lОхотничий дом"
+    icon: "BOW"
+    itemsadder-icon: ""
+    slot: 34
+    description: ["Лесная усадьба охотников и следопытов.", "Даёт скорость и ночное зрение."]
+    levels:
+      1: {money: 4500, bonus-blocks: 1, resources: ["SPRUCE_LOG:256", "SPRUCE_PLANKS:384", "LANTERN:16"], effects: []}
+      2: {money: 9000, bonus-blocks: 2, resources: ["SPRUCE_LOG:384", "COBBLESTONE:384", "BARREL:16"], effects: ["SPEED:1"]}
+      3: {money: 18000, bonus-blocks: 3, resources: ["SPRUCE_PLANKS:640", "WHITE_WOOL:96", "LANTERN:32"], effects: ["SPEED:1", "NIGHT_VISION:1"]}
+      4: {money: 36000, bonus-blocks: 4, resources: ["DARK_OAK_PLANKS:896", "IRON_INGOT:96", "EMERALD:16"], effects: ["SPEED:2", "NIGHT_VISION:1"]}
+      5: {money: 72000, bonus-blocks: 6, resources: ["DARK_OAK_PLANKS:1152", "GOLD_INGOT:64", "EMERALD_BLOCK:6"], effects: ["SPEED:2", "NIGHT_VISION:1", "LUCK:1"]}
+  fishing_harbor:
+    name: "&#58D7D1&lРыбацкая гавань"
+    icon: "FISHING_ROD"
+    itemsadder-icon: ""
+    slot: 37
+    description: ["Причалы, рынок улова и портовый кран.", "Помогает рыбакам и пловцам."]
+    levels:
+      1: {money: 4500, bonus-blocks: 2, resources: ["SPRUCE_PLANKS:384", "SPRUCE_LOG:192", "BARREL:16"], effects: []}
+      2: {money: 9000, bonus-blocks: 3, resources: ["SPRUCE_PLANKS:512", "IRON_INGOT:64", "WATER_BUCKET:8"], effects: ["WATER_BREATHING:1"]}
+      3: {money: 18000, bonus-blocks: 4, resources: ["STONE_BRICKS:512", "BARREL:32", "LANTERN:24"], effects: ["WATER_BREATHING:1", "LUCK:1"]}
+      4: {money: 36000, bonus-blocks: 5, resources: ["SPRUCE_PLANKS:896", "IRON_BLOCK:24", "EMERALD:24"], effects: ["WATER_BREATHING:1", "LUCK:2"]}
+      5: {money: 72000, bonus-blocks: 8, resources: ["SPRUCE_PLANKS:1280", "IRON_BLOCK:40", "EMERALD_BLOCK:8"], effects: ["WATER_BREATHING:1", "LUCK:2", "DOLPHINS_GRACE:1"]}
+  post_station:
+    name: "&#F5C96B&lПочтовая станция"
+    icon: "WRITABLE_BOOK"
+    itemsadder-icon: ""
+    slot: 38
+    description: ["Сортировочный дом, конюшня и станционный двор.", "Ускоряет передвижение и работу жителей."]
+    levels:
+      1: {money: 4000, bonus-blocks: 1, resources: ["OAK_PLANKS:384", "PAPER:192", "BARREL:12"], effects: []}
+      2: {money: 8000, bonus-blocks: 2, resources: ["SPRUCE_PLANKS:512", "PAPER:256", "HAY_BLOCK:64"], effects: ["SPEED:1"]}
+      3: {money: 16000, bonus-blocks: 3, resources: ["BRICKS:512", "RAIL:128", "IRON_INGOT:64"], effects: ["SPEED:1", "HASTE:1"]}
+      4: {money: 32000, bonus-blocks: 4, resources: ["STONE_BRICKS:768", "RAIL:192", "GOLD_INGOT:32"], effects: ["SPEED:2", "HASTE:1"]}
+      5: {money: 64000, bonus-blocks: 7, resources: ["STONE_BRICKS:1024", "IRON_BLOCK:32", "EMERALD_BLOCK:6"], effects: ["SPEED:2", "HASTE:2"]}
+  observatory:
+    name: "&#8C8CFF&lОбсерватория"
+    icon: "SPYGLASS"
+    itemsadder-icon: ""
+    slot: 39
+    description: ["Башня астронома с куполом и телескопом.", "Дарует ночное зрение и удачу."]
+    levels:
+      1: {money: 7500, bonus-blocks: 1, resources: ["STONE_BRICKS:384", "GLASS:128", "AMETHYST_SHARD:32"], effects: []}
+      2: {money: 15000, bonus-blocks: 2, resources: ["POLISHED_ANDESITE:512", "GLASS:192", "LAPIS_LAZULI:64"], effects: ["NIGHT_VISION:1"]}
+      3: {money: 30000, bonus-blocks: 3, resources: ["QUARTZ_BLOCK:640", "AMETHYST_BLOCK:24", "LAPIS_BLOCK:16"], effects: ["NIGHT_VISION:1", "LUCK:1"]}
+      4: {money: 60000, bonus-blocks: 5, resources: ["QUARTZ_BLOCK:896", "GLASS:320", "DIAMOND:16"], effects: ["NIGHT_VISION:1", "LUCK:2"]}
+      5: {money: 120000, bonus-blocks: 8, resources: ["QUARTZ_BLOCK:1280", "AMETHYST_BLOCK:64", "NETHER_STAR:1"], effects: ["NIGHT_VISION:1", "LUCK:3"]}
+  prison:
+    name: "&#8C96A6&lТюрьма"
+    icon: "IRON_BARS"
+    itemsadder-icon: ""
+    slot: 40
+    description: ["Камерные блоки, внешний периметр и сторожевые башни.", "Усиливает городскую оборону."]
+    levels:
+      1: {money: 8000, bonus-blocks: 1, resources: ["STONE_BRICKS:512", "IRON_BARS:128", "IRON_INGOT:96"], effects: []}
+      2: {money: 16000, bonus-blocks: 2, resources: ["STONE_BRICKS:768", "IRON_BARS:192", "IRON_BLOCK:24"], effects: ["RESISTANCE:1"]}
+      3: {money: 32000, bonus-blocks: 4, resources: ["DEEPSLATE_BRICKS:896", "IRON_BARS:256", "OBSIDIAN:64"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      4: {money: 64000, bonus-blocks: 6, resources: ["DEEPSLATE_TILES:1152", "IRON_BLOCK:56", "OBSIDIAN:96"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
+      5: {money: 128000, bonus-blocks: 9, resources: ["POLISHED_BLACKSTONE_BRICKS:1536", "REINFORCED_DEEPSLATE:12", "DIAMOND_BLOCK:6"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
+
+wonders:
+  sun_pyramid:
+    name: "&#FFD34E&lПирамида Солнца"
+    icon: "GOLD_BLOCK"
+    itemsadder-icon: "neverland:wonder_sun_pyramid"
+    slot: 11
+    description: ["Монумент солнечной эпохи.", "Даёт городу силу, спешку и поглощение."]
+    levels:
+      1: {money: 500000, bonus-blocks: 25, resources: ["SANDSTONE:8192", "CUT_SANDSTONE:4096", "GOLD_BLOCK:128", "BEACON:1"], effects: ["HASTE:2", "STRENGTH:1", "ABSORPTION:1"]}
+  great_colosseum:
+    name: "&#FF6B62&lВеликий Колизей"
+    icon: "SHIELD"
+    itemsadder-icon: "neverland:wonder_great_colosseum"
+    slot: 13
+    description: ["Арена, известная всему миру.", "Даёт силу, скорость и сопротивление."]
+    levels:
+      1: {money: 650000, bonus-blocks: 30, resources: ["STONE_BRICKS:8192", "QUARTZ_BLOCK:4096", "IRON_BLOCK:256", "DIAMOND_BLOCK:32"], effects: ["STRENGTH:2", "SPEED:2", "RESISTANCE:1"]}
+  alexandria_lighthouse:
+    name: "&#74D7FF&lАлександрийский Маяк"
+    icon: "BEACON"
+    itemsadder-icon: "neverland:wonder_alexandria_lighthouse"
+    slot: 15
+    description: ["Свет, ведущий путников домой.", "Даёт ночное зрение, удачу и скорость."]
+    levels:
+      1: {money: 600000, bonus-blocks: 28, resources: ["QUARTZ_BLOCK:6144", "PRISMARINE_BRICKS:4096", "SEA_LANTERN:256", "BEACON:2"], effects: ["NIGHT_VISION:1", "LUCK:2", "SPEED:2"]}
+  hanging_gardens:
+    name: "&#79E58F&lВисячие Сады"
+    icon: "FLOWERING_AZALEA"
+    itemsadder-icon: "neverland:wonder_hanging_gardens"
+    slot: 29
+    description: ["Живое чудо над городскими стенами.", "Даёт регенерацию, насыщение и здоровье."]
+    levels:
+      1: {money: 700000, bonus-blocks: 35, resources: ["MOSS_BLOCK:4096", "STONE_BRICKS:4096", "FLOWERING_AZALEA:512", "EMERALD_BLOCK:96"], effects: ["REGENERATION:2", "SATURATION:1", "HEALTH_BOOST:2"]}
+  archmage_spire:
+    name: "&#C56DFF&lШпиль Архимагов"
+    icon: "END_CRYSTAL"
+    itemsadder-icon: "neverland:wonder_archmage_spire"
+    slot: 33
+    description: ["Вершина магического знания.", "Дарует сильнейшие городские благословения."]
+    levels:
+      1: {money: 1000000, bonus-blocks: 50, resources: ["PURPUR_BLOCK:6144", "AMETHYST_BLOCK:2048", "CRYING_OBSIDIAN:512", "NETHER_STAR:8"], effects: ["LUCK:3", "REGENERATION:2", "RESISTANCE:2", "HASTE:3"], commands: ["say Магические потоки склонились перед городом {town}!"]}

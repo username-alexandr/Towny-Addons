@@ -1,0 +1,28 @@
+name: NeverLandTownyCamps
+version: '0.1.6'
+main: ru.neverland.mintcamps.MintTownyCamps
+api-version: '26.2'
+authors: [Alexander Sokolov]
+website: https://neverland.ru
+description: Процедурные походные лагеря для экосистемы Towny проекта NeverLand.
+provides: [MintTownyCamps]
+softdepend: [Towny, ItemsAdder, PlaceholderAPI, Civs]
+commands:
+  camp:
+    description: Главное меню и команды походного лагеря
+    usage: /camp [create|spawn|tp|home|trust|untrust|pack|fuel|storage]
+    permission: mintcamps.use
+  townycamps:
+    description: Администрирование NeverLandTownyCamps
+    usage: /townycamps <edit|reload|info|pack>
+    aliases: [mintcamps, neverlandtownycamps, nltcamps]
+    permission: mintcamps.admin
+permissions:
+  mintcamps.use:
+    default: true
+  mintcamps.admin:
+    default: op
+  mintcamps.bypass.protection:
+    default: op
+  mintcamps.bypass.placement:
+    default: op

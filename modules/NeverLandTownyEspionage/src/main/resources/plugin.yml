@@ -1,0 +1,28 @@
+name: NeverLandTownyEspionage
+version: '0.1.2'
+main: ru.neverland.mintespionage.MintTownyEspionage
+api-version: '26.2'
+authors: [Alexander Sokolov]
+website: https://neverland.ru
+description: Разведка, шпионаж, контрразведка и дипломатические сведения проекта NeverLand.
+provides: [MintTownyEspionage]
+depend: [Towny]
+softdepend: [NeverLandTownyBuilds, NeverLandTownyReputation, NeverLandTownyGovernance, PlaceholderAPI, ItemsAdder]
+commands:
+  espionage:
+    description: Городская разведка
+    aliases: [spy, intelligence]
+    usage: /espionage [start|reports|active|upgrade|help]
+    permission: mintespionage.use
+  townyespionage:
+    description: Администрирование городской разведки
+    aliases: [mintespionage, mespionage, neverlandtownyespionage, nltespionage]
+    usage: /townyespionage <list|complete|cancel|set|reload>
+    permission: mintespionage.admin
+permissions:
+  mintespionage.use:
+    default: true
+  mintespionage.manage:
+    default: true
+  mintespionage.admin:
+    default: op

@@ -1,0 +1,27 @@
+costs:
+  # Начальная установка лагеря.
+  1:
+    - material: OAK_LOG
+      amount: 16
+    - material: WHITE_WOOL
+      amount: 12
+    - material: COAL
+      amount: 4
+  # Улучшение 1 -> 2.
+  2:
+    - material: OAK_LOG
+      amount: 32
+    - material: LEATHER
+      amount: 12
+    - material: IRON_INGOT
+      amount: 8
+  # Улучшение 2 -> 3.
+  3:
+    - material: OAK_LOG
+      amount: 64
+    - material: STONE_BRICKS
+      amount: 64
+    - material: IRON_INGOT
+      amount: 32
+    - material: GOLD_INGOT
+      amount: 8

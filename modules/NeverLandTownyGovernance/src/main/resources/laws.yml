@@ -1,0 +1,113 @@
+# Законы являются готовыми шаблонами решений. Все числа можно менять.
+laws:
+  low_taxes:
+    name: "&#63E6BEНизкие городские налоги"
+    category: TAX
+    material: EMERALD
+    itemsadder-icon: "neverland:law_low_taxes"
+    exclusive-group: tax_policy
+    description:
+      - "&7Фиксированный налог для каждого жителя."
+      - "&7Поддерживает молодые города и новичков."
+    effects:
+      tax-amount: 5.0
+      tax-percentage: false
+
+  progressive_taxes:
+    name: "&#FFD166Прогрессивное налогообложение"
+    category: TAX
+    material: GOLD_INGOT
+    itemsadder-icon: "neverland:law_progressive_taxes"
+    exclusive-group: tax_policy
+    description:
+      - "&7Налог составляет процент от средств жителя."
+      - "&7Более состоятельные жители платят больше."
+    effects:
+      tax-amount: 10.0
+      tax-percentage: true
+
+  balanced_taxes:
+    name: "&#74C0FCСбалансированный бюджет"
+    category: TAX
+    material: IRON_INGOT
+    itemsadder-icon: "neverland:law_balanced_budget"
+    exclusive-group: tax_policy
+    description:
+      - "&7Умеренный фиксированный городской налог."
+    effects:
+      tax-amount: 15.0
+      tax-percentage: false
+
+  construction_subsidies:
+    name: "&#55FF55Субсидии на строительство"
+    category: CONSTRUCTION
+    material: BRICKS
+    itemsadder-icon: "neverland:law_construction_subsidies"
+    exclusive-group: construction_policy
+    description:
+      - "&7Стоимость городских построек снижается."
+      - "&7Город получает дополнительные участки."
+    effects:
+      construction-cost-multiplier: 0.85
+      bonus-claim-blocks: 5
+
+  urban_expansion:
+    name: "&#FFA94DПрограмма расширения"
+    category: CONSTRUCTION
+    material: SCAFFOLDING
+    itemsadder-icon: "neverland:law_urban_expansion"
+    exclusive-group: construction_policy
+    description:
+      - "&7Город получает больше участков,"
+      - "&7но строительство обходится дороже."
+    effects:
+      construction-cost-multiplier: 1.10
+      bonus-claim-blocks: 15
+
+  civic_tradition:
+    name: "&#C77DFFГражданская традиция"
+    category: IDEOLOGY
+    material: WRITABLE_BOOK
+    itemsadder-icon: "neverland:law_civic_tradition"
+    exclusive-group: ideology_policy
+    description:
+      - "&7Развитие идеологии становится дешевле."
+    effects:
+      ideology-cost-multiplier: 0.85
+      ideology-experience-multiplier: 1.10
+
+  open_society:
+    name: "&#4DABF7Открытое общество"
+    category: IDEOLOGY
+    material: KNOWLEDGE_BOOK
+    itemsadder-icon: "neverland:law_open_society"
+    exclusive-group: ideology_policy
+    description:
+      - "&7Город быстрее накапливает"
+      - "&7идеологическое влияние."
+    effects:
+      ideology-cost-multiplier: 1.00
+      ideology-experience-multiplier: 1.25
+
+  academic_debate:
+    name: "&#F783ACАкадемические дебаты"
+    category: IDEOLOGY
+    material: ENCHANTED_BOOK
+    itemsadder-icon: "neverland:law_academic_debate"
+    exclusive-group: ideology_policy
+    description:
+      - "&7Смена и развитие идеологии дешевле,"
+      - "&7но накопление влияния немного медленнее."
+    effects:
+      ideology-cost-multiplier: 0.75
+      ideology-experience-multiplier: 0.90
+
+  public_hearings:
+    name: "&#A9E34BПубличные слушания"
+    category: CIVIC
+    material: OAK_SIGN
+    itemsadder-icon: "neverland:law_public_hearings"
+    exclusive-group: civic_policy
+    description:
+      - "&7Символ открытого городского управления."
+    effects: {}

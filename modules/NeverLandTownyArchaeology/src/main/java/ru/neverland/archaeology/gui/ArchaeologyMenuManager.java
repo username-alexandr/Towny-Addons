@@ -1,0 +1,56 @@
+package ru.neverland.archaeology.gui;
+
+import com.palmergames.bukkit.towny.object.Town;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.java.JavaPlugin;
+import ru.neverland.archaeology.api.MuseumSnapshot;
+import ru.neverland.archaeology.integration.ItemsAdderHook;
+import ru.neverland.archaeology.integration.TownyHook;
+import ru.neverland.archaeology.model.ArtifactDefinition;
+import ru.neverland.archaeology.model.CollectionDefinition;
+import ru.neverland.archaeology.model.PlayerJournal;
+import ru.neverland.archaeology.model.RarityDefinition;
+import ru.neverland.archaeology.service.ArchaeologyRegistry;
+import ru.neverland.archaeology.service.ArchaeologyRepository;
+import ru.neverland.archaeology.service.ArtifactService;
+import ru.neverland.archaeology.service.MessageService;
+import ru.neverland.archaeology.service.MuseumService;
+import ru.neverland.archaeology.util.ColorUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+public final class ArchaeologyMenuManager implements Listener {
+    private final JavaPlugin plugin; private final TownyHook towny; private final ArchaeologyRegistry registry; private final ArchaeologyRepository repository; private final ArtifactService artifacts; private final MuseumService museums; private final ItemsAdderHook itemsAdder; private final MessageService messages; private final NamespacedKey actionKey;
+    public ArchaeologyMenuManager(JavaPlugin plugin, TownyHook towny, ArchaeologyRegistry registry, ArchaeologyRepository repository, ArtifactService artifacts, MuseumService museums, ItemsAdderHook itemsAdder, MessageService messages) { this.plugin = plugin; this.towny = towny; this.registry = registry; this.repository = repository; this.artifacts = artifacts; this.museums = museums; this.itemsAdder = itemsAdder; this.messages = messages; actionKey = new NamespacedKey(plugin, "menu_action"); }
+    public void openMain(Player player) { Inventory menu = menu(ArchaeologyMenuHolder.Type.MAIN, player.getUniqueId(), 45, config("gui.main-title")); fill(menu); PlayerJournal journal = repository.journal(player.getUniqueId(), player.getName()); Town town = towny.town(player); menu.setItem(10, tagged(Material.BOOK, "journal", "&#E6C363Журнал археолога", List.of("&7Уникальных находок: &f" + journal.discoveries().size() + "/" + registry.artifacts().size(), "&7Всего найдено: &f" + journal.totalFound(), "", "&#FFD166Нажмите, чтобы открыть"))); menu.setItem(12, tagged(Material.CHISELED_BOOKSHELF, "museum", "&#63E6BEГородской музей", List.of(town == null ? "&#FF6B6BВы не состоите в городе" : "&7Город: &f" + town.getName(), "&7Каталог и доступный фонд", "", "&#FFD166Нажмите, чтобы открыть"))); menu.setItem(14, tagged(Material.BOOKSHELF, "collections", "&#74C0FCКоллекции", List.of("&7Тематические музейные собрания", "&7и награды за их завершение."))); menu.setItem(16, tagged(Material.END_CRYSTAL, "wonders", "&#C77DFFЧудеса Света", List.of("&7Артефакты, необходимые", "&7для великих городских проектов."))); menu.setItem(31, tagged(Material.RECOVERY_COMPASS, "nearest", "&#FFD166Ближайшие раскопки", List.of("&7Найти известный незавершённый участок."))); player.openInventory(menu); }
+    public void openJournal(Player player) { PlayerJournal journal = repository.journal(player.getUniqueId(), player.getName()); Inventory menu = menu(ArchaeologyMenuHolder.Type.JOURNAL, player.getUniqueId(), 54, config("gui.journal-title")); fill(menu); int slot = 10; for (ArtifactDefinition definition : registry.artifacts()) { while (slot < 44 && border(slot)) slot++; if (slot >= 44) break; int count = journal.discoveries().getOrDefault(definition.id(), 0); List<String> lore = new ArrayList<>(definition.lore()); lore.add(""); lore.add(count > 0 ? "&#63E6BEОткрыт • найдено: &f" + count : "&#ADB5BDНе найден"); menu.setItem(slot++, item(count > 0 ? icon(definition) : new ItemStack(Material.GRAY_DYE), count > 0 ? definition.name() : "&#ADB5BDНеизвестный артефакт", lore)); } menu.setItem(45, back()); player.openInventory(menu); }
+    public void openMuseum(Player player) { Town town = towny.town(player); if (town == null) { messages.send(player, "no-town"); return; } MuseumSnapshot museum = museums.snapshot(town.getUUID()); Inventory menu = menu(ArchaeologyMenuHolder.Type.MUSEUM, town.getUUID(), 54, config("gui.museum-title")); fill(menu); int slot = 10; for (ArtifactDefinition definition : registry.artifacts()) { while (slot < 44 && border(slot)) slot++; if (slot >= 44) break; int available = museum.available().getOrDefault(definition.id(), 0); int donated = museum.donated().getOrDefault(definition.id(), 0); List<String> lore = new ArrayList<>(definition.lore()); lore.add(""); lore.add("&7В фонде: &f" + available); lore.add("&7Передано за всё время: &f" + donated); lore.add("&7Ценность: &f" + definition.points()); menu.setItem(slot++, item(donated > 0 ? icon(definition) : new ItemStack(Material.GRAY_DYE), donated > 0 ? definition.name() : "&#ADB5BDНеизвестная витрина", lore)); } menu.setItem(45, back()); menu.setItem(49, item(Material.EMERALD, "&#63E6BEМузей города " + town.getName(), List.of("&7Очки музея: &f" + museum.points(), "&7Коллекций завершено: &f" + museum.completedCollections().size(), "", "&f/archaeology donate [all]"))); player.openInventory(menu); }
+    public void openCollections(Player player) { Town town = towny.town(player); if (town == null) { messages.send(player, "no-town"); return; } MuseumSnapshot museum = museums.snapshot(town.getUUID()); Inventory menu = menu(ArchaeologyMenuHolder.Type.COLLECTIONS, town.getUUID(), 45, config("gui.collections-title")); fill(menu); int slot = 10; for (CollectionDefinition collection : registry.collections()) { int found = (int) collection.artifacts().stream().filter(id -> museum.donated().getOrDefault(id, 0) > 0).count(); List<String> lore = new ArrayList<>(); for (String id : collection.artifacts()) { ArtifactDefinition artifact = registry.artifact(id); lore.add((museum.donated().getOrDefault(id, 0) > 0 ? "&#63E6BE✔ " : "&#ADB5BD○ ") + (artifact == null ? id : artifact.name())); } lore.add(""); lore.add("&7Прогресс: &f" + found + "/" + collection.artifacts().size()); lore.add(museum.completedCollections().contains(collection.id()) ? "&#63E6BEКоллекция завершена" : "&#FFD166Продолжайте раскопки"); menu.setItem(slot++, item(collection.icon(), collection.name(), lore)); } menu.setItem(36, back()); player.openInventory(menu); }
+    public void openWonders(Player player) { Town town = towny.town(player); if (town == null) { messages.send(player, "no-town"); return; } Inventory menu = menu(ArchaeologyMenuHolder.Type.WONDERS, town.getUUID(), 45, config("gui.wonders-title")); fill(menu); int slot = 10; for (String wonder : registry.wonderIds()) { Map<String, Integer> requirements = registry.wonderRequirements(wonder); Map<String, Integer> missing = museums.missing(town.getUUID(), wonder); List<String> lore = new ArrayList<>(); for (Map.Entry<String, Integer> entry : requirements.entrySet()) { ArtifactDefinition artifact = registry.artifact(entry.getKey()); int has = museums.available(town.getUUID(), entry.getKey()); lore.add((has >= entry.getValue() ? "&#63E6BE✔ " : "&#FF6B6B✘ ") + (artifact == null ? entry.getKey() : artifact.name()) + " &7" + has + "/" + entry.getValue()); } lore.add(""); lore.add(missing.isEmpty() ? "&#63E6BEМузей готов к строительству" : "&#FFD166Не все артефакты собраны"); menu.setItem(slot++, item(missing.isEmpty() ? Material.NETHER_STAR : Material.BARRIER, wonderName(wonder), lore)); } menu.setItem(36, back()); player.openInventory(menu); }
+    @EventHandler public void onClick(InventoryClickEvent event) { if (!(event.getInventory().getHolder() instanceof ArchaeologyMenuHolder)) return; event.setCancelled(true); if (!(event.getWhoClicked() instanceof Player player) || event.getClickedInventory() != event.getView().getTopInventory()) return; ItemStack stack = event.getCurrentItem(); if (stack == null || !stack.hasItemMeta()) return; String action = stack.getItemMeta().getPersistentDataContainer().get(actionKey, PersistentDataType.STRING); if (action == null) return; switch (action) { case "back" -> openMain(player); case "journal" -> openJournal(player); case "museum" -> openMuseum(player); case "collections" -> openCollections(player); case "wonders" -> openWonders(player); case "nearest" -> player.performCommand("archaeology nearest"); default -> { } } }
+    @EventHandler public void onDrag(InventoryDragEvent event) { if (event.getInventory().getHolder() instanceof ArchaeologyMenuHolder) event.setCancelled(true); }
+    private Inventory menu(ArchaeologyMenuHolder.Type type, UUID owner, int size, String title) { return Bukkit.createInventory(new ArchaeologyMenuHolder(type, owner), size, ColorUtil.color(title)); }
+    private void fill(Inventory menu) { Material material = Material.matchMaterial(plugin.getConfig().getString("gui.filler", "BLACK_STAINED_GLASS_PANE")); ItemStack filler = item(material == null ? Material.BLACK_STAINED_GLASS_PANE : material, " ", List.of()); for (int i = 0; i < menu.getSize(); i++) menu.setItem(i, filler); }
+    private ItemStack back() { return tagged(Material.ARROW, "back", "&#ADB5BDНазад", List.of("&7Вернуться в главное меню")); }
+    private ItemStack icon(ArtifactDefinition definition) { ItemStack custom = plugin.getConfig().getBoolean("itemsadder.enabled", true) ? itemsAdder.item(definition.itemsAdderIcon()) : null; return custom == null ? new ItemStack(definition.material()) : custom; }
+    private ItemStack tagged(Material material, String action, String name, List<String> lore) { ItemStack stack = item(material, name, lore); ItemMeta meta = stack.getItemMeta(); meta.getPersistentDataContainer().set(actionKey, PersistentDataType.STRING, action); stack.setItemMeta(meta); return stack; }
+    private ItemStack item(Material material, String name, List<String> lore) { return item(new ItemStack(material), name, lore); }
+    @SuppressWarnings("deprecation") private ItemStack item(ItemStack stack, String name, List<String> lore) { ItemMeta meta = stack.getItemMeta(); meta.setDisplayName(ColorUtil.color(name)); meta.setLore(lore.stream().map(ColorUtil::color).toList()); meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES); stack.setItemMeta(meta); stack.setAmount(1); return stack; }
+    private boolean border(int slot) { return slot % 9 == 0 || slot % 9 == 8; } private String config(String path) { return plugin.getConfig().getString(path, path); }
+    private String wonderName(String id) { return switch (id) { case "sun_pyramid" -> "&#FFD166Пирамида Солнца"; case "great_colosseum" -> "&#FF6B6BВеликий Колизей"; case "alexandria_lighthouse" -> "&#74C0FCАлександрийский Маяк"; case "hanging_gardens" -> "&#63E6BEВисячие Сады"; case "archmage_spire" -> "&#C77DFFШпиль Архимагов"; default -> "&f" + id; }; }
+}

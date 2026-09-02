@@ -1,0 +1,32 @@
+name: NeverLandTownyBuilds
+version: '${version}'
+main: ru.neverland.townybuilds.NeverLandTownyBuilds
+api-version: '26.2'
+authors: [Alexander Sokolov]
+website: https://neverland.ru
+description: Городские здания, Чудеса Света, склад и эффекты проекта NeverLand.
+depend: [Towny]
+softdepend: [ItemsAdder, NeverLandTownyArchaeology]
+commands:
+  buildeditor:
+    description: Внутриигровой редактор городских построек
+    usage: /buildeditor
+    aliases: [minteditor, townybuildeditor]
+    permission: neverlandtownybuilds.admin.editor
+  townybuilds:
+    description: Административные команды NeverLandTownyBuilds
+    usage: /townybuilds reload
+    aliases: [nltb, neverlandtownybuilds]
+    permission: neverlandtownybuilds.admin
+permissions:
+  neverlandtownybuilds.use:
+    default: true
+  neverlandtownybuilds.upgrade:
+    default: true
+  neverlandtownybuilds.admin:
+    default: op
+  neverlandtownybuilds.admin.editor:
+    default: op
+  neverlandtownybuilds.admin.bypass:
+    description: Позволяет ломать защищённые блоки процедурных зданий
+    default: op

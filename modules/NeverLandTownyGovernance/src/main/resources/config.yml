@@ -1,0 +1,52 @@
+# ============================================================
+# NeverLandTownyGovernance — основные настройки
+# ============================================================
+
+voting:
+  # Продолжительность голосования.
+  duration-hours: 24
+  # Доля избирателей, которая должна принять участие: 0.50 = 50%.
+  quorum: 0.50
+  # Доля голосов «за» среди голосов «за» и «против».
+  approval: 0.50
+  # COUNCIL — только совет; ALL_RESIDENTS — все жители города.
+  electorate: COUNCIL
+  allow-change: true
+  max-open-per-town: 5
+  proposal-cooldown-minutes: 15
+  resolution-interval-seconds: 20
+
+council:
+  mayor-is-member: true
+  # Towny-ранги, которые автоматически входят в совет.
+  towny-ranks:
+    - assistant
+
+management:
+  # Эти Towny-ранги могут назначать должностных лиц наравне с мэром.
+  allowed-town-ranks:
+    - assistant
+  allow-multiple-offices: true
+
+storage:
+  autosave-seconds: 60
+  history-limit: 50
+
+modifiers:
+  minimum: 0.10
+  maximum: 5.00
+
+gui:
+  main-title: "&#18243AГородское управление"
+  laws-title: "&#18243AЗаконы города"
+  votes-title: "&#18243AГолосования"
+  council-title: "&#18243AГородской совет"
+  history-title: "&#18243AИстория решений"
+  filler: BLACK_STAINED_GLASS_PANE
+
+itemsadder:
+  enabled: true
+
+messages:
+  broadcast-new-proposal: true
+  broadcast-resolution: true

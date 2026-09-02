@@ -1,0 +1,39 @@
+settings:
+  effects:
+    # GLOBAL — во всех мирах; TOWN — только внутри территории своего города.
+    scope: GLOBAL
+    refresh-ticks: 200
+    duration-ticks: 400
+    ambient: true
+    particles: false
+    icon: true
+  storage:
+    size: 54
+    autosave-seconds: 60
+  construction:
+    # Мэр начинает этап здания или Чуда, наведясь на землю в пределах города. Последующие уровни используют ту же площадку.
+    target-distance: 16
+    validation-max-errors: 5
+    preview-enabled: true
+    preview-interval-ticks: 10
+    preview-distance: 64
+    # Ближайший требуемый блок выделяется контуром; больше точек делают чертёж нечитаемым.
+    guide-points-per-edge: 4
+    # Персональная подпись над ближайшей точкой: название блока, координаты и расстояние.
+    guide-label-enabled: true
+    guide-label-height: 1.35
+  economy:
+    withdraw-reason: "Развитие городской постройки: {project} уровень {level}"
+  announcements:
+    wonder-complete: true
+    fireworks: true
+    firework-count: 8
+  itemsadder:
+    enabled: true
+    # Необязательные предметы для рамок и кнопок GUI.
+    filler-item: "neverland:menu_filler"
+    back-item: "neverland:menu_back"
+    upgrade-item: "neverland:menu_upgrade"
+    locked-item: "neverland:menu_locked"
+  editor:
+    chat-input-timeout-seconds: 60

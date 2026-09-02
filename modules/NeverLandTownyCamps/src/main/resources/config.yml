@@ -1,0 +1,113 @@
+settings:
+  data:
+    autosave-seconds: 60
+    expiry-check-seconds: 20
+
+  placement:
+    # Минимальное расстояние между центрами двух лагерей.
+    minimum-distance: 32
+    max-surface-slope: 1
+    minimum-y: -60
+    blocked-worlds: []
+    allow-water: false
+    towny:
+      wilderness-only: true
+      allow-in-own-town: false
+
+  lifetime:
+    # Общий абсолютный срок жизни лагеря: 72 часа.
+    maximum-seconds: 259200
+    initial-burn-seconds: 1800
+    burn-cap-seconds:
+      1: 86400
+      2: 136800
+      3: 259200
+
+  levels:
+    1:
+      name: "&#78D66FПоходный бивак"
+      radius: 6
+      stash-size: 9
+      max-trusted: 1
+    2:
+      name: "&#E5B85CОхотничья стоянка"
+      radius: 9
+      stash-size: 18
+      max-trusted: 3
+    3:
+      name: "&#E8794AУкреплённый форпост"
+      radius: 12
+      stash-size: 27
+      max-trusted: 6
+
+  fuel:
+    entries:
+      - material: COAL
+        seconds: 1800
+      - material: CHARCOAL
+        seconds: 1800
+      - tag: PLANKS
+        seconds: 300
+      - tag: LOGS
+        seconds: 600
+      - material: BLAZE_ROD
+        seconds: 3600
+      - material: LAVA_BUCKET
+        seconds: 7200
+        return-material: BUCKET
+
+  protection:
+    enabled: true
+    prevent-block-changes: true
+    prevent-explosions: true
+    prevent-fire: true
+    holy-barrier-default: true
+    holy-fire-particles: true
+    holy-fire-sound: true
+    # true — враждебный моб погибает сразу; false — получает указанный урон.
+    instant-kill-hostile-mobs: true
+    hostile-mob-damage: 1000.0
+
+  teleport:
+    warmup-seconds: 3
+    cooldown-seconds: 30
+    cancel-on-move: true
+    allow-trusted-camps: true
+
+  hologram:
+    enabled: true
+    height: 2.4
+    update-ticks: 20
+    view-range: 32.0
+    background-argb: 1711276032
+    shadowed: true
+
+  gui:
+    main-title: "&8Походный лагерь"
+    editor-title: "&8Редактор стоимости лагерей"
+    cost-editor-title: "&8Стоимость: {level}"
+    filler-material: BLACK_STAINED_GLASS_PANE
+    progress-filled: "&#78D66F■"
+    progress-empty: "&7□"
+
+  itemsadder:
+    enabled: true
+    filler-item: "neverland:menu_filler"
+    create-item: "neverland:camp_create"
+    upgrade-item: "neverland:camp_upgrade"
+    fuel-item: "neverland:camp_fuel"
+    storage-item: "neverland:camp_storage"
+    teleport-item: "neverland:camp_teleport"
+    trust-item: "neverland:camp_trust"
+    protection-item: "neverland:camp_barrier"
+    pack-item: "neverland:camp_pack"
+    save-item: "neverland:menu_save"
+    cancel-item: "neverland:menu_back"
+
+  sounds:
+    create: BLOCK_CAMPFIRE_CRACKLE
+    upgrade: UI_TOAST_CHALLENGE_COMPLETE
+    fuel: ITEM_FIRECHARGE_USE
+    teleport-start: BLOCK_BEACON_POWER_SELECT
+    teleport-complete: ENTITY_ENDERMAN_TELEPORT
+    pack: BLOCK_WOOD_BREAK

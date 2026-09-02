@@ -1,0 +1,34 @@
+name: NeverLandTownyGovernance
+version: '0.1.2'
+main: ru.neverland.governance.TownyGovernance
+api-version: '26.2'
+authors: [Alexander Sokolov]
+website: https://neverland.ru
+description: Законы, должности, городской совет и голосования проекта NeverLand.
+provides: [TownyGovernance]
+depend: [Towny]
+softdepend: [ItemsAdder, PlaceholderAPI, NeverLandTownyBuilds, NeverLandTownyIdeologies, NeverLandTownyEvents]
+commands:
+  governance:
+    aliases: [gov]
+    description: Управление городским советом
+    usage: /governance [laws|votes|council|history|propose|repeal|vote|appoint|dismiss]
+    permission: townygovernance.use
+  townygovernance:
+    aliases: [towngovernance, tgov, neverlandtownygovernance, nltgovernance]
+    description: Администрирование NeverLandTownyGovernance
+    usage: /townygovernance <reload|resolve|enact|repeal|info>
+    permission: townygovernance.admin
+permissions:
+  townygovernance.use:
+    default: true
+  townygovernance.propose:
+    default: true
+  townygovernance.vote:
+    default: true
+  townygovernance.offices:
+    default: true
+  townygovernance.admin:
+    default: op
+  townygovernance.bypass:
+    default: op

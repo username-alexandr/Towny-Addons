@@ -1,0 +1,70 @@
+# ============================================
+# NeverLandTownyEvents — основные настройки
+# Paper/Purpur 26.2, Towny 0.103.2.0, Java 25
+# ============================================
+
+scheduler:
+  enabled: true
+  startup-delay-minutes: 10
+  check-interval-minutes: 5
+  chance-per-check: 0.35
+  max-active-events: 3
+  town-cooldown-hours: 12
+  require-online-resident: true
+
+runtime:
+  tick-seconds: 1
+  effects-refresh-seconds: 8
+  bossbar: true
+  announce-to-town: true
+  save-immediately: true
+  history-limit-per-town: 20
+
+# Источники уровней. Плагин читает их только для совместимости, ничего не меняет.
+# Зарегистрированный через Bukkit ServicesManager TownDevelopmentProvider имеет приоритет.
+development-sources:
+  builds:
+    plugin: NeverLandTownyBuilds
+    file: town-data.yml
+    path: "towns.%town_uuid%.levels.%id%"
+  ideologies:
+    plugin: NeverLandTownyIdeologies
+    file: town-data.yml
+    paths:
+      - "towns.%town_uuid%.ideologies.%id%"
+      - "towns.%town_uuid%.levels.%id%"
+  cache-seconds: 30
+
+gameplay:
+  drought-base-crop-cancel-chance: 0.70
+  raid-wave-interval-seconds: 60
+  raid-base-mobs-per-wave: 5
+  raid-max-alive-mobs-per-town: 18
+  raid-mobs: [ZOMBIE, PILLAGER, HUSK]
+  # Сначала ищется позиция рядом с опорной точкой, затем напрямую внутри участков Towny.
+  raid-spawn-min-radius: 4
+  raid-spawn-max-radius: 18
+  raid-spawn-attempts: 32
+  raid-townblock-attempts: 6
+  raid-max-townblocks-scanned: 64
+  # Поиск безопасного пола выше и ниже данных HeightMap полезен для крыш, ковров и нестандартных миров.
+  raid-vertical-scan-down: 16
+  raid-vertical-scan-up: 6
+  # Если город находится на воде, разрешить резервное появление над поверхностью жидкости.
+  raid-allow-liquid-fallback: true
+  raid-failed-retry-seconds: 10
+  raid-warning-interval-seconds: 60
+  raid-announce-wave: true
+  raid-log-spawns: true
+  fire-particle-count: 12
+
+gui:
+  title: "&#241A33Городское событие"
+  history-title: "&#241A33История событий"
+  filler: BLACK_STAINED_GLASS_PANE
+
+commands-on-all-placeholders:
+  - "%town% — название города"
+  - "%event% — название события"
+  - "%progress% и %goal% — прогресс"
+  - "%protection% — защита в процентах"

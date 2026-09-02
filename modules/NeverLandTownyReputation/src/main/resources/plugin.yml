@@ -1,0 +1,30 @@
+name: NeverLandTownyReputation
+version: '0.1.2'
+main: ru.neverland.reputation.TownyReputation
+api-version: '26.2'
+authors: [Alexander Sokolov]
+website: https://neverland.ru
+description: Репутация между игроками, городами и нациями проекта NeverLand.
+provides: [TownyReputation]
+depend: [Towny]
+softdepend: [ItemsAdder, PlaceholderAPI, NeverLandTownyTrade, NeverLandTownyContracts, NeverLandTownyExpeditions, NeverLandTownyGovernance]
+commands:
+  reputation:
+    aliases: [rep]
+    description: Просмотр и изменение репутации
+    usage: /reputation [player|town|nation|endorse|denounce|top|history]
+    permission: townyreputation.use
+  townyreputation:
+    aliases: [trep, neverlandtownyreputation, nltreputation]
+    description: Администрирование NeverLandTownyReputation
+    usage: /townyreputation <reload|change|set|reset|info|decay>
+    permission: townyreputation.admin
+permissions:
+  townyreputation.use:
+    default: true
+  townyreputation.feedback:
+    default: true
+  townyreputation.admin:
+    default: op
+  townyreputation.bypass:
+    default: op

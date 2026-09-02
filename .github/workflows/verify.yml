@@ -1,0 +1,46 @@
+name: Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install PyYAML
+      - run: python scripts/verify_release.py
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.0.0'
+      - name: Build every add-on
+        shell: bash
+        run: |
+          set -euo pipefail
+          for module in modules/*; do
+            if [[ -f "$module/build.gradle.kts" ]]; then
+              gradle --no-daemon -p "$module" clean build
+            else
+              mvn -B -f "$module/pom.xml" clean package
+            fi
+          done
+

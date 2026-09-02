@@ -1,0 +1,26 @@
+name: NeverLandTownyStick
+version: '0.1.5'
+main: ru.neverland.morstownstick.MORSTownStick
+api-version: '26.2'
+authors: [Alexander Sokolov]
+website: https://neverland.ru
+description: Выделение и массовый захват территорий Towny для проекта NeverLand.
+provides: [MORSTownStick]
+depend: [Towny]
+commands:
+  townystick:
+    description: Администрирование NeverLandTownyStick
+    usage: /townystick reload | /townystick <ник>
+    aliases: [townstick, neverlandtownystick, nltstick]
+    permission: morstownstick.admin
+permissions:
+  morstownstick.stick:
+    default: true
+  morstownstick.list:
+    default: true
+  morstownstick.clear:
+    default: true
+  morstownstick.claim:
+    default: true
+  morstownstick.admin:
+    default: op

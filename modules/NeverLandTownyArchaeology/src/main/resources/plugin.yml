@@ -1,0 +1,40 @@
+name: NeverLandTownyArchaeology
+version: '0.1.4'
+main: ru.neverland.archaeology.TownyArchaeology
+api-version: '26.2'
+authors: [Alexander Sokolov]
+website: https://neverland.ru
+description: Раскопки, артефакты, музейные коллекции и Чудеса Света проекта NeverLand.
+provides: [TownyArchaeology]
+depend: [Towny]
+softdepend: [ItemsAdder, PlaceholderAPI, NeverLandTownyReputation]
+loadbefore: [NeverLandTownyBuilds]
+commands:
+  archaeology:
+    aliases: [arch, археология]
+    description: Археология, журнал и передача находок музею
+    usage: /archaeology [journal|donate|nearest|collections]
+    permission: townyarchaeology.use
+  townyarchaeology:
+    aliases: [tarch, neverlandtownyarchaeology, nltarchaeology]
+    description: Администрирование NeverLandTownyArchaeology
+    usage: /townyarchaeology <reload|give|site|museum|info>
+    permission: townyarchaeology.admin
+  artifact:
+    aliases: [artifacts, артефакт]
+    description: Административная выдача артефактов
+    usage: /artifact give <игрок> <артефакт> [количество]
+permissions:
+  townyarchaeology.use:
+    default: true
+  townyarchaeology.donate:
+    default: true
+  townyarchaeology.admin:
+    default: op
+    children:
+      townyarchaeology.admin.give: true
+  townyarchaeology.admin.give:
+    description: Разрешает выдавать артефакты командой /artifact give
+    default: op
+  townyarchaeology.bypass:
+    default: op

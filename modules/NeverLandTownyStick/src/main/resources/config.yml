@@ -1,0 +1,102 @@
+# ============================================
+# NeverLandTownyStick — настройки
+# Paper/Purpur 26.2 + Towny 0.103.2.0
+# ============================================
+
+stick:
+  material: STICK
+  name: "&#55FF55Палка выбора территории"
+  lore:
+    - "&#AAAAAAПКМ по чанку — выбрать"
+    - "&#AAAAAAПКМ по выбранному — отменить"
+    - "&#AAAAAAИспользуйте /t claim для захвата"
+  glint: true
+
+selection:
+  # -1 = без ограничений.
+  max-chunks: -1
+  clear-on-quit: true
+
+claim:
+  enabled: true
+  # Не больше этого количества TownBlock обрабатывается за одну волну.
+  batch-size: 5
+  # Следующая волна начинается не раньше следующего тика после завершения предыдущей.
+  delay-ticks: 1
+  respect-towny-claim-permissions: true
+
+particles:
+  selection:
+    enabled: true
+    particle: DUST
+    color: "#55FF55"
+    size: 1.0
+    spacing: 4.0
+    update-interval: 10
+    render-distance: 64
+
+  town-border:
+    enabled: true
+    particle: DUST
+    color: "#FFFF00"
+    size: 1.0
+    spacing: 4.0
+    update-interval: 10
+    render-distance: 64
+    # Отображается внешний периметр только города смотрящего игрока.
+    own-town-only: true
+
+  town-border-cache-interval: 200
+
+messages:
+  prefix: "&#18243A[&#55FF55NeverLand &#AAB4C4• &#FFFFFFТерритории&#18243A] &r"
+  no-permission: "&#FF5555У вас нет прав."
+  players-only: "&#FF5555Команда доступна только игроку."
+  no-town: "&#FF5555Вы не состоите в городе."
+  not-mayor-or-assistant: "&#FF5555Только мэр или заместитель могут использовать эту функцию."
+  missing-towny-permission: "&#FF5555Towny не разрешает вам захватывать территории города."
+
+  stick-given: "&#55FF55Вы получили палку выбора территории."
+  stick-already-have: "&#FFFF55У вас уже есть палка выбора территории."
+  stick-received-admin: "&#55FF55Администратор выдал вам палку выбора территории."
+  stick-given-other: "&#55FF55Палка выбора территории выдана игроку &#FFFFFF%player%&#55FF55."
+  stick-already-have-other: "&#FFFF55У игрока &#FFFFFF%player% &#FFFF55уже есть палка выбора территории."
+  player-not-found: "&#FF5555Игрок &#FFFFFF%player% &#FF5555не найден или не находится на сервере."
+  stick-invalid-material: "&#FF5555В конфигурации указан неизвестный материал палки: %material%."
+
+  chunk-selected: "&#55FF55Чанк [%x%, %z%] выбран. &#AAAAAA(Всего: &#FFFFFF%count%&#AAAAAA)"
+  chunk-unselected: "&#FFFF55Выбор чанка [%x%, %z%] отменён. &#AAAAAA(Всего: &#FFFFFF%count%&#AAAAAA)"
+  selection-cleared: "&#55FF55Все выбранные чанки были очищены."
+  no-selected-chunks: "&#FF5555У вас нет выбранных чанков."
+  max-chunks-reached: "&#FF5555Достигнуто максимальное количество выбранных чанков (%max%)."
+  selection-locked: "&#FFFF55Дождитесь завершения текущего захвата территории."
+
+  selected-header: "&#AAAAAAВыбрано чанков: &#FFFFFF%count%"
+  selected-entry: "&#AAAAAA• &#FFFFFF%world% &#AAAAAA[&#FFFFFF%x%&#AAAAAA, &#FFFFFF%z%&#AAAAAA]"
+  help:
+    - "&#55FF55&lNeverLandTownyStick"
+    - "&#AAAAAAПКМ специальной палкой — выбрать или отменить чанк."
+    - "&#FFFFFF/t stick &#AAAAAA— получить палку"
+    - "&#FFFFFF/t stick list &#AAAAAA— список выделения"
+    - "&#FFFFFF/t stick clear &#AAAAAA— очистить выделение"
+    - "&#FFFFFF/t claim &#AAAAAA— захватить выделение BFS-волной"
+    - "&#FFFFFF/t stick claim &#AAAAAA— прямой запуск захвата выделения"
+
+  claim-disabled: "&#FF5555Массовый захват отключён администратором."
+  claim-start: "&#AAAAAAНачинаем последовательный захват &#FFFFFF%count% &#AAAAAAчанков..."
+  claim-already-running: "&#FFFF55Захват территории уже выполняется."
+  claim-cancelled-offline: "&#FFFF55Захват остановлен: игрок вышел с сервера."
+  claim-success: "&#55FF55Успешно захвачено чанков: &#FFFFFF%success%"
+  claim-failed: "&#FF5555Не удалось захватить чанков: &#FFFFFF%failed%"
+  claim-partial: "&#FFFF55Захвачено &#FFFFFF%success% &#FFFF55из &#FFFFFF%total%&#FFFF55. Не удалось: &#FFFFFF%failed%"
+  claim-error-line: "&#AAAAAA• Чанк [&#FFFFFF%x%&#AAAAAA, &#FFFFFF%z%&#AAAAAA] — %reason%"
+  reason-not-adjacent: "&#FFFF55Не граничит с территорией города"
+  reason-insufficient-funds: "&#FF5555Недостаточно средств в казне города"
+  reason-limit: "&#FF5555Превышен лимит чанков города"
+  reason-already-claimed: "&#FF5555Чанк уже занят другим городом"
+  reason-world-disabled: "&#FF5555В этом мире захват Towny запрещён"
+  reason-towny-rejected: "&#FF5555Towny отклонил захват: %reason%"
+  reason-internal-error: "&#FF5555Внутренняя ошибка; сообщите администратору"
+
+  reload-success: "&#55FF55Конфигурация перезагружена. Кэш границ очищен."
+  reload-usage: "&#AAAAAAИспользование: &#FFFFFF/townystick reload &#AAAAAAили &#FFFFFF/townystick <ник>"

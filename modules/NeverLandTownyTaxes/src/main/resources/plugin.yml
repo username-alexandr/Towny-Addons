@@ -1,0 +1,31 @@
+name: NeverLandTownyTaxes
+version: '0.1.0'
+main: ru.neverland.townytaxes.NeverLandTownyTaxes
+api-version: '26.2'
+authors: [Alexander Sokolov]
+website: https://neverland.ru
+description: Налоги, санкции и политико-экономические соглашения проекта NeverLand.
+provides: [TaxyTowny]
+depend: [Towny]
+softdepend: [Vault, PlaceholderAPI, ItemsAdder, NeverLandTownyTrade, NeverLandTownyGovernance, NeverLandTownyReputation]
+commands:
+  townytaxes:
+    description: Администрирование налогов, санкций и соглашений NeverLand
+    usage: /townytaxes <policy|sanction|agreement|bank|ledger|reload>
+    aliases: [taxytowny, taxesadmin, neverlandtownytaxes, nlttaxes]
+    permission: townytaxes.admin
+permissions:
+  townytaxes.use:
+    default: true
+  townytaxes.manage:
+    default: true
+  townytaxes.nation:
+    default: true
+  townytaxes.sanctions:
+    default: true
+  townytaxes.agreements:
+    default: true
+  townytaxes.admin:
+    default: op
+  townytaxes.bypass:
+    default: op

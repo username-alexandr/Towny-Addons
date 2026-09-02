@@ -1,0 +1,49 @@
+rarities:
+  common: {name: "&fОбычный", color: "&f"}
+  uncommon: {name: "&#74C0FCНеобычный", color: "&#74C0FC"}
+  rare: {name: "&#63E6BEРедкий", color: "&#63E6BE"}
+  epic: {name: "&#C77DFFЭпический", color: "&#C77DFF"}
+  legendary: {name: "&#FFD166Легендарный", color: "&#FFD166"}
+
+artifacts:
+  clay_seal: {name: "&fГлиняная печать", rarity: common, material: BRICK, itemsadder-icon: "neverland:artifact_clay_seal", points: 5, lore: ["&7Печать давно исчезнувшего поселения."]}
+  bronze_coin: {name: "&fБронзовая монета", rarity: common, material: COPPER_INGOT, itemsadder-icon: "neverland:artifact_bronze_coin", points: 5, lore: ["&7Монета с нечитаемым профилем правителя."]}
+  sun_tablet: {name: "&#63E6BEСолнечная табличка", rarity: rare, material: CHISELED_SANDSTONE, itemsadder-icon: "neverland:artifact_sun_tablet", points: 25, lore: ["&7Камень всё ещё хранит тепло пустыни."]}
+  pharaoh_mask: {name: "&#C77DFFМаска древнего владыки", rarity: epic, material: GOLDEN_HELMET, itemsadder-icon: "neverland:artifact_pharaoh_mask", points: 60, lore: ["&7Знак власти забытой солнечной династии."]}
+  coral_compass: {name: "&#74C0FCКоралловый компас", rarity: uncommon, material: COMPASS, itemsadder-icon: "neverland:artifact_coral_compass", points: 15, lore: ["&7Его стрелка указывает в затопленные глубины."]}
+  navigator_astrolabe: {name: "&#63E6BEАстролябия мореплавателя", rarity: rare, material: CLOCK, itemsadder-icon: "neverland:artifact_astrolabe", points: 30, lore: ["&7Прибор экспедиции, не вернувшейся домой."]}
+  pearl_crown: {name: "&#C77DFFЖемчужная корона", rarity: epic, material: NAUTILUS_SHELL, itemsadder-icon: "neverland:artifact_pearl_crown", points: 65, lore: ["&7Корона правителей затонувшего города."]}
+  warrior_badge: {name: "&fЗнак легионера", rarity: common, material: IRON_NUGGET, itemsadder-icon: "neverland:artifact_warrior_badge", points: 6, lore: ["&7Потёртая метка древнего войска."]}
+  broken_standard: {name: "&#74C0FCНавершие штандарта", rarity: uncommon, material: IRON_INGOT, itemsadder-icon: "neverland:artifact_broken_standard", points: 16, lore: ["&7Последний символ павшего легиона."]}
+  royal_sword: {name: "&#63E6BEЦарский клинок", rarity: rare, material: GOLDEN_SWORD, itemsadder-icon: "neverland:artifact_royal_sword", points: 35, lore: ["&7Церемониальный меч победителя."]}
+  colosseum_medallion: {name: "&#C77DFFМедальон чемпиона", rarity: epic, material: ECHO_SHARD, itemsadder-icon: "neverland:artifact_colosseum_medallion", points: 70, lore: ["&7Награда величайшего бойца арены."]}
+  crystal_fragment: {name: "&#74C0FCЖивой кристалл", rarity: uncommon, material: AMETHYST_SHARD, itemsadder-icon: "neverland:artifact_crystal_fragment", points: 18, lore: ["&7Осколок медленно меняет форму."]}
+  alien_rune: {name: "&#63E6BEИномирная руна", rarity: rare, material: PRISMARINE_CRYSTALS, itemsadder-icon: "neverland:artifact_alien_rune", points: 40, lore: ["&7Её письмена не принадлежат этому миру."]}
+  archmage_focus: {name: "&#C77DFFФокус архимага", rarity: epic, material: END_CRYSTAL, itemsadder-icon: "neverland:artifact_archmage_focus", points: 80, lore: ["&7Стабилизатор древних магических потоков."]}
+  eternal_seed: {name: "&#C77DFFСемя вечного сада", rarity: epic, material: TORCHFLOWER_SEEDS, itemsadder-icon: "neverland:artifact_eternal_seed", points: 75, lore: ["&7Росток эпохи, когда природа знала магию."]}
+  heart_of_epoch: {name: "&#FFD166Сердце эпохи", rarity: legendary, material: NETHER_STAR, itemsadder-icon: "neverland:artifact_heart_of_epoch", points: 150, lore: ["&7Уникальная реликвия на границе времён."]}
+
+collections:
+  sun_dynasty:
+    name: "&#FFD166Солнечная династия"
+    icon: GOLD_BLOCK
+    artifacts: [clay_seal, bronze_coin, sun_tablet, pharaoh_mask]
+  drowned_kingdom:
+    name: "&#74C0FCЗатонувшее королевство"
+    icon: HEART_OF_THE_SEA
+    artifacts: [coral_compass, navigator_astrolabe, pearl_crown]
+  fallen_legion:
+    name: "&#FF6B6BПавший легион"
+    icon: SHIELD
+    artifacts: [warrior_badge, broken_standard, royal_sword, colosseum_medallion]
+  beyond_the_world:
+    name: "&#C77DFFЗа гранью мира"
+    icon: END_CRYSTAL
+    artifacts: [crystal_fragment, alien_rune, archmage_focus, eternal_seed, heart_of_epoch]
+
+wonder-requirements:
+  sun_pyramid: ["sun_tablet:3", "pharaoh_mask:1", "heart_of_epoch:1"]
+  great_colosseum: ["warrior_badge:8", "royal_sword:2", "colosseum_medallion:2"]
+  alexandria_lighthouse: ["coral_compass:3", "navigator_astrolabe:2", "pearl_crown:1"]
+  hanging_gardens: ["clay_seal:4", "crystal_fragment:3", "eternal_seed:1"]
+  archmage_spire: ["alien_rune:4", "archmage_focus:2", "heart_of_epoch:1"]

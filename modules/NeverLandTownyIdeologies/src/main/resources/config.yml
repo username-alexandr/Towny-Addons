@@ -1,0 +1,52 @@
+settings:
+  # TOWN_BANK — казна Towny; PLAYER_VAULT — баланс мэра через Vault;
+  # ITEM — обычный или ItemsAdder-предмет; COMMAND — любая валюта через PlaceholderAPI и команду.
+  economy:
+    mode: TOWN_BANK
+    currency-name: "монет"
+    number-format: "#,##0.##"
+    withdraw-reason: "Идеология города: {ideology}, уровень {level}"
+    item:
+      material: GOLD_NUGGET
+      itemsadder-id: ""
+    command:
+      balance-placeholder: "%playerpoints_points%"
+      withdraw-command: "points take {player} {amount_raw}"
+
+  selection:
+    change-allowed: false
+    # При смене старая ветка и её уровень теряются. Цена берётся из новой идеологии.
+    require-confirmation: true
+
+  bonus-scope:
+    # GLOBAL — бонус жителю доступен везде; TOWN — только на территории его города.
+    healthcare: GLOBAL
+    infrastructure: GLOBAL
+    defense: GLOBAL
+    trade: GLOBAL
+
+  effects:
+    refresh-ticks: 40
+    duration-ticks: 100
+    ambient: true
+    particles: false
+    icon: true
+    defense-combat-seconds: 15
+
+  data:
+    autosave-seconds: 60
+
+  itemsadder:
+    enabled: true
+    filler-item: "neverland:menu_filler"
+    back-item: "neverland:menu_back"
+    confirm-item: "neverland:menu_confirm"
+    locked-item: "neverland:menu_locked"
+
+  gui:
+    list-title: "&8Идеологии города"
+    details-title: "&8Идеология: {ideology}"
+    confirm-title: "&8Подтверждение"
+    filler-material: BLACK_STAINED_GLASS_PANE
+    progress-filled: "&a■"
+    progress-empty: "&7□"

@@ -1,0 +1,66 @@
+expeditions:
+  one-active-per-camp: true
+  preparation-seconds: 3
+  expiry-check-seconds: 10
+  autosave-seconds: 30
+  history-limit: 30
+  search-attempts: 12
+  minimum-distance-between-sites: 96
+  require-wilderness: true
+  return-on-complete: true
+  # По умолчанию участники получают координаты и идут к событию самостоятельно.
+  teleport-party-to-site: false
+
+camps:
+  plugin: NeverLandTownyCamps
+  require-owner: true
+  require-active-fire: true
+  start-radius-extra: 2.0
+  party-radius: 20.0
+  maximum-party-by-level:
+    1: 2
+    2: 4
+    3: 7
+  block-start-while-stash-open: true
+
+generation:
+  asynchronous-chunk-load: true
+  restore-blocks-per-tick: 80
+  protected-radius: 16
+  blocked-worlds: []
+
+combat:
+  mob-spawn-radius: 7.0
+  spawn-search-radius: 12
+  spawn-search-height: 12
+  mob-containment-radius: 15.0
+  mob-containment-height: 18.0
+  prevent-teleport-outside: true
+  protect-from-fall-and-suffocation: true
+  respawn-uncredited-deaths: true
+  respawn-missing-on-restart: true
+
+rewards:
+  drop-overflow-at-player: true
+  economy-reason: "Награда за экспедицию: %expedition%"
+
+bossbar:
+  enabled: true
+  color: PURPLE
+  style: SEGMENTED_10
+  title: "&#C56DFF%expedition% &#AAAAAA| &#FFFFFF%objective%"
+
+gui:
+  title: "&#211A2EДоска экспедиций"
+  history-title: "&#211A2EИстория экспедиций"
+  filler: BLACK_STAINED_GLASS_PANE
+
+sounds:
+  start: ITEM_LODESTONE_COMPASS_LOCK
+  objective: BLOCK_AMETHYST_BLOCK_CHIME
+  complete: UI_TOAST_CHALLENGE_COMPLETE
+  fail: ENTITY_WITHER_HURT
+
+announcements:
+  start: true
+  complete: true

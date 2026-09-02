@@ -1,0 +1,66 @@
+# Ванильный предмет: MATERIAL. ItemsAdder: itemsadder:namespace:id.
+exports:
+  timber:
+    name: "&#8BE06A&lСтроевая древесина"
+    icon: OAK_LOG
+    slot: 28
+    description: ["Брёвна для строительства", "и развития новых кварталов."]
+    item: OAK_LOG
+    amount: 512
+    price: 4200
+  stone:
+    name: "&#AAB4C4&lКаменный груз"
+    icon: STONE_BRICKS
+    slot: 29
+    description: ["Крупная поставка камня", "для городских проектов."]
+    item: COBBLESTONE
+    amount: 1024
+    price: 5000
+  iron:
+    name: "&#D7DDE8&lЖелезный экспорт"
+    icon: IRON_INGOT
+    slot: 30
+    description: ["Стратегическая партия", "железа для кузниц."]
+    item: IRON_INGOT
+    amount: 256
+    price: 9000
+  food:
+    name: "&#FFB56B&lПродовольственный обоз"
+    icon: COOKED_BEEF
+    slot: 31
+    description: ["Запас пищи для жителей", "и городского гарнизона."]
+    item: COOKED_BEEF
+    amount: 384
+    price: 6200
+  glass:
+    name: "&#74D7FF&lСтекольная продукция"
+    icon: GLASS
+    slot: 32
+    description: ["Стекло для витрин, теплиц", "и декоративных построек."]
+    item: GLASS
+    amount: 512
+    price: 5800
+  redstone:
+    name: "&#FF6B62&lРедстоун-механизмы"
+    icon: REDSTONE
+    slot: 33
+    description: ["Компоненты для городской", "автоматизации."]
+    item: REDSTONE
+    amount: 256
+    price: 8000
+  wool:
+    name: "&#E8D6FF&lТекстильная партия"
+    icon: WHITE_WOOL
+    slot: 34
+    description: ["Шерсть для мастерских", "и городских украшений."]
+    item: WHITE_WOOL
+    amount: 384
+    price: 5200
+  emeralds:
+    name: "&#63E6BE&lИзумрудный резерв"
+    icon: EMERALD
+    slot: 37
+    description: ["Ценный груз для крупных", "торговых соглашений."]
+    item: EMERALD
+    amount: 64
+    price: 12000

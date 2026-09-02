@@ -1,0 +1,60 @@
+offices:
+  deputy_mayor:
+    name: "&#FFD166Заместитель мэра"
+    material: GOLDEN_HELMET
+    itemsadder-icon: "neverland:office_deputy_mayor"
+    max-holders: 1
+    council-member: true
+    proposal-categories: [ALL]
+    description:
+      - "&7Помогает мэру управлять городом."
+
+  treasurer:
+    name: "&#63E6BEКазначей"
+    material: CHEST
+    itemsadder-icon: "neverland:office_treasurer"
+    max-holders: 1
+    council-member: true
+    proposal-categories: [TAX]
+    description:
+      - "&7Отвечает за бюджет и налоги."
+
+  architect:
+    name: "&#FFA94DГлавный архитектор"
+    material: BRICKS
+    itemsadder-icon: "neverland:office_architect"
+    max-holders: 1
+    council-member: true
+    proposal-categories: [CONSTRUCTION]
+    description:
+      - "&7Предлагает строительные программы."
+
+  ideologist:
+    name: "&#C77DFFСоветник по идеологии"
+    material: ENCHANTED_BOOK
+    itemsadder-icon: "neverland:office_ideologist"
+    max-holders: 1
+    council-member: true
+    proposal-categories: [IDEOLOGY]
+    description:
+      - "&7Координирует идеологическое развитие."
+
+  councillor:
+    name: "&#74C0FCЧлен городского совета"
+    material: PAPER
+    itemsadder-icon: "neverland:office_councillor"
+    max-holders: 5
+    council-member: true
+    proposal-categories: [CIVIC]
+    description:
+      - "&7Участвует в голосованиях совета."
+
+  clerk:
+    name: "&#ADB5BDГородской секретарь"
+    material: BOOK
+    itemsadder-icon: "neverland:office_clerk"
+    max-holders: 1
+    council-member: false
+    proposal-categories: []
+    description:
+      - "&7Ведёт реестр городских решений."

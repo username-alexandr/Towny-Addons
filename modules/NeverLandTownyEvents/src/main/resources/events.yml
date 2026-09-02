@@ -1,0 +1,122 @@
+# Все числа, предметы, модификаторы, длительность и команды можно менять.
+# protection-per-level суммируется и ограничивается mitigation-cap.
+# Защита снижает силу штрафа, уменьшает набеги и даёт бонус к очкам вкладов.
+
+events:
+  epidemic:
+    name: "&#8BE06A&lЭпидемия"
+    icon: SPIDER_EYE
+    description: "Болезнь распространяется среди жителей. Доставьте лекарства и продовольствие."
+    duration-minutes: 45
+    base-goal: 180
+    goal-per-resident: 35
+    mitigation-cap: 0.75
+    mode: EPIDEMIC
+    bossbar-color: GREEN
+    buildings:
+      temple: 0.08
+      great_library: 0.03
+    ideologies:
+      healthcare: 0.10
+    contributions:
+      HONEY_BOTTLE: {points: 6, name: "Бутылочка мёда"}
+      MILK_BUCKET: {points: 10, name: "Ведро молока"}
+      GOLDEN_APPLE: {points: 28, name: "Золотое яблоко"}
+      GHAST_TEAR: {points: 45, name: "Слеза гаста"}
+    success-commands: []
+    failure-commands: []
+
+  drought:
+    name: "&#FFD45A&lЗасуха"
+    icon: DEAD_BUSH
+    description: "Поля пересыхают, а растения растут медленнее. Пополните городские запасы воды."
+    duration-minutes: 50
+    base-goal: 220
+    goal-per-resident: 40
+    mitigation-cap: 0.80
+    mode: DROUGHT
+    bossbar-color: YELLOW
+    buildings:
+      agrarian_complex: 0.12
+      town_hall: 0.02
+    ideologies:
+      agriculture: 0.10
+    contributions:
+      WATER_BUCKET: {points: 12, name: "Ведро воды"}
+      ICE: {points: 3, name: "Лёд"}
+      PACKED_ICE: {points: 8, name: "Плотный лёд"}
+      HAY_BLOCK: {points: 5, name: "Сноп сена"}
+    success-commands: []
+    failure-commands: []
+
+  fire:
+    name: "&#FF8A5B&lГородской пожар"
+    icon: CAMPFIRE
+    description: "В кварталах вспыхнул пожар. Тушите очаги и доставляйте негорючие материалы."
+    duration-minutes: 35
+    base-goal: 200
+    goal-per-resident: 38
+    mitigation-cap: 0.75
+    mode: FIRE
+    bossbar-color: RED
+    buildings:
+      forge: 0.09
+      town_hall: 0.04
+    ideologies:
+      industry: 0.07
+      infrastructure: 0.05
+    contributions:
+      WATER_BUCKET: {points: 14, name: "Ведро воды"}
+      BRICKS: {points: 3, name: "Кирпичи"}
+      COPPER_INGOT: {points: 4, name: "Медный слиток"}
+      FIRE_RESISTANCE: {points: 20, name: "Зелье огнестойкости"}
+    success-commands: []
+    failure-commands: []
+
+  raid:
+    name: "&#FF5E6C&lНабег разбойников"
+    icon: CROSSBOW
+    description: "Вражеские отряды атакуют город. Снабдите гарнизон и защитите жителей."
+    duration-minutes: 40
+    base-goal: 260
+    goal-per-resident: 50
+    mitigation-cap: 0.80
+    mode: RAID
+    bossbar-color: PURPLE
+    buildings:
+      barracks: 0.12
+      forge: 0.04
+      town_hall: 0.03
+    ideologies:
+      military: 0.10
+    contributions:
+      IRON_SWORD: {points: 18, name: "Железный меч"}
+      SHIELD: {points: 20, name: "Щит"}
+      ARROW: {points: 2, name: "Стрела"}
+      COOKED_BEEF: {points: 3, name: "Жареная говядина"}
+    success-commands: []
+    failure-commands: []
+
+  festival:
+    name: "&#D27CFF&lГородской фестиваль"
+    icon: FIREWORK_ROCKET
+    description: "Город готовится к празднику. Соберите угощения, украшения и фейерверки."
+    duration-minutes: 60
+    base-goal: 240
+    goal-per-resident: 45
+    mitigation-cap: 0.75
+    mode: FESTIVAL
+    bossbar-color: PINK
+    buildings:
+      market: 0.08
+      temple: 0.03
+      town_hall: 0.04
+    ideologies:
+      culture: 0.10
+    contributions:
+      CAKE: {points: 18, name: "Торт"}
+      COOKIE: {points: 2, name: "Печенье"}
+      FIREWORK_ROCKET: {points: 5, name: "Фейерверк"}
+      EMERALD: {points: 7, name: "Изумруд"}
+    success-commands: []
+    failure-commands: []

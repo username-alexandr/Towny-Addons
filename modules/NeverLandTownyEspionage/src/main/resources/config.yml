@@ -1,0 +1,57 @@
+# NeverLandTownyEspionage — общие настройки
+management:
+  mayor: true
+  allowed-town-ranks: [assistant, spymaster]
+
+network:
+  maximum-level: 5
+  base-active-operations: 1
+  operations-per-level: 1
+  upgrade-costs: [10000, 25000, 50000, 90000, 150000]
+  success-bonus-per-level: 0.04
+  duration-reduction-per-level: 0.05
+
+counterintelligence:
+  maximum-level: 5
+  upgrade-costs: [12000, 30000, 60000, 110000, 180000]
+  success-penalty-per-level: 0.05
+  detection-bonus-per-level: 0.07
+
+buildings:
+  plugin: NeverLandTownyBuilds
+  # success-penalty и detection-bonus начисляются за каждый уровень постройки.
+  defense:
+    barracks: {success-penalty: 0.025, detection-bonus: 0.025}
+    town_hall: {success-penalty: 0.010, detection-bonus: 0.015}
+    great_library: {success-penalty: 0.010, detection-bonus: 0.020}
+    forge: {success-penalty: 0.005, detection-bonus: 0.010}
+
+limits:
+  minimum-success-chance: 0.05
+  maximum-success-chance: 0.95
+  minimum-detection-chance: 0.02
+  maximum-detection-chance: 0.95
+  history-per-town: 40
+  reports-per-town: 50
+
+reports:
+  notify-target-on-detection: true
+  reveal-attacker-on-detection: true
+  delete-expired: true
+
+economy:
+  operation-reason: "Разведывательная операция: %operation% против %target%"
+  network-upgrade-reason: "Развитие городской разведсети"
+  defense-upgrade-reason: "Развитие городской контрразведки"
+
+gui:
+  main-title: "&#141824Городская разведка"
+  targets-title: "&#141824Выбор цели"
+  operations-title: "&#141824Операция против %town%"
+  reports-title: "&#141824Разведывательные отчёты"
+  active-title: "&#141824Активные операции"
+  filler: BLACK_STAINED_GLASS_PANE
+
+scheduler:
+  update-ticks: 100
+  autosave-seconds: 60

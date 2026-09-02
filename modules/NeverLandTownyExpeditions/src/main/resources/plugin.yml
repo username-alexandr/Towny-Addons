@@ -1,0 +1,30 @@
+name: NeverLandTownyExpeditions
+version: '0.1.4'
+main: ru.neverland.mintexpeditions.MintTownyExpeditions
+api-version: '26.2'
+authors: [Alexander Sokolov]
+website: https://neverland.ru
+description: Походные экспедиции к руинам, кораблекрушениям и аномалиям проекта NeverLand.
+provides: [MintTownyExpeditions]
+depend: [NeverLandTownyCamps, Towny]
+softdepend: [ItemsAdder, PlaceholderAPI]
+commands:
+  expedition:
+    description: Меню и команды экспедиций
+    usage: /expedition [start|status|return|claim|history]
+    aliases: [exp, expeditions]
+    permission: mintexpeditions.use
+  townyexpeditions:
+    description: Администрирование экспедиций
+    usage: /townyexpeditions <list|complete|cancel|reload>
+    aliases: [mintexpeditions, mexp, neverlandtownyexpeditions, nltexpeditions]
+    permission: mintexpeditions.admin
+permissions:
+  mintexpeditions.use:
+    default: true
+  mintexpeditions.start:
+    default: true
+  mintexpeditions.admin:
+    default: op
+  mintexpeditions.bypass.protection:
+    default: op

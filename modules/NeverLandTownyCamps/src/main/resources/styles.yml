@@ -1,0 +1,108 @@
+# Материалы каждой климатической схемы. Все значения — Bukkit Material.
+styles:
+  plains:
+    name: "&#7CCB62Равнины"
+    log: OAK_LOG
+    stripped-log: STRIPPED_OAK_LOG
+    planks: OAK_PLANKS
+    slab: OAK_SLAB
+    stairs: OAK_STAIRS
+    fence: OAK_FENCE
+    wool: GREEN_WOOL
+    carpet: GREEN_CARPET
+    foundation: STONE_BRICKS
+    stone-ring: COBBLESTONE_SLAB
+    light: LANTERN
+    banner: GREEN_BANNER
+    bed: GREEN_BED
+  taiga:
+    name: "&#5FAE78Тайга"
+    log: SPRUCE_LOG
+    stripped-log: STRIPPED_SPRUCE_LOG
+    planks: SPRUCE_PLANKS
+    slab: SPRUCE_SLAB
+    stairs: SPRUCE_STAIRS
+    fence: SPRUCE_FENCE
+    wool: BROWN_WOOL
+    carpet: BROWN_CARPET
+    foundation: COBBLESTONE
+    stone-ring: MOSSY_COBBLESTONE_SLAB
+    light: SOUL_LANTERN
+    banner: BROWN_BANNER
+    bed: BROWN_BED
+  desert:
+    name: "&#E5C36AПустыня"
+    log: STRIPPED_BIRCH_LOG
+    stripped-log: STRIPPED_BIRCH_LOG
+    planks: BIRCH_PLANKS
+    slab: SMOOTH_SANDSTONE_SLAB
+    stairs: SMOOTH_SANDSTONE_STAIRS
+    fence: BIRCH_FENCE
+    wool: ORANGE_WOOL
+    carpet: ORANGE_CARPET
+    foundation: CUT_SANDSTONE
+    stone-ring: SANDSTONE_SLAB
+    light: LANTERN
+    banner: ORANGE_BANNER
+    bed: ORANGE_BED
+  jungle:
+    name: "&#42C67AДжунгли"
+    log: JUNGLE_LOG
+    stripped-log: STRIPPED_JUNGLE_LOG
+    planks: JUNGLE_PLANKS
+    slab: JUNGLE_SLAB
+    stairs: JUNGLE_STAIRS
+    fence: JUNGLE_FENCE
+    wool: LIME_WOOL
+    carpet: LIME_CARPET
+    foundation: MOSSY_STONE_BRICKS
+    stone-ring: MOSSY_COBBLESTONE_SLAB
+    light: LANTERN
+    banner: LIME_BANNER
+    bed: LIME_BED
+  savanna:
+    name: "&#E49A4DСаванна"
+    log: ACACIA_LOG
+    stripped-log: STRIPPED_ACACIA_LOG
+    planks: ACACIA_PLANKS
+    slab: ACACIA_SLAB
+    stairs: ACACIA_STAIRS
+    fence: ACACIA_FENCE
+    wool: YELLOW_WOOL
+    carpet: YELLOW_CARPET
+    foundation: PACKED_MUD
+    stone-ring: ANDESITE_SLAB
+    light: LANTERN
+    banner: YELLOW_BANNER
+    bed: YELLOW_BED
+  snowy:
+    name: "&#A8E7FFСнежные горы"
+    log: SPRUCE_LOG
+    stripped-log: STRIPPED_SPRUCE_LOG
+    planks: SPRUCE_PLANKS
+    slab: POLISHED_DIORITE_SLAB
+    stairs: POLISHED_DIORITE_STAIRS
+    fence: SPRUCE_FENCE
+    wool: LIGHT_BLUE_WOOL
+    carpet: LIGHT_BLUE_CARPET
+    foundation: POLISHED_DIORITE
+    stone-ring: COBBLESTONE_SLAB
+    light: SOUL_LANTERN
+    banner: LIGHT_BLUE_BANNER
+    bed: LIGHT_BLUE_BED
+  nether:
+    name: "&#E95A4AНижний мир"
+    log: CRIMSON_STEM
+    stripped-log: STRIPPED_CRIMSON_STEM
+    planks: CRIMSON_PLANKS
+    slab: BLACKSTONE_SLAB
+    stairs: BLACKSTONE_STAIRS
+    fence: CRIMSON_FENCE
+    wool: RED_WOOL
+    carpet: RED_CARPET
+    foundation: POLISHED_BLACKSTONE_BRICKS
+    stone-ring: BLACKSTONE_SLAB
+    light: SOUL_LANTERN
+    banner: RED_BANNER
+    # В Нижнем мире кровати заменяются безопасными спальными ковриками.
+    bed: RED_CARPET

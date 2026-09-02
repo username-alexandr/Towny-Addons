@@ -1,0 +1,82 @@
+# ============================================================
+# NeverLandTownyReputation — основные настройки
+# ============================================================
+
+score:
+  minimum: -1000
+  maximum: 1000
+
+feedback:
+  enabled: true
+  endorse-points: 5
+  denounce-points: -3
+  cooldown-hours-per-target: 24
+  maximum-actions-per-day: 5
+  minimum-playtime-hours: 2
+  notify-target: true
+
+decay:
+  enabled: true
+  # Как часто проверять необходимость ежедневного снижения.
+  check-interval-minutes: 30
+  # Свежие отношения не затрагиваются.
+  grace-days: 7
+  percent-per-day: 1.0
+  minimum-step: 1
+
+storage:
+  autosave-seconds: 60
+  history-per-relation: 30
+  processed-key-days: 30
+  processed-key-limit: 5000
+
+# Суточный предел изменения одной связи из одного источника.
+# -1 отключает предел для источника.
+sources:
+  player_feedback:
+    daily-cap: 25
+  trade:
+    daily-cap: 100
+  contract:
+    daily-cap: 100
+  expedition:
+    daily-cap: 50
+  governance:
+    daily-cap: 50
+  quest:
+    daily-cap: 100
+  alliance:
+    daily-cap: 100
+  admin:
+    daily-cap: -1
+  default:
+    daily-cap: 100
+
+# Порог разблокировки возможностей. Проверяется публичным API.
+features:
+  trade:
+    scopes: [TOWN]
+    minimum-score: 100
+  contracts:
+    scopes: [PLAYER, TOWN]
+    minimum-score: 100
+  special_quests:
+    scopes: [PLAYER, TOWN]
+    minimum-score: 250
+  alliance:
+    scopes: [TOWN, NATION]
+    minimum-score: 500
+  special_privileges:
+    scopes: [PLAYER, TOWN, NATION]
+    minimum-score: 750
+
+gui:
+  main-title: "&#18243AРепутация"
+  player-title: "&#18243AРепутация игроков"
+  town-title: "&#18243AРепутация городов"
+  nation-title: "&#18243AРепутация наций"
+  history-title: "&#18243AИстория репутации"
+  filler: BLACK_STAINED_GLASS_PANE
+
+itemsadder:
+  enabled: true

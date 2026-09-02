@@ -1,0 +1,33 @@
+sites:
+  desert_ruins:
+    name: "&#FFD166Руины солнечной династии"
+    biomes: [desert, badlands, eroded_badlands, wooded_badlands]
+    suspicious-block: SUSPICIOUS_SAND
+    replaceable: [SAND, RED_SAND, SANDSTONE, TERRACOTTA]
+    minimum-blocks: 3
+    maximum-blocks: 6
+    artifacts: ["clay_seal:30", "bronze_coin:30", "sun_tablet:12", "pharaoh_mask:4", "heart_of_epoch:1"]
+  drowned_temple:
+    name: "&#74C0FCЗатонувшее святилище"
+    biomes: [ocean, deep_ocean, cold_ocean, deep_cold_ocean, lukewarm_ocean, deep_lukewarm_ocean, warm_ocean]
+    suspicious-block: SUSPICIOUS_GRAVEL
+    replaceable: [GRAVEL, SAND, CLAY]
+    minimum-blocks: 3
+    maximum-blocks: 7
+    artifacts: ["coral_compass:24", "navigator_astrolabe:10", "pearl_crown:3", "heart_of_epoch:1"]
+  ancient_battlefield:
+    name: "&#FF6B6BДревнее поле боя"
+    biomes: [plains, sunflower_plains, savanna, savanna_plateau, windswept_hills, meadow]
+    suspicious-block: SUSPICIOUS_GRAVEL
+    replaceable: [GRAVEL, DIRT, COARSE_DIRT, ROOTED_DIRT]
+    minimum-blocks: 3
+    maximum-blocks: 6
+    artifacts: ["warrior_badge:32", "broken_standard:18", "royal_sword:8", "colosseum_medallion:3", "heart_of_epoch:1"]
+  alien_anomaly:
+    name: "&#C77DFFИномирная аномалия"
+    biomes: [dark_forest, old_growth_pine_taiga, old_growth_spruce_taiga, stony_peaks, jagged_peaks, frozen_peaks]
+    suspicious-block: SUSPICIOUS_GRAVEL
+    replaceable: [GRAVEL, STONE, TUFF, MOSS_BLOCK]
+    minimum-blocks: 2
+    maximum-blocks: 5
+    artifacts: ["crystal_fragment:22", "alien_rune:12", "archmage_focus:4", "eternal_seed:3", "heart_of_epoch:1"]

@@ -1,0 +1,22 @@
+# Gradle and Maven output
+**/.gradle/
+**/build/
+**/target/
+
+# IDE and OS files
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Local server/runtime data
+logs/
+plugins/*/
+server.properties
+eula.txt
+*.log
+
+# Local release workspace
+raw/
+dist/NeverLandTownySuite-*.zip
+dist/SHA256SUMS.txt

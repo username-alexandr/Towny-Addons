@@ -1,0 +1,71 @@
+trade:
+  proposal-expiration-hours: 24
+  history-limit-per-town: 30
+  save-immediately: true
+
+management:
+  mayor: true
+  allowed-town-ranks: [assistant]
+
+market:
+  project-id: market
+  routes-by-level:
+    0: 0
+    1: 1
+    2: 2
+    3: 3
+    4: 4
+    5: 6
+
+tariffs:
+  default-percent: 0.0
+  maximum-percent: 20.0
+  route-sample-spacing: 32.0
+
+routes:
+  blocks-per-minute: 160.0
+  minimum-minutes: 3.0
+  maximum-minutes: 120.0
+  market-speed-bonus-per-level: 0.03
+  maximum-speed-bonus: 0.45
+  delay:
+    base-chance: 0.20
+    market-reduction-per-level: 0.015
+    camp-reduction-per-level: 0.025
+    minimum-chance: 0.02
+    seconds: 300
+
+camps:
+  plugin: NeverLandTownyCamps
+  route-corridor: 160.0
+  maximum-stops: 3
+  speed-bonus-per-level: 0.04
+  require-active-fire: true
+
+warehouse:
+  plugin: NeverLandTownyBuilds
+  storage-size: 54
+  block-operations-while-open: true
+
+visuals:
+  enabled: true
+  update-ticks: 10
+  render-distance: 72.0
+  name: "&#FFD45AКараван: &#FFFFFF%from% &#AAAAAA→ &#FFFFFF%to%"
+
+announcements:
+  proposal: true
+  departure: true
+  delay: true
+  arrival: true
+
+economy:
+  reserve-reason: "Резерв торговой сделки: %export%"
+  sale-reason: "Оплата экспорта: %export%"
+  tariff-reason: "Транзитная пошлина: %export%"
+  refund-reason: "Возврат торгового резерва: %export%"
+
+gui:
+  title: "&#211A2EГородская торговля"
+  history-title: "&#211A2EИстория торговли"
+  filler: BLACK_STAINED_GLASS_PANE

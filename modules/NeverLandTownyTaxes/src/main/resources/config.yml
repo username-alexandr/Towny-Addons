@@ -1,0 +1,42 @@
+# NeverLandTownyTaxes 0.1.0
+scheduler:
+  check-seconds: 20
+  autosave-seconds: 60
+
+management:
+  allowed-town-ranks: [assistant, co-mayor]
+  allowed-nation-ranks: [assistant, co-king]
+
+taxes:
+  maximum-percent: 50.0
+  maximum-fixed: 1000000.0
+  minimum-interval-minutes: 10
+  default-interval-minutes: 1440
+  process-offline-residents: true
+  inactive-resident-days: 60
+  failed-payment-debt: true
+  transaction-tax-enabled: true
+  reason: "Налог NeverLand: %policy%"
+
+sanctions:
+  maximum-tax-multiplier: 5.0
+  default-duration-hours: 24
+  command-blocking-enabled: true
+  default-blocked-commands:
+    - "/pay"
+    - "/ah"
+    - "/auctionhouse"
+    - "/t trade"
+
+agreements:
+  default-duration-hours: 168
+  maximum-tax-discount-percent: 100.0
+  maximum-trade-discount-percent: 50.0
+
+storage:
+  ledger-limit: 1000
+  save-after-critical-operation: true
+
+messages:
+  announce-collections: true
+  announce-sanctions: true

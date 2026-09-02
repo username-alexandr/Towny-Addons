@@ -1,0 +1,80 @@
+levels:
+  hostile:
+    name: "&#FF3333Враждебная"
+    minimum-score: -1000
+    material: WITHER_SKELETON_SKULL
+    itemsadder-icon: "neverland:reputation_hostile"
+    description: ["&7Открытая вражда и полное недоверие."]
+    privileges: []
+    trade-discount-percent: 0
+    reward-multiplier: 0.50
+
+  enemy:
+    name: "&#FF6B6BВраг"
+    minimum-score: -500
+    material: REDSTONE
+    itemsadder-icon: "neverland:reputation_enemy"
+    description: ["&7Отношения серьёзно испорчены."]
+    privileges: []
+    trade-discount-percent: 0
+    reward-multiplier: 0.75
+
+  distrusted:
+    name: "&#FFA94DНедоверие"
+    minimum-score: -200
+    material: ROTTEN_FLESH
+    itemsadder-icon: "neverland:reputation_distrusted"
+    description: ["&7Сотрудничество ограничено."]
+    privileges: []
+    trade-discount-percent: 0
+    reward-multiplier: 0.90
+
+  neutral:
+    name: "&#ADB5BDНейтральная"
+    minimum-score: 0
+    material: PAPER
+    itemsadder-icon: "neverland:reputation_neutral"
+    description: ["&7Стороны ещё не заслужили доверия."]
+    privileges: []
+    trade-discount-percent: 0
+    reward-multiplier: 1.00
+
+  friendly:
+    name: "&#74C0FCДружественная"
+    minimum-score: 100
+    material: LAPIS_LAZULI
+    itemsadder-icon: "neverland:reputation_friendly"
+    description: ["&7Открываются торговля и контракты."]
+    privileges: [trade, contracts]
+    trade-discount-percent: 2.5
+    reward-multiplier: 1.05
+
+  respected:
+    name: "&#63E6BEУважаемая"
+    minimum-score: 250
+    material: EMERALD
+    itemsadder-icon: "neverland:reputation_respected"
+    description: ["&7Доступны особые задания и привилегии."]
+    privileges: [trade, contracts, special_quests]
+    trade-discount-percent: 5.0
+    reward-multiplier: 1.15
+
+  honored:
+    name: "&#FFD166Почётная"
+    minimum-score: 500
+    material: GOLD_INGOT
+    itemsadder-icon: "neverland:reputation_honored"
+    description: ["&7Можно заключать официальные союзы."]
+    privileges: [trade, contracts, special_quests, alliance]
+    trade-discount-percent: 10.0
+    reward-multiplier: 1.30
+
+  exalted:
+    name: "&#C77DFFПревознесённая"
+    minimum-score: 750
+    material: NETHER_STAR
+    itemsadder-icon: "neverland:reputation_exalted"
+    description: ["&7Высший уровень доверия и наград."]
+    privileges: [trade, contracts, special_quests, alliance, special_privileges]
+    trade-discount-percent: 15.0
+    reward-multiplier: 1.50

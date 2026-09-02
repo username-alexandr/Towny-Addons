@@ -1,0 +1,118 @@
+# Все названия, цены, слоты, описания и иконки можно менять без пересборки JAR.
+# itemsadder-icon имеет приоритет над material, когда ItemsAdder установлен.
+# Множители в списках соответствуют уровням 1, 2, 3, 4 и 5.
+
+# Русские названия эффектов в GUI. Идентификаторы указываются строчными буквами.
+effect-names:
+  jump_boost: "Прыгучесть"
+  strength: "Сила"
+  resistance: "Сопротивление"
+
+ideologies:
+  agriculture:
+    enabled: true
+    name: "&#75D06F&lСельское хозяйство"
+    material: WHEAT
+    itemsadder-icon: "neverland:ideology_agriculture"
+    slot: 10
+    selection-price: 200
+    upgrade-prices:
+      2: 50
+      3: 500
+      4: 5000
+      5: 50000
+    description:
+      - "&7Посевы на территории города"
+      - "&7созревают заметно быстрее."
+    bonus-description:
+      - "&fСкорость роста: &a×{growth_multiplier}"
+    bonuses:
+      growth-multiplier: [1.25, 1.50, 1.75, 2.00, 2.50]
+
+  industry:
+    enabled: true
+    name: "&#FF9B42&lПромышленность"
+    material: BLAST_FURNACE
+    itemsadder-icon: "neverland:ideology_industry"
+    slot: 12
+    selection-price: 200
+    upgrade-prices: {2: 50, 3: 500, 4: 5000, 5: 50000}
+    description:
+      - "&7Печи, коптильни и плавильни"
+      - "&7работают быстрее."
+    bonus-description:
+      - "&fСкорость переплавки: &a×{smelt_multiplier}"
+    bonuses:
+      smelt-multiplier: [1.15, 1.30, 1.50, 1.75, 2.00]
+
+  healthcare:
+    enabled: true
+    name: "&#FF6B81&lЗдравоохранение"
+    material: GLISTERING_MELON_SLICE
+    itemsadder-icon: "neverland:ideology_healthcare"
+    slot: 14
+    selection-price: 200
+    upgrade-prices: {2: 50, 3: 500, 4: 5000, 5: 50000}
+    description:
+      - "&7Жители получают дополнительные"
+      - "&7сердца к максимальному здоровью."
+    bonus-description:
+      - "&fДополнительное здоровье: &c+{health_hearts} ❤"
+    bonuses:
+      # Суммарный бонус в сердцах, а не прирост между уровнями.
+      health-hearts: [2.0, 3.0, 4.0, 5.0, 6.0]
+
+  infrastructure:
+    enabled: true
+    name: "&#46C9E8&lИнфраструктура"
+    material: POWERED_RAIL
+    itemsadder-icon: "neverland:ideology_infrastructure"
+    slot: 16
+    selection-price: 200
+    upgrade-prices: {2: 50, 3: 500, 4: 5000, 5: 50000}
+    description:
+      - "&7Ускоряет строительство и движение"
+      - "&7жителей города на вагонетках."
+    bonus-description:
+      - "&fСкорость вагонетки: &b×{minecart_multiplier}"
+      - "&fЗадержка блоков: &b{placement_cooldown} тик."
+    bonuses:
+      minecart-multiplier: [1.10, 1.20, 1.30, 1.40, 1.50]
+      placement-cooldown-ticks: [3, 2, 1, 0, 0]
+
+  defense:
+    enabled: true
+    name: "&#E74C3C&lОборона"
+    material: SHIELD
+    itemsadder-icon: "neverland:ideology_defense"
+    slot: 20
+    selection-price: 200
+    upgrade-prices: {2: 50, 3: 500, 4: 5000, 5: 50000}
+    description:
+      - "&7В бою жители получают силу,"
+      - "&7прыгучесть и защитные эффекты."
+    bonus-description:
+      - "&fЭффекты боя: &c{defense_effects}"
+    bonuses:
+      effects:
+        level-1: ["JUMP_BOOST:0"]
+        level-2: ["JUMP_BOOST:0", "STRENGTH:0"]
+        level-3: ["JUMP_BOOST:1", "STRENGTH:0"]
+        level-4: ["JUMP_BOOST:1", "STRENGTH:0", "RESISTANCE:0"]
+        level-5: ["JUMP_BOOST:1", "STRENGTH:1", "RESISTANCE:0"]
+
+  trade:
+    enabled: true
+    name: "&#31D6A6&lТорговля"
+    material: EMERALD
+    itemsadder-icon: "neverland:ideology_trade"
+    slot: 22
+    selection-price: 200
+    upgrade-prices: {2: 50, 3: 500, 4: 5000, 5: 50000}
+    description:
+      - "&7Жители получают больше товаров"
+      - "&7при торговле с жителями Minecraft."
+    bonus-description:
+      - "&fВыход товара: &a×{trade_multiplier}"
+    bonuses:
+      trade-output-multiplier: [1.05, 1.10, 1.15, 1.20, 1.25]

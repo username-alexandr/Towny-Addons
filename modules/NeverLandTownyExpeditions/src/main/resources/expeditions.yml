@@ -1,0 +1,104 @@
+# item/cost/reward поддерживают MATERIAL и itemsadder:namespace:id.
+expeditions:
+  ancient_ruins:
+    name: "&#D6B47A&lЗабытые руины"
+    type: RUINS
+    objective: EXCAVATE
+    icon: BRUSH
+    slot: 20
+    min-camp-level: 1
+    duration-minutes: 20
+    distance: {min: 256, max: 480}
+    goal: 6
+    objective-material: SUSPICIOUS_GRAVEL
+    mob: ZOMBIE
+    mob-count: 5
+    costs: ["BREAD:24", "TORCH:48", "BRUSH:1"]
+    rewards: ["GOLD_INGOT:12", "EMERALD:6", "EXPERIENCE_BOTTLE:16"]
+    money-per-participant: 750
+    description: ["Исследуйте разрушенное святилище,", "проведите раскопки и очистите руины."]
+  drowned_temple:
+    name: "&#65B8FF&lЗатопленный храм"
+    type: RUINS
+    objective: EXCAVATE
+    icon: PRISMARINE_SHARD
+    slot: 21
+    min-camp-level: 2
+    duration-minutes: 30
+    distance: {min: 384, max: 640}
+    goal: 8
+    objective-material: SUSPICIOUS_SAND
+    mob: DROWNED
+    mob-count: 8
+    costs: ["COOKED_COD:32", "POTION:2", "BRUSH:2"]
+    rewards: ["PRISMARINE_CRYSTALS:24", "HEART_OF_THE_SEA:1", "DIAMOND:4"]
+    money-per-participant: 1400
+    description: ["Отыщите реликвии древнего храма,", "скрытого под толщей воды."]
+  merchant_wreck:
+    name: "&#74D7FF&lКрушение торгового судна"
+    type: SHIPWRECK
+    objective: RECOVER
+    icon: OAK_BOAT
+    slot: 23
+    min-camp-level: 1
+    duration-minutes: 25
+    distance: {min: 320, max: 560}
+    goal: 4
+    objective-material: BARREL
+    mob: DROWNED
+    mob-count: 6
+    costs: ["COOKED_BEEF:24", "OAK_BOAT:1", "TORCH:24"]
+    rewards: ["IRON_INGOT:24", "GOLD_INGOT:8", "DIAMOND:2"]
+    money-per-participant: 1000
+    description: ["Верните уцелевшие грузы", "с борта разбитого корабля."]
+  royal_galleon:
+    name: "&#FFD45A&lЗатонувший королевский галеон"
+    type: SHIPWRECK
+    objective: RECOVER
+    icon: CHEST
+    slot: 24
+    min-camp-level: 3
+    duration-minutes: 40
+    distance: {min: 560, max: 900}
+    goal: 6
+    objective-material: BARREL
+    mob: DROWNED
+    mob-count: 12
+    costs: ["GOLDEN_CARROT:24", "POTION:4", "OAK_BOAT:2"]
+    rewards: ["GOLD_BLOCK:4", "DIAMOND:8", "NAUTILUS_SHELL:4"]
+    money-per-participant: 2600
+    description: ["Опасная экспедиция к галеону,", "перевозившему королевскую казну."]
+  arcane_anomaly:
+    name: "&#C56DFF&lМагическая аномалия"
+    type: ANOMALY
+    objective: STABILIZE
+    icon: AMETHYST_CLUSTER
+    slot: 26
+    min-camp-level: 2
+    duration-minutes: 30
+    distance: {min: 400, max: 700}
+    goal: 5
+    objective-material: AMETHYST_CLUSTER
+    mob: ENDERMAN
+    mob-count: 7
+    costs: ["AMETHYST_SHARD:32", "ENDER_PEARL:4", "COOKED_BEEF:24"]
+    rewards: ["AMETHYST_BLOCK:12", "ENDER_PEARL:8", "ECHO_SHARD:2"]
+    money-per-participant: 1800
+    description: ["Стабилизируйте разрывы энергии", "и уничтожьте существ из-за грани."]
+  alien_anomaly:
+    name: "&#63E6BE&lИномирный разлом"
+    type: ANOMALY
+    objective: STABILIZE
+    icon: END_CRYSTAL
+    slot: 27
+    min-camp-level: 3
+    duration-minutes: 45
+    distance: {min: 640, max: 1024}
+    goal: 8
+    objective-material: SCULK_CATALYST
+    mob: ENDERMAN
+    mob-count: 14
+    costs: ["ENDER_EYE:4", "GOLDEN_CARROT:32", "AMETHYST_SHARD:64"]
+    rewards: ["ECHO_SHARD:8", "DIAMOND:10", "NETHER_STAR:1"]
+    money-per-participant: 4000
+    description: ["Исследуйте нестабильный разлом,", "связанный с нашествием иномирцев."]

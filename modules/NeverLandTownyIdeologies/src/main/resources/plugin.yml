@@ -1,0 +1,24 @@
+name: NeverLandTownyIdeologies
+version: '0.1.3'
+main: ru.neverland.townyideologies.NeverLandTownyIdeologies
+api-version: '26.2'
+authors: [Alexander Sokolov]
+website: https://neverland.ru
+description: Идеологии и развитие городов Towny проекта NeverLand.
+depend: [Towny]
+softdepend: [ItemsAdder, Vault, PlaceholderAPI]
+commands:
+  townyideologies:
+    description: Администрирование городских идеологий
+    usage: /townyideologies <reload|info|set|reset>
+    aliases: [nlti, neverlandtownyideologies]
+    permission: neverlandtownyideologies.admin
+permissions:
+  neverlandtownyideologies.use:
+    default: true
+  neverlandtownyideologies.select:
+    default: true
+  neverlandtownyideologies.upgrade:
+    default: true
+  neverlandtownyideologies.admin:
+    default: op

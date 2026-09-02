@@ -1,0 +1,58 @@
+storage:
+  autosave-seconds: 60
+  maximum-entries-per-town: 1000
+
+tracking:
+  scan-interval-seconds: 60
+  first-scan-delay-seconds: 3
+  record-existing-towns: true
+  record-existing-wonders: true
+  record-town-renames: true
+  record-nation-changes: true
+  record-conquests: true
+
+achievements:
+  population: [10, 25, 50, 100]
+  territory: [25, 50, 100, 250, 500]
+  treasury: [50000, 250000, 1000000]
+  age-days: [7, 30, 100, 365]
+
+wonders:
+  plugin: NeverLandTownyBuilds
+  projects:
+    sun_pyramid: "Пирамида Солнца"
+    great_colosseum: "Великий Колизей"
+    alexandria_lighthouse: "Александрийский Маяк"
+    hanging_gardens: "Висячие Сады"
+    archmage_spire: "Шпиль Архимагов"
+
+wars:
+  dynamic-integration: true
+  announce-start: true
+  announce-end: true
+  # Дополнительные классы событий можно указать без перекомпиляции.
+  start-event-classes:
+    - "com.gmail.goosius.siegewar.events.SiegeStartEvent"
+    - "com.gmail.goosius.siegewar.events.SiegeWarStartEvent"
+    - "com.palmergames.bukkit.towny.event.war.FlagWarStartEvent"
+    - "com.palmergames.bukkit.towny.event.war.WarStartEvent"
+  end-event-classes:
+    - "com.gmail.goosius.siegewar.events.SiegeEndEvent"
+    - "com.gmail.goosius.siegewar.events.SiegeWarEndEvent"
+    - "com.palmergames.bukkit.towny.event.war.FlagWarEndEvent"
+    - "com.palmergames.bukkit.towny.event.war.WarEndEvent"
+
+announcements:
+  enabled: true
+  categories: [FOUNDING, WONDER, WAR, ACHIEVEMENT, DISSOLUTION]
+  format: "&#D9B6FF&lЛетопись &8» &f%town%: %title%"
+
+book:
+  title: "Летопись %town%"
+  author: "NeverLand"
+  maximum-entries: 40
+
+gui:
+  title: "&#171521Летопись города %town%"
+  filler: BLACK_STAINED_GLASS_PANE
+  entries-per-page: 45

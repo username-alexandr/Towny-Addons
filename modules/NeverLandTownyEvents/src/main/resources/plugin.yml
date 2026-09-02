@@ -1,0 +1,26 @@
+name: NeverLandTownyEvents
+version: '0.1.5'
+main: ru.neverland.mintevents.MintTownyEvents
+api-version: '26.2'
+authors: [Alexander Sokolov]
+website: https://neverland.ru
+description: Городские события для экосистемы Towny проекта NeverLand.
+provides: [MintTownyEvents]
+depend: [Towny]
+softdepend: [NeverLandTownyBuilds, NeverLandTownyIdeologies, PlaceholderAPI, ItemsAdder]
+commands:
+  townyevents:
+    description: Административное управление городскими событиями
+    usage: /townyevents <start|stop|list|raidwave|reload>
+    aliases: [mintevents, mevents, neverlandtownyevents, nltevents]
+    permission: mintevents.admin
+permissions:
+  mintevents.use:
+    description: Просмотр событий своего города
+    default: true
+  mintevents.contribute:
+    description: Внесение ресурсов в городское событие
+    default: true
+  mintevents.admin:
+    description: Административное управление событиями
+    default: op
