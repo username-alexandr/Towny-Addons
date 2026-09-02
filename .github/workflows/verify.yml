@@ -38,9 +38,8 @@ jobs:
           set -euo pipefail
           for module in modules/*; do
             if [[ -f "$module/build.gradle.kts" ]]; then
-              gradle --no-daemon -p "$module" clean build
+              gradle --no-daemon -p "$module" clean jar testClasses
             else
               mvn -B -f "$module/pom.xml" clean package
             fi
           done
-

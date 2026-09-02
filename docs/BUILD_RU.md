@@ -22,12 +22,13 @@ python3 scripts/verify_release.py
 ```bash
 for module in modules/*; do
   if [[ -f "$module/build.gradle.kts" ]]; then
-    gradle --no-daemon -p "$module" clean build
+    gradle --no-daemon -p "$module" clean jar testClasses
   else
     mvn -B -f "$module/pom.xml" clean package
   fi
 done
 ```
 
-GitHub Actions выполняет те же операции автоматически при изменениях в `main` и при создании релизной ветки.
+Smoke-классы в `src/test/java` являются автономными `main`-проверками, а не JUnit-тестами. Команда выше компилирует их и не пытается запускать через отсутствующий JUnit-движок.
 
+GitHub Actions выполняет те же операции автоматически при изменениях в `main` и при создании релизной ветки.
