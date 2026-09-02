@@ -2,7 +2,7 @@ import org.gradle.api.attributes.java.TargetJvmVersion
 
 plugins { java }
 group = "ru.neverland"
-version = "0.1.2"
+version = "0.1.3"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -21,8 +21,33 @@ configurations.configureEach {
 configurations.named("testCompileClasspath") {
     extendsFrom(configurations.named("compileOnly").get())
 }
+configurations.named("testRuntimeClasspath") {
+    extendsFrom(configurations.named("compileOnly").get())
+}
 tasks {
     compileJava { options.encoding = "UTF-8"; options.release.set(17) }
     processResources { filteringCharset = "UTF-8" }
     jar { archiveBaseName.set("NeverLandTownyChronicles") }
+}
+
+val smokeClasses = listOf(
+    "ru.neverland.townychronicles.ChronicleSmoke",
+    "ru.neverland.townychronicles.LinkageSmoke",
+    "ru.neverland.townychronicles.StartupAnnouncementSmoke"
+)
+
+val smokeTasks = smokeClasses.map { className ->
+    val suffix = className.substringAfterLast('.')
+    tasks.register<JavaExec>("smoke$suffix") {
+        group = "verification"
+        dependsOn(tasks.named("testClasses"))
+        classpath = sourceSets.test.get().runtimeClasspath
+        mainClass.set(className)
+    }
+}
+
+tasks.register("smokeTest") {
+    group = "verification"
+    description = "Runs the executable NeverLand Towny Chronicles regression suite."
+    dependsOn(smokeTasks)
 }
