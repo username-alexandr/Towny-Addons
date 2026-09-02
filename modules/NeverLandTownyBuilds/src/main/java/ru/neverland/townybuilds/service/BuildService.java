@@ -74,7 +74,7 @@ public final class BuildService {
             return UpgradeResult.of(UpgradeResult.Status.MAX_LEVEL);
         }
         ConstructionPreparation preparation = null;
-        boolean procedural = usesConstruction(project);
+        boolean procedural = usesConstruction(project, next);
         if (procedural) {
             preparation = construction.prepare(player, town, project, current, next);
             UpgradeResult constructionFailure = constructionFailure(preparation, level.money(), next);
@@ -141,6 +141,10 @@ public final class BuildService {
 
     public boolean usesConstruction(ProjectDefinition project) {
         return project != null && construction != null && construction.supports(project.id());
+    }
+
+    public boolean usesConstruction(ProjectDefinition project, int targetLevel) {
+        return project != null && construction != null && construction.supports(project.id(), targetLevel);
     }
 
     public boolean needsPhysicalPlacement(Town town, ProjectDefinition project) {
