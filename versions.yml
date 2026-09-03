@@ -1,4 +1,4 @@
-suite: 0.7.0
+suite: 0.7.1
 platform:
   server: Paper/Purpur 26.2
   towny: 0.103.2.0
@@ -6,7 +6,7 @@ platform:
   bytecode_java: 17
 addons:
   NeverLandTownyArchaeology: 0.1.6
-  NeverLandTownyBuilds: 0.7.0
+  NeverLandTownyBuilds: 0.7.1
   NeverLandTownyCamps: 0.1.6
   NeverLandTownyChronicles: 0.1.4
   NeverLandTownyContracts: 0.1.2
