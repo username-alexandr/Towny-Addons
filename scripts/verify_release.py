@@ -174,12 +174,25 @@ def main() -> int:
         "archmage_spire", "rhodes_colossus", "world_tree", "celestial_orrery",
         "terracotta_army", "crystal_palace", "great_canal",
     }
+    expected_prerequisites = {
+        "sun_pyramid": {"quarry": 5, "foundry": 4, "mint": 3},
+        "great_colosseum": {"barracks": 5, "arsenal": 4, "archery_range": 3},
+        "alexandria_lighthouse": {"trade_port": 5, "shipyard": 4, "fishing_harbor": 3},
+        "hanging_gardens": {"aqueduct": 5, "botanical": 4, "irrigation_station": 4},
+        "archmage_spire": {"university": 5, "alchemy": 5, "observatory": 4},
+        "rhodes_colossus": {"trade_port": 5, "port_fort": 3, "shipyard": 3},
+        "world_tree": {"forestry": 5, "botanical": 4, "irrigation_station": 3},
+        "celestial_orrery": {"observatory": 5, "research": 4, "cartography": 3},
+        "terracotta_army": {"arsenal": 4, "archery_range": 4, "census_bureau": 3},
+        "crystal_palace": {"merchant_guild": 5, "gallery": 4, "printing_house": 3},
+        "great_canal": {"dam": 5, "pumping_station": 5, "reservoir": 4},
+    }
     if len(configured_ids) != 78 or set(projects["wonders"]) != expected_wonders:
         errors.append("NeverLandTownyBuilds must contain 78 buildings and the 11 expected wonders")
-    for wonder_id in expected_wonders - {"sun_pyramid", "great_colosseum", "alexandria_lighthouse", "hanging_gardens", "archmage_spire"}:
+    for wonder_id, expected in expected_prerequisites.items():
         requirements = projects["wonders"][wonder_id].get("requires", {})
-        if len(requirements) != 3 or not set(requirements).issubset(configured_ids):
-            errors.append(f"{wonder_id}: invalid building prerequisites")
+        if requirements != expected or not set(requirements).issubset(configured_ids):
+            errors.append(f"{wonder_id}: building prerequisites differ: {requirements!r}")
     archaeology = load_yaml(modules_dir / "NeverLandTownyArchaeology" / "src/main/resources/artifacts.yml")
     if len(archaeology.get("artifacts", {})) != 28 or set(archaeology.get("wonder-requirements", {})) != expected_wonders:
         errors.append("Archaeology must contain 28 artifacts and requirements for all 11 wonders")

@@ -79,7 +79,16 @@ public final class DefinitionRegistry {
                 continue;
             }
             try {
-                ProjectDefinition definition = parseProject(id.toLowerCase(Locale.ROOT), type, projectSection);
+                String normalizedId = id.toLowerCase(Locale.ROOT);
+                ProjectDefinition inherited = projects.get(normalizedId);
+                ProjectDefinition definition = parseProject(normalizedId, type, projectSection);
+                // Старые projects.yml не содержат появившееся позднее поле requires.
+                // Наследуем только отсутствующее поле из встроенного каталога; явно
+                // заданные администратором требования по-прежнему имеют приоритет.
+                definition.setRequirements(resolveRequirements(
+                        projectSection.contains("requires"),
+                        definition.requirements(),
+                        inherited == null ? Map.of() : inherited.requirements()));
                 definition.setCustom(custom);
                 projects.put(definition.id(), definition);
             } catch (RuntimeException exception) {
@@ -192,6 +201,12 @@ public final class DefinitionRegistry {
             plugin.getLogger().warning("Некорректный ресурс '" + specification + "': " + exception.getMessage());
             return null;
         }
+    }
+
+    static Map<String, Integer> resolveRequirements(boolean explicitlyConfigured,
+                                                     Map<String, Integer> configured,
+                                                     Map<String, Integer> inherited) {
+        return explicitlyConfigured || inherited.isEmpty() ? configured : inherited;
     }
 
     public ProjectDefinition project(String id) {

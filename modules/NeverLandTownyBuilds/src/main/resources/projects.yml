@@ -1005,6 +1005,7 @@ wonders:
     slot: 11
     order: 1
     description: ["Монумент солнечной эпохи.", "Даёт городу силу, спешку и поглощение."]
+    requires: {quarry: 5, foundry: 4, mint: 3}
     levels:
       1: {money: 500000, bonus-blocks: 25, resources: ["SANDSTONE:8192", "CUT_SANDSTONE:4096", "GOLD_BLOCK:128", "BEACON:1"], effects: ["HASTE:2", "STRENGTH:1", "ABSORPTION:1"]}
   great_colosseum:
@@ -1014,6 +1015,7 @@ wonders:
     slot: 13
     order: 2
     description: ["Арена, известная всему миру.", "Даёт силу, скорость и сопротивление."]
+    requires: {barracks: 5, arsenal: 4, archery_range: 3}
     levels:
       1: {money: 650000, bonus-blocks: 30, resources: ["STONE_BRICKS:8192", "QUARTZ_BLOCK:4096", "IRON_BLOCK:256", "DIAMOND_BLOCK:32"], effects: ["STRENGTH:2", "SPEED:2", "RESISTANCE:1"]}
   alexandria_lighthouse:
@@ -1023,6 +1025,7 @@ wonders:
     slot: 15
     order: 3
     description: ["Свет, ведущий путников домой.", "Даёт ночное зрение, удачу и скорость."]
+    requires: {trade_port: 5, shipyard: 4, fishing_harbor: 3}
     levels:
       1: {money: 600000, bonus-blocks: 28, resources: ["QUARTZ_BLOCK:6144", "PRISMARINE_BRICKS:4096", "SEA_LANTERN:256", "BEACON:2"], effects: ["NIGHT_VISION:1", "LUCK:2", "SPEED:2"]}
   hanging_gardens:
@@ -1032,6 +1035,7 @@ wonders:
     slot: 29
     order: 4
     description: ["Живое чудо над городскими стенами.", "Даёт регенерацию, насыщение и здоровье."]
+    requires: {aqueduct: 5, botanical: 4, irrigation_station: 4}
     levels:
       1: {money: 700000, bonus-blocks: 35, resources: ["MOSS_BLOCK:4096", "STONE_BRICKS:4096", "FLOWERING_AZALEA:512", "EMERALD_BLOCK:96"], effects: ["REGENERATION:2", "SATURATION:1", "HEALTH_BOOST:2"]}
   archmage_spire:
@@ -1041,6 +1045,7 @@ wonders:
     slot: 33
     order: 5
     description: ["Вершина магического знания.", "Дарует сильнейшие городские благословения."]
+    requires: {university: 5, alchemy: 5, observatory: 4}
     levels:
       1: {money: 1000000, bonus-blocks: 50, resources: ["PURPUR_BLOCK:6144", "AMETHYST_BLOCK:2048", "CRYING_OBSIDIAN:512", "NETHER_STAR:8"], effects: ["LUCK:3", "REGENERATION:2", "RESISTANCE:2", "HASTE:3"], commands: ["say Магические потоки склонились перед городом {town}!"]}
   rhodes_colossus:
