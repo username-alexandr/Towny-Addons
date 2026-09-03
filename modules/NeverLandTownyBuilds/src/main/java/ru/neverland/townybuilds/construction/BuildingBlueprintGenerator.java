@@ -33,7 +33,8 @@ public final class BuildingBlueprintGenerator {
             IMPORTED_BUILDINGS), CIVIC_BUILDINGS);
     private static final Set<String> WONDERS = Set.of(
             "sun_pyramid", "great_colosseum", "alexandria_lighthouse", "hanging_gardens",
-            "archmage_spire"
+            "archmage_spire", "rhodes_colossus", "world_tree", "celestial_orrery",
+            "terracotta_army", "crystal_palace", "great_canal"
     );
     private static final Set<String> SUPPORTED = union(BUILDINGS, WONDERS);
     private static final String[] GENERIC_STAGES = {
@@ -86,6 +87,12 @@ public final class BuildingBlueprintGenerator {
             case "alexandria_lighthouse" -> alexandriaLighthouse(builder);
             case "hanging_gardens" -> hangingGardens(builder);
             case "archmage_spire" -> archmageSpire(builder);
+            case "rhodes_colossus" -> rhodesColossus(builder);
+            case "world_tree" -> worldTree(builder);
+            case "celestial_orrery" -> celestialOrrery(builder);
+            case "terracotta_army" -> terracottaArmy(builder);
+            case "crystal_palace" -> crystalPalace(builder);
+            case "great_canal" -> greatCanal(builder);
             default -> throw new IllegalStateException("Неизвестный чертёж " + projectId);
         }
         return new BlueprintPlan(projectId, level, stageName(projectId, level), builder.blocks);
@@ -189,6 +196,12 @@ public final class BuildingBlueprintGenerator {
             case "alexandria_lighthouse" -> new String[]{"Александрийский маяк"};
             case "hanging_gardens" -> new String[]{"Висячие сады"};
             case "archmage_spire" -> new String[]{"Шпиль Архимагов"};
+            case "rhodes_colossus" -> new String[]{"Колосс Родосский"};
+            case "world_tree" -> new String[]{"Мировое древо"};
+            case "celestial_orrery" -> new String[]{"Небесный оррерий"};
+            case "terracotta_army" -> new String[]{"Терракотовая армия"};
+            case "crystal_palace" -> new String[]{"Хрустальный дворец"};
+            case "great_canal" -> new String[]{"Великий канал"};
             default -> GENERIC_STAGES;
         };
         return stages[Math.max(1, Math.min(stages.length, level)) - 1];
@@ -455,6 +468,239 @@ public final class BuildingBlueprintGenerator {
                 b.block(point[0], y + 1, point[1], Material.SOUL_LANTERN, BlockRole.DECORATION, 1);
             }
         }
+    }
+
+    /** Две портовые башни несут медного исполина над судоходным проходом. */
+    private void rhodesColossus(Builder b) {
+        if (!b.level(1)) return;
+
+        b.floor(-15, 15, -9, 9, 0, Material.PRISMARINE_BRICKS, 1);
+        b.room(-14, -7, -7, 7, 1, 11, Material.STONE_BRICKS, Material.QUARTZ_PILLAR, 1, 2);
+        b.room(7, 14, -7, 7, 1, 11, Material.STONE_BRICKS, Material.QUARTZ_PILLAR, 1, 2);
+        b.flatRoof(-15, -6, -8, 8, 12, Material.SMOOTH_STONE, 1);
+        b.flatRoof(6, 15, -8, 8, 12, Material.SMOOTH_STONE, 1);
+        for (int x = -5; x <= 5; x++) {
+            b.lineZ(-4, 4, 13, x, Material.QUARTZ_BLOCK, BlockRole.RESIDENT, 1);
+        }
+        b.accentRing(-6, 6, -5, 5, 14, Material.GOLD_BLOCK, BlockRole.DECORATION, 1);
+
+        // Ноги оставляют свободным центральный проход к гавани.
+        for (int y = 14; y <= 28; y++) {
+            b.box(-4, y, -2, 3, 1, 4, Material.CUT_COPPER, BlockRole.RESIDENT, 1);
+            b.box(2, y, -2, 3, 1, 4, Material.CUT_COPPER, BlockRole.RESIDENT, 1);
+        }
+        b.box(-5, 29, -3, 11, 7, 6, Material.WAXED_CUT_COPPER, BlockRole.RESIDENT, 1);
+        for (int x = -11; x <= 11; x++) {
+            b.block(x, 33, 0, x % 3 == 0 ? Material.GOLD_BLOCK : Material.CUT_COPPER,
+                    BlockRole.DECORATION, 1);
+        }
+        b.pillar(-11, 0, 31, 36, Material.CUT_COPPER, 1);
+        b.pillar(11, 0, 31, 38, Material.CUT_COPPER, 1);
+        for (int y = 36; y <= 40; y++) {
+            int radius = y == 36 || y == 40 ? 3 : 4;
+            b.ringCircle(0, 0, radius, y, Material.CUT_COPPER, BlockRole.RESIDENT, 1);
+        }
+        b.block(0, 38, -4, Material.SEA_LANTERN, BlockRole.DECORATION, 1);
+        b.ringCircle(0, 0, 4, 41, Material.GOLD_BLOCK, BlockRole.DECORATION, 1);
+        b.block(0, 42, 0, Material.LIGHTNING_ROD, BlockRole.DECORATION, 1);
+        for (int x : new int[]{-10, 10}) {
+            b.replaceStair(x, 0, -8, Material.STONE_BRICK_STAIRS, BlockFace.SOUTH,
+                    Bisected.Half.BOTTOM, BlockRole.DECORATION, 1);
+            b.block(x, 12, -6, Material.SEA_LANTERN, BlockRole.DECORATION, 1);
+            b.block(x, 12, 6, Material.SEA_LANTERN, BlockRole.DECORATION, 1);
+        }
+    }
+
+    /** Полый священный ствол со спиральным подъёмом, корнями и доступными площадками в кроне. */
+    private void worldTree(Builder b) {
+        if (!b.level(1)) return;
+
+        b.cylinder(0, 0, 16, 0, Material.MOSSY_STONE_BRICKS, BlockRole.RESIDENT, 1);
+        for (int y = 1; y <= 25; y++) {
+            int radius = y < 12 ? 6 : y < 21 ? 5 : 4;
+            b.ringCircle(0, 0, radius, y, y % 4 == 0 ? Material.STRIPPED_DARK_OAK_LOG : Material.DARK_OAK_LOG,
+                    BlockRole.RESIDENT, 1);
+        }
+        b.clear(0, 1, -6, 1);
+        b.clear(0, 2, -6, 1);
+        b.door(0, 1, -6, Material.DARK_OAK_DOOR, BlockFace.NORTH, Door.Hinge.LEFT, 1);
+        b.replaceStair(0, 0, -7, Material.DARK_OAK_STAIRS, BlockFace.SOUTH,
+                Bisected.Half.BOTTOM, BlockRole.DECORATION, 1);
+        b.spiralStairs(1, 25, Material.DARK_OAK_STAIRS, 1);
+        b.cylinder(0, 0, 5, 10, Material.DARK_OAK_PLANKS, BlockRole.DECORATION, 1);
+        b.cylinder(0, 0, 4, 20, Material.DARK_OAK_PLANKS, BlockRole.DECORATION, 1);
+
+        // Восемь мощных корней связывают ствол с каменным кругом.
+        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {-1, 1}, {1, -1}, {-1, -1}}) {
+            for (int step = 5; step <= 15; step++) {
+                int x = direction[0] * step;
+                int z = direction[1] * step;
+                int y = Math.max(1, 4 - (step - 5) / 3);
+                b.block(x, y, z, Material.DARK_OAK_LOG, BlockRole.RESIDENT, 1);
+                b.block(x, y + 1, z, Material.MOSS_BLOCK, BlockRole.DECORATION, 1);
+            }
+        }
+
+        for (int y = 25; y <= 35; y += 2) {
+            int radius = 15 - Math.abs(30 - y);
+            b.cylinder(0, 0, Math.max(7, radius), y, y % 4 == 1 ? Material.OAK_LEAVES : Material.AZALEA_LEAVES,
+                    BlockRole.DECORATION, 1);
+        }
+        for (int[] direction : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+            for (int step = 3; step <= 13; step++) {
+                b.block(direction[0] * step, 29 + step / 4, direction[1] * step,
+                        Material.DARK_OAK_LOG, BlockRole.RESIDENT, 1);
+            }
+        }
+        for (int y = 36; y <= 44; y++) {
+            int radius = Math.max(1, 5 - (y - 36) / 2);
+            b.cylinder(0, 0, radius, y, Material.FLOWERING_AZALEA_LEAVES, BlockRole.DECORATION, 1);
+        }
+        b.block(0, 45, 0, Material.FLOWERING_AZALEA, BlockRole.DECORATION, 1);
+        for (int x = -12; x <= 12; x += 4) {
+            b.block(x, 34, 0, Material.SHROOMLIGHT, BlockRole.DECORATION, 1);
+            b.block(0, 34, x, Material.SHROOMLIGHT, BlockRole.DECORATION, 1);
+        }
+    }
+
+    /** Купольная академия с башней наблюдений и механической моделью небесных тел. */
+    private void celestialOrrery(Builder b) {
+        if (!b.level(1)) return;
+
+        b.ellipseDisc(0, 0, 14, 14, 0, Material.SMOOTH_QUARTZ, BlockRole.RESIDENT, 1);
+        for (int y = 1; y <= 8; y++) {
+            b.ringCircle(0, 0, 13, y, Material.QUARTZ_BRICKS, BlockRole.RESIDENT, 1);
+        }
+        b.clear(0, 1, -13, 1);
+        b.clear(0, 2, -13, 1);
+        b.door(0, 1, -13, Material.BIRCH_DOOR, BlockFace.NORTH, Door.Hinge.LEFT, 1);
+        b.replaceStair(0, 0, -14, Material.QUARTZ_STAIRS, BlockFace.SOUTH,
+                Bisected.Half.BOTTOM, BlockRole.DECORATION, 1);
+        b.ellipsePillars(0, 0, 11, 11, 20, 1, 8, Material.QUARTZ_PILLAR, 1);
+        b.ringCircle(0, 0, 13, 9, Material.CUT_COPPER, BlockRole.DECORATION, 1);
+        for (int y = 10; y <= 16; y++) {
+            int radius = Math.max(7, 13 - (y - 9));
+            b.ringCircle(0, 0, radius, y, Material.LIGHT_BLUE_STAINED_GLASS, BlockRole.DECORATION, 1);
+        }
+
+        for (int y = 9; y <= 28; y++) {
+            b.ringCircle(0, 0, 4, y, Material.POLISHED_BLACKSTONE_BRICKS, BlockRole.RESIDENT, 1);
+        }
+        b.spiralStairs(1, 28, Material.QUARTZ_STAIRS, 1);
+        b.cylinder(0, 0, 5, 18, Material.SMOOTH_QUARTZ, BlockRole.DECORATION, 1);
+        b.ellipseRing(0, 0, 11, 7, 20, Material.CUT_COPPER, BlockRole.DECORATION, 1);
+        b.ellipseRing(0, 0, 8, 12, 22, Material.WAXED_CUT_COPPER, BlockRole.DECORATION, 1);
+        b.lineX(-11, 11, 21, 0, Material.LIGHTNING_ROD, BlockRole.DECORATION, 1);
+        b.lineZ(-12, 12, 23, 0, Material.LIGHTNING_ROD, BlockRole.DECORATION, 1);
+        for (int[] planet : new int[][]{{-10, 21, 0}, {10, 21, 0}, {0, 23, -11}, {0, 23, 11}, {-6, 22, 7}, {7, 22, -6}}) {
+            Material material = (planet[0] + planet[2]) % 2 == 0 ? Material.AMETHYST_BLOCK : Material.GOLD_BLOCK;
+            b.block(planet[0], planet[1], planet[2], material, BlockRole.DECORATION, 1);
+        }
+        b.cylinder(0, 0, 5, 29, Material.SMOOTH_QUARTZ, BlockRole.DECORATION, 1);
+        for (int y = 30; y <= 34; y++) {
+            int radius = Math.max(1, 4 - (y - 30));
+            b.ringCircle(0, 0, radius, y, Material.BLUE_STAINED_GLASS, BlockRole.DECORATION, 1);
+        }
+        b.block(0, 35, 0, Material.END_ROD, BlockRole.DECORATION, 1);
+    }
+
+    /** Подземный мемориальный зал с рядами воинов и верхним командным павильоном. */
+    private void terracottaArmy(Builder b) {
+        if (!b.level(1)) return;
+
+        b.floor(-18, 18, -14, 14, 0, Material.POLISHED_DEEPSLATE, 1);
+        b.room(-18, 18, -14, 14, 1, 7, Material.DEEPSLATE_BRICKS, Material.POLISHED_BASALT, 1, 2);
+        b.flatRoof(-18, 18, -14, 14, 8, Material.DEEPSLATE_TILES, 1);
+        for (int x = -15; x <= 15; x += 5) {
+            for (int z = -9; z <= 9; z += 4) {
+                b.block(x, 1, z, Material.MUD_BRICKS, BlockRole.DECORATION, 1);
+                b.block(x, 2, z, Material.ORANGE_TERRACOTTA, BlockRole.DECORATION, 1);
+                b.block(x, 3, z, Material.CARVED_PUMPKIN, BlockRole.DECORATION, 1);
+                b.block(x + 1, 2, z, Material.IRON_BARS, BlockRole.DECORATION, 1);
+            }
+        }
+        for (int x = -2; x <= 1; x++) {
+            b.replaceStair(x, 0, -15, Material.DEEPSLATE_TILE_STAIRS, BlockFace.SOUTH,
+                    Bisected.Half.BOTTOM, BlockRole.DECORATION, 1);
+        }
+        b.room(-7, 7, -5, 6, 9, 12, Material.RED_TERRACOTTA, Material.POLISHED_BASALT, 1, 2);
+        b.hipRoof(-8, 8, -6, 7, 13, Material.YELLOW_GLAZED_TERRACOTTA, 1);
+        b.block(0, 10, 2, Material.CHISELED_BOOKSHELF, BlockRole.DECORATION, 1);
+        for (int x : new int[]{-6, 6}) for (int z : new int[]{-4, 5}) {
+            b.block(x, 13, z, Material.SOUL_LANTERN, BlockRole.DECORATION, 1);
+        }
+    }
+
+    /** Просторный стеклянный выставочный зал с медными фермами и центральным куполом. */
+    private void crystalPalace(Builder b) {
+        if (!b.level(1)) return;
+
+        b.floor(-20, 20, -13, 13, 0, Material.SMOOTH_QUARTZ, 1);
+        b.room(-20, 20, -13, 13, 1, 11, Material.GLASS, Material.IRON_BLOCK, 1, 2);
+        for (int x = -20; x <= 20; x += 4) {
+            b.pillar(x, -13, 1, 12, Material.CUT_COPPER, 1);
+            b.pillar(x, 13, 1, 12, Material.CUT_COPPER, 1);
+        }
+        for (int z = -13; z <= 13; z += 4) {
+            b.pillar(-20, z, 1, 12, Material.CUT_COPPER, 1);
+            b.pillar(20, z, 1, 12, Material.CUT_COPPER, 1);
+        }
+        b.gableRoofZ(-21, 21, -14, 14, 12, Material.WHITE_STAINED_GLASS, 1);
+        b.ellipseRing(0, 0, 10, 8, 16, Material.WAXED_CUT_COPPER, BlockRole.DECORATION, 1);
+        for (int y = 17; y <= 23; y++) {
+            int radiusX = Math.max(2, 9 - (y - 16));
+            int radiusZ = Math.max(2, 7 - (y - 16));
+            b.ellipseRing(0, 0, radiusX, radiusZ, y, Material.CYAN_STAINED_GLASS,
+                    BlockRole.DECORATION, 1);
+        }
+        b.block(0, 24, 0, Material.BEACON, BlockRole.DECORATION, 1);
+        for (int x = -16; x <= 16; x += 8) {
+            b.stall(x, -5, true, 1);
+            b.stall(x, 5, true, 1);
+        }
+        for (int x = -1; x <= 0; x++) {
+            b.replaceStair(x, 0, -14, Material.QUARTZ_STAIRS, BlockFace.SOUTH,
+                    Bisected.Half.BOTTOM, BlockRole.DECORATION, 1);
+        }
+        for (int x : new int[]{-18, 18}) for (int z : new int[]{-11, 11}) {
+            b.block(x, 12, z, Material.SEA_LANTERN, BlockRole.DECORATION, 1);
+        }
+    }
+
+    /** Монументальный шлюзовой комплекс — физический узел линейной системы Великого канала. */
+    private void greatCanal(Builder b) {
+        if (!b.level(1)) return;
+
+        b.floor(-10, 10, -23, 23, 0, Material.STONE_BRICKS, 1);
+        for (int z = -22; z <= 4; z++) {
+            for (int x = -3; x <= 3; x++) {
+                b.accent(x, 1, z, Material.LIGHT_BLUE_STAINED_GLASS, BlockRole.DECORATION, 1);
+            }
+            b.block(-4, 1, z, Material.PRISMARINE_BRICKS, BlockRole.RESIDENT, 1);
+            b.block(4, 1, z, Material.PRISMARINE_BRICKS, BlockRole.RESIDENT, 1);
+        }
+        b.room(-9, 9, 6, 21, 1, 7, Material.STONE_BRICKS, Material.QUARTZ_PILLAR, 1, 2);
+        b.flatRoof(-10, 10, 5, 22, 8, Material.SMOOTH_STONE, 1);
+        b.room(-9, -5, -7, 1, 1, 8, Material.PRISMARINE_BRICKS, Material.QUARTZ_PILLAR, 1, 1);
+        b.room(5, 9, -7, 1, 1, 8, Material.PRISMARINE_BRICKS, Material.QUARTZ_PILLAR, 1, 1);
+        b.pyramidRoof(-10, -4, -8, 2, 9, Material.DARK_PRISMARINE, 1);
+        b.pyramidRoof(4, 10, -8, 2, 9, Material.DARK_PRISMARINE, 1);
+
+        for (int z : new int[]{-16, -8, 0}) {
+            b.lineX(-9, 9, 3, z, Material.CUT_COPPER, BlockRole.RESIDENT, 1);
+            b.lineX(-9, 9, 4, z, Material.IRON_BARS, BlockRole.DECORATION, 1);
+            for (int x : new int[]{-9, 9}) b.pillar(x, z, 1, 5, Material.QUARTZ_PILLAR, 1);
+        }
+        for (int x = -1; x <= 0; x++) {
+            b.replaceStair(x, 0, 5, Material.STONE_BRICK_STAIRS, BlockFace.SOUTH,
+                    Bisected.Half.BOTTOM, BlockRole.DECORATION, 1);
+        }
+        for (int z = -20; z <= 20; z += 8) {
+            b.block(-8, 2, z, Material.SEA_LANTERN, BlockRole.DECORATION, 1);
+            b.block(8, 2, z, Material.SEA_LANTERN, BlockRole.DECORATION, 1);
+        }
+        b.block(0, 9, 13, Material.HEART_OF_THE_SEA, BlockRole.DECORATION, 1);
+        b.block(0, 10, 13, Material.CONDUIT, BlockRole.DECORATION, 1);
     }
 
     private void townHall(Builder b) {

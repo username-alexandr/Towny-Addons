@@ -23,6 +23,11 @@ camps:
     3: 7
   block-start-while-stash-open: true
 
+builds:
+  plugin: NeverLandTownyBuilds
+  # Небесный оррерий даёт отряду на 25% больше времени выполнить задачу.
+  celestial-orrery-time-multiplier: 1.25
+
 generation:
   asynchronous-chunk-load: true
   restore-blocks-per-tick: 80

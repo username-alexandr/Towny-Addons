@@ -73,6 +73,11 @@ public final class BuildService {
         if (level == null) {
             return UpgradeResult.of(UpgradeResult.Status.MAX_LEVEL);
         }
+        List<String> missingPrerequisites = missingPrerequisites(town, project);
+        if (!missingPrerequisites.isEmpty()) {
+            return new UpgradeResult(UpgradeResult.Status.PREREQUISITES_NOT_MET, level.money(),
+                    missingPrerequisites, next);
+        }
         ConstructionPreparation preparation = null;
         boolean procedural = usesConstruction(project, next);
         if (procedural) {
@@ -217,6 +222,34 @@ public final class BuildService {
     public List<String> artifactRequirements(Town town, ProjectDefinition project) {
         if (town == null || project == null || project.type() != ProjectType.WONDER) return List.of();
         return archaeology.requirementLines(town.getUUID(), project.id());
+    }
+
+    public List<String> prerequisiteRequirements(Town town, ProjectDefinition project) {
+        if (town == null || project == null || project.requirements().isEmpty()) return List.of();
+        TownData data = dataStore.town(town.getUUID());
+        List<String> lines = new ArrayList<>();
+        for (Map.Entry<String, Integer> requirement : project.requirements().entrySet()) {
+            ProjectDefinition dependency = definitions.project(requirement.getKey());
+            String name = dependency == null ? requirement.getKey() : ColorUtil.plain(dependency.name());
+            int current = data.level(requirement.getKey());
+            String color = current >= requirement.getValue() ? "&a✔ " : "&c✘ ";
+            lines.add(color + name + " &7" + current + "/" + requirement.getValue());
+        }
+        return lines;
+    }
+
+    private List<String> missingPrerequisites(Town town, ProjectDefinition project) {
+        if (project.requirements().isEmpty()) return List.of();
+        TownData data = dataStore.town(town.getUUID());
+        List<String> missing = new ArrayList<>();
+        for (Map.Entry<String, Integer> requirement : project.requirements().entrySet()) {
+            int current = data.level(requirement.getKey());
+            if (current >= requirement.getValue()) continue;
+            ProjectDefinition dependency = definitions.project(requirement.getKey());
+            String name = dependency == null ? requirement.getKey() : ColorUtil.plain(dependency.name());
+            missing.add(name + " " + current + "/" + requirement.getValue());
+        }
+        return missing;
     }
 
     public int contributed(Town town, ProjectDefinition project, int targetLevel, ItemStack required) {

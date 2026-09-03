@@ -3,11 +3,20 @@ package ru.neverland.mintexpeditions.integration;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyCommandAddonAPI;
 import com.palmergames.bukkit.towny.object.Resident;
+import com.palmergames.bukkit.towny.object.Town;
 import org.bukkit.Location;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 public final class TownyHook {
+    public UUID townId(Player player) {
+        Resident resident = TownyAPI.getInstance().getResident(player);
+        Town town = resident == null ? null : resident.getTownOrNull();
+        return town == null ? null : town.getUUID();
+    }
+
     public boolean wilderness(Location location) {
         return TownyAPI.getInstance().getTown(location) == null;
     }

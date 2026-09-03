@@ -16,6 +16,8 @@ market:
     3: 3
     4: 4
     5: 6
+  colossus-extra-routes: 2
+  crystal-palace-extra-routes: 2
 
 tariffs:
   default-percent: 0.0
@@ -27,10 +29,14 @@ routes:
   minimum-minutes: 3.0
   maximum-minutes: 120.0
   market-speed-bonus-per-level: 0.03
+  colossus-speed-bonus: 0.10
+  crystal-palace-speed-bonus: 0.06
   maximum-speed-bonus: 0.45
   delay:
     base-chance: 0.20
     market-reduction-per-level: 0.015
+    colossus-reduction: 0.05
+    crystal-palace-reduction: 0.03
     camp-reduction-per-level: 0.025
     minimum-chance: 0.02
     seconds: 300

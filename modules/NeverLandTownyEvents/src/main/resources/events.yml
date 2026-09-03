@@ -16,6 +16,7 @@ events:
     buildings:
       temple: 0.08
       great_library: 0.03
+      celestial_orrery: 0.05
     ideologies:
       healthcare: 0.10
     contributions:
@@ -39,6 +40,9 @@ events:
     buildings:
       agrarian_complex: 0.12
       town_hall: 0.02
+      world_tree: 0.25
+      great_canal: 0.20
+      celestial_orrery: 0.05
     ideologies:
       agriculture: 0.10
     contributions:
@@ -62,6 +66,9 @@ events:
     buildings:
       forge: 0.09
       town_hall: 0.04
+      world_tree: 0.10
+      great_canal: 0.22
+      celestial_orrery: 0.05
     ideologies:
       industry: 0.07
       infrastructure: 0.05
@@ -87,6 +94,9 @@ events:
       barracks: 0.12
       forge: 0.04
       town_hall: 0.03
+      rhodes_colossus: 0.12
+      terracotta_army: 0.30
+      celestial_orrery: 0.05
     ideologies:
       military: 0.10
     contributions:
@@ -111,6 +121,9 @@ events:
       market: 0.08
       temple: 0.03
       town_hall: 0.04
+      crystal_palace: 0.30
+      rhodes_colossus: 0.08
+      celestial_orrery: 0.05
     ideologies:
       culture: 0.10
     contributions:

@@ -169,8 +169,20 @@ def main() -> int:
     catalog = load_yaml(imported_dir / "catalog.json")
     imported_ids = {entry["id"] for entry in catalog["models"]}
     configured_ids = set(projects["buildings"])
-    if len(configured_ids) != 78 or len(projects["wonders"]) != 5:
-        errors.append("NeverLandTownyBuilds must contain 78 buildings and 5 wonders")
+    expected_wonders = {
+        "sun_pyramid", "great_colosseum", "alexandria_lighthouse", "hanging_gardens",
+        "archmage_spire", "rhodes_colossus", "world_tree", "celestial_orrery",
+        "terracotta_army", "crystal_palace", "great_canal",
+    }
+    if len(configured_ids) != 78 or set(projects["wonders"]) != expected_wonders:
+        errors.append("NeverLandTownyBuilds must contain 78 buildings and the 11 expected wonders")
+    for wonder_id in expected_wonders - {"sun_pyramid", "great_colosseum", "alexandria_lighthouse", "hanging_gardens", "archmage_spire"}:
+        requirements = projects["wonders"][wonder_id].get("requires", {})
+        if len(requirements) != 3 or not set(requirements).issubset(configured_ids):
+            errors.append(f"{wonder_id}: invalid building prerequisites")
+    archaeology = load_yaml(modules_dir / "NeverLandTownyArchaeology" / "src/main/resources/artifacts.yml")
+    if len(archaeology.get("artifacts", {})) != 28 or set(archaeology.get("wonder-requirements", {})) != expected_wonders:
+        errors.append("Archaeology must contain 28 artifacts and requirements for all 11 wonders")
     if not imported_ids.issubset(configured_ids) or len(imported_ids) != 37:
         errors.append("37-model catalog and projects.yml are not synchronized")
     resource_files = sorted(imported_dir.glob("*.nltb"))
@@ -188,7 +200,7 @@ def main() -> int:
         return 1
 
     jar_status = "source-only" if args.source_only else f"{len(actual_jars)} JARs"
-    print(f"OK: {len(addons)} modules, {jar_status}, {yaml_count} YAML files, 78 buildings / 5 wonders")
+    print(f"OK: {len(addons)} modules, {jar_status}, {yaml_count} YAML files, 78 buildings / 11 wonders")
     return 0
 
 

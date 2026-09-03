@@ -148,7 +148,15 @@ public final class TradeService {
         repository.setTariff(town.getUUID(), cents(percent)); saveNow(); return true;
     }
     public int marketLevel(Town town) { return town == null ? 0 : builds.marketLevel(town.getUUID()); }
-    public int routeLimit(Town town) { return plugin.getConfig().getInt("market.routes-by-level." + marketLevel(town), 0); }
+    public int routeLimit(Town town) {
+        if (town == null) return 0;
+        int limit = plugin.getConfig().getInt("market.routes-by-level." + marketLevel(town), 0);
+        limit += builds.projectLevel(town.getUUID(), "rhodes_colossus")
+                * plugin.getConfig().getInt("market.colossus-extra-routes", 2);
+        limit += builds.projectLevel(town.getUUID(), "crystal_palace")
+                * plugin.getConfig().getInt("market.crystal-palace-extra-routes", 2);
+        return limit;
+    }
     public int activeCount(Town town) { return town == null ? 0 : repository.caravans(town.getUUID()).size(); }
     public boolean hasRouteSlot(Town town) { return activeCount(town) < routeLimit(town); }
 

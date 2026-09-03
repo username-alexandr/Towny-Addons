@@ -47,7 +47,13 @@ public final class RoutePlanner {
         candidates.stream().limit(maxStops).forEach(value -> points.add(value.point())); points.add(end);
         double distance = 0; for (int i = 1; i < points.size(); i++) distance += points.get(i - 1).distance(points.get(i));
         int sellerMarket = builds.marketLevel(seller.getUUID()), buyerMarket = builds.marketLevel(buyer.getUUID());
+        int colossi = builds.projectLevel(seller.getUUID(), "rhodes_colossus")
+                + builds.projectLevel(buyer.getUUID(), "rhodes_colossus");
+        int palaces = builds.projectLevel(seller.getUUID(), "crystal_palace")
+                + builds.projectLevel(buyer.getUUID(), "crystal_palace");
         double bonus = (sellerMarket + buyerMarket) * plugin.getConfig().getDouble("routes.market-speed-bonus-per-level", 0.03);
+        bonus += colossi * plugin.getConfig().getDouble("routes.colossus-speed-bonus", 0.10);
+        bonus += palaces * plugin.getConfig().getDouble("routes.crystal-palace-speed-bonus", 0.06);
         bonus += points.stream().filter(value -> value.kind() == RoutePoint.Kind.CAMP).mapToInt(RoutePoint::level).sum()
                 * plugin.getConfig().getDouble("camps.speed-bonus-per-level", 0.04);
         bonus = Math.min(plugin.getConfig().getDouble("routes.maximum-speed-bonus", 0.45), Math.max(0, bonus));
@@ -56,6 +62,8 @@ public final class RoutePlanner {
                 Math.min(plugin.getConfig().getDouble("routes.maximum-minutes", 120), minutes * (1 - bonus)));
         double chance = plugin.getConfig().getDouble("routes.delay.base-chance", 0.20)
                 - (sellerMarket + buyerMarket) * plugin.getConfig().getDouble("routes.delay.market-reduction-per-level", 0.015)
+                - colossi * plugin.getConfig().getDouble("routes.delay.colossus-reduction", 0.05)
+                - palaces * plugin.getConfig().getDouble("routes.delay.crystal-palace-reduction", 0.03)
                 - points.stream().filter(value -> value.kind() == RoutePoint.Kind.CAMP).mapToInt(RoutePoint::level).sum()
                 * plugin.getConfig().getDouble("routes.delay.camp-reduction-per-level", 0.025);
         chance = Math.max(plugin.getConfig().getDouble("routes.delay.minimum-chance", 0.02), Math.min(1, chance));

@@ -183,6 +183,12 @@ public final class MenuManager implements Listener {
             lore.add("&7Следующий уровень: &f" + (current + 1));
             lore.add("&7Из казны: &e" + MONEY.format(next.money()));
             lore.add("&7Бонусных чанков: &a+" + next.bonusBlocks());
+            List<String> prerequisites = builds.prerequisiteRequirements(town, project);
+            if (!prerequisites.isEmpty()) {
+                lore.add("");
+                lore.add("&#74D7FFГородская инфраструктура:");
+                prerequisites.forEach(requirement -> lore.add("&8• " + requirement));
+            }
             lore.add("");
             lore.add("&#C9A7FFНеобходимые ресурсы:");
             if (next.resources().isEmpty()) {
@@ -380,6 +386,8 @@ public final class MenuManager implements Listener {
                     Map.of("resources", String.join(", ", result.missingResources())));
             case NOT_ENOUGH_ARTIFACTS -> messages.send(player, "not-enough-artifacts",
                     Map.of("artifacts", String.join(", ", result.missingResources())));
+            case PREREQUISITES_NOT_MET -> messages.send(player, "prerequisites-not-met",
+                    Map.of("projects", String.join(", ", result.missingResources())));
         }
     }
 

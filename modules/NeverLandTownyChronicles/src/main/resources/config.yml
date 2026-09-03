@@ -25,6 +25,12 @@ wonders:
     alexandria_lighthouse: "Александрийский Маяк"
     hanging_gardens: "Висячие Сады"
     archmage_spire: "Шпиль Архимагов"
+    rhodes_colossus: "Колосс Родосский"
+    world_tree: "Мировое древо"
+    celestial_orrery: "Небесный оррерий"
+    terracotta_army: "Терракотовая армия"
+    crystal_palace: "Хрустальный дворец"
+    great_canal: "Великий канал"
 
 wars:
   dynamic-integration: true

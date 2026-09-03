@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import ru.neverland.mintexpeditions.integration.CampFacade;
+import ru.neverland.mintexpeditions.integration.BuildBridge;
 import ru.neverland.mintexpeditions.integration.TownyHook;
 import ru.neverland.mintexpeditions.model.ActiveExpedition;
 import ru.neverland.mintexpeditions.model.BlockPos;
@@ -44,13 +45,14 @@ public final class ExpeditionService {
     private final CampFacade camps;
     private final SiteService sites;
     private final TownyHook towny;
+    private final BuildBridge builds;
     private final Set<UUID> preparing = new HashSet<>();
     private final Map<UUID, BossBar> bars = new HashMap<>();
     private BukkitTask task;
 
     public ExpeditionService(JavaPlugin plugin, MessageService messages, ExpeditionRegistry registry,
                              ExpeditionRepository repository, CampFacade camps, SiteService sites,
-                             TownyHook towny) {
+                             TownyHook towny, BuildBridge builds) {
         this.plugin = plugin;
         this.messages = messages;
         this.registry = registry;
@@ -58,6 +60,7 @@ public final class ExpeditionService {
         this.camps = camps;
         this.sites = sites;
         this.towny = towny;
+        this.builds = builds;
     }
 
     public void startTasks() {
@@ -100,6 +103,7 @@ public final class ExpeditionService {
             return StartResult.MISSING;
         }
 
+        UUID townId = towny.townId(leader);
         preparing.add(camp.owner());
         messages.send(leader, "preparing");
         sites.findSite(camp.world(), camp.anchor(), definition, site -> {
@@ -110,11 +114,13 @@ public final class ExpeditionService {
             }
 
             long now = System.currentTimeMillis();
+            long durationMillis = Math.max(1000, Math.round(definition.durationSeconds() * 1000
+                    * builds.expeditionTimeMultiplier(townId)));
             ActiveExpedition expedition = new ActiveExpedition(
                     UUID.randomUUID(), camp.owner(), definition.id(),
                     camp.world().getUID(), camp.world().getName(),
                     BlockPos.of(camp.anchor()), site, now,
-                    now + definition.durationSeconds() * 1000);
+                    now + durationMillis);
             List<Player> party = camps.party(camp);
             party.forEach(player -> expedition.participants().add(player.getUniqueId()));
 

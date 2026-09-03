@@ -14,7 +14,7 @@ sites:
     replaceable: [GRAVEL, SAND, CLAY]
     minimum-blocks: 3
     maximum-blocks: 7
-    artifacts: ["coral_compass:24", "navigator_astrolabe:10", "pearl_crown:3", "heart_of_epoch:1"]
+    artifacts: ["coral_compass:24", "navigator_astrolabe:10", "harbor_keystone:9", "canal_key:8", "hydraulic_tablet:4", "colossus_crown:2", "pearl_crown:3", "heart_of_epoch:1"]
   ancient_battlefield:
     name: "&#FF6B6BДревнее поле боя"
     biomes: [plains, sunflower_plains, savanna, savanna_plateau, windswept_hills, meadow]
@@ -22,7 +22,7 @@ sites:
     replaceable: [GRAVEL, DIRT, COARSE_DIRT, ROOTED_DIRT]
     minimum-blocks: 3
     maximum-blocks: 6
-    artifacts: ["warrior_badge:32", "broken_standard:18", "royal_sword:8", "colosseum_medallion:3", "heart_of_epoch:1"]
+    artifacts: ["warrior_badge:32", "broken_standard:18", "terracotta_soldier:18", "royal_sword:8", "jade_seal:4", "colosseum_medallion:3", "heart_of_epoch:1"]
   alien_anomaly:
     name: "&#C77DFFИномирная аномалия"
     biomes: [dark_forest, old_growth_pine_taiga, old_growth_spruce_taiga, stony_peaks, jagged_peaks, frozen_peaks]
@@ -30,4 +30,4 @@ sites:
     replaceable: [GRAVEL, STONE, TUFF, MOSS_BLOCK]
     minimum-blocks: 2
     maximum-blocks: 5
-    artifacts: ["crystal_fragment:22", "alien_rune:12", "archmage_focus:4", "eternal_seed:3", "heart_of_epoch:1"]
+    artifacts: ["crystal_fragment:22", "orrery_gear:16", "world_tree_bark:14", "exhibition_medal:10", "alien_rune:12", "star_lens:5", "crystal_blueprint:4", "archmage_focus:4", "eternal_seed:3", "primordial_acorn:2", "heart_of_epoch:1"]
