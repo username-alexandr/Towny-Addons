@@ -16,7 +16,7 @@ public final class ExpansionIntegrationSmoke {
     public static void main(String[] args) {
         BuildingBlueprintGenerator generator = new BuildingBlueprintGenerator();
         check(generator.supportedBuildings().size() == 78, "Ожидалось 78 городских зданий и объектов");
-        check(generator.supportedProjects().size() == 83, "Ожидалось 83 физических проекта");
+        check(generator.supportedProjects().size() == 89, "Ожидалось 89 физических проектов");
 
         Set<String> signatures = new HashSet<>();
         List<String> stagesWithoutResidentBlocks = new ArrayList<>();

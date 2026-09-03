@@ -13,7 +13,7 @@ import java.util.Set;
 public final class WonderBlueprintSmoke {
     public static void main(String[] args) {
         BuildingBlueprintGenerator generator = new BuildingBlueprintGenerator();
-        check(generator.supportedWonders().size() == 5, "Должно быть ровно пять Чудес Света");
+        check(generator.supportedWonders().size() == 11, "Должно быть ровно одиннадцать Чудес Света");
         Set<String> signatures = new HashSet<>();
         for (String wonder : generator.supportedWonders()) {
             BlueprintPlan plan = generator.generate(wonder, 1);

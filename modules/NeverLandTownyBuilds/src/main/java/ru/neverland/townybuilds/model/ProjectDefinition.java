@@ -18,6 +18,7 @@ public final class ProjectDefinition {
     private int slot;
     private int order;
     private List<String> description;
+    private Map<String, Integer> requirements = Map.of();
     private final Map<Integer, LevelDefinition> levels;
     private ItemStack editorIcon;
     private boolean custom;
@@ -50,6 +51,7 @@ public final class ProjectDefinition {
     public int slot() { return slot; }
     public int order() { return order; }
     public List<String> description() { return description; }
+    public Map<String, Integer> requirements() { return requirements; }
     public Map<Integer, LevelDefinition> levels() { return Collections.unmodifiableMap(levels); }
     public int maxLevel() { return levels.keySet().stream().mapToInt(Integer::intValue).max().orElse(1); }
     public LevelDefinition level(int level) { return levels.get(level); }
@@ -63,6 +65,9 @@ public final class ProjectDefinition {
     public void setSlot(int slot) { this.slot = slot; }
     public void setOrder(int order) { this.order = order; }
     public void setDescription(List<String> description) { this.description = List.copyOf(description); }
+    public void setRequirements(Map<String, Integer> requirements) {
+        this.requirements = Collections.unmodifiableMap(new LinkedHashMap<>(requirements));
+    }
     public void setEditorIcon(ItemStack editorIcon) { this.editorIcon = editorIcon == null ? null : editorIcon.clone(); }
     public void setCustom(boolean custom) { this.custom = custom; }
 

@@ -9,6 +9,7 @@ import ru.neverland.mintexpeditions.command.AdminCommand;
 import ru.neverland.mintexpeditions.command.ExpeditionCommand;
 import ru.neverland.mintexpeditions.gui.ExpeditionMenuManager;
 import ru.neverland.mintexpeditions.integration.CampFacade;
+import ru.neverland.mintexpeditions.integration.BuildBridge;
 import ru.neverland.mintexpeditions.integration.ItemsAdderHook;
 import ru.neverland.mintexpeditions.integration.TownyHook;
 import ru.neverland.mintexpeditions.listener.ExpeditionListener;
@@ -53,7 +54,8 @@ public final class MintTownyExpeditions extends JavaPlugin {
             var definition = registry.get(expedition.definitionId());
             if (definition != null) sites.resume(expedition, definition);
         }
-        service = new ExpeditionService(this, messages, registry, repository, camps, sites, towny);
+        service = new ExpeditionService(this, messages, registry, repository, camps, sites, towny,
+                new BuildBridge(this));
         ExpeditionMenuManager menu = new ExpeditionMenuManager(this, service, itemNames);
         Bukkit.getPluginManager().registerEvents(menu, this);
         Bukkit.getPluginManager().registerEvents(new ExpeditionListener(service), this);
@@ -67,7 +69,7 @@ public final class MintTownyExpeditions extends JavaPlugin {
         AdminCommand admin = new AdminCommand(this);
         bind("townyexpeditions", admin, admin);
         service.startTasks();
-        getLogger().info("NeverLandTownyExpeditions 0.1.4 включён: доступно "
+        getLogger().info("NeverLandTownyExpeditions 0.1.5 включён: доступно "
                 + registry.all().size() + " экспедиций, команды /t expeditions готовы.");
     }
 

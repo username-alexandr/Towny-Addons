@@ -51,7 +51,7 @@ public final class MintTownyTrade extends JavaPlugin {
         boolean placeholders = PlaceholderHook.register(this, towny, trade);
         visuals = new VisualCaravanService(this, repository, towny); trade.start(); visuals.start();
         int campStops = camps.activeStops().size();
-        getLogger().info("NeverLandTownyTrade 0.1.3 включён: экспортов " + registry.all().size() + ", склад="
+        getLogger().info("NeverLandTownyTrade 0.1.4 включён: экспортов " + registry.all().size() + ", склад="
                 + warehouse.available() + ", лагеря=" + (getServer().getPluginManager().isPluginEnabled("NeverLandTownyCamps") || getServer().getPluginManager().isPluginEnabled("MintTownyCamps"))
                 + ", активных перевалочных пунктов=" + campStops + ", налоги=" + taxes.available() + ", PlaceholderAPI=" + placeholders + ".");
     }

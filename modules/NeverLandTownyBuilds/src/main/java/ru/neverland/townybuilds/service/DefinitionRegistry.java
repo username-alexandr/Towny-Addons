@@ -113,6 +113,15 @@ public final class DefinitionRegistry {
                 section.getStringList("description"), levels);
         definition.setCategory(type == ProjectType.BUILDING
                 ? ProjectCategory.parse(section.getString("category"), id) : ProjectCategory.OTHER);
+        ConfigurationSection requirementSection = section.getConfigurationSection("requires");
+        if (requirementSection != null) {
+            Map<String, Integer> requirements = new LinkedHashMap<>();
+            for (String projectId : requirementSection.getKeys(false)) {
+                int requiredLevel = Math.max(1, requirementSection.getInt(projectId));
+                requirements.put(projectId.toLowerCase(Locale.ROOT), requiredLevel);
+            }
+            definition.setRequirements(requirements);
+        }
         String encodedIcon = section.getString("icon-base64");
         if (encodedIcon != null && !encodedIcon.isBlank()) {
             try {
@@ -255,6 +264,7 @@ public final class DefinitionRegistry {
             yaml.set(root + ".slot", project.slot());
             yaml.set(root + ".order", project.order());
             yaml.set(root + ".description", project.description());
+            yaml.set(root + ".requires", project.requirements().isEmpty() ? null : project.requirements());
             if (project.editorIcon() != null) {
                 try {
                     yaml.set(root + ".icon-base64", ItemCodec.encodeSingle(project.editorIcon()));

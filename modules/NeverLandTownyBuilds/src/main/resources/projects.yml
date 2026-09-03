@@ -1003,6 +1003,7 @@ wonders:
     icon: "GOLD_BLOCK"
     itemsadder-icon: "neverland:wonder_sun_pyramid"
     slot: 11
+    order: 1
     description: ["Монумент солнечной эпохи.", "Даёт городу силу, спешку и поглощение."]
     levels:
       1: {money: 500000, bonus-blocks: 25, resources: ["SANDSTONE:8192", "CUT_SANDSTONE:4096", "GOLD_BLOCK:128", "BEACON:1"], effects: ["HASTE:2", "STRENGTH:1", "ABSORPTION:1"]}
@@ -1011,6 +1012,7 @@ wonders:
     icon: "SHIELD"
     itemsadder-icon: "neverland:wonder_great_colosseum"
     slot: 13
+    order: 2
     description: ["Арена, известная всему миру.", "Даёт силу, скорость и сопротивление."]
     levels:
       1: {money: 650000, bonus-blocks: 30, resources: ["STONE_BRICKS:8192", "QUARTZ_BLOCK:4096", "IRON_BLOCK:256", "DIAMOND_BLOCK:32"], effects: ["STRENGTH:2", "SPEED:2", "RESISTANCE:1"]}
@@ -1019,6 +1021,7 @@ wonders:
     icon: "BEACON"
     itemsadder-icon: "neverland:wonder_alexandria_lighthouse"
     slot: 15
+    order: 3
     description: ["Свет, ведущий путников домой.", "Даёт ночное зрение, удачу и скорость."]
     levels:
       1: {money: 600000, bonus-blocks: 28, resources: ["QUARTZ_BLOCK:6144", "PRISMARINE_BRICKS:4096", "SEA_LANTERN:256", "BEACON:2"], effects: ["NIGHT_VISION:1", "LUCK:2", "SPEED:2"]}
@@ -1027,6 +1030,7 @@ wonders:
     icon: "FLOWERING_AZALEA"
     itemsadder-icon: "neverland:wonder_hanging_gardens"
     slot: 29
+    order: 4
     description: ["Живое чудо над городскими стенами.", "Даёт регенерацию, насыщение и здоровье."]
     levels:
       1: {money: 700000, bonus-blocks: 35, resources: ["MOSS_BLOCK:4096", "STONE_BRICKS:4096", "FLOWERING_AZALEA:512", "EMERALD_BLOCK:96"], effects: ["REGENERATION:2", "SATURATION:1", "HEALTH_BOOST:2"]}
@@ -1035,6 +1039,67 @@ wonders:
     icon: "END_CRYSTAL"
     itemsadder-icon: "neverland:wonder_archmage_spire"
     slot: 33
+    order: 5
     description: ["Вершина магического знания.", "Дарует сильнейшие городские благословения."]
     levels:
       1: {money: 1000000, bonus-blocks: 50, resources: ["PURPUR_BLOCK:6144", "AMETHYST_BLOCK:2048", "CRYING_OBSIDIAN:512", "NETHER_STAR:8"], effects: ["LUCK:3", "REGENERATION:2", "RESISTANCE:2", "HASTE:3"], commands: ["say Магические потоки склонились перед городом {town}!"]}
+  rhodes_colossus:
+    name: "&#E6A15C&lКолосс Родосский"
+    icon: "LIGHTNING_ROD"
+    itemsadder-icon: "neverland:wonder_rhodes_colossus"
+    slot: 35
+    order: 6
+    description: ["Медный исполин над воротами гавани.", "Ускоряет караваны и укрепляет портовую оборону."]
+    requires: {trade_port: 5, port_fort: 3, shipyard: 3}
+    levels:
+      1: {money: 900000, bonus-blocks: 40, resources: ["CUT_COPPER:6144", "STONE_BRICKS:4096", "QUARTZ_BLOCK:2048", "GOLD_BLOCK:192", "SEA_LANTERN:64"], effects: ["SPEED:2", "RESISTANCE:1", "DOLPHINS_GRACE:1"]}
+  world_tree:
+    name: "&#69DB7C&lМировое древо"
+    icon: "FLOWERING_AZALEA_LEAVES"
+    itemsadder-icon: "neverland:wonder_world_tree"
+    slot: 37
+    order: 7
+    description: ["Живое сердце городских земель.", "Расширяет лесничество и смягчает засуху."]
+    requires: {forestry: 5, botanical: 4, irrigation_station: 3}
+    levels:
+      1: {money: 850000, bonus-blocks: 45, resources: ["DARK_OAK_LOG:6144", "MOSS_BLOCK:4096", "OAK_LEAVES:4096", "AZALEA_LEAVES:2048", "SHROOMLIGHT:128"], effects: ["REGENERATION:2", "LUCK:2", "HEALTH_BOOST:1"]}
+  celestial_orrery:
+    name: "&#74C0FC&lНебесный оррерий"
+    icon: "RECOVERY_COMPASS"
+    itemsadder-icon: "neverland:wonder_celestial_orrery"
+    slot: 39
+    order: 8
+    description: ["Механическая карта небесных сфер.", "Продлевает экспедиции и помогает предвидеть события."]
+    requires: {observatory: 5, research: 4, cartography: 3}
+    levels:
+      1: {money: 1100000, bonus-blocks: 42, resources: ["SMOOTH_QUARTZ:6144", "QUARTZ_BRICKS:4096", "CUT_COPPER:2048", "LIGHT_BLUE_STAINED_GLASS:1024", "AMETHYST_BLOCK:256"], effects: ["NIGHT_VISION:1", "LUCK:3", "HASTE:2"]}
+  terracotta_army:
+    name: "&#F08C46&lТерракотовая армия"
+    icon: "DECORATED_POT"
+    itemsadder-icon: "neverland:wonder_terracotta_army"
+    slot: 41
+    order: 9
+    description: ["Безмолвный легион хранит город.", "Создаёт оборонный резерв против набегов."]
+    requires: {arsenal: 4, archery_range: 4, census_bureau: 3}
+    levels:
+      1: {money: 950000, bonus-blocks: 38, resources: ["DEEPSLATE_BRICKS:6144", "DEEPSLATE_TILES:4096", "ORANGE_TERRACOTTA:2048", "MUD_BRICKS:1024", "IRON_BLOCK:128"], effects: ["RESISTANCE:2", "STRENGTH:2", "HEALTH_BOOST:1"]}
+  crystal_palace:
+    name: "&#B197FC&lХрустальный дворец"
+    icon: "AMETHYST_CLUSTER"
+    itemsadder-icon: "neverland:wonder_crystal_palace"
+    slot: 43
+    order: 10
+    description: ["Всемирная выставка под стеклянными сводами.", "Расширяет лавку и торговую репутацию города."]
+    requires: {merchant_guild: 5, gallery: 4, printing_house: 3}
+    levels:
+      1: {money: 1200000, bonus-blocks: 48, resources: ["GLASS:8192", "SMOOTH_QUARTZ:4096", "CUT_COPPER:2048", "WHITE_STAINED_GLASS:1024", "AMETHYST_BLOCK:256"], effects: ["LUCK:3", "SPEED:1", "HERO_OF_THE_VILLAGE:1"]}
+  great_canal:
+    name: "&#4DABF7&lВеликий канал"
+    icon: "CONDUIT"
+    itemsadder-icon: "neverland:wonder_great_canal"
+    slot: 45
+    order: 11
+    description: ["Монументальная система шлюзов и набережных.", "Усиливает водную сеть и защиту от наводнений."]
+    requires: {dam: 5, pumping_station: 5, reservoir: 4}
+    levels:
+      1: {money: 1050000, bonus-blocks: 50, resources: ["STONE_BRICKS:8192", "PRISMARINE_BRICKS:4096", "SMOOTH_STONE:2048", "CUT_COPPER:1024", "SEA_LANTERN:128", "CONDUIT:1"], effects: ["CONDUIT_POWER:2", "DOLPHINS_GRACE:1", "RESISTANCE:1"]}

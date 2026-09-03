@@ -258,6 +258,8 @@ public final class CivicService implements Listener, TownyBuildsApi {
                     Math.min(draft.first.getBlockZ(), draft.second.getBlockZ()),
                     Math.max(draft.first.getBlockZ(), draft.second.getBlockZ()));
             int maximumChunks = level * level;
+            if (draft.projectId.equals("forestry")) maximumChunks += data.level("world_tree") * 12;
+            if (draft.projectId.equals("irrigation_station")) maximumChunks += data.level("great_canal") * 8;
             if (area.chunkCount() > maximumChunks) {
                 messages.send(player, "civic-selection-too-large", Map.of("current", area.chunkCount(), "maximum", maximumChunks));
                 return;
@@ -273,6 +275,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
                     draft.first.getBlockX(), draft.first.getBlockY(), draft.first.getBlockZ(),
                     draft.second.getBlockX(), draft.second.getBlockY(), draft.second.getBlockZ());
             int maximum = Math.max(16, plugin.getConfig().getInt("settings.civic.linear-blocks-per-level", 32)) * level;
+            if (draft.projectId.equals("dam")) maximum += data.level("great_canal") * 256;
             if (line.length() > maximum) {
                 messages.send(player, "civic-line-too-long", Map.of("current", line.length(), "maximum", maximum));
                 return;
@@ -477,7 +480,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
             double price = Double.parseDouble(args[3].replace(',', '.'));
             double maximum = Math.max(1, plugin.getConfig().getDouble("settings.civic.spawn-shops.maximum-unit-price", 1_000_000));
             if (!Double.isFinite(price) || price < 0 || price > maximum) throw new NumberFormatException();
-            int limit = 4 + data.level("merchant_guild") * 4;
+            int limit = 4 + data.level("merchant_guild") * 4 + data.level("crystal_palace") * 16;
             if (price > 0 && data.shopPrice(material.name()) <= 0 && data.shopPrices().size() >= limit) {
                 messages.send(player, "civic-shop-listing-limit", Map.of("limit", limit));
                 return;
@@ -766,7 +769,8 @@ public final class CivicService implements Listener, TownyBuildsApi {
         int planted = 0;
         int attempts = Math.min(640, 80 * level);
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        for (int attempt = 0; attempt < attempts && planted < level * 3; attempt++) {
+        int plantingLimit = level * 3 + data.level("world_tree") * 8;
+        for (int attempt = 0; attempt < attempts && planted < plantingLimit; attempt++) {
             int x = random.nextInt(area.minX(), area.maxX() + 1);
             int z = random.nextInt(area.minZ(), area.maxZ() + 1);
             if (!world.isChunkLoaded(Math.floorDiv(x, 16), Math.floorDiv(z, 16))) continue;
@@ -964,23 +968,29 @@ public final class CivicService implements Listener, TownyBuildsApi {
         if (townId == null || benefit == null) return 0;
         TownData data = dataStore.town(townId);
         double value = switch (benefit) {
-            case PUBLICATION_REACH -> 0.12 * data.level("printing_house");
-            case FORESTRY_CAPACITY -> 0.15 * data.level("forestry");
-            case CUSTOMS_EFFICIENCY -> 0.06 * data.level("customs") + 0.03 * data.level("trade_port");
-            case TRADE_CAPACITY -> 0.10 * data.level("trade_port") + 0.05 * data.level("merchant_guild");
+            case PUBLICATION_REACH -> 0.12 * data.level("printing_house") + 0.15 * data.level("crystal_palace");
+            case FORESTRY_CAPACITY -> 0.15 * data.level("forestry") + 0.35 * data.level("world_tree");
+            case CUSTOMS_EFFICIENCY -> 0.06 * data.level("customs") + 0.03 * data.level("trade_port")
+                    + 0.20 * data.level("rhodes_colossus");
+            case TRADE_CAPACITY -> 0.10 * data.level("trade_port") + 0.05 * data.level("merchant_guild")
+                    + 0.20 * data.level("rhodes_colossus") + 0.25 * data.level("crystal_palace");
             case MINT_FEE_REDUCTION -> 0.04 * data.level("mint");
-            case FRAUD_REDUCTION -> 0.08 * data.level("merchant_guild");
-            case TRADE_REPUTATION -> 0.05 * data.level("merchant_guild");
+            case FRAUD_REDUCTION -> 0.08 * data.level("merchant_guild") + 0.15 * data.level("crystal_palace");
+            case TRADE_REPUTATION -> 0.05 * data.level("merchant_guild") + 0.25 * data.level("crystal_palace");
             case MOUNT_SPEED -> 0.05 * data.level("stables");
             case FORTIFICATION -> 0.08 * data.level("fortress_wall") + 0.06 * data.level("city_moat")
-                    + 0.08 * data.level("port_fort");
-            case RANGED_TRAINING -> 0.06 * data.level("archery_range");
-            case POPULATION_ACCURACY -> 0.20 * data.level("census_bureau");
+                    + 0.08 * data.level("port_fort") + 0.12 * data.level("rhodes_colossus")
+                    + 0.25 * data.level("terracotta_army");
+            case RANGED_TRAINING -> 0.06 * data.level("archery_range") + 0.20 * data.level("terracotta_army");
+            case POPULATION_ACCURACY -> 0.20 * data.level("census_bureau") + 0.20 * data.level("terracotta_army");
             case INSURANCE_COVERAGE -> 0.10 * data.level("insurance_chamber");
-            case WATER_PRESSURE -> waterNetworkActive(townId) ? 0.12 * data.level("pumping_station") : 0;
-            case IRRIGATION_EFFICIENCY -> waterNetworkActive(townId) ? 0.14 * data.level("irrigation_station") : 0;
+            case WATER_PRESSURE -> waterNetworkActive(townId)
+                    ? 0.12 * data.level("pumping_station") + 0.30 * data.level("great_canal") : 0;
+            case IRRIGATION_EFFICIENCY -> waterNetworkActive(townId)
+                    ? 0.14 * data.level("irrigation_station") + 0.30 * data.level("great_canal") : 0;
             case RECYCLING_EFFICIENCY -> 0.12 * data.level("recycling_yard");
-            case FLOOD_REDUCTION -> 0.12 * data.level("dam") + 0.03 * data.level("city_moat");
+            case FLOOD_REDUCTION -> 0.12 * data.level("dam") + 0.03 * data.level("city_moat")
+                    + 0.35 * data.level("great_canal");
         };
         return Math.max(0, Math.min(1, value));
     }

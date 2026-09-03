@@ -22,6 +22,18 @@ artifacts:
   archmage_focus: {name: "&#C77DFFФокус архимага", rarity: epic, material: END_CRYSTAL, itemsadder-icon: "neverland:artifact_archmage_focus", points: 80, lore: ["&7Стабилизатор древних магических потоков."]}
   eternal_seed: {name: "&#C77DFFСемя вечного сада", rarity: epic, material: TORCHFLOWER_SEEDS, itemsadder-icon: "neverland:artifact_eternal_seed", points: 75, lore: ["&7Росток эпохи, когда природа знала магию."]}
   heart_of_epoch: {name: "&#FFD166Сердце эпохи", rarity: legendary, material: NETHER_STAR, itemsadder-icon: "neverland:artifact_heart_of_epoch", points: 150, lore: ["&7Уникальная реликвия на границе времён."]}
+  colossus_crown: {name: "&#FFD166Венец Колосса", rarity: legendary, material: GOLDEN_HELMET, itemsadder-icon: "neverland:artifact_colossus_crown", points: 120, lore: ["&7Позолоченный фрагмент короны портового исполина."]}
+  harbor_keystone: {name: "&#63E6BEЗамковый камень гавани", rarity: rare, material: PRISMARINE_BRICKS, itemsadder-icon: "neverland:artifact_harbor_keystone", points: 35, lore: ["&7Камень древней арки, пережившей морские штормы."]}
+  world_tree_bark: {name: "&#63E6BEКора Мирового древа", rarity: rare, material: STRIPPED_OAK_LOG, itemsadder-icon: "neverland:artifact_world_tree_bark", points: 38, lore: ["&7Даже осколок коры продолжает тихо расти."]}
+  primordial_acorn: {name: "&#FFD166Первозданный жёлудь", rarity: legendary, material: OAK_SAPLING, itemsadder-icon: "neverland:artifact_primordial_acorn", points: 125, lore: ["&7Семя леса, существовавшего до первых городов."]}
+  orrery_gear: {name: "&#74C0FCШестерня оррерия", rarity: uncommon, material: CLOCK, itemsadder-icon: "neverland:artifact_orrery_gear", points: 20, lore: ["&7Тончайший механизм всё ещё следует движению звёзд."]}
+  star_lens: {name: "&#C77DFFЗвёздная линза", rarity: epic, material: SPYGLASS, itemsadder-icon: "neverland:artifact_star_lens", points: 72, lore: ["&7Стекло показывает небо незнакомой эпохи."]}
+  terracotta_soldier: {name: "&#74C0FCФигурка терракотового воина", rarity: uncommon, material: DECORATED_POT, itemsadder-icon: "neverland:artifact_terracotta_soldier", points: 18, lore: ["&7Миниатюрный страж из погребального войска."]}
+  jade_seal: {name: "&#C77DFFНефритовая печать полководца", rarity: epic, material: EMERALD, itemsadder-icon: "neverland:artifact_jade_seal", points: 78, lore: ["&7Знак власти над безмолвным легионом."]}
+  exhibition_medal: {name: "&#63E6BEМедаль всемирной выставки", rarity: rare, material: AMETHYST_SHARD, itemsadder-icon: "neverland:artifact_exhibition_medal", points: 32, lore: ["&7Награда мастеру давно закрывшегося павильона."]}
+  crystal_blueprint: {name: "&#C77DFFЧертёж Хрустального дворца", rarity: epic, material: PAPER, itemsadder-icon: "neverland:artifact_crystal_blueprint", points: 76, lore: ["&7Схема стеклянных ферм с невозможными пролётами."]}
+  canal_key: {name: "&#63E6BEКлюч хранителя шлюза", rarity: rare, material: TRIPWIRE_HOOK, itemsadder-icon: "neverland:artifact_canal_key", points: 34, lore: ["&7Открывал ворота древней водной магистрали."]}
+  hydraulic_tablet: {name: "&#C77DFFГидравлическая табличка", rarity: epic, material: COPPER_BLOCK, itemsadder-icon: "neverland:artifact_hydraulic_tablet", points: 74, lore: ["&7Расчёты уровня воды нанесены на медь."]}
 
 collections:
   sun_dynasty:
@@ -40,6 +52,30 @@ collections:
     name: "&#C77DFFЗа гранью мира"
     icon: END_CRYSTAL
     artifacts: [crystal_fragment, alien_rune, archmage_focus, eternal_seed, heart_of_epoch]
+  colossus_legacy:
+    name: "&#E6A15CНаследие Колосса"
+    icon: LIGHTNING_ROD
+    artifacts: [harbor_keystone, colossus_crown]
+  roots_of_creation:
+    name: "&#69DB7CКорни творения"
+    icon: FLOWERING_AZALEA_LEAVES
+    artifacts: [world_tree_bark, primordial_acorn]
+  clockwork_heavens:
+    name: "&#74C0FCМеханика небес"
+    icon: RECOVERY_COMPASS
+    artifacts: [orrery_gear, star_lens]
+  silent_legion:
+    name: "&#F08C46Безмолвный легион"
+    icon: DECORATED_POT
+    artifacts: [terracotta_soldier, jade_seal]
+  great_exhibition:
+    name: "&#B197FCВеликая выставка"
+    icon: AMETHYST_CLUSTER
+    artifacts: [exhibition_medal, crystal_blueprint]
+  masters_of_water:
+    name: "&#4DABF7Повелители воды"
+    icon: CONDUIT
+    artifacts: [canal_key, hydraulic_tablet]
 
 wonder-requirements:
   sun_pyramid: ["sun_tablet:3", "pharaoh_mask:1", "heart_of_epoch:1"]
@@ -47,3 +83,9 @@ wonder-requirements:
   alexandria_lighthouse: ["coral_compass:3", "navigator_astrolabe:2", "pearl_crown:1"]
   hanging_gardens: ["clay_seal:4", "crystal_fragment:3", "eternal_seed:1"]
   archmage_spire: ["alien_rune:4", "archmage_focus:2", "heart_of_epoch:1"]
+  rhodes_colossus: ["harbor_keystone:3", "colossus_crown:1", "navigator_astrolabe:2"]
+  world_tree: ["world_tree_bark:4", "primordial_acorn:1", "eternal_seed:1"]
+  celestial_orrery: ["orrery_gear:4", "star_lens:2", "archmage_focus:1"]
+  terracotta_army: ["terracotta_soldier:8", "jade_seal:2", "royal_sword:2"]
+  crystal_palace: ["exhibition_medal:4", "crystal_blueprint:2", "heart_of_epoch:1"]
+  great_canal: ["canal_key:4", "hydraulic_tablet:3", "pearl_crown:1"]

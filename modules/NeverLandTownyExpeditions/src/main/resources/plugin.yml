@@ -1,5 +1,5 @@
 name: NeverLandTownyExpeditions
-version: '0.1.4'
+version: '0.1.5'
 main: ru.neverland.mintexpeditions.MintTownyExpeditions
 api-version: '26.2'
 authors: [Alexander Sokolov]
@@ -7,7 +7,7 @@ website: https://neverland.ru
 description: Походные экспедиции к руинам, кораблекрушениям и аномалиям проекта NeverLand.
 provides: [MintTownyExpeditions]
 depend: [NeverLandTownyCamps, Towny]
-softdepend: [ItemsAdder, PlaceholderAPI]
+softdepend: [NeverLandTownyBuilds, ItemsAdder, PlaceholderAPI]
 commands:
   expedition:
     description: Меню и команды экспедиций
