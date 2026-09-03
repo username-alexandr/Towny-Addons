@@ -1,4 +1,4 @@
-# Команды NeverLand Towny Suite 0.4.0
+# Команды NeverLand Towny Suite 0.6.0
 
 Основные городские функции вызываются через `/t <модуль>`. Административные команды имеют единый формат `/towny<модуль>`. Лагеря используют `/camp`, потому что могут работать без Towny.
 
@@ -6,7 +6,7 @@
 |---|---|---|
 | Территории | `/t stick`, `/t stick list`, `/t stick clear`, `/t claim` | `/townystick reload`, `/townystick give <игрок>` |
 | Лагеря | `/camp`, `/camp create`, `/camp spawn`, `/camp trust`, `/camp pack` | `/townycamps edit`, `/townycamps reload`, `/townycamps info <игрок>`, `/townycamps pack <игрок>` |
-| Постройки | `/t builds`, `/t wonders`, `/t inv` | `/buildeditor`, `/townybuilds reload` |
+| Постройки | `/t builds`, `/t wonders`, `/t inv`, `/t civic`, `/t shop` | `/buildeditor`, `/townybuilds reload`, `/townybuilds stall set\|remove\|list` |
 | Идеологии | `/t ideology`, `/t ideologies` | `/townyideologies reload`, `/townyideologies info|set|reset` |
 | Заказы | `/t contracts`, `/t contracts start|cancel|claim|history` | `/townycontracts start|cancel|list|reload` |
 | События | `/t events`, `/t events contribute|history` | Для игрока: `/t events start|stop|list|raidwave|reload`; для консоли: `/townyevents ...` |
@@ -20,3 +20,20 @@
 | Летопись | `/t chronicles`, `/t chronicle`, `/t history` | `/townychronicles add|remove|rescan|reload` |
 
 Прямые команды `/expedition`, `/espionage`, `/governance`, `/reputation`, `/archaeology` и `/chronicles` оставлены как запасные формы. Старые административные команды (`/mint...`, `/nlt...`, `/townstick`) тоже продолжают работать как скрытые алиасы совместимости. Для казначейства `/taxytowny` является алиасом `/townytaxes`.
+
+## Муниципальные службы Builds
+
+| Команда | Назначение |
+|---|---|
+| `/t civic status` | Состояние водной сети, территорий, маршрутов, страхования и городской лавки |
+| `/t civic select <проект> pos1\|pos2\|save\|clear` | Выделить участок Лесничества/Ирригации или маршрут стены, рва и дамбы |
+| `/t civic storage <forestry\|merchant_guild\|recycling_yard>` | Открыть отдельный склад муниципальной службы |
+| `/t civic insurance status\|deposit <сумма>` | Проверить или пополнить страховой резерв из городской казны |
+| `/t civic bulletin <текст>` | Разослать объявление жителям города через Типографию |
+| `/t shop` | Открыть ближайшую городскую лавку на спавне |
+| `/t shop claim <id>` / `/t shop release` | Занять или освободить торговое место |
+| `/t shop stock` / `/t shop price <материал> <цена>` | Пополнить ассортимент и назначить цену |
+| `/townybuilds stall set <id>` | Создать торговое место в позиции администратора |
+| `/townybuilds stall remove <id>` / `list` | Удалить место или вывести список |
+
+Для выбора территории игрок смотрит на нужный блок и поочерёдно выполняет `pos1` и `pos2`, затем `save`. Обе точки и охваченные чанки должны принадлежать городу. Лавка доступна городу после завершения Гильдии торговцев III уровня.

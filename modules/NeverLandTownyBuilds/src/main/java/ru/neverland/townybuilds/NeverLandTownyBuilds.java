@@ -5,6 +5,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import ru.neverland.townybuilds.command.AdminCommand;
 import ru.neverland.townybuilds.command.EditorCommand;
 import ru.neverland.townybuilds.command.TownSubCommand;
+import ru.neverland.townybuilds.command.CivicCommand;
+import ru.neverland.townybuilds.civic.CivicService;
 import ru.neverland.townybuilds.data.DataStore;
 import ru.neverland.townybuilds.gui.EditorManager;
 import ru.neverland.townybuilds.gui.MenuManager;
@@ -22,7 +24,7 @@ import ru.neverland.townybuilds.construction.ConstructionService;
 import java.io.File;
 
 public final class NeverLandTownyBuilds extends JavaPlugin {
-    private static final String[] TOWN_COMMANDS = {"builds", "wonderd", "wonders", "inv"};
+    private static final String[] TOWN_COMMANDS = {"builds", "wonderd", "wonders", "inv", "civic", "shop"};
     private MessageService messages;
     private ItemsAdderHook itemsAdder;
     private DefinitionRegistry definitions;
@@ -30,6 +32,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
     private EffectService effects;
     private RussianItemNames itemNames;
     private ConstructionService construction;
+    private CivicService civic;
 
     @Override
     public void onEnable() {
@@ -52,17 +55,19 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         builds.setConstruction(construction);
         MenuManager menus = new MenuManager(this, definitions, dataStore, towny, itemsAdder, builds, messages, itemNames);
         EditorManager editor = new EditorManager(this, definitions, messages);
+        civic = new CivicService(this, towny, dataStore, messages);
 
         getServer().getPluginManager().registerEvents(menus, this);
         getServer().getPluginManager().registerEvents(editor, this);
         getServer().getPluginManager().registerEvents(construction, this);
+        getServer().getPluginManager().registerEvents(civic, this);
 
         registerTownCommands(towny, menus);
         PluginCommand editorCommand = getCommand("buildeditor");
         if (editorCommand != null) editorCommand.setExecutor(new EditorCommand(editor, messages));
         PluginCommand adminCommand = getCommand("townybuilds");
         if (adminCommand != null) {
-            AdminCommand executor = new AdminCommand(this, messages);
+            AdminCommand executor = new AdminCommand(this, messages, civic);
             adminCommand.setExecutor(executor);
             adminCommand.setTabCompleter(executor);
         }
@@ -70,6 +75,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         effects = new EffectService(this, towny, dataStore, definitions);
         effects.start();
         construction.start();
+        civic.start();
         long autosave = Math.max(20L, getConfig().getLong("settings.storage.autosave-seconds", 60L) * 20L);
         getServer().getScheduler().runTaskTimer(this, dataStore::saveIfDirty, autosave, autosave);
         getLogger().info("NeverLandTownyBuilds " + getPluginMeta().getVersion()
@@ -80,6 +86,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
     public void onDisable() {
         if (effects != null) effects.stop();
         if (construction != null) construction.stop();
+        if (civic != null) civic.stop();
         if (dataStore != null) dataStore.save();
         TownyHook towny = new TownyHook();
         for (String command : TOWN_COMMANDS) towny.unregisterTownCommand(command);
@@ -93,6 +100,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         definitions.reload();
         effects.start();
         construction.start();
+        civic.start();
     }
 
     private void registerTownCommands(TownyHook towny, MenuManager menus) {
@@ -100,6 +108,8 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         towny.registerTownCommand("wonderd", new TownSubCommand(TownSubCommand.Target.WONDERS, menus, messages));
         towny.registerTownCommand("wonders", new TownSubCommand(TownSubCommand.Target.WONDERS, menus, messages));
         towny.registerTownCommand("inv", new TownSubCommand(TownSubCommand.Target.STORAGE, menus, messages));
+        towny.registerTownCommand("civic", new CivicCommand(civic, messages, false));
+        towny.registerTownCommand("shop", new CivicCommand(civic, messages, true));
     }
 
     private void copyResource(String name) {

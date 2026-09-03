@@ -8,6 +8,9 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.entity.Player;
 
+import java.util.Collection;
+import java.util.UUID;
+
 public final class TownyHook {
     public Resident resident(Player player) {
         return TownyAPI.getInstance().getResident(player);
@@ -16,6 +19,18 @@ public final class TownyHook {
     public Town town(Player player) {
         Resident resident = resident(player);
         return resident == null ? null : resident.getTownOrNull();
+    }
+
+    public Town town(UUID id) {
+        return TownyAPI.getInstance().getTown(id);
+    }
+
+    public Town town(String name) {
+        return TownyAPI.getInstance().getTown(name);
+    }
+
+    public Collection<Town> towns() {
+        return TownyAPI.getInstance().getTowns();
     }
 
     public Town townAt(Location location) {

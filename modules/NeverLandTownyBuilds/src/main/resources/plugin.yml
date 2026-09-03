@@ -23,6 +23,9 @@ permissions:
     default: true
   neverlandtownybuilds.upgrade:
     default: true
+  neverlandtownybuilds.civic:
+    description: Муниципальные службы, территории и городская лавка
+    default: true
   neverlandtownybuilds.admin:
     default: op
   neverlandtownybuilds.admin.editor:
