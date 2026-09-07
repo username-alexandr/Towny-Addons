@@ -42,7 +42,13 @@ public final class RussianItemNames {
     private void load(YamlConfiguration yaml) {
         for (String key : yaml.getKeys(false)) {
             Material material = Material.matchMaterial(key);
-            if (material != null) names.put(material, yaml.getString(key, key));
+            if (material != null) {
+                String name = yaml.getString(key, key);
+                if (material == Material.DEEPSLATE_TILES && "Глубинносланцевая плитка".equals(name)) {
+                    name = "Глубинносланцевая плитка (полный блок)";
+                }
+                names.put(material, name);
+            }
         }
     }
 
