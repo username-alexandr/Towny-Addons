@@ -1,6 +1,6 @@
 # NeverLand Towny Addons
 
-Монорепозиторий аддонов Towny для проекта NeverLand. Релиз `0.7.3` объединяет исходники и готовые JAR-файлы 14 модулей.
+Монорепозиторий аддонов Towny для проекта NeverLand. Релиз `0.7.4` объединяет исходники и готовые JAR-файлы 14 модулей.
 
 ## Совместимость
 
@@ -21,7 +21,7 @@
 | NeverLandTownyContracts | 0.1.2 | Городские заказы и совместные задания |
 | NeverLandTownyEspionage | 0.1.2 | Разведка, шпионаж и контрразведка |
 | NeverLandTownyEvents | 0.1.7 | Городские события с защитой от зданий и Чудес |
-| NeverLandTownyExpeditions | 0.1.5 | Экспедиции и бонус Небесного оррерия |
+| NeverLandTownyExpeditions | 0.1.6 | Экспедиции и бонус Небесного оррерия |
 | NeverLandTownyGovernance | 0.1.3 | Законы, должности, городской совет и голосования |
 | NeverLandTownyIdeologies | 0.1.3 | Идеологии и развитие городов |
 | NeverLandTownyReputation | 0.1.3 | Репутация игроков, городов и наций |

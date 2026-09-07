@@ -2,7 +2,7 @@ import org.gradle.api.attributes.java.TargetJvmVersion
 
 plugins { java }
 group = "ru.neverland"
-version = "0.1.5"
+version = "0.1.6"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -24,4 +24,13 @@ configurations.named("testCompileClasspath") {
 tasks {
     compileJava { options.encoding = "UTF-8"; options.release.set(17) }
     jar { archiveBaseName.set("NeverLandTownyExpeditions") }
+}
+
+configurations.named("testRuntimeClasspath") {
+    extendsFrom(configurations.named("compileOnly").get())
+}
+tasks.register<JavaExec>("smokeTest") {
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("ru.neverland.mintexpeditions.service.MessageServiceSmoke")
 }
