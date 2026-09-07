@@ -1,6 +1,7 @@
 package ru.neverland.townybuilds.data;
 
 import org.bukkit.inventory.ItemStack;
+import ru.neverland.townybuilds.service.ResourceMatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,7 @@ public final class ResourceFund {
 
     public int count(ItemStack template) {
         for (Entry entry : entries) {
-            if (entry.template.isSimilar(template)) {
+            if (ResourceMatcher.matches(entry.template, template)) {
                 return entry.amount;
             }
         }
@@ -34,7 +35,7 @@ public final class ResourceFund {
     public void add(ItemStack template, int amount) {
         if (template == null || amount <= 0) return;
         for (Entry entry : entries) {
-            if (entry.template.isSimilar(template)) {
+            if (ResourceMatcher.matches(entry.template, template)) {
                 entry.amount = Math.addExact(entry.amount, amount);
                 return;
             }
