@@ -10,7 +10,7 @@ public final class ResourceTransfer {
     public static int count(ItemStack[] contents, ItemStack required) {
         int amount = 0;
         for (ItemStack item : contents) {
-            if (item != null && item.isSimilar(required)) {
+            if (ResourceMatcher.matches(item, required)) {
                 amount += item.getAmount();
             }
         }
@@ -24,7 +24,7 @@ public final class ResourceTransfer {
         int remaining = amount;
         for (int index = 0; index < contents.length && remaining > 0; index++) {
             ItemStack item = contents[index];
-            if (item == null || !item.isSimilar(required)) continue;
+            if (!ResourceMatcher.matches(item, required)) continue;
             int removed = Math.min(item.getAmount(), remaining);
             remaining -= removed;
             if (item.getAmount() == removed) {
