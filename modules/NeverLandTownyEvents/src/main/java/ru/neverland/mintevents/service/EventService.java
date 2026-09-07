@@ -273,11 +273,17 @@ public final class EventService implements MintTownyEventsApi {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         EntityType type;
         try { type = EntityType.valueOf(rawTypes.get(random.nextInt(rawTypes.size())).toUpperCase(Locale.ROOT)); }
-        catch (IllegalArgumentException ignored) { type = EntityType.ZOMBIE; }
+        catch (IllegalArgumentException ignored) { return RaidSpawnResult.INVALID_TYPE; }
         if (!type.isAlive() || !type.isSpawnable()) return RaidSpawnResult.INVALID_TYPE;
         try {
             Location actual = location.clone().add(random.nextDouble(-0.3, 0.3), 0, random.nextDouble(-0.3, 0.3));
-            Entity spawned = actual.getWorld().spawnEntity(actual, type, CreatureSpawnEvent.SpawnReason.CUSTOM);
+            // Towny's spawn checks run before spawnEntity returns. Tag the mob first.
+            Entity spawned = actual.getWorld().spawnEntity(actual, type, CreatureSpawnEvent.SpawnReason.CUSTOM, entity -> {
+                entity.getPersistentDataContainer().set(raidMobKey, PersistentDataType.STRING, town.getUUID().toString());
+                entity.setCustomName(ColorUtil.color("&#FF5E6CРазбойник"));
+                entity.setCustomNameVisible(false);
+                if (entity instanceof LivingEntity living) living.setRemoveWhenFarAway(false);
+            });
             if (!(spawned instanceof LivingEntity living)) {
                 if (spawned != null) spawned.remove();
                 return RaidSpawnResult.REJECTED;
@@ -286,9 +292,6 @@ public final class EventService implements MintTownyEventsApi {
                 living.remove();
                 return RaidSpawnResult.REJECTED;
             }
-            living.getPersistentDataContainer().set(raidMobKey, PersistentDataType.STRING, town.getUUID().toString());
-            living.setCustomName(ColorUtil.color("&#FF5E6CРазбойник"));
-            living.setCustomNameVisible(false);
             if (living instanceof Mob mob) {
                 Player target = nearestTownPlayer(town, actual);
                 if (target != null) mob.setTarget(target);

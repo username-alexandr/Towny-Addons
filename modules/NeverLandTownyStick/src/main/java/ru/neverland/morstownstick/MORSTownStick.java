@@ -68,7 +68,7 @@ public final class MORSTownStick extends JavaPlugin {
         manager.registerEvents(new CraftProtectionListener(sticks), this);
         manager.registerEvents(new TownBorderListener(borders), this);
         particles.start();
-        getLogger().info("NeverLandTownyStick 0.1.5 включён: список выделения, BFS-захват и защита палки активны.");
+        getLogger().info("NeverLandTownyStick 0.1.6 включён: список выделения, BFS-захват и защита палки активны.");
     }
 
     public void reloadPlugin() {

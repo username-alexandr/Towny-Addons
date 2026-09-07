@@ -1,8 +1,8 @@
-name: Publish release 0.7.2
+name: Publish release 0.7.3
 
 on:
   push:
-    branches: [release/v0.7.2]
+    branches: [release/v0.7.3]
   workflow_dispatch:
 
 permissions:
@@ -21,6 +21,12 @@ jobs:
           distribution: temurin
           java-version: '25'
           cache: maven
+      - name: Check selection click repeats
+        shell: bash
+        run: |
+          mkdir -p /tmp/selection-click-test
+          javac -d /tmp/selection-click-test modules/NeverLandTownyStick/src/main/java/ru/neverland/morstownstick/service/SelectionClickGate.java modules/NeverLandTownyStick/src/test/java/ru/neverland/morstownstick/SelectionClickGateSmoke.java
+          java -cp /tmp/selection-click-test ru.neverland.morstownstick.SelectionClickGateSmoke
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.0.0'
