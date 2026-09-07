@@ -1,5 +1,6 @@
 package ru.neverland.townybuilds.service;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -10,7 +11,7 @@ public final class ResourceMatcher {
 
     public static boolean matches(ItemStack candidate, ItemStack required) {
         if (candidate == null || required == null
-                || candidate.getType().isAir() || required.getType().isAir()) {
+                || isAir(candidate.getType()) || isAir(required.getType())) {
             return false;
         }
         if (candidate.isSimilar(required)) {
@@ -37,5 +38,9 @@ public final class ResourceMatcher {
                 && !meta.hasCustomModelData()
                 && !meta.hasEnchants()
                 && meta.getPersistentDataContainer().getKeys().isEmpty();
+    }
+
+    private static boolean isAir(Material material) {
+        return material == Material.AIR || material == Material.CAVE_AIR || material == Material.VOID_AIR;
     }
 }
