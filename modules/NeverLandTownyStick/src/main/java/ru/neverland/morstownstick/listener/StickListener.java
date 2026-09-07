@@ -13,6 +13,7 @@ import ru.neverland.morstownstick.model.CellKey;
 import ru.neverland.morstownstick.service.ClaimService;
 import ru.neverland.morstownstick.service.MessageService;
 import ru.neverland.morstownstick.service.SelectionService;
+import ru.neverland.morstownstick.service.SelectionClickGate;
 import ru.neverland.morstownstick.service.StickService;
 
 import java.util.Map;
@@ -24,6 +25,7 @@ public final class StickListener implements Listener {
     private final SelectionService selections;
     private final ClaimService claims;
     private final MessageService messages;
+    private final SelectionClickGate clicks = new SelectionClickGate();
 
     public StickListener(JavaPlugin plugin, TownyFacade towny, StickService sticks, SelectionService selections,
                          ClaimService claims, MessageService messages) {
@@ -58,6 +60,7 @@ public final class StickListener implements Listener {
             return;
         }
         CellKey cell = towny.cell(event.getClickedBlock());
+        if (!clicks.accept(player.getUniqueId(), cell, System.nanoTime())) return;
         SelectionService.ToggleResult result = selections.toggle(player.getUniqueId(), cell);
         Map<String, Object> replacements = Map.of("x", cell.x(), "z", cell.z(),
                 "count", selections.count(player.getUniqueId()), "max", plugin.getConfig().getInt("selection.max-chunks", -1));
@@ -70,6 +73,7 @@ public final class StickListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
+        clicks.clear(event.getPlayer().getUniqueId());
         if (plugin.getConfig().getBoolean("selection.clear-on-quit", true)) selections.clear(event.getPlayer().getUniqueId());
         claims.playerQuit(event.getPlayer().getUniqueId());
     }

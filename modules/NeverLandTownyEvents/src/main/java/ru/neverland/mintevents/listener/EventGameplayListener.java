@@ -1,6 +1,8 @@
 package ru.neverland.mintevents.listener;
 
 import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.event.MobRemovalEvent;
+import com.palmergames.bukkit.towny.event.mobs.MobSpawnRemovalEvent;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -58,7 +60,17 @@ public final class EventGameplayListener implements Listener {
         event.setDroppedExp(0);
     }
 
+    @EventHandler(ignoreCancelled = true)
+    public void onTownySpawnRemoval(MobSpawnRemovalEvent event) {
+        if (isRaidMob(event.getEntityOrNull())) event.setCancelled(true);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onTownyMobRemoval(MobRemovalEvent event) {
+        if (isRaidMob(event.getEntity())) event.setCancelled(true);
+    }
+
     private boolean isRaidMob(Entity entity) {
-        return events.isRaidMob(entity);
+        return entity != null && events.isRaidMob(entity);
     }
 }

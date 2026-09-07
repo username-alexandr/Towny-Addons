@@ -1,5 +1,5 @@
 name: NeverLandTownyStick
-version: '0.1.5'
+version: '0.1.6'
 main: ru.neverland.morstownstick.MORSTownStick
 api-version: '26.2'
 authors: [Alexander Sokolov]
