@@ -64,6 +64,9 @@ public final class ConstructionService implements Listener {
     private final BuildingBlueprintGenerator generator;
     private final CompletionHandler completionHandler;
     private final Map<UUID, TextDisplay> guideDisplays = new HashMap<>();
+    private final Map<UUID, ObstructionPreview> obstructionPreviews = new HashMap<>();
+    private record Obstruction(Location location, Material material) {}
+    private record ObstructionPreview(long expiresAt, List<Obstruction> blocks) {}
     private BukkitTask renderTask;
 
     public ConstructionService(JavaPlugin plugin, TownyHook towny, DataStore dataStore,
@@ -93,6 +96,7 @@ public final class ConstructionService implements Listener {
             if (display != null && display.isValid()) display.remove();
         }
         guideDisplays.clear();
+        obstructionPreviews.clear();
     }
 
     public boolean supports(String projectId) {
@@ -106,6 +110,7 @@ public final class ConstructionService implements Listener {
 
     public ConstructionPreparation prepare(Player player, Town town, ProjectDefinition project,
                                            int currentLevel, int targetLevel) {
+        obstructionPreviews.remove(player.getUniqueId());
         if (!supports(project.id(), targetLevel)) {
             return ConstructionPreparation.failed(ConstructionPreparation.Status.UNKNOWN_BLUEPRINT,
                     "Для уровня " + targetLevel + " физическая стадия не предусмотрена");
@@ -135,10 +140,22 @@ public final class ConstructionService implements Listener {
             site.setArchitectureVersion(existing.architectureVersion());
         }
 
+        plan = planForSite(site, targetLevel);
+        if (plan == null) return ConstructionPreparation.failed(ConstructionPreparation.Status.UNKNOWN_BLUEPRINT, project.id());
         World world = Bukkit.getWorld(site.worldId());
         if (world == null) return ConstructionPreparation.failed(ConstructionPreparation.Status.NO_GROUND_TARGET, "Мир строительной площадки не загружен");
+        if (!player.getWorld().getUID().equals(site.worldId())) {
+            return ConstructionPreparation.failed(ConstructionPreparation.Status.NO_GROUND_TARGET,
+                    "Площадка находится в мире " + world.getName() + " на " + coordinates(site.location(world, new BlockOffset(0, 0, 0))));
+        }
         int firstStage = existing == null ? 1 : targetLevel;
-        List<String> problems = validate(town, world, site, plan, firstStage, currentLevel);
+        List<Obstruction> obstacles = new ArrayList<>();
+        List<String> problems = validate(town, world, site, plan, firstStage, currentLevel, obstacles);
+        if (!obstacles.isEmpty()) {
+            long seconds = Math.max(5, plugin.getConfig().getLong("settings.construction.obstacle-preview-seconds", 90));
+            obstructionPreviews.put(player.getUniqueId(), new ObstructionPreview(System.currentTimeMillis() + seconds * 1000, obstacles));
+            renderObstructions();
+        }
         if (!problems.isEmpty()) {
             ConstructionPreparation.Status status = problems.get(0).startsWith("Территория")
                     ? ConstructionPreparation.Status.OUTSIDE_TOWN
@@ -168,7 +185,7 @@ public final class ConstructionService implements Listener {
         if (town == null) return new ConstructionProgress(false, 0, 0, 0, "");
         ConstructionSite site = dataStore.town(town.getUUID()).constructionSite(projectId);
         if (site == null || !site.active()) return new ConstructionProgress(false, 0, 0, 0, "");
-        BlueprintPlan plan = generator.generate(projectId, site.targetStage());
+        BlueprintPlan plan = planForSite(site, site.targetStage());
         World world = Bukkit.getWorld(site.worldId());
         if (plan == null || world == null) return new ConstructionProgress(true, site.targetStage(), 0, 0, "");
         int total = 0;
@@ -237,10 +254,10 @@ public final class ConstructionService implements Listener {
     }
 
     private List<String> validate(Town town, World world, ConstructionSite site, BlueprintPlan plan,
-                                  int fromStage, int currentLevel) {
+                                  int fromStage, int currentLevel, List<Obstruction> obstacles) {
         List<String> problems = new ArrayList<>();
         int maximum = Math.max(1, plugin.getConfig().getInt("settings.construction.validation-max-errors", 5));
-        BlueprintPlan previous = currentLevel <= 0 ? null : generator.generate(site.projectId(), currentLevel);
+        BlueprintPlan previous = currentLevel <= 0 ? null : planForSite(site, currentLevel);
         Set<BlockOffset> excavation = ExcavationPlanner.offsets(plan, fromStage);
         for (Map.Entry<BlockOffset, BlueprintBlock> entry : plan.blocks().entrySet()) {
             if (entry.getValue().stage() < fromStage) continue;
@@ -266,6 +283,7 @@ public final class ConstructionService implements Listener {
                         ? !safeExcavation
                         : !replaceable(current.getType());
                 if (blocked) {
+                    obstacles.add(new Obstruction(location.clone(), current.getType()));
                     addProblem(problems, "Препятствие: " + materialName(current.getType())
                             + " на " + coordinates(location), maximum);
                 }
@@ -280,7 +298,9 @@ public final class ConstructionService implements Listener {
                 if (owner == null || !owner.getUUID().equals(town.getUUID())) {
                     addProblem(problems, "Территория: расчистка " + coordinates(location)
                             + " находится вне города", maximum);
-                } else if (!ExcavationPlanner.canClear(location.getBlock().getType())) {
+                } else if (!isCompletedBlock(previous, offset, location.getBlock().getType())
+                        && !ExcavationPlanner.canClear(location.getBlock().getType())) {
+                    obstacles.add(new Obstruction(location.clone(), location.getBlock().getType()));
                     addProblem(problems, "Препятствие: " + materialName(location.getBlock().getType())
                             + " в подземном объёме " + coordinates(location), maximum);
                 }
@@ -290,12 +310,23 @@ public final class ConstructionService implements Listener {
         return problems;
     }
 
+    private BlueprintPlan planForSite(ConstructionSite site, int level) {
+        return generator.generateForArchitecture(site.projectId(), level, site.architectureVersion());
+    }
+
+    static boolean isCompletedBlock(BlueprintPlan previous, BlockOffset offset, Material actual) {
+        BlueprintBlock old = previous == null ? null : previous.blocks().get(offset);
+        return old != null && old.material() == actual;
+    }
+
     private int clearExcavation(ConstructionSite site, BlueprintPlan plan) {
         World world = Bukkit.getWorld(site.worldId());
         if (world == null) return 0;
+        BlueprintPlan previous = site.completedStage() <= 0 ? null : planForSite(site, site.completedStage());
         int cleared = 0;
         for (BlockOffset offset : ExcavationPlanner.offsets(plan, site.buildFromStage())) {
             Block block = site.location(world, offset).getBlock();
+            if (isCompletedBlock(previous, offset, block.getType())) continue;
             BlueprintBlock expected = plan.blocks().get(offset);
             if (expected != null && block.getType() == expected.material()) continue;
             if (!ExcavationPlanner.canClear(block.getType()) || block.getType().isAir()) continue;
@@ -315,7 +346,7 @@ public final class ConstructionService implements Listener {
 
     private void checkCompletion(Player player, Town town, ConstructionSite site) {
         if (!site.active()) return;
-        BlueprintPlan plan = generator.generate(site.projectId(), site.targetStage());
+        BlueprintPlan plan = planForSite(site, site.targetStage());
         World world = Bukkit.getWorld(site.worldId());
         if (plan == null || world == null) return;
         for (Map.Entry<BlockOffset, BlueprintBlock> entry : plan.blocks().entrySet()) {
@@ -413,7 +444,7 @@ public final class ConstructionService implements Listener {
             for (ConstructionSite site : town.constructionSites().values()) {
                 if (site.active() || site.completedStage() <= 0) continue;
                 World world = Bukkit.getWorld(site.worldId());
-                BlueprintPlan plan = generator.generate(site.projectId(), site.completedStage());
+                BlueprintPlan plan = planForSite(site, site.completedStage());
                 if (world == null || plan == null) continue;
                 for (Map.Entry<BlockOffset, BlueprintBlock> entry : orderedEntries(plan)) {
                     BlueprintBlock expected = entry.getValue();
@@ -500,7 +531,7 @@ public final class ConstructionService implements Listener {
             for (ConstructionSite site : town.getValue().constructionSites().values()) {
                 if (!site.worldId().equals(worldId) || (activeOnly && !site.active())) continue;
                 int visibleLevel = site.active() ? site.targetStage() : site.completedStage();
-                BlueprintPlan plan = generator.generate(site.projectId(), visibleLevel);
+                BlueprintPlan plan = planForSite(site, visibleLevel);
                 if (plan == null) continue;
                 BlueprintBlock expected = plan.blocks().get(site.offset(location));
                 if (expected != null) return new LocatedBlock(town.getKey(), site, expected);
@@ -509,7 +540,34 @@ public final class ConstructionService implements Listener {
         return null;
     }
 
+    private void renderObstructions() {
+        long now = System.currentTimeMillis();
+        Particle.DustOptions red = new Particle.DustOptions(Color.fromRGB(255, 55, 55), 1.1f);
+        var iterator = obstructionPreviews.entrySet().iterator();
+        while (iterator.hasNext()) {
+            var entry = iterator.next();
+            Player player = Bukkit.getPlayer(entry.getKey());
+            ObstructionPreview preview = entry.getValue();
+            if (player == null || preview.expiresAt() <= now) { iterator.remove(); continue; }
+            preview.blocks().removeIf(obstacle -> {
+                Location location = obstacle.location();
+                World world = location.getWorld();
+                return world == null || (world.isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)
+                        && location.getBlock().getType() != obstacle.material());
+            });
+            if (preview.blocks().isEmpty()) { iterator.remove(); continue; }
+            for (Obstruction obstacle : preview.blocks()) {
+                Location location = obstacle.location();
+                if (player.getWorld().equals(location.getWorld())
+                        && player.getLocation().distanceSquared(location) <= 64 * 64) {
+                    renderOutline(player, location, red);
+                }
+            }
+        }
+    }
+
     private void renderMissingBlocks() {
+        renderObstructions();
         if (!plugin.getConfig().getBoolean("settings.construction.preview-enabled", true)) return;
         double distance = Math.max(16, plugin.getConfig().getDouble("settings.construction.preview-distance", 64));
         Particle.DustOptions outline = new Particle.DustOptions(Color.fromRGB(255, 212, 90), 0.9f);
@@ -523,7 +581,7 @@ public final class ConstructionService implements Listener {
             PreviewTarget nearest = null;
             for (ConstructionSite site : data.constructionSites().values()) {
                 if (!site.active() || !player.getWorld().getUID().equals(site.worldId())) continue;
-                BlueprintPlan plan = generator.generate(site.projectId(), site.targetStage());
+                BlueprintPlan plan = planForSite(site, site.targetStage());
                 if (plan == null) continue;
                 Optional<Map.Entry<BlockOffset, BlueprintBlock>> missing = plan.blocks().entrySet().stream()
                         .filter(entry -> entry.getValue().role() == BlockRole.RESIDENT)
@@ -629,7 +687,7 @@ public final class ConstructionService implements Listener {
     }
 
     private String coordinates(Location location) {
-        return "[" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + "]";
+        return location.getWorld().getName() + " [" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + "]";
     }
 
     private String materialName(Material material) {

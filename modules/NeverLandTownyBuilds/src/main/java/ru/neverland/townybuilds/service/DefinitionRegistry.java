@@ -61,7 +61,28 @@ public final class DefinitionRegistry {
         if (customFile.exists()) {
             loadFile(YamlConfiguration.loadConfiguration(customFile), true);
         }
+        rebalanceResources();
         plugin.getLogger().info("Загружено городских проектов: " + projects.size());
+    }
+
+    private void rebalanceResources() {
+        if (!plugin.getConfig().getBoolean("settings.resources.blueprint-budget", true)) return;
+        var generator = new ru.neverland.townybuilds.construction.BuildingBlueprintGenerator();
+        for (ProjectDefinition project : projects.values()) {
+            if (project.custom() || !generator.supportedProjects().contains(project.id())) continue;
+            for (LevelDefinition level : new ArrayList<>(project.levels().values())) {
+                List<ItemStack> items = level.resources();
+                // NBT/ItemsAdder prices configured by the editor remain explicit.
+                if (items.stream().anyMatch(ItemStack::hasItemMeta)) continue;
+                var costs = items.stream().map(i -> new ResourceBudget.Cost(i.getType().name(), i.getAmount())).toList();
+                var balanced = ResourceBudget.balance(generator, project.id(), level.level(),
+                        project.type() == ProjectType.WONDER, costs);
+                List<ItemStack> updated = balanced.stream()
+                        .map(c -> new ItemStack(Material.valueOf(c.material()), c.amount())).toList();
+                project.setLevel(new LevelDefinition(level.level(), level.money(), level.bonusBlocks(),
+                        updated, level.effects(), level.commands()));
+            }
+        }
     }
 
     private void loadFile(YamlConfiguration yaml, boolean custom) {

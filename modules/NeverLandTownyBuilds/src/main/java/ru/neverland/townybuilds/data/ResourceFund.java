@@ -56,6 +56,16 @@ public final class ResourceFund {
         return List.copyOf(result);
     }
 
+    public List<Snapshot> surplus(List<ItemStack> requirements) {
+        List<Snapshot> result = new ArrayList<>();
+        for (Entry entry : entries) {
+            int needed = requirements.stream().filter(r -> ResourceMatcher.matches(entry.template, r))
+                    .mapToInt(ItemStack::getAmount).sum();
+            if (entry.amount > needed) result.add(new Snapshot(entry.template, entry.amount - needed));
+        }
+        return List.copyOf(result);
+    }
+
     private static final class Entry {
         private final ItemStack template;
         private int amount;

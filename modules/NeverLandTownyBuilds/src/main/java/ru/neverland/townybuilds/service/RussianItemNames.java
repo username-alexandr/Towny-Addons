@@ -47,6 +47,8 @@ public final class RussianItemNames {
                 if (material == Material.DEEPSLATE_TILES && ("Глубинносланцевая плитка".equals(name) || "Глубинносланцевая плитка (полный блок)".equals(name))) {
                     name = "Глубинносланцевый кафель";
                 }
+                if (names.containsKey(material)
+                        && name.equalsIgnoreCase(material.name().replace('_', ' '))) continue;
                 names.put(material, name);
             }
         }
