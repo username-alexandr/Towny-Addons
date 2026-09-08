@@ -1,4 +1,8 @@
 settings:
+  resources:
+    # Объём этапа × 1.15 для зданий, × 1.35 для чудес; редкие ресурсы имеют больший вес.
+    # Количества в projects.yml задают пропорции. custom-projects.yml сохраняет точные цены.
+    blueprint-budget: true
   effects:
     # GLOBAL — во всех мирах; TOWN — только внутри территории своего города.
     scope: GLOBAL
@@ -14,6 +18,7 @@ settings:
     # Мэр начинает этап здания или Чуда, наведясь на землю в пределах города. Последующие уровни используют ту же площадку.
     target-distance: 16
     validation-max-errors: 5
+    obstacle-preview-seconds: 90
     preview-enabled: true
     preview-interval-ticks: 10
     preview-distance: 64

@@ -147,7 +147,7 @@ public final class StructureService {
             if (block.getState() instanceof Container current) current.getInventory().clear();
             BlockData data;
             try {
-                data = Bukkit.createBlockData(snapshot.blockData());
+                data = Bukkit.createBlockData(ru.neverland.localization.MaterialLabels.canonicalBlockData(snapshot.blockData()));
             } catch (IllegalArgumentException exception) {
                 data = snapshot.material().createBlockData();
             }

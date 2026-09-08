@@ -36,6 +36,12 @@ public final class ResourceFundSmoke {
             throw new AssertionError("Custom resources must remain unchanged");
         if (ru.neverland.townybuilds.service.ConstructionSupply.material(Material.DEEPSLATE_TILES) != Material.COBBLED_DEEPSLATE_SLAB)
             throw new AssertionError("Construction must request the same slab as the menu");
+        ItemStack reduced = slab.clone();
+        reduced.setAmount(100);
+        var excess = fund.surplus(java.util.List.of(reduced));
+        int slabSurplus = excess.stream().filter(e -> e.template().getType() == Material.COBBLED_DEEPSLATE_SLAB)
+                .mapToInt(ResourceFund.Snapshot::amount).sum();
+        if (slabSurplus != 32) throw new AssertionError("Excess funding must be refundable after rebalance");
         System.out.println("ResourceFundSmoke OK");
     }
 
@@ -43,6 +49,7 @@ public final class ResourceFundSmoke {
         private final String id;
         private Material material;
         private final boolean custom;
+        private int amount = 1;
 
         private TestItemStack(String id, Material material, boolean custom) {
             super();
@@ -71,12 +78,17 @@ public final class ResourceFundSmoke {
 
         @Override
         public TestItemStack clone() {
-            return new TestItemStack(id, material, custom);
+            TestItemStack copy = new TestItemStack(id, material, custom);
+            copy.amount = amount;
+            return copy;
         }
 
         @Override
+        public int getAmount() { return amount; }
+
+        @Override
         public void setAmount(int amount) {
-            // Количество фонда хранится отдельно от ItemStack.
+            this.amount = amount;
         }
     }
 }

@@ -227,7 +227,7 @@ public final class TradeService {
     }
     private ExportDefinition definition(Caravan caravan) {
         ExportDefinition current = registry.get(caravan.exportId());
-        return current != null ? current : new ExportDefinition(caravan.exportId(), "&f" + caravan.exportId(),
+        return current != null ? current : new ExportDefinition(caravan.exportId(), "&f" + registry.itemName(caravan.cargoItem()),
                 caravan.cargoItem().getType() == Material.AIR ? Material.CHEST : caravan.cargoItem().getType(), -1,
                 List.of(), caravan.cargoItem().getType().name(), caravan.cargoItem(), caravan.totalCargo(), caravan.basePrice());
     }

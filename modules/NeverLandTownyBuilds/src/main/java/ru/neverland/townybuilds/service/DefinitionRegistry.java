@@ -1,4 +1,5 @@
 package ru.neverland.townybuilds.service;
+import ru.neverland.localization.MaterialNameConfig;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -61,7 +62,28 @@ public final class DefinitionRegistry {
         if (customFile.exists()) {
             loadFile(YamlConfiguration.loadConfiguration(customFile), true);
         }
+        rebalanceResources();
         plugin.getLogger().info("Загружено городских проектов: " + projects.size());
+    }
+
+    private void rebalanceResources() {
+        if (!plugin.getConfig().getBoolean("settings.resources.blueprint-budget", true)) return;
+        var generator = new ru.neverland.townybuilds.construction.BuildingBlueprintGenerator();
+        for (ProjectDefinition project : projects.values()) {
+            if (project.custom() || !generator.supportedProjects().contains(project.id())) continue;
+            for (LevelDefinition level : new ArrayList<>(project.levels().values())) {
+                List<ItemStack> items = level.resources();
+                // NBT/ItemsAdder prices configured by the editor remain explicit.
+                if (items.stream().anyMatch(ItemStack::hasItemMeta)) continue;
+                var costs = items.stream().map(i -> new ResourceBudget.Cost(i.getType().name(), i.getAmount())).toList();
+                var balanced = ResourceBudget.balance(generator, project.id(), level.level(),
+                        project.type() == ProjectType.WONDER, costs);
+                List<ItemStack> updated = balanced.stream()
+                        .map(c -> new ItemStack(Material.valueOf(c.material()), c.amount())).toList();
+                project.setLevel(new LevelDefinition(level.level(), level.money(), level.bonusBlocks(),
+                        updated, level.effects(), level.commands()));
+            }
+        }
     }
 
     private void loadFile(YamlConfiguration yaml, boolean custom) {
@@ -98,7 +120,7 @@ public final class DefinitionRegistry {
     }
 
     private ProjectDefinition parseProject(String id, ProjectType type, ConfigurationSection section) {
-        Material icon = Material.matchMaterial(section.getString("icon", "STONE"));
+        Material icon = MaterialNameConfig.matchMaterial(section.getString("icon", "STONE"));
         if (icon == null || !icon.isItem()) {
             icon = Material.STONE;
         }
@@ -191,7 +213,7 @@ public final class DefinitionRegistry {
                 return custom;
             }
             String[] parts = specification.split(":");
-            Material material = Material.matchMaterial(parts[0]);
+            Material material = resolveResourceMaterial(parts[0]);
             if (material == null || !material.isItem()) {
                 throw new IllegalArgumentException("неизвестный материал " + parts[0]);
             }
@@ -201,6 +223,11 @@ public final class DefinitionRegistry {
             plugin.getLogger().warning("Некорректный ресурс '" + specification + "': " + exception.getMessage());
             return null;
         }
+    }
+
+    static Material resolveResourceMaterial(String name) {
+        // Saved projects.yml files may still use the name from before iron/copper chains.
+        return MaterialNameConfig.matchMaterial(name);
     }
 
     static Map<String, Integer> resolveRequirements(boolean explicitlyConfigured,

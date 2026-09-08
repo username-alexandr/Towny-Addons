@@ -1,4 +1,5 @@
 package ru.neverland.mintcamps.service;
+import ru.neverland.localization.MaterialNameConfig;
 
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -34,7 +35,7 @@ public final class StyleRegistry {
         for (String id : root.getKeys(false)) {
             Map<String, Material> materials = new LinkedHashMap<>();
             for (String role : ROLES) {
-                Material material = Material.matchMaterial(yaml.getString("styles." + id + "." + role, "OAK_PLANKS"));
+                Material material = MaterialNameConfig.matchMaterial(yaml.getString("styles." + id + "." + role, "OAK_PLANKS"));
                 if (material == null || material.isAir()) {
                     plugin.getLogger().warning("Некорректный материал стиля " + id + ": " + role);
                     material = Material.OAK_PLANKS;

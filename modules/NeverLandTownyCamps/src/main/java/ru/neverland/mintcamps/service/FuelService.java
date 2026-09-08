@@ -1,4 +1,5 @@
 package ru.neverland.mintcamps.service;
+import ru.neverland.localization.MaterialNameConfig;
 
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -87,7 +88,7 @@ public final class FuelService {
     }
 
     private Material material(Object value) {
-        return value == null ? null : Material.matchMaterial(String.valueOf(value).toUpperCase(Locale.ROOT));
+        return value == null ? null : MaterialNameConfig.matchMaterial(String.valueOf(value).toUpperCase(Locale.ROOT));
     }
 
     private int integer(Object value, int fallback) {

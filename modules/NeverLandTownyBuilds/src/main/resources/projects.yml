@@ -835,7 +835,7 @@ buildings:
     description: ["Морской узел импорта и экспорта.", "Увеличивает объём городской торговли."]
     levels:
       1: {money: 9000, bonus-blocks: 1, resources: ["STONE_BRICKS:256", "DARK_OAK_LOG:192", "BARREL:16"], effects: []}
-      2: {money: 18000, bonus-blocks: 2, resources: ["DARK_PRISMARINE:192", "DARK_OAK_PLANKS:256", "CHAIN:24"], effects: ["SPEED:1"]}
+      2: {money: 18000, bonus-blocks: 2, resources: ["DARK_PRISMARINE:192", "DARK_OAK_PLANKS:256", "IRON_CHAIN:24"], effects: ["SPEED:1"]}
       3: {money: 36000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:256", "IRON_BLOCK:24", "LANTERN:24"], effects: ["SPEED:1", "LUCK:1"]}
       4: {money: 72000, bonus-blocks: 4, resources: ["PRISMARINE_BRICKS:384", "COPPER_BLOCK:32", "EMERALD:32"], effects: ["SPEED:2", "LUCK:1"]}
       5: {money: 144000, bonus-blocks: 7, resources: ["DARK_PRISMARINE:512", "GOLD_BLOCK:16", "EMERALD_BLOCK:12"], effects: ["SPEED:2", "LUCK:2"]}
@@ -889,7 +889,7 @@ buildings:
       1: {money: 6500, bonus-blocks: 1, resources: ["MUD_BRICKS:256", "WATER_BUCKET:8"], effects: []}
       2: {money: 13000, bonus-blocks: 2, resources: ["STONE_BRICKS:384", "WATER_BUCKET:16"], effects: ["RESISTANCE:1"]}
       3: {money: 26000, bonus-blocks: 3, resources: ["MOSSY_STONE_BRICKS:384", "DARK_OAK_PLANKS:96"], effects: ["RESISTANCE:1"]}
-      4: {money: 52000, bonus-blocks: 4, resources: ["DEEPSLATE_BRICKS:512", "CHAIN:48"], effects: ["RESISTANCE:2"]}
+      4: {money: 52000, bonus-blocks: 4, resources: ["DEEPSLATE_BRICKS:512", "IRON_CHAIN:48"], effects: ["RESISTANCE:2"]}
       5: {money: 104000, bonus-blocks: 6, resources: ["OBSIDIAN:128", "SEA_LANTERN:24"], effects: ["RESISTANCE:2"]}
   archery_range:
     name: "&#E08B52&lСтрельбище"
@@ -914,7 +914,7 @@ buildings:
     levels:
       1: {money: 9000, bonus-blocks: 2, resources: ["DEEPSLATE_BRICKS:256", "STONE_BRICKS:192"], effects: []}
       2: {money: 18000, bonus-blocks: 3, resources: ["POLISHED_BASALT:192", "IRON_INGOT:96"], effects: ["RESISTANCE:1"]}
-      3: {money: 36000, bonus-blocks: 4, resources: ["COBBLED_DEEPSLATE_SLAB:256", "CROSSBOW:12", "CHAIN:32"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      3: {money: 36000, bonus-blocks: 4, resources: ["COBBLED_DEEPSLATE_SLAB:256", "CROSSBOW:12", "IRON_CHAIN:32"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
       4: {money: 72000, bonus-blocks: 6, resources: ["DEEPSLATE_BRICKS:768", "IRON_BLOCK:32", "TNT:16"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
       5: {money: 144000, bonus-blocks: 8, resources: ["OBSIDIAN:192", "DIAMOND_BLOCK:4", "BEACON:1"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
   census_bureau:

@@ -55,7 +55,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         builds.setConstruction(construction);
         MenuManager menus = new MenuManager(this, definitions, dataStore, towny, itemsAdder, builds, messages, itemNames);
         EditorManager editor = new EditorManager(this, definitions, messages);
-        civic = new CivicService(this, towny, dataStore, messages);
+        civic = new CivicService(this, towny, dataStore, messages, itemNames);
 
         getServer().getPluginManager().registerEvents(menus, this);
         getServer().getPluginManager().registerEvents(editor, this);

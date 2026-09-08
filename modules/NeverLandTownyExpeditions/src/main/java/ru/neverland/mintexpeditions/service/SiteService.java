@@ -373,7 +373,7 @@ public final class SiteService {
                     SiteSnapshot snapshot = entry.getValue();
                     block.setType(snapshot.material(), false);
                     try {
-                        block.setBlockData(Bukkit.createBlockData(snapshot.blockData()), false);
+                        block.setBlockData(Bukkit.createBlockData(ru.neverland.localization.MaterialLabels.canonicalBlockData(snapshot.blockData())), false);
                     } catch (IllegalArgumentException ignored) {
                     }
                     if (block.getState() instanceof InventoryHolder holder

@@ -1,4 +1,5 @@
 package ru.neverland.mintcamps.data;
+import ru.neverland.localization.MaterialNameConfig;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -71,7 +72,7 @@ public final class CampRepository {
                 if (!hologram.isBlank()) camp.hologramId(UUID.fromString(hologram));
                 for (Map<?, ?> entry : yaml.getMapList(path + "snapshots")) {
                     BlockPos position = BlockPos.parse(String.valueOf(entry.get("pos")));
-                    Material material = Material.matchMaterial(String.valueOf(entry.get("material")));
+                    Material material = MaterialNameConfig.matchMaterial(String.valueOf(entry.get("material")));
                     if (material == null) continue;
                     String data = String.valueOf(entry.get("data"));
                     List<ItemStack> inventory = readItems(entry.get("inventory") instanceof List<?> list ? list : List.of());

@@ -1,8 +1,8 @@
-name: Publish release 0.7.6
+name: Publish release 0.7.7
 
 on:
   push:
-    branches: [release/v0.7.6]
+    branches: [release/v0.7.7]
   workflow_dispatch:
 
 permissions:
@@ -64,9 +64,9 @@ jobs:
 
           zip -q -r "$work_dir/NeverLandTownySuite-${suite_version}-plugins.zip" dist/plugins
           zip -q -r "$work_dir/NeverLandTownySuite-${suite_version}-sources.zip" \
-            modules docs scripts .github README.md CHANGELOG.md RELEASE_NOTES_RU.md VERSION versions.yml
+            modules shared docs scripts .github README.md CHANGELOG.md RELEASE_NOTES_RU.md VERSION versions.yml
           zip -q -r "$work_dir/NeverLandTownySuite-${suite_version}-full.zip" \
-            modules docs scripts assets dist/plugins .github README.md CHANGELOG.md RELEASE_NOTES_RU.md VERSION versions.yml
+            modules shared docs scripts assets dist/plugins .github README.md CHANGELOG.md RELEASE_NOTES_RU.md VERSION versions.yml
 
           {
             cd dist/plugins
@@ -85,6 +85,7 @@ jobs:
           tag="v$(tr -d '[:space:]' < VERSION)"
           work_dir="$RUNNER_TEMP/neverland-release"
           assets=(
+            modules/NeverLandTownyBuilds/build/reports/resource-balance.csv
             dist/plugins/*.jar
             assets/models/*.zip
             "$work_dir"/*.zip

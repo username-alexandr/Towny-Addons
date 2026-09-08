@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ru.neverland"
-version = "0.7.3"
+version = "0.7.5"
 
 repositories {
     mavenCentral()
@@ -52,7 +52,10 @@ tasks {
 }
 
 val smokeClasses = listOf(
+    "ru.neverland.townybuilds.MaterialLocalizationSmoke",
     "ru.neverland.townybuilds.ImportedModelsSmoke",
+    "ru.neverland.townybuilds.ResourceBalanceSmoke",
+    "ru.neverland.townybuilds.construction.ObstructionValidationSmoke",
     "ru.neverland.townybuilds.ExcavationPlannerSmoke",
     "ru.neverland.townybuilds.ConstructionPoliciesSmoke",
     "ru.neverland.townybuilds.ExpansionIntegrationSmoke",
@@ -83,4 +86,10 @@ tasks.register("smokeTest") {
     group = "verification"
     description = "Runs the executable NeverLand Towny Builds regression suite."
     dependsOn(smokeTasks)
+}
+
+// Bundle shared labels without adding a runtime plugin dependency.
+sourceSets.main {
+    java.srcDir("../../shared/localization/src/main/java")
+    resources.srcDir("../../shared/localization/src/main/resources")
 }

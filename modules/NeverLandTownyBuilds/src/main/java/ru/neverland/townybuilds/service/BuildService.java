@@ -119,6 +119,18 @@ public final class BuildService {
                 return UpgradeResult.of(UpgradeResult.Status.ECONOMY_ERROR);
             }
         }
+        for (ResourceFund.Snapshot surplus : fund.surplus(level.resources())) {
+            int left = surplus.amount();
+            ItemStack template = surplus.template();
+            while (left > 0) {
+                ItemStack stack = template.clone();
+                int amount = Math.min(left, Math.max(1, stack.getMaxStackSize()));
+                stack.setAmount(amount);
+                player.getInventory().addItem(stack).values().forEach(extra ->
+                        player.getWorld().dropItemNaturally(player.getLocation(), extra));
+                left -= amount;
+            }
+        }
         data.clearResourceFund(project.id());
         if (procedural) {
             dataStore.markDirty();

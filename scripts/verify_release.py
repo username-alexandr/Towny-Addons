@@ -16,6 +16,11 @@ except ImportError as exc:  # pragma: no cover - explicit environment guidance
 
 
 ROOT = Path(__file__).resolve().parents[1]
+LOCALIZATION_MODULES = {
+    "NeverLandTownyBuilds", "NeverLandTownyCamps", "NeverLandTownyContracts",
+    "NeverLandTownyEvents", "NeverLandTownyExpeditions", "NeverLandTownyTrade",
+}
+LOCALIZATION_RESOURCE = "neverland-localization/materials-ru.properties"
 
 
 def load_yaml(path: Path):
@@ -91,12 +96,18 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source-only", action="store_true",
                         help="validate sources and metadata without requiring freshly built JARs")
+    parser.add_argument("--plugins-dir", type=Path, default=ROOT / "dist" / "plugins",
+                        help="directory containing the JARs to validate")
     args = parser.parse_args()
     matrix = load_yaml(ROOT / "versions.yml")
     addons: dict[str, object] = matrix["addons"]
     modules_dir = ROOT / "modules"
-    plugins_dir = ROOT / "dist" / "plugins"
+    plugins_dir = args.plugins_dir
     errors: list[str] = []
+    dictionary = ROOT / "shared/localization/src/main/resources" / LOCALIZATION_RESOURCE
+    dictionary_bytes = dictionary.read_bytes() if dictionary.exists() else None
+    if dictionary_bytes is None:
+        errors.append("missing shared Russian material dictionary")
 
     module_names = {path.name for path in modules_dir.iterdir() if path.is_dir()}
     if module_names != set(addons):
@@ -149,6 +160,12 @@ def main() -> int:
                 jar_meta = yaml.safe_load(archive.read("plugin.yml").decode("utf-8"))
                 if jar_meta.get("name") != name or str(jar_meta.get("version")) != version:
                     errors.append(f"{jar.name}: plugin.yml identity/version mismatch")
+                if name in LOCALIZATION_MODULES:
+                    if archive.read(LOCALIZATION_RESOURCE) != dictionary_bytes:
+                        errors.append(f"{jar.name}: bundled Russian dictionary differs from sources")
+                    for helper in ("MaterialLabels", "MaterialNameConfig"):
+                        if f"ru/neverland/localization/{helper}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing localization helper {helper}")
         except Exception as exc:  # noqa: BLE001
             errors.append(f"cannot inspect {jar.name}: {exc}")
 
