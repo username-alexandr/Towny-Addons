@@ -26,3 +26,5 @@ admin-help:
   - "&#FFFFFF/t events raidwave <город>"
   - "&#FFFFFF/t events reload"
   - "&#AAAAAAДля консоли: &#FFFFFF/townyevents <команда>"
+
+raid-kill-progress: "&#55FF55Разбойник побеждён: +%points% очков городу %town%. &#AAAAAAПрогресс: %progress%/%goal%."

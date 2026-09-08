@@ -37,6 +37,8 @@ development-sources:
 
 gameplay:
   drought-base-crop-cancel-chance: 0.70
+  # Очков за разбойника, убитого игроком. 0 отключает начисление.
+  raid-kill-points: 10
   raid-wave-interval-seconds: 60
   raid-base-mobs-per-wave: 5
   raid-max-alive-mobs-per-town: 18

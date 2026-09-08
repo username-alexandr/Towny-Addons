@@ -158,6 +158,28 @@ public final class EventService implements MintTownyEventsApi {
         return value;
     }
 
+    public void creditRaidKill(LivingEntity entity) {
+        String owner = raidOwner(entity);
+        if (owner == null) return;
+        // Consume the marker once; repeated callbacks cannot award another kill.
+        entity.getPersistentDataContainer().remove(raidMobKey);
+        if (legacyRaidMobKey != null) entity.getPersistentDataContainer().remove(legacyRaidMobKey);
+        UUID townId;
+        try { townId = UUID.fromString(owner); }
+        catch (IllegalArgumentException ignored) { return; }
+        Town town = town(townId);
+        ActiveEvent event = repository.active(townId);
+        EventDefinition definition = definition(event);
+        Player killer = entity.getKiller();
+        int points = RaidKillCredit.points(event, definition == null ? null : definition.mode(),
+                killer != null, plugin.getConfig().getInt("gameplay.raid-kill-points", 10),
+                System.currentTimeMillis());
+        if (town == null || points <= 0) return;
+        int progress = contribute(town, points);
+        messages.send(killer, "raid-kill-progress", Map.of("town", town.getName(),
+                "points", points, "progress", progress, "goal", event.goal()));
+    }
+
     private void tick() {
         long now = System.currentTimeMillis();
         long refresh = Math.max(1, plugin.getConfig().getLong("runtime.effects-refresh-seconds", 8)) * 1000;

@@ -58,6 +58,7 @@ public final class EventGameplayListener implements Listener {
         if (!isRaidMob(event.getEntity())) return;
         event.getDrops().clear();
         event.setDroppedExp(0);
+        events.creditRaidKill(event.getEntity());
     }
 
     @EventHandler(ignoreCancelled = true)

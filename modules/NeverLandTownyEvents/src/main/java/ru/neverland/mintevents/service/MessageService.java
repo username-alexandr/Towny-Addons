@@ -33,7 +33,12 @@ public final class MessageService {
     }
 
     public String raw(String key) {
-        return yaml.getString(key, key);
+        return template(yaml, key);
+    }
+
+    public static String template(YamlConfiguration yaml, String key) {
+        String value = yaml.getString(key);
+        return value == null ? key : value;
     }
 
     public String format(String key, Map<String, ?> placeholders) {
@@ -45,7 +50,7 @@ public final class MessageService {
         for (Map.Entry<String, ?> entry : placeholders.entrySet()) {
             text = text.replace("%" + entry.getKey() + "%", String.valueOf(entry.getValue()));
         }
-        String base = prefix ? yaml.getString("prefix", "") + text : text;
+        String base = prefix ? java.util.Objects.toString(yaml.getString("prefix"), "") + text : text;
         return ColorUtil.color(base);
     }
 

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ru.neverland"
-version = "0.1.7"
+version = "0.1.8"
 
 repositories {
     mavenCentral()
@@ -47,4 +47,13 @@ tasks {
     jar {
         archiveBaseName.set("NeverLandTownyEvents")
     }
+}
+
+configurations.named("testRuntimeClasspath") {
+    extendsFrom(configurations.named("compileOnly").get())
+}
+tasks.register<JavaExec>("smokeTest") {
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("ru.neverland.mintevents.RaidKillAndMessagesSmoke")
 }
