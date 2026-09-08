@@ -64,9 +64,9 @@ jobs:
 
           zip -q -r "$work_dir/NeverLandTownySuite-${suite_version}-plugins.zip" dist/plugins
           zip -q -r "$work_dir/NeverLandTownySuite-${suite_version}-sources.zip" \
-            modules docs scripts .github README.md CHANGELOG.md RELEASE_NOTES_RU.md VERSION versions.yml
+            modules shared docs scripts .github README.md CHANGELOG.md RELEASE_NOTES_RU.md VERSION versions.yml
           zip -q -r "$work_dir/NeverLandTownySuite-${suite_version}-full.zip" \
-            modules docs scripts assets dist/plugins .github README.md CHANGELOG.md RELEASE_NOTES_RU.md VERSION versions.yml
+            modules shared docs scripts assets dist/plugins .github README.md CHANGELOG.md RELEASE_NOTES_RU.md VERSION versions.yml
 
           {
             cd dist/plugins

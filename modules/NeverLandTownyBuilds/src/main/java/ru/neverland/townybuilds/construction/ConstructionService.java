@@ -691,9 +691,7 @@ public final class ConstructionService implements Listener {
     }
 
     private String materialName(Material material) {
-        if (material.isItem()) return itemNames.name(new ItemStack(material));
-        String value = material.name().toLowerCase(Locale.ROOT).replace('_', ' ');
-        return value.isEmpty() ? material.name() : Character.toUpperCase(value.charAt(0)) + value.substring(1);
+        return itemNames.name(material);
     }
 
     private record LocatedBlock(UUID townId, ConstructionSite site, BlueprintBlock expected) { }

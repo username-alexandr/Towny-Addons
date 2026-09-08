@@ -1,4 +1,5 @@
 package ru.neverland.mintexpeditions.gui;
+import ru.neverland.localization.MaterialNameConfig;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -37,7 +38,7 @@ public final class ExpeditionMenuManager implements Listener {
                 new ExpeditionMenuHolder(), 54,
                 ColorUtil.color(plugin.getConfig().getString(
                         "gui.title", "&#18243AЭкспедиции NeverLand")));
-        Material filler = Material.matchMaterial(
+        Material filler = MaterialNameConfig.matchMaterial(
                 plugin.getConfig().getString("gui.filler", "BLACK_STAINED_GLASS_PANE"));
         ItemStack glass = item(
                 filler == null ? Material.BLACK_STAINED_GLASS_PANE : filler,

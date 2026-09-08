@@ -1,4 +1,5 @@
 package ru.neverland.minttrade.gui;
+import ru.neverland.localization.MaterialNameConfig;
 
 import com.palmergames.bukkit.towny.object.Town;
 import org.bukkit.Bukkit;
@@ -149,7 +150,7 @@ public final class TradeMenuManager implements Listener {
                 "&7ID: &f" + caravan.shortId()));
     }
     private String name(Town town) { return town == null ? "Удалённый город" : town.getName(); }
-    private void fill(Inventory inventory) { Material material = Material.matchMaterial(plugin.getConfig().getString("gui.filler", "BLACK_STAINED_GLASS_PANE")); ItemStack filler = item(material == null ? Material.BLACK_STAINED_GLASS_PANE : material, " ", List.of()); for (int i = 0; i < inventory.getSize(); i++) inventory.setItem(i, filler); }
+    private void fill(Inventory inventory) { Material material = MaterialNameConfig.matchMaterial(plugin.getConfig().getString("gui.filler", "BLACK_STAINED_GLASS_PANE")); ItemStack filler = item(material == null ? Material.BLACK_STAINED_GLASS_PANE : material, " ", List.of()); for (int i = 0; i < inventory.getSize(); i++) inventory.setItem(i, filler); }
     private ItemStack actionItem(String action, Material material, String name, List<String> lore) { return keyed(item(material, name, lore), actionKey, action); }
     private ItemStack keyed(ItemStack stack, NamespacedKey key, String value) { ItemMeta meta = stack.getItemMeta(); meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, value); stack.setItemMeta(meta); return stack; }
     private ItemStack item(Material material, String name, List<String> lore) { ItemStack stack = new ItemStack(material == null ? Material.PAPER : material); ItemMeta meta = stack.getItemMeta(); meta.setDisplayName(ColorUtil.color(name)); meta.setLore(lore.stream().map(ColorUtil::color).toList()); meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES); stack.setItemMeta(meta); return stack; }

@@ -1,4 +1,5 @@
 package ru.neverland.mintcontracts.gui;
+import ru.neverland.localization.MaterialNameConfig;
 
 import com.palmergames.bukkit.towny.object.Town;
 import org.bukkit.Bukkit;
@@ -214,7 +215,7 @@ public final class ContractMenuManager implements Listener {
         return names.item(stack);
     }
     private void fill(Inventory inventory) {
-        Material material = Material.matchMaterial(plugin.getConfig().getString("gui.filler", "BLACK_STAINED_GLASS_PANE"));
+        Material material = MaterialNameConfig.matchMaterial(plugin.getConfig().getString("gui.filler", "BLACK_STAINED_GLASS_PANE"));
         ItemStack filler = item(material == null ? Material.BLACK_STAINED_GLASS_PANE : material, " ", List.of());
         for (int slot = 0; slot < inventory.getSize(); slot++) inventory.setItem(slot, filler);
     }

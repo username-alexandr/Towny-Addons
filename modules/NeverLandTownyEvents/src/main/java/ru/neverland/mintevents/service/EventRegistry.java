@@ -1,4 +1,5 @@
 package ru.neverland.mintevents.service;
+import ru.neverland.localization.MaterialNameConfig;
 
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
@@ -20,6 +21,7 @@ import java.util.Map;
 
 public final class EventRegistry {
     private final JavaPlugin plugin;
+    private final ru.neverland.localization.MaterialLabels itemNames = new ru.neverland.localization.MaterialLabels();
     private final Map<String, EventDefinition> definitions = new LinkedHashMap<>();
 
     public EventRegistry(JavaPlugin plugin) {
@@ -29,6 +31,7 @@ public final class EventRegistry {
 
     public void reload() {
         definitions.clear();
+        MaterialNameConfig.reload(plugin, itemNames);
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "events.yml"));
         ConfigurationSection root = yaml.getConfigurationSection("events");
         if (root == null) return;
@@ -63,7 +66,10 @@ public final class EventRegistry {
                     continue;
                 }
                 int points = Math.max(1, contributions.getInt(key + ".points", 1));
-                String name = contributions.getString(key + ".name", prettify(key));
+                String configured = contributions.getString(key + ".name");
+                String name = key.equalsIgnoreCase("FIRE_RESISTANCE")
+                        && ru.neverland.localization.MaterialLabels.automaticLabel(key, configured)
+                        ? "Зелье огнестойкости" : itemNames.configuredName(key, configured);
                 rules.add(new ContributionRule(key, contributionMaterial, points, name));
             }
         }
@@ -89,7 +95,7 @@ public final class EventRegistry {
 
     private Material specialMaterial(String key) {
         if (key.equalsIgnoreCase("FIRE_RESISTANCE")) return Material.POTION;
-        return Material.matchMaterial(key);
+        return MaterialNameConfig.matchMaterial(key);
     }
 
     private Map<String, Double> doubles(ConfigurationSection section) {
@@ -100,13 +106,8 @@ public final class EventRegistry {
     }
 
     private Material material(String name, Material fallback) {
-        Material found = Material.matchMaterial(name);
+        Material found = MaterialNameConfig.matchMaterial(name);
         return found == null ? fallback : found;
-    }
-
-    private String prettify(String value) {
-        String lower = value.toLowerCase(Locale.ROOT).replace('_', ' ');
-        return Character.toUpperCase(lower.charAt(0)) + lower.substring(1);
     }
 
     private double clamp(double value, double min, double max) {

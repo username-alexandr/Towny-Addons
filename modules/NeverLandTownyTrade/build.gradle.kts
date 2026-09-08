@@ -3,7 +3,7 @@ import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 
 group = "ru.neverland"
-version = "0.1.4"
+version = "0.1.5"
 
 repositories {
     mavenCentral()
@@ -28,4 +28,10 @@ configurations.named("testCompileClasspath") {
 tasks {
     compileJava { options.encoding = "UTF-8"; options.release.set(17) }
     jar { archiveBaseName.set("NeverLandTownyTrade") }
+}
+
+// Bundle shared labels without adding a runtime plugin dependency.
+sourceSets.main {
+    java.srcDir("../../shared/localization/src/main/java")
+    resources.srcDir("../../shared/localization/src/main/resources")
 }

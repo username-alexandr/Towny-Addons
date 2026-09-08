@@ -1,4 +1,5 @@
 package ru.neverland.townybuilds.service;
+import ru.neverland.localization.MaterialNameConfig;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -119,7 +120,7 @@ public final class DefinitionRegistry {
     }
 
     private ProjectDefinition parseProject(String id, ProjectType type, ConfigurationSection section) {
-        Material icon = Material.matchMaterial(section.getString("icon", "STONE"));
+        Material icon = MaterialNameConfig.matchMaterial(section.getString("icon", "STONE"));
         if (icon == null || !icon.isItem()) {
             icon = Material.STONE;
         }
@@ -212,7 +213,7 @@ public final class DefinitionRegistry {
                 return custom;
             }
             String[] parts = specification.split(":");
-            Material material = Material.matchMaterial(parts[0]);
+            Material material = resolveResourceMaterial(parts[0]);
             if (material == null || !material.isItem()) {
                 throw new IllegalArgumentException("неизвестный материал " + parts[0]);
             }
@@ -222,6 +223,11 @@ public final class DefinitionRegistry {
             plugin.getLogger().warning("Некорректный ресурс '" + specification + "': " + exception.getMessage());
             return null;
         }
+    }
+
+    static Material resolveResourceMaterial(String name) {
+        // Saved projects.yml files may still use the name from before iron/copper chains.
+        return MaterialNameConfig.matchMaterial(name);
     }
 
     static Map<String, Integer> resolveRequirements(boolean explicitlyConfigured,

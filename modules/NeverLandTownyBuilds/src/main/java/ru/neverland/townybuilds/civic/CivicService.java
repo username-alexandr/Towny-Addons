@@ -1,4 +1,5 @@
 package ru.neverland.townybuilds.civic;
+import ru.neverland.localization.MaterialNameConfig;
 
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
@@ -37,6 +38,7 @@ import ru.neverland.townybuilds.data.DataStore;
 import ru.neverland.townybuilds.data.TownData;
 import ru.neverland.townybuilds.integration.TownyHook;
 import ru.neverland.townybuilds.service.MessageService;
+import ru.neverland.townybuilds.service.RussianItemNames;
 import ru.neverland.townybuilds.util.ColorUtil;
 
 import java.text.DecimalFormat;
@@ -83,15 +85,17 @@ public final class CivicService implements Listener, TownyBuildsApi {
     private final TownyHook towny;
     private final DataStore dataStore;
     private final MessageService messages;
+    private final RussianItemNames itemNames;
     private final Map<UUID, DraftSelection> selections = new HashMap<>();
     private BukkitTask automationTask;
     private BukkitTask previewTask;
 
-    public CivicService(JavaPlugin plugin, TownyHook towny, DataStore dataStore, MessageService messages) {
+    public CivicService(JavaPlugin plugin, TownyHook towny, DataStore dataStore, MessageService messages, RussianItemNames itemNames) {
         this.plugin = plugin;
         this.towny = towny;
         this.dataStore = dataStore;
         this.messages = messages;
+        this.itemNames = itemNames;
     }
 
     public void start() {
@@ -471,7 +475,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
             messages.send(player, "civic-shop-help");
             return;
         }
-        Material material = Material.matchMaterial(args[2]);
+        Material material = MaterialNameConfig.matchMaterial(args[2]);
         if (material == null || !material.isItem() || !allowedMaterials().contains(material)) {
             messages.send(player, "civic-shop-material");
             return;
@@ -489,7 +493,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
             dataStore.markDirty();
             dataStore.save();
             messages.send(player, price <= 0 ? "civic-shop-price-removed" : "civic-shop-price-set", Map.of(
-                    "material", material.name(), "price", MONEY.format(price)));
+                    "material", itemNames.name(material), "price", MONEY.format(price)));
         } catch (NumberFormatException exception) {
             messages.send(player, "civic-invalid-number");
         }
@@ -541,7 +545,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
         int slot = 10;
         for (Map.Entry<String, Double> listing : sellerData.shopPrices().entrySet().stream()
                 .sorted(Map.Entry.comparingByKey()).toList()) {
-            Material material = Material.matchMaterial(listing.getKey());
+            Material material = MaterialNameConfig.matchMaterial(listing.getKey());
             if (material == null || listing.getValue() <= 0) continue;
             int amount = countPlain(stock, material);
             if (amount <= 0) continue;
@@ -549,7 +553,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
             if (slot >= 44) break;
             ItemStack icon = new ItemStack(material, Math.min(amount, material.getMaxStackSize()));
             ItemMeta meta = icon.getItemMeta();
-            meta.displayName(Component.text(material.name()));
+            meta.displayName(ColorUtil.component(itemNames.name(material)));
             meta.lore(List.of(
                     ColorUtil.component("&7Цена за единицу: &e" + MONEY.format(listing.getValue())),
                     ColorUtil.component("&7В наличии: &f" + amount),
@@ -657,7 +661,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
         player.getInventory().addItem(purchased);
         dataStore.markDirty();
         dataStore.save();
-        messages.send(player, "civic-shop-purchased", Map.of("amount", amount, "material", material.name(),
+        messages.send(player, "civic-shop-purchased", Map.of("amount", amount, "material", itemNames.name(material),
                 "price", MONEY.format(total), "town", seller.getName()));
         openShop(player, sellerData);
     }
@@ -665,7 +669,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
     private Set<Material> allowedMaterials() {
         Set<Material> configured = new java.util.LinkedHashSet<>();
         for (String value : plugin.getConfig().getStringList("settings.civic.spawn-shops.allowed-materials")) {
-            Material material = Material.matchMaterial(value);
+            Material material = MaterialNameConfig.matchMaterial(value);
             if (material != null && material.isItem()) configured.add(material);
         }
         return Set.copyOf(configured);

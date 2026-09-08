@@ -1,4 +1,5 @@
 package ru.neverland.mintevents.gui;
+import ru.neverland.localization.MaterialNameConfig;
 
 import com.palmergames.bukkit.towny.object.Town;
 import org.bukkit.Bukkit;
@@ -205,7 +206,7 @@ public final class EventMenuManager implements Listener {
     }
 
     private void fill(Inventory inventory) {
-        ItemStack filler = item(Material.matchMaterial(plugin.getConfig().getString("gui.filler", "BLACK_STAINED_GLASS_PANE")), " ", List.of());
+        ItemStack filler = item(MaterialNameConfig.matchMaterial(plugin.getConfig().getString("gui.filler", "BLACK_STAINED_GLASS_PANE")), " ", List.of());
         for (int slot = 0; slot < inventory.getSize(); slot++) inventory.setItem(slot, filler);
     }
 

@@ -1,4 +1,5 @@
 package ru.neverland.mintcamps.data;
+import ru.neverland.localization.MaterialNameConfig;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -61,7 +62,7 @@ public final class CostStore {
         if (value instanceof ItemStack item) return item.clone();
         if (!(value instanceof Map<?, ?> map)) return null;
         Object materialValue = map.containsKey("material") ? map.get("material") : map.get("type");
-        Material material = Material.matchMaterial(String.valueOf(materialValue));
+        Material material = MaterialNameConfig.matchMaterial(String.valueOf(materialValue));
         if (material == null) return null;
         int amount = map.get("amount") instanceof Number number ? number.intValue() : 1;
         return new ItemStack(material, Math.max(1, amount));

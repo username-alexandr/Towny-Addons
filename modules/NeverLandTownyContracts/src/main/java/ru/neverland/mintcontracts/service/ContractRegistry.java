@@ -1,4 +1,5 @@
 package ru.neverland.mintcontracts.service;
+import ru.neverland.localization.MaterialNameConfig;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -32,9 +33,13 @@ public final class ContractRegistry {
             try {
                 ContractType type = ContractType.valueOf(section.getString("type", "DELIVERY").toUpperCase(Locale.ROOT));
                 String target = section.getString("target", "").trim();
+                if (!target.toLowerCase(Locale.ROOT).startsWith("itemsadder:")
+                        && type != ContractType.MOB_KILL) {
+                    target = ru.neverland.localization.MaterialLabels.canonicalKey(target);
+                }
                 ItemStack delivery = type == ContractType.DELIVERY ? targetItem(target) : null;
                 if (type == ContractType.DELIVERY && delivery == null) throw new IllegalArgumentException("неизвестный предмет " + target);
-                Material icon = Material.matchMaterial(section.getString("icon", "PAPER"));
+                Material icon = MaterialNameConfig.matchMaterial(section.getString("icon", "PAPER"));
                 if (icon == null) icon = Material.PAPER;
                 ContractDefinition definition = new ContractDefinition(id.toLowerCase(Locale.ROOT),
                         section.getString("name", id), type, icon, section.getInt("slot", 28),
@@ -50,7 +55,7 @@ public final class ContractRegistry {
     private ItemStack targetItem(String target) {
         if (target.toLowerCase(Locale.ROOT).startsWith("itemsadder:"))
             return itemsAdder.item(target.substring("itemsadder:".length()));
-        Material material = Material.matchMaterial(target);
+        Material material = MaterialNameConfig.matchMaterial(target);
         return material == null ? null : new ItemStack(material);
     }
     public ContractDefinition get(String id) { return id == null ? null : templates.get(id.toLowerCase(Locale.ROOT)); }

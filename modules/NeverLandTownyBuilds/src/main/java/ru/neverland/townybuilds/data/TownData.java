@@ -179,13 +179,18 @@ public final class TownData {
     public void setShopStall(String value) { shopStall = value == null ? "" : value; }
 
     public Map<String, Double> shopPrices() { return Map.copyOf(shopPrices); }
-    public double shopPrice(String material) { return shopPrices.getOrDefault(material, 0.0); }
+    public double shopPrice(String material) { return shopPrices.getOrDefault(ru.neverland.localization.MaterialLabels.canonicalKey(material), 0.0); }
     public void setShopPrice(String material, double price) {
+        material = ru.neverland.localization.MaterialLabels.canonicalKey(material);
         if (price <= 0) shopPrices.remove(material); else shopPrices.put(material, price);
     }
     public void loadShopPrices(Map<String, Double> loaded) {
         shopPrices.clear();
-        shopPrices.putAll(loaded);
+        // Prefer an explicit modern key if both old and new names were saved.
+        loaded.entrySet().stream().filter(e -> !e.getKey().equals(ru.neverland.localization.MaterialLabels.canonicalKey(e.getKey())))
+                .forEach(e -> setShopPrice(e.getKey(), e.getValue()));
+        loaded.entrySet().stream().filter(e -> e.getKey().equals(ru.neverland.localization.MaterialLabels.canonicalKey(e.getKey())))
+                .forEach(e -> setShopPrice(e.getKey(), e.getValue()));
     }
 
     public double insuranceReserve() { return insuranceReserve; }

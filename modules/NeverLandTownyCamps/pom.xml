@@ -6,7 +6,7 @@
 
     <groupId>ru.neverland</groupId>
     <artifactId>neverlandtownycamps</artifactId>
-    <version>0.1.6</version>
+    <version>0.1.7</version>
     <name>NeverLandTownyCamps</name>
 
     <properties>
@@ -53,6 +53,21 @@
     <build>
         <finalName>NeverLandTownyCamps-${project.version}</finalName>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>shared-localization</id><phase>generate-sources</phase>
+                        <goals><goal>add-source</goal><goal>add-resource</goal></goals>
+                        <configuration>
+                            <sources><source>${project.basedir}/../../shared/localization/src/main/java</source></sources>
+                            <resources><resource><directory>${project.basedir}/../../shared/localization/src/main/resources</directory></resource></resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

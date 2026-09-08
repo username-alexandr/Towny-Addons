@@ -1,4 +1,5 @@
 package ru.neverland.mintcamps.gui;
+import ru.neverland.localization.MaterialNameConfig;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -331,7 +332,7 @@ public final class MenuManager implements Listener {
     private ItemStack filler() {
         ItemStack item = itemsAdder.item(plugin.getConfig().getString("settings.itemsadder.filler-item"), 1);
         if (item == null) {
-            Material material = Material.matchMaterial(plugin.getConfig().getString("settings.gui.filler-material", "BLACK_STAINED_GLASS_PANE"));
+            Material material = MaterialNameConfig.matchMaterial(plugin.getConfig().getString("settings.gui.filler-material", "BLACK_STAINED_GLASS_PANE"));
             item = new ItemStack(material == null ? Material.BLACK_STAINED_GLASS_PANE : material);
         }
         ItemMeta meta = item.getItemMeta();
