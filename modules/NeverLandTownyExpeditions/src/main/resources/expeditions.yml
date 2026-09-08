@@ -30,7 +30,7 @@ expeditions:
     objective-material: SUSPICIOUS_SAND
     mob: DROWNED
     mob-count: 8
-    costs: ["COOKED_COD:32", "POTION:2", "BRUSH:2"]
+    costs: ["COOKED_COD:32", "POTION:WATER_BREATHING:2", "POTION:NIGHT_VISION:2", "BRUSH:2"]
     rewards: ["PRISMARINE_CRYSTALS:24", "HEART_OF_THE_SEA:1", "DIAMOND:4"]
     money-per-participant: 1400
     description: ["Отыщите реликвии древнего храма,", "скрытого под толщей воды."]
@@ -64,7 +64,7 @@ expeditions:
     objective-material: BARREL
     mob: DROWNED
     mob-count: 12
-    costs: ["GOLDEN_CARROT:24", "POTION:4", "OAK_BOAT:2"]
+    costs: ["GOLDEN_CARROT:24", "POTION:WATER_BREATHING:2", "POTION:NIGHT_VISION:2", "OAK_BOAT:2"]
     rewards: ["GOLD_BLOCK:4", "DIAMOND:8", "NAUTILUS_SHELL:4"]
     money-per-participant: 2600
     description: ["Опасная экспедиция к галеону,", "перевозившему королевскую казну."]

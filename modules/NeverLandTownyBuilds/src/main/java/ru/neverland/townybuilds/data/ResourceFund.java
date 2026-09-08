@@ -24,6 +24,8 @@ public final class ResourceFund {
     }
 
     public int count(ItemStack template) {
+        if (template == null) return 0;
+        template = ru.neverland.townybuilds.service.ConstructionSupply.migrate(template);
         for (Entry entry : entries) {
             if (ResourceMatcher.matches(entry.template, template)) {
                 return entry.amount;
@@ -34,6 +36,7 @@ public final class ResourceFund {
 
     public void add(ItemStack template, int amount) {
         if (template == null || amount <= 0) return;
+        template = ru.neverland.townybuilds.service.ConstructionSupply.migrate(template);
         for (Entry entry : entries) {
             if (ResourceMatcher.matches(entry.template, template)) {
                 entry.amount = Math.addExact(entry.amount, amount);

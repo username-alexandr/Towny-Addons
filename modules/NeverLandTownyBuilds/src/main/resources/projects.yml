@@ -34,8 +34,8 @@ buildings:
     levels:
       1: {money: 6000, bonus-blocks: 1, resources: ["STONE_BRICKS:640", "IRON_INGOT:128", "OAK_LOG:256"], effects: []}
       2: {money: 12000, bonus-blocks: 2, resources: ["STONE_BRICKS:1024", "IRON_BLOCK:32", "REDSTONE:128"], effects: ["STRENGTH:1"]}
-      3: {money: 24000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:1024", "IRON_BLOCK:64", "GOLD_INGOT:64"], effects: ["STRENGTH:1", "RESISTANCE:1"]}
-      4: {money: 48000, bonus-blocks: 4, resources: ["DEEPSLATE_TILES:1536", "DIAMOND:32", "OBSIDIAN:128"], effects: ["STRENGTH:1", "RESISTANCE:1"]}
+      3: {money: 24000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:1024", "IRON_BLOCK:64", "GOLD_INGOT:64"], effects: ["STRENGTH:1", "RESISTANCE:1"]}
+      4: {money: 48000, bonus-blocks: 4, resources: ["COBBLED_DEEPSLATE_SLAB:1536", "DIAMOND:32", "OBSIDIAN:128"], effects: ["STRENGTH:1", "RESISTANCE:1"]}
       5: {money: 96000, bonus-blocks: 7, resources: ["REINFORCED_DEEPSLATE:16", "NETHERITE_INGOT:4", "DIAMOND_BLOCK:12"], effects: ["STRENGTH:2", "RESISTANCE:1"]}
   market:
     name: "&#63E6BE&lРынок"
@@ -239,7 +239,7 @@ buildings:
       1: {money: 9000, bonus-blocks: 2, resources: ["STONE_BRICKS:640", "COBBLED_DEEPSLATE:256", "IRON_INGOT:96"], effects: []}
       2: {money: 18000, bonus-blocks: 3, resources: ["STONE_BRICKS:768", "IRON_BLOCK:32", "OAK_LOG:256"], effects: ["RESISTANCE:1"]}
       3: {money: 36000, bonus-blocks: 5, resources: ["DEEPSLATE_BRICKS:896", "IRON_BLOCK:48", "OBSIDIAN:64"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
-      4: {money: 72000, bonus-blocks: 7, resources: ["DEEPSLATE_TILES:1152", "IRON_BLOCK:64", "OBSIDIAN:96"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
+      4: {money: 72000, bonus-blocks: 7, resources: ["COBBLED_DEEPSLATE_SLAB:1152", "IRON_BLOCK:64", "OBSIDIAN:96"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
       5: {money: 144000, bonus-blocks: 10, resources: ["POLISHED_BLACKSTONE_BRICKS:1536", "OBSIDIAN:128", "DIAMOND_BLOCK:6"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
   hunting_lodge:
     name: "&#8BC96F&lОхотничий дом"
@@ -299,7 +299,7 @@ buildings:
       1: {money: 8000, bonus-blocks: 1, resources: ["STONE_BRICKS:512", "IRON_BARS:128", "IRON_INGOT:96"], effects: []}
       2: {money: 16000, bonus-blocks: 2, resources: ["STONE_BRICKS:768", "IRON_BARS:192", "IRON_BLOCK:24"], effects: ["RESISTANCE:1"]}
       3: {money: 32000, bonus-blocks: 4, resources: ["DEEPSLATE_BRICKS:896", "IRON_BARS:256", "OBSIDIAN:64"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
-      4: {money: 64000, bonus-blocks: 6, resources: ["DEEPSLATE_TILES:1152", "IRON_BLOCK:56", "OBSIDIAN:96"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
+      4: {money: 64000, bonus-blocks: 6, resources: ["COBBLED_DEEPSLATE_SLAB:1152", "IRON_BLOCK:56", "OBSIDIAN:96"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
       5: {money: 128000, bonus-blocks: 9, resources: ["POLISHED_BLACKSTONE_BRICKS:1536", "REINFORCED_DEEPSLATE:12", "DIAMOND_BLOCK:6"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
 
   # BEGIN GENERATED 37-MODEL EXPANSION
@@ -313,7 +313,7 @@ buildings:
     levels:
       1: {money: 5000, bonus-blocks: 1, resources: ["STONE_BRICKS:130"], effects: []}
       2: {money: 10000, bonus-blocks: 2, resources: ["STONE_BRICKS:168"], effects: ["HASTE:1"]}
-      3: {money: 20000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:132", "SPRUCE_PLANKS:24", "SPRUCE_DOOR:2"], effects: ["HASTE:1"]}
+      3: {money: 20000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:132", "SPRUCE_PLANKS:24", "SPRUCE_DOOR:2"], effects: ["HASTE:1"]}
       4: {money: 40000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:24", "CYAN_STAINED_GLASS_PANE:10", "IRON_BLOCK:2"], effects: ["HASTE:2"]}
       5: {money: 80000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:16", "SEA_LANTERN:14"], effects: ["HASTE:2", "SPEED:1"]}
   quarry:
@@ -339,7 +339,7 @@ buildings:
     levels:
       1: {money: 5500, bonus-blocks: 1, resources: ["STONE_BRICKS:132"], effects: []}
       2: {money: 11000, bonus-blocks: 2, resources: ["STONE_BRICKS:192"], effects: ["HASTE:1"]}
-      3: {money: 22000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:131", "SPRUCE_PLANKS:24", "SPRUCE_DOOR:2"], effects: ["HASTE:1"]}
+      3: {money: 22000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:131", "SPRUCE_PLANKS:24", "SPRUCE_DOOR:2"], effects: ["HASTE:1"]}
       4: {money: 44000, bonus-blocks: 4, resources: ["BRICKS:26", "CYAN_STAINED_GLASS_PANE:24", "SEA_LANTERN:1"], effects: ["HASTE:2"]}
       5: {money: 88000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:22", "SEA_LANTERN:12", "BRICKS:8"], effects: ["HASTE:2", "SPEED:1"]}
   mill:
@@ -352,7 +352,7 @@ buildings:
     levels:
       1: {money: 6500, bonus-blocks: 1, resources: ["STONE_BRICKS:110"], effects: []}
       2: {money: 13000, bonus-blocks: 2, resources: ["STONE_BRICKS:276"], effects: ["HASTE:1"]}
-      3: {money: 26000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:147", "SPRUCE_DOOR:2"], effects: ["HASTE:1"]}
+      3: {money: 26000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:147", "SPRUCE_DOOR:2"], effects: ["HASTE:1"]}
       4: {money: 52000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:20", "SPRUCE_PLANKS:17"], effects: ["HASTE:2"]}
       5: {money: 104000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:44", "SEA_LANTERN:12"], effects: ["HASTE:2", "SPEED:1"]}
   bakery:
@@ -365,7 +365,7 @@ buildings:
     levels:
       1: {money: 4500, bonus-blocks: 1, resources: ["STONE_BRICKS:99"], effects: []}
       2: {money: 9000, bonus-blocks: 2, resources: ["STONE_BRICKS:140"], effects: ["HASTE:1"]}
-      3: {money: 18000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:100", "SPRUCE_PLANKS:20", "SPRUCE_DOOR:2"], effects: ["HASTE:1"]}
+      3: {money: 18000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:100", "SPRUCE_PLANKS:20", "SPRUCE_DOOR:2"], effects: ["HASTE:1"]}
       4: {money: 36000, bonus-blocks: 4, resources: ["BRICKS:26", "CYAN_STAINED_GLASS_PANE:10", "SEA_LANTERN:1"], effects: ["HASTE:2"]}
       5: {money: 72000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:16", "SEA_LANTERN:12", "BRICKS:7"], effects: ["HASTE:2", "SPEED:1"]}
   apiary:
@@ -378,9 +378,9 @@ buildings:
     levels:
       1: {money: 4000, bonus-blocks: 1, resources: ["STONE_BRICKS:64"], effects: []}
       2: {money: 8000, bonus-blocks: 2, resources: ["SPRUCE_PLANKS:64"], effects: ["HASTE:1"]}
-      3: {money: 16000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:64", "SPRUCE_PLANKS:16", "SPRUCE_DOOR:2"], effects: ["HASTE:1"]}
+      3: {money: 16000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:64", "SPRUCE_PLANKS:16", "SPRUCE_DOOR:2"], effects: ["HASTE:1"]}
       4: {money: 32000, bonus-blocks: 4, resources: ["OAK_LEAVES:103", "SPRUCE_PLANKS:64", "CYAN_STAINED_GLASS_PANE:4"], effects: ["HASTE:2"]}
-      5: {money: 64000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:12", "DEEPSLATE_TILES:8", "SEA_LANTERN:8"], effects: ["HASTE:2", "SPEED:1"]}
+      5: {money: 64000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:12", "COBBLED_DEEPSLATE_SLAB:8", "SEA_LANTERN:8"], effects: ["HASTE:2", "SPEED:1"]}
   warehouse:
     name: "&#FFD45B&lГородской склад"
     icon: CHEST
@@ -391,7 +391,7 @@ buildings:
     levels:
       1: {money: 8000, bonus-blocks: 1, resources: ["STONE_BRICKS:192"], effects: []}
       2: {money: 16000, bonus-blocks: 2, resources: ["BRICKS:244"], effects: ["LUCK:1"]}
-      3: {money: 32000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:192", "SPRUCE_PLANKS:32", "SPRUCE_DOOR:2"], effects: ["LUCK:1", "SPEED:1"]}
+      3: {money: 32000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:192", "SPRUCE_PLANKS:32", "SPRUCE_DOOR:2"], effects: ["LUCK:1", "SPEED:1"]}
       4: {money: 64000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:72", "CYAN_STAINED_GLASS_PANE:28"], effects: ["LUCK:2", "SPEED:1"]}
       5: {money: 128000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:22", "SEA_LANTERN:16"], effects: ["LUCK:2", "SPEED:2"]}
   caravanserai:
@@ -404,7 +404,7 @@ buildings:
     levels:
       1: {money: 7000, bonus-blocks: 1, resources: ["STONE_BRICKS:255"], effects: []}
       2: {money: 14000, bonus-blocks: 2, resources: ["STONE_BRICKS:261"], effects: ["LUCK:1"]}
-      3: {money: 28000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:60", "SPRUCE_DOOR:4", "SPRUCE_PLANKS:1"], effects: ["LUCK:1", "SPEED:1"]}
+      3: {money: 28000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:60", "SPRUCE_DOOR:4", "SPRUCE_PLANKS:1"], effects: ["LUCK:1", "SPEED:1"]}
       4: {money: 56000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:96"], effects: ["LUCK:2", "SPEED:1"]}
       5: {money: 112000, bonus-blocks: 6, resources: ["SEA_LANTERN:18", "SPRUCE_PLANKS:16"], effects: ["LUCK:2", "SPEED:2"]}
   auction:
@@ -417,7 +417,7 @@ buildings:
     levels:
       1: {money: 7500, bonus-blocks: 1, resources: ["STONE_BRICKS:165"], effects: []}
       2: {money: 15000, bonus-blocks: 2, resources: ["STONE_BRICKS:263"], effects: ["LUCK:1"]}
-      3: {money: 30000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:167", "SPRUCE_PLANKS:29", "SPRUCE_DOOR:4"], effects: ["LUCK:1", "SPEED:1"]}
+      3: {money: 30000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:167", "SPRUCE_PLANKS:29", "SPRUCE_DOOR:4"], effects: ["LUCK:1", "SPEED:1"]}
       4: {money: 60000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:33", "CYAN_STAINED_GLASS_PANE:28"], effects: ["LUCK:2", "SPEED:1"]}
       5: {money: 120000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:24", "SEA_LANTERN:19"], effects: ["LUCK:2", "SPEED:2"]}
   merchant_guild:
@@ -430,7 +430,7 @@ buildings:
     levels:
       1: {money: 7500, bonus-blocks: 1, resources: ["STONE_BRICKS:143"], effects: []}
       2: {money: 15000, bonus-blocks: 2, resources: ["STONE_BRICKS:244"], effects: ["LUCK:1"]}
-      3: {money: 30000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:145", "SPRUCE_PLANKS:24", "SPRUCE_DOOR:2"], effects: ["LUCK:1", "SPEED:1"]}
+      3: {money: 30000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:145", "SPRUCE_PLANKS:24", "SPRUCE_DOOR:2"], effects: ["LUCK:1", "SPEED:1"]}
       4: {money: 60000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:87", "SPRUCE_PLANKS:72"], effects: ["LUCK:2", "SPEED:1"]}
       5: {money: 120000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:24", "SEA_LANTERN:18"], effects: ["LUCK:2", "SPEED:2"]}
   cargo_terminal:
@@ -457,7 +457,7 @@ buildings:
       1: {money: 3500, bonus-blocks: 1, resources: ["STONE_BRICKS:81"], effects: []}
       2: {money: 7000, bonus-blocks: 2, resources: ["IRON_BLOCK:28"], effects: ["SPEED:1"]}
       3: {money: 14000, bonus-blocks: 3, resources: ["IRON_BLOCK:94", "WATER_BUCKET:2"], effects: ["SPEED:1", "RESISTANCE:1"]}
-      4: {money: 28000, bonus-blocks: 4, resources: ["DEEPSLATE_TILES:80", "CYAN_STAINED_GLASS:7"], effects: ["SPEED:2", "RESISTANCE:1"]}
+      4: {money: 28000, bonus-blocks: 4, resources: ["COBBLED_DEEPSLATE_SLAB:80", "CYAN_STAINED_GLASS:7"], effects: ["SPEED:2", "RESISTANCE:1"]}
       5: {money: 56000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:11"], effects: ["SPEED:2", "RESISTANCE:2"]}
   sewer:
     name: "&#58CFE8&lКанализация"
@@ -482,7 +482,7 @@ buildings:
     levels:
       1: {money: 8000, bonus-blocks: 1, resources: ["STONE_BRICKS:180"], effects: []}
       2: {money: 16000, bonus-blocks: 2, resources: ["STONE_BRICKS:231"], effects: ["SPEED:1"]}
-      3: {money: 32000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:228", "SPRUCE_DOOR:4", "SPRUCE_PLANKS:1"], effects: ["SPEED:1", "RESISTANCE:1"]}
+      3: {money: 32000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:228", "SPRUCE_DOOR:4", "SPRUCE_PLANKS:1"], effects: ["SPEED:1", "RESISTANCE:1"]}
       4: {money: 64000, bonus-blocks: 4, resources: ["WATER_BUCKET:4", "CYAN_STAINED_GLASS_PANE:28"], effects: ["SPEED:2", "RESISTANCE:1"]}
       5: {money: 128000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:20", "SEA_LANTERN:19", "CYAN_STAINED_GLASS:16"], effects: ["SPEED:2", "RESISTANCE:2"]}
   roads:
@@ -521,7 +521,7 @@ buildings:
     levels:
       1: {money: 5500, bonus-blocks: 1, resources: ["STONE_BRICKS:169"], effects: []}
       2: {money: 11000, bonus-blocks: 2, resources: ["STONE_BRICKS:175", "WATER_BUCKET:3"], effects: ["SPEED:1"]}
-      3: {money: 22000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:108"], effects: ["SPEED:1", "RESISTANCE:1"]}
+      3: {money: 22000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:108"], effects: ["SPEED:1", "RESISTANCE:1"]}
       4: {money: 44000, bonus-blocks: 4, resources: ["WATER_BUCKET:3"], effects: ["SPEED:2", "RESISTANCE:1"]}
       5: {money: 88000, bonus-blocks: 6, resources: ["CYAN_STAINED_GLASS:24"], effects: ["SPEED:2", "RESISTANCE:2"]}
   guard:
@@ -534,7 +534,7 @@ buildings:
     levels:
       1: {money: 6500, bonus-blocks: 1, resources: ["STONE_BRICKS:188"], effects: []}
       2: {money: 13000, bonus-blocks: 2, resources: ["STONE_BRICKS:204"], effects: ["RESISTANCE:1"]}
-      3: {money: 26000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:145", "SPRUCE_PLANKS:24", "SPRUCE_DOOR:2"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      3: {money: 26000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:145", "SPRUCE_PLANKS:24", "SPRUCE_DOOR:2"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
       4: {money: 52000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:24", "SPRUCE_PLANKS:13", "IRON_BLOCK:3"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
       5: {money: 104000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:20", "SEA_LANTERN:14"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
   arsenal:
@@ -547,7 +547,7 @@ buildings:
     levels:
       1: {money: 5500, bonus-blocks: 1, resources: ["STONE_BRICKS:130"], effects: []}
       2: {money: 11000, bonus-blocks: 2, resources: ["BRICKS:196"], effects: ["RESISTANCE:1"]}
-      3: {money: 22000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:170", "SPRUCE_DOOR:2"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      3: {money: 22000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:170", "SPRUCE_DOOR:2"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
       4: {money: 44000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:20", "IRON_BLOCK:3", "SPRUCE_PLANKS:3"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
       5: {money: 88000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:20", "SEA_LANTERN:14"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
   armory:
@@ -560,7 +560,7 @@ buildings:
     levels:
       1: {money: 5000, bonus-blocks: 1, resources: ["STONE_BRICKS:120"], effects: []}
       2: {money: 10000, bonus-blocks: 2, resources: ["STONE_BRICKS:184"], effects: ["RESISTANCE:1"]}
-      3: {money: 20000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:120", "SPRUCE_PLANKS:24", "SPRUCE_DOOR:2"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      3: {money: 20000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:120", "SPRUCE_PLANKS:24", "SPRUCE_DOOR:2"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
       4: {money: 40000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:20", "IRON_BLOCK:3", "SPRUCE_PLANKS:3"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
       5: {money: 80000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:22", "SEA_LANTERN:12"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
   watchtower:
@@ -573,7 +573,7 @@ buildings:
     levels:
       1: {money: 7000, bonus-blocks: 1, resources: ["STONE_BRICKS:64"], effects: []}
       2: {money: 14000, bonus-blocks: 2, resources: ["STONE_BRICKS:262"], effects: ["RESISTANCE:1"]}
-      3: {money: 28000, bonus-blocks: 3, resources: ["SPRUCE_PLANKS:200", "DEEPSLATE_TILES:140", "SPRUCE_DOOR:2"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      3: {money: 28000, bonus-blocks: 3, resources: ["SPRUCE_PLANKS:200", "COBBLED_DEEPSLATE_SLAB:140", "SPRUCE_DOOR:2"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
       4: {money: 56000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:16"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
       5: {money: 112000, bonus-blocks: 6, resources: ["SEA_LANTERN:8"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
   fortress_gate:
@@ -586,7 +586,7 @@ buildings:
     levels:
       1: {money: 9500, bonus-blocks: 1, resources: ["STONE_BRICKS:119"], effects: []}
       2: {money: 19000, bonus-blocks: 2, resources: ["STONE_BRICKS:703"], effects: ["RESISTANCE:1"]}
-      3: {money: 38000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:78", "IRON_BLOCK:35"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      3: {money: 38000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:78", "IRON_BLOCK:35"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
       4: {money: 76000, bonus-blocks: 4, resources: ["SPRUCE_DOOR:4"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
       5: {money: 152000, bonus-blocks: 6, resources: ["SEA_LANTERN:8"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
   counterintel:
@@ -599,7 +599,7 @@ buildings:
     levels:
       1: {money: 6500, bonus-blocks: 1, resources: ["STONE_BRICKS:130"], effects: []}
       2: {money: 13000, bonus-blocks: 2, resources: ["STONE_BRICKS:234"], effects: ["RESISTANCE:1"]}
-      3: {money: 26000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:170", "SPRUCE_DOOR:2"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      3: {money: 26000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:170", "SPRUCE_DOOR:2"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
       4: {money: 52000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:48", "CYAN_STAINED_GLASS_PANE:20"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
       5: {money: 104000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:24", "SEA_LANTERN:14"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
   alchemy:
@@ -612,7 +612,7 @@ buildings:
     levels:
       1: {money: 6000, bonus-blocks: 1, resources: ["STONE_BRICKS:120"], effects: []}
       2: {money: 12000, bonus-blocks: 2, resources: ["BRICKS:256"], effects: ["NIGHT_VISION:1"]}
-      3: {money: 24000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:159", "SPRUCE_DOOR:2"], effects: ["NIGHT_VISION:1", "LUCK:1"]}
+      3: {money: 24000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:159", "SPRUCE_DOOR:2"], effects: ["NIGHT_VISION:1", "LUCK:1"]}
       4: {money: 48000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:20", "BRICKS:5", "IRON_BLOCK:4"], effects: ["NIGHT_VISION:1", "LUCK:2"]}
       5: {money: 96000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:30", "SEA_LANTERN:12", "CYAN_STAINED_GLASS:10"], effects: ["NIGHT_VISION:1", "LUCK:2", "HASTE:1"]}
   archive:
@@ -625,7 +625,7 @@ buildings:
     levels:
       1: {money: 7500, bonus-blocks: 1, resources: ["STONE_BRICKS:154"], effects: []}
       2: {money: 15000, bonus-blocks: 2, resources: ["STONE_BRICKS:252"], effects: ["NIGHT_VISION:1"]}
-      3: {money: 30000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:154", "SPRUCE_PLANKS:28", "SPRUCE_DOOR:2"], effects: ["NIGHT_VISION:1", "LUCK:1"]}
+      3: {money: 30000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:154", "SPRUCE_PLANKS:28", "SPRUCE_DOOR:2"], effects: ["NIGHT_VISION:1", "LUCK:1"]}
       4: {money: 60000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:72", "CYAN_STAINED_GLASS_PANE:28"], effects: ["NIGHT_VISION:1", "LUCK:2"]}
       5: {money: 120000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:26", "SEA_LANTERN:14"], effects: ["NIGHT_VISION:1", "LUCK:2", "HASTE:1"]}
   cartography:
@@ -638,7 +638,7 @@ buildings:
     levels:
       1: {money: 8000, bonus-blocks: 1, resources: ["STONE_BRICKS:165"], effects: []}
       2: {money: 16000, bonus-blocks: 2, resources: ["STONE_BRICKS:310"], effects: ["NIGHT_VISION:1"]}
-      3: {money: 32000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:167", "SPRUCE_PLANKS:28", "SPRUCE_DOOR:2"], effects: ["NIGHT_VISION:1", "LUCK:1"]}
+      3: {money: 32000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:167", "SPRUCE_PLANKS:28", "SPRUCE_DOOR:2"], effects: ["NIGHT_VISION:1", "LUCK:1"]}
       4: {money: 64000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS:72", "CYAN_STAINED_GLASS_PANE:28"], effects: ["NIGHT_VISION:1", "LUCK:2"]}
       5: {money: 128000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:28", "SEA_LANTERN:16"], effects: ["NIGHT_VISION:1", "LUCK:2", "HASTE:1"]}
   research:
@@ -651,7 +651,7 @@ buildings:
     levels:
       1: {money: 9000, bonus-blocks: 1, resources: ["STONE_BRICKS:204"], effects: []}
       2: {money: 18000, bonus-blocks: 2, resources: ["STONE_BRICKS:352"], effects: ["NIGHT_VISION:1"]}
-      3: {money: 36000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:252", "SPRUCE_DOOR:2"], effects: ["NIGHT_VISION:1", "LUCK:1"]}
+      3: {money: 36000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:252", "SPRUCE_DOOR:2"], effects: ["NIGHT_VISION:1", "LUCK:1"]}
       4: {money: 72000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:32", "IRON_BLOCK:4", "CYAN_STAINED_GLASS:4"], effects: ["NIGHT_VISION:1", "LUCK:2"]}
       5: {money: 144000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:28", "SEA_LANTERN:18"], effects: ["NIGHT_VISION:1", "LUCK:2", "HASTE:1"]}
   botanical:
@@ -677,7 +677,7 @@ buildings:
     levels:
       1: {money: 9500, bonus-blocks: 1, resources: ["STONE_BRICKS:221"], effects: []}
       2: {money: 19000, bonus-blocks: 2, resources: ["BRICKS:313"], effects: ["LUCK:1"]}
-      3: {money: 38000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:223", "SPRUCE_PLANKS:33", "SPRUCE_DOOR:4"], effects: ["LUCK:1", "REGENERATION:1"]}
+      3: {money: 38000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:223", "SPRUCE_PLANKS:33", "SPRUCE_DOOR:4"], effects: ["LUCK:1", "REGENERATION:1"]}
       4: {money: 76000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:67"], effects: ["LUCK:2", "REGENERATION:1"]}
       5: {money: 152000, bonus-blocks: 6, resources: ["CYAN_STAINED_GLASS_PANE:32", "SPRUCE_PLANKS:24", "SEA_LANTERN:21"], effects: ["LUCK:2", "REGENERATION:2"]}
   square:
@@ -704,7 +704,7 @@ buildings:
       1: {money: 9500, bonus-blocks: 1, resources: ["SMOOTH_SANDSTONE:285"], effects: []}
       2: {money: 19000, bonus-blocks: 2, resources: ["STONE_BRICKS:471", "SPRUCE_PLANKS:192"], effects: ["LUCK:1"]}
       3: {money: 38000, bonus-blocks: 3, resources: ["SPRUCE_DOOR:6", "STONE_BRICKS:3"], effects: ["LUCK:1", "REGENERATION:1"]}
-      4: {money: 76000, bonus-blocks: 4, resources: ["DEEPSLATE_TILES:4"], effects: ["LUCK:2", "REGENERATION:1"]}
+      4: {money: 76000, bonus-blocks: 4, resources: ["COBBLED_DEEPSLATE_SLAB:4"], effects: ["LUCK:2", "REGENERATION:1"]}
       5: {money: 152000, bonus-blocks: 6, resources: ["SEA_LANTERN:1"], effects: ["LUCK:2", "REGENERATION:2"]}
   gallery:
     name: "&#DFA7FF&lХудожественная галерея"
@@ -716,7 +716,7 @@ buildings:
     levels:
       1: {money: 7000, bonus-blocks: 1, resources: ["STONE_BRICKS:165"], effects: []}
       2: {money: 14000, bonus-blocks: 2, resources: ["STONE_BRICKS:263"], effects: ["LUCK:1"]}
-      3: {money: 28000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:216", "SPRUCE_DOOR:4", "SPRUCE_PLANKS:1"], effects: ["LUCK:1", "REGENERATION:1"]}
+      3: {money: 28000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:216", "SPRUCE_DOOR:4", "SPRUCE_PLANKS:1"], effects: ["LUCK:1", "REGENERATION:1"]}
       4: {money: 56000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:28", "SEA_LANTERN:4", "CYAN_STAINED_GLASS:4"], effects: ["LUCK:2", "REGENERATION:1"]}
       5: {money: 112000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:24", "SEA_LANTERN:16"], effects: ["LUCK:2", "REGENERATION:2"]}
   park:
@@ -729,7 +729,7 @@ buildings:
     levels:
       1: {money: 6000, bonus-blocks: 1, resources: ["OAK_LEAVES:195"], effects: []}
       2: {money: 12000, bonus-blocks: 2, resources: ["STONE_BRICKS:60"], effects: ["LUCK:1"]}
-      3: {money: 24000, bonus-blocks: 3, resources: ["SPRUCE_PLANKS:52", "DEEPSLATE_TILES:40"], effects: ["LUCK:1", "REGENERATION:1"]}
+      3: {money: 24000, bonus-blocks: 3, resources: ["SPRUCE_PLANKS:52", "COBBLED_DEEPSLATE_SLAB:40"], effects: ["LUCK:1", "REGENERATION:1"]}
       4: {money: 48000, bonus-blocks: 4, resources: ["OAK_LEAVES:216"], effects: ["LUCK:2", "REGENERATION:1"]}
       5: {money: 96000, bonus-blocks: 6, resources: ["OAK_LEAVES:11", "SEA_LANTERN:4"], effects: ["LUCK:2", "REGENERATION:2"]}
   guild_house:
@@ -742,9 +742,9 @@ buildings:
     levels:
       1: {money: 10000, bonus-blocks: 1, resources: ["STONE_BRICKS:291"], effects: []}
       2: {money: 20000, bonus-blocks: 2, resources: ["STONE_BRICKS:365"], effects: ["LUCK:1"]}
-      3: {money: 40000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:223", "SPRUCE_PLANKS:33", "SPRUCE_DOOR:4"], effects: ["LUCK:1", "REGENERATION:1"]}
+      3: {money: 40000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:223", "SPRUCE_PLANKS:33", "SPRUCE_DOOR:4"], effects: ["LUCK:1", "REGENERATION:1"]}
       4: {money: 80000, bonus-blocks: 4, resources: ["SPRUCE_PLANKS:420", "CYAN_STAINED_GLASS_PANE:32", "SEA_LANTERN:5"], effects: ["LUCK:2", "REGENERATION:1"]}
-      5: {money: 160000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:28", "SEA_LANTERN:18", "DEEPSLATE_TILES:10"], effects: ["LUCK:2", "REGENERATION:2"]}
+      5: {money: 160000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:28", "SEA_LANTERN:18", "COBBLED_DEEPSLATE_SLAB:10"], effects: ["LUCK:2", "REGENERATION:2"]}
   memorial:
     name: "&#DFA7FF&lМемориал"
     icon: CHISELED_STONE_BRICKS
@@ -768,7 +768,7 @@ buildings:
     levels:
       1: {money: 7000, bonus-blocks: 1, resources: ["STONE_BRICKS:180"], effects: []}
       2: {money: 14000, bonus-blocks: 2, resources: ["STONE_BRICKS:234"], effects: ["LUCK:1"]}
-      3: {money: 28000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:182", "SPRUCE_PLANKS:28", "SPRUCE_DOOR:2"], effects: ["LUCK:1", "REGENERATION:1"]}
+      3: {money: 28000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:182", "SPRUCE_PLANKS:28", "SPRUCE_DOOR:2"], effects: ["LUCK:1", "REGENERATION:1"]}
       4: {money: 56000, bonus-blocks: 4, resources: ["CYAN_STAINED_GLASS_PANE:28", "SPRUCE_PLANKS:18"], effects: ["LUCK:2", "REGENERATION:1"]}
       5: {money: 112000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:20", "SEA_LANTERN:16"], effects: ["LUCK:2", "REGENERATION:2"]}
   cathedral:
@@ -781,7 +781,7 @@ buildings:
     levels:
       1: {money: 10000, bonus-blocks: 1, resources: ["STONE_BRICKS:323"], effects: []}
       2: {money: 20000, bonus-blocks: 2, resources: ["STONE_BRICKS:933"], effects: ["LUCK:1"]}
-      3: {money: 40000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:269", "SPRUCE_PLANKS:48", "SPRUCE_DOOR:4"], effects: ["LUCK:1", "REGENERATION:1"]}
+      3: {money: 40000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:269", "SPRUCE_PLANKS:48", "SPRUCE_DOOR:4"], effects: ["LUCK:1", "REGENERATION:1"]}
       4: {money: 80000, bonus-blocks: 4, resources: ["STONE_BRICKS:288", "CYAN_STAINED_GLASS_PANE:6"], effects: ["LUCK:2", "REGENERATION:1"]}
       5: {money: 160000, bonus-blocks: 6, resources: ["SEA_LANTERN:23"], effects: ["LUCK:2", "REGENERATION:2"]}
   # END GENERATED 37-MODEL EXPANSION
@@ -798,7 +798,7 @@ buildings:
       1: {money: 6000, bonus-blocks: 1, resources: ["BRICKS:180", "OAK_PLANKS:96", "PAPER:64"], effects: []}
       2: {money: 12000, bonus-blocks: 2, resources: ["BRICKS:256", "BOOK:64", "INK_SAC:32"], effects: ["LUCK:1"]}
       3: {money: 24000, bonus-blocks: 3, resources: ["DARK_OAK_LOG:128", "PAPER:256", "COPPER_INGOT:48"], effects: ["LUCK:1"]}
-      4: {money: 48000, bonus-blocks: 4, resources: ["DEEPSLATE_TILES:192", "BOOKSHELF:48", "GOLD_INGOT:24"], effects: ["LUCK:2"]}
+      4: {money: 48000, bonus-blocks: 4, resources: ["COBBLED_DEEPSLATE_SLAB:192", "BOOKSHELF:48", "GOLD_INGOT:24"], effects: ["LUCK:2"]}
       5: {money: 96000, bonus-blocks: 6, resources: ["QUARTZ_BLOCK:128", "BOOKSHELF:96", "EMERALD:24"], effects: ["LUCK:2", "HASTE:1"]}
   forestry:
     name: "&#74C365&lЛесничество"
@@ -823,7 +823,7 @@ buildings:
     levels:
       1: {money: 7500, bonus-blocks: 1, resources: ["STONE_BRICKS:224", "SPRUCE_LOG:96", "BARREL:12"], effects: []}
       2: {money: 15000, bonus-blocks: 2, resources: ["CUT_COPPER:128", "PAPER:96", "IRON_INGOT:64"], effects: ["LUCK:1"]}
-      3: {money: 30000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:192", "LECTERN:12", "GOLD_INGOT:32"], effects: ["LUCK:1", "SPEED:1"]}
+      3: {money: 30000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:192", "LECTERN:12", "GOLD_INGOT:32"], effects: ["LUCK:1", "SPEED:1"]}
       4: {money: 60000, bonus-blocks: 4, resources: ["STONE_BRICKS:512", "COPPER_BLOCK:32", "EMERALD:24"], effects: ["LUCK:2", "SPEED:1"]}
       5: {money: 120000, bonus-blocks: 6, resources: ["QUARTZ_BLOCK:256", "GOLD_BLOCK:12", "EMERALD_BLOCK:8"], effects: ["LUCK:2", "SPEED:2"]}
   trade_port:
@@ -836,7 +836,7 @@ buildings:
     levels:
       1: {money: 9000, bonus-blocks: 1, resources: ["STONE_BRICKS:256", "DARK_OAK_LOG:192", "BARREL:16"], effects: []}
       2: {money: 18000, bonus-blocks: 2, resources: ["DARK_PRISMARINE:192", "DARK_OAK_PLANKS:256", "CHAIN:24"], effects: ["SPEED:1"]}
-      3: {money: 36000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:256", "IRON_BLOCK:24", "LANTERN:24"], effects: ["SPEED:1", "LUCK:1"]}
+      3: {money: 36000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:256", "IRON_BLOCK:24", "LANTERN:24"], effects: ["SPEED:1", "LUCK:1"]}
       4: {money: 72000, bonus-blocks: 4, resources: ["PRISMARINE_BRICKS:384", "COPPER_BLOCK:32", "EMERALD:32"], effects: ["SPEED:2", "LUCK:1"]}
       5: {money: 144000, bonus-blocks: 7, resources: ["DARK_PRISMARINE:512", "GOLD_BLOCK:16", "EMERALD_BLOCK:12"], effects: ["SPEED:2", "LUCK:2"]}
   mint:
@@ -902,7 +902,7 @@ buildings:
       1: {money: 5000, bonus-blocks: 1, resources: ["COBBLESTONE:160", "SPRUCE_PLANKS:160", "TARGET:8"], effects: []}
       2: {money: 10000, bonus-blocks: 2, resources: ["SPRUCE_LOG:192", "ARROW:256", "HAY_BLOCK:32"], effects: ["SPEED:1"]}
       3: {money: 20000, bonus-blocks: 3, resources: ["STONE_BRICKS:256", "FLETCHING_TABLE:12", "CROSSBOW:8"], effects: ["SPEED:1", "STRENGTH:1"]}
-      4: {money: 40000, bonus-blocks: 4, resources: ["DEEPSLATE_TILES:192", "SPECTRAL_ARROW:128", "IRON_BLOCK:16"], effects: ["SPEED:2", "STRENGTH:1"]}
+      4: {money: 40000, bonus-blocks: 4, resources: ["COBBLED_DEEPSLATE_SLAB:192", "SPECTRAL_ARROW:128", "IRON_BLOCK:16"], effects: ["SPEED:2", "STRENGTH:1"]}
       5: {money: 80000, bonus-blocks: 6, resources: ["STONE_BRICKS:512", "TARGET:32", "DIAMOND:16"], effects: ["SPEED:2", "STRENGTH:2"]}
   port_fort:
     name: "&#8094A8&lПортовый форт"
@@ -914,7 +914,7 @@ buildings:
     levels:
       1: {money: 9000, bonus-blocks: 2, resources: ["DEEPSLATE_BRICKS:256", "STONE_BRICKS:192"], effects: []}
       2: {money: 18000, bonus-blocks: 3, resources: ["POLISHED_BASALT:192", "IRON_INGOT:96"], effects: ["RESISTANCE:1"]}
-      3: {money: 36000, bonus-blocks: 4, resources: ["DEEPSLATE_TILES:256", "CROSSBOW:12", "CHAIN:32"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
+      3: {money: 36000, bonus-blocks: 4, resources: ["COBBLED_DEEPSLATE_SLAB:256", "CROSSBOW:12", "CHAIN:32"], effects: ["RESISTANCE:1", "STRENGTH:1"]}
       4: {money: 72000, bonus-blocks: 6, resources: ["DEEPSLATE_BRICKS:768", "IRON_BLOCK:32", "TNT:16"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
       5: {money: 144000, bonus-blocks: 8, resources: ["OBSIDIAN:192", "DIAMOND_BLOCK:4", "BEACON:1"], effects: ["RESISTANCE:2", "STRENGTH:2"]}
   census_bureau:
@@ -927,7 +927,7 @@ buildings:
     levels:
       1: {money: 5000, bonus-blocks: 1, resources: ["STONE_BRICKS:192", "PAPER:128", "BOOK:32"], effects: []}
       2: {money: 10000, bonus-blocks: 2, resources: ["CALCITE:192", "BOOKSHELF:32", "INK_SAC:32"], effects: ["LUCK:1"]}
-      3: {money: 20000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:224", "LECTERN:16", "COMPASS:8"], effects: ["LUCK:1"]}
+      3: {money: 20000, bonus-blocks: 3, resources: ["COBBLED_DEEPSLATE_SLAB:224", "LECTERN:16", "COMPASS:8"], effects: ["LUCK:1"]}
       4: {money: 40000, bonus-blocks: 4, resources: ["QUARTZ_BLOCK:256", "BOOKSHELF:64", "GOLD_INGOT:24"], effects: ["LUCK:2"]}
       5: {money: 80000, bonus-blocks: 6, resources: ["QUARTZ_BLOCK:384", "EMERALD:24", "CLOCK:16"], effects: ["LUCK:2", "NIGHT_VISION:1"]}
   insurance_chamber:
@@ -1087,7 +1087,7 @@ wonders:
     description: ["Безмолвный легион хранит город.", "Создаёт оборонный резерв против набегов."]
     requires: {arsenal: 4, archery_range: 4, census_bureau: 3}
     levels:
-      1: {money: 950000, bonus-blocks: 38, resources: ["DEEPSLATE_BRICKS:6144", "DEEPSLATE_TILES:4096", "ORANGE_TERRACOTTA:2048", "MUD_BRICKS:1024", "IRON_BLOCK:128"], effects: ["RESISTANCE:2", "STRENGTH:2", "HEALTH_BOOST:1"]}
+      1: {money: 950000, bonus-blocks: 38, resources: ["DEEPSLATE_BRICKS:6144", "COBBLED_DEEPSLATE_SLAB:4096", "ORANGE_TERRACOTTA:2048", "MUD_BRICKS:1024", "IRON_BLOCK:128"], effects: ["RESISTANCE:2", "STRENGTH:2", "HEALTH_BOOST:1"]}
   crystal_palace:
     name: "&#B197FC&lХрустальный дворец"
     icon: "AMETHYST_CLUSTER"

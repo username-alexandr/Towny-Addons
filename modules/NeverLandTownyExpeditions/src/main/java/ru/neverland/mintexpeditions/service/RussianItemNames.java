@@ -31,6 +31,10 @@ public final class RussianItemNames {
         if (stack == null || stack.getType().isAir()) return "пусто";
         ItemMeta meta = stack.getItemMeta();
         if (meta != null && meta.hasDisplayName()) return ColorUtil.strip(meta.getDisplayName());
+        if (meta instanceof org.bukkit.inventory.meta.PotionMeta potion) {
+            String name = PotionSupplies.name(potion.getBasePotionType());
+            if (name != null) return name;
+        }
         return names.getOrDefault(stack.getType(), fallback(stack.getType()));
     }
 

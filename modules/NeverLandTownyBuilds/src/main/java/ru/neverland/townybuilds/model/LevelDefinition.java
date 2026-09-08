@@ -21,7 +21,7 @@ public final class LevelDefinition {
         this.level = level;
         this.money = money;
         this.bonusBlocks = bonusBlocks;
-        this.resources = resources.stream().map(ItemStack::clone).toList();
+        this.resources = resources.stream().map(ru.neverland.townybuilds.service.ConstructionSupply::migrate).toList();
         this.effects = Collections.unmodifiableMap(new LinkedHashMap<>(effects));
         this.commands = List.copyOf(commands);
     }

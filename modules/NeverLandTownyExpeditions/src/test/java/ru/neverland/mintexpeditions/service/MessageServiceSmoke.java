@@ -8,6 +8,15 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public final class MessageServiceSmoke {
     public static void main(String[] args) throws Exception {
+        var legacyCosts = java.util.List.of("GOLDEN_CARROT:24", "POTION:4", "OAK_BOAT:2");
+        var migrated = PotionSupplies.migrate("royal_galleon", legacyCosts);
+        check(migrated.contains("POTION:WATER_BREATHING:2") && migrated.contains("POTION:NIGHT_VISION:2"), "both explicit potions");
+        check(!migrated.contains("POTION:4") && migrated.size() == 4, "remove ambiguous cost only");
+        check(PotionSupplies.migrate("royal_galleon", migrated).equals(migrated), "idempotent migration");
+        check(PotionSupplies.migrate("other", legacyCosts).equals(legacyCosts), "other expeditions unchanged");
+        check(PotionSupplies.migrate("drowned_temple", java.util.List.of("POTION:2")).size() == 2, "temple has two potion types");
+        check(PotionSupplies.name(org.bukkit.potion.PotionType.WATER_BREATHING).contains("дыхания"), "breathing label");
+        check(PotionSupplies.name(org.bukkit.potion.PotionType.NIGHT_VISION).contains("ночного зрения"), "vision label");
         YamlConfiguration oldConfig = new YamlConfiguration();
         oldConfig.loadFromString("prefix: 'Custom prefix '\nstarted: 'Custom start'\n");
         try (var input = Objects.requireNonNull(MessageServiceSmoke.class.getResourceAsStream("/messages.yml"));

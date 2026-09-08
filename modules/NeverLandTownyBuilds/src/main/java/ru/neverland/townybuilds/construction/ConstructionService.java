@@ -7,6 +7,7 @@ import org.bukkit.FluidCollisionMode;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import ru.neverland.townybuilds.service.ConstructionSupply;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -199,11 +200,15 @@ public final class ConstructionService implements Listener {
             messages.send(event.getPlayer(), "construction-protected");
             return;
         }
-        if (event.getBlockPlaced().getType() != expected.material()) {
+        if (event.getBlockPlaced().getType() != ConstructionSupply.material(expected.material())) {
             event.setCancelled(true);
             messages.send(event.getPlayer(), "construction-wrong-block", Map.of(
-                    "expected", itemNames.name(new ItemStack(expected.material()))));
+                    "expected", itemNames.name(new ItemStack(ConstructionSupply.material(expected.material())))));
             return;
+        }
+        // The supplied slab completes this structural block of the blueprint.
+        if (event.getBlockPlaced().getType() != expected.material()) {
+            event.getBlockPlaced().setType(expected.material(), false);
         }
         applyExpectedState(event.getBlockPlaced(), expected, site);
         event.getPlayer().playSound(event.getBlockPlaced().getLocation(), Sound.BLOCK_STONE_PLACE, 0.35f, 1.35f);
@@ -546,7 +551,7 @@ public final class ConstructionService implements Listener {
             Location target = nearest.location();
             renderGuideDisplay(player, nearest);
             player.sendActionBar(messages.component("construction-guide", Map.of(
-                    "expected", itemNames.name(new ItemStack(nearest.expected().material())),
+                    "expected", itemNames.name(new ItemStack(ConstructionSupply.material(nearest.expected().material()))),
                     "x", target.getBlockX(), "y", target.getBlockY(), "z", target.getBlockZ(),
                     "distance", String.format(Locale.ROOT, "%.1f", Math.sqrt(nearest.distanceSquared()))
             )));
@@ -585,7 +590,7 @@ public final class ConstructionService implements Listener {
             display.teleport(labelLocation);
         }
         display.text(messages.component("construction-guide-display", Map.of(
-                "expected", itemNames.name(new ItemStack(target.expected().material())),
+                "expected", itemNames.name(new ItemStack(ConstructionSupply.material(target.expected().material()))),
                 "x", target.location().getBlockX(),
                 "y", target.location().getBlockY(),
                 "z", target.location().getBlockZ(),
