@@ -24,12 +24,24 @@ public final class ResourceFundSmoke {
         if (fund.count(custom) != 7 || fund.entries().size() != 2) {
             throw new AssertionError("Пользовательский ресурс смешан с ванильным фондом");
         }
+        ItemStack legacy = new TestItemStack("legacy-tiles", Material.DEEPSLATE_TILES, false);
+        ItemStack slab = new TestItemStack("slab", Material.COBBLED_DEEPSLATE_SLAB, false);
+        fund.add(legacy, 32);
+        fund.add(slab, 100);
+        if (fund.count(slab) != 132) throw new AssertionError("Legacy contributions must migrate and merge");
+        if (ru.neverland.townybuilds.service.ResourceMatcher.matches(legacy, slab))
+            throw new AssertionError("New inventory contributions must require the slab");
+        ItemStack special = new TestItemStack("custom-tiles", Material.DEEPSLATE_TILES, true);
+        if (ru.neverland.townybuilds.service.ConstructionSupply.migrate(special).getType() != Material.DEEPSLATE_TILES)
+            throw new AssertionError("Custom resources must remain unchanged");
+        if (ru.neverland.townybuilds.service.ConstructionSupply.material(Material.DEEPSLATE_TILES) != Material.COBBLED_DEEPSLATE_SLAB)
+            throw new AssertionError("Construction must request the same slab as the menu");
         System.out.println("ResourceFundSmoke OK");
     }
 
     private static final class TestItemStack extends ItemStack {
         private final String id;
-        private final Material material;
+        private Material material;
         private final boolean custom;
 
         private TestItemStack(String id, Material material, boolean custom) {
@@ -48,6 +60,9 @@ public final class ResourceFundSmoke {
         public Material getType() {
             return material;
         }
+
+        @Override
+        public void setType(Material material) { this.material = material; }
 
         @Override
         public boolean hasItemMeta() {

@@ -44,8 +44,8 @@ public final class RussianItemNames {
             Material material = Material.matchMaterial(key);
             if (material != null) {
                 String name = yaml.getString(key, key);
-                if (material == Material.DEEPSLATE_TILES && "Глубинносланцевая плитка".equals(name)) {
-                    name = "Глубинносланцевая плитка (полный блок)";
+                if (material == Material.DEEPSLATE_TILES && ("Глубинносланцевая плитка".equals(name) || "Глубинносланцевая плитка (полный блок)".equals(name))) {
+                    name = "Глубинносланцевый кафель";
                 }
                 names.put(material, name);
             }

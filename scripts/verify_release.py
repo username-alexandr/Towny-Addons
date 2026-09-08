@@ -190,8 +190,8 @@ def main() -> int:
     if len(configured_ids) != 78 or set(projects["wonders"]) != expected_wonders:
         errors.append("NeverLandTownyBuilds must contain 78 buildings and the 11 expected wonders")
     item_names = load_yaml(builds / "src/main/resources/item-names.yml")
-    if item_names.get("DEEPSLATE_TILES") != "Глубинносланцевая плитка (полный блок)":
-        errors.append("DEEPSLATE_TILES must be unambiguous in the construction menu")
+    if item_names.get("COBBLED_DEEPSLATE_SLAB") != "Плита из колотого глубинного сланца":
+        errors.append("COBBLED_DEEPSLATE_SLAB must have an unambiguous Russian name")
     matcher_source = (builds / "src/main/java/ru/neverland/townybuilds/service/ResourceMatcher.java").read_text(encoding="utf-8")
     transfer_source = (builds / "src/main/java/ru/neverland/townybuilds/service/ResourceTransfer.java").read_text(encoding="utf-8")
     fund_source = (builds / "src/main/java/ru/neverland/townybuilds/data/ResourceFund.java").read_text(encoding="utf-8")

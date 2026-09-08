@@ -12,6 +12,8 @@ import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockSpreadEvent;
+import org.bukkit.event.block.SculkBloomEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -128,5 +130,22 @@ public final class ExpeditionListener implements Listener {
 
     private boolean protectedAt(Block block) {
         return service.at(BlockPos.of(block.getLocation()), block.getWorld()) != null;
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void spread(BlockSpreadEvent event) {
+        // Catalyst growth would change terrain outside the saved structure footprint.
+        if (event.getNewState().getType().name().startsWith("SCULK")
+                && protectedAt(event.getSource())) event.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void bloom(SculkBloomEvent event) {
+        for (ActiveExpedition expedition : service.repository().active()) {
+            if (service.insideMobArea(expedition, event.getBlock().getLocation())) {
+                event.setCancelled(true);
+                return;
+            }
+        }
     }
 }
