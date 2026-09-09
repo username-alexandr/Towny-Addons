@@ -43,6 +43,8 @@ public final class EventRepository {
                             yaml.getLong(path + "started-at"), yaml.getLong(path + "ends-at"),
                             yaml.getInt(path + "progress"), yaml.getInt(path + "goal", 1),
                             yaml.getDouble(path + "protection"), yaml.getLong(path + "last-raid-wave")));
+                    if (yaml.isConfigurationSection(path + "raid")) active.get(id).raid(
+                            ru.neverland.mintevents.model.RaidState.load(yaml.getConfigurationSection(path + "raid")));
                 } catch (IllegalArgumentException exception) {
                     plugin.getLogger().warning("Повреждённая запись активного события " + raw);
                 }
@@ -103,6 +105,7 @@ public final class EventRepository {
             yaml.set(path + "goal", event.goal());
             yaml.set(path + "protection", event.protection());
             yaml.set(path + "last-raid-wave", event.lastRaidWave());
+            if (event.raid() != null) event.raid().save(yaml.createSection(path + "raid"));
         }
         for (Map.Entry<UUID, Long> cooldown : cooldowns.entrySet()) {
             yaml.set("towns." + cooldown.getKey() + ".last-event-at", cooldown.getValue());

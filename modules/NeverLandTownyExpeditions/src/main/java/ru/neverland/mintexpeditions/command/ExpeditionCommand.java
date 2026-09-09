@@ -117,7 +117,9 @@ public final class ExpeditionCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command,
                                       String alias, String[] args) {
         if (args.length == 1) {
-            return List.of("start", "status", "return", "claim", "history");
+            return List.of("start", "status", "return", "claim", "history").stream()
+                    .filter(value -> !value.equals("return") || sender.hasPermission("neverlandtownyexpeditions.return"))
+                    .filter(value -> value.startsWith(args[0].toLowerCase(Locale.ROOT))).toList();
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("start")) {
             return service.registry().all().stream()
@@ -126,4 +128,3 @@ public final class ExpeditionCommand implements CommandExecutor, TabCompleter {
         return List.of();
     }
 }
-

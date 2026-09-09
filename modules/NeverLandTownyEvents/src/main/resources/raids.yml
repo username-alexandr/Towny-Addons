@@ -1,0 +1,37 @@
+# 10 последовательных волн. Следующая начинается после зачистки и паузы из config.yml.
+# points заменяет старое gameplay.raid-kill-points. Поставки не завершают рейд досрочно.
+# type задаёт базовое существо и его ИИ. provider: vanilla / modelengine / itemsadder.
+# model: ID модели ModelEngine или namespace:entity из ItemsAdder.
+# equipment: hand/offhand/helmet/chestplate/leggings/boots; MATERIAL или itemsadder:namespace:item.
+# Пример кастомного врага (замените IDs своими и добавьте в состав нужных волн):
+#   captain:
+#     type: VINDICATOR
+#     name: "Капитан разбойников"
+#     points: 8
+#     health: 60
+#     damage: 7
+#     provider: modelengine
+#     model: bandit_captain
+#     equipment: {hand: "itemsadder:raiders:captain_axe"}
+# Для существа ItemsAdder: provider: itemsadder, model: "raiders:captain".
+# Неустановленный плагин/несуществующий ID оставляет моба в очереди и пишет причину в журнал.
+mobs:
+  zombie: {type: ZOMBIE, name: "Разбойник-новобранец", points: 1, health: 20, damage: 3, equipment: {hand: WOODEN_SWORD}}
+  husk: {type: HUSK, name: "Пустынный налётчик", points: 2, health: 24, damage: 3.5, equipment: {hand: STONE_SWORD}}
+  skeleton: {type: SKELETON, name: "Лучник разбойников", points: 2, health: 20, damage: 3, equipment: {hand: BOW}}
+  pillager: {type: PILLAGER, name: "Арбалетчик разбойников", points: 3, health: 26, damage: 4, equipment: {hand: CROSSBOW}}
+  vindicator: {type: VINDICATOR, name: "Разбойник-ветеран", points: 4, health: 30, damage: 5, equipment: {hand: IRON_AXE}}
+  witch: {type: WITCH, name: "Ведьма разбойников", points: 4, health: 28, damage: 4}
+  ravager: {type: RAVAGER, name: "Осадный разоритель", points: 7, health: 80, damage: 7}
+  captain: {type: VINDICATOR, name: "Главарь набега", points: 8, health: 60, damage: 7, equipment: {hand: DIAMOND_AXE, helmet: IRON_HELMET, chestplate: IRON_CHESTPLATE}}
+waves:
+  '1': {health-multiplier: 1.0, damage-multiplier: 1.0, mobs: {zombie: 4}}
+  '2': {health-multiplier: 1.05, damage-multiplier: 1.05, mobs: {zombie: 4, husk: 2}}
+  '3': {health-multiplier: 1.10, damage-multiplier: 1.10, mobs: {husk: 4, skeleton: 3}}
+  '4': {health-multiplier: 1.15, damage-multiplier: 1.15, mobs: {husk: 4, skeleton: 2, pillager: 2}}
+  '5': {health-multiplier: 1.20, damage-multiplier: 1.20, mobs: {husk: 3, pillager: 4, vindicator: 2}}
+  '6': {health-multiplier: 1.25, damage-multiplier: 1.25, mobs: {pillager: 4, vindicator: 4, witch: 2}}
+  '7': {health-multiplier: 1.30, damage-multiplier: 1.30, mobs: {pillager: 4, vindicator: 4, witch: 2, ravager: 1}}
+  '8': {health-multiplier: 1.40, damage-multiplier: 1.40, mobs: {pillager: 4, vindicator: 5, witch: 2, ravager: 2}}
+  '9': {health-multiplier: 1.50, damage-multiplier: 1.50, mobs: {pillager: 5, vindicator: 5, witch: 2, ravager: 3}}
+  '10': {health-multiplier: 1.65, damage-multiplier: 1.65, mobs: {pillager: 5, vindicator: 6, witch: 2, ravager: 3, captain: 1}}

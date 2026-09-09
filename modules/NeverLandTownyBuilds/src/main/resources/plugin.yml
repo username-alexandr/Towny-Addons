@@ -6,8 +6,11 @@ authors: [Alexander Sokolov]
 website: https://neverland.ru
 description: Городские здания, Чудеса Света, склад и эффекты проекта NeverLand.
 depend: [Towny]
-softdepend: [ItemsAdder]
+softdepend: [ItemsAdder, PlaceholderAPI]
 commands:
+  townyarmy:
+    description: Состав армии и мобилизация граждан с 18 лет персонажа
+    usage: /townyarmy [list|mobilize|release|age]
   buildeditor:
     description: Внутриигровой редактор городских построек
     usage: /buildeditor
@@ -19,6 +22,17 @@ commands:
     aliases: [nltb, neverlandtownybuilds]
     permission: neverlandtownybuilds.admin
 permissions:
+  neverlandtownybuilds.army.use:
+    default: true
+  neverlandtownybuilds.army.mobilize:
+    description: Управление армией своего города помимо мэра
+    default: op
+  neverlandtownybuilds.army.age:
+    description: Подтверждение возраста персонажа администратором
+    default: op
+  neverlandtownybuilds.army.soldier:
+    description: Временный статус действующего мобилизованного гражданина
+    default: false
   neverlandtownybuilds.use:
     default: true
   neverlandtownybuilds.upgrade:

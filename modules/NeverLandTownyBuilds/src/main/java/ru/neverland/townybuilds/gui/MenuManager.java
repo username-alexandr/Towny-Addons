@@ -156,6 +156,8 @@ public final class MenuManager implements Listener {
                 ColorUtil.component(project.name()));
         decorate(inventory);
         inventory.setItem(11, projectIcon(project, current));
+        if (project.id().equals("army")) inventory.setItem(16, actionItem("army", new ItemStack(Material.NETHERITE_HELMET),
+                "&#B65CFFСостав армии", List.of("&7Реестр и мобилизация граждан с 18 лет")));
         if (construction.active()) {
             List<String> lore = new ArrayList<>();
             lore.add("&7Этап: &f" + construction.stageName());
@@ -303,6 +305,8 @@ public final class MenuManager implements Listener {
             if ("back".equals(action)) {
                 if (project.type() == ProjectType.BUILDING && details.category() == null) openCategories(player);
                 else openProjects(player, project.type(), details.category(), details.page());
+            } else if ("army".equals(action) && project.id().equals("army")) {
+                ((ru.neverland.townybuilds.NeverLandTownyBuilds) plugin).army().open(player, 0);
             } else if ("upgrade".equals(action)) {
                 handleUpgrade(player, project, details.page(), details.category());
             } else if ("contribute".equals(action)) {

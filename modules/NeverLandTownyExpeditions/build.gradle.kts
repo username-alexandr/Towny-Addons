@@ -2,7 +2,7 @@ import org.gradle.api.attributes.java.TargetJvmVersion
 
 plugins { java }
 group = "ru.neverland"
-version = "0.1.8"
+version = "0.1.9"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -29,7 +29,13 @@ tasks {
 configurations.named("testRuntimeClasspath") {
     extendsFrom(configurations.named("compileOnly").get())
 }
+tasks.register<JavaExec>("smokeAccess") {
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("ru.neverland.mintexpeditions.service.ExpeditionAccessSmoke")
+}
 tasks.register<JavaExec>("smokeTest") {
+    dependsOn("smokeAccess")
     dependsOn(tasks.testClasses)
     classpath = sourceSets.test.get().runtimeClasspath
     mainClass.set("ru.neverland.mintexpeditions.service.MessageServiceSmoke")

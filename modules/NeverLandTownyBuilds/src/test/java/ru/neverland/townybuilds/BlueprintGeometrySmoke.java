@@ -57,7 +57,7 @@ public final class BlueprintGeometrySmoke {
                     project + ": неверно выбран чертёж архитектуры 2");
             check(generator.generateForArchitecture(project, 5, 3).blocks().equals(architecture3.blocks()),
                     project + ": неверно выбран чертёж архитектуры 3");
-            check(generator.generateForArchitecture(project, 5, 5).blocks().equals(finalPlan.blocks()),
+            check(generator.generateForArchitecture(project, 5, ru.neverland.townybuilds.construction.ConstructionSite.CURRENT_ARCHITECTURE_VERSION).blocks().equals(finalPlan.blocks()),
                     project + ": неверно выбран актуальный чертёж");
             BlueprintPlan entrance = generator.generate(project, 1);
             long lowerDoors = entrance.blocks().values().stream()

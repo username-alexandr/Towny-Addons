@@ -32,7 +32,7 @@ public enum ProjectCategory {
             "pumping_station", "irrigation_station", "dam"
     );
     private static final Set<String> DEFENSE_IDS = Set.of(
-            "barracks", "fire_station", "watch_fortress", "guard", "arsenal", "armory", "watchtower",
+            "army", "barracks", "fire_station", "watch_fortress", "guard", "arsenal", "armory", "watchtower",
             "fortress_gate", "counterintel", "stables", "fortress_wall", "city_moat", "archery_range", "port_fort"
     );
     private static final Set<String> SCIENCE_IDS = Set.of(

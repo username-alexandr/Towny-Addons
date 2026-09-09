@@ -19,9 +19,9 @@ public final class CivicExpansionSmoke {
     public static void main(String[] args) {
         BuildingBlueprintGenerator generator = new BuildingBlueprintGenerator();
         CivicBlueprintGenerator civic = new CivicBlueprintGenerator();
-        check(civic.supportedProjects().size() == 16, "Ожидалось 16 новых физических проектов");
-        check(generator.supportedBuildings().size() == 78, "Ожидалось 78 городских проектов");
-        check(generator.supportedProjects().size() == 89, "Ожидалось 89 проектов вместе с Чудесами");
+        check(civic.supportedProjects().size() == 17, "Ожидалось 17 новых физических проектов");
+        check(generator.supportedBuildings().size() == 79, "Ожидалось 79 городских проектов");
+        check(generator.supportedProjects().size() == 90, "Ожидалось 90 проектов вместе с Чудесами");
 
         Set<String> signatures = new HashSet<>();
         for (String project : CivicBlueprintGenerator.PROJECTS) {
@@ -66,7 +66,7 @@ public final class CivicExpansionSmoke {
         check(area.chunkCount() == 9 && area.contains(0, 0) && !area.contains(40, 0), "Ошибка геометрии территории");
         CivicLine line = new CivicLine(world, 0, 64, 0, 31, 64, 0);
         check(line.length() == 32, "Ошибка длины линейного проекта");
-        System.out.println("CivicExpansionSmoke OK: 16 моделей, 80 этапов, 7 категорий");
+        System.out.println("CivicExpansionSmoke OK: 17 моделей, 85 этапов, 7 категорий");
     }
 
     private static void check(boolean condition, String message) {

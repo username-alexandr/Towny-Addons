@@ -40,6 +40,9 @@ public final class MintEventsExpansion extends PlaceholderExpansion {
         EventSnapshot snapshot = optional.get();
         return switch (params.toLowerCase()) {
             case "active" -> "true";
+            case "raid_wave" -> String.valueOf(events.active(town.getUUID()).raid() == null ? 0 : events.active(town.getUUID()).raid().wave());
+            case "raid_remaining" -> String.valueOf(events.active(town.getUUID()).raid() == null ? 0 : events.active(town.getUUID()).raid().remaining());
+            case "points" -> String.valueOf(events.active(town.getUUID()).progress());
             case "id" -> snapshot.eventId();
             case "name" -> snapshot.name();
             case "time_left" -> TimeUtil.format(Math.max(0, (snapshot.endsAt() - System.currentTimeMillis()) / 1000));
@@ -54,7 +57,7 @@ public final class MintEventsExpansion extends PlaceholderExpansion {
     private String defaultValue(String params) {
         return switch (params.toLowerCase()) {
             case "active" -> "false";
-            case "progress", "goal", "progress_percent", "protection" -> "0";
+            case "progress", "goal", "progress_percent", "protection", "raid_wave", "raid_remaining", "points" -> "0";
             default -> "";
         };
     }

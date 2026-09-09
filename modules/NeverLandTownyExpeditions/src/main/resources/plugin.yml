@@ -1,5 +1,5 @@
 name: NeverLandTownyExpeditions
-version: 0.1.8
+version: 0.1.9
 main: ru.neverland.mintexpeditions.MintTownyExpeditions
 api-version: '26.2'
 authors: [Alexander Sokolov]
@@ -20,6 +20,12 @@ commands:
     aliases: [mintexpeditions, mexp, neverlandtownyexpeditions, nltexpeditions]
     permission: mintexpeditions.admin
 permissions:
+  neverlandtownyexpeditions.return:
+    description: Ручной возврат в лагерь из команды и меню экспедиций
+    default: false
+  neverlandtownyexpeditions.shield:
+    description: Использование щита на территории активной экспедиции
+    default: false
   mintexpeditions.use:
     default: true
   mintexpeditions.start:

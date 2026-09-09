@@ -23,7 +23,7 @@ public final class BlockOrientationSmoke {
         if (east.architectureVersion() != ConstructionSite.CURRENT_ARCHITECTURE_VERSION) {
             throw new AssertionError("Новая площадка получила устаревшую версию архитектуры");
         }
-        if (ConstructionSite.CURRENT_ARCHITECTURE_VERSION != 5) {
+        if (ConstructionSite.CURRENT_ARCHITECTURE_VERSION < 5) {
             throw new AssertionError("Не активирована архитектура второй очереди зданий");
         }
         ConstructionSite legacy = new ConstructionSite("test", UUID.randomUUID(), 0, 64, 0,

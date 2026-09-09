@@ -87,7 +87,7 @@ buildings:
       5: {money: 104000, bonus-blocks: 8, resources: ["CHISELED_BOOKSHELF:384", "ENCHANTING_TABLE:16", "NETHER_STAR:1"], effects: ["LUCK:3", "NIGHT_VISION:1"]}
   agrarian_complex:
     name: "&#8BE06A&lАграрный Комплекс"
-    icon: "WHEAT"
+    icon: DIAMOND_HOE
     itemsadder-icon: "neverland:building_agrarian_complex"
     slot: 19
     description: ["Фермы, сады и продовольственные склады.", "Повышает скорость и насыщение жителей."]
@@ -111,7 +111,7 @@ buildings:
       5: {money: 88000, bonus-blocks: 6, resources: ["QUARTZ_BLOCK:1280", "GOLD_BLOCK:12", "GHAST_TEAR:12"], effects: ["REGENERATION:2", "HEALTH_BOOST:2"]}
   fire_station:
     name: "&#FF6A47&lПожарная часть"
-    icon: "WATER_BUCKET"
+    icon: FIRE_CHARGE
     itemsadder-icon: ""
     slot: 21
     description: ["Депо городской пожарной команды.", "Защищает жителей от огня и повышает стойкость."]
@@ -207,7 +207,7 @@ buildings:
       5: {money: 112000, bonus-blocks: 8, resources: ["QUARTZ_BLOCK:1280", "IRON_BLOCK:48", "DIAMOND:20"], effects: ["RESISTANCE:2", "LUCK:2"]}
   aqueduct:
     name: "&#58CFE8&lАкведук"
-    icon: "WATER_BUCKET"
+    icon: PRISMARINE_BRICKS
     itemsadder-icon: ""
     slot: 31
     description: ["Монументальный городской водовод.", "Поддерживает снабжение водой и здоровье жителей."]
@@ -231,7 +231,7 @@ buildings:
       5: {money: 80000, bonus-blocks: 7, resources: ["DEEPSLATE_BRICKS:1280", "COPPER_BLOCK:48", "DIAMOND:16"], effects: ["HASTE:2", "FIRE_RESISTANCE:1"]}
   watch_fortress:
     name: "&#B8C0CC&lСторожевая крепость"
-    icon: "SHIELD"
+    icon: POLISHED_BLACKSTONE_BRICKS
     itemsadder-icon: ""
     slot: 33
     description: ["Укреплённые ворота, башни и гарнизонный двор.", "Даёт силу и сопротивление."]
@@ -448,7 +448,7 @@ buildings:
       5: {money: 160000, bonus-blocks: 6, resources: ["SEA_LANTERN:5"], effects: ["LUCK:2", "SPEED:2"]}
   water_tower:
     name: "&#58CFE8&lВодонапорная башня"
-    icon: WATER_BUCKET
+    icon: BUCKET
     itemsadder-icon: ""
     slot: 20
     order: 111
@@ -526,7 +526,7 @@ buildings:
       5: {money: 88000, bonus-blocks: 6, resources: ["CYAN_STAINED_GLASS:24"], effects: ["SPEED:2", "RESISTANCE:2"]}
   guard:
     name: "&#C0C7D1&lГородская стража"
-    icon: SHIELD
+    icon: IRON_HELMET
     itemsadder-icon: ""
     slot: 28
     order: 117
@@ -773,7 +773,7 @@ buildings:
       5: {money: 112000, bonus-blocks: 6, resources: ["SPRUCE_PLANKS:20", "SEA_LANTERN:16"], effects: ["LUCK:2", "REGENERATION:2"]}
   cathedral:
     name: "&#DFA7FF&lСобор"
-    icon: TOTEM_OF_UNDYING
+    icon: END_CRYSTAL
     itemsadder-icon: ""
     slot: 15
     order: 136
@@ -880,7 +880,7 @@ buildings:
       5: {money: 128000, bonus-blocks: 8, resources: ["REINFORCED_DEEPSLATE:16", "OBSIDIAN:192", "DIAMOND:16"], effects: ["RESISTANCE:2", "STRENGTH:1"]}
   city_moat:
     name: "&#5AAFE6&lГородской ров"
-    icon: WATER_BUCKET
+    icon: LILY_PAD
     itemsadder-icon: ""
     slot: 25
     order: 207
@@ -958,7 +958,7 @@ buildings:
       5: {money: 128000, bonus-blocks: 7, resources: ["COPPER_BLOCK:128", "IRON_BLOCK:64", "HEART_OF_THE_SEA:2"], effects: ["SPEED:2", "RESISTANCE:2"]}
   irrigation_station:
     name: "&#6FCF8D&lИрригационная станция"
-    icon: WATER_BUCKET
+    icon: COPPER_HOE
     itemsadder-icon: ""
     slot: 33
     order: 213
@@ -996,6 +996,21 @@ buildings:
       4: {money: 80000, bonus-blocks: 6, resources: ["DEEPSLATE_BRICKS:1024", "IRON_BLOCK:64", "PISTON:32"], effects: ["RESISTANCE:2"]}
       5: {money: 160000, bonus-blocks: 9, resources: ["OBSIDIAN:256", "DIAMOND_BLOCK:4", "HEART_OF_THE_SEA:2"], effects: ["RESISTANCE:2", "CONDUIT_POWER:1"]}
   # END MUNICIPAL EXPANSION 0.6.0
+
+  army:
+    name: "&#8094A8&lШтаб армии"
+    icon: NETHERITE_HELMET
+    itemsadder-icon: ""
+    category: DEFENSE
+    slot: 35
+    order: 216
+    description: ["Отдельный штаб городской армии.", "Мобилизация граждан от 18 лет персонажа: /t army.", "Каждый уровень открывает 10 мест в штате."]
+    levels:
+      1: {money: 8000, bonus-blocks: 1, resources: ["DEEPSLATE_BRICKS:192", "POLISHED_ANDESITE:96"], effects: []}
+      2: {money: 16000, bonus-blocks: 2, resources: ["POLISHED_ANDESITE:192", "POLISHED_BASALT:64"], effects: []}
+      3: {money: 32000, bonus-blocks: 3, resources: ["DEEPSLATE_TILES:256", "IRON_INGOT:48"], effects: []}
+      4: {money: 64000, bonus-blocks: 4, resources: ["SMITHING_TABLE:4", "IRON_INGOT:64"], effects: []}
+      5: {money: 128000, bonus-blocks: 5, resources: ["DEEPSLATE_BRICKS:128", "GOLD_INGOT:32"], effects: []}
 
 wonders:
   sun_pyramid:

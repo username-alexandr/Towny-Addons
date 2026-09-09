@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ru.neverland"
-version = "0.7.5"
+version = "0.7.6"
 
 repositories {
     mavenCentral()
@@ -52,6 +52,9 @@ tasks {
 }
 
 val smokeClasses = listOf(
+    "ru.neverland.townybuilds.MobilizationSmoke",
+    "ru.neverland.townybuilds.RoofSupportSmoke",
+    "ru.neverland.townybuilds.ProjectIconsSmoke",
     "ru.neverland.townybuilds.MaterialLocalizationSmoke",
     "ru.neverland.townybuilds.ImportedModelsSmoke",
     "ru.neverland.townybuilds.ResourceBalanceSmoke",

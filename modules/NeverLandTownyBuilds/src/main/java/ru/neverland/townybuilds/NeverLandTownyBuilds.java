@@ -24,7 +24,7 @@ import ru.neverland.townybuilds.construction.ConstructionService;
 import java.io.File;
 
 public final class NeverLandTownyBuilds extends JavaPlugin {
-    private static final String[] TOWN_COMMANDS = {"builds", "wonderd", "wonders", "inv", "civic", "shop"};
+    private static final String[] TOWN_COMMANDS = {"builds", "wonderd", "wonders", "inv", "civic", "shop", "army"};
     private MessageService messages;
     private ItemsAdderHook itemsAdder;
     private DefinitionRegistry definitions;
@@ -33,6 +33,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
     private RussianItemNames itemNames;
     private ConstructionService construction;
     private CivicService civic;
+    private ru.neverland.townybuilds.army.ArmyService army;
 
     @Override
     public void onEnable() {
@@ -62,6 +63,12 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         getServer().getPluginManager().registerEvents(construction, this);
         getServer().getPluginManager().registerEvents(civic, this);
 
+        army = new ru.neverland.townybuilds.army.ArmyService(this, towny, dataStore);
+        getServer().getPluginManager().registerEvents(army, this);
+        towny.registerTownCommand("army", army);
+        PluginCommand armyCommand = getCommand("townyarmy");
+        if (armyCommand != null) { armyCommand.setExecutor(army); armyCommand.setTabCompleter(army); }
+        army.start();
         registerTownCommands(towny, menus);
         PluginCommand editorCommand = getCommand("buildeditor");
         if (editorCommand != null) editorCommand.setExecutor(new EditorCommand(editor, messages));
@@ -87,6 +94,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         if (effects != null) effects.stop();
         if (construction != null) construction.stop();
         if (civic != null) civic.stop();
+        if (army != null) army.stop();
         if (dataStore != null) dataStore.save();
         TownyHook towny = new TownyHook();
         for (String command : TOWN_COMMANDS) towny.unregisterTownCommand(command);
@@ -111,6 +119,8 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         towny.registerTownCommand("civic", new CivicCommand(civic, messages, false));
         towny.registerTownCommand("shop", new CivicCommand(civic, messages, true));
     }
+
+    public ru.neverland.townybuilds.army.ArmyService army() { return army; }
 
     private void copyResource(String name) {
         if (!new File(getDataFolder(), name).exists()) saveResource(name, false);

@@ -56,6 +56,12 @@ public final class EventService implements MintTownyEventsApi {
     private final MessageService messages;
     private final Map<UUID, BossBar> bars = new HashMap<>();
     private final Map<UUID, Long> raidFailureWarnings = new HashMap<>();
+    private RaidCatalog raidCatalog;
+    private final ru.neverland.mintevents.integration.CustomRaidMobs customMobs;
+    private final NamespacedKey raidGenerationKey;
+    private final NamespacedKey raidPointsKey;
+    private final NamespacedKey raidRangedMultiplierKey;
+    private final Map<UUID, Long> raidSpawnAttempts = new HashMap<>();
     private final NamespacedKey raidMobKey;
     private final NamespacedKey legacyRaidMobKey;
     private BukkitTask tickTask;
@@ -73,11 +79,27 @@ public final class EventService implements MintTownyEventsApi {
         this.development = development;
         this.messages = messages;
         this.raidMobKey = new NamespacedKey(plugin, "raid_town");
+        this.raidGenerationKey = new NamespacedKey(plugin, "raid_generation");
+        this.raidPointsKey = new NamespacedKey(plugin, "raid_points");
+        this.raidRangedMultiplierKey = new NamespacedKey(plugin, "raid_ranged_multiplier");
+        this.customMobs = new ru.neverland.mintevents.integration.CustomRaidMobs(plugin);
+        this.raidCatalog = new RaidCatalog(plugin);
         this.legacyRaidMobKey = NamespacedKey.fromString("minttownyevents:raid_town");
     }
 
     public void start() {
         stopTasks();
+        for (ActiveEvent event : repository.active().values()) {
+            EventDefinition definition = definition(event);
+            if (definition != null && definition.mode() == EventMode.RAID && event.raid() == null) {
+                ActiveEvent upgraded = new ActiveEvent(event.townId(), event.eventId(), event.startedAt(),
+                        Math.max(event.endsAt(), System.currentTimeMillis() + definition.durationSeconds() * 1000),
+                        event.progress(), event.goal(), event.protection(), 0);
+                upgraded.raid(new ru.neverland.mintevents.model.RaidState());
+                repository.put(upgraded);
+            }
+        }
+        for (World world : Bukkit.getWorlds()) for (Entity entity : new ArrayList<>(world.getEntities())) validateLoadedRaidEntity(entity);
         long tickPeriod = Math.max(1, plugin.getConfig().getLong("runtime.tick-seconds", 1)) * 20;
         tickTask = Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 20, tickPeriod);
         saveTask = Bukkit.getScheduler().runTaskTimer(plugin, repository::saveIfDirty, 1200, 1200);
@@ -110,6 +132,7 @@ public final class EventService implements MintTownyEventsApi {
         double protection = development.protection(town.getUUID(), definition);
         ActiveEvent active = new ActiveEvent(town.getUUID(), definition.id(), now,
                 now + definition.durationSeconds() * 1000, 0, goal, protection, 0);
+        if (definition.mode() == EventMode.RAID) active.raid(new ru.neverland.mintevents.model.RaidState());
         repository.put(active);
         saveNow();
         announce(town, "event-start-town", definition, active);
@@ -136,6 +159,7 @@ public final class EventService implements MintTownyEventsApi {
                 plugin.getConfig().getInt("runtime.history-limit-per-town", 20), now);
         cleanupRaidMobs(active.townId());
         raidFailureWarnings.remove(active.townId());
+        raidSpawnAttempts.remove(active.townId());
         BossBar bar = bars.remove(active.townId());
         if (bar != null) bar.removeAll();
         if (definition != null) {
@@ -161,23 +185,40 @@ public final class EventService implements MintTownyEventsApi {
     public void creditRaidKill(LivingEntity entity) {
         String owner = raidOwner(entity);
         if (owner == null) return;
-        // Consume the marker once; repeated callbacks cannot award another kill.
         entity.getPersistentDataContainer().remove(raidMobKey);
         if (legacyRaidMobKey != null) entity.getPersistentDataContainer().remove(legacyRaidMobKey);
         UUID townId;
-        try { townId = UUID.fromString(owner); }
-        catch (IllegalArgumentException ignored) { return; }
-        Town town = town(townId);
+        try { townId = UUID.fromString(owner); } catch (IllegalArgumentException ignored) { return; }
         ActiveEvent event = repository.active(townId);
         EventDefinition definition = definition(event);
+        if (event == null || event.raid() == null || definition == null || definition.mode() != EventMode.RAID
+                || !event.raid().generation().toString().equals(entity.getPersistentDataContainer().get(raidGenerationKey, PersistentDataType.STRING))) return;
+        // Calculate before removing the final enemy: finished() becomes true after the last death.
         Player killer = entity.getKiller();
-        int points = RaidKillCredit.points(event, definition == null ? null : definition.mode(),
-                killer != null, plugin.getConfig().getInt("gameplay.raid-kill-points", 10),
-                System.currentTimeMillis());
-        if (town == null || points <= 0) return;
-        int progress = contribute(town, points);
-        messages.send(killer, "raid-kill-progress", Map.of("town", town.getName(),
-                "points", points, "progress", progress, "goal", event.goal()));
+        int points = RaidKillCredit.points(event, definition.mode(), killer != null,
+                entity.getPersistentDataContainer().getOrDefault(raidPointsKey, PersistentDataType.INTEGER, 0), System.currentTimeMillis());
+        if (event.raid().died(entity.getUniqueId()) == null) return;
+        if (event.raid().clear()) event.lastRaidWave(System.currentTimeMillis());
+        repository.changed();
+        Town town = town(townId);
+        if (points > 0 && town != null) {
+            int progress = event.addProgress(points);
+            messages.send(killer, "raid-kill-progress", Map.of("town", town.getName(), "points", points,
+                    "progress", progress, "goal", event.goal(), "wave", event.raid().wave()));
+        }
+        if (town != null && event.completed()) resolveInternal(town, event, true);
+        else saveNow();
+    }
+
+    /** Removes stale raid bodies even if their chunk was unloaded during shutdown/cleanup. */
+    public void validateLoadedRaidEntity(Entity entity) {
+        String owner = raidOwner(entity);
+        if (owner == null) return;
+        ActiveEvent active = null;
+        try { active = repository.active(UUID.fromString(owner)); } catch (IllegalArgumentException ignored) { }
+        if (active == null || active.raid() == null
+                || !active.raid().generation().toString().equals(entity.getPersistentDataContainer().get(raidGenerationKey, PersistentDataType.STRING))
+                || !active.raid().owns(entity.getUniqueId())) entity.remove();
     }
 
     private void tick() {
@@ -242,87 +283,95 @@ public final class EventService implements MintTownyEventsApi {
 
     private int maybeRaidWave(Town town, Location anchor, ActiveEvent event, double severity, long now,
                               boolean ignoreInterval) {
-        long interval = Math.max(10, plugin.getConfig().getLong("gameplay.raid-wave-interval-seconds", 60)) * 1000;
-        if (!ignoreInterval && now - event.lastRaidWave() < interval) return 0;
-        int alive = raidMobCount(town.getUUID());
-        int cap = Math.max(1, plugin.getConfig().getInt("gameplay.raid-max-alive-mobs-per-town", 18));
-        int base = Math.max(1, plugin.getConfig().getInt("gameplay.raid-base-mobs-per-wave", 5));
-        int amount = Math.min(cap - alive, Math.max(1, (int) Math.ceil(base * severity)));
-        if (amount <= 0) {
-            event.lastRaidWave(now);
+        var state = event.raid();
+        if (state == null || state.finished()) return 0;
+        long interval = Math.max(1, plugin.getConfig().getLong("gameplay.raid-wave-interval-seconds", 60)) * 1000;
+        if (state.clear()) {
+            if (!ignoreInterval && state.wave() > 0 && now - event.lastRaidWave() < interval) return 0;
+            state.begin(raidCatalog.wave(state.wave() + 1).mobs());
             repository.changed();
-            return 0;
-        }
-        Location spawnLocation = findRaidSpawn(town, anchor, false);
-        if (spawnLocation == null && plugin.getConfig().getBoolean("gameplay.raid-allow-liquid-fallback", true)) {
-            spawnLocation = findRaidSpawn(town, anchor, true);
-        }
-        List<String> rawTypes = plugin.getConfig().getStringList("gameplay.raid-mobs");
-        int spawned = 0;
-        int rejected = 0;
-        int invalidTypes = 0;
-        if (spawnLocation != null) {
-            for (int index = 0; index < amount; index++) {
-                RaidSpawnResult result = spawnRaidMob(town, spawnLocation, rawTypes);
-                if (result == RaidSpawnResult.SPAWNED) spawned++;
-                else if (result == RaidSpawnResult.INVALID_TYPE) invalidTypes++;
-                else rejected++;
-            }
-        }
-        if (spawned > 0) {
-            raidFailureWarnings.remove(town.getUUID());
-            event.lastRaidWave(now);
             if (plugin.getConfig().getBoolean("gameplay.raid-announce-wave", true)) {
-                String text = messages.formatText(messages.raw("raid-wave-town"),
-                        Map.of("town", town.getName(), "count", spawned), false);
+                String text = messages.formatText(messages.raw("raid-wave-town"), Map.of("town", town.getName(),
+                        "count", state.remaining(), "wave", state.wave(), "waves", 10), true);
                 for (Player player : onlineResidents(town)) player.sendMessage(text);
             }
-            if (plugin.getConfig().getBoolean("gameplay.raid-log-spawns", true)) {
-                plugin.getLogger().info("Набег: город " + town.getName() + ", создано разбойников: "
-                        + spawned + "/" + amount + ".");
-            }
-        } else {
-            long retry = Math.max(1, plugin.getConfig().getLong("gameplay.raid-failed-retry-seconds", 10)) * 1000;
-            event.lastRaidWave(now - interval + retry);
-            logRaidFailure(town, spawnLocation, rejected, invalidTypes, retry, now);
         }
+        int cap = Math.max(1, plugin.getConfig().getInt("gameplay.raid-max-alive-mobs-per-town", 18));
+        if (state.next() == null || state.aliveCount() >= cap) return 0;
+        long retry = Math.max(1, plugin.getConfig().getLong("gameplay.raid-failed-retry-seconds", 10)) * 1000;
+        if (now - raidSpawnAttempts.getOrDefault(event.townId(), 0L) < retry) return 0;
+        raidSpawnAttempts.put(event.townId(), now);
+        Location location = findRaidSpawn(town, anchor, false);
+        if (location == null && plugin.getConfig().getBoolean("gameplay.raid-allow-liquid-fallback", true)) location = findRaidSpawn(town, anchor, true);
+        int spawned = 0;
+        if (location != null) while (state.next() != null && state.aliveCount() < cap) {
+            if (!spawnRaidMob(town, location, event, raidCatalog.mob(state.next()))) break;
+            spawned++;
+        }
+        if (spawned == 0) logRaidFailure(town, location, 1, 0, retry, now);
+        else raidFailureWarnings.remove(town.getUUID());
         repository.changed();
+        saveNow();
         return spawned;
     }
 
-    private RaidSpawnResult spawnRaidMob(Town town, Location location, List<String> rawTypes) {
-        if (rawTypes.isEmpty()) return RaidSpawnResult.INVALID_TYPE;
-        ThreadLocalRandom random = ThreadLocalRandom.current();
-        EntityType type;
-        try { type = EntityType.valueOf(rawTypes.get(random.nextInt(rawTypes.size())).toUpperCase(Locale.ROOT)); }
-        catch (IllegalArgumentException ignored) { return RaidSpawnResult.INVALID_TYPE; }
-        if (!type.isAlive() || !type.isSpawnable()) return RaidSpawnResult.INVALID_TYPE;
+    private boolean spawnRaidMob(Town town, Location location, ActiveEvent event, RaidCatalog.MobSpec spec) {
+        if (spec == null) {
+            plugin.getLogger().warning("Набег: моб удалён из raids.yml, но остался в активной волне: " + event.raid().next());
+            return false;
+        }
+        Entity spawned = null;
         try {
-            Location actual = location.clone().add(random.nextDouble(-0.3, 0.3), 0, random.nextDouble(-0.3, 0.3));
-            // Towny's spawn checks run before spawnEntity returns. Tag the mob first.
-            Entity spawned = actual.getWorld().spawnEntity(actual, type, CreatureSpawnEvent.SpawnReason.CUSTOM, entity -> {
+            // Tag before Towny checks the spawn. Models are applied to this same already-tagged base entity.
+            spawned = location.getWorld().spawnEntity(location, spec.type(), CreatureSpawnEvent.SpawnReason.CUSTOM, entity -> {
                 entity.getPersistentDataContainer().set(raidMobKey, PersistentDataType.STRING, town.getUUID().toString());
-                entity.setCustomName(ColorUtil.color("&#FF5E6CРазбойник"));
+                entity.getPersistentDataContainer().set(raidGenerationKey, PersistentDataType.STRING, event.raid().generation().toString());
+                entity.getPersistentDataContainer().set(raidPointsKey, PersistentDataType.INTEGER, spec.points());
+                entity.getPersistentDataContainer().set(raidRangedMultiplierKey, PersistentDataType.DOUBLE,
+                        raidCatalog.wave(event.raid().wave()).damageMultiplier() * (1 - event.protection() * .4));
+                entity.setCustomName(ColorUtil.color("&#FF5E6C" + spec.name()));
                 entity.setCustomNameVisible(false);
+                entity.setPersistent(true);
                 if (entity instanceof LivingEntity living) living.setRemoveWhenFarAway(false);
             });
-            if (!(spawned instanceof LivingEntity living)) {
+            if (!(spawned instanceof LivingEntity living) || !living.isValid() || living.isDead()) {
                 if (spawned != null) spawned.remove();
-                return RaidSpawnResult.REJECTED;
+                return false;
             }
-            if (!living.isValid() || living.isDead()) {
-                living.remove();
-                return RaidSpawnResult.REJECTED;
-            }
+            if (blockedBody(living)) { living.remove(); return false; }
+            customMobs.apply(living, spec, raidCatalog.wave(event.raid().wave()), event.protection());
+            if (blockedBody(living)) { living.remove(); return false; }
             if (living instanceof Mob mob) {
-                Player target = nearestTownPlayer(town, actual);
+                Player target = nearestTownPlayer(town, location);
                 if (target != null) mob.setTarget(target);
             }
-            return RaidSpawnResult.SPAWNED;
-        } catch (RuntimeException exception) {
-            plugin.getLogger().warning("Набег: EntityType " + type + " не создан: " + exception.getMessage());
-            return RaidSpawnResult.REJECTED;
+            event.raid().spawned(living.getUniqueId());
+            return true;
+        } catch (ReflectiveOperationException | RuntimeException exception) {
+            if (spawned != null) spawned.remove();
+            Throwable cause = exception.getCause() == null ? exception : exception.getCause();
+            plugin.getLogger().warning("Набег: " + spec.id() + " не создан: " + cause.getMessage());
+            return false;
         }
+    }
+
+    public double raidRangedMultiplier(Entity entity) {
+        return isRaidMob(entity) ? entity.getPersistentDataContainer().getOrDefault(raidRangedMultiplierKey, PersistentDataType.DOUBLE, 1.0) : 1.0;
+    }
+
+    private boolean blockedBody(LivingEntity entity) {
+        BoundingBox body = entity.getBoundingBox().clone().expand(-0.01);
+        World world = entity.getWorld();
+        // Use block shapes, not isSolid: slabs, fences and low roofs can trap a large/custom mob.
+        for (int x = (int) Math.floor(body.getMinX()); x <= (int) Math.floor(body.getMaxX()); x++)
+            for (int y = (int) Math.floor(body.getMinY()); y <= (int) Math.floor(body.getMaxY()); y++)
+                for (int z = (int) Math.floor(body.getMinZ()); z <= (int) Math.floor(body.getMaxZ()); z++) {
+                    Block block = world.getBlockAt(x, y, z);
+                    for (BoundingBox shape : block.getCollisionShape().getBoundingBoxes()) {
+                        if (shape.clone().shift(x, y, z).overlaps(body)) return true;
+                    }
+                }
+        return false;
     }
 
     private Location findRaidSpawn(Town town, Location anchor, boolean allowLiquidFloor) {
@@ -518,7 +567,9 @@ public final class EventService implements MintTownyEventsApi {
                 definition.bossBarColor(), BarStyle.SEGMENTED_10, new BarFlag[0]));
         bar.setColor(definition.bossBarColor());
         bar.setProgress(event.progressRatio());
-        bar.setTitle(ColorUtil.color(definition.name() + " &8— &f" + event.progress() + "/" + event.goal()));
+        bar.setTitle(ColorUtil.color(definition.name() + " &8— &f" + (event.raid() == null
+                ? event.progress() + "/" + event.goal()
+                : "Волна " + event.raid().wave() + "/10 · врагов: " + event.raid().remaining() + " · очков: " + event.progress())));
         bar.removeAll();
         for (Player player : onlineResidents(town)) bar.addPlayer(player);
     }
@@ -571,6 +622,7 @@ public final class EventService implements MintTownyEventsApi {
     public DevelopmentService development() { return development; }
 
     public void reloadRuntime() {
+        raidCatalog = new RaidCatalog(plugin);
         development.clearCache();
         start();
     }
@@ -585,7 +637,8 @@ public final class EventService implements MintTownyEventsApi {
         EventDefinition definition = definition(event);
         if (event == null || definition == null) return Optional.empty();
         return Optional.of(new EventSnapshot(townId, event.eventId(), ColorUtil.strip(definition.name()),
-                event.endsAt(), event.progress(), event.goal(), event.protection()));
+                event.endsAt(), event.raid() == null ? event.progress() : event.raid().wave() - (event.raid().clear() ? 0 : 1),
+                event.raid() == null ? event.goal() : 10, event.protection()));
     }
 
     @Override

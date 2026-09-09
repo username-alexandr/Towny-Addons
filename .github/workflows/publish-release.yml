@@ -1,8 +1,8 @@
-name: Publish release 0.7.7
+name: Publish release 0.7.8
 
 on:
   push:
-    branches: [release/v0.7.7]
+    branches: [release/v0.7.8]
   workflow_dispatch:
 
 permissions:
