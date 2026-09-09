@@ -58,7 +58,7 @@ public final class ResourceBalanceSmoke {
                 }
             }
         }
-        check(count == 90, "Expected all 90 projects, got " + count);
+        check(count == 91, "Expected all 91 projects, got " + count);
         check(missing.isEmpty(), "Missing Russian material names: " + missing);
         check(ResourceBudget.scale(List.of(new ResourceBudget.Cost("STONE", 100)), 115).get(0).amount() == 120, "Budget rounding");
         check(ResourceBudget.weight("DIAMOND_BLOCK") > ResourceBudget.weight("STONE"), "Rare material weight");

@@ -1,0 +1,592 @@
+# Мощности добавляются за каждый завершённый уровень от minimum-level до maximum-level.
+# По умолчанию все 80 зданий работают после V этапа; 11 чудес — после I.
+# Еда и вода — возобновляемое снабжение за цикл, не предметы из сундуков.
+# Чтобы отключить вклад здания, задайте нулевые мощности; ID custom-projects тоже поддерживаются.
+buildings:
+  town_hall:
+    name: Ратуша
+    icon: BELL
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  forge:
+    name: Кузница
+    icon: ANVIL
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 20
+  barracks:
+    name: Казармы
+    icon: IRON_SWORD
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  market:
+    name: Рынок
+    icon: EMERALD
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 24
+    happiness: 2
+  miners_guild:
+    name: Шахтёрская гильдия
+    icon: DIAMOND_PICKAXE
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 30
+  temple:
+    name: Священный Храм
+    icon: TOTEM_OF_UNDYING
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+    happiness: 5
+  great_library:
+    name: Великая Библиотека
+    icon: ENCHANTED_BOOK
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  agrarian_complex:
+    name: Аграрный Комплекс
+    icon: DIAMOND_HOE
+    minimum-level: 5
+    maximum-level: 5
+    food: 200
+    jobs: 30
+  infirmary:
+    name: Лазарет
+    icon: BREWING_STAND
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 15
+    happiness: 6
+  fire_station:
+    name: Пожарная часть
+    icon: FIRE_CHARGE
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 12
+    happiness: 3
+  tavern_inn:
+    name: Таверна и постоялый двор
+    icon: HONEY_BOTTLE
+    minimum-level: 5
+    maximum-level: 5
+    housing: 20
+    jobs: 12
+    food: 20
+    happiness: 4
+  city_bank:
+    name: Городской банк
+    icon: GOLD_INGOT
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  embassy:
+    name: Посольство
+    icon: GLOBE_BANNER_PATTERN
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  museum:
+    name: Музей
+    icon: DECORATED_POT
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  shipyard:
+    name: Верфь
+    icon: OAK_BOAT
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  university:
+    name: Университет
+    icon: ENCHANTING_TABLE
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  courthouse:
+    name: Суд
+    icon: IRON_AXE
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  aqueduct:
+    name: Акведук
+    icon: PRISMARINE_BRICKS
+    minimum-level: 5
+    maximum-level: 5
+    water: 120
+    jobs: 12
+  workshop:
+    name: Мастерская
+    icon: SMITHING_TABLE
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 20
+  watch_fortress:
+    name: Сторожевая крепость
+    icon: POLISHED_BLACKSTONE_BRICKS
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  hunting_lodge:
+    name: Охотничий дом
+    icon: BOW
+    minimum-level: 5
+    maximum-level: 5
+    food: 40
+    jobs: 12
+  fishing_harbor:
+    name: Рыбацкая гавань
+    icon: FISHING_ROD
+    minimum-level: 5
+    maximum-level: 5
+    food: 80
+    jobs: 16
+  post_station:
+    name: Почтовая станция
+    icon: WRITABLE_BOOK
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  observatory:
+    name: Обсерватория
+    icon: SPYGLASS
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  prison:
+    name: Тюрьма
+    icon: IRON_BARS
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  sawmill:
+    name: Лесопилка
+    icon: IRON_AXE
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 20
+  quarry:
+    name: Каменоломня
+    icon: STONE_PICKAXE
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 24
+  foundry:
+    name: Литейная
+    icon: BLAST_FURNACE
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 24
+  mill:
+    name: Мельница
+    icon: WHEAT
+    minimum-level: 5
+    maximum-level: 5
+    food: 60
+    jobs: 10
+  bakery:
+    name: Пекарня
+    icon: BREAD
+    minimum-level: 5
+    maximum-level: 5
+    food: 80
+    jobs: 12
+  apiary:
+    name: Пасека
+    icon: HONEYCOMB
+    minimum-level: 5
+    maximum-level: 5
+    food: 25
+    jobs: 8
+  warehouse:
+    name: Городской склад
+    icon: CHEST
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 16
+  caravanserai:
+    name: Караван-сарай
+    icon: LEAD
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  auction:
+    name: Аукционный дом
+    icon: EMERALD
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  merchant_guild:
+    name: Торговая гильдия
+    icon: EMERALD_BLOCK
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  cargo_terminal:
+    name: Грузовой терминал
+    icon: MINECART
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  water_tower:
+    name: Водонапорная башня
+    icon: BUCKET
+    minimum-level: 5
+    maximum-level: 5
+    water: 200
+    jobs: 6
+  sewer:
+    name: Канализация
+    icon: CAULDRON
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 10
+    happiness: 6
+  baths:
+    name: Городские бани
+    icon: HEART_OF_THE_SEA
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 12
+    happiness: 4
+  roads:
+    name: Дороги
+    icon: STONE_BRICKS
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  bridge_service:
+    name: Мостовая служба
+    icon: OAK_FENCE
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  reservoir:
+    name: Резервуар
+    icon: BLUE_CONCRETE
+    minimum-level: 5
+    maximum-level: 5
+    water: 150
+    jobs: 6
+  guard:
+    name: Городская стража
+    icon: IRON_HELMET
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 16
+    happiness: 3
+  arsenal:
+    name: Арсенал
+    icon: CROSSBOW
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  armory:
+    name: Оружейная
+    icon: SMITHING_TABLE
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  watchtower:
+    name: Дозорная башня
+    icon: SPYGLASS
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  fortress_gate:
+    name: Крепостные ворота
+    icon: IRON_DOOR
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  counterintel:
+    name: Палата контрразведки
+    icon: ENDER_EYE
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  alchemy:
+    name: Алхимическая лаборатория
+    icon: BREWING_STAND
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  archive:
+    name: Архив
+    icon: BOOK
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  cartography:
+    name: Академия картографов
+    icon: FILLED_MAP
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  research:
+    name: Исследовательский институт
+    icon: SCULK_SENSOR
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  botanical:
+    name: Ботанический сад
+    icon: FLOWERING_AZALEA
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  theater:
+    name: Театр
+    icon: RED_BANNER
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 12
+    happiness: 4
+  square:
+    name: Городская площадь
+    icon: BELL
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 4
+    happiness: 2
+  arena:
+    name: Арена
+    icon: IRON_SWORD
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  gallery:
+    name: Художественная галерея
+    icon: PAINTING
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+    happiness: 3
+  park:
+    name: Парк
+    icon: OAK_SAPLING
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 6
+    happiness: 4
+  guild_house:
+    name: Дом гильдий
+    icon: NAME_TAG
+    minimum-level: 5
+    maximum-level: 5
+    housing: 10
+    jobs: 20
+    happiness: 2
+  memorial:
+    name: Мемориал
+    icon: CHISELED_STONE_BRICKS
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  shelter:
+    name: Приют
+    icon: WHITE_BED
+    minimum-level: 5
+    maximum-level: 5
+    housing: 40
+    jobs: 6
+    happiness: 3
+  cathedral:
+    name: Собор
+    icon: END_CRYSTAL
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 12
+    happiness: 7
+  printing_house:
+    name: Типография
+    icon: LECTERN
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  forestry:
+    name: Лесничество
+    icon: OAK_SAPLING
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  customs:
+    name: Таможня
+    icon: WRITABLE_BOOK
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  trade_port:
+    name: Торговый порт
+    icon: OAK_BOAT
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  mint:
+    name: Монетный двор
+    icon: GOLD_INGOT
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  stables:
+    name: Конюшни
+    icon: SADDLE
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  fortress_wall:
+    name: Крепостная стена
+    icon: STONE_BRICKS
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  city_moat:
+    name: Городской ров
+    icon: LILY_PAD
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  archery_range:
+    name: Стрельбище
+    icon: TARGET
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  port_fort:
+    name: Портовый форт
+    icon: CROSSBOW
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  census_bureau:
+    name: Бюро переписи населения
+    icon: WRITABLE_BOOK
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  insurance_chamber:
+    name: Страховая палата
+    icon: SHIELD
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  pumping_station:
+    name: Насосная станция
+    icon: CAULDRON
+    minimum-level: 5
+    maximum-level: 5
+    water: 100
+    jobs: 10
+  irrigation_station:
+    name: Ирригационная станция
+    icon: COPPER_HOE
+    minimum-level: 5
+    maximum-level: 5
+    water: 40
+    food: 40
+    jobs: 12
+  recycling_yard:
+    name: Перерабатывающий двор
+    icon: CRAFTER
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  dam:
+    name: Дамба
+    icon: DEEPSLATE_BRICKS
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 8
+  army:
+    name: Штаб армии
+    icon: NETHERITE_HELMET
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 20
+  residential_quarter:
+    name: Жилой квартал
+    icon: RED_BED
+    minimum-level: 5
+    maximum-level: 5
+    housing: 120
+    jobs: 6
+  sun_pyramid:
+    name: Пирамида Солнца
+    icon: GOLD_BLOCK
+    minimum-level: 1
+    maximum-level: 1
+    happiness: 5
+    jobs: 15
+  great_colosseum:
+    name: Великий Колизей
+    icon: SHIELD
+    minimum-level: 1
+    maximum-level: 1
+    happiness: 8
+    jobs: 30
+  alexandria_lighthouse:
+    name: Александрийский Маяк
+    icon: BEACON
+    minimum-level: 1
+    maximum-level: 1
+    jobs: 20
+  hanging_gardens:
+    name: Висячие Сады
+    icon: FLOWERING_AZALEA
+    minimum-level: 1
+    maximum-level: 1
+    food: 100
+    happiness: 10
+    jobs: 20
+  archmage_spire:
+    name: Шпиль Архимагов
+    icon: END_CRYSTAL
+    minimum-level: 1
+    maximum-level: 1
+    jobs: 20
+  rhodes_colossus:
+    name: Колосс Родосский
+    icon: LIGHTNING_ROD
+    minimum-level: 1
+    maximum-level: 1
+    jobs: 20
+  world_tree:
+    name: Мировое древо
+    icon: FLOWERING_AZALEA_LEAVES
+    minimum-level: 1
+    maximum-level: 1
+    food: 100
+    water: 100
+    happiness: 10
+    jobs: 20
+  celestial_orrery:
+    name: Небесный оррерий
+    icon: RECOVERY_COMPASS
+    minimum-level: 1
+    maximum-level: 1
+    jobs: 20
+  terracotta_army:
+    name: Терракотовая армия
+    icon: DECORATED_POT
+    minimum-level: 1
+    maximum-level: 1
+    jobs: 20
+  crystal_palace:
+    name: Хрустальный дворец
+    icon: AMETHYST_CLUSTER
+    minimum-level: 1
+    maximum-level: 1
+    happiness: 8
+    jobs: 40
+  great_canal:
+    name: Великий канал
+    icon: CONDUIT
+    minimum-level: 1
+    maximum-level: 1
+    water: 200
+    jobs: 30
