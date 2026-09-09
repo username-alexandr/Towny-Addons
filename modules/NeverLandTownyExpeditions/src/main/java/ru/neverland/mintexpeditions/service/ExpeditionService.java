@@ -46,9 +46,13 @@ public final class ExpeditionService {
     private final SiteService sites;
     private final TownyHook towny;
     private final BuildBridge builds;
+    private final ReturnTickets returnTickets;
+    private final Map<UUID, Long> shieldWarnings = new HashMap<>();
+    private final Set<UUID> returning = new HashSet<>();
     private final Set<UUID> preparing = new HashSet<>();
     private final Map<UUID, BossBar> bars = new HashMap<>();
     private BukkitTask task;
+    private BukkitTask shieldTask;
 
     public ExpeditionService(JavaPlugin plugin, MessageService messages, ExpeditionRegistry registry,
                              ExpeditionRepository repository, CampFacade camps, SiteService sites,
@@ -61,6 +65,7 @@ public final class ExpeditionService {
         this.sites = sites;
         this.towny = towny;
         this.builds = builds;
+        this.returnTickets = new ReturnTickets(plugin);
     }
 
     public void startTasks() {
@@ -68,14 +73,24 @@ public final class ExpeditionService {
         long period = Math.max(20,
                 plugin.getConfig().getLong("expeditions.expiry-check-seconds", 10) * 20);
         task = Bukkit.getScheduler().runTaskTimer(plugin, this::tick, period, period);
+        shieldTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (player.getActiveItem().getType() == Material.SHIELD && shieldDenied(player)) {
+                    player.clearActiveItem();
+                    warnShield(player);
+                }
+            }
+        }, 1, 1);
         for (ActiveExpedition expedition : repository.active()) bar(expedition);
     }
 
     public void stopTasks() {
         if (task != null) task.cancel();
-        task = null;
+        if (shieldTask != null) shieldTask.cancel();
+        task = shieldTask = null;
         for (BossBar bar : bars.values()) bar.removeAll();
         bars.clear();
+        shieldWarnings.clear();
     }
 
     public StartResult start(Player leader, ExpeditionDefinition definition) {
@@ -271,15 +286,9 @@ public final class ExpeditionService {
                 plugin.getConfig().getInt("expeditions.history-limit", 30));
         BossBar bar = bars.remove(expedition.id());
         if (bar != null) bar.removeAll();
+        long returnWindow = Math.max(30, plugin.getConfig().getLong("expeditions.manual-return-window-seconds", 600));
+        returnTickets.grant(expedition.participants(), expedition.leaderId(), System.currentTimeMillis() + returnWindow * 1000);
         sites.restore(expedition, () -> {
-            if (plugin.getConfig().getBoolean("expeditions.return-on-complete", true)) {
-                for (UUID participant : expedition.participants()) {
-                    Player player = Bukkit.getPlayer(participant);
-                    if (player != null && expedition.campLocation() != null) {
-                        player.teleportAsync(expedition.campLocation());
-                    }
-                }
-            }
             repository.remove(expedition);
             repository.save();
         });
@@ -306,15 +315,49 @@ public final class ExpeditionService {
     }
 
     public void returnToCamp(Player player) {
+        if (!canReturn(player)) { messages.send(player, "return-denied"); return; }
+        UUID campOwner = returnCampOwner(player);
+        if (campOwner == null) { messages.send(player, "no-return"); return; }
+        CampFacade.CampView camp = camps.owned(campOwner);
+        if (camp == null || camp.world() == null) { messages.send(player, "return-camp-missing"); return; }
+        if (!returning.add(player.getUniqueId())) return;
+        try { player.teleportAsync(camp.anchor()).whenComplete((success, error) -> {
+            if (!plugin.isEnabled()) return;
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                returning.remove(player.getUniqueId());
+                if (error == null && Boolean.TRUE.equals(success)) {
+                    returnTickets.remove(player.getUniqueId());
+                    messages.send(player, "returned");
+                } else messages.send(player, "return-failed");
+            });
+        }); } catch (RuntimeException exception) {
+            returning.remove(player.getUniqueId());
+            messages.send(player, "return-failed");
+        }
+    }
+
+    public boolean canReturn(Player player) {
+        return ExpeditionPermissions.canReturn(player);
+    }
+
+    public boolean hasReturnTarget(Player player) { return returnCampOwner(player) != null; }
+
+    private UUID returnCampOwner(Player player) {
         ActiveExpedition expedition = repository.byLeader(player.getUniqueId());
-        if (expedition == null) {
-            messages.send(player, "no-active");
-            return;
-        }
-        if (expedition.campLocation() != null) {
-            player.teleportAsync(expedition.campLocation());
-            messages.send(player, "returned");
-        }
+        if (expedition != null) return expedition.leaderId();
+        var ticket = returnTickets.get(player.getUniqueId(), System.currentTimeMillis());
+        return ticket == null ? null : ticket.campOwner();
+    }
+
+    public boolean shieldDenied(Player player) {
+        return ExpeditionPermissions.shieldDenied(player, at(BlockPos.of(player.getLocation()), player.getWorld()) != null);
+    }
+
+    public void warnShield(Player player) {
+        long now = System.currentTimeMillis();
+        if (now - shieldWarnings.getOrDefault(player.getUniqueId(), 0L) < 3000) return;
+        shieldWarnings.put(player.getUniqueId(), now);
+        messages.send(player, "shield-denied");
     }
 
     public void sendTarget(Player player, ActiveExpedition expedition) {
@@ -332,6 +375,7 @@ public final class ExpeditionService {
 
     private void tick() {
         long now = System.currentTimeMillis();
+        returnTickets.prune(now);
         for (ActiveExpedition expedition : new ArrayList<>(repository.active())) {
             if (now >= expedition.expiresAt()) {
                 finish(expedition, ExpeditionStatus.FAILED);

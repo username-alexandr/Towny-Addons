@@ -31,6 +31,16 @@ public final class ExpeditionListener implements Listener {
         this.service = service;
     }
 
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void shieldUse(PlayerInteractEvent event) {
+        if (!event.getAction().isRightClick() || event.getItem() == null
+                || event.getItem().getType() != org.bukkit.Material.SHIELD
+                || !service.shieldDenied(event.getPlayer())) return;
+        event.setUseItemInHand(org.bukkit.event.Event.Result.DENY);
+        event.getPlayer().clearActiveItem();
+        service.warnShield(event.getPlayer());
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void interact(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();

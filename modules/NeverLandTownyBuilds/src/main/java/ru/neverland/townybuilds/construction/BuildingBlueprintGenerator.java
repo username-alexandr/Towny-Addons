@@ -59,6 +59,10 @@ public final class BuildingBlueprintGenerator {
     }
 
     public BlueprintPlan generate(String rawProjectId, int rawLevel) {
+        return generateCurrent(rawProjectId, rawLevel, ConstructionSite.CURRENT_ARCHITECTURE_VERSION);
+    }
+
+    private BlueprintPlan generateCurrent(String rawProjectId, int rawLevel, int architectureVersion) {
         String projectId = rawProjectId == null ? "" : rawProjectId.toLowerCase(Locale.ROOT);
         int maximumStage = maximumStage(projectId);
         int level = Math.max(1, Math.min(maximumStage, rawLevel));
@@ -72,7 +76,7 @@ public final class BuildingBlueprintGenerator {
         if (CIVIC_BUILDINGS.contains(projectId)) {
             return CIVIC_GENERATOR.generate(projectId, level);
         }
-        Builder builder = new Builder(level, ConstructionSite.CURRENT_ARCHITECTURE_VERSION);
+        Builder builder = new Builder(level, architectureVersion);
         switch (projectId) {
             case "town_hall" -> vanillaTownHall(builder);
             case "forge" -> vanillaForge(builder);
@@ -140,8 +144,10 @@ public final class BuildingBlueprintGenerator {
 
     public BlueprintPlan generateForArchitecture(String projectId, int level, int architectureVersion) {
         String normalized = projectId == null ? "" : projectId.toLowerCase(Locale.ROOT);
-        if (WONDERS.contains(normalized)) return generate(normalized, level);
-        if (IMPORTED_BUILDINGS.contains(normalized)) return IMPORTED_GENERATOR.generate(normalized, level);
+        if (WONDERS.contains(normalized)) return generateCurrent(normalized, level, architectureVersion);
+        if (IMPORTED_BUILDINGS.contains(normalized)) return architectureVersion < 6
+                ? IMPORTED_GENERATOR.generateOriginal(normalized, level)
+                : IMPORTED_GENERATOR.generate(normalized, level);
         if (CIVIC_BUILDINGS.contains(normalized)) return CIVIC_GENERATOR.generate(normalized, level);
         // Процедурный источник версии 5 остаётся доступным после будущего перехода на .schem,
         // чтобы активные площадки можно было безопасно восстановить и перенести.
@@ -149,7 +155,7 @@ public final class BuildingBlueprintGenerator {
         if (architectureVersion <= 1) return generateLegacy(projectId, level);
         if (architectureVersion == 2) return generateArchitecture2(projectId, level);
         if (architectureVersion == 3) return generateArchitecture3(projectId, level);
-        return generate(projectId, level);
+        return generateCurrent(projectId, level, architectureVersion);
     }
 
     /** План архитектуры 0.2.x используется только для безопасного обновления существующих площадок. */
@@ -1678,8 +1684,8 @@ public final class BuildingBlueprintGenerator {
             for (int x = x1; x <= x2; x++) {
                 int top = wallTop + Math.min(x - left, right - x);
                 for (int y = wallTop + 1; y <= top; y++) {
-                    block(x, y, z1, gableWall, BlockRole.DECORATION, stage);
-                    block(x, y, z2, gableWall, BlockRole.DECORATION, stage);
+                    block(x, y, z1, gableWall, architectureVersion >= 6 ? BlockRole.RESIDENT : BlockRole.DECORATION, stage);
+                    block(x, y, z2, gableWall, architectureVersion >= 6 ? BlockRole.RESIDENT : BlockRole.DECORATION, stage);
                 }
             }
         }
@@ -1847,7 +1853,9 @@ public final class BuildingBlueprintGenerator {
             int half = depth / 2;
             for (int x = x1; x <= x2; x++) for (int z = z1; z <= z2; z++) {
                 int rise = Math.min(z - z1, z2 - z);
-                block(x, y + Math.min(half, rise), z, material, BlockRole.DECORATION, stage);
+                int roofY = y + Math.min(half, rise);
+                if (architectureVersion >= 6) supportRoofColumn(x, z, y, roofY, stage);
+                block(x, roofY, z, material, BlockRole.DECORATION, stage);
             }
         }
 
@@ -1856,7 +1864,17 @@ public final class BuildingBlueprintGenerator {
             int half = width / 2;
             for (int x = x1; x <= x2; x++) for (int z = z1; z <= z2; z++) {
                 int rise = Math.min(x - x1, x2 - x);
-                block(x, y + Math.min(half, rise), z, material, BlockRole.DECORATION, stage);
+                int roofY = y + Math.min(half, rise);
+                if (architectureVersion >= 6) supportRoofColumn(x, z, y, roofY, stage);
+                block(x, roofY, z, material, BlockRole.DECORATION, stage);
+            }
+        }
+
+        private void supportRoofColumn(int x, int z, int eaveY, int roofY, int stage) {
+            BlueprintBlock wall = blocks.get(new BlockOffset(x, eaveY - 1, z));
+            if (wall == null || wall.role() != BlockRole.RESIDENT) return;
+            for (int y = eaveY; y < roofY; y++) {
+                blocks.putIfAbsent(new BlockOffset(x, y, z), new BlueprintBlock(wall.material(), BlockRole.RESIDENT, stage));
             }
         }
 

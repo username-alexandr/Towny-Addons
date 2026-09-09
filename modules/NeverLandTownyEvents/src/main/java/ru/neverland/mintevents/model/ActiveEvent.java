@@ -9,6 +9,7 @@ public final class ActiveEvent {
     private final long endsAt;
     private final int goal;
     private int progress;
+    private RaidState raid;
     private double protection;
     private long lastRaidWave;
 
@@ -35,10 +36,12 @@ public final class ActiveEvent {
     public void protection(double value) { protection = Math.max(0, Math.min(1, value)); }
     public void lastRaidWave(long value) { lastRaidWave = value; }
     public int addProgress(int points) {
-        progress = Math.min(goal, progress + Math.max(0, points));
+        progress = (int) Math.min(raid == null ? goal : Integer.MAX_VALUE, (long) progress + Math.max(0, points));
         return progress;
     }
-    public boolean completed() { return progress >= goal; }
-    public double progressRatio() { return Math.min(1.0, (double) progress / goal); }
+    public RaidState raid() { return raid; }
+    public void raid(RaidState state) { raid = state; }
+    public boolean completed() { return raid == null ? progress >= goal : raid.finished(); }
+    public double progressRatio() { return raid == null ? Math.min(1.0, (double) progress / goal) : raid.ratio(); }
     public long secondsLeft(long now) { return Math.max(0, (endsAt - now + 999) / 1000); }
 }

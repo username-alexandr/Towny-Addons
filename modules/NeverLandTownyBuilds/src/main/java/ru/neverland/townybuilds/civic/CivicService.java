@@ -507,7 +507,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
             return;
         }
         data.shopPrices().entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry ->
-                player.sendMessage(ColorUtil.component("&8• &f" + entry.getKey() + " &7— &e"
+                player.sendMessage(ColorUtil.component("&8• &f" + itemNames.name(MaterialNameConfig.matchMaterial(entry.getKey())) + " &7— &e"
                         + MONEY.format(entry.getValue()) + " &7за шт.")));
     }
 

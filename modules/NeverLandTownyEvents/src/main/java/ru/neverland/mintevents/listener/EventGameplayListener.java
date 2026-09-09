@@ -43,6 +43,19 @@ public final class EventGameplayListener implements Listener {
         if (ThreadLocalRandom.current().nextDouble() < chance) event.setCancelled(true);
     }
 
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onRaidProjectile(org.bukkit.event.entity.EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof org.bukkit.entity.Projectile projectile
+                && projectile.getShooter() instanceof Entity shooter && isRaidMob(shooter)) {
+            event.setDamage(event.getDamage() * events.raidRangedMultiplier(shooter));
+        }
+    }
+
+    @EventHandler
+    public void onEntitiesLoad(org.bukkit.event.world.EntitiesLoadEvent event) {
+        for (Entity entity : event.getEntities()) events.validateLoadedRaidEntity(entity);
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void onRaidGrief(EntityChangeBlockEvent event) {
         if (isRaidMob(event.getEntity())) event.setCancelled(true);

@@ -9,10 +9,13 @@ public final class CampFacade {
     private final JavaPlugin plugin; private final ru.neverland.mintexpeditions.service.RussianItemNames itemNames; private boolean warned;
     public CampFacade(JavaPlugin plugin,ru.neverland.mintexpeditions.service.RussianItemNames itemNames){this.plugin=plugin;this.itemNames=itemNames;}
     public CampView owned(Player player){
+        return owned(player.getUniqueId());
+    }
+    public CampView owned(UUID playerId){
         Plugin source=resolveCampPlugin(); if(source==null)return null;
         try{
             ClassLoader cl=source.getClass().getClassLoader(); Class<?> repoClass=Class.forName("ru.neverland.mintcamps.data.CampRepository",false,cl);
-            Object repo=repository(source,repoClass); Optional<?> found=(Optional<?>)repoClass.getMethod("get",UUID.class).invoke(repo,player.getUniqueId()); if(found.isEmpty())return null; Object c=found.get(); Class<?> cc=c.getClass();
+            Object repo=repository(source,repoClass); Optional<?> found=(Optional<?>)repoClass.getMethod("get",UUID.class).invoke(repo,playerId); if(found.isEmpty())return null; Object c=found.get(); Class<?> cc=c.getClass();
             UUID owner=(UUID)call(cc,c,"ownerId"); UUID worldId=(UUID)call(cc,c,"worldId"); String worldName=(String)call(cc,c,"worldName"); World world=Bukkit.getWorld(worldId); if(world==null)world=Bukkit.getWorld(worldName);
             Object pos=call(cc,c,"anchor"); Class<?> pc=pos.getClass(); int x=(int)call(pc,pos,"x"),y=(int)call(pc,pos,"y"),z=(int)call(pc,pos,"z");
             @SuppressWarnings("unchecked") Map<UUID,String> trust=(Map<UUID,String>)call(cc,c,"trusted");

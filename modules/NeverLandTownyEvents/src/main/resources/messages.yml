@@ -15,7 +15,7 @@ goal-complete: "&#55FF55Общая цель выполнена! Событие �
 event-start-town: "\n&#B65CFF&l%event%\n&#FFFFFF%description%\n&#AAAAAAОткройте меню: &#FFFFFF/t events\n"
 event-success-town: "\n&#55FF55&lСОБЫТИЕ ЗАВЕРШЕНО\n&#FFFFFFГород %town% успешно справился: %event%.\n"
 event-failed-town: "\n&#FF5555&lСОБЫТИЕ ПРОВАЛЕНО\n&#FFFFFFГород %town% не успел справиться: %event%.\n"
-raid-wave-town: "&#FF5E6C⚔ Отряд разбойников вошёл на территорию города! &#AAAAAAПротивников: &#FFFFFF%count%"
+raid-wave-town: "&cВолна %wave%/%waves% напала на город %town%: %count% врагов."
 raid-wave-forced: "&#55FF55Волна набега создана. Разбойников: &#FFFFFF%count%&#55FF55."
 raid-wave-failed: "&#FF5555Не удалось создать волну: проверьте активное событие набега и территорию города."
 admin-help:
@@ -27,4 +27,4 @@ admin-help:
   - "&#FFFFFF/t events reload"
   - "&#AAAAAAДля консоли: &#FFFFFF/townyevents <команда>"
 
-raid-kill-progress: "&#55FF55Разбойник побеждён: +%points% очков городу %town%. &#AAAAAAПрогресс: %progress%/%goal%."
+raid-kill-progress: "&a+%points% очк. за врага. Всего: %progress%. Волна %wave%/10."

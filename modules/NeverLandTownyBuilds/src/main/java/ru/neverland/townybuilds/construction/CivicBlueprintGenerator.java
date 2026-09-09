@@ -17,13 +17,15 @@ public final class CivicBlueprintGenerator {
     public static final List<String> PROJECTS = List.of(
             "printing_house", "forestry", "customs", "trade_port", "mint", "stables",
             "fortress_wall", "city_moat", "archery_range", "port_fort", "census_bureau",
-            "insurance_chamber", "pumping_station", "irrigation_station", "recycling_yard", "dam"
+            "insurance_chamber", "pumping_station", "irrigation_station", "recycling_yard", "dam", "army"
     );
 
     public static final Set<String> AREA_PROJECTS = Set.of("forestry", "irrigation_station");
     public static final Set<String> LINE_PROJECTS = Set.of("fortress_wall", "city_moat", "dam");
 
     private static final Map<String, Profile> PROFILES = Map.ofEntries(
+            Map.entry("army", new Profile(8, 5, Material.DEEPSLATE_BRICKS, Material.POLISHED_ANDESITE,
+                    Material.POLISHED_BASALT, Material.DEEPSLATE_TILES, Material.IRON_DOOR, Material.SMITHING_TABLE)),
             Map.entry("printing_house", new Profile(4, 4, Material.BRICKS, Material.WHITE_TERRACOTTA,
                     Material.DARK_OAK_LOG, Material.DEEPSLATE_TILES, Material.DARK_OAK_DOOR, Material.LECTERN)),
             Map.entry("forestry", new Profile(5, 4, Material.MOSSY_COBBLESTONE, Material.OAK_PLANKS,

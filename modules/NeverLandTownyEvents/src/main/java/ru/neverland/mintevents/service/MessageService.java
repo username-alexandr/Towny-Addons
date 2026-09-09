@@ -25,11 +25,31 @@ public final class MessageService {
     public void reload() {
         yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "messages.yml"));
         try (InputStream stream = plugin.getResource("messages.yml")) {
-            if (stream != null) yaml.setDefaults(YamlConfiguration.loadConfiguration(
-                    new InputStreamReader(stream, StandardCharsets.UTF_8)));
+            if (stream != null) {
+                YamlConfiguration defaults = YamlConfiguration.loadConfiguration(new InputStreamReader(stream, StandardCharsets.UTF_8));
+                yaml.setDefaults(defaults);
+                if (migrateLegacy(yaml, defaults)) yaml.save(new File(plugin.getDataFolder(), "messages.yml"));
+            }
         } catch (Exception exception) {
             plugin.getLogger().warning("Не удалось загрузить встроенные сообщения: " + exception.getMessage());
         }
+    }
+
+    public static boolean migrateLegacy(YamlConfiguration yaml, YamlConfiguration defaults) {
+        boolean changed = false;
+        for (String key : yaml.getKeys(true)) {
+            Object value = yaml.get(key);
+            if (value instanceof String text && text.toLowerCase(java.util.Locale.ROOT).contains("minttownyevents")) {
+                yaml.set(key, text.replaceAll("(?i)MintTownyEvents", "NeverLand • События"));
+                changed = true;
+            }
+        }
+        // Upgrade the old default announcements; retain administrator wording.
+        String old = yaml.getString("raid-wave-town", "");
+        if (old.contains("%count%") && !old.contains("%wave%")) {
+            yaml.set("raid-wave-town", old + " &7(волна %wave%/%waves%)"); changed = true;
+        }
+        return changed;
     }
 
     public String raw(String key) {

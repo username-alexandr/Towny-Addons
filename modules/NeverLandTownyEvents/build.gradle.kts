@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ru.neverland"
-version = "0.1.9"
+version = "0.2.0"
 
 repositories {
     mavenCentral()
@@ -52,7 +52,13 @@ tasks {
 configurations.named("testRuntimeClasspath") {
     extendsFrom(configurations.named("compileOnly").get())
 }
+tasks.register<JavaExec>("smokeRaidWaves") {
+    dependsOn(tasks.testClasses)
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("ru.neverland.mintevents.RaidWavesSmoke")
+}
 tasks.register<JavaExec>("smokeTest") {
+    dependsOn("smokeRaidWaves")
     dependsOn(tasks.testClasses)
     classpath = sourceSets.test.get().runtimeClasspath
     mainClass.set("ru.neverland.mintevents.RaidKillAndMessagesSmoke")

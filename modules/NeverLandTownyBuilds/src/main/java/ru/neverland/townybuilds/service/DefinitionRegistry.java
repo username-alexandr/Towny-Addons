@@ -103,7 +103,7 @@ public final class DefinitionRegistry {
             try {
                 String normalizedId = id.toLowerCase(Locale.ROOT);
                 ProjectDefinition inherited = projects.get(normalizedId);
-                ProjectDefinition definition = parseProject(normalizedId, type, projectSection);
+                ProjectDefinition definition = parseProject(normalizedId, type, projectSection, custom);
                 // Старые projects.yml не содержат появившееся позднее поле requires.
                 // Наследуем только отсутствующее поле из встроенного каталога; явно
                 // заданные администратором требования по-прежнему имеют приоритет.
@@ -119,11 +119,12 @@ public final class DefinitionRegistry {
         }
     }
 
-    private ProjectDefinition parseProject(String id, ProjectType type, ConfigurationSection section) {
+    private ProjectDefinition parseProject(String id, ProjectType type, ConfigurationSection section, boolean custom) {
         Material icon = MaterialNameConfig.matchMaterial(section.getString("icon", "STONE"));
         if (icon == null || !icon.isItem()) {
             icon = Material.STONE;
         }
+        icon = ProjectIcons.resolve(id, icon, custom);
         Map<Integer, LevelDefinition> levels = new LinkedHashMap<>();
         ConfigurationSection levelRoot = section.getConfigurationSection("levels");
         if (levelRoot == null) {

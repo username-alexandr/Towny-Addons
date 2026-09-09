@@ -8,7 +8,7 @@ import org.bukkit.block.BlockFace;
 import java.util.UUID;
 
 public final class ConstructionSite {
-    public static final int CURRENT_ARCHITECTURE_VERSION = 5;
+    public static final int CURRENT_ARCHITECTURE_VERSION = 6;
     private final String projectId;
     private final UUID worldId;
     private final int originX;

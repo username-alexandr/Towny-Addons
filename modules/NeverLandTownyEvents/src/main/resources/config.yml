@@ -37,12 +37,9 @@ development-sources:
 
 gameplay:
   drought-base-crop-cancel-chance: 0.70
-  # Очков за разбойника, убитого игроком. 0 отключает начисление.
-  raid-kill-points: 10
+  # Состав 10 волн, очки и модели врагов — в raids.yml.
   raid-wave-interval-seconds: 60
-  raid-base-mobs-per-wave: 5
   raid-max-alive-mobs-per-town: 18
-  raid-mobs: [ZOMBIE, PILLAGER, HUSK]
   # Сначала ищется позиция рядом с опорной точкой, затем напрямую внутри участков Towny.
   raid-spawn-min-radius: 4
   raid-spawn-max-radius: 18

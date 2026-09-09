@@ -85,3 +85,11 @@ settings:
     locked-item: "neverland:menu_locked"
   editor:
     chat-input-timeout-seconds: 60
+
+# Армия использует возраст персонажа, а не реальный возраст игрока.
+army:
+  soldiers-per-level: 10
+  # Если подключён RP-паспорт через PlaceholderAPI, укажите его возрастной placeholder.
+  # Пусто: ResidentAgeProvider через Bukkit ServicesManager или /townyarmy age.
+  # Неизвестный/ошибочный возраст запрещает мобилизацию.
+  age-placeholder: ""

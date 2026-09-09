@@ -71,7 +71,9 @@ public final class EventMenuManager implements Listener {
         } else {
             inventory.setItem(4, item(definition.icon(), definition.name(), List.of(
                     "&7" + definition.description(), "",
-                    "&#FFFFFFПрогресс: &#B65CFF" + active.progress() + "&7/&#FFFFFF" + active.goal(),
+                    active.raid() == null ? "&#FFFFFFПрогресс: &#B65CFF" + active.progress() + "&7/&#FFFFFF" + active.goal()
+                            : "&fВолна: &d" + active.raid().wave() + "/10 &7· Врагов: &f" + active.raid().remaining(),
+                    active.raid() == null ? "" : "&7Очки защиты: &f" + active.progress() + " &7· Победа после 10 волн",
                     progressBar(active.progressRatio()),
                     "&#FFFFFFОсталось: &#FFD45A" + TimeUtil.format(active.secondsLeft(System.currentTimeMillis())),
                     "&#FFFFFFЗащита города: &#63E6BE" + Math.round(active.protection() * 100) + "%")));
@@ -151,7 +153,7 @@ public final class EventMenuManager implements Listener {
             messages.send(player, "no-items");
             return;
         }
-        boolean completesGoal = active.progress() + result.points() >= active.goal();
+        boolean completesGoal = active.raid() == null && (long) active.progress() + result.points() >= active.goal();
         events.contribute(town, result.points());
         messages.send(player, "contributed", Map.of("amount", result.amount(), "item", rule.name(), "points", result.points()));
         if (completesGoal) messages.send(player, "goal-complete");

@@ -1,5 +1,5 @@
 name: NeverLandTownyEvents
-version: 0.1.9
+version: 0.2.0
 main: ru.neverland.mintevents.MintTownyEvents
 api-version: '26.2'
 authors: [Alexander Sokolov]
@@ -7,7 +7,7 @@ website: https://neverland.ru
 description: Городские события для экосистемы Towny проекта NeverLand.
 provides: [MintTownyEvents]
 depend: [Towny]
-softdepend: [NeverLandTownyBuilds, NeverLandTownyIdeologies, PlaceholderAPI, ItemsAdder]
+softdepend: [ModelEngine, ItemsAdder, NeverLandTownyBuilds, NeverLandTownyIdeologies, PlaceholderAPI]
 commands:
   townyevents:
     description: Административное управление городскими событиями

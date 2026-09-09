@@ -23,8 +23,8 @@ public final class ImportedModelsSmoke {
         BuildingBlueprintGenerator generator = new BuildingBlueprintGenerator();
         ImportedModelBlueprintGenerator imported = new ImportedModelBlueprintGenerator();
         check(imported.supportedProjects().size() == 37, "Ожидалось 37 импортированных моделей");
-        check(generator.supportedBuildings().size() == 78, "Ожидалось 78 городских проектов");
-        check(generator.supportedProjects().size() == 89, "Ожидалось 89 физических проектов с Чудесами");
+        check(generator.supportedBuildings().size() == 79, "Ожидалось 79 городских проектов");
+        check(generator.supportedProjects().size() == 90, "Ожидалось 90 физических проектов с Чудесами");
 
         int totalBlocks = 0;
         long lowerDoors = 0;
@@ -49,11 +49,13 @@ public final class ImportedModelsSmoke {
             }
 
             BlueprintPlan finalPlan = generator.generate(project, 5);
-            int expected = ImportedModelBlueprintGenerator.SOURCE_BLOCKS.get(project);
+            int originalSize = ImportedModelBlueprintGenerator.SOURCE_BLOCKS.get(project);
+            check(imported.generateOriginal(project, 5).blocks().size() == originalSize, project + ": original model changed");
+            int expected = imported.generate(project, 5).blocks().size();
             check(finalPlan.blocks().size() == expected,
                     project + ": ожидалось " + expected + " блоков, получено " + finalPlan.blocks().size());
             check(stageTotal == expected, project + ": сумма этапов не совпала с итогом");
-            check(generator.generateForArchitecture(project, 5, 5).blocks().equals(finalPlan.blocks()),
+            check(generator.generateForArchitecture(project, 5, 6).blocks().equals(finalPlan.blocks()),
                     project + ": встроенный источник не воспроизводится");
             if (!OPEN_STRUCTURES.contains(project)) {
                 check(finalPlan.blocks().values().stream().anyMatch(block -> ROOF_MATERIALS.contains(block.material())),
@@ -72,7 +74,7 @@ public final class ImportedModelsSmoke {
             totalBlocks += finalPlan.blocks().size();
         }
 
-        check(totalBlocks == 25_497, "Суммарно ожидалось 25 497 блоков, получено " + totalBlocks);
+        check(totalBlocks == 27_434, "Суммарно ожидалось 27 434 блоков, получено " + totalBlocks);
         check(lowerDoors == 46 && upperDoors == 46, "Ожидалось 46 полноценных дверей");
         check(imported.isLinear("roads") && imported.isLinear("bridge_service"),
                 "Дорога и мост должны быть линейными проектами");
@@ -84,7 +86,7 @@ public final class ImportedModelsSmoke {
             int maxX = plan.blocks().keySet().stream().mapToInt(BlockOffset::x).max().orElseThrow();
             check(maxX - minX + 1 == 19, linear + ": длина участка должна быть 19 блоков");
         }
-        System.out.println("ImportedModelsSmoke OK: 37 моделей, 185 этапов, 25 497 блоков, 46 дверей");
+        System.out.println("ImportedModelsSmoke OK: 37 моделей, 185 этапов, 27 434 блоков, 46 дверей");
     }
 
     private static void check(boolean condition, String message) {

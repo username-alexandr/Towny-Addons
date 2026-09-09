@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class ExpeditionMenuManager implements Listener {
+    private final org.bukkit.NamespacedKey returnAction;
     private final JavaPlugin plugin;
     private final ExpeditionService service;
     private final RussianItemNames itemNames;
@@ -29,6 +30,7 @@ public final class ExpeditionMenuManager implements Listener {
     public ExpeditionMenuManager(JavaPlugin plugin, ExpeditionService service,
                                  RussianItemNames itemNames) {
         this.plugin = plugin;
+        this.returnAction = new org.bukkit.NamespacedKey(plugin, "return_to_camp");
         this.service = service;
         this.itemNames = itemNames;
     }
@@ -66,6 +68,12 @@ public final class ExpeditionMenuManager implements Listener {
                     Math.max(0, Math.min(53, definition.slot())),
                     item(definition.icon(), definition.name(), lore));
         }
+        if (service.canReturn(player) && service.hasReturnTarget(player)) {
+            ItemStack button = item(Material.ENDER_PEARL, "&#C56DFFВернуться в лагерь",
+                    List.of("&7Телепортация к лагерю вашей экспедиции.", "&aНажмите, чтобы вернуться."));
+            button.editMeta(meta -> meta.getPersistentDataContainer().set(returnAction, org.bukkit.persistence.PersistentDataType.BYTE, (byte) 1));
+            inventory.setItem(49, button);
+        }
         player.openInventory(inventory);
     }
 
@@ -83,6 +91,14 @@ public final class ExpeditionMenuManager implements Listener {
         if (!(event.getInventory().getHolder() instanceof ExpeditionMenuHolder)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (event.getRawSlot() < 0 || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
+        ItemStack clicked = event.getCurrentItem();
+        if (clicked != null && clicked.hasItemMeta() && clicked.getItemMeta().getPersistentDataContainer()
+                .has(returnAction, org.bukkit.persistence.PersistentDataType.BYTE)) {
+            player.closeInventory();
+            service.returnToCamp(player);
+            return;
+        }
         for (ExpeditionDefinition definition : service.registry().all()) {
             if (definition.slot() == event.getRawSlot()) {
                 player.closeInventory();
@@ -90,6 +106,11 @@ public final class ExpeditionMenuManager implements Listener {
                 return;
             }
         }
+    }
+
+    @EventHandler
+    public void drag(org.bukkit.event.inventory.InventoryDragEvent event) {
+        if (event.getView().getTopInventory().getHolder() instanceof ExpeditionMenuHolder) event.setCancelled(true);
     }
 
     public void start(Player player, ExpeditionDefinition definition) {
@@ -116,4 +137,3 @@ public final class ExpeditionMenuManager implements Listener {
         ((MintTownyExpeditions) plugin).messages().send(player, key, variables);
     }
 }
-

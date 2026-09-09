@@ -56,7 +56,7 @@ public final class MintTownyEvents extends JavaPlugin {
         getServer().getServicesManager().register(MintTownyEventsApi.class, events, this, ServicePriority.Normal);
         boolean placeholders = PlaceholderHook.register(this, towny, events);
         events.start();
-        getLogger().info("NeverLandTownyEvents 0.1.6 включён: загружено событий " + registry.all().size()
+        getLogger().info("NeverLandTownyEvents " + getPluginMeta().getVersion() + " включён: загружено событий " + registry.all().size()
                 + ", PlaceholderAPI=" + placeholders + ".");
     }
 

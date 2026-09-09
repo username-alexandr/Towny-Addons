@@ -62,6 +62,7 @@ public final class ImportedModelBlueprintGenerator {
             "Полная городская отделка"
     };
     private final Map<String, List<BlueprintPlan>> cache = new ConcurrentHashMap<>();
+    private final Map<String, List<BlueprintPlan>> originalCache = new ConcurrentHashMap<>();
 
     public Set<String> supportedProjects() {
         return Set.copyOf(PROJECTS);
@@ -75,7 +76,13 @@ public final class ImportedModelBlueprintGenerator {
         String id = rawId == null ? "" : rawId.toLowerCase(Locale.ROOT);
         if (!PROJECTS.contains(id)) return null;
         int level = Math.max(1, Math.min(5, rawLevel));
-        return cache.computeIfAbsent(id, this::loadPlans).get(level - 1);
+        return cache.computeIfAbsent(id, key -> loadPlans(key, true)).get(level - 1);
+    }
+
+    public BlueprintPlan generateOriginal(String id, int level) {
+        if (!PROJECTS.contains(id)) return null;
+        return originalCache.computeIfAbsent(id, key -> loadPlans(key, false))
+                .get(Math.max(1, Math.min(5, level)) - 1);
     }
 
     public String stageName(String rawId, int rawLevel) {
@@ -86,13 +93,14 @@ public final class ImportedModelBlueprintGenerator {
         return STAGES[level - 1];
     }
 
-    private List<BlueprintPlan> loadPlans(String id) {
+    private List<BlueprintPlan> loadPlans(String id, boolean repairRoof) {
         List<EncodedBlock> source = loadBlocks(id);
         Integer expected = SOURCE_BLOCKS.get(id);
         if (expected == null || source.size() != expected) {
             throw new IllegalStateException("Модель " + id + ": ожидалось " + expected
                     + " блоков, прочитано " + source.size());
         }
+        if (repairRoof) source = closeRoofGaps(source);
         List<BlueprintPlan> plans = new ArrayList<>(5);
         for (int level = 1; level <= 5; level++) {
             Map<BlockOffset, BlueprintBlock> blocks = new LinkedHashMap<>();
@@ -107,6 +115,49 @@ public final class ImportedModelBlueprintGenerator {
         }
         return List.copyOf(plans);
     }
+
+    /** Extend existing wall/beam columns to the roof, preserving windows and all source blocks. */
+    private List<EncodedBlock> closeRoofGaps(List<EncodedBlock> source) {
+        Map<BlockOffset, EncodedBlock> blocks = new LinkedHashMap<>();
+        Map<Column, List<EncodedBlock>> walls = new LinkedHashMap<>();
+        Map<Column, EncodedBlock> roofs = new LinkedHashMap<>();
+        for (EncodedBlock encoded : source) {
+            blocks.put(encoded.offset(), encoded);
+            Column column = new Column(encoded.offset().x(), encoded.offset().z());
+            if (encoded.sourceRole().equals("wall") || encoded.sourceRole().equals("beam")) {
+                walls.computeIfAbsent(column, ignored -> new ArrayList<>()).add(encoded);
+            }
+            if (encoded.sourceRole().equals("roof") || encoded.sourceRole().equals("gable")) {
+                roofs.merge(column, encoded, (first, second) ->
+                        first.offset().y() >= second.offset().y() ? first : second);
+            }
+        }
+        for (var entry : roofs.entrySet()) {
+            EncodedBlock roof = entry.getValue();
+            EncodedBlock wall = walls.getOrDefault(entry.getKey(), List.of()).stream()
+                    .filter(value -> value.offset().y() < roof.offset().y())
+                    .max(java.util.Comparator.comparingInt(value -> value.offset().y())).orElse(null);
+            if (wall == null) continue;
+            int stage = roof.block().stage();
+            // Structural supports must be present when the roof is built, even if the source
+            // model classified its beams as final decoration.
+            for (EncodedBlock support : walls.get(entry.getKey())) {
+                if (support.offset().y() >= roof.offset().y() || support.block().stage() <= stage) continue;
+                BlueprintBlock old = support.block();
+                blocks.put(support.offset(), new EncodedBlock(support.offset(),
+                        new BlueprintBlock(old.material(), old.role(), stage, old.facing(), old.axis(), old.half(), old.hinge()), support.sourceRole()));
+            }
+            for (int y = wall.offset().y() + 1; y < roof.offset().y(); y++) {
+                BlockOffset offset = new BlockOffset(entry.getKey().x(), y, entry.getKey().z());
+                blocks.putIfAbsent(offset, new EncodedBlock(offset,
+                        new BlueprintBlock(wall.block().material(), BlockRole.RESIDENT, stage)
+                                .withAxis(wall.block().axis()), "gable-repair"));
+            }
+        }
+        return List.copyOf(blocks.values());
+    }
+
+    private record Column(int x, int z) {}
 
     private List<EncodedBlock> loadBlocks(String id) {
         String resource = "blueprints/imported/" + id + ".nltb";
@@ -133,7 +184,7 @@ public final class ImportedModelBlueprintGenerator {
                     Bisected.Half half = halfValue(parts[7]);
                     Door.Hinge hinge = enumValue(Door.Hinge.class, parts[8]);
                     BlueprintBlock block = new BlueprintBlock(material, role, stage, facing, Axis.Y, half, hinge);
-                    blocks.add(new EncodedBlock(offset, block));
+                    blocks.add(new EncodedBlock(offset, block, parts[9]));
                 } catch (RuntimeException exception) {
                     throw new IllegalStateException(resource + ": ошибка в строке " + number + ": "
                             + exception.getMessage(), exception);
@@ -159,5 +210,5 @@ public final class ImportedModelBlueprintGenerator {
         return enumValue(Bisected.Half.class, value);
     }
 
-    private record EncodedBlock(BlockOffset offset, BlueprintBlock block) { }
+    private record EncodedBlock(BlockOffset offset, BlueprintBlock block, String sourceRole) { }
 }

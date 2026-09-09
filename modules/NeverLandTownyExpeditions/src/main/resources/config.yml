@@ -7,7 +7,9 @@ expeditions:
   search-attempts: 12
   minimum-distance-between-sites: 96
   require-wilderness: true
-  return-on-complete: true
+  # Возврат выполняется только вручную с правом neverlandtownyexpeditions.return.
+  # Старый параметр return-on-complete больше не используется.
+  manual-return-window-seconds: 600
   # По умолчанию участники получают координаты и идут к событию самостоятельно.
   teleport-party-to-site: false
 
