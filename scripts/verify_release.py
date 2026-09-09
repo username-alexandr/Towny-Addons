@@ -204,8 +204,18 @@ def main() -> int:
         "crystal_palace": {"merchant_guild": 5, "gallery": 4, "printing_house": 3},
         "great_canal": {"dam": 5, "pumping_station": 5, "reservoir": 4},
     }
-    if len(configured_ids) != 79 or set(projects["wonders"]) != expected_wonders:
-        errors.append("NeverLandTownyBuilds must contain 79 buildings and the 11 expected wonders")
+    if len(configured_ids) != 80 or set(projects["wonders"]) != expected_wonders:
+        errors.append("NeverLandTownyBuilds must contain 80 buildings and the 11 expected wonders")
+    population = load_yaml(modules_dir / "NeverLandTownyPopulation/src/main/resources/buildings.yml")
+    profiles = population.get("buildings", {})
+    if set(profiles) != configured_ids | expected_wonders:
+        errors.append("Population profiles must cover every building and wonder exactly once")
+    for project_id, profile in profiles.items():
+        maximum = 1 if project_id in expected_wonders else 5
+        if profile.get("minimum-level") != maximum or profile.get("maximum-level") != maximum:
+            errors.append(f"{project_id}: default population capacity must require completed construction")
+    if profiles.get("residential_quarter", {}).get("housing") != 120:
+        errors.append("Completed residential quarter must provide 120 population places")
     item_names = load_yaml(builds / "src/main/resources/item-names.yml")
     if item_names.get("COBBLED_DEEPSLATE_SLAB") != "Плита из колотого глубинного сланца":
         errors.append("COBBLED_DEEPSLATE_SLAB must have an unambiguous Russian name")
@@ -239,7 +249,7 @@ def main() -> int:
         return 1
 
     jar_status = "source-only" if args.source_only else f"{len(actual_jars)} JARs"
-    print(f"OK: {len(addons)} modules, {jar_status}, {yaml_count} YAML files, 79 buildings / 11 wonders")
+    print(f"OK: {len(addons)} modules, {jar_status}, {yaml_count} YAML files, 80 buildings / 11 wonders")
     return 0
 
 

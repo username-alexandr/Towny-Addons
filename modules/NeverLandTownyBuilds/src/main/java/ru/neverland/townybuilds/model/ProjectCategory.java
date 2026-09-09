@@ -28,7 +28,7 @@ public enum ProjectCategory {
             "cargo_terminal", "customs", "trade_port", "mint", "insurance_chamber"
     );
     private static final Set<String> INFRASTRUCTURE_IDS = Set.of(
-            "shipyard", "aqueduct", "water_tower", "sewer", "baths", "roads", "bridge_service", "reservoir",
+            "residential_quarter", "shipyard", "aqueduct", "water_tower", "sewer", "baths", "roads", "bridge_service", "reservoir",
             "pumping_station", "irrigation_station", "dam"
     );
     private static final Set<String> DEFENSE_IDS = Set.of(

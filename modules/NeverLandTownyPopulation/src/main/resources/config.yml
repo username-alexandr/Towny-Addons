@@ -1,0 +1,26 @@
+# Один цикл — 20 минут работающего сервера. Простой сервера не вызывает убыль.
+simulation:
+  interval-seconds: 1200
+  initial-population: 10
+  maximum-population: 1000000
+  growth-rate: 0.05
+  decline-rate: 0.10
+  workforce-share: 0.60
+  food-per-person: 1.0
+  water-per-person: 1.0
+  # Недостаток снабжения останавливает рост. Ниже 75% начинается убыль.
+  critical-coverage: 0.75
+  growth-happiness: 55.0
+  decline-happiness: 25.0
+happiness:
+  base: 70.0
+  unemployment-penalty: 30.0
+  housing-penalty: 40.0
+  food-penalty: 60.0
+  water-penalty: 60.0
+# Стартовые возможности поселения, чтобы новый город не вымирал до стройки.
+base:
+  housing: 20
+  jobs: 12
+  food: 20
+  water: 20
