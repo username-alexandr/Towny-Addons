@@ -18,6 +18,15 @@ public final class ResourcesSmoke {
     private static Map<String,ResourceEngine.Building> built(String id,int level,double bonus){return Map.of(id,new ResourceEngine.Building(level,bonus,true));}
     public static void main(String[] args)throws Exception{
         var defaults=ResourcesSettings.load(read("config.yml"),read("buildings.yml"));check(Resource.values().length==8,"eight resources");check(defaults.buildings().size()==91,"91 profiles");
+        for(var resource:Resource.values()) {
+            check(defaults.buildings().values().stream().anyMatch(p->p.produces().get(resource)>0),"producer for "+resource);
+            check(defaults.buildings().values().stream().anyMatch(p->p.consumes().get(resource)>0),"consumer for "+resource);
+        }
+        var universityStock=TownState.initial(stock(Resource.KNOWLEDGE,10,Resource.FOOD,10,Resource.WATER,10));
+        var withoutInfluence=ResourceEngine.calculate(universityStock,built("university",1,1),0,defaults,100);
+        check(withoutInfluence.activity().get("university").operations()==0,"research requires influence");
+        var withInfluence=ResourceEngine.calculate(universityStock.balance(Resource.INFLUENCE,1000),built("university",1,1),0,defaults,100);
+        check(withInfluence.activity().get("university").operations()==1&&withInfluence.state().balances().get(Resource.INFLUENCE)==0,"research spends influence");
         check(defaults.buildings().values().stream().filter(p->p.maximumLevel()==1).count()==11,"11 wonders");
         for(var p:defaults.buildings().values()){check(!p.name().equals(p.id()),"Russian building name");check(p.produces().values().stream().anyMatch(n->n>0)||p.consumes().values().stream().anyMatch(n->n>0)||p.capacity().values().stream().anyMatch(n->n>0),"real profile "+p.id());}
         check(Amounts.parse("0.001")==1&&Amounts.parse("2,125")==2125,"fixed precision");check(Amounts.bonus(1000,1.15)==1150,"district fractional output");check(Amounts.bonus(1000,Double.NaN)==1000,"invalid district neutral");

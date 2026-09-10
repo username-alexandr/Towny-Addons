@@ -245,6 +245,10 @@ def main() -> int:
     resource_profiles = load_yaml(modules_dir / "NeverLandTownyResources/src/main/resources/buildings.yml").get("buildings", {})
     if set(resource_profiles) != configured_ids | expected_wonders:
         errors.append("Strategic profiles must cover every building and wonder")
+    for resource in resource_ids:
+        for field in ("produces", "consumes"):
+            if not any(profile.get(field, {}).get(resource, 0) > 0 for profile in resource_profiles.values()):
+                errors.append(f"Strategic resource has no {field} profile: {resource}")
     for project, profile in resource_profiles.items():
         if profile.get("maximum-level") != (1 if project in expected_wonders else 5):
             errors.append(f"Strategic profile has wrong maximum level: {project}")
