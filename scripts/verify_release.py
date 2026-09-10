@@ -225,6 +225,12 @@ def main() -> int:
                     if "ru/neverland/townytaxes/model/MunicipalTaxes.class" not in archive.namelist():
                         errors.append(f"{jar.name}: missing municipal tax scope rule")
                 if name == "NeverLandTownyTrade":
+                    for helper in ("contract/SupplyContract", "contract/SupplyProcessor", "contract/SupplyRepository", "contract/SupplyGateway", "contract/SupplyService", "contract/SupplyMenus", "api/SupplySnapshot"):
+                        if f"ru/neverland/minttrade/{helper}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing recurring supply class {helper}")
+                    for resource in ("config.yml", "messages.yml", "exports.yml"):
+                        if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
+                            errors.append(f"{jar.name}: {resource} differs from sources")
                     if archive.read("messages.yml") != (module / "src/main/resources/messages.yml").read_bytes():
                         errors.append(f"{jar.name}: trade policy messages differ from source")
                 if name == "NeverLandTownyResearch":
@@ -251,6 +257,9 @@ def main() -> int:
                         if f"ru/neverland/townyupkeep/{helper}.class" not in archive.namelist():
                             errors.append(f"{jar.name}: missing upkeep class {helper}")
                 if name == "NeverLandTownyBuilds":
+                    for helper in ("api/TradeCargo", "storage/TradeStorageTransactions"):
+                        if f"ru/neverland/townybuilds/{helper}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing intercity warehouse class {helper}")
                     for helper in ("api/BuildingStorageApi", "api/CargoShipment", "storage/ShipmentTransactions", "storage/StorageSessions", "storage/ProductionService", "util/AtomicYamlFile"):
                         if f"ru/neverland/townybuilds/{helper}.class" not in archive.namelist():
                             errors.append(f"{jar.name}: missing storage/production helper {helper}")

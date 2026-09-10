@@ -113,6 +113,7 @@ public final class DataStore {
                     data.setStorage(contents, storageSize);
                     loadCivicData(section, data);
                     loadShipments(section, data);
+                    loadTradeCargo(section, data);
                 }
                 towns.put(townId, data);
             } catch (IllegalArgumentException | IOException | ClassNotFoundException exception) {
@@ -193,6 +194,11 @@ public final class DataStore {
             } catch (IOException exception) {
                 throw new IOException("Не удалось сериализовать склад " + data.townId(), exception);
             }
+            for(var cargo:data.tradeCargo().values()) {
+                String c=path+".trade-cargo."+cargo.id();yaml.set(c+".buyer",cargo.buyer().toString());
+                yaml.set(c+".sample",ItemCodec.encodeSingle(cargo.sample()));yaml.set(c+".amount",cargo.amount());
+                yaml.set(c+".cargo",ItemCodec.encode(cargo.cargo()));yaml.set(c+".status",cargo.status());
+            }
             for (var shipment : data.shipments().values()) {
                 String cargoPath = path + ".shipments." + shipment.id();
                 yaml.set(cargoPath + ".route", shipment.route());yaml.set(cargoPath + ".source", shipment.source());
@@ -228,6 +234,17 @@ public final class DataStore {
         }
         ru.neverland.townybuilds.util.AtomicYamlFile.write(yaml,file.toPath());
         dirty=false;
+    }
+
+    private void loadTradeCargo(ConfigurationSection section,TownData data)throws IOException,ClassNotFoundException {
+        var root=section.getConfigurationSection("trade-cargo");
+        if(root==null){if(section.contains("trade-cargo"))throw new IOException("Повреждён журнал поставок");return;}
+        for(String id:root.getKeys(false)) {
+            var c=root.getConfigurationSection(id);if(c==null)throw new IOException("Повреждена поставка");
+            UUID buyer=UUID.fromString(c.getString("buyer",""));if(buyer.equals(data.townId()))throw new IOException("Одинаковые города поставки");
+            data.putTradeCargo(new ru.neverland.townybuilds.api.TradeCargo(UUID.fromString(id),buyer,ItemCodec.decodeSingle(c.getString("sample","")),
+                c.getInt("amount"),ItemCodec.decode(c.getString("cargo"),0),c.getString("status","")));
+        }
     }
 
     private void loadShipments(ConfigurationSection section,TownData data)throws IOException,ClassNotFoundException {

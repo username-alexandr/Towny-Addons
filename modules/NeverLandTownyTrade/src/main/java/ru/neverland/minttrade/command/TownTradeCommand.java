@@ -18,7 +18,8 @@ import java.util.Map;
 
 public final class TownTradeCommand implements CommandExecutor {
     private final TownyHook towny; private final TradeService trade; private final TradeMenuManager menus; private final MessageService messages;
-    public TownTradeCommand(TownyHook towny, TradeService trade, TradeMenuManager menus, MessageService messages) { this.towny = towny; this.trade = trade; this.menus = menus; this.messages = messages; }
+    private final ru.neverland.minttrade.contract.SupplyCommands supplies;
+    public TownTradeCommand(TownyHook towny, TradeService trade, TradeMenuManager menus, MessageService messages,ru.neverland.minttrade.contract.SupplyCommands supplies) { this.supplies=supplies; this.towny = towny; this.trade = trade; this.menus = menus; this.messages = messages; }
     @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) { messages.send(sender, "only-player"); return true; }
         if (!player.hasPermission("minttrade.use")) { messages.send(player, "no-permission"); return true; }
@@ -30,6 +31,7 @@ public final class TownTradeCommand implements CommandExecutor {
             case "reject" -> reject(player, town, args);
             case "cancel" -> cancel(player, town, args);
             case "tariff" -> tariff(player, town, args);
+            case "contract", "contracts" -> supplies.execute(player,town,java.util.Arrays.copyOfRange(args,1,args.length));
             case "history" -> menus.openHistory(player, town);
             default -> help(player);
         }
@@ -70,5 +72,5 @@ public final class TownTradeCommand implements CommandExecutor {
         try { double value = Double.parseDouble(args[1].replace(',', '.')); if (trade.setTariff(town, value)) { messages.send(player, "tariff-set", Map.of("percent", value)); if(ru.neverland.integration.PoliciesAccess.tariffManaged(town.getUUID()))messages.send(player,"policy-tariff-managed",Map.of("percent",trade.tariff(town))); } else messages.send(player, "tariff-range", Map.of("max", trade.maxTariff())); }
         catch (NumberFormatException exception) { messages.send(player, "tariff-range", Map.of("max", trade.maxTariff())); }
     }
-    private void help(Player player) { player.sendMessage(ColorUtil.color("&#FFD45A/t trade &8— &7торговая доска\n&#FFFFFF/t trade propose <город> <экспорт>\n&#FFFFFF/t trade accept <ID>\n&#FFFFFF/t trade reject <ID>\n&#FFFFFF/t trade cancel <ID>\n&#FFFFFF/t trade tariff <процент>\n&#FFFFFF/t trade history")); }
+    private void help(Player player) { player.sendMessage(ColorUtil.color("&#FFD45A/t trade &8— &7торговая доска\n&#FFFFFF/t trade propose <город> <экспорт>\n&#FFFFFF/t trade accept <ID>\n&#FFFFFF/t trade reject <ID>\n&#FFFFFF/t trade cancel <ID>\n&#FFFFFF/t trade tariff <процент>\n&#FFFFFF/t trade contracts\n&#FFFFFF/t trade history")); }
 }

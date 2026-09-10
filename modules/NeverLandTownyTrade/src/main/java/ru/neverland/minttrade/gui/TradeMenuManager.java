@@ -40,7 +40,9 @@ public final class TradeMenuManager implements Listener {
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withZone(ZoneId.systemDefault());
     private final JavaPlugin plugin; private final TownyHook towny; private final TradeService trade; private final MessageService messages;
     private final NamespacedKey offerKey, actionKey;
-    public TradeMenuManager(JavaPlugin plugin, TownyHook towny, TradeService trade, MessageService messages) {
+    private final ru.neverland.minttrade.contract.SupplyMenus supplies;
+    public TradeMenuManager(JavaPlugin plugin, TownyHook towny, TradeService trade, MessageService messages,ru.neverland.minttrade.contract.SupplyMenus supplies) {
+        this.supplies=supplies;
         this.plugin = plugin; this.towny = towny; this.trade = trade; this.messages = messages;
         offerKey = new NamespacedKey(plugin, "offer"); actionKey = new NamespacedKey(plugin, "action");
     }
@@ -65,6 +67,7 @@ public final class TradeMenuManager implements Listener {
                 "&7Казна: &#FFD45A" + trade.economy().format(trade.economy().balance(town)),
                 "&7Транзитная пошлина: &#FFFFFF" + trade.tariff(town) + "%")));
         inventory.setItem(44, actionItem("history", Material.WRITABLE_BOOK, "&#65B8FFИстория торговли", List.of("&7Завершённые караваны и сделки.")));
+        inventory.setItem(8, actionItem("contracts",Material.CLOCK,"&#63E6BEРегулярные договоры",List.of("&7Поставки между складами по расписанию.")));
         player.openInventory(inventory);
     }
     public void openHistory(Player player, Town town) {
@@ -90,9 +93,11 @@ public final class TradeMenuManager implements Listener {
         if (!(event.getInventory().getHolder() instanceof TradeMenuHolder holder)) return;
         event.setCancelled(true); if (!(event.getWhoClicked() instanceof Player player)) return;
         Town town = towny.town(player); if (town == null || !town.getUUID().equals(holder.townId())) { player.closeInventory(); return; }
+        if(event.getRawSlot()<0||event.getRawSlot()>=event.getView().getTopInventory().getSize()||!player.hasPermission("minttrade.use"))return;
         ItemStack clicked = event.getCurrentItem(); if (clicked == null || !clicked.hasItemMeta()) return;
         String action = clicked.getItemMeta().getPersistentDataContainer().get(actionKey, PersistentDataType.STRING);
         if (holder.type() == TradeMenuHolder.Type.HISTORY) { if ("back".equals(action)) open(player); return; }
+        if ("contracts".equals(action)) {if(supplies.access(player))supplies.open(player,0);return;}
         if ("history".equals(action)) { openHistory(player, town); return; }
         String offerId = clicked.getItemMeta().getPersistentDataContainer().get(offerKey, PersistentDataType.STRING);
         if (offerId == null || !towny.isManager(player, town) || !player.hasPermission("minttrade.manage")) {
@@ -107,6 +112,7 @@ public final class TradeMenuManager implements Listener {
         }
         open(player);
     }
+    @EventHandler public void onDrag(org.bukkit.event.inventory.InventoryDragEvent event){if(event.getView().getTopInventory().getHolder() instanceof TradeMenuHolder)event.setCancelled(true);}
     public void sendAccept(Player player, TradeService.AcceptOutcome outcome) {
         switch (outcome.result()) {
             case SUCCESS -> messages.send(player, "caravan-departed", Map.of("export", ColorUtil.strip(trade.definitionOf(outcome.caravan()).name()),

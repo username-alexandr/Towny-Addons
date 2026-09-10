@@ -42,6 +42,15 @@ admin-help:
   - "&#FFFFFF/townytrade complete <ID>"
   - "&#FFFFFF/townytrade cancel <ID>"
   - "&#FFFFFF/townytrade reload"
+  - "&#FFFFFF/townytrade contracts"
+  - "&#FFFFFF/townytrade contract <ID>"
+  - "&#FFFFFF/townytrade resolve <договор> <UUID поставки> <debit-paid|debit-unpaid|credit-paid|credit-unpaid>"
 
 policy-import-blocked: "&cИмпорт ограничен политикой города-покупателя или система указов временно недоступна. /t policies"
 policy-tariff-managed: "&eБазовая ставка сохранена. Действующий указ задаёт пошлину %percent%%. Сменить режим: /t policies"
+
+contract-error: "&c%reason%"
+contract-proposed: "&eДоговор %id%: %amount% × %item% за %price% монет каждые %days% дн. Покупатель подтверждает условия в /t trade contracts."
+contract-changed: "&eДоговор %id% обновлён. Условия и состояние: /t trade contract show %id%"
+contract-delivered: "&aДоговор %id%: доставлено %amount% × %item%, продавцу выплачено %price% монет."
+contract-reconcile: "&cПлатёж договора %id% ожидает сверки администратором. Автоматический повтор остановлен."
