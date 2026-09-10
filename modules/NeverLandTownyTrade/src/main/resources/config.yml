@@ -75,3 +75,12 @@ gui:
   title: "&#211A2EГородская торговля"
   history-title: "&#211A2EИстория торговли"
   filler: BLACK_STAINED_GLASS_PANE
+
+# Регулярные межгородские поставки физическими предметами /t inv.
+contracts:
+  enabled: true
+  default-days: 7
+  proposal-hours: 24
+  maximum-per-town: 10
+  retry-seconds: 300
+  process-per-second: 8

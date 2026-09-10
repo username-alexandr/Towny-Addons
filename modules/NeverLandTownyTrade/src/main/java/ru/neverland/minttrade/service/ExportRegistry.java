@@ -48,11 +48,11 @@ public final class ExportRegistry {
         String custom = MaterialNameConfig.customName(item.getItemMeta());
         return custom == null ? itemNames.name(item.getType().name()) : custom;
     }
-    private ItemStack parseItem(String key) {
+    public ItemStack parseItem(String key) {
         ItemStack custom = itemsAdder.item(key);
         if (custom != null) { custom.setAmount(1); return custom; }
         Material material = MaterialNameConfig.matchMaterial(key);
-        return material == null ? null : new ItemStack(material);
+        return material == null || !material.isItem() || material.isAir() ? null : new ItemStack(material);
     }
     public ExportDefinition get(String id) { return id == null ? null : exports.get(id.toLowerCase(Locale.ROOT)); }
     public Collection<ExportDefinition> all() { return exports.values(); }

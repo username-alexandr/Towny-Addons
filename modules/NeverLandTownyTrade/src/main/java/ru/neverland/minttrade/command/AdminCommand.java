@@ -25,6 +25,19 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         if (!sender.hasPermission("minttrade.admin")) { messages.send(sender, "no-permission"); return true; }
         if (args.length == 0) { messages.list("admin-help").forEach(sender::sendMessage); return true; }
         switch (args[0].toLowerCase()) {
+            case "contracts" -> {for(var c:plugin.supplies().all())if(c.open())sender.sendMessage(c.terms().id()+" | "+ru.neverland.minttrade.contract.SupplyMenus.state(c)+" | "+c.note());}
+            case "contract" -> {
+                var c=args.length==2?plugin.supplies().find(args[1]):null;
+                if(c==null)sender.sendMessage("Договор не найден. /townytrade contract <ID>");
+                else {sender.sendMessage("Договор "+c.terms().id()+" | продавец "+c.terms().seller()+" | покупатель "+c.terms().buyer());
+                    sender.sendMessage("Партия "+c.terms().amount()+" "+c.terms().itemName()+" | цена "+ru.neverland.minttrade.contract.SupplyContract.money(c.terms().cents()));
+                    sender.sendMessage(c.attempt()==null?"Незавершённого расчёта нет":("Поставка "+c.attempt().id()+" | "+ru.neverland.minttrade.contract.SupplyMenus.phase(c.attempt().phase())));}
+            }
+            case "resolve" -> {
+                if(args.length!=4){sender.sendMessage("/townytrade resolve <договор> <полный UUID поставки> <debit-paid|debit-unpaid|credit-paid|credit-unpaid>");return true;}
+                try{plugin.supplies().resolve(args[1],java.util.UUID.fromString(args[2]),args[3]);sender.sendMessage("Результат отмечен. Проверьте также незавершённый платёж Treasury+, если он установлен.");}
+                catch(Exception ex){sender.sendMessage("Не удалось выполнить сверку: "+ex.getMessage());}
+            }
             case "reload" -> { plugin.reloadPlugin(); messages.send(sender, "reload"); }
             case "list" -> list(sender);
             case "complete" -> complete(sender, args);
@@ -55,8 +68,11 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     }
     private String name(Town town) { return town == null ? "Удалённый город" : town.getName(); }
     @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        if (args.length == 1) return filter(List.of("list", "complete", "cancel", "reload"), args[0]);
+        if (args.length == 1) return filter(List.of("list", "complete", "cancel", "reload", "contracts", "contract", "resolve"), args[0]);
         if (args.length == 2 && (args[0].equalsIgnoreCase("complete") || args[0].equalsIgnoreCase("cancel"))) return filter(trade.repository().caravans().stream().map(Caravan::shortId).toList(), args[1]);
+        if(args.length==2&&(args[0].equalsIgnoreCase("contract")||args[0].equalsIgnoreCase("resolve")))return filter(plugin.supplies().all().stream().filter(ru.neverland.minttrade.contract.SupplyContract::open).map(c->c.terms().shortId()).toList(),args[1]);
+        if(args.length==3&&args[0].equalsIgnoreCase("resolve")){var c=plugin.supplies().find(args[1]);return c==null||c.attempt()==null?List.of():filter(List.of(c.attempt().id().toString()),args[2]);}
+        if(args.length==4&&args[0].equalsIgnoreCase("resolve"))return filter(List.of("debit-paid","debit-unpaid","credit-paid","credit-unpaid"),args[3]);
         return List.of();
     }
     private List<String> filter(List<String> values, String prefix) { List<String> out = new ArrayList<>(); for (String value : values) if (value.toLowerCase().startsWith(prefix.toLowerCase())) out.add(value); return out; }

@@ -58,7 +58,7 @@ public final class TradeService {
     }
     public void shutdown() { if (task != null) task.cancel(); task = null; repository.save(); }
 
-    private boolean importsAllowed(Town buyer,Town seller){var nation=buyer.getNationOrNull();boolean sameNation=nation!=null&&seller.getNationOrNull()!=null&&nation.getUUID().equals(seller.getNationOrNull().getUUID());return ru.neverland.integration.PoliciesAccess.importsAllowed(buyer.getUUID(),seller.getUUID(),sameNation);}
+    public static boolean importsAllowed(Town buyer,Town seller){var nation=buyer.getNationOrNull();boolean sameNation=nation!=null&&seller.getNationOrNull()!=null&&nation.getUUID().equals(seller.getNationOrNull().getUUID());return ru.neverland.integration.PoliciesAccess.importsAllowed(buyer.getUUID(),seller.getUUID(),sameNation);}
     public ProposeOutcome propose(Town seller, Town buyer, ExportDefinition definition) {
         if (seller == null || buyer == null || definition == null) return new ProposeOutcome(ProposeResult.ROUTE_UNAVAILABLE, null);
         if (seller.getUUID().equals(buyer.getUUID())) return new ProposeOutcome(ProposeResult.SAME_TOWN, null);

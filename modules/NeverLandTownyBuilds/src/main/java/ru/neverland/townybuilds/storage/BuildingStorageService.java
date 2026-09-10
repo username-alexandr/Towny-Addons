@@ -65,6 +65,22 @@ public final class BuildingStorageService implements BuildingStorageApi,Listener
         return ShipmentTransactions.unload(data.town(town),access(town),id,returned);
     }
     @Override public void acknowledge(UUID town,UUID id)throws IOException{thread();ShipmentTransactions.acknowledge(data.town(town),access(town),id);}
+    private TradeStorageTransactions.Access tradeAccess(){return new TradeStorageTransactions.Access(){
+        public ItemStack[] read(UUID town){return data.town(town).storage();}
+        public void write(UUID town,ItemStack[] items){BuildingStorageService.this.write(data.town(town),"warehouse",items);}
+        public boolean busy(UUID town){return data.storageBusy(town,"warehouse");}
+        public void commit()throws IOException{data.saveOrThrow();}
+    };}
+    @Override public String reserveTrade(UUID seller,UUID buyer,UUID id,ItemStack sample,int amount)throws IOException {
+        thread();if(towny.town(seller)==null||towny.town(buyer)==null)return "CITY_MISSING";
+        return TradeStorageTransactions.reserve(data.town(seller),tradeAccess(),buyer,id,sample,amount);
+    }
+    @Override public String settleTrade(UUID seller,UUID id,boolean deliver)throws IOException {
+        thread();var receipt=data.town(seller).tradeCargo().get(id);
+        if(deliver&&receipt!=null&&towny.town(receipt.buyer())==null)return "CITY_MISSING";
+        return TradeStorageTransactions.settle(data.town(seller),tradeAccess(),id,deliver);
+    }
+    @Override public void acknowledgeTrade(UUID seller,UUID id)throws IOException {thread();TradeStorageTransactions.acknowledge(data.town(seller),tradeAccess(),id);}
     @Override public void openStorage(Player player,String project){
         thread();var town=towny.town(player);if(town==null){tell(player,"Вы не состоите в городе.");return;}
         var t=data.town(town.getUUID());var def=definitions.all().stream().filter(d->d.id().equals(project)).findFirst().orElse(null);

@@ -79,7 +79,10 @@ public final class WarehouseBridge {
         return capacity;
     }
     private boolean busy(UUID townId) {
-        if (!plugin.getConfig().getBoolean("warehouse.block-operations-while-open", true)) return false;
+        Access access=resolve();if(access==null)return true;
+        try { if(Boolean.TRUE.equals(access.store.getClass().getMethod("storageBusy",UUID.class,String.class).invoke(access.store,townId,"warehouse")))return true; }
+        catch(ReflectiveOperationException ex){warn(ex);return true;}
+
         for (Player player : Bukkit.getOnlinePlayers()) {
             InventoryHolder holder = player.getOpenInventory().getTopInventory().getHolder(false);
             if (holder == null || !holder.getClass().getName().endsWith("MenuManager$StorageHolder")) continue;

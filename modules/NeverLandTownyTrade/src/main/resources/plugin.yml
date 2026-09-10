@@ -1,5 +1,5 @@
 name: NeverLandTownyTrade
-version: '0.1.10'
+version: '0.2.0'
 main: ru.neverland.minttrade.MintTownyTrade
 api-version: '26.2'
 authors: [Alexander Sokolov]
@@ -11,7 +11,7 @@ softdepend: [NeverLandTownyCamps, NeverLandTownyTaxes, PlaceholderAPI, ItemsAdde
 commands:
   townytrade:
     description: Администрирование городской торговли
-    usage: /townytrade <list|complete|cancel|reload>
+    usage: /townytrade <list|complete|cancel|reload|contracts|contract|resolve>
     aliases: [minttrade, mtrade, neverlandtownytrade, nlttrade]
     permission: minttrade.admin
 permissions:
@@ -21,3 +21,10 @@ permissions:
     default: true
   minttrade.admin:
     default: op
+
+  minttrade.contracts.use:
+    description: Просмотр регулярных договоров города
+    default: true
+  minttrade.contracts.manage:
+    description: Договоры для мэра и разрешённых управленческих рангов
+    default: true

@@ -10,6 +10,11 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class TownData {
+    private final Map<UUID,ru.neverland.townybuilds.api.TradeCargo> tradeCargo=new HashMap<>();
+    public Map<UUID,ru.neverland.townybuilds.api.TradeCargo> tradeCargo(){return Map.copyOf(tradeCargo);}
+    public void putTradeCargo(ru.neverland.townybuilds.api.TradeCargo value){tradeCargo.put(value.id(),value);}
+    public void removeTradeCargo(UUID id){tradeCargo.remove(id);}
+
     private final UUID townId;
     private final Map<UUID,ru.neverland.townybuilds.api.CargoShipment> shipments = new HashMap<>();
     public Map<UUID,ru.neverland.townybuilds.api.CargoShipment> shipments(){return Map.copyOf(shipments);}
