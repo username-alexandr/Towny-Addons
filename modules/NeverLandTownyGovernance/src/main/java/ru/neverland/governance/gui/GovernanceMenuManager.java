@@ -60,6 +60,7 @@ public final class GovernanceMenuManager implements Listener {
                 "&7Членов совета: &f" + governance.council(town).size(), "", "&#FFD166Нажмите, чтобы открыть")));
         menu.setItem(16, tagged(Material.COMPARATOR, "main_modifiers", "", "&#FFA94DДействующие решения", modifierLore(town)));
         if(Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyPolicies"))menu.setItem(29,tagged(Material.PAPER,"main_policies","","&eГородские указы",List.of("&7Экономические политики мэра и их издержки.")));
+        if(Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyTreasuryPlus"))menu.setItem(33,tagged(Material.GOLD_INGOT,"main_treasury","","&eКазна и бюджет",List.of("&7Статьи расходов и недельные отчёты.")));
         menu.setItem(31, tagged(Material.WRITABLE_BOOK, "main_history", "", "&#ADB5BDИстория решений", List.of(
                 "&7Записей: &f" + data.history().size(), "", "&#FFD166Нажмите, чтобы открыть")));
         menu.setItem(40, item(Material.MAP, "&#FFFFFFГород: &#63E6BE" + town.getName(), List.of(
@@ -138,6 +139,7 @@ public final class GovernanceMenuManager implements Listener {
         if (action == null) return;
         switch (action) {
             case "main_laws" -> openLaws(player); case "main_votes" -> openVotes(player); case "main_council" -> openCouncil(player);
+            case "main_treasury" -> player.performCommand("townytreasury");
             case "main_policies" -> player.performCommand("townypolicies");
             case "main_history" -> openHistory(player); case "back" -> openMain(player);
             case "law" -> {

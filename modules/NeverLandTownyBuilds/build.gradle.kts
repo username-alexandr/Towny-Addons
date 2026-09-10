@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ru.neverland"
-version = "0.8.5"
+version = "0.8.6"
 
 repositories {
     mavenCentral()
@@ -111,3 +111,5 @@ sourceSets.main { java.srcDir("../../shared/research/src/main/java") }
 sourceSets.main { java.srcDir("../../shared/specialization/src/main/java") }
 
 sourceSets.main { java.srcDir("../../shared/policies/src/main/java") }
+
+sourceSets.main { java.srcDir("../../shared/treasury/src/main/java") }

@@ -46,7 +46,7 @@ public final class ResourcesService implements TownyResourcesApi {
                 var old=cache.towns().get(id);snapshots.put(id,new ResourceSnapshot(id,town.getName(),old==null?0:old.population(),settings.populationLinked(),true,"Ожидает данные: "+ex.getMessage(),now+remainingTicks*50L,state,old==null?settings.baseCapacity():old.capacity(),Map.of(),Map.of(),Map.of(),Map.of(),state.foodCoverage(),state.waterCoverage()));
             }
         }
-        states.keySet().retainAll(existing);repository.replace(states);cache=new Cache(Map.copyOf(snapshots),Map.copyOf(residents));
+        states.keySet().retainAll(existing);if(advance)repository.replaceCycle(states);else repository.replace(states);cache=new Cache(Map.copyOf(snapshots),Map.copyOf(residents));
     }
     private void publishFault(){var next=new HashMap<UUID,ResourceSnapshot>();for(var s:cache.towns().values())next.put(s.townId(),new ResourceSnapshot(s.townId(),s.townName(),s.population(),s.populationLinked(),true,"Ошибка сохранения — обратитесь к администратору",s.nextCycle(),s.state(),s.capacity(),Map.of(),Map.of(),s.populationDemand(),s.buildings(),s.foodCoverage(),s.waterCoverage()));cache=new Cache(Map.copyOf(next),cache.residents());}
     public Town town(Player p){var r=TownyAPI.getInstance().getResident(p);return r==null?null:r.getTownOrNull();}
@@ -89,5 +89,6 @@ public final class ResourcesService implements TownyResourcesApi {
     public BuildingProfile profile(String id){var p=settings.buildings().get(id);if(p==null)throw new IllegalArgumentException("Неизвестное здание: "+id);return p;}
     @Override public Optional<ResourceSnapshot> resources(UUID id){return Optional.ofNullable(id==null?null:cache.towns().get(id));}
     @Override public Optional<ResourceSnapshot> residentResources(UUID id){var current=cache;var town=id==null?null:current.residents().get(id);return Optional.ofNullable(town==null?null:current.towns().get(town));}
+    @Override public Map<String,Map<String,Long>> productionWeeks(UUID town){thread();return repository.productionWeeks(town);}
     @Override public Collection<ResourceSnapshot> towns(){return List.copyOf(cache.towns().values());}
 }

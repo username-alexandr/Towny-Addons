@@ -226,7 +226,7 @@ public final class TradeService {
         ExportDefinition fallback = registry.all().stream().findFirst().orElse(null); if (fallback == null) return;
         for (Map.Entry<UUID, Double> entry : repository.pendingCredits().entrySet()) {
             Town town = towny.town(entry.getKey());
-            if (economy.deposit(town, entry.getValue(), fallback, "economy.refund-reason")) repository.clearPending(entry.getKey());
+            if (economy.deposit(town, entry.getValue(), fallback, "economy.pending-reason")) repository.clearPending(entry.getKey());
         }
     }
     private ExportDefinition definition(Caravan caravan) {

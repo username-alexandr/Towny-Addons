@@ -17,13 +17,13 @@ public final class EconomyService {
     private final TownyHook towny;
     public EconomyService(JavaPlugin plugin, TownyHook towny) { this.plugin = plugin; this.towny = towny; }
     public boolean canReserve(Town town, double amount) {
-        try { return amount <= 0 || town.getAccount().canPayFromHoldings(amount); }
+        try { return amount <= 0 || ru.neverland.integration.TreasuryAccess.canSpend(town,"infrastructure",amount); }
         catch (RuntimeException exception) { return false; }
     }
     public boolean reserve(Town town, ContractDefinition definition) {
         if (definition.reward() <= 0) return true;
         String reason = reason("economy.reserve-reason", definition);
-        try { return town.getAccount().withdraw(definition.reward(), reason); }
+        try { return ru.neverland.integration.TreasuryAccess.withdraw(town,"infrastructure","contracts",definition.reward(),reason); }
         catch (RuntimeException exception) { return false; }
     }
     public boolean pay(UUID residentId, double amount, ContractDefinition definition) {
@@ -36,7 +36,7 @@ public final class EconomyService {
     }
     public boolean refund(Town town, double amount, ContractDefinition definition) {
         if (amount <= 0) return true;
-        try { return town != null && town.getAccount().deposit(amount, reason("economy.refund-reason", definition)); }
+        try { return town != null && ru.neverland.integration.TreasuryAccess.deposit(town,"infrastructure","contracts",true,amount,reason("economy.refund-reason",definition)); }
         catch (RuntimeException exception) { return false; }
     }
     private String reason(String path, ContractDefinition definition) {

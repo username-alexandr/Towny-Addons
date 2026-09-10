@@ -1,0 +1,35 @@
+name: NeverLandTownyTreasuryPlus
+version: '0.1.0'
+main: ru.neverland.townytreasury.NeverLandTownyTreasuryPlus
+api-version: '1.21'
+authors:
+- NeverLand
+description: NeverLandTownyTreasury+ — статьи городского бюджета и недельные отчёты
+depend:
+- Towny
+softdepend:
+- NeverLandTownyBuilds
+- NeverLandTownyUpkeep
+- NeverLandTownyTrade
+- NeverLandTownyContracts
+- NeverLandTownyIdeologies
+- NeverLandTownyEspionage
+- NeverLandTownyResources
+- NeverLandTownyTaxes
+- NeverLandTownyPolicies
+- NeverLandTownyGovernance
+- PlaceholderAPI
+commands:
+  townytreasury:
+    description: Казна и городской бюджет
+    aliases:
+    - nlttreasury
+    - treasuryplus
+    usage: /townytreasury
+permissions:
+  neverlandtownytreasury.use:
+    default: true
+  neverlandtownytreasury.manage:
+    default: false
+  neverlandtownytreasury.admin:
+    default: op

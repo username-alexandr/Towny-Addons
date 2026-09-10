@@ -348,7 +348,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
             double amount = Double.parseDouble(args[2].replace(',', '.'));
             if (!Double.isFinite(amount) || amount <= 0) throw new NumberFormatException();
             if (!town.getAccount().canPayFromHoldings(amount)
-                    || !town.getAccount().withdraw(amount, "Пополнение страхового резерва")) {
+                    || !ru.neverland.integration.TreasuryAccess.withdraw(town,"social","insurance",amount,"Пополнение страхового резерва")) {
                 messages.send(player, "not-enough-money", Map.of("amount", MONEY.format(amount)));
                 return;
             }
@@ -632,12 +632,12 @@ public final class CivicService implements Listener, TownyBuildsApi {
         }
         ItemStack[] changed = cloneContents(stock);
         if (removePlain(changed, material, amount) != 0
-                || !buyer.getAccount().withdraw(total, "Покупка в лавке города " + seller.getName())) {
+                || !buyer.getAccount().withdraw(total,"Покупка в лавке города " + seller.getName())) {
             messages.send(player, "not-enough-money", Map.of("amount", MONEY.format(total)));
             return;
         }
-        if (!seller.getAccount().deposit(total, "Продажа в городской лавке")) {
-            buyer.getAccount().deposit(total, "Возврат: лавка города недоступна");
+        if (!ru.neverland.integration.TreasuryAccess.deposit(seller,"free","shop",false,total,"Продажа в городской лавке")) {
+            buyer.getAccount().deposit(total,"Возврат: лавка города недоступна");
             messages.send(player, "civic-shop-unavailable");
             return;
         }

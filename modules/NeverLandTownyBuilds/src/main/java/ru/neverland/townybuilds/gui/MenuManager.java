@@ -99,6 +99,7 @@ public final class MenuManager implements Listener {
                     List.of("&7Объектов: &f" + count, "", "&#63E6BEНажмите, чтобы открыть"));
             inventory.setItem(slots[Math.min(index++, slots.length - 1)], icon);
         }
+        if(Bukkit.getPluginManager().getPlugin("NeverLandTownyTreasuryPlus")!=null) inventory.setItem(22,actionItem("treasury",new ItemStack(Material.GOLD_INGOT),"&eКазна и бюджет",List.of("&7Статьи расходов и недельные отчёты.")));
         player.openInventory(inventory);
     }
 
@@ -255,6 +256,7 @@ public final class MenuManager implements Listener {
         if (holder instanceof CategoryHolder) {
             event.setCancelled(true);
             String action = actionFrom(event.getCurrentItem());
+            if ("treasury".equals(action)) { player.performCommand("townytreasury"); return; }
             if (action != null && action.startsWith("category:")) {
                 try {
                     ProjectCategory category = ProjectCategory.valueOf(action.substring("category:".length()));
@@ -388,6 +390,7 @@ public final class MenuManager implements Listener {
             case NO_TOWN -> messages.send(player, "no-town");
             case NOT_MAYOR -> messages.send(player, "only-mayor-upgrade");
             case MAX_LEVEL -> messages.send(player, "max-level");
+            case BUDGET_UNAVAILABLE -> player.sendMessage(ColorUtil.component("&cВ бюджете строительства недостаточно средств или казна недоступна. Откройте /t treasury."));
             case NOT_ENOUGH_MONEY, ECONOMY_ERROR -> messages.send(player, "not-enough-money",
                     Map.of("amount", MONEY.format(result.requiredMoney())));
             case NOT_ENOUGH_RESOURCES -> messages.send(player, "not-enough-resources",
