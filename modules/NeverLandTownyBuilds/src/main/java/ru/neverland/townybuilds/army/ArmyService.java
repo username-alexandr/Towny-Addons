@@ -83,7 +83,8 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         }
     }
     private int level(Town town) { return town == null ? 0 : data.town(town.getUUID()).level("army"); }
-    private int capacity(Town town) { return level(town) * Math.max(1, Math.min(1000, plugin.getConfig().getInt("army.soldiers-per-level", 10))); }
+    private int capacity(Town town) { return town == null ? 0 : (int)Math.floor(level(town) * Math.max(1, Math.min(1000, plugin.getConfig().getInt("army.soldiers-per-level", 10)))
+            * ru.neverland.integration.DistrictBonuses.multiplier(town.getUUID(), "army")); }
     private boolean manager(Player player, Town town) { return towny.isMayor(player, town) || player.hasPermission("neverlandtownybuilds.army.mobilize"); }
     private boolean sameTown(Resident resident, Town town) { return resident != null && resident.getTownOrNull() != null && resident.getTownOrNull().getUUID().equals(town.getUUID()); }
     @Override public boolean isMobilized(UUID id) {

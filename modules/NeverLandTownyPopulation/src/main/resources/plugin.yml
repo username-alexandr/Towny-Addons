@@ -1,11 +1,11 @@
 name: NeverLandTownyPopulation
-version: '0.1.0'
+version: '0.1.1'
 main: ru.neverland.townypopulation.NeverLandTownyPopulation
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Население города, жильё, занятость, довольство и снабжение.
 depend: [Towny, NeverLandTownyBuilds]
-softdepend: [PlaceholderAPI]
+softdepend: [PlaceholderAPI, NeverLandTownyDistricts]
 commands:
   townypopulation:
     description: Население города

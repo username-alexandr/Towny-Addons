@@ -9,6 +9,7 @@ import java.util.UUID;
 /** Публичный API без жёстких зависимостей между аддонами NeverLand. */
 public interface TownyBuildsApi {
     int projectLevel(UUID townId, String projectId);
+    default java.util.Map<String,BuildingFootprint> buildingFootprints(UUID townId) { return java.util.Map.of(); }
     double benefit(UUID townId, CivicBenefit benefit);
     boolean waterNetworkActive(UUID townId);
     double insuranceReserve(UUID townId);

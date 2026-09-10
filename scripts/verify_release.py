@@ -166,6 +166,15 @@ def main() -> int:
                     for helper in ("MaterialLabels", "MaterialNameConfig"):
                         if f"ru/neverland/localization/{helper}.class" not in archive.namelist():
                             errors.append(f"{jar.name}: missing localization helper {helper}")
+                if name in {"NeverLandTownyBuilds", "NeverLandTownyPopulation"}:
+                    if "ru/neverland/integration/DistrictBonuses.class" not in archive.namelist():
+                        errors.append(f"{jar.name}: missing district integration")
+                if name == "NeverLandTownyDistricts":
+                    for resource in ("config.yml", "projects.yml"):
+                        if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
+                            errors.append(f"{jar.name}: {resource} differs from sources")
+                    if "ru/neverland/townydistricts/api/TownyDistrictsApi.class" not in archive.namelist():
+                        errors.append(f"{jar.name}: missing public district API")
         except Exception as exc:  # noqa: BLE001
             errors.append(f"cannot inspect {jar.name}: {exc}")
 
@@ -216,6 +225,19 @@ def main() -> int:
             errors.append(f"{project_id}: default population capacity must require completed construction")
     if profiles.get("residential_quarter", {}).get("housing") != 120:
         errors.append("Completed residential quarter must provide 120 population places")
+    districts = load_yaml(modules_dir / "NeverLandTownyDistricts/src/main/resources/projects.yml")
+    district_profiles = districts.get("projects", {})
+    if set(district_profiles) != configured_ids | expected_wonders:
+        errors.append("District profiles must cover every building and wonder exactly once")
+    district_types = {"residential", "industrial", "commercial", "military", "port", "agricultural", "administrative"}
+    if {p.get("district") for p in district_profiles.values()} != district_types:
+        errors.append("District profiles must use all seven expected district types")
+    for project_id, profile in district_profiles.items():
+        if not re.search("[А-Яа-яЁё]", str(profile.get("name", ""))):
+            errors.append(f"{project_id}: district menu project name must be Russian")
+    for project_id in ("forge", "foundry", "warehouse"):
+        if district_profiles.get(project_id, {}).get("district") != "industrial":
+            errors.append(f"{project_id}: industrial combination requires an industrial profile")
     item_names = load_yaml(builds / "src/main/resources/item-names.yml")
     if item_names.get("COBBLED_DEEPSLATE_SLAB") != "Плита из колотого глубинного сланца":
         errors.append("COBBLED_DEEPSLATE_SLAB must have an unambiguous Russian name")

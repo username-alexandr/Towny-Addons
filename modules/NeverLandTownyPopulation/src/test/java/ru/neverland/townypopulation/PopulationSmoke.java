@@ -72,6 +72,11 @@ public final class PopulationSmoke {
         old.setDefaults(buildings); old.options().copyDefaults(true);
         var inherited=PopulationSettings.load(resource("config.yml"),old);
         check(inherited.buildings().size()==91 && inherited.buildings().get("bakery").capacity().food()==0,"new defaults inherited; admin zero preserved");
+        var districtHousing=settings.capacity(id->id.equals("residential_quarter")?5:0,id->1.15);
+        check(districtHousing.housing()==158,"district bonus changes real housing while starter capacity stays unscaled");
+        check(settings.capacity(id->id.equals("residential_quarter")?4:0,id->1.35).housing()==20,"district cannot activate unfinished housing");
+        check(settings.capacity(id->id.equals("bakery")?5:0,id->1.15).food()==112,"district improves real food supply");
+        check(settings.capacity(id->id.equals("water_tower")?5:0,id->Double.NaN).water()==220,"invalid district multiplier neutral");
         persistence();
         System.out.println("PopulationSmoke OK: 91 profiles, growth/decline, shortages, employment, fractions, custom settings, restart and corrupt database");
     }

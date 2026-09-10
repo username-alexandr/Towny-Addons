@@ -1,0 +1,14 @@
+limits:
+  districts-per-town: 32
+  cells-per-district: 256
+  selection-cells: 128
+# Все множители применяются только к завершённым зданиям в своём районе.
+bonuses:
+  matching-building: 0.15
+  industrial-combination: 0.20
+  maximum-multiplier: 2.0
+  industrial-requires: [forge, foundry, warehouse]
+# 15% + 20% = 35%, а не перемножение и не удвоение за каждый участник.
+production:
+  industrial-furnaces: true
+  agricultural-crops: true
