@@ -42,7 +42,7 @@ buildings:
     icon: "EMERALD"
     itemsadder-icon: "neverland:building_market"
     slot: 13
-    description: ["Торговый центр города.", "Даёт скорость и удачу торговцам."]
+    description: ["Открывает городской рынок: /t market.", "Каждый уровень даёт 4 места для местных предложений.", "Даёт скорость и удачу торговцам."]
     levels:
       1: {money: 4000, bonus-blocks: 1, resources: ["OAK_PLANKS:512", "WHITE_WOOL:128", "BARREL:32"], effects: []}
       2: {money: 8000, bonus-blocks: 2, resources: ["SPRUCE_PLANKS:768", "COPPER_INGOT:128", "EMERALD:16"], effects: ["SPEED:1"]}
@@ -426,7 +426,7 @@ buildings:
     itemsadder-icon: ""
     slot: 16
     order: 109
-    description: ["Снижает риск мошенничества и повышает торговую репутацию.", "С III уровня позволяет открыть городскую лавку на спавне."]
+    description: ["Открывает международные предложения при рынке II: /t market global.", "Каждый уровень даёт 4 места для экспорта.", "Снижает риск мошенничества и повышает торговую репутацию.", "С III уровня позволяет открыть городскую лавку на спавне."]
     levels:
       1: {money: 7500, bonus-blocks: 1, resources: ["STONE_BRICKS:143"], effects: []}
       2: {money: 15000, bonus-blocks: 2, resources: ["STONE_BRICKS:244"], effects: ["LUCK:1"]}

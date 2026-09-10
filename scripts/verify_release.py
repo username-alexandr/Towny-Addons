@@ -18,7 +18,7 @@ except ImportError as exc:  # pragma: no cover - explicit environment guidance
 ROOT = Path(__file__).resolve().parents[1]
 LOCALIZATION_MODULES = {
     "NeverLandTownyBuilds", "NeverLandTownyCamps", "NeverLandTownyContracts",
-    "NeverLandTownyEvents", "NeverLandTownyExpeditions", "NeverLandTownyTrade", "NeverLandTownyLogistics",
+    "NeverLandTownyEvents", "NeverLandTownyExpeditions", "NeverLandTownyTrade", "NeverLandTownyLogistics", "NeverLandTownyMarket",
 }
 LOCALIZATION_RESOURCE = "neverland-localization/materials-ru.properties"
 
@@ -170,6 +170,18 @@ def main() -> int:
                 if name in {"NeverLandTowny" + suffix for suffix in ("Builds", "Upkeep", "Trade", "Contracts", "Ideologies", "Espionage", "TreasuryPlus")}:
                     if "ru/neverland/integration/TreasuryAccess.class" not in archive.namelist():
                         errors.append(f"{jar.name}: missing treasury integration")
+                if name == "NeverLandTownyMarket":
+                    for cls in ("NeverLandTownyMarket", "MarketService", "MarketRepository", "MarketPayments", "MarketPrices", "MarketGateway", "MarketMenus", "PaymentEvidence", "MarketApi"):
+                        if f"ru/neverland/townymarket/{cls}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing market class {cls}")
+                    for resource in ("config.yml", "catalog.yml", "plugin.yml"):
+                        if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
+                            errors.append(f"{jar.name}: outdated market resource {resource}")
+                    for helper in ("TreasuryAccess", "PoliciesAccess"):
+                        if f"ru/neverland/integration/{helper}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing market integration {helper}")
+                    if "ru/neverland/townymarket/MarketSmoke.class" in archive.namelist():
+                        errors.append(f"{jar.name}: market test code leaked")
                 if name == "NeverLandTownyTreasuryPlus":
                     for cls in ("NeverLandTownyTreasuryPlus", "api/TownyTreasuryApi", "model/BudgetDebit", "data/TreasuryRepository", "gui/TreasuryMenu", "service/TreasuryService", "service/ReportExporter"):
                         if f"ru/neverland/townytreasury/{cls}.class" not in archive.namelist():
@@ -257,7 +269,7 @@ def main() -> int:
                         if f"ru/neverland/townyupkeep/{helper}.class" not in archive.namelist():
                             errors.append(f"{jar.name}: missing upkeep class {helper}")
                 if name == "NeverLandTownyBuilds":
-                    for helper in ("api/TradeCargo", "storage/TradeStorageTransactions"):
+                    for helper in ("api/TradeCargo", "storage/TradeStorageTransactions", "api/MarketStock", "api/MarketStorageApi", "storage/MarketTransactions", "storage/MarketStorageService"):
                         if f"ru/neverland/townybuilds/{helper}.class" not in archive.namelist():
                             errors.append(f"{jar.name}: missing intercity warehouse class {helper}")
                     for helper in ("api/BuildingStorageApi", "api/CargoShipment", "storage/ShipmentTransactions", "storage/StorageSessions", "storage/ProductionService", "util/AtomicYamlFile"):

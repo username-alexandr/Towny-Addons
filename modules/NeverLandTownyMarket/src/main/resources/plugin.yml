@@ -1,0 +1,23 @@
+name: NeverLandTownyMarket
+version: '0.1.0'
+main: ru.neverland.townymarket.NeverLandTownyMarket
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: Городские и международные рынки с реальными товарами и спросом.
+depend: [Towny, NeverLandTownyBuilds]
+softdepend: [NeverLandTownyTrade, NeverLandTownyTreasuryPlus, NeverLandTownyPolicies, NeverLandTownyTaxes, ItemsAdder, PlaceholderAPI]
+commands:
+  townymarket:
+    aliases: [nltmarket]
+    description: Городские и международные рынки
+    usage: /townymarket [local|global|mine|orders|catalog|sell|buy|show|claim]
+permissions:
+  neverlandtownymarket.use:
+    default: true
+  neverlandtownymarket.buy:
+    default: true
+  neverlandtownymarket.manage:
+    description: Управление для рангов из management.allowed-town-ranks
+    default: false
+  neverlandtownymarket.admin:
+    default: op

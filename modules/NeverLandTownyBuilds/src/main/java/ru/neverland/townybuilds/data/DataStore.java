@@ -114,6 +114,7 @@ public final class DataStore {
                     loadCivicData(section, data);
                     loadShipments(section, data);
                     loadTradeCargo(section, data);
+                    loadMarket(section,data);
                 }
                 towns.put(townId, data);
             } catch (IllegalArgumentException | IOException | ClassNotFoundException exception) {
@@ -194,6 +195,10 @@ public final class DataStore {
             } catch (IOException exception) {
                 throw new IOException("Не удалось сериализовать склад " + data.townId(), exception);
             }
+            for(var lot:data.marketStock().values()) {
+                String c=path+".market-stock."+lot.id();yaml.set(c+".sample",ItemCodec.encodeSingle(lot.sample()));yaml.set(c+".total",lot.total());yaml.set(c+".available",lot.available());yaml.set(c+".open",lot.open());
+                yaml.createSection(c+".holds");for(var h:lot.holds().values()){String o=c+".holds."+h.id();yaml.set(o+".buyer",h.buyer().toString());yaml.set(o+".city",h.city());yaml.set(o+".amount",h.amount());yaml.set(o+".status",h.status());}
+            }
             for(var cargo:data.tradeCargo().values()) {
                 String c=path+".trade-cargo."+cargo.id();yaml.set(c+".buyer",cargo.buyer().toString());
                 yaml.set(c+".sample",ItemCodec.encodeSingle(cargo.sample()));yaml.set(c+".amount",cargo.amount());
@@ -234,6 +239,16 @@ public final class DataStore {
         }
         ru.neverland.townybuilds.util.AtomicYamlFile.write(yaml,file.toPath());
         dirty=false;
+    }
+
+    private void loadMarket(ConfigurationSection section,TownData data)throws IOException,ClassNotFoundException {
+        var root=section.getConfigurationSection("market-stock");if(root==null){if(section.contains("market-stock"))throw new IOException("Повреждён резерв рынка");return;}
+        for(String id:root.getKeys(false)){
+            var c=root.getConfigurationSection(id);if(c==null||!c.isInt("total")||!c.isInt("available")||!c.isBoolean("open"))throw new IOException("Повреждён товар рынка");
+            var hs=c.getConfigurationSection("holds");if(hs==null)throw new IOException("Нет квитанций рынка");Map<UUID,ru.neverland.townybuilds.api.MarketStock.Hold> holds=new HashMap<>();
+            for(String key:hs.getKeys(false)){var h=hs.getConfigurationSection(key);if(h==null||!h.isInt("amount")||!h.isBoolean("city"))throw new IOException("Повреждена покупка");UUID oid=UUID.fromString(key);holds.put(oid,new ru.neverland.townybuilds.api.MarketStock.Hold(oid,UUID.fromString(h.getString("buyer","")),h.getBoolean("city"),h.getInt("amount"),h.getString("status","")));}
+            data.putMarketStock(new ru.neverland.townybuilds.api.MarketStock(UUID.fromString(id),ItemCodec.decodeSingle(c.getString("sample","")),c.getInt("total"),c.getInt("available"),c.getBoolean("open"),holds));
+        }
     }
 
     private void loadTradeCargo(ConfigurationSection section,TownData data)throws IOException,ClassNotFoundException {

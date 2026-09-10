@@ -1,0 +1,15 @@
+# Отдельный рынок физических предметов. Новые операции можно приостановить.
+enabled: true
+management:
+  allowed-town-ranks: [assistant]
+buildings:
+  # Местная торговля: рынок I. Международная: рынок II + гильдия I.
+  global-market-level: 2
+prices:
+  target-stock: 512
+  minimum-basis-points: 5000
+  maximum-basis-points: 20000
+  buyer-daily-cap: 256
+# Ограниченная работа журнала за один цикл сервера.
+purchases-per-second: 8
+retry-seconds: 60

@@ -67,6 +67,7 @@ public final class TradeMenuManager implements Listener {
                 "&7Казна: &#FFD45A" + trade.economy().format(trade.economy().balance(town)),
                 "&7Транзитная пошлина: &#FFFFFF" + trade.tariff(town) + "%")));
         inventory.setItem(44, actionItem("history", Material.WRITABLE_BOOK, "&#65B8FFИстория торговли", List.of("&7Завершённые караваны и сделки.")));
+        if(Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyMarket"))inventory.setItem(7,actionItem("markets",Material.CHEST,"&#63E6BEМеждународный рынок",List.of("&7Товарные предложения городов.")));
         inventory.setItem(8, actionItem("contracts",Material.CLOCK,"&#63E6BEРегулярные договоры",List.of("&7Поставки между складами по расписанию.")));
         player.openInventory(inventory);
     }
@@ -97,6 +98,7 @@ public final class TradeMenuManager implements Listener {
         ItemStack clicked = event.getCurrentItem(); if (clicked == null || !clicked.hasItemMeta()) return;
         String action = clicked.getItemMeta().getPersistentDataContainer().get(actionKey, PersistentDataType.STRING);
         if (holder.type() == TradeMenuHolder.Type.HISTORY) { if ("back".equals(action)) open(player); return; }
+        if ("markets".equals(action)) {player.performCommand("townymarket global");return;}
         if ("contracts".equals(action)) {if(supplies.access(player))supplies.open(player,0);return;}
         if ("history".equals(action)) { openHistory(player, town); return; }
         String offerId = clicked.getItemMeta().getPersistentDataContainer().get(offerKey, PersistentDataType.STRING);
