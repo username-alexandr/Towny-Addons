@@ -166,12 +166,19 @@ def main() -> int:
                     for helper in ("MaterialLabels", "MaterialNameConfig"):
                         if f"ru/neverland/localization/{helper}.class" not in archive.namelist():
                             errors.append(f"{jar.name}: missing localization helper {helper}")
-                if name in {"NeverLandTownyBuilds", "NeverLandTownyPopulation", "NeverLandTownyResources"}:
+                if name in {"NeverLandTownyBuilds", "NeverLandTownyPopulation", "NeverLandTownyResources", "NeverLandTownyPower"}:
                     if "ru/neverland/integration/DistrictBonuses.class" not in archive.namelist():
                         errors.append(f"{jar.name}: missing district integration")
-                if name in {"NeverLandTownyBuilds", "NeverLandTownyResources", "NeverLandTownyDistricts", "NeverLandTownyLogistics", "NeverLandTownyEvents"}:
+                if name in {"NeverLandTownyBuilds", "NeverLandTownyResources", "NeverLandTownyDistricts", "NeverLandTownyLogistics", "NeverLandTownyEvents", "NeverLandTownyPower"}:
                     if "ru/neverland/integration/BuildingOperations.class" not in archive.namelist():
                         errors.append(f"{jar.name}: missing upkeep activity integration")
+                if name == "NeverLandTownyPower":
+                    for resource in ("config.yml", "buildings.yml"):
+                        if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
+                            errors.append(f"{jar.name}: {resource} differs from sources")
+                    for helper in ("NeverLandTownyPower", "api/TownyPowerApi", "model/PowerEngine", "data/PowerRepository", "gui/PowerMenu", "integration/PowerExpansion", "integration/CityBridge"):
+                        if f"ru/neverland/townypower/{helper}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing power class {helper}")
                 if name == "NeverLandTownyUpkeep":
                     for resource in ("config.yml", "buildings.yml"):
                         if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
@@ -246,8 +253,8 @@ def main() -> int:
         "crystal_palace": {"merchant_guild": 5, "gallery": 4, "printing_house": 3},
         "great_canal": {"dam": 5, "pumping_station": 5, "reservoir": 4},
     }
-    if len(configured_ids) != 80 or set(projects["wonders"]) != expected_wonders:
-        errors.append("NeverLandTownyBuilds must contain 80 buildings and the 11 expected wonders")
+    if len(configured_ids) != 83 or set(projects["wonders"]) != expected_wonders:
+        errors.append("NeverLandTownyBuilds must contain 83 buildings and the 11 expected wonders")
     resource_ids = {"wood", "stone", "metal", "food", "water", "materials", "knowledge", "influence"}
     strategic = load_yaml(modules_dir / "NeverLandTownyResources/src/main/resources/config.yml")
     if set(strategic.get("resources", {})) != resource_ids:
@@ -277,6 +284,27 @@ def main() -> int:
             errors.append(f"Unknown upkeep resource: {project}")
         if profile.get("icon") != resource_profiles[project].get("icon"):
             errors.append(f"Upkeep icon does not match the resource catalog: {project}")
+    power_profiles = load_yaml(modules_dir / "NeverLandTownyPower/src/main/resources/buildings.yml").get("buildings", {})
+    if set(power_profiles) != configured_ids | expected_wonders:
+        errors.append("Power profiles must cover every building and wonder")
+    generators = set()
+    consumers = set()
+    for project, profile in power_profiles.items():
+        if not re.search(r"[А-Яа-яЁё]", str(profile.get("name", ""))):
+            errors.append(f"Power profile is not localized: {project}")
+        if profile.get("icon") != resource_profiles[project].get("icon"):
+            errors.append(f"Power icon does not match catalog: {project}")
+        for field in ("generation", "demand"):
+            values = profile.get(field, [])
+            if len(values) != (1 if project in expected_wonders else 5) or any(type(n) is not int or n < 0 or n > 1_000_000_000 for n in values) or values != sorted(values):
+                errors.append(f"Invalid power curve: {project}/{field}")
+        if any(profile.get("generation", [])): generators.add(project)
+        if any(profile.get("demand", [])): consumers.add(project)
+    if generators != {"mill", "water_wheel", "generator", "power_station"} or len(consumers) != 15 or generators & consumers:
+        errors.append("Expected four independent power sources and 15 consumers")
+    for project, prerequisites in {"water_wheel": {"mill": 3}, "generator": {"water_wheel": 3, "foundry": 3}, "power_station": {"generator": 4, "foundry": 4, "research": 3}}.items():
+        if projects["buildings"].get(project, {}).get("requires") != prerequisites or projects["buildings"][project].get("category") != "ENERGY":
+            errors.append(f"Incorrect energy progression: {project}")
     logistics = load_yaml(modules_dir / "NeverLandTownyLogistics/src/main/resources/config.yml")
     if set(logistics.get("hubs", [])) != {"warehouse", "cargo_terminal", "caravanserai", "trade_port"}:
         errors.append("Logistics must support the four dispatch buildings")
@@ -344,7 +372,7 @@ def main() -> int:
         return 1
 
     jar_status = "source-only" if args.source_only else f"{len(actual_jars)} JARs"
-    print(f"OK: {len(addons)} modules, {jar_status}, {yaml_count} YAML files, 80 buildings / 11 wonders")
+    print(f"OK: {len(addons)} modules, {jar_status}, {yaml_count} YAML files, 83 buildings / 11 wonders")
     return 0
 
 

@@ -1206,3 +1206,37 @@ buildings:
     capacity:
       water: 2000
     priority: 5
+
+  water_wheel:
+    name: Водяное колесо
+    icon: SPRUCE_TRAPDOOR
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    priority: 15
+    produces:
+      knowledge: 0.1
+    consumes: {}
+    capacity: {}
+  generator:
+    name: Генератор
+    icon: BLAST_FURNACE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    priority: 15
+    produces:
+      knowledge: 0.25
+    consumes: {}
+    capacity: {}
+  power_station:
+    name: Электростанция
+    icon: REDSTONE_BLOCK
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    priority: 15
+    produces:
+      knowledge: 0.5
+    consumes: {}
+    capacity: {}

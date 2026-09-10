@@ -23,8 +23,8 @@ public final class ImportedModelsSmoke {
         BuildingBlueprintGenerator generator = new BuildingBlueprintGenerator();
         ImportedModelBlueprintGenerator imported = new ImportedModelBlueprintGenerator();
         check(imported.supportedProjects().size() == 37, "Ожидалось 37 импортированных моделей");
-        check(generator.supportedBuildings().size() == 80, "Ожидалось 80 городских проектов");
-        check(generator.supportedProjects().size() == 91, "Ожидалось 91 физических проектов с Чудесами");
+        check(generator.supportedBuildings().size() == 83, "Ожидалось 83 городских проектов");
+        check(generator.supportedProjects().size() == 94, "Ожидалось 94 физических проектов с Чудесами");
 
         int totalBlocks = 0;
         long lowerDoors = 0;

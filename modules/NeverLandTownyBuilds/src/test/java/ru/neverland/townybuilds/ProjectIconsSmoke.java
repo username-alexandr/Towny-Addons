@@ -16,7 +16,7 @@ public final class ProjectIconsSmoke {
         }
         var icons = new HashSet<Material>();
         for (String id : List.of("agrarian_complex", "mill", "aqueduct", "irrigation_station", "water_tower",
-                "fire_station", "city_moat", "watch_fortress", "guard", "temple", "cathedral")) {
+                "water_wheel", "generator", "power_station", "fire_station", "city_moat", "watch_fortress", "guard", "temple", "cathedral")) {
             Material icon = Material.matchMaterial(yaml.getString("buildings." + id + ".icon"));
             check(icon != null && icons.add(icon), "Repeated or unknown icon: " + id);
         }

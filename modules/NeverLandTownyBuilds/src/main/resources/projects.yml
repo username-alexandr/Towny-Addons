@@ -1028,6 +1028,149 @@ buildings:
       4: {money: 24000, bonus-blocks: 2, resources: ["BOOKSHELF:8", "BARREL:4"], effects: []}
       5: {money: 32000, bonus-blocks: 3, resources: ["STONE_BRICKS:128", "LANTERN:8"], effects: []}
 
+  water_wheel:
+    name: '&#FFE066&lВодяное колесо'
+    icon: SPRUCE_TRAPDOOR
+    itemsadder-icon: ''
+    category: ENERGY
+    slot: 10
+    order: 230
+    description:
+    - Гидравлический узел городской энергосистемы.
+    - 'Развитие после мельницы; мощность: /t power.'
+    requires:
+      mill: 3
+    levels:
+      1:
+        money: 8000
+        bonus-blocks: 0
+        resources:
+        - STONE_BRICKS:96
+        effects: []
+      2:
+        money: 16000
+        bonus-blocks: 0
+        resources:
+        - SPRUCE_LOG:96
+        effects: []
+      3:
+        money: 32000
+        bonus-blocks: 0
+        resources:
+        - SPRUCE_PLANKS:128
+        - COPPER_INGOT:16
+        effects: []
+      4:
+        money: 64000
+        bonus-blocks: 0
+        resources:
+        - COPPER_INGOT:32
+        effects: []
+      5:
+        money: 128000
+        bonus-blocks: 0
+        resources:
+        - STONE_BRICKS:64
+        - IRON_INGOT:16
+        effects: []
+  generator:
+    name: '&#FFE066&lГенератор'
+    icon: BLAST_FURNACE
+    itemsadder-icon: ''
+    category: ENERGY
+    slot: 11
+    order: 231
+    description:
+    - Механический генератор для промышленного города.
+    - Питает оборудование старших уровней.
+    requires:
+      water_wheel: 3
+      foundry: 3
+    levels:
+      1:
+        money: 25000
+        bonus-blocks: 0
+        resources:
+        - STONE_BRICKS:128
+        effects: []
+      2:
+        money: 50000
+        bonus-blocks: 0
+        resources:
+        - BRICKS:128
+        - IRON_INGOT:32
+        effects: []
+      3:
+        money: 100000
+        bonus-blocks: 0
+        resources:
+        - COPPER_INGOT:64
+        - REDSTONE:32
+        effects: []
+      4:
+        money: 200000
+        bonus-blocks: 0
+        resources:
+        - IRON_INGOT:64
+        - COPPER_INGOT:64
+        effects: []
+      5:
+        money: 400000
+        bonus-blocks: 0
+        resources:
+        - REDSTONE:64
+        - GOLD_INGOT:16
+        effects: []
+  power_station:
+    name: '&#FFE066&lЭлектростанция'
+    icon: REDSTONE_BLOCK
+    itemsadder-icon: ''
+    category: ENERGY
+    slot: 12
+    order: 232
+    description:
+    - Центральная электростанция позднего развития.
+    - Большая мощность для заводов и исследований.
+    requires:
+      generator: 4
+      foundry: 4
+      research: 3
+    levels:
+      1:
+        money: 75000
+        bonus-blocks: 0
+        resources:
+        - STONE_BRICKS:128
+        effects: []
+      2:
+        money: 150000
+        bonus-blocks: 0
+        resources:
+        - BRICKS:128
+        - IRON_INGOT:32
+        effects: []
+      3:
+        money: 300000
+        bonus-blocks: 0
+        resources:
+        - COPPER_INGOT:64
+        - REDSTONE:32
+        effects: []
+      4:
+        money: 600000
+        bonus-blocks: 0
+        resources:
+        - IRON_INGOT:64
+        - COPPER_INGOT:64
+        effects: []
+      5:
+        money: 1200000
+        bonus-blocks: 0
+        resources:
+        - REDSTONE:64
+        - GOLD_INGOT:16
+        effects: []
+
 wonders:
   sun_pyramid:
     name: "&#FFD34E&lПирамида Солнца"

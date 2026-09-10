@@ -26,7 +26,7 @@ public final class UpkeepMenu implements Listener {
         else {
             for(int i=page*36;i<Math.min(buildings.size(),(page+1)*36);i++){var b=buildings.get(i);var lore=lore(b);lore.add("Нажмите: расходы и повтор оплаты.");button(v,i%36,icon(b.icon()),(b.active()?"&a":"&c")+b.name(),lore,()->open(p,town,page,b.key().project()));}
             long active=buildings.stream().filter(UpkeepSnapshot::active).count();long money=buildings.stream().filter(b->service.settings().profiles().get(b.key().project()).enabled()).mapToLong(b->b.cost().money()).sum();
-            button(v,40,Material.BELL,"&eСостояние города",List.of("Активно: "+active+"; неактивно: "+(buildings.size()-active),"Оценка денег за период: "+Cost.format(money,2),"Период: "+service.settings().period()+" сек. работы сервера","Расход растёт с размером города и уровнем зданий.",service.fault()?"Ошибка расчёта — обратитесь к администратору":"Здания сохраняются при неоплате."),null);
+            button(v,40,Material.BELL,"&eСостояние города",List.of("Обслуживается: "+active+"; без обслуживания: "+(buildings.size()-active),"Оценка денег за период: "+Cost.format(money,2),"Период: "+service.settings().period()+" сек. работы сервера","Расход растёт с размером города и уровнем зданий.",service.fault()?"Ошибка расчёта — обратитесь к администратору":"Здания сохраняются при неоплате."),null);
             Map<String,Long> totals=new TreeMap<>();for(var b:buildings)if(service.settings().profiles().get(b.key().project()).enabled())b.cost().resources().forEach((id,n)->totals.merge(id,n,Math::addExact));
             var costs=new ArrayList<String>();for(var row:totals.entrySet())if(row.getValue()>0)costs.add(resourceName(row.getKey())+": "+Cost.format(row.getValue(),3));if(costs.isEmpty())costs.add("Нет расхода стратегических ресурсов.");costs.add("Оценка полного периода для всех зданий города.");
             button(v,41,Material.PAPER,"&eРасход ресурсов города",costs,null);
@@ -34,9 +34,9 @@ public final class UpkeepMenu implements Listener {
             if(page>0)button(v,45,Material.ARROW,"&aНазад",List.of(),()->open(p,town,page-1,null));if(page+1<pages)button(v,53,Material.ARROW,"&aДалее",List.of(),()->open(p,town,page+1,null));
         }
         button(v,49,Material.CLOCK,"&aОбновить",List.of("Страница "+(page+1)+" / "+pages),()->open(p,town,page,project));
-        button(v,48,Material.CHEST,"&eРесурсы города",List.of("Открыть стратегические запасы."),()->p.performCommand("townyresources"));p.openInventory(v.inventory);
+        button(v,48,Material.CHEST,"&eРесурсы города",List.of("Открыть стратегические запасы."),()->p.performCommand("townyresources"));if(Bukkit.getPluginManager().getPlugin("NeverLandTownyPower")!=null)button(v,50,Material.REDSTONE,"&eЭнергоснабжение",List.of("Для работы зданию может требоваться питание."),()->p.performCommand("townypower"));p.openInventory(v.inventory);
     }
-    private List<String> lore(UpkeepSnapshot b){var lines=new ArrayList<String>();lines.add(b.active()?"&aАКТИВНО":"&cНЕАКТИВНО");lines.add(b.status());lines.add("Завершённый уровень: "+b.level());lines.add("До оплаты / повтора: "+b.seconds()+" сек. работы сервера");lines.add("Оценка следующего периода:");lines.addAll(cost(b.cost()));return lines;}
+    private List<String> lore(UpkeepSnapshot b){var lines=new ArrayList<String>();lines.add(b.active()?"&aОБСЛУЖИВАЕТСЯ":"&cБЕЗ ОБСЛУЖИВАНИЯ");lines.add(b.status());lines.add("Завершённый уровень: "+b.level());lines.add("До оплаты / повтора: "+b.seconds()+" сек. работы сервера");lines.add("Оценка следующего периода:");lines.addAll(cost(b.cost()));return lines;}
     private void detail(Player p,View v,UpkeepSnapshot b){
         button(v,13,icon(b.icon()),"&e"+b.name(),lore(b),null);
         if(b.invoice()!=null){var lines=new ArrayList<>(cost(b.invoice().cost()));lines.add("Цена текущего счёта уже зафиксирована.");if(p.hasPermission("neverlandtownyupkeep.admin"))lines.add("Счёт: "+b.invoice().id());button(v,22,Material.PAPER,"&eТекущий счёт",lines,null);}

@@ -1,0 +1,20 @@
+name: NeverLandTownyPower
+version: '0.1.0'
+main: ru.neverland.townypower.NeverLandTownyPower
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: Энергетическая ветка развития, мощность города и питание зданий.
+depend: [Towny, NeverLandTownyBuilds]
+softdepend: [NeverLandTownyUpkeep, NeverLandTownyDistricts, PlaceholderAPI]
+commands:
+  townypower:
+    aliases: [nltpower, citypower]
+    description: Энергоснабжение города
+    usage: /townypower [generators|consumers|info|pause|resume|priority|reload]
+permissions:
+  neverlandtownypower.use:
+    default: true
+  neverlandtownypower.manage:
+    default: false
+  neverlandtownypower.admin:
+    default: op

@@ -1,5 +1,5 @@
 name: NeverLandTownyUpkeep
-version: '0.1.0'
+version: '0.1.1'
 main: ru.neverland.townyupkeep.NeverLandTownyUpkeep
 api-version: '26.2'
 authors: [Alexander Sokolov]

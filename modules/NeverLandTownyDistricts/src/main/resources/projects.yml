@@ -1,4 +1,4 @@
-# Все 80 зданий и 11 чудес. Для пользовательских проектов добавьте свой ID.
+# Все 83 здания и 11 чудес. Для пользовательских проектов добавьте свой ID.
 projects:
   town_hall:
     name: Ратуша
@@ -364,3 +364,16 @@ projects:
     name: Великий канал
     icon: CONDUIT
     district: port
+
+  water_wheel:
+    name: Водяное колесо
+    icon: SPRUCE_TRAPDOOR
+    district: industrial
+  generator:
+    name: Генератор
+    icon: BLAST_FURNACE
+    district: industrial
+  power_station:
+    name: Электростанция
+    icon: REDSTONE_BLOCK
+    district: industrial

@@ -17,7 +17,7 @@ public final class ResourcesSmoke {
     private static ResourcesSettings settings(boolean population,Map<Resource,Long> cap,BuildingProfile... profiles){Map<String,BuildingProfile> buildings=new LinkedHashMap<>();for(var p:profiles)buildings.put(p.id(),p);Map<Resource,ResourcesSettings.Display> display=new EnumMap<>(Resource.class);for(var r:Resource.values())display.put(r,new ResourcesSettings.Display(r.title,r.icon));return new ResourcesSettings(60,population,1000,2000,Map.of(),cap,Map.of(),display,buildings);}
     private static Map<String,ResourceEngine.Building> built(String id,int level,double bonus){return Map.of(id,new ResourceEngine.Building(level,bonus,true));}
     public static void main(String[] args)throws Exception{
-        var defaults=ResourcesSettings.load(read("config.yml"),read("buildings.yml"));check(Resource.values().length==8,"eight resources");check(defaults.buildings().size()==91,"91 profiles");
+        var defaults=ResourcesSettings.load(read("config.yml"),read("buildings.yml"));check(Resource.values().length==8,"eight resources");check(defaults.buildings().size()==94,"94 profiles");
         for(var resource:Resource.values()) {
             check(defaults.buildings().values().stream().anyMatch(p->p.produces().get(resource)>0),"producer for "+resource);
             check(defaults.buildings().values().stream().anyMatch(p->p.consumes().get(resource)>0),"consumer for "+resource);
@@ -82,7 +82,8 @@ public final class ResourcesSmoke {
         check(headroom.state().balances().get(Resource.WOOD)==Amounts.MAX-4000,"output cannot fill reserved refund headroom");
         var legacy=new YamlConfiguration();legacy.load(escrowFile.toFile());legacy.set("schema",1);legacy.set("reservations",null);legacy.save(escrowFile.toFile());var migrated=new ResourcesRepository(escrowFile);migrated.load();check(migrated.states().get(town).balances().get(Resource.FOOD)==7000&&migrated.reservations().isEmpty(),"schema 1 migration preserves all balances");
         var inactive=ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,1,true,false)),0,config,100);check(inactive.state().balances().equals(initial.balances()),"inactive production has no output and no inputs");check(inactive.activity().get("producer").status().contains("НЕАКТИВНО"),"inactive status shown in resource menu");
+        var unpowered=ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,1,true,false,"Не хватает энергии: /t power")),0,config,100);check(unpowered.state().balances().equals(initial.balances())&&unpowered.activity().get("producer").status().contains("Не хватает энергии"),"power shortage preserves stock and reports its actual cause");
         var inactiveWarehouse=ResourceEngine.calculate(TownState.initial(defaults.initial()),Map.of("warehouse",new ResourceEngine.Building(5,1,true,false)),0,defaults,100);check(inactiveWarehouse.capacity().equals(defaults.baseCapacity()),"inactive warehouse removes strategic capacity bonus");
-        System.out.println("ResourcesSmoke OK: eight resources, 91 profiles, 1000 city cycles, conservation, reserves, priorities, shortages, capacity, district fractions durable restart and upkeep escrow");
+        System.out.println("ResourcesSmoke OK: eight resources, 94 profiles, 1000 city cycles, conservation, reserves, priorities, shortages, capacity, district fractions durable restart and upkeep escrow");
     }
 }
