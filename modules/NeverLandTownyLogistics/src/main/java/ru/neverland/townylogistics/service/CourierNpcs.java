@@ -74,7 +74,7 @@ public final class CourierNpcs implements Listener {
             boolean valid=path!=null&&path.canReachFinalPoint()&&NavigationPolicy.allowed(path.getPoints().stream().map(CourierNpcs::position).toList(),target,
                 point->loaded(point)&&owned(job.town(),point)&&!DANGER.contains(location(point).getBlock().getType())&&!DANGER.contains(location(point).getBlock().getRelative(0,-1,0).getType()));
             if(!valid){npc.getPathfinder().stopPathfinding();value.retryAt=now+settings.retry()*1000L;return new Motion(safePosition,false,"Нет безопасного пути; откройте проход или дверь");}
-            double speed=settings.level(level).speed();Material ground=npc.getLocation().getBlock().getRelative(0,-1,0).getType();Material feet=npc.getLocation().getBlock().getType();
+            double speed=ru.neverland.integration.ResearchEffects.speed(settings.level(level).speed(),ru.neverland.integration.ResearchBonuses.bonus(job.town(),"fast_caravans"));Material ground=npc.getLocation().getBlock().getRelative(0,-1,0).getType();Material feet=npc.getLocation().getBlock().getType();
             if(Tag.RAILS.isTagged(feet)||Tag.RAILS.isTagged(ground))speed*=1+settings.railBonus();else if(ROAD.contains(ground)||ROAD.contains(feet))speed*=1+settings.roadBonus();
             npc.getPathfinder().moveTo(path,speed);
         }

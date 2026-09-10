@@ -44,7 +44,7 @@ jobs:
           set -euo pipefail
           for module in modules/*; do
             if [[ -f "$module/build.gradle.kts" ]]; then
-              if [[ "${module##*/}" == "NeverLandTownyBuilds" || "${module##*/}" == "NeverLandTownyChronicles" || "${module##*/}" == "NeverLandTownyExpeditions" || "${module##*/}" == "NeverLandTownyEvents" || "${module##*/}" == "NeverLandTownyPopulation" || "${module##*/}" == "NeverLandTownyDistricts" || "${module##*/}" == "NeverLandTownyLogistics" || "${module##*/}" == "NeverLandTownyResources" || "${module##*/}" == "NeverLandTownyUpkeep" || "${module##*/}" == "NeverLandTownyPower" ]]; then
+              if [[ "${module##*/}" == "NeverLandTownyBuilds" || "${module##*/}" == "NeverLandTownyChronicles" || "${module##*/}" == "NeverLandTownyExpeditions" || "${module##*/}" == "NeverLandTownyEvents" || "${module##*/}" == "NeverLandTownyPopulation" || "${module##*/}" == "NeverLandTownyDistricts" || "${module##*/}" == "NeverLandTownyLogistics" || "${module##*/}" == "NeverLandTownyResources" || "${module##*/}" == "NeverLandTownyUpkeep" || "${module##*/}" == "NeverLandTownyPower" || "${module##*/}" == "NeverLandTownyResearch" ]]; then
                 gradle --no-daemon -p "$module" clean jar smokeTest
               else
                 gradle --no-daemon -p "$module" clean jar testClasses

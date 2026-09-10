@@ -35,6 +35,12 @@ public final class PopulationSmoke {
 
         var supplied=new Capacity(200,100,200,200,0);
         var healthy=PopulationMath.evaluate(100,supplied,rules);
+        check(Math.abs(PopulationMath.evaluate(100,supplied,rules,.3).change()-healthy.change()*1.3)<1e-9,"medicine boosts actual positive growth");
+        var medicineShortage=new Capacity(200,100,40,200,0);
+        check(PopulationMath.evaluate(100,medicineShortage,rules,.3).change()==PopulationMath.evaluate(100,medicineShortage,rules).change(),"medicine cannot suppress shortage decline");
+        check(PopulationMath.evaluate(100,new Capacity(100,100,200,200,0),rules,.3).change()==0,"medicine cannot bypass housing");
+        var medicineState=new PopulationState(100,.9,0,0);for(int i=0;i<100;i++)medicineState=PopulationMath.advance(medicineState,new Capacity(101,200,101,101,0),rules,i,.3);
+        check(medicineState.population()==101&&medicineState.remainder()==0,"medicine preserves sustainable limit and fractions");
         check(healthy.workforce()==60 && healthy.employed()==60 && healthy.unemployed()==0,"employment uses workforce");
         check(healthy.change()>0 && healthy.happiness()==70,"supplied population grows");
         check(PopulationMath.evaluate(100,new Capacity(200,0,200,200,0),rules).change()==0,"unemployment stops low-happiness growth");

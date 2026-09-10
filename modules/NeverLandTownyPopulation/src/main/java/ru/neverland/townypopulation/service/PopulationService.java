@@ -70,12 +70,13 @@ public final class PopulationService implements TownyPopulationApi {
             } catch(ReflectiveOperationException | RuntimeException | LinkageError ex) {
                 paused=true;warn("Стратегическое снабжение недоступно: "+ex.getMessage());
             }
+            double medicine=levels.getOrDefault("infirmary",0)>0?ru.neverland.integration.ResearchBonuses.bonus(id,"medicine"):0;
             if (paused || now < state.lastCycle()) state = state.rebase(now);
             if (!paused && advance && now-state.lastCycle() >= settings.intervalMillis())
-                state = PopulationMath.advance(state,capacity,settings.rules(),now);
+                state = PopulationMath.advance(state,capacity,settings.rules(),now,medicine);
             repository.put(id,state);
             towns.put(id,new PopulationSnapshot(id,town.getName(),state.population(),capacity,
-                    PopulationMath.evaluate(state.population(),capacity,settings.rules()),state.lastChange(),
+                    PopulationMath.evaluate(state.population(),capacity,settings.rules(),medicine),state.lastChange(),
                     state.lastCycle()+settings.intervalMillis(),paused,levels));
         }
         repository.retain(existing);

@@ -819,7 +819,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
         if (world == null) return;
         int hydrated = 0;
         int hydrationLimit = ru.neverland.integration.DistrictBonuses.output(level * 32,
-                ru.neverland.integration.DistrictBonuses.multiplier(data.townId(), "irrigation_station"));
+                ru.neverland.integration.ResearchBonuses.production(data.townId(),"irrigation_station",ru.neverland.integration.DistrictBonuses.multiplier(data.townId(), "irrigation_station")));
         int attempts = Math.min(1000, 140 * level);
         ThreadLocalRandom random = ThreadLocalRandom.current();
         for (int attempt = 0; attempt < attempts && hydrated < hydrationLimit; attempt++) {

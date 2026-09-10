@@ -172,6 +172,19 @@ def main() -> int:
                 if name in {"NeverLandTownyBuilds", "NeverLandTownyResources", "NeverLandTownyDistricts", "NeverLandTownyLogistics", "NeverLandTownyEvents", "NeverLandTownyPower"}:
                     if "ru/neverland/integration/BuildingOperations.class" not in archive.namelist():
                         errors.append(f"{jar.name}: missing upkeep activity integration")
+                if name in {"NeverLandTownyBuilds", "NeverLandTownyResources", "NeverLandTownyPopulation", "NeverLandTownyLogistics", "NeverLandTownyTrade", "NeverLandTownyResearch"}:
+                    for helper in ("ResearchBonuses", "ResearchEffects"):
+                        if f"ru/neverland/integration/{helper}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing research integration {helper}")
+                if name == "NeverLandTownyResearch":
+                    for resource in ("config.yml", "technologies.yml"):
+                        if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
+                            errors.append(f"{jar.name}: {resource} differs from sources")
+                    for helper in ("NeverLandTownyResearch", "api/TownyResearchApi", "model/ResearchProcessor", "data/ResearchRepository", "gui/ResearchMenu", "integration/ResearchExpansion", "integration/CityBridge", "integration/WallProtection"):
+                        if f"ru/neverland/townyresearch/{helper}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing research class {helper}")
+                    if "ru/neverland/integration/BuildingOperations.class" not in archive.namelist():
+                        errors.append(f"{jar.name}: missing scientific building activity gate")
                 if name == "NeverLandTownyPower":
                     for resource in ("config.yml", "buildings.yml"):
                         if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
@@ -255,6 +268,43 @@ def main() -> int:
     }
     if len(configured_ids) != 83 or set(projects["wonders"]) != expected_wonders:
         errors.append("NeverLandTownyBuilds must contain 83 buildings and the 11 expected wonders")
+    research = load_yaml(modules_dir / "NeverLandTownyResearch/src/main/resources/technologies.yml").get("technologies", {})
+    technology_ids = {"irrigation", "walls", "fast_caravans", "medicine", "navigation", "metallurgy", "alchemy"}
+    if set(research) != technology_ids:
+        errors.append("Research must configure all seven technologies")
+    research_graph = {}
+    for technology, profile in research.items():
+        if not re.search(r"[А-Яа-яЁё]", str(profile.get("name", ""))):
+            errors.append(f"Technology is not localized: {technology}")
+        levels = profile.get("levels", {})
+        if set(levels) != {1, 2, 3}:
+            errors.append(f"Expected three default research levels: {technology}")
+        for level, quote in levels.items():
+            if quote.get("knowledge") != {1: 750, 2: 2000, 3: 5000}.get(level) or quote.get("seconds") != {1: 300, 2: 900, 3: 1800}.get(level):
+                errors.append(f"Unexpected default research budget: {technology}/{level}")
+            if not quote.get("buildings") or set(quote["buildings"]) - configured_ids:
+                errors.append(f"Unknown required research building: {technology}/{level}")
+            for project, minimum in quote.get("buildings", {}).items():
+                if type(minimum) is not int or not 1 <= minimum <= 5:
+                    errors.append(f"Invalid required building level: {technology}/{project}")
+            science = {1: {"great_library": 3}, 2: {"great_library": 5, "university": 3}, 3: {"great_library": 5, "university": 5, "research": 3}}.get(level, {})
+            if any(quote.get("buildings", {}).get(k, 0) < v for k, v in science.items()):
+                errors.append(f"Scientific progression missing: {technology}/{level}")
+            deps = {(technology, level - 1)} if level > 1 else set()
+            deps |= set(quote.get("requires", {}).items())
+            research_graph[(technology, level)] = deps
+    done = set()
+    def visit_research(node, active):
+        if node not in research_graph:
+            errors.append(f"Unknown technology dependency: {node}")
+            return
+        if node in done: return
+        if node in active:
+            errors.append(f"Cyclic research dependency: {node}")
+            return
+        for dep in research_graph[node]: visit_research(dep, active | {node})
+        done.add(node)
+    for node in research_graph: visit_research(node, set())
     resource_ids = {"wood", "stone", "metal", "food", "water", "materials", "knowledge", "influence"}
     strategic = load_yaml(modules_dir / "NeverLandTownyResources/src/main/resources/config.yml")
     if set(strategic.get("resources", {})) != resource_ids:

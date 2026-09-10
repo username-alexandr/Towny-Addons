@@ -35,6 +35,9 @@ public final class ResourcesSmoke {
         var producer=profile("producer",stock(Resource.WOOD,3),stock(Resource.WATER,1),10);var config=settings(false,cap,producer);
         var initial=TownState.initial(stock(Resource.WATER,10));var result=ResourceEngine.calculate(initial,built("producer",5,1.15),0,config,100);
         check(result.state().balances().get(Resource.WOOD)==17250,"five levels with district output");check(result.state().balances().get(Resource.WATER)==5000,"district never multiplies costs");check(initial.balances().get(Resource.WATER)==10000,"immutable input");
+        var studied=ResourceEngine.calculate(initial,built("producer",5,ru.neverland.integration.ResearchEffects.production(1.15,.3)),0,config,100);
+        check(studied.state().balances().get(Resource.WOOD)==22425&&studied.state().balances().get(Resource.WATER)==5000,"research and district multiply output only with fixed precision");
+        check(studied.capacity().equals(result.capacity()),"research does not inflate storage capacity");
         check(ResourceEngine.calculate(initial,built("producer",0,1),0,config,100).state().balances().equals(initial.balances()),"unfinished no output");
         check(ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,1,false)),0,config,100).state().balances().equals(initial.balances()),"foreign footprint no output");
         var paused=initial.settings(initial.reserves(),Set.of("producer"),Map.of());check(ResourceEngine.calculate(paused,built("producer",5,1),0,config,100).state().balances().equals(initial.balances()),"pause no costs");

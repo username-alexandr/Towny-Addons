@@ -1,0 +1,251 @@
+# Полная стоимость и бонус каждого уровня, не прибавка к предыдущему.
+technologies:
+  irrigation:
+    name: Улучшенная ирригация
+    icon: WATER_BUCKET
+    description: Выпуск продовольствия аграрного комплекса и ирригационной станции.
+    enabled: true
+    levels:
+      1:
+        knowledge: 750
+        seconds: 300
+        bonus: 0.1
+        buildings:
+          great_library: 3
+          irrigation_station: 3
+        requires: {}
+      2:
+        knowledge: 2000
+        seconds: 900
+        bonus: 0.2
+        buildings:
+          great_library: 5
+          irrigation_station: 3
+          university: 3
+        requires: {}
+      3:
+        knowledge: 5000
+        seconds: 1800
+        bonus: 0.3
+        buildings:
+          great_library: 5
+          irrigation_station: 5
+          university: 5
+          research: 3
+        requires: {}
+  walls:
+    name: Усиленные стены
+    icon: STONE_BRICKS
+    description: Снижение урона враждебных мобов жителям на своей территории при действующей
+      крепостной стене.
+    enabled: true
+    levels:
+      1:
+        knowledge: 750
+        seconds: 300
+        bonus: 0.05
+        buildings:
+          great_library: 3
+          fortress_wall: 3
+        requires:
+          metallurgy: 1
+      2:
+        knowledge: 2000
+        seconds: 900
+        bonus: 0.1
+        buildings:
+          great_library: 5
+          fortress_wall: 3
+          university: 3
+        requires:
+          metallurgy: 1
+      3:
+        knowledge: 5000
+        seconds: 1800
+        bonus: 0.15
+        buildings:
+          great_library: 5
+          fortress_wall: 5
+          university: 5
+          research: 3
+        requires:
+          metallurgy: 1
+  fast_caravans:
+    name: Быстрые караваны
+    icon: SADDLE
+    description: Ускорение NPC-курьеров и сокращение времени новых торговых караванов.
+    enabled: true
+    levels:
+      1:
+        knowledge: 750
+        seconds: 300
+        bonus: 0.1
+        buildings:
+          great_library: 3
+          caravanserai: 3
+        requires: {}
+      2:
+        knowledge: 2000
+        seconds: 900
+        bonus: 0.2
+        buildings:
+          great_library: 5
+          caravanserai: 3
+          university: 3
+        requires: {}
+      3:
+        knowledge: 5000
+        seconds: 1800
+        bonus: 0.3
+        buildings:
+          great_library: 5
+          caravanserai: 5
+          university: 5
+          research: 3
+        requires: {}
+  medicine:
+    name: Медицина
+    icon: GOLDEN_APPLE
+    description: Ускорение положительного прироста при действующем лазарете; жильё
+      и снабжение остаются обязательными.
+    enabled: true
+    levels:
+      1:
+        knowledge: 750
+        seconds: 300
+        bonus: 0.1
+        buildings:
+          great_library: 3
+          infirmary: 3
+        requires:
+          irrigation: 1
+      2:
+        knowledge: 2000
+        seconds: 900
+        bonus: 0.2
+        buildings:
+          great_library: 5
+          infirmary: 3
+          university: 3
+        requires:
+          irrigation: 1
+      3:
+        knowledge: 5000
+        seconds: 1800
+        bonus: 0.3
+        buildings:
+          great_library: 5
+          infirmary: 5
+          university: 5
+          research: 3
+        requires:
+          irrigation: 1
+  navigation:
+    name: Навигация
+    icon: COMPASS
+    description: Снижение вероятности задержек новых торговых караванов в процентных
+      пунктах.
+    enabled: true
+    levels:
+      1:
+        knowledge: 750
+        seconds: 300
+        bonus: 0.02
+        buildings:
+          great_library: 3
+          trade_port: 3
+        requires:
+          fast_caravans: 1
+      2:
+        knowledge: 2000
+        seconds: 900
+        bonus: 0.04
+        buildings:
+          great_library: 5
+          trade_port: 3
+          university: 3
+        requires:
+          fast_caravans: 1
+      3:
+        knowledge: 5000
+        seconds: 1800
+        bonus: 0.06
+        buildings:
+          great_library: 5
+          trade_port: 5
+          university: 5
+          research: 3
+        requires:
+          fast_caravans: 1
+  metallurgy:
+    name: Металлургия
+    icon: IRON_INGOT
+    description: Увеличение выпуска металла литейной и стройматериалов кузницы.
+    enabled: true
+    levels:
+      1:
+        knowledge: 750
+        seconds: 300
+        bonus: 0.1
+        buildings:
+          great_library: 3
+          foundry: 3
+        requires: {}
+      2:
+        knowledge: 2000
+        seconds: 900
+        bonus: 0.2
+        buildings:
+          great_library: 5
+          foundry: 3
+          university: 3
+        requires: {}
+      3:
+        knowledge: 5000
+        seconds: 1800
+        bonus: 0.3
+        buildings:
+          great_library: 5
+          foundry: 5
+          university: 5
+          research: 3
+        requires: {}
+  alchemy:
+    name: Алхимия
+    icon: BREWING_STAND
+    description: Увеличение выпуска знаний алхимической лаборатории.
+    enabled: true
+    levels:
+      1:
+        knowledge: 750
+        seconds: 300
+        bonus: 0.1
+        buildings:
+          great_library: 3
+          alchemy: 3
+        requires:
+          medicine: 1
+          metallurgy: 1
+      2:
+        knowledge: 2000
+        seconds: 900
+        bonus: 0.2
+        buildings:
+          great_library: 5
+          alchemy: 3
+          university: 3
+        requires:
+          medicine: 1
+          metallurgy: 1
+      3:
+        knowledge: 5000
+        seconds: 1800
+        bonus: 0.3
+        buildings:
+          great_library: 5
+          alchemy: 5
+          university: 5
+          research: 3
+        requires:
+          medicine: 1
+          metallurgy: 1
