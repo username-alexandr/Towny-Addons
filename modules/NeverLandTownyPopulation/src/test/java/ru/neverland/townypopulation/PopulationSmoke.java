@@ -43,6 +43,8 @@ public final class PopulationSmoke {
         check(medicineState.population()==101&&medicineState.remainder()==0,"medicine preserves sustainable limit and fractions");
         check(healthy.workforce()==60 && healthy.employed()==60 && healthy.unemployed()==0,"employment uses workforce");
         check(healthy.change()>0 && healthy.happiness()==70,"supplied population grows");
+        check(PopulationMath.evaluate(100,supplied.plus(new Capacity(0,0,0,0,-8)),rules).happiness()==62,"mobilization policy decreases actual happiness");
+        check(PopulationMath.evaluate(100,new Capacity(200,100,74,200,5),rules).change()<0,"tax happiness cannot remove critical shortages");
         var religious=supplied.plus(new Capacity(0,0,0,0,10));check(PopulationMath.evaluate(100,religious,rules).happiness()==80,"religious specialization adds happiness points");
         check(PopulationMath.evaluate(100,new Capacity(200,100,74,200,10),rules).change()<0,"religious happiness cannot remove critical food shortage");
         check(PopulationMath.evaluate(100,new Capacity(100,100,200,200,10),rules).change()==0,"religious bonus cannot exceed housing");

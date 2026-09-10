@@ -14,7 +14,7 @@ public final class CityBridge {
         Map<?,?> values=(Map<?,?>)type.getMethod("buildingFootprints",UUID.class).invoke(api,town);Map<String,Building> result=new HashMap<>();
         for(var entry:values.entrySet()){
             Object b=entry.getValue();String id=entry.getKey().toString();int completed=integer(b,"completedLevel");
-            result.put(id,new Building(Math.max(0,Math.min(5,completed)),ru.neverland.integration.SpecializationAccess.production(town,id,ru.neverland.integration.ResearchBonuses.production(town,id,ru.neverland.integration.DistrictBonuses.multiplier(town,id))),owned(town,b),ru.neverland.integration.BuildingOperations.active(town,id),ru.neverland.integration.BuildingOperations.inactiveReason(town,id)));
+            result.put(id,new Building(Math.max(0,Math.min(5,completed)),ru.neverland.integration.SpecializationAccess.production(town,id,ru.neverland.integration.ResearchBonuses.production(town,id,ru.neverland.integration.DistrictBonuses.multiplier(town,id))),owned(town,b),ru.neverland.integration.BuildingOperations.active(town,id),ru.neverland.integration.BuildingOperations.inactiveReason(town,id),ru.neverland.integration.PoliciesAccess.production(town,id)));
         }
         return Map.copyOf(result);
     }

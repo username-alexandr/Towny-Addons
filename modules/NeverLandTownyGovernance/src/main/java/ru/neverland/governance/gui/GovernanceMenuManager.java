@@ -59,6 +59,7 @@ public final class GovernanceMenuManager implements Listener {
         menu.setItem(14, tagged(Material.PLAYER_HEAD, "main_council", "", "&#C77DFFГородской совет", List.of(
                 "&7Членов совета: &f" + governance.council(town).size(), "", "&#FFD166Нажмите, чтобы открыть")));
         menu.setItem(16, tagged(Material.COMPARATOR, "main_modifiers", "", "&#FFA94DДействующие решения", modifierLore(town)));
+        if(Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyPolicies"))menu.setItem(29,tagged(Material.PAPER,"main_policies","","&eГородские указы",List.of("&7Экономические политики мэра и их издержки.")));
         menu.setItem(31, tagged(Material.WRITABLE_BOOK, "main_history", "", "&#ADB5BDИстория решений", List.of(
                 "&7Записей: &f" + data.history().size(), "", "&#FFD166Нажмите, чтобы открыть")));
         menu.setItem(40, item(Material.MAP, "&#FFFFFFГород: &#63E6BE" + town.getName(), List.of(
@@ -137,6 +138,7 @@ public final class GovernanceMenuManager implements Listener {
         if (action == null) return;
         switch (action) {
             case "main_laws" -> openLaws(player); case "main_votes" -> openVotes(player); case "main_council" -> openCouncil(player);
+            case "main_policies" -> player.performCommand("townypolicies");
             case "main_history" -> openHistory(player); case "back" -> openMain(player);
             case "law" -> {
                 if (!event.isShiftClick()) return; Town town = towny.town(player); if (town == null) return;

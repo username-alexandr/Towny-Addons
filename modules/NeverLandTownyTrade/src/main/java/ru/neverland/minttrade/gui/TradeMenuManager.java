@@ -115,6 +115,7 @@ public final class TradeMenuManager implements Listener {
             case NOT_BUYER -> messages.send(player, "not-offer-party"); case MARKET_REQUIRED -> messages.send(player, "market-required");
             case ROUTE_LIMIT -> messages.send(player, "route-limit"); case ROUTE_UNAVAILABLE -> messages.send(player, "route-unavailable");
             case SANCTIONED -> messages.send(player, "trade-blocked");
+            case IMPORT_RESTRICTED -> messages.send(player,"policy-import-blocked");
             case NO_MONEY -> messages.send(player, "not-enough-treasury", Map.of("amount", trade.economy().format(outcome.required())));
             case STOCK_LOW -> messages.send(player, "seller-stock-low", Map.of("amount", "полный объём"));
             case WAREHOUSE_BUSY -> messages.send(player, "warehouse-busy"); case WAREHOUSE_UNAVAILABLE -> messages.send(player, "warehouse-unavailable");

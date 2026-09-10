@@ -13,5 +13,6 @@ public record Cost(long money, Map<String,Long> resources) {
     public static String format(long value,int scale){return BigDecimal.valueOf(value,scale).stripTrailingZeros().toPlainString().replace('.',',');}
     public Cost multiply(int level,BigDecimal factor){if(level<1||level>5||factor.compareTo(BigDecimal.ONE)<0||factor.compareTo(BigDecimal.valueOf(20))>0)throw new IllegalArgumentException("Некорректный множитель содержания");
         BigDecimal n=factor.multiply(BigDecimal.valueOf(level));Map<String,Long> next=new HashMap<>();resources.forEach((id,v)->next.put(id,scale(v,n)));return new Cost(scale(money,n),next);}
+    public Cost policy(double multiplier){double safe=ru.neverland.integration.PolicyEffects.bound(multiplier,1,3,1);BigDecimal factor=BigDecimal.valueOf(safe);Map<String,Long> next=new HashMap<>();resources.forEach((id,value)->next.put(id,scale(value,factor)));return new Cost(scale(money,factor),next);}
     private static long scale(long value,BigDecimal factor){return BigDecimal.valueOf(value).multiply(factor).setScale(0,RoundingMode.CEILING).longValueExact();}
 }

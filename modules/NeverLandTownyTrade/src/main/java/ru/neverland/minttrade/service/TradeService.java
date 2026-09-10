@@ -27,9 +27,9 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class TradeService {
-    public enum ProposeResult { SUCCESS, SAME_TOWN, MARKET_REQUIRED, ROUTE_LIMIT, DUPLICATE, ROUTE_UNAVAILABLE, SANCTIONED }
+    public enum ProposeResult { SUCCESS, SAME_TOWN, MARKET_REQUIRED, ROUTE_LIMIT, DUPLICATE, ROUTE_UNAVAILABLE, SANCTIONED, IMPORT_RESTRICTED }
     public enum AcceptResult { SUCCESS, NOT_FOUND, NOT_BUYER, MARKET_REQUIRED, ROUTE_LIMIT, ROUTE_UNAVAILABLE,
-        NO_MONEY, STOCK_LOW, WAREHOUSE_BUSY, WAREHOUSE_UNAVAILABLE, ECONOMY_ERROR, SAVE_ERROR, SANCTIONED }
+        NO_MONEY, STOCK_LOW, WAREHOUSE_BUSY, WAREHOUSE_UNAVAILABLE, ECONOMY_ERROR, SAVE_ERROR, SANCTIONED, IMPORT_RESTRICTED }
     public enum CancelResult { SUCCESS, NOT_FOUND, NOT_PARTY, WAREHOUSE_BUSY, WAREHOUSE_UNAVAILABLE }
     public record ProposeOutcome(ProposeResult result, TradeOffer offer) {}
     public record AcceptOutcome(AcceptResult result, Caravan caravan, double required) {}
@@ -58,9 +58,11 @@ public final class TradeService {
     }
     public void shutdown() { if (task != null) task.cancel(); task = null; repository.save(); }
 
+    private boolean importsAllowed(Town buyer,Town seller){var nation=buyer.getNationOrNull();boolean sameNation=nation!=null&&seller.getNationOrNull()!=null&&nation.getUUID().equals(seller.getNationOrNull().getUUID());return ru.neverland.integration.PoliciesAccess.importsAllowed(buyer.getUUID(),seller.getUUID(),sameNation);}
     public ProposeOutcome propose(Town seller, Town buyer, ExportDefinition definition) {
         if (seller == null || buyer == null || definition == null) return new ProposeOutcome(ProposeResult.ROUTE_UNAVAILABLE, null);
         if (seller.getUUID().equals(buyer.getUUID())) return new ProposeOutcome(ProposeResult.SAME_TOWN, null);
+        if (!importsAllowed(buyer,seller)) return new ProposeOutcome(ProposeResult.IMPORT_RESTRICTED,null);
         if (taxes.tradeBlocked(seller.getUUID(), buyer.getUUID())) return new ProposeOutcome(ProposeResult.SANCTIONED, null);
         if (marketLevel(seller) <= 0 || marketLevel(buyer) <= 0) return new ProposeOutcome(ProposeResult.MARKET_REQUIRED, null);
         if (!hasRouteSlot(seller) || !hasRouteSlot(buyer)) return new ProposeOutcome(ProposeResult.ROUTE_LIMIT, null);
@@ -82,6 +84,7 @@ public final class TradeService {
         if (buyer == null || !buyer.getUUID().equals(offer.buyerId())) return new AcceptOutcome(AcceptResult.NOT_BUYER, null, 0);
         Town seller = towny.town(offer.sellerId()); ExportDefinition definition = registry.get(offer.exportId());
         if (seller == null || definition == null) { repository.remove(offer); saveNow(); return new AcceptOutcome(AcceptResult.NOT_FOUND, null, 0); }
+        if (!importsAllowed(buyer,seller)) return new AcceptOutcome(AcceptResult.IMPORT_RESTRICTED,null,0);
         if (taxes.tradeBlocked(seller.getUUID(), buyer.getUUID())) return new AcceptOutcome(AcceptResult.SANCTIONED, null, 0);
         if (marketLevel(seller) <= 0 || marketLevel(buyer) <= 0) return new AcceptOutcome(AcceptResult.MARKET_REQUIRED, null, 0);
         if (!hasRouteSlot(seller) || !hasRouteSlot(buyer)) return new AcceptOutcome(AcceptResult.ROUTE_LIMIT, null, 0);
@@ -140,7 +143,8 @@ public final class TradeService {
     }
     public boolean forceComplete(Caravan caravan) { return caravan != null && deliver(caravan); }
 
-    public double tariff(Town town) { return repository.tariff(town.getUUID(), plugin.getConfig().getDouble("tariffs.default-percent", 0)); }
+    public double tariff(Town town) { return tariff(town.getUUID()); }
+    private double tariff(UUID town) { return ru.neverland.integration.PoliciesAccess.tariff(town,repository.tariff(town,plugin.getConfig().getDouble("tariffs.default-percent",0)),maxTariff()); }
     public double maxTariff() { return plugin.getConfig().getDouble("tariffs.maximum-percent", 20); }
     public boolean setTariff(Town town, double percent) {
         double max = maxTariff();
@@ -213,7 +217,7 @@ public final class TradeService {
         Map<UUID, Double> result = new LinkedHashMap<>();
         double preference = taxes.preferenceMultiplier(seller.getUUID(), buyer.getUUID());
         for (UUID townId : towns) {
-            double percent = repository.tariff(townId, plugin.getConfig().getDouble("tariffs.default-percent", 0));
+            double percent = tariff(townId);
             double amount = cents(TradeMath.tariff(definition.price(), percent) * preference); if (amount > 0) result.put(townId, amount);
         }
         return result;

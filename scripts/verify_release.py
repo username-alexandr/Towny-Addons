@@ -187,6 +187,25 @@ def main() -> int:
                     for helper in ("NeverLandTownySpecialization", "api/TownySpecializationApi", "model/SelectionPolicy", "data/SpecializationRepository", "gui/SpecializationMenu", "service/SpecializationService", "integration/SpecializationExpansion", "integration/FortressProtection"):
                         if f"ru/neverland/townyspecialization/{helper}.class" not in archive.namelist():
                             errors.append(f"{jar.name}: missing specialization class {helper}")
+                if name in {"NeverLandTowny" + short for short in ("Policies", "Builds", "Resources", "Population", "Upkeep", "Trade", "Taxes")}:
+                    for helper in ("PolicyEffects", "PoliciesAccess"):
+                        if f"ru/neverland/integration/{helper}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing city policy integration {helper}")
+                if name == "NeverLandTownyPolicies":
+                    for resource in ("config.yml", "policies.yml"):
+                        if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
+                            errors.append(f"{jar.name}: {resource} differs from sources")
+                    for helper in ("NeverLandTownyPolicies", "api/TownyPoliciesApi", "model/SelectionPolicy", "data/PoliciesRepository", "gui/PoliciesMenu", "service/PoliciesService", "integration/PoliciesExpansion"):
+                        if f"ru/neverland/townypolicies/{helper}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing city policies class {helper}")
+                    if "ru/neverland/townytaxes/api/NeverLandTownyTaxesApi.class" in archive.namelist() or "ru/neverland/townypolicies/GateSmoke.class" in archive.namelist():
+                        errors.append(f"{jar.name}: test fixture leaked into release")
+                if name == "NeverLandTownyTaxes":
+                    if "ru/neverland/townytaxes/model/MunicipalTaxes.class" not in archive.namelist():
+                        errors.append(f"{jar.name}: missing municipal tax scope rule")
+                if name == "NeverLandTownyTrade":
+                    if archive.read("messages.yml") != (module / "src/main/resources/messages.yml").read_bytes():
+                        errors.append(f"{jar.name}: trade policy messages differ from source")
                 if name == "NeverLandTownyResearch":
                     for resource in ("config.yml", "technologies.yml"):
                         if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
@@ -349,6 +368,32 @@ def main() -> int:
         for dep in research_graph[node]: visit_research(dep, active | {node})
         done.add(node)
     for node in research_graph: visit_research(node, set())
+    policies = load_yaml(modules_dir / "NeverLandTownyPolicies/src/main/resources/policies.yml").get("policies", {})
+    policy_config = load_yaml(modules_dir / "NeverLandTownyPolicies/src/main/resources/config.yml")
+    if set(policies) != {"taxes", "tariffs", "mobilization", "farmers", "imports", "industry"}:
+        errors.append("Policies must configure six economic categories")
+    if policy_config.get("selection", {}).get("change-cooldown-hours") != 24:
+        errors.append("Default policies cooldown must be 24 hours per category")
+    if len({g.get("icon") for g in policies.values()}) != 6:
+        errors.append("Each policy group needs a distinct icon")
+    effect_modules = {"tax": "Taxes", "tariff": "Trade", "trade_time": "Trade", "army": "Builds", "production": "Resources", "upkeep": "Upkeep", "happiness": "Population"}
+    for group, profile in policies.items():
+        options = profile.get("options", {})
+        standard = options.get(profile.get("default"), {})
+        if len(options) != 3 or standard.get("effects") != {} or standard.get("requires") != []:
+            errors.append(f"Policy {group} needs three modes and a neutral default")
+        for mode, option in options.items():
+            if not re.search(r"[А-Яа-яЁё]", str(option.get("name", ""))) or not option.get("advantages") or not option.get("disadvantages"):
+                errors.append(f"Policy mode {group}/{mode} requires Russian name, advantages and disadvantages")
+            needed = {"NeverLandTowny" + effect_modules[e] for e in option.get("effects", {}) if e in effect_modules}
+            if group == "imports" and mode != "open": needed.add("NeverLandTownyTrade")
+            if set(option.get("effects", {})) - set(effect_modules) or not needed <= set(option.get("requires", [])):
+                errors.append(f"Policy dependencies do not cover its effects: {group}/{mode}")
+            for field in ("production-projects", "upkeep-projects"):
+                if set(option.get(field, [])) - (configured_ids | expected_wonders | {"*"}):
+                    errors.append(f"Policy references unknown buildings: {group}/{mode}/{field}")
+    if set(policies.get("imports", {}).get("options", {})) != {"open", "nation", "closed"}:
+        errors.append("Import modes must be open, same nation and closed")
     resource_ids = {"wood", "stone", "metal", "food", "water", "materials", "knowledge", "influence"}
     strategic = load_yaml(modules_dir / "NeverLandTownyResources/src/main/resources/config.yml")
     if set(strategic.get("resources", {})) != resource_ids:

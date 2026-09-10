@@ -1,5 +1,5 @@
 name: NeverLandTownyBuilds
-version: '0.8.4'
+version: '0.8.5'
 main: ru.neverland.townybuilds.NeverLandTownyBuilds
 api-version: '26.2'
 authors: [Alexander Sokolov]

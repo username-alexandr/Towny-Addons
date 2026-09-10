@@ -35,6 +35,9 @@ public final class ResourcesSmoke {
         var producer=profile("producer",stock(Resource.WOOD,3),stock(Resource.WATER,1),10);var config=settings(false,cap,producer);
         var initial=TownState.initial(stock(Resource.WATER,10));var result=ResourceEngine.calculate(initial,built("producer",5,1.15),0,config,100);
         check(result.state().balances().get(Resource.WOOD)==17250,"five levels with district output");check(result.state().balances().get(Resource.WATER)==5000,"district never multiplies costs");check(initial.balances().get(Resource.WATER)==10000,"immutable input");
+        var subsidy=ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,1.15,true,true,"",1.3)),0,config,100);check(subsidy.state().balances().get(Resource.WOOD)==22425&&subsidy.state().balances().get(Resource.WATER)==5000,"policies increase actual output with unchanged input");
+        var mobilized=ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,1,true,true,"",.85)),0,config,100);check(mobilized.state().balances().get(Resource.WOOD)==12750&&mobilized.state().balances().get(Resource.WATER)==5000,"mobilization penalty applies below base output without reducing costs");
+        var limited=ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,3,true,true,"",2)),0,config,100);check(limited.state().balances().get(Resource.WOOD)==45000&&limited.capacity().equals(result.capacity()),"joint output cap x3 and unchanged storage");
         var studied=ResourceEngine.calculate(initial,built("producer",5,ru.neverland.integration.ResearchEffects.production(1.15,.3)),0,config,100);
         check(studied.state().balances().get(Resource.WOOD)==22425&&studied.state().balances().get(Resource.WATER)==5000,"research and district multiply output only with fixed precision");
         check(studied.capacity().equals(result.capacity()),"research does not inflate storage capacity");

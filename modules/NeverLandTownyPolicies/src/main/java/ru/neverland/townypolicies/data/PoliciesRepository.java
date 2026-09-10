@@ -1,0 +1,19 @@
+package ru.neverland.townypolicies.data;
+import java.nio.file.*;
+import java.nio.channels.FileChannel;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.io.IOException;
+import java.util.*;
+import org.bukkit.configuration.file.YamlConfiguration;
+import ru.neverland.townypolicies.model.*;
+import static ru.neverland.townypolicies.config.PoliciesSettings.integer;
+public final class PoliciesRepository {
+    private final Path file;private boolean writable;private volatile Map<UUID,CityPolicies> towns=Map.of();
+    public PoliciesRepository(Path file){this.file=file;}public CityPolicies get(UUID town){return towns.getOrDefault(town,CityPolicies.empty());}public Map<UUID,CityPolicies> towns(){return towns;}
+    public void load()throws Exception{writable=false;if(!Files.exists(file)){towns=Map.of();writable=true;return;}var y=new YamlConfiguration();y.load(file.toFile());if(integer(y.get("schema"))!=1||!y.isConfigurationSection("towns"))throw new IOException("Неверная схема policies-data.yml");var next=new HashMap<UUID,CityPolicies>();var root=y.getConfigurationSection("towns");for(String id:root.getKeys(false)){var t=root.getConfigurationSection(id);if(t==null||!t.isConfigurationSection("choices")||!t.isConfigurationSection("history"))throw new IOException("Неверная запись города");var choices=new HashMap<String,CityPolicies.Choice>();var c=t.getConfigurationSection("choices");for(String group:c.getKeys(false)){var v=c.getConfigurationSection(group);if(v==null)throw new IOException("Неверный выбор");choices.put(group,new CityPolicies.Choice(v.getString("mode"),integer(v.get("at")),integer(v.get("next"))));}var history=new ArrayList<CityPolicies.Change>();var h=t.getConfigurationSection("history");for(String key:h.getKeys(false)){var v=h.getConfigurationSection(key);if(v==null)throw new IOException("Неверная история");history.add(new CityPolicies.Change(integer(v.get("at")),v.getString("group"),v.getString("before"),v.getString("after"),UUID.fromString(v.getString("actor")),v.getString("actor-name")));}next.put(UUID.fromString(id),new CityPolicies(integer(t.get("revision")),choices,history));}towns=Map.copyOf(next);writable=true;}
+    public void put(UUID town,CityPolicies state)throws IOException{var next=new HashMap<>(towns);next.put(town,state);replace(next);}
+    public void replace(Map<UUID,CityPolicies> next)throws IOException{if(!writable)throw new IOException("База не загружена: запись запрещена");next=Map.copyOf(next);if(next.equals(towns))return;var y=new YamlConfiguration();y.set("schema",1);y.createSection("towns");for(var row:next.entrySet()){String k="towns."+row.getKey()+".";var state=row.getValue();y.set(k+"revision",state.revision());y.createSection(k+"choices");y.createSection(k+"history");state.choices().forEach((group,c)->{String p=k+"choices."+group+".";y.set(p+"mode",c.mode());y.set(p+"at",c.chosenAt());y.set(p+"next",c.nextChangeAt());});for(int i=0;i<state.history().size();i++){var h=state.history().get(i);String p=k+"history."+i+".";y.set(p+"at",h.at());y.set(p+"group",h.group());y.set(p+"before",h.before());y.set(p+"after",h.after());y.set(p+"actor",h.actor().toString());y.set(p+"actor-name",h.actorName());}}
+        Path parent=file.toAbsolutePath().getParent();Files.createDirectories(parent);Path temp=Files.createTempFile(parent,"policies-",".tmp");try{try(var channel=FileChannel.open(temp,StandardOpenOption.WRITE,StandardOpenOption.TRUNCATE_EXISTING)){var bytes=ByteBuffer.wrap(y.saveToString().getBytes(StandardCharsets.UTF_8));while(bytes.hasRemaining())channel.write(bytes);channel.force(true);}try{Files.move(temp,file,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);}catch(AtomicMoveNotSupportedException e){Files.move(temp,file,StandardCopyOption.REPLACE_EXISTING);}towns=next;}finally{Files.deleteIfExists(temp);}
+    }
+}

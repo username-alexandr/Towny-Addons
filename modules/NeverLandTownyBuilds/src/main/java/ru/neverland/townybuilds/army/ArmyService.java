@@ -83,8 +83,8 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         }
     }
     private int level(Town town) { return town == null ? 0 : data.town(town.getUUID()).operationalLevel("army"); }
-    private int capacity(Town town) { return town == null ? 0 : (int)Math.floor(level(town) * Math.max(1, Math.min(1000, plugin.getConfig().getInt("army.soldiers-per-level", 10)))
-            * ru.neverland.integration.DistrictBonuses.multiplier(town.getUUID(), "army")); }
+    private int capacity(Town town) { if(town==null)return 0;int base=(int)Math.floor(level(town) * Math.max(1, Math.min(1000, plugin.getConfig().getInt("army.soldiers-per-level", 10)))
+            * ru.neverland.integration.DistrictBonuses.multiplier(town.getUUID(), "army"));return ru.neverland.integration.PolicyEffects.capacity(base,ru.neverland.integration.PoliciesAccess.effect(town.getUUID(),"army")); }
     private boolean manager(Player player, Town town) { return towny.isMayor(player, town) || player.hasPermission("neverlandtownybuilds.army.mobilize"); }
     private boolean sameTown(Resident resident, Town town) { return resident != null && resident.getTownOrNull() != null && resident.getTownOrNull().getUUID().equals(town.getUUID()); }
     @Override public boolean isMobilized(UUID id) {
@@ -92,7 +92,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         if (townId == null) return false;
         Town town = towny.town(townId);
         Resident resident = TownyAPI.getInstance().getResident(id);
-        return town != null && level(town) > 0 && sameTown(resident, town) && age(id).orElse(-1) >= 18;
+        return town != null && level(town) > 0 && sameTown(resident, town) && age(id).orElse(-1) >= 18 && ru.neverland.integration.PolicyEffects.rosterActive(roster,id,townId,capacity(town));
     }
     @Override public Set<UUID> soldiers(UUID townId) {
         Set<UUID> result = new LinkedHashSet<>();
@@ -185,7 +185,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
             holder.residents.put(slot, id);
             holder.inventory.setItem(slot, item(mobilized ? Material.IRON_SWORD : Material.PLAYER_HEAD, resident.getName(), List.of(
                     "&7Возраст персонажа: &f" + (age.isPresent() ? age.getAsInt() : "не подтверждён"),
-                    mobilized ? (isMobilized(id) ? "&aМобилизован" : "&eСлужба приостановлена: проверьте возраст") : "&7Гражданский",
+                    mobilized ? (isMobilized(id) ? "&aМобилизован" : "&eРезерв: возраст, лимит или состояние штаба") : "&7Гражданский",
                     manager(player, town) ? (mobilized ? "&eНажмите для демобилизации" : "&aНажмите для мобилизации (18+)") : "&7Управление доступно мэру/офицеру")));
         }
         holder.inventory.setItem(49, item(Material.NETHERITE_HELMET, "Штаб армии · уровень " + level(town), List.of(

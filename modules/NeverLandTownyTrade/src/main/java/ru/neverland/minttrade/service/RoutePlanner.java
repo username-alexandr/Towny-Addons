@@ -62,7 +62,7 @@ public final class RoutePlanner {
         double specializationSpeed=Math.max(ru.neverland.integration.SpecializationAccess.bonus(seller.getUUID(),"trade_speed"),ru.neverland.integration.SpecializationAccess.bonus(buyer.getUUID(),"trade_speed"));
         double specializationDelay=Math.max(ru.neverland.integration.SpecializationAccess.bonus(seller.getUUID(),"trade_delay"),ru.neverland.integration.SpecializationAccess.bonus(buyer.getUUID(),"trade_delay"));
         double minutes = distance / Math.max(1, plugin.getConfig().getDouble("routes.blocks-per-minute", 160));
-        minutes = ru.neverland.integration.ResearchEffects.minutes(minutes*(1-bonus)*(1-specializationSpeed),plugin.getConfig().getDouble("routes.minimum-minutes",3),plugin.getConfig().getDouble("routes.maximum-minutes",120),researchSpeed);
+        minutes = ru.neverland.integration.ResearchEffects.minutes(ru.neverland.integration.PolicyEffects.travel(minutes*(1-bonus)*(1-specializationSpeed),ru.neverland.integration.PoliciesAccess.effect(seller.getUUID(),"trade_time"),ru.neverland.integration.PoliciesAccess.effect(buyer.getUUID(),"trade_time")),plugin.getConfig().getDouble("routes.minimum-minutes",3),plugin.getConfig().getDouble("routes.maximum-minutes",120),researchSpeed);
         double chance = plugin.getConfig().getDouble("routes.delay.base-chance", 0.20)
                 - (sellerMarket + buyerMarket) * plugin.getConfig().getDouble("routes.delay.market-reduction-per-level", 0.015)
                 - colossi * plugin.getConfig().getDouble("routes.delay.colossus-reduction", 0.05)

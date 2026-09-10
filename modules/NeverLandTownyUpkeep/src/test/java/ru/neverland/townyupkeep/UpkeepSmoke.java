@@ -29,6 +29,8 @@ public final class UpkeepSmoke {
     public static void main(String[] args)throws Exception{
         var defaults=UpkeepSettings.load(read("config.yml"),read("buildings.yml"));check(defaults.profiles().size()==101,"101 building/wonder tariffs");check(defaults.grace()==3600&&defaults.period()==3600,"hourly billing and grace");
         for(var p:defaults.profiles().values()){check(!p.name().equals(p.id()),"Russian name "+p.id());for(int level=1;level<=5;level++){var cost=p.cost().multiply(level,defaults.maximum());check(cost.money()>=p.cost().money(),"monotonic level cost");}}
+        check(new Cost(1001,Map.of("food",1001L)).policy(1.25).equals(new Cost(1252,Map.of("food",1252L))),"policy costs round up once at cents/thousandths");
+        check(new Cost(100,Map.of()).policy(Double.NaN).equals(new Cost(100,Map.of())),"invalid policy cost neutral");
         var small=defaults.factor(1,1,1);var large=defaults.factor(200,100,200);check(large.compareTo(small)>0,"larger cities cost more");check(defaults.factor(Integer.MAX_VALUE,Integer.MAX_VALUE,Integer.MAX_VALUE).equals(defaults.maximum()),"size factor capped without overflow");
         check(defaults.profiles().get("fortress_wall").cost().resources().get("stone")==4000,"wall consumes stone");check(defaults.profiles().get("pumping_station").cost().money()==800,"pump monetary upkeep");check(defaults.profiles().get("guard").cost().resources().get("food")==3000,"guard food upkeep");
         check(new Cost(1,Map.of("stone",1L)).multiply(1,new BigDecimal("1.005")).equals(new Cost(2,Map.of("stone",2L))),"ceil costs at ledger precision");

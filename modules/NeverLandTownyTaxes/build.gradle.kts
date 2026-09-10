@@ -3,7 +3,7 @@ import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 
 group = "ru.neverland"
-version = "0.1.1"
+version = "0.1.2"
 
 repositories {
     mavenCentral()
@@ -30,3 +30,8 @@ tasks {
     processResources { filteringCharset = "UTF-8" }
     jar { archiveBaseName.set("NeverLandTownyTaxes") }
 }
+
+sourceSets.main { java.srcDir("../../shared/policies/src/main/java") }
+
+configurations.named("testRuntimeClasspath") { extendsFrom(configurations.named("compileOnly").get()) }
+tasks.register<JavaExec>("smokeTest") { dependsOn(tasks.testClasses);classpath=sourceSets.test.get().runtimeClasspath;mainClass.set("ru.neverland.townytaxes.MunicipalTaxesSmoke") }

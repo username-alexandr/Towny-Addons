@@ -1,0 +1,20 @@
+name: NeverLandTownyPolicies
+version: '0.1.0'
+main: ru.neverland.townypolicies.NeverLandTownyPolicies
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: Городские политики, указы, преимущества и издержки.
+depend: [Towny]
+softdepend: [NeverLandTownyBuilds, NeverLandTownyResources, NeverLandTownyPopulation, NeverLandTownyUpkeep, NeverLandTownyTrade, NeverLandTownyTaxes, PlaceholderAPI]
+commands:
+  townypolicies:
+    aliases: [nltpolicies, citypolicies]
+    description: Городские политики и указы
+    usage: /townypolicies [info|choose|confirm|history|reload]
+permissions:
+  neverlandtownypolicies.use:
+    default: true
+  neverlandtownypolicies.manage:
+    default: false
+  neverlandtownypolicies.admin:
+    default: op

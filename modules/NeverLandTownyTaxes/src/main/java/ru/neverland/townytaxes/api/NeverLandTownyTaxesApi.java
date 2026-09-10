@@ -7,4 +7,5 @@ public interface NeverLandTownyTaxesApi {
     double tradePreferenceMultiplier(UUID firstTown, UUID secondTown);
     double taxDebt(UUID subjectId);
     double serverReserve();
+    boolean municipalTaxConfigured(UUID town);
 }

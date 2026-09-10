@@ -48,6 +48,7 @@ public final class TownTradeCommand implements CommandExecutor {
             case ROUTE_LIMIT -> messages.send(player, "route-limit"); case DUPLICATE -> messages.send(player, "duplicate-offer");
             case ROUTE_UNAVAILABLE -> messages.send(player, "route-unavailable");
             case SANCTIONED -> messages.send(player, "trade-blocked");
+            case IMPORT_RESTRICTED -> messages.send(player,"policy-import-blocked");
         }
     }
     private void accept(Player player, Town town, String[] args) {
@@ -66,7 +67,7 @@ public final class TownTradeCommand implements CommandExecutor {
     }
     private void tariff(Player player, Town town, String[] args) {
         if (!manager(player, town)) return; if (args.length < 2) { player.sendMessage(ColorUtil.color("&#FFFFFFИспользование: /t trade tariff <0-" + trade.maxTariff() + ">")); return; }
-        try { double value = Double.parseDouble(args[1].replace(',', '.')); if (trade.setTariff(town, value)) messages.send(player, "tariff-set", Map.of("percent", value)); else messages.send(player, "tariff-range", Map.of("max", trade.maxTariff())); }
+        try { double value = Double.parseDouble(args[1].replace(',', '.')); if (trade.setTariff(town, value)) { messages.send(player, "tariff-set", Map.of("percent", value)); if(ru.neverland.integration.PoliciesAccess.tariffManaged(town.getUUID()))messages.send(player,"policy-tariff-managed",Map.of("percent",trade.tariff(town))); } else messages.send(player, "tariff-range", Map.of("max", trade.maxTariff())); }
         catch (NumberFormatException exception) { messages.send(player, "tariff-range", Map.of("max", trade.maxTariff())); }
     }
     private void help(Player player) { player.sendMessage(ColorUtil.color("&#FFD45A/t trade &8— &7торговая доска\n&#FFFFFF/t trade propose <город> <экспорт>\n&#FFFFFF/t trade accept <ID>\n&#FFFFFF/t trade reject <ID>\n&#FFFFFF/t trade cancel <ID>\n&#FFFFFF/t trade tariff <процент>\n&#FFFFFF/t trade history")); }
