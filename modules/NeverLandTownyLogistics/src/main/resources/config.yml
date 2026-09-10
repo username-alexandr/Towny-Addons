@@ -1,0 +1,23 @@
+limits:
+  nodes-per-town: 128
+  routes-per-town: 32
+  link-distance: 32
+  route-distance: 2048
+  active-couriers: 48
+  pathfinds-per-tick: 2
+  cargo-operations-per-tick: 1
+  activation-radius: 96
+  checkpoint-seconds: 5
+hubs: [warehouse, cargo_terminal, caravanserai, trade_port]
+# Пять завершённых этапов здания: количество NPC, размер груза, скорость и погрузка.
+levels:
+  '1': {couriers: 1, cargo: 8, speed: 0.75, handling-seconds: 8}
+  '2': {couriers: 2, cargo: 16, speed: 0.9, handling-seconds: 6}
+  '3': {couriers: 3, cargo: 32, speed: 1.05, handling-seconds: 5}
+  '4': {couriers: 4, cargo: 48, speed: 1.2, handling-seconds: 4}
+  '5': {couriers: 5, cargo: 64, speed: 1.35, handling-seconds: 3}
+movement:
+  road-speed-bonus: 0.10
+  rail-speed-bonus: 0.20
+  stuck-seconds: 30
+  retry-seconds: 10

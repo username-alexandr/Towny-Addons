@@ -238,18 +238,7 @@ public final class MenuManager implements Listener {
     }
 
     public void openStorage(Player player) {
-        Town town = towny.town(player);
-        if (town == null) {
-            messages.send(player, "no-town");
-            return;
-        }
-        boolean mayor = towny.isMayor(player, town);
-        int configured = plugin.getConfig().getInt("settings.storage.size", 54);
-        int size = Math.max(9, Math.min(54, ((configured + 8) / 9) * 9));
-        Inventory inventory = Bukkit.createInventory(new StorageHolder(town.getUUID(), mayor), size,
-                ColorUtil.component(mayor ? "&#63E6BEСклад города — полный доступ" : "&#63E6BEСклад города — только сдача"));
-        inventory.setContents(dataStore.town(town.getUUID()).storage());
-        player.openInventory(inventory);
+        ((ru.neverland.townybuilds.NeverLandTownyBuilds)plugin).storage().openStorage(player,"warehouse");
     }
 
     @EventHandler
@@ -407,6 +396,7 @@ public final class MenuManager implements Listener {
             case MAX_LEVEL -> messages.send(player, "max-level");
             case NOTHING_NEEDED -> messages.send(player, "contribution-not-needed");
             case NOTHING_MATCHED -> messages.send(player, "contribution-nothing-matched");
+            case STORAGE_BUSY -> player.sendMessage("Склад города открыт другим игроком. Закройте склад перед взносом.");
             case INVENTORY_SYNC_FAILED -> messages.send(player, "contribution-sync-failed");
         }
         openDetails(player, project, page, project.type() == ProjectType.BUILDING ? project.category() : null);

@@ -286,6 +286,7 @@ public final class BuildService {
     }
 
     private ContributionResult contribute(Player player, Town town, ProjectDefinition project, boolean cityStorage) {
+        if(cityStorage&&dataStore.storageBusy(town.getUUID(),"warehouse"))return ContributionResult.of(ContributionResult.Status.STORAGE_BUSY);
         TownData data = dataStore.town(town.getUUID());
         int targetLevel = data.level(project.id()) + 1;
         LevelDefinition level = project.level(targetLevel);

@@ -1,0 +1,19 @@
+name: NeverLandTownyLogistics
+version: '0.1.0'
+main: ru.neverland.townylogistics.NeverLandTownyLogistics
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: NPC-курьеры, городские маршруты и перевозка ресурсов между зданиями.
+depend: [Towny, NeverLandTownyBuilds]
+commands:
+  townylogistics:
+    aliases: [logistics, nltlogistics]
+    description: Городская логистика
+    usage: /townylogistics [help|nodes|routes|couriers|node|waypoint|link|route|storage|reload]
+permissions:
+  neverlandtownylogistics.use:
+    default: true
+  neverlandtownylogistics.manage:
+    default: false
+  neverlandtownylogistics.admin:
+    default: op

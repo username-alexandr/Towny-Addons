@@ -1,0 +1,24 @@
+# Производство остаётся на складе здания. Между зданиями груз везут курьеры.
+# Один цикл — 60 секунд; за пропущенное время продукция не начисляется.
+enabled: true
+interval-ticks: 1200
+recipes:
+  sawmill_logs:
+    building: sawmill
+    output: {OAK_LOG: 2}
+  quarry_stone:
+    building: quarry
+    output: {COBBLESTONE: 4}
+  apiary_comb:
+    building: apiary
+    output: {HONEYCOMB: 1}
+  water_tower_buckets:
+    building: water_tower
+    # Дополнительные заполненные вёдра не создаются из одного пустого.
+    district-bonus: false
+    input: {BUCKET: 1}
+    output: {WATER_BUCKET: 1}
+  bakery_bread:
+    building: bakery
+    input: {WHEAT: 3}
+    output: {BREAD: 1}
