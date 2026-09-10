@@ -1,0 +1,1204 @@
+# Все величины — стратегические единицы на активный этап за один цикл.
+# Меньший приоритет выполняется раньше. Бонус района усиливает выпуск, но не расход.
+buildings:
+  town_hall:
+    name: Ратуша
+    icon: BELL
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 3
+      knowledge: 1
+    consumes:
+      materials: 0.2
+    capacity:
+      influence: 200
+      knowledge: 100
+    priority: 40
+  forge:
+    name: Кузница
+    icon: ANVIL
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      materials: 6
+    consumes:
+      metal: 2
+      wood: 2
+    capacity: {}
+    priority: 20
+  barracks:
+    name: Казармы
+    icon: IRON_SWORD
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 2
+    consumes:
+      food: 2
+      metal: 0.5
+    capacity: {}
+    priority: 40
+  market:
+    name: Рынок
+    icon: EMERALD
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 3
+    consumes:
+      food: 1
+      materials: 0.2
+    capacity:
+      food: 100
+    priority: 40
+  miners_guild:
+    name: Шахтёрская гильдия
+    icon: DIAMOND_PICKAXE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      metal: 6
+      stone: 4
+    consumes:
+      wood: 2
+      water: 1
+    capacity: {}
+    priority: 10
+  temple:
+    name: Священный Храм
+    icon: TOTEM_OF_UNDYING
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 3
+    consumes:
+      food: 1
+      water: 1
+    capacity: {}
+    priority: 40
+  great_library:
+    name: Великая Библиотека
+    icon: ENCHANTED_BOOK
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      knowledge: 6
+    consumes:
+      wood: 2
+      food: 0.5
+    capacity:
+      knowledge: 500
+    priority: 30
+  agrarian_complex:
+    name: Аграрный Комплекс
+    icon: DIAMOND_HOE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      food: 15
+    consumes:
+      water: 3
+    capacity:
+      food: 200
+    priority: 10
+  infirmary:
+    name: Лазарет
+    icon: BREWING_STAND
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 2
+    consumes:
+      food: 2
+      water: 2
+      knowledge: 0.5
+    capacity: {}
+    priority: 40
+  fire_station:
+    name: Пожарная часть
+    icon: FIRE_CHARGE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 1
+    consumes:
+      water: 3
+      materials: 0.5
+    capacity: {}
+    priority: 40
+  tavern_inn:
+    name: Таверна и постоялый двор
+    icon: HONEY_BOTTLE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 3
+    consumes:
+      food: 3
+      water: 2
+    capacity:
+      food: 100
+    priority: 40
+  city_bank:
+    name: Городской банк
+    icon: GOLD_INGOT
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 4
+    consumes:
+      knowledge: 1
+    capacity:
+      metal: 300
+      influence: 300
+    priority: 40
+  embassy:
+    name: Посольство
+    icon: GLOBE_BANNER_PATTERN
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 5
+    consumes:
+      knowledge: 2
+      food: 1
+    capacity: {}
+    priority: 40
+  museum:
+    name: Музей
+    icon: DECORATED_POT
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      knowledge: 3
+      influence: 2
+    consumes:
+      materials: 0.5
+    capacity:
+      knowledge: 200
+    priority: 30
+  shipyard:
+    name: Верфь
+    icon: OAK_BOAT
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 4
+    consumes:
+      wood: 4
+      metal: 2
+      materials: 2
+    capacity: {}
+    priority: 40
+  university:
+    name: Университет
+    icon: ENCHANTING_TABLE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      knowledge: 10
+    consumes:
+      knowledge: 1
+      food: 1
+      water: 1
+    capacity:
+      knowledge: 300
+    priority: 30
+  courthouse:
+    name: Суд
+    icon: IRON_AXE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 3
+    consumes:
+      knowledge: 1
+      food: 1
+    capacity: {}
+    priority: 40
+  aqueduct:
+    name: Акведук
+    icon: PRISMARINE_BRICKS
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      water: 12
+    consumes:
+      stone: 0.2
+    capacity:
+      water: 200
+    priority: 5
+  workshop:
+    name: Мастерская
+    icon: SMITHING_TABLE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      materials: 12
+    consumes:
+      wood: 4
+      stone: 4
+    capacity:
+      materials: 100
+    priority: 20
+  watch_fortress:
+    name: Сторожевая крепость
+    icon: POLISHED_BLACKSTONE_BRICKS
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 2
+    consumes:
+      food: 1
+      materials: 0.5
+    capacity: {}
+    priority: 40
+  hunting_lodge:
+    name: Охотничий дом
+    icon: BOW
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      food: 8
+    consumes:
+      wood: 1
+    capacity: {}
+    priority: 10
+  fishing_harbor:
+    name: Рыбацкая гавань
+    icon: FISHING_ROD
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      food: 10
+    consumes:
+      wood: 1
+    capacity: {}
+    priority: 10
+  post_station:
+    name: Почтовая станция
+    icon: WRITABLE_BOOK
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      knowledge: 2
+    consumes:
+      food: 0.5
+    capacity: {}
+    priority: 30
+  observatory:
+    name: Обсерватория
+    icon: SPYGLASS
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      knowledge: 8
+    consumes:
+      metal: 0.5
+      materials: 0.5
+    capacity: {}
+    priority: 30
+  prison:
+    name: Тюрьма
+    icon: IRON_BARS
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 1
+    consumes:
+      food: 2
+      water: 2
+    capacity: {}
+    priority: 40
+  sawmill:
+    name: Лесопилка
+    icon: IRON_AXE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      wood: 12
+    consumes:
+      water: 1
+    capacity:
+      wood: 200
+    priority: 10
+  quarry:
+    name: Каменоломня
+    icon: STONE_PICKAXE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      stone: 12
+    consumes:
+      wood: 1
+    capacity:
+      stone: 200
+    priority: 10
+  foundry:
+    name: Литейная
+    icon: BLAST_FURNACE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      metal: 8
+    consumes:
+      stone: 4
+      wood: 3
+    capacity:
+      metal: 200
+    priority: 20
+  mill:
+    name: Мельница
+    icon: WHEAT
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      food: 7
+    consumes:
+      food: 3
+      wood: 0.5
+    capacity: {}
+    priority: 20
+  bakery:
+    name: Пекарня
+    icon: BREAD
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      food: 12
+    consumes:
+      food: 5
+      wood: 1
+      water: 1
+    capacity: {}
+    priority: 25
+  apiary:
+    name: Пасека
+    icon: HONEYCOMB
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      food: 6
+    consumes:
+      water: 0.5
+    capacity: {}
+    priority: 10
+  warehouse:
+    name: Городской склад
+    icon: CHEST
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces: {}
+    consumes:
+      materials: 0.2
+    capacity:
+      wood: 1000
+      stone: 1000
+      metal: 500
+      food: 500
+      water: 500
+      materials: 500
+    priority: 40
+  caravanserai:
+    name: Караван-сарай
+    icon: LEAD
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 3
+    consumes:
+      food: 2
+      water: 2
+    capacity:
+      wood: 200
+      stone: 200
+      food: 200
+    priority: 40
+  auction:
+    name: Аукционный дом
+    icon: EMERALD
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 4
+    consumes:
+      knowledge: 1
+    capacity: {}
+    priority: 40
+  merchant_guild:
+    name: Торговая гильдия
+    icon: EMERALD_BLOCK
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 4
+    consumes:
+      food: 1
+      knowledge: 1
+    capacity:
+      influence: 200
+    priority: 40
+  cargo_terminal:
+    name: Грузовой терминал
+    icon: MINECART
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces: {}
+    consumes:
+      materials: 0.3
+    capacity:
+      wood: 600
+      stone: 600
+      metal: 400
+      food: 400
+      materials: 400
+    priority: 40
+  water_tower:
+    name: Водонапорная башня
+    icon: BUCKET
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      water: 20
+    consumes:
+      metal: 0.1
+    capacity:
+      water: 500
+    priority: 5
+  sewer:
+    name: Канализация
+    icon: CAULDRON
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 1
+    consumes:
+      water: 2
+      materials: 0.2
+    capacity: {}
+    priority: 40
+  baths:
+    name: Городские бани
+    icon: HEART_OF_THE_SEA
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 3
+    consumes:
+      water: 4
+      wood: 1
+    capacity: {}
+    priority: 40
+  roads:
+    name: Дороги
+    icon: STONE_BRICKS
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 1
+    consumes:
+      materials: 0.3
+    capacity: {}
+    priority: 40
+  bridge_service:
+    name: Мостовая служба
+    icon: OAK_FENCE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 1
+    consumes:
+      wood: 1
+      materials: 0.5
+    capacity: {}
+    priority: 40
+  reservoir:
+    name: Резервуар
+    icon: BLUE_CONCRETE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces: {}
+    consumes:
+      materials: 0.1
+    capacity:
+      water: 1000
+    priority: 40
+  guard:
+    name: Городская стража
+    icon: IRON_HELMET
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 2
+    consumes:
+      food: 1
+      metal: 0.3
+    capacity: {}
+    priority: 40
+  arsenal:
+    name: Арсенал
+    icon: CROSSBOW
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 2
+    consumes:
+      metal: 1
+    capacity:
+      metal: 400
+      materials: 200
+    priority: 40
+  armory:
+    name: Оружейная
+    icon: SMITHING_TABLE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 3
+    consumes:
+      metal: 2
+      wood: 1
+    capacity: {}
+    priority: 40
+  watchtower:
+    name: Дозорная башня
+    icon: SPYGLASS
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 1
+    consumes:
+      food: 0.5
+      wood: 0.2
+    capacity: {}
+    priority: 40
+  fortress_gate:
+    name: Крепостные ворота
+    icon: IRON_DOOR
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 1
+    consumes:
+      materials: 0.2
+    capacity: {}
+    priority: 40
+  counterintel:
+    name: Палата контрразведки
+    icon: ENDER_EYE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 3
+    consumes:
+      knowledge: 2
+    capacity: {}
+    priority: 40
+  alchemy:
+    name: Алхимическая лаборатория
+    icon: BREWING_STAND
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      knowledge: 5
+    consumes:
+      food: 1
+      water: 2
+      metal: 1
+    capacity: {}
+    priority: 30
+  archive:
+    name: Архив
+    icon: BOOK
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      knowledge: 3
+    consumes:
+      wood: 1
+    capacity:
+      knowledge: 1000
+    priority: 30
+  cartography:
+    name: Академия картографов
+    icon: FILLED_MAP
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      knowledge: 4
+    consumes:
+      wood: 1
+      food: 0.5
+    capacity: {}
+    priority: 30
+  research:
+    name: Исследовательский институт
+    icon: SCULK_SENSOR
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      knowledge: 8
+    consumes:
+      knowledge: 2
+      metal: 1
+    capacity: {}
+    priority: 35
+  botanical:
+    name: Ботанический сад
+    icon: FLOWERING_AZALEA
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      food: 3
+      knowledge: 2
+    consumes:
+      water: 2
+    capacity: {}
+    priority: 15
+  theater:
+    name: Театр
+    icon: RED_BANNER
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 4
+    consumes:
+      food: 1
+      knowledge: 1
+    capacity: {}
+    priority: 40
+  square:
+    name: Городская площадь
+    icon: BELL
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 1
+    consumes:
+      materials: 0.1
+    capacity: {}
+    priority: 40
+  arena:
+    name: Арена
+    icon: IRON_SWORD
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 4
+    consumes:
+      food: 2
+      metal: 0.5
+    capacity: {}
+    priority: 40
+  gallery:
+    name: Художественная галерея
+    icon: PAINTING
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 3
+      knowledge: 1
+    consumes:
+      wood: 1
+    capacity: {}
+    priority: 40
+  park:
+    name: Парк
+    icon: OAK_SAPLING
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 2
+    consumes:
+      water: 1
+    capacity: {}
+    priority: 40
+  guild_house:
+    name: Дом гильдий
+    icon: NAME_TAG
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 3
+    consumes:
+      food: 1
+      knowledge: 1
+    capacity: {}
+    priority: 40
+  memorial:
+    name: Мемориал
+    icon: CHISELED_STONE_BRICKS
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 2
+    consumes:
+      stone: 0.2
+    capacity: {}
+    priority: 40
+  shelter:
+    name: Приют
+    icon: WHITE_BED
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 2
+    consumes:
+      food: 2
+      water: 2
+    capacity: {}
+    priority: 40
+  cathedral:
+    name: Собор
+    icon: END_CRYSTAL
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 5
+    consumes:
+      food: 1
+      knowledge: 1
+    capacity: {}
+    priority: 40
+  printing_house:
+    name: Типография
+    icon: LECTERN
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      knowledge: 7
+    consumes:
+      wood: 3
+      water: 1
+    capacity: {}
+    priority: 30
+  forestry:
+    name: Лесничество
+    icon: OAK_SAPLING
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      wood: 8
+    consumes:
+      water: 1
+    capacity:
+      wood: 100
+    priority: 10
+  customs:
+    name: Таможня
+    icon: WRITABLE_BOOK
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 3
+    consumes:
+      knowledge: 0.5
+    capacity: {}
+    priority: 40
+  trade_port:
+    name: Торговый порт
+    icon: OAK_BOAT
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 4
+    consumes:
+      food: 2
+      materials: 1
+    capacity:
+      wood: 400
+      metal: 300
+      food: 400
+    priority: 40
+  mint:
+    name: Монетный двор
+    icon: GOLD_INGOT
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 5
+    consumes:
+      metal: 2
+    capacity: {}
+    priority: 40
+  stables:
+    name: Конюшни
+    icon: SADDLE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 2
+    consumes:
+      food: 3
+      water: 2
+    capacity: {}
+    priority: 40
+  fortress_wall:
+    name: Крепостная стена
+    icon: STONE_BRICKS
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 1
+    consumes:
+      materials: 0.3
+    capacity: {}
+    priority: 40
+  city_moat:
+    name: Городской ров
+    icon: LILY_PAD
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 1
+    consumes:
+      water: 2
+    capacity: {}
+    priority: 40
+  archery_range:
+    name: Стрельбище
+    icon: TARGET
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 2
+    consumes:
+      wood: 1
+      food: 1
+    capacity: {}
+    priority: 40
+  port_fort:
+    name: Портовый форт
+    icon: CROSSBOW
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 2
+    consumes:
+      metal: 0.5
+      food: 1
+    capacity: {}
+    priority: 40
+  census_bureau:
+    name: Бюро переписи населения
+    icon: WRITABLE_BOOK
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      knowledge: 2
+    consumes:
+      wood: 0.5
+    capacity: {}
+    priority: 30
+  insurance_chamber:
+    name: Страховая палата
+    icon: SHIELD
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 2
+    consumes:
+      knowledge: 1
+    capacity:
+      materials: 200
+    priority: 40
+  pumping_station:
+    name: Насосная станция
+    icon: CAULDRON
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      water: 15
+    consumes:
+      wood: 1
+    capacity: {}
+    priority: 5
+  irrigation_station:
+    name: Ирригационная станция
+    icon: COPPER_HOE
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      food: 8
+    consumes:
+      water: 4
+    capacity: {}
+    priority: 15
+  recycling_yard:
+    name: Перерабатывающий двор
+    icon: CRAFTER
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      materials: 5
+      metal: 1
+    consumes:
+      wood: 1
+      knowledge: 0.5
+    capacity: {}
+    priority: 20
+  dam:
+    name: Дамба
+    icon: DEEPSLATE_BRICKS
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      water: 10
+    consumes:
+      materials: 0.3
+    capacity:
+      water: 500
+    priority: 5
+  army:
+    name: Штаб армии
+    icon: NETHERITE_HELMET
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces:
+      influence: 4
+    consumes:
+      food: 3
+      metal: 1
+    capacity: {}
+    priority: 40
+  residential_quarter:
+    name: Жилой квартал
+    icon: RED_BED
+    enabled: true
+    minimum-level: 1
+    maximum-level: 5
+    produces: {}
+    consumes:
+      materials: 0.2
+    capacity:
+      food: 100
+      water: 100
+    priority: 40
+  sun_pyramid:
+    name: Пирамида Солнца
+    icon: GOLD_BLOCK
+    enabled: true
+    minimum-level: 1
+    maximum-level: 1
+    produces:
+      influence: 15
+    consumes:
+      food: 2
+      materials: 1
+    capacity: {}
+    priority: 40
+  great_colosseum:
+    name: Великий Колизей
+    icon: SHIELD
+    enabled: true
+    minimum-level: 1
+    maximum-level: 1
+    produces:
+      influence: 20
+    consumes:
+      food: 8
+      water: 4
+    capacity: {}
+    priority: 40
+  alexandria_lighthouse:
+    name: Александрийский Маяк
+    icon: BEACON
+    enabled: true
+    minimum-level: 1
+    maximum-level: 1
+    produces:
+      influence: 12
+      knowledge: 5
+    consumes:
+      wood: 2
+      metal: 1
+    capacity: {}
+    priority: 40
+  hanging_gardens:
+    name: Висячие Сады
+    icon: FLOWERING_AZALEA
+    enabled: true
+    minimum-level: 1
+    maximum-level: 1
+    produces:
+      food: 25
+      influence: 5
+    consumes:
+      water: 8
+    capacity: {}
+    priority: 15
+  archmage_spire:
+    name: Шпиль Архимагов
+    icon: END_CRYSTAL
+    enabled: true
+    minimum-level: 1
+    maximum-level: 1
+    produces:
+      knowledge: 20
+    consumes:
+      metal: 2
+      food: 2
+    capacity:
+      knowledge: 1000
+    priority: 30
+  rhodes_colossus:
+    name: Колосс Родосский
+    icon: LIGHTNING_ROD
+    enabled: true
+    minimum-level: 1
+    maximum-level: 1
+    produces:
+      influence: 18
+    consumes:
+      metal: 1
+      materials: 1
+    capacity: {}
+    priority: 40
+  world_tree:
+    name: Мировое древо
+    icon: FLOWERING_AZALEA_LEAVES
+    enabled: true
+    minimum-level: 1
+    maximum-level: 1
+    produces:
+      wood: 20
+      food: 10
+    consumes:
+      water: 5
+    capacity: {}
+    priority: 10
+  celestial_orrery:
+    name: Небесный оррерий
+    icon: RECOVERY_COMPASS
+    enabled: true
+    minimum-level: 1
+    maximum-level: 1
+    produces:
+      knowledge: 25
+    consumes:
+      metal: 2
+      materials: 1
+    capacity:
+      knowledge: 1000
+    priority: 30
+  terracotta_army:
+    name: Терракотовая армия
+    icon: DECORATED_POT
+    enabled: true
+    minimum-level: 1
+    maximum-level: 1
+    produces:
+      influence: 20
+    consumes:
+      stone: 3
+      materials: 2
+    capacity: {}
+    priority: 40
+  crystal_palace:
+    name: Хрустальный дворец
+    icon: AMETHYST_CLUSTER
+    enabled: true
+    minimum-level: 1
+    maximum-level: 1
+    produces:
+      influence: 12
+      knowledge: 10
+    consumes:
+      materials: 2
+      water: 2
+    capacity: {}
+    priority: 40
+  great_canal:
+    name: Великий канал
+    icon: CONDUIT
+    enabled: true
+    minimum-level: 1
+    maximum-level: 1
+    produces:
+      water: 30
+      influence: 5
+    consumes:
+      materials: 2
+    capacity:
+      water: 2000
+    priority: 5

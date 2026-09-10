@@ -1,8 +1,8 @@
-name: Publish release 0.9.0
+name: Publish release 0.10.0
 
 on:
   push:
-    branches: [release/v0.9.0]
+    branches: [release/v0.10.0]
   workflow_dispatch:
 
 permissions:
@@ -40,7 +40,7 @@ jobs:
             name="${module##*/}"
             version="$(python -c 'import sys,yaml; print(yaml.safe_load(open("versions.yml"))["addons"][sys.argv[1]])' "$name")"
             if [[ -f "$module/build.gradle.kts" ]]; then
-              if [[ "$name" == "NeverLandTownyBuilds" || "$name" == "NeverLandTownyChronicles" || "$name" == "NeverLandTownyExpeditions" || "$name" == "NeverLandTownyEvents" || "$name" == "NeverLandTownyPopulation" || "$name" == "NeverLandTownyDistricts" || "$name" == "NeverLandTownyLogistics" ]]; then
+              if [[ "$name" == "NeverLandTownyBuilds" || "$name" == "NeverLandTownyChronicles" || "$name" == "NeverLandTownyExpeditions" || "$name" == "NeverLandTownyEvents" || "$name" == "NeverLandTownyPopulation" || "$name" == "NeverLandTownyDistricts" || "$name" == "NeverLandTownyLogistics" || "$name" == "NeverLandTownyResources" ]]; then
                 gradle --no-daemon -p "$module" clean jar smokeTest
               else
                 gradle --no-daemon -p "$module" clean jar testClasses

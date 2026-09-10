@@ -1,0 +1,20 @@
+name: NeverLandTownyResources
+version: '0.1.0'
+main: ru.neverland.townyresources.NeverLandTownyResources
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: Стратегические запасы, производство и потребление ресурсов города.
+depend: [Towny, NeverLandTownyBuilds]
+softdepend: [NeverLandTownyPopulation, NeverLandTownyDistricts, PlaceholderAPI]
+commands:
+  townyresources:
+    aliases: [nltresources, cityresources]
+    description: Городские ресурсы
+    usage: /townyresources [buildings|info|pause|resume|keep|priority|reload]
+permissions:
+  neverlandtownyresources.use:
+    default: true
+  neverlandtownyresources.manage:
+    default: false
+  neverlandtownyresources.admin:
+    default: op

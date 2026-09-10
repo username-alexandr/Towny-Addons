@@ -63,10 +63,10 @@ public final class PopulationMenu implements Listener {
                 "Обеспечение: "+number(c.water()),"Потребность: "+number(s.population()*service.settings().rules().waterDemand()),
                 "Водонапорная башня и резервуар."));
         List<String> reasons=new ArrayList<>(m.reasons());
-        if(s.paused()) reasons.add(0,"Расчёт приостановлен: постройки недоступны.");
+        if(s.paused()) reasons.add(0,"Расчёт приостановлен: постройки или ресурсы недоступны.");
         v.inventory.setItem(31,item(s.paused()?Material.BARRIER:Material.OAK_SAPLING,"&fУсловия роста",reasons.toArray(String[]::new)));
         v.inventory.setItem(33,item(Material.CLOCK,"&fСледующий цикл",
-                s.paused()?"Ожидаем данные построек.":"Через "+Math.max(0,(s.nextCycle()-System.currentTimeMillis()+999)/1000)+" сек.",
+                s.paused()?"Ожидаем данные построек и снабжения.":"Через "+Math.max(0,(s.nextCycle()-System.currentTimeMillis()+999)/1000)+" сек.",
                 "Длительность: "+service.settings().intervalMillis()/1000+" сек.","Во время выключения сервера расчёт не идёт."));
         v.inventory.setItem(45,item(Material.BRICKS,"&aВклад зданий","Показать жильё, снабжение и рабочие места."));
     }
