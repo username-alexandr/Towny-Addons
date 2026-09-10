@@ -1,0 +1,18 @@
+# Цена за одну штуку. Для ItemsAdder используйте item: itemsadder:namespace:item.
+products:
+  oak_log: {item: OAK_LOG, base-price: 1.50}
+  spruce_log: {item: SPRUCE_LOG, base-price: 1.50}
+  stone: {item: STONE, base-price: 0.50}
+  cobblestone: {item: COBBLESTONE, base-price: 0.25}
+  coal: {item: COAL, base-price: 1.00}
+  copper_ingot: {item: COPPER_INGOT, base-price: 2.00}
+  iron_ingot: {item: IRON_INGOT, base-price: 4.00}
+  gold_ingot: {item: GOLD_INGOT, base-price: 8.00}
+  redstone: {item: REDSTONE, base-price: 1.50}
+  wheat: {item: WHEAT, base-price: 0.50}
+  bread: {item: BREAD, base-price: 2.00}
+  honey_bottle: {item: HONEY_BOTTLE, base-price: 2.50}
+  glass: {item: GLASS, base-price: 1.00}
+  paper: {item: PAPER, base-price: 0.75}
+  brick: {item: BRICK, base-price: 1.25}
+  water_bucket: {item: WATER_BUCKET, base-price: 6.00}

@@ -99,6 +99,7 @@ public final class MenuManager implements Listener {
                     List.of("&7Объектов: &f" + count, "", "&#63E6BEНажмите, чтобы открыть"));
             inventory.setItem(slots[Math.min(index++, slots.length - 1)], icon);
         }
+        if(Bukkit.getPluginManager().getPlugin("NeverLandTownyMarket")!=null)inventory.setItem(18,actionItem("market",new ItemStack(Material.EMERALD),"&aРынки города",List.of("&7Продажа продукции и закупки товаров.")));
         if(Bukkit.getPluginManager().getPlugin("NeverLandTownyTreasuryPlus")!=null) inventory.setItem(22,actionItem("treasury",new ItemStack(Material.GOLD_INGOT),"&eКазна и бюджет",List.of("&7Статьи расходов и недельные отчёты.")));
         player.openInventory(inventory);
     }
@@ -256,6 +257,7 @@ public final class MenuManager implements Listener {
         if (holder instanceof CategoryHolder) {
             event.setCancelled(true);
             String action = actionFrom(event.getCurrentItem());
+            if ("market".equals(action)) {player.performCommand("townymarket");return;}
             if ("treasury".equals(action)) { player.performCommand("townytreasury"); return; }
             if (action != null && action.startsWith("category:")) {
                 try {
