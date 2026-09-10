@@ -1,0 +1,344 @@
+policies:
+  taxes:
+    name: Налоговая ставка
+    icon: GOLD_INGOT
+    default: standard
+    enabled: true
+    options:
+      standard:
+        name: Обычная ставка
+        icon: GOLD_NUGGET
+        advantages:
+        - Городские сборы Taxes по действующим ставкам.
+        disadvantages:
+        - Специальных преимуществ нет.
+        effects: {}
+        requires: []
+        production-projects: []
+        upkeep-projects: []
+      low:
+        name: Налоговые льготы
+        icon: GOLD_INGOT
+        advantages:
+        - Городские сборы −25%.
+        - Довольство +5 пунктов.
+        disadvantages:
+        - Казна получает меньше городских налогов.
+        effects:
+          tax: -0.25
+          happiness: 5
+        requires:
+        - NeverLandTownyTaxes
+        - NeverLandTownyPopulation
+        production-projects: []
+        upkeep-projects: []
+      high:
+        name: Повышенная ставка
+        icon: GOLD_BLOCK
+        advantages:
+        - Городские сборы +25% в казну.
+        disadvantages:
+        - Довольство −5 пунктов.
+        - Больше нагрузка на кошельки жителей.
+        effects:
+          tax: 0.25
+          happiness: -5
+        requires:
+        - NeverLandTownyTaxes
+        - NeverLandTownyPopulation
+        production-projects: []
+        upkeep-projects: []
+  tariffs:
+    name: Торговые пошлины
+    icon: EMERALD
+    default: standard
+    enabled: true
+    options:
+      standard:
+        name: Обычные пошлины
+        icon: EMERALD
+        advantages:
+        - Используется ставка из /t trade tariff.
+        disadvantages:
+        - Специальных преимуществ нет.
+        effects: {}
+        requires: []
+        production-projects: []
+        upkeep-projects: []
+      free:
+        name: Беспошлинная торговля
+        icon: FEATHER
+        advantages:
+        - Длительность новых маршрутов города −10%.
+        disadvantages:
+        - 'Транзитная пошлина города 0%: нет дохода от неё.'
+        effects:
+          tariff: 0
+          trade_time: -0.1
+        requires:
+        - NeverLandTownyTrade
+        production-projects: []
+        upkeep-projects: []
+      protective:
+        name: Повышенные пошлины
+        icon: EMERALD_BLOCK
+        advantages:
+        - Транзитная пошлина города 10% (в пределах Trade).
+        disadvantages:
+        - Длительность новых маршрутов города +15%.
+        - Довольство −3 пункта.
+        effects:
+          tariff: 10
+          trade_time: 0.15
+          happiness: -3
+        requires:
+        - NeverLandTownyTrade
+        - NeverLandTownyPopulation
+        production-projects: []
+        upkeep-projects: []
+  mobilization:
+    name: Мобилизация
+    icon: IRON_SWORD
+    default: professional
+    enabled: true
+    options:
+      professional:
+        name: Профессиональная армия
+        icon: IRON_SWORD
+        advantages:
+        - Обычный штат штаба армии, призыв вручную с 18 лет.
+        disadvantages:
+        - Специальных преимуществ нет.
+        effects: {}
+        requires: []
+        production-projects: []
+        upkeep-projects: []
+      reserve:
+        name: Подготовка резерва
+        icon: IRON_CHESTPLATE
+        advantages:
+        - Лимит действующих солдат +25%.
+        disadvantages:
+        - Выпуск всех стратегических производств −5%.
+        - Довольство −3 пункта; содержание военных зданий +25%.
+        effects:
+          army: 0.25
+          production: -0.05
+          happiness: -3
+          upkeep: 0.25
+        requires:
+        - NeverLandTownyBuilds
+        - NeverLandTownyResources
+        - NeverLandTownyPopulation
+        - NeverLandTownyUpkeep
+        production-projects:
+        - '*'
+        upkeep-projects: &id001
+        - army
+        - barracks
+        - guard
+        - citadel
+      general:
+        name: Всеобщая мобилизация
+        icon: NETHERITE_CHESTPLATE
+        advantages:
+        - Лимит действующих солдат +50%.
+        disadvantages:
+        - Выпуск всех стратегических производств −15%.
+        - Довольство −8 пунктов; содержание военных зданий +50%.
+        effects:
+          army: 0.5
+          production: -0.15
+          happiness: -8
+          upkeep: 0.5
+        requires:
+        - NeverLandTownyBuilds
+        - NeverLandTownyResources
+        - NeverLandTownyPopulation
+        - NeverLandTownyUpkeep
+        production-projects:
+        - '*'
+        upkeep-projects: *id001
+  farmers:
+    name: Субсидии фермерам
+    icon: WHEAT
+    default: none
+    enabled: true
+    options:
+      none:
+        name: Без субсидий
+        icon: WHEAT_SEEDS
+        advantages:
+        - Обычные производство и содержание аграрных зданий.
+        disadvantages:
+        - Специальных преимуществ нет.
+        effects: {}
+        requires: []
+        production-projects: []
+        upkeep-projects: []
+      targeted:
+        name: Адресные субсидии
+        icon: WHEAT
+        advantages:
+        - Выпуск аграрных зданий +15%.
+        disadvantages:
+        - Их денежное и ресурсное содержание +25%.
+        effects:
+          production: 0.15
+          upkeep: 0.25
+        requires:
+        - NeverLandTownyResources
+        - NeverLandTownyUpkeep
+        production-projects: &id002
+        - agrarian_complex
+        - mill
+        - bakery
+        - apiary
+        - irrigation_station
+        - seed_vault
+        upkeep-projects: *id002
+      expanded:
+        name: Расширенные субсидии
+        icon: HAY_BLOCK
+        advantages:
+        - Выпуск аграрных зданий +30%.
+        disadvantages:
+        - Их денежное и ресурсное содержание +50%.
+        effects:
+          production: 0.3
+          upkeep: 0.5
+        requires:
+        - NeverLandTownyResources
+        - NeverLandTownyUpkeep
+        production-projects: *id002
+        upkeep-projects: *id002
+  imports:
+    name: Ограничения импорта
+    icon: HOPPER
+    default: open
+    enabled: true
+    options:
+      open:
+        name: Открытый импорт
+        icon: HOPPER
+        advantages:
+        - Покупки доступны у всех городов с учётом санкций.
+        disadvantages:
+        - Специальных преимуществ нет.
+        effects: {}
+        requires: []
+        production-projects: []
+        upkeep-projects: []
+      nation:
+        name: Импорт внутри нации
+        icon: MAP
+        advantages:
+        - Выпуск аграрных и промышленных зданий +10%.
+        disadvantages:
+        - Новые покупки только у городов своей нации.
+        - Без нации весь новый импорт закрыт.
+        effects:
+          production: 0.1
+        requires:
+        - NeverLandTownyTrade
+        - NeverLandTownyResources
+        production-projects:
+        - agrarian_complex
+        - mill
+        - bakery
+        - apiary
+        - irrigation_station
+        - seed_vault
+        - sawmill
+        - quarry
+        - foundry
+        - forge
+        - recycling_yard
+        - industrial_works
+        upkeep-projects: []
+      closed:
+        name: Закрытый импорт
+        icon: BARRIER
+        advantages:
+        - Выпуск аграрных и промышленных зданий +15%.
+        disadvantages:
+        - Все новые торговые покупки из других городов закрыты.
+        - Довольство −8 пунктов.
+        effects:
+          production: 0.15
+          happiness: -8
+        requires:
+        - NeverLandTownyTrade
+        - NeverLandTownyResources
+        - NeverLandTownyPopulation
+        production-projects:
+        - agrarian_complex
+        - mill
+        - bakery
+        - apiary
+        - irrigation_station
+        - seed_vault
+        - sawmill
+        - quarry
+        - foundry
+        - forge
+        - recycling_yard
+        - industrial_works
+        upkeep-projects: []
+  industry:
+    name: Поддержка промышленности
+    icon: BLAST_FURNACE
+    default: none
+    enabled: true
+    options:
+      none:
+        name: Без поддержки
+        icon: FURNACE
+        advantages:
+        - Обычные производство и содержание промышленных зданий.
+        disadvantages:
+        - Специальных преимуществ нет.
+        effects: {}
+        requires: []
+        production-projects: []
+        upkeep-projects: []
+      focused:
+        name: Целевая поддержка
+        icon: BLAST_FURNACE
+        advantages:
+        - Выпуск промышленных зданий +15%.
+        disadvantages:
+        - Их содержание +25%; довольство −2 пункта.
+        effects:
+          production: 0.15
+          upkeep: 0.25
+          happiness: -2
+        requires:
+        - NeverLandTownyResources
+        - NeverLandTownyUpkeep
+        - NeverLandTownyPopulation
+        production-projects: &id003
+        - sawmill
+        - quarry
+        - foundry
+        - forge
+        - recycling_yard
+        - industrial_works
+        upkeep-projects: *id003
+      expanded:
+        name: Промышленный рывок
+        icon: ANVIL
+        advantages:
+        - Выпуск промышленных зданий +30%.
+        disadvantages:
+        - Их содержание +50%; довольство −5 пунктов.
+        effects:
+          production: 0.3
+          upkeep: 0.5
+          happiness: -5
+        requires:
+        - NeverLandTownyResources
+        - NeverLandTownyUpkeep
+        - NeverLandTownyPopulation
+        production-projects: *id003
+        upkeep-projects: *id003

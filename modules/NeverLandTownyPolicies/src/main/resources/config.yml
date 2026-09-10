@@ -1,0 +1,4 @@
+selection:
+  change-cooldown-hours: 24
+simulation:
+  interval-seconds: 5

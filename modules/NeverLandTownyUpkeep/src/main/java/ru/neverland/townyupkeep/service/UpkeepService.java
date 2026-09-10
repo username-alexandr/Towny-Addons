@@ -16,7 +16,7 @@ import java.util.*;
 public final class UpkeepService implements TownyUpkeepApi,PaymentProcessor.Store {
     private final JavaPlugin plugin;private final UpkeepRepository repo;private final CityBridge city=new CityBridge();private final PaymentProcessor payments;
     private UpkeepSettings settings;private long clock;private boolean fault;private BukkitTask task;
-    private Map<Key,Cost> quotes=Map.of();private Map<Key,Integer> levels=Map.of();
+    private Map<Key,Cost> quotes=Map.of(),baseQuotes=Map.of();private Map<Key,Integer> levels=Map.of();
     private volatile Map<Key,UpkeepSnapshot> views=Map.of();
     public UpkeepService(JavaPlugin plugin,UpkeepRepository repo,UpkeepSettings settings){this.plugin=plugin;this.repo=repo;this.settings=settings;clock=repo.clock();payments=new PaymentProcessor(this,city);}
     public UpkeepSettings settings(){return settings;}public boolean fault(){return fault;}
@@ -26,22 +26,22 @@ public final class UpkeepService implements TownyUpkeepApi,PaymentProcessor.Stor
         city.verify();var previous=settings;settings=next;try{scan();fault=false;publish();}catch(Exception ex){settings=previous;throw ex;}
     }
     private void scan()throws Exception{
-        Map<Key,Cost> nextQuotes=new HashMap<>();Map<Key,Integer> nextLevels=new HashMap<>();var entries=new HashMap<>(repo.entries());
+        Map<Key,Cost> nextQuotes=new HashMap<>(),nextBase=new HashMap<>();Map<Key,Integer> nextLevels=new HashMap<>();var entries=new HashMap<>(repo.entries());
         for(Town town:List.copyOf(TownyAPI.getInstance().getTowns())){
             var built=city.buildings(town.getUUID());int total=built.values().stream().mapToInt(Integer::intValue).sum();var factor=settings.factor(town.getNumTownBlocks(),town.getNumResidents(),total);
-            for(var b:built.entrySet()){var p=settings.profiles().get(b.getKey());if(p==null)continue;var key=new Key(town.getUUID(),p.id());nextLevels.put(key,b.getValue());nextQuotes.put(key,p.cost().multiply(b.getValue(),factor));entries.putIfAbsent(key,Entry.grace(clock+settings.grace()));}
+            for(var b:built.entrySet()){var p=settings.profiles().get(b.getKey());if(p==null)continue;var key=new Key(town.getUUID(),p.id());nextLevels.put(key,b.getValue());var base=p.cost().multiply(b.getValue(),factor);nextBase.put(key,base);nextQuotes.put(key,base.policy(ru.neverland.integration.PoliciesAccess.upkeep(key.town(),key.project())));entries.putIfAbsent(key,Entry.grace(clock+settings.grace()));}
         }
         // Keep records for existing towns even if a footprint is temporarily unclaimed/unloaded.
         // This preserves paid time and prevents reclaiming a footprint from granting another grace period.
         entries.entrySet().removeIf(e->TownyAPI.getInstance().getTown(e.getKey().town())==null&&e.getValue().invoice()==null);
-        if(!entries.equals(repo.entries()))repo.save(clock,entries);quotes=Map.copyOf(nextQuotes);levels=Map.copyOf(nextLevels);publish();
+        if(!entries.equals(repo.entries()))repo.save(clock,entries);baseQuotes=Map.copyOf(nextBase);quotes=Map.copyOf(nextQuotes);levels=Map.copyOf(nextLevels);publish();
     }
     private void pulse(){if(fault)return;try{
         clock=Math.addExact(clock,1);if(clock%5==0)scan();
         List<Key> due=repo.entries().entrySet().stream().filter(e->{var bill=e.getValue().invoice();if(bill!=null)return bill.phase()!=Phase.MONEY_PENDING;
             var p=settings.profiles().get(e.getKey().project());return p!=null&&p.enabled()&&SpecializationAccess.allowed(e.getKey().town(),e.getKey().project())&&levels.containsKey(e.getKey())&&e.getValue().due()<=clock;})
             .sorted(Comparator.<Map.Entry<Key,Entry>>comparingLong(e->e.getValue().due()).thenComparingInt(e->{var p=settings.profiles().get(e.getKey().project());return p==null?50:p.priority();}).thenComparing(e->e.getKey().town()+"/"+e.getKey().project())).map(Map.Entry::getKey).limit(settings.budget()).toList();
-        for(var key:due){var e=get(key);if(e.invoice()==null){var p=settings.profiles().get(key.project());put(key,new Entry(false,clock,"Оплата содержания",new Invoice(UUID.randomUUID(),quotes.get(key),settings.period(),Phase.PREPARED)));}
+        for(var key:due){var e=get(key);if(e.invoice()==null){var p=settings.profiles().get(key.project());put(key,new Entry(false,clock,"Оплата содержания",new Invoice(UUID.randomUUID(),baseQuotes.get(key).policy(ru.neverland.integration.PoliciesAccess.upkeep(key.town(),key.project())),settings.period(),Phase.PREPARED)));}
             else if(e.invoice().phase()==Phase.PREPARED&&(!SpecializationAccess.allowed(key.town(),key.project())||!levels.containsKey(key)||!settings.profiles().containsKey(key.project())||!settings.profiles().get(key.project()).enabled()))payments.cancel(key,"Здание недоступно или обслуживание отключено");
             payments.process(key,clock,settings.retry());}
         if(clock-repo.clock()>=30)repo.save(clock,repo.entries());publish();

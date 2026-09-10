@@ -136,6 +136,7 @@ public final class MenuManager implements Listener {
                 List.of("&7Общее хранилище ресурсов.", "&7Открыть: &f/t inv"));
         inventory.setItem(49, storage);
         if(Bukkit.getPluginManager().getPlugin("NeverLandTownyUpkeep")!=null)inventory.setItem(53,actionItem("upkeep",new ItemStack(Material.CLOCK),"&eОбслуживание города",List.of("&7Расходы и состояние зданий.")));
+        if(Bukkit.getPluginManager().getPlugin("NeverLandTownyPolicies")!=null)inventory.setItem(48,actionItem("policies",new ItemStack(Material.WRITABLE_BOOK),"&eГородские указы",List.of("&7Политики, преимущества и издержки.")));
         if(Bukkit.getPluginManager().getPlugin("NeverLandTownySpecialization")!=null)inventory.setItem(46,actionItem("specialization",new ItemStack(Material.NETHER_STAR),"&eСпециализация города",List.of("&7Направление, уникальные здания и бонусы.")));
         if(Bukkit.getPluginManager().getPlugin("NeverLandTownyResearch")!=null)inventory.setItem(50,actionItem("research",new ItemStack(Material.ENCHANTED_BOOK),"&eИсследования города",List.of("&7Технологии, знания и научные здания.")));
         if(Bukkit.getPluginManager().getPlugin("NeverLandTownyPower")!=null)inventory.setItem(52,actionItem("power",new ItemStack(Material.REDSTONE),"&eЭнергия города",List.of("&7Выработка, потребление и приоритеты.")));
@@ -282,6 +283,8 @@ public final class MenuManager implements Listener {
             ProjectDefinition project = projectFrom(event.getCurrentItem());
             if (project != null && project.type() == list.type()) {
                 openDetails(player, project, list.page(), list.category());
+            } else if ("policies".equals(actionFrom(event.getCurrentItem()))) {
+                player.performCommand("townypolicies");
             } else if ("specialization".equals(actionFrom(event.getCurrentItem()))) {
                 player.performCommand("townyspecialization");
             } else if ("research".equals(actionFrom(event.getCurrentItem()))) {

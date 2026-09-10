@@ -4,7 +4,7 @@ import java.util.*;
 /** Pure deterministic city cycle. Citizens' food/water reserve is protected from building inputs. */
 public final class ResourceEngine {
     private ResourceEngine() {}
-    public record Building(int completed,double bonus,boolean owned,boolean active,String inactiveReason) { public Building(int completed,double bonus,boolean owned,boolean active){this(completed,bonus,owned,active,"содержание не оплачено");} public Building(int completed,double bonus,boolean owned){this(completed,bonus,owned,true);} }
+    public record Building(int completed,double bonus,boolean owned,boolean active,String inactiveReason,double policies) { public Building(int completed,double bonus,boolean owned,boolean active,String inactiveReason){this(completed,bonus,owned,active,inactiveReason,1);} public Building(int completed,double bonus,boolean owned,boolean active){this(completed,bonus,owned,active,"содержание не оплачено");} public Building(int completed,double bonus,boolean owned){this(completed,bonus,owned,true);} }
     public record Activity(int level,int priority,int operations,String status,Map<Resource,Long> income,Map<Resource,Long> expense) {
         public Activity { income=Amounts.flows(income);expense=Amounts.flows(expense); }
     }
@@ -29,7 +29,7 @@ public final class ResourceEngine {
             String status=!p.enabled()?"Отключено в настройках":level==0?"Не построено или этап не завершён":!b.owned()?"Площадка больше не принадлежит городу":!b.active()?"НЕАКТИВНО — "+b.inactiveReason():state.paused().contains(p.id())?"Приостановлено городом":"Работает";
             var produced=Amounts.mutable(Map.of());var consumed=Amounts.mutable(Map.of());
             if(status.equals("Работает"))for(int step=0;step<level;step++){
-                var output=Amounts.mutable(p.produces());for(var r:Resource.values())output.put(r,Amounts.bonus(output.get(r),b.bonus()));
+                var output=Amounts.mutable(p.produces());for(var r:Resource.values())output.put(r,ru.neverland.integration.PolicyEffects.output(output.get(r),b.bonus(),b.policies(),Amounts.MAX));
                 String blocked=null;
                 for(var r:Resource.values()){
                     long reserve=Math.max(state.reserves().get(r),demand.get(r));

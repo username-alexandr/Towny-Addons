@@ -42,3 +42,6 @@ admin-help:
   - "&#FFFFFF/townytrade complete <ID>"
   - "&#FFFFFF/townytrade cancel <ID>"
   - "&#FFFFFF/townytrade reload"
+
+policy-import-blocked: "&cИмпорт ограничен политикой города-покупателя или система указов временно недоступна. /t policies"
+policy-tariff-managed: "&eБазовая ставка сохранена. Действующий указ задаёт пошлину %percent%%. Сменить режим: /t policies"
