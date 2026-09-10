@@ -82,7 +82,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
             return OptionalInt.empty();
         }
     }
-    private int level(Town town) { return town == null ? 0 : data.town(town.getUUID()).level("army"); }
+    private int level(Town town) { return town == null ? 0 : data.town(town.getUUID()).operationalLevel("army"); }
     private int capacity(Town town) { return town == null ? 0 : (int)Math.floor(level(town) * Math.max(1, Math.min(1000, plugin.getConfig().getInt("army.soldiers-per-level", 10)))
             * ru.neverland.integration.DistrictBonuses.multiplier(town.getUUID(), "army")); }
     private boolean manager(Player player, Town town) { return towny.isMayor(player, town) || player.hasPermission("neverlandtownybuilds.army.mobilize"); }
@@ -103,7 +103,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         // Temporary provider outages suspend privileges; they do not erase the saved roster.
         boolean changed = roster.entrySet().removeIf(entry -> {
             Town town = towny.town(entry.getValue());
-            return town == null || level(town) == 0 || !sameTown(TownyAPI.getInstance().getResident(entry.getKey()), town);
+            return town == null || data.town(town.getUUID()).level("army") == 0 || !sameTown(TownyAPI.getInstance().getResident(entry.getKey()), town);
         });
         attachments.entrySet().removeIf(entry -> {
             Player player = Bukkit.getPlayer(entry.getKey());
@@ -158,7 +158,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
                 roster.containsKey(resident.getUUID()), (int) roster.values().stream().filter(town.getUUID()::equals).count(), capacity(town));
         String error = switch (result) {
             case ALLOWED -> null;
-            case NO_BUILDING -> "Постройте отдельное здание «Штаб армии».";
+            case NO_BUILDING -> "Нужен действующий «Штаб армии». Постройте его или оплатите содержание: /t upkeep.";
             case UNKNOWN_AGE -> "Возраст персонажа не подтверждён.";
             case UNDER_AGE -> "Мобилизация доступна с 18 лет персонажа.";
             case ALREADY_MOBILIZED -> "Житель уже мобилизован.";

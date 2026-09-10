@@ -32,7 +32,7 @@ public final class BuildBridge {
         if(source==null||!source.isEnabled())return 0;
         try{
             Field field=source.getClass().getDeclaredField("dataStore");field.setAccessible(true);Object store=field.get(source);
-            Object townData=store.getClass().getMethod("town",UUID.class).invoke(store,townId);Method method=townData.getClass().getMethod("level",String.class);
+            Object townData=store.getClass().getMethod("town",UUID.class).invoke(store,townId);Method method=townData.getClass().getMethod("operationalLevel",String.class);
             return Math.max(0,((Number)method.invoke(townData,project)).intValue());
         }catch(ReflectiveOperationException|RuntimeException exception){if(!warned){warned=true;plugin.getLogger().warning("Не удалось прочитать уровни оборонных зданий: "+exception.getMessage());}return 0;}
     }

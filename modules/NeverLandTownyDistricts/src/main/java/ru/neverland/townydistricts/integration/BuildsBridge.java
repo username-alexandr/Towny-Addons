@@ -19,7 +19,7 @@ public final class BuildsBridge {
             Object b=entry.getValue();Class<?> type=b.getClass();
             result.add(new Building(entry.getKey().toString(),(UUID)type.getMethod("worldId").invoke(b),
                     integer(type,b,"minX"),integer(type,b,"minZ"),integer(type,b,"maxX"),integer(type,b,"maxZ"),
-                    integer(type,b,"completedLevel"),integer(type,b,"requiredLevel")));
+                    ru.neverland.integration.BuildingOperations.level(town,entry.getKey().toString(),integer(type,b,"completedLevel")),integer(type,b,"requiredLevel")));
         }
         return List.copyOf(result);
     }

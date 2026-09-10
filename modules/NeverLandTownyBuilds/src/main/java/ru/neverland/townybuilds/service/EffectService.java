@@ -74,7 +74,7 @@ public final class EffectService {
     private Map<PotionEffectType, Integer> collectEffects(TownData data) {
         Map<PotionEffectType, Integer> effects = new LinkedHashMap<>();
         for (ProjectDefinition project : definitions.all()) {
-            int levelNumber = data.level(project.id());
+            int levelNumber = data.operationalLevel(project.id());
             if (levelNumber <= 0) {
                 continue;
             }

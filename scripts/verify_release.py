@@ -169,6 +169,16 @@ def main() -> int:
                 if name in {"NeverLandTownyBuilds", "NeverLandTownyPopulation", "NeverLandTownyResources"}:
                     if "ru/neverland/integration/DistrictBonuses.class" not in archive.namelist():
                         errors.append(f"{jar.name}: missing district integration")
+                if name in {"NeverLandTownyBuilds", "NeverLandTownyResources", "NeverLandTownyDistricts", "NeverLandTownyLogistics", "NeverLandTownyEvents"}:
+                    if "ru/neverland/integration/BuildingOperations.class" not in archive.namelist():
+                        errors.append(f"{jar.name}: missing upkeep activity integration")
+                if name == "NeverLandTownyUpkeep":
+                    for resource in ("config.yml", "buildings.yml"):
+                        if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
+                            errors.append(f"{jar.name}: {resource} differs from sources")
+                    for helper in ("NeverLandTownyUpkeep", "api/TownyUpkeepApi", "model/PaymentProcessor", "data/UpkeepRepository", "gui/UpkeepMenu", "integration/CityBridge"):
+                        if f"ru/neverland/townyupkeep/{helper}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing upkeep class {helper}")
                 if name == "NeverLandTownyBuilds":
                     for helper in ("api/BuildingStorageApi", "api/CargoShipment", "storage/ShipmentTransactions", "storage/StorageSessions", "storage/ProductionService", "util/AtomicYamlFile"):
                         if f"ru/neverland/townybuilds/{helper}.class" not in archive.namelist():
@@ -257,6 +267,16 @@ def main() -> int:
         for field in ("produces", "consumes", "capacity"):
             if set(profile.get(field, {})) - resource_ids:
                 errors.append(f"Unknown strategic resource in {project}/{field}")
+    upkeep_profiles = load_yaml(modules_dir / "NeverLandTownyUpkeep/src/main/resources/buildings.yml").get("buildings", {})
+    if set(upkeep_profiles) != configured_ids | expected_wonders:
+        errors.append("Upkeep tariffs must cover every building and wonder")
+    for project, profile in upkeep_profiles.items():
+        if not re.search(r"[А-Яа-яЁё]", str(profile.get("name", ""))):
+            errors.append(f"Upkeep profile is not localized: {project}")
+        if set(profile.get("resources", {})) - resource_ids:
+            errors.append(f"Unknown upkeep resource: {project}")
+        if profile.get("icon") != resource_profiles[project].get("icon"):
+            errors.append(f"Upkeep icon does not match the resource catalog: {project}")
     logistics = load_yaml(modules_dir / "NeverLandTownyLogistics/src/main/resources/config.yml")
     if set(logistics.get("hubs", [])) != {"warehouse", "cargo_terminal", "caravanserai", "trade_port"}:
         errors.append("Logistics must support the four dispatch buildings")

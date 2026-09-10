@@ -192,7 +192,8 @@ public final class CivicService implements Listener, TownyBuildsApi {
     }
 
     private boolean requireProject(Player player, TownData data, String projectId) {
-        if (data.level(projectId) > 0) return true;
+        if (data.operationalLevel(projectId) > 0) return true;
+        if(data.level(projectId)>0){player.sendMessage(ColorUtil.component("&cЗдание НЕАКТИВНО. Содержание: /t upkeep"));return false;}
         messages.send(player, "civic-project-required", Map.of("project", projectName(projectId)));
         return false;
     }
@@ -255,7 +256,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
             messages.send(player, "civic-selection-world");
             return;
         }
-        int level = data.level(draft.projectId);
+        int level = data.operationalLevel(draft.projectId);
         if (AREA_PROJECTS.contains(draft.projectId)) {
             CivicArea area = new CivicArea(draft.first.getWorld().getUID(),
                     Math.min(draft.first.getBlockX(), draft.second.getBlockX()),
@@ -263,8 +264,8 @@ public final class CivicService implements Listener, TownyBuildsApi {
                     Math.min(draft.first.getBlockZ(), draft.second.getBlockZ()),
                     Math.max(draft.first.getBlockZ(), draft.second.getBlockZ()));
             int maximumChunks = level * level;
-            if (draft.projectId.equals("forestry")) maximumChunks += data.level("world_tree") * 12;
-            if (draft.projectId.equals("irrigation_station")) maximumChunks += data.level("great_canal") * 8;
+            if (draft.projectId.equals("forestry")) maximumChunks += data.operationalLevel("world_tree") * 12;
+            if (draft.projectId.equals("irrigation_station")) maximumChunks += data.operationalLevel("great_canal") * 8;
             if (area.chunkCount() > maximumChunks) {
                 messages.send(player, "civic-selection-too-large", Map.of("current", area.chunkCount(), "maximum", maximumChunks));
                 return;
@@ -280,7 +281,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
                     draft.first.getBlockX(), draft.first.getBlockY(), draft.first.getBlockZ(),
                     draft.second.getBlockX(), draft.second.getBlockY(), draft.second.getBlockZ());
             int maximum = Math.max(16, plugin.getConfig().getInt("settings.civic.linear-blocks-per-level", 32)) * level;
-            if (draft.projectId.equals("dam")) maximum += data.level("great_canal") * 256;
+            if (draft.projectId.equals("dam")) maximum += data.operationalLevel("great_canal") * 256;
             if (line.length() > maximum) {
                 messages.send(player, "civic-line-too-long", Map.of("current", line.length(), "maximum", maximum));
                 return;
@@ -372,7 +373,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
         }
         String text = String.join(" ", java.util.Arrays.copyOfRange(args, 1, args.length))
                 .replace('&', '＆').strip();
-        int maximum = 40 + data.level("printing_house") * 40;
+        int maximum = 40 + data.operationalLevel("printing_house") * 40;
         if (text.length() > maximum) text = text.substring(0, maximum);
         data.setBulletin(text);
         dataStore.markDirty();
@@ -410,7 +411,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
 
     private void claimShop(Player player, Town town, TownData data, String[] args) {
         if (!requireMayor(player, town)) return;
-        if (data.level("merchant_guild") < 3) {
+        if (data.operationalLevel("merchant_guild") < 3) {
             messages.send(player, "civic-shop-level");
             return;
         }
@@ -464,7 +465,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
             double price = Double.parseDouble(args[3].replace(',', '.'));
             double maximum = Math.max(1, plugin.getConfig().getDouble("settings.civic.spawn-shops.maximum-unit-price", 1_000_000));
             if (!Double.isFinite(price) || price < 0 || price > maximum) throw new NumberFormatException();
-            int limit = 4 + data.level("merchant_guild") * 4 + data.level("crystal_palace") * 16;
+            int limit = 4 + data.operationalLevel("merchant_guild") * 4 + data.operationalLevel("crystal_palace") * 16;
             if (price > 0 && data.shopPrice(material.name()) <= 0 && data.shopPrices().size() >= limit) {
                 messages.send(player, "civic-shop-listing-limit", Map.of("limit", limit));
                 return;
@@ -496,7 +497,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
         double best = Double.MAX_VALUE;
         double radius = Math.max(2, plugin.getConfig().getDouble("settings.civic.spawn-shops.browse-radius", 8));
         for (TownData data : dataStore.towns().values()) {
-            if (data.shopStall().isBlank()) continue;
+            if (data.shopStall().isBlank() || data.operationalLevel("merchant_guild")==0) continue;
             Location location = stallLocation(data.shopStall());
             if (location == null || !location.getWorld().equals(player.getWorld())) continue;
             double distance = location.distanceSquared(player.getLocation());
@@ -513,6 +514,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
     }
 
     private void openShop(Player player, TownData sellerData) {
+        if(sellerData.operationalLevel("merchant_guild")==0){player.sendMessage(ColorUtil.component("&cЛавка временно не работает: содержание гильдии не оплачено."));return;}
         Town seller = towny.town(sellerData.townId());
         if (seller == null) {
             messages.send(player, "civic-shop-unavailable");
@@ -595,6 +597,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
     }
 
     private void buy(Player player, UUID sellerTownId, Material material, boolean stack) {
+        if(dataStore.town(sellerTownId).operationalLevel("merchant_guild")==0){player.sendMessage(ColorUtil.component("&cЛавка временно не работает."));return;}
         if(dataStore.storageBusy(sellerTownId,"merchant_guild")){player.sendMessage("Склад гильдии открыт; покупка временно недоступна.");return;}
         TownData sellerData = dataStore.town(sellerTownId);
         Town seller = towny.town(sellerTownId);
@@ -711,7 +714,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
                 + " &8• &7Ирригация: &f" + (irrigation == null ? "участок не задан" : irrigation.chunkCount() + " чанков")));
         player.sendMessage(ColorUtil.component("&7Лавка: &f" + (data.shopStall().isBlank() ? "не открыта" : data.shopStall())
                 + " &8• &7Страховой резерв: &e" + MONEY.format(data.insuranceReserve())));
-        if (data.level("census_bureau") > 0) {
+        if (data.operationalLevel("census_bureau") > 0) {
             player.sendMessage(ColorUtil.component("&7Перепись: &f" + town.getResidents().size() + " жителей"));
         }
         if (!data.bulletin().isBlank()) {
@@ -735,7 +738,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
         for (Player player : Bukkit.getOnlinePlayers()) {
             Town town = towny.town(player);
             if (town == null || !(player.getVehicle() instanceof AbstractHorse horse)) continue;
-            int level = dataStore.town(town.getUUID()).level("stables");
+            int level = dataStore.town(town.getUUID()).operationalLevel("stables");
             if (level > 0 && town.equals(towny.townAt(player.getLocation()))) {
                 horse.addPotionEffect(new PotionEffect(PotionEffectType.SPEED,
                         Math.max(140, plugin.getConfig().getInt("settings.civic.automation-interval-ticks", 1200) + 40),
@@ -747,7 +750,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
 
     private void runForestry(Town town, TownData data) {
         if(dataStore.storageBusy(data.townId(),"forestry")||dataStore.storageBusy(data.townId(),"warehouse"))return;
-        int level = data.level("forestry");
+        int level = data.operationalLevel("forestry");
         CivicArea area = data.civicArea("forestry");
         if (level <= 0 || area == null) return;
         World world = Bukkit.getWorld(area.worldId());
@@ -755,7 +758,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
         int planted = 0;
         int attempts = Math.min(640, 80 * level);
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        int plantingLimit = ru.neverland.integration.DistrictBonuses.output(level * 3 + data.level("world_tree") * 8,
+        int plantingLimit = ru.neverland.integration.DistrictBonuses.output(level * 3 + data.operationalLevel("world_tree") * 8,
                 ru.neverland.integration.DistrictBonuses.multiplier(data.townId(), "forestry"));
         for (int attempt = 0; attempt < attempts && planted < plantingLimit; attempt++) {
             int x = random.nextInt(area.minX(), area.maxX() + 1);
@@ -809,7 +812,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
     }
 
     private void runIrrigation(Town town, TownData data) {
-        int level = data.level("irrigation_station");
+        int level = data.operationalLevel("irrigation_station");
         CivicArea area = data.civicArea("irrigation_station");
         if (level <= 0 || area == null || !waterNetworkActive(town.getUUID())) return;
         World world = Bukkit.getWorld(area.worldId());
@@ -841,7 +844,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
 
     private void runRecycling(TownData data) {
         if(dataStore.storageBusy(data.townId(),"recycling_yard"))return;
-        int level = data.level("recycling_yard");
+        int level = data.operationalLevel("recycling_yard");
         if (level <= 0) return;
         ItemStack[] inventory = data.civicInventory("recycling_yard", 54);
         boolean changed = false;
@@ -956,6 +959,9 @@ public final class CivicService implements Listener, TownyBuildsApi {
     }
 
     @Override
+    public int operationalLevel(UUID townId,String projectId){return townId==null||projectId==null?0:dataStore.town(townId).operationalLevel(projectId.toLowerCase(Locale.ROOT));}
+
+    @Override
     public Map<String,ru.neverland.townybuilds.api.BuildingFootprint> buildingFootprints(UUID townId) {
         if(townId==null || towny.town(townId)==null)return Map.of();
         TownData data=dataStore.town(townId);
@@ -965,7 +971,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
     }
 
     private double benefitLevel(TownData data,String project) {
-        return data.level(project)*ru.neverland.integration.DistrictBonuses.multiplier(data.townId(),project);
+        return data.operationalLevel(project)*ru.neverland.integration.DistrictBonuses.multiplier(data.townId(),project);
     }
 
     @Override
@@ -1004,7 +1010,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
     public boolean waterNetworkActive(UUID townId) {
         if (townId == null) return false;
         TownData data = dataStore.town(townId);
-        return data.level("water_tower") > 0 && data.level("reservoir") > 0 && data.level("pumping_station") > 0;
+        return data.operationalLevel("water_tower") > 0 && data.operationalLevel("reservoir") > 0 && data.operationalLevel("pumping_station") > 0;
     }
 
     @Override

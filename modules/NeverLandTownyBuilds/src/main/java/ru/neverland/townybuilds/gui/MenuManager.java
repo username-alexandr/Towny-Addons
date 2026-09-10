@@ -124,7 +124,7 @@ public final class MenuManager implements Listener {
         int end = Math.min(projects.size(), start + PROJECTS_PER_PAGE);
         for (int index = start; index < end; index++) {
             ProjectDefinition project = projects.get(index);
-            inventory.setItem(slots.get(index - start), projectIcon(project, data.level(project.id())));
+            inventory.setItem(slots.get(index - start), projectIcon(project, data.level(project.id()), town.getUUID()));
         }
         if (page > 0) inventory.setItem(47, actionItem("projects-previous", backItem(),
                 "&#B65CFFПредыдущая страница", List.of("&7Страница " + page + " из " + pages)));
@@ -135,6 +135,7 @@ public final class MenuManager implements Listener {
         ItemStack storage = menuItem(Material.CHEST, "&#63E6BEГородской склад",
                 List.of("&7Общее хранилище ресурсов.", "&7Открыть: &f/t inv"));
         inventory.setItem(49, storage);
+        if(Bukkit.getPluginManager().getPlugin("NeverLandTownyUpkeep")!=null)inventory.setItem(53,actionItem("upkeep",new ItemStack(Material.CLOCK),"&eОбслуживание города",List.of("&7Расходы и состояние зданий.")));
         player.openInventory(inventory);
     }
 
@@ -155,7 +156,7 @@ public final class MenuManager implements Listener {
         Inventory inventory = Bukkit.createInventory(new DetailsHolder(project.id(), page, category), 27,
                 ColorUtil.component(project.name()));
         decorate(inventory);
-        inventory.setItem(11, projectIcon(project, current));
+        inventory.setItem(11, projectIcon(project, current, town.getUUID()));
         if (project.id().equals("army")) inventory.setItem(16, actionItem("army", new ItemStack(Material.NETHERITE_HELMET),
                 "&#B65CFFСостав армии", List.of("&7Реестр и мобилизация граждан с 18 лет")));
         if (construction.active()) {
@@ -278,6 +279,8 @@ public final class MenuManager implements Listener {
             ProjectDefinition project = projectFrom(event.getCurrentItem());
             if (project != null && project.type() == list.type()) {
                 openDetails(player, project, list.page(), list.category());
+            } else if ("upkeep".equals(actionFrom(event.getCurrentItem()))) {
+                player.performCommand("townyupkeep");
             } else if (event.getSlot() == 49) {
                 openStorage(player);
             }
@@ -402,7 +405,7 @@ public final class MenuManager implements Listener {
         openDetails(player, project, page, project.type() == ProjectType.BUILDING ? project.category() : null);
     }
 
-    private ItemStack projectIcon(ProjectDefinition project, int level) {
+    private ItemStack projectIcon(ProjectDefinition project, int level, UUID town) {
         ItemStack icon = project.editorIcon();
         if (icon == null) {
             icon = itemsAdder.item(project.itemsAdderIcon(), 1);
@@ -421,6 +424,10 @@ public final class MenuManager implements Listener {
         lore.add(Component.empty());
         lore.add(ColorUtil.component("&7Уровень: &f" + level + "&8/&f" + project.maxLevel()));
         lore.add(ColorUtil.component(progress(level, project.maxLevel())));
+        if(level>0&&!ru.neverland.integration.BuildingOperations.active(town,project.id())){
+            lore.add(ColorUtil.component("&cНЕАКТИВНО — содержание не оплачено"));
+            lore.add(ColorUtil.component("&7Обслуживание: &f/t upkeep"));
+        }
         lore.add(Component.empty());
         lore.add(ColorUtil.component(level >= project.maxLevel() ? "&aПолностью развито" : "&#63E6BEНажмите для подробностей"));
         meta.lore(lore);

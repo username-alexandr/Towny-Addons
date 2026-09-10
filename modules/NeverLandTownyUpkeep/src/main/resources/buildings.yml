@@ -1,0 +1,791 @@
+# Цена за один завершённый уровень за период; итог умножается на размер города.
+buildings:
+  town_hall:
+    name: Ратуша
+    icon: BELL
+    enabled: true
+    priority: 40
+    money: 5
+    resources:
+      materials: 0.5
+  forge:
+    name: Кузница
+    icon: ANVIL
+    enabled: true
+    priority: 20
+    money: 4
+    resources:
+      stone: 0.5
+  barracks:
+    name: Казармы
+    icon: IRON_SWORD
+    enabled: true
+    priority: 25
+    money: 10
+    resources:
+      food: 2
+      metal: 0.25
+  market:
+    name: Рынок
+    icon: EMERALD
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  miners_guild:
+    name: Шахтёрская гильдия
+    icon: DIAMOND_PICKAXE
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  temple:
+    name: Священный Храм
+    icon: TOTEM_OF_UNDYING
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  great_library:
+    name: Великая Библиотека
+    icon: ENCHANTED_BOOK
+    enabled: true
+    priority: 40
+    money: 5
+    resources:
+      materials: 0.5
+  agrarian_complex:
+    name: Аграрный Комплекс
+    icon: DIAMOND_HOE
+    enabled: true
+    priority: 10
+    money: 1
+    resources:
+      wood: 0.5
+  infirmary:
+    name: Лазарет
+    icon: BREWING_STAND
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  fire_station:
+    name: Пожарная часть
+    icon: FIRE_CHARGE
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  tavern_inn:
+    name: Таверна и постоялый двор
+    icon: HONEY_BOTTLE
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  city_bank:
+    name: Городской банк
+    icon: GOLD_INGOT
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  embassy:
+    name: Посольство
+    icon: GLOBE_BANNER_PATTERN
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  museum:
+    name: Музей
+    icon: DECORATED_POT
+    enabled: true
+    priority: 40
+    money: 5
+    resources:
+      materials: 0.5
+  shipyard:
+    name: Верфь
+    icon: OAK_BOAT
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  university:
+    name: Университет
+    icon: ENCHANTING_TABLE
+    enabled: true
+    priority: 40
+    money: 5
+    resources:
+      materials: 0.5
+  courthouse:
+    name: Суд
+    icon: IRON_AXE
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  aqueduct:
+    name: Акведук
+    icon: PRISMARINE_BRICKS
+    enabled: true
+    priority: 5
+    money: 4
+    resources:
+      stone: 1
+  workshop:
+    name: Мастерская
+    icon: SMITHING_TABLE
+    enabled: true
+    priority: 20
+    money: 4
+    resources:
+      stone: 0.5
+  watch_fortress:
+    name: Сторожевая крепость
+    icon: POLISHED_BLACKSTONE_BRICKS
+    enabled: true
+    priority: 25
+    money: 10
+    resources:
+      food: 2
+      metal: 0.25
+  hunting_lodge:
+    name: Охотничий дом
+    icon: BOW
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  fishing_harbor:
+    name: Рыбацкая гавань
+    icon: FISHING_ROD
+    enabled: true
+    priority: 10
+    money: 1
+    resources:
+      wood: 0.5
+  post_station:
+    name: Почтовая станция
+    icon: WRITABLE_BOOK
+    enabled: true
+    priority: 40
+    money: 5
+    resources:
+      materials: 0.5
+  observatory:
+    name: Обсерватория
+    icon: SPYGLASS
+    enabled: true
+    priority: 40
+    money: 5
+    resources:
+      materials: 0.5
+  prison:
+    name: Тюрьма
+    icon: IRON_BARS
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  sawmill:
+    name: Лесопилка
+    icon: IRON_AXE
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  quarry:
+    name: Каменоломня
+    icon: STONE_PICKAXE
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  foundry:
+    name: Литейная
+    icon: BLAST_FURNACE
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  mill:
+    name: Мельница
+    icon: WHEAT
+    enabled: true
+    priority: 10
+    money: 1
+    resources:
+      wood: 0.5
+  bakery:
+    name: Пекарня
+    icon: BREAD
+    enabled: true
+    priority: 10
+    money: 1
+    resources:
+      wood: 0.5
+  apiary:
+    name: Пасека
+    icon: HONEYCOMB
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  warehouse:
+    name: Городской склад
+    icon: CHEST
+    enabled: true
+    priority: 15
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  caravanserai:
+    name: Караван-сарай
+    icon: LEAD
+    enabled: true
+    priority: 15
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  auction:
+    name: Аукционный дом
+    icon: EMERALD
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  merchant_guild:
+    name: Торговая гильдия
+    icon: EMERALD_BLOCK
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  cargo_terminal:
+    name: Грузовой терминал
+    icon: MINECART
+    enabled: true
+    priority: 15
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  water_tower:
+    name: Водонапорная башня
+    icon: BUCKET
+    enabled: true
+    priority: 5
+    money: 4
+    resources:
+      stone: 1
+  sewer:
+    name: Канализация
+    icon: CAULDRON
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  baths:
+    name: Городские бани
+    icon: HEART_OF_THE_SEA
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  roads:
+    name: Дороги
+    icon: STONE_BRICKS
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  bridge_service:
+    name: Мостовая служба
+    icon: OAK_FENCE
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  reservoir:
+    name: Резервуар
+    icon: BLUE_CONCRETE
+    enabled: true
+    priority: 5
+    money: 4
+    resources:
+      stone: 1
+  guard:
+    name: Городская стража
+    icon: IRON_HELMET
+    enabled: true
+    priority: 25
+    money: 15
+    resources:
+      food: 3
+  arsenal:
+    name: Арсенал
+    icon: CROSSBOW
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  armory:
+    name: Оружейная
+    icon: SMITHING_TABLE
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  watchtower:
+    name: Дозорная башня
+    icon: SPYGLASS
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  fortress_gate:
+    name: Крепостные ворота
+    icon: IRON_DOOR
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  counterintel:
+    name: Палата контрразведки
+    icon: ENDER_EYE
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  alchemy:
+    name: Алхимическая лаборатория
+    icon: BREWING_STAND
+    enabled: true
+    priority: 40
+    money: 5
+    resources:
+      materials: 0.5
+  archive:
+    name: Архив
+    icon: BOOK
+    enabled: true
+    priority: 40
+    money: 5
+    resources:
+      materials: 0.5
+  cartography:
+    name: Академия картографов
+    icon: FILLED_MAP
+    enabled: true
+    priority: 40
+    money: 5
+    resources:
+      materials: 0.5
+  research:
+    name: Исследовательский институт
+    icon: SCULK_SENSOR
+    enabled: true
+    priority: 40
+    money: 5
+    resources:
+      materials: 0.5
+  botanical:
+    name: Ботанический сад
+    icon: FLOWERING_AZALEA
+    enabled: true
+    priority: 40
+    money: 5
+    resources:
+      materials: 0.5
+  theater:
+    name: Театр
+    icon: RED_BANNER
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  square:
+    name: Городская площадь
+    icon: BELL
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  arena:
+    name: Арена
+    icon: IRON_SWORD
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  gallery:
+    name: Художественная галерея
+    icon: PAINTING
+    enabled: true
+    priority: 40
+    money: 5
+    resources:
+      materials: 0.5
+  park:
+    name: Парк
+    icon: OAK_SAPLING
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  guild_house:
+    name: Дом гильдий
+    icon: NAME_TAG
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  memorial:
+    name: Мемориал
+    icon: CHISELED_STONE_BRICKS
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  shelter:
+    name: Приют
+    icon: WHITE_BED
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  cathedral:
+    name: Собор
+    icon: END_CRYSTAL
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  printing_house:
+    name: Типография
+    icon: LECTERN
+    enabled: true
+    priority: 40
+    money: 5
+    resources:
+      materials: 0.5
+  forestry:
+    name: Лесничество
+    icon: OAK_SAPLING
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  customs:
+    name: Таможня
+    icon: WRITABLE_BOOK
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  trade_port:
+    name: Торговый порт
+    icon: OAK_BOAT
+    enabled: true
+    priority: 15
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  mint:
+    name: Монетный двор
+    icon: GOLD_INGOT
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  stables:
+    name: Конюшни
+    icon: SADDLE
+    enabled: true
+    priority: 25
+    money: 10
+    resources:
+      food: 2
+      metal: 0.25
+  fortress_wall:
+    name: Крепостная стена
+    icon: STONE_BRICKS
+    enabled: true
+    priority: 30
+    money: 0
+    resources:
+      stone: 4
+  city_moat:
+    name: Городской ров
+    icon: LILY_PAD
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  archery_range:
+    name: Стрельбище
+    icon: TARGET
+    enabled: true
+    priority: 25
+    money: 10
+    resources:
+      food: 2
+      metal: 0.25
+  port_fort:
+    name: Портовый форт
+    icon: CROSSBOW
+    enabled: true
+    priority: 25
+    money: 10
+    resources:
+      food: 2
+      metal: 0.25
+  census_bureau:
+    name: Бюро переписи населения
+    icon: WRITABLE_BOOK
+    enabled: true
+    priority: 40
+    money: 5
+    resources:
+      materials: 0.5
+  insurance_chamber:
+    name: Страховая палата
+    icon: SHIELD
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  pumping_station:
+    name: Насосная станция
+    icon: CAULDRON
+    enabled: true
+    priority: 5
+    money: 8
+    resources: {}
+  irrigation_station:
+    name: Ирригационная станция
+    icon: COPPER_HOE
+    enabled: true
+    priority: 5
+    money: 4
+    resources:
+      stone: 1
+  recycling_yard:
+    name: Перерабатывающий двор
+    icon: CRAFTER
+    enabled: true
+    priority: 20
+    money: 4
+    resources:
+      stone: 0.5
+  dam:
+    name: Дамба
+    icon: DEEPSLATE_BRICKS
+    enabled: true
+    priority: 5
+    money: 4
+    resources:
+      stone: 1
+  army:
+    name: Штаб армии
+    icon: NETHERITE_HELMET
+    enabled: true
+    priority: 25
+    money: 10
+    resources:
+      food: 2
+      metal: 0.25
+  residential_quarter:
+    name: Жилой квартал
+    icon: RED_BED
+    enabled: true
+    priority: 50
+    money: 2
+    resources:
+      stone: 0.5
+      wood: 0.25
+  sun_pyramid:
+    name: Пирамида Солнца
+    icon: GOLD_BLOCK
+    enabled: true
+    priority: 70
+    money: 25
+    resources:
+      materials: 2
+      stone: 4
+  great_colosseum:
+    name: Великий Колизей
+    icon: SHIELD
+    enabled: true
+    priority: 70
+    money: 25
+    resources:
+      materials: 2
+      stone: 4
+  alexandria_lighthouse:
+    name: Александрийский Маяк
+    icon: BEACON
+    enabled: true
+    priority: 70
+    money: 25
+    resources:
+      materials: 2
+      stone: 4
+  hanging_gardens:
+    name: Висячие Сады
+    icon: FLOWERING_AZALEA
+    enabled: true
+    priority: 70
+    money: 25
+    resources:
+      materials: 2
+      stone: 4
+  archmage_spire:
+    name: Шпиль Архимагов
+    icon: END_CRYSTAL
+    enabled: true
+    priority: 70
+    money: 25
+    resources:
+      materials: 2
+      stone: 4
+  rhodes_colossus:
+    name: Колосс Родосский
+    icon: LIGHTNING_ROD
+    enabled: true
+    priority: 70
+    money: 25
+    resources:
+      materials: 2
+      stone: 4
+  world_tree:
+    name: Мировое древо
+    icon: FLOWERING_AZALEA_LEAVES
+    enabled: true
+    priority: 70
+    money: 25
+    resources:
+      materials: 2
+      stone: 4
+  celestial_orrery:
+    name: Небесный оррерий
+    icon: RECOVERY_COMPASS
+    enabled: true
+    priority: 70
+    money: 25
+    resources:
+      materials: 2
+      stone: 4
+  terracotta_army:
+    name: Терракотовая армия
+    icon: DECORATED_POT
+    enabled: true
+    priority: 70
+    money: 25
+    resources:
+      materials: 2
+      stone: 4
+  crystal_palace:
+    name: Хрустальный дворец
+    icon: AMETHYST_CLUSTER
+    enabled: true
+    priority: 70
+    money: 25
+    resources:
+      materials: 2
+      stone: 4
+  great_canal:
+    name: Великий канал
+    icon: CONDUIT
+    enabled: true
+    priority: 70
+    money: 25
+    resources:
+      materials: 2
+      stone: 4
