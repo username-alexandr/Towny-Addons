@@ -166,7 +166,7 @@ def main() -> int:
                     for helper in ("MaterialLabels", "MaterialNameConfig"):
                         if f"ru/neverland/localization/{helper}.class" not in archive.namelist():
                             errors.append(f"{jar.name}: missing localization helper {helper}")
-                if name in {"NeverLandTownyBuilds", "NeverLandTownyPopulation"}:
+                if name in {"NeverLandTownyBuilds", "NeverLandTownyPopulation", "NeverLandTownyResources"}:
                     if "ru/neverland/integration/DistrictBonuses.class" not in archive.namelist():
                         errors.append(f"{jar.name}: missing district integration")
                 if name == "NeverLandTownyBuilds":
@@ -181,6 +181,17 @@ def main() -> int:
                             errors.append(f"{jar.name}: missing logistics class {helper}")
                     if archive.read("config.yml") != (module / "src/main/resources/config.yml").read_bytes():
                         errors.append(f"{jar.name}: config.yml differs from sources")
+                if name == "NeverLandTownyPopulation":
+                    for helper in ("integration/ResourcesBridge", "model/StrategicSupply"):
+                        if f"ru/neverland/townypopulation/{helper}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing resource supply integration {helper}")
+                if name == "NeverLandTownyResources":
+                    for resource in ("config.yml", "buildings.yml"):
+                        if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
+                            errors.append(f"{jar.name}: {resource} differs from sources")
+                    for helper in ("NeverLandTownyResources", "api/TownyResourcesApi", "model/ResourceEngine", "data/ResourcesRepository", "gui/ResourcesMenu", "integration/ResourcesExpansion"):
+                        if f"ru/neverland/townyresources/{helper}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing strategic resource class {helper}")
                 if name == "NeverLandTownyDistricts":
                     for resource in ("config.yml", "projects.yml"):
                         if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
@@ -227,6 +238,21 @@ def main() -> int:
     }
     if len(configured_ids) != 80 or set(projects["wonders"]) != expected_wonders:
         errors.append("NeverLandTownyBuilds must contain 80 buildings and the 11 expected wonders")
+    resource_ids = {"wood", "stone", "metal", "food", "water", "materials", "knowledge", "influence"}
+    strategic = load_yaml(modules_dir / "NeverLandTownyResources/src/main/resources/config.yml")
+    if set(strategic.get("resources", {})) != resource_ids:
+        errors.append("Resources must configure the eight strategic resources")
+    resource_profiles = load_yaml(modules_dir / "NeverLandTownyResources/src/main/resources/buildings.yml").get("buildings", {})
+    if set(resource_profiles) != configured_ids | expected_wonders:
+        errors.append("Strategic profiles must cover every building and wonder")
+    for project, profile in resource_profiles.items():
+        if profile.get("maximum-level") != (1 if project in expected_wonders else 5):
+            errors.append(f"Strategic profile has wrong maximum level: {project}")
+        if not re.search(r"[А-Яа-яЁё]", str(profile.get("name", ""))):
+            errors.append(f"Strategic profile is not localized: {project}")
+        for field in ("produces", "consumes", "capacity"):
+            if set(profile.get(field, {})) - resource_ids:
+                errors.append(f"Unknown strategic resource in {project}/{field}")
     logistics = load_yaml(modules_dir / "NeverLandTownyLogistics/src/main/resources/config.yml")
     if set(logistics.get("hubs", [])) != {"warehouse", "cargo_terminal", "caravanserai", "trade_port"}:
         errors.append("Logistics must support the four dispatch buildings")

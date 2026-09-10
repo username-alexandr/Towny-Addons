@@ -1,4 +1,4 @@
-suite: 0.9.0
+suite: 0.10.0
 platform:
   server: Paper/Purpur 26.2
   towny: 0.103.2.0
@@ -19,6 +19,7 @@ addons:
   NeverLandTownyStick: 0.1.6
   NeverLandTownyTaxes: 0.1.1
   NeverLandTownyTrade: 0.1.5
-  NeverLandTownyPopulation: 0.1.1
+  NeverLandTownyPopulation: 0.1.2
   NeverLandTownyDistricts: 0.1.0
   NeverLandTownyLogistics: 0.1.0
+  NeverLandTownyResources: 0.1.0

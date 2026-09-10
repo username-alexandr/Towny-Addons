@@ -1,0 +1,54 @@
+# Стратегические единицы: до трёх знаков после запятой. Предметы Minecraft не конвертируются.
+# При изменении интервала величины за цикл остаются прежними; простой сервера не начисляет ресурсы.
+simulation:
+  interval-seconds: 60
+population:
+  enabled: true
+  food-per-person: 0.05
+  water-per-person: 0.1
+initial:
+  wood: 100
+  stone: 100
+  metal: 20
+  food: 200
+  water: 200
+  materials: 20
+  knowledge: 0
+  influence: 0
+capacity:
+  wood: 2000
+  stone: 2000
+  metal: 1000
+  food: 1000
+  water: 1000
+  materials: 1000
+  knowledge: 1000
+  influence: 1000
+base-production:
+  food: 1
+  water: 2
+resources:
+  wood:
+    name: Древесина
+    icon: OAK_LOG
+  stone:
+    name: Камень
+    icon: STONE
+  metal:
+    name: Металл
+    icon: IRON_INGOT
+  food:
+    name: Продовольствие
+    icon: BREAD
+  water:
+    name: Вода
+    icon: WATER_BUCKET
+  materials:
+    name: Стройматериалы
+    icon: BRICKS
+  knowledge:
+    name: Знания
+    icon: BOOK
+  influence:
+    name: Влияние
+    icon: NETHER_STAR

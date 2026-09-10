@@ -61,7 +61,16 @@ public final class PopulationService implements TownyPopulationApi {
             }
             Map<String,Integer> selected = levels;
             Capacity capacity = settings.capacity(key -> selected.getOrDefault(key,0), key -> ru.neverland.integration.DistrictBonuses.multiplier(id,key));
-            if (now < state.lastCycle()) state = state.rebase(now);
+            try {
+                var supply=ru.neverland.townypopulation.integration.ResourcesBridge.supply(id);
+                if(supply.isPresent()) {
+                    paused |= supply.get().paused();
+                    if(!paused) capacity=supply.get().limit(capacity,state.population(),settings.rules());
+                }
+            } catch(ReflectiveOperationException | RuntimeException | LinkageError ex) {
+                paused=true;warn("Стратегическое снабжение недоступно: "+ex.getMessage());
+            }
+            if (paused || now < state.lastCycle()) state = state.rebase(now);
             if (!paused && advance && now-state.lastCycle() >= settings.intervalMillis())
                 state = PopulationMath.advance(state,capacity,settings.rules(),now);
             repository.put(id,state);

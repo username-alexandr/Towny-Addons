@@ -1,7 +1,7 @@
 import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 group = "ru.neverland"
-version = "0.1.2"
+version = "0.1.0"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -23,12 +23,12 @@ for (name in listOf("testCompileClasspath", "testRuntimeClasspath")) {
 tasks {
     compileJava { options.encoding = "UTF-8"; options.release.set(17) }
     compileTestJava { options.encoding = "UTF-8" }
-    jar { archiveBaseName.set("NeverLandTownyPopulation") }
+    jar { archiveBaseName.set("NeverLandTownyResources") }
 }
 tasks.register<JavaExec>("smokeTest") {
     dependsOn(tasks.testClasses)
     classpath = sourceSets.test.get().runtimeClasspath
-    mainClass.set("ru.neverland.townypopulation.PopulationSmoke")
+    mainClass.set("ru.neverland.townyresources.ResourcesSmoke")
 }
 
 sourceSets.main { java.srcDir("../../shared/districts/src/main/java") }

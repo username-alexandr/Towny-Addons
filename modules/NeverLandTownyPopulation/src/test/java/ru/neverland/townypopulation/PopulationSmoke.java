@@ -11,6 +11,13 @@ import java.util.*;
 
 public final class PopulationSmoke {
     public static void main(String[] args) throws Exception {
+        var resourceRules = new PopulationMath.Rules(1000,0.05,0.1,0.6,1,1,0.75,55,25,70,30,40,60,60);
+        var abundant = new Capacity(200,200,1000,1000,0);
+        var shortageSupply = new StrategicSupply(0.5,0.25,false).limit(abundant,100,resourceRules);
+        if(shortageSupply.food()!=50||shortageSupply.water()!=25||PopulationMath.evaluate(100,shortageSupply,resourceRules).change()>=0) throw new AssertionError("Strategic shortage must constrain abundant buildings");
+        if(!new StrategicSupply(1,1,false).limit(abundant,100,resourceRules).equals(abundant)) throw new AssertionError("Full strategic supply preserves growth headroom");
+        try { new StrategicSupply(Double.NaN,1,false);throw new AssertionError("NaN supply accepted"); }catch(IllegalArgumentException expected) {}
+
         var config=resource("config.yml"); var buildings=resource("buildings.yml");
         var settings=PopulationSettings.load(config,buildings); var rules=settings.rules();
         check(settings.buildings().size()==91,"all 80 buildings and 11 wonders have population profiles");
