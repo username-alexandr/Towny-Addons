@@ -1,0 +1,18 @@
+package ru.neverland.townyresearch.config;
+import org.bukkit.configuration.ConfigurationSection;
+import ru.neverland.townyresearch.model.Technology;
+import java.util.*;
+import java.math.BigDecimal;
+public record ResearchSettings(int interval,Map<String,Technology> technologies){
+    public ResearchSettings{if(interval<1||interval>60||!technologies.keySet().equals(Technology.IDS))throw new IllegalArgumentException("Нужны семь технологий, интервал 1..60 секунд");technologies=Collections.unmodifiableMap(new LinkedHashMap<>(technologies));validate(technologies);}
+    public static long integer(Object value){try{return new BigDecimal(String.valueOf(value)).longValueExact();}catch(Exception ex){throw new IllegalArgumentException("Нужно целое число: "+value);}}
+    public static long knowledge(Object value){try{return new BigDecimal(String.valueOf(value).replace(',','.')).movePointRight(3).longValueExact();}catch(Exception ex){throw new IllegalArgumentException("Знания: не более трёх знаков после запятой");}}
+    public static Map<String,Integer> levels(ConfigurationSection section){if(section==null)return Map.of();Map<String,Integer> out=new LinkedHashMap<>();for(String id:section.getKeys(false))out.put(id,Math.toIntExact(integer(section.get(id))));return Technology.checked(out);}
+    public static ResearchSettings load(ConfigurationSection config,ConfigurationSection data){Map<String,Technology> technologies=new LinkedHashMap<>();var root=data.getConfigurationSection("technologies");if(root==null)throw new IllegalArgumentException("Нет technologies");
+        for(String id:root.getKeys(false)){var t=root.getConfigurationSection(id);if(t==null)throw new IllegalArgumentException("Неверная технология");var levels=t.getConfigurationSection("levels");if(levels==null)throw new IllegalArgumentException("Нет уровней");List<Technology.Level> list=new ArrayList<>();for(int i=1;i<=levels.getKeys(false).size();i++){var level=levels.getConfigurationSection(String.valueOf(i));if(level==null)throw new IllegalArgumentException("Уровни должны идти подряд");list.add(new Technology.Level(knowledge(level.get("knowledge")),Math.toIntExact(integer(level.get("seconds"))),Double.parseDouble(String.valueOf(level.get("bonus"))),levels(level.getConfigurationSection("buildings")),levels(level.getConfigurationSection("requires"))));}
+            Object raw=t.get("enabled",true);if(!(raw instanceof Boolean enabled))throw new IllegalArgumentException("enabled: true/false");technologies.put(id,new Technology(id,t.getString("name"),t.getString("icon"),t.getString("description",""),enabled,list));}
+        return new ResearchSettings(Math.toIntExact(integer(config.get("simulation.interval-seconds",5))),technologies);
+    }
+    private static void validate(Map<String,Technology> technologies){Map<String,Set<String>> graph=new HashMap<>();for(var t:technologies.values())for(int i=1;i<=t.levels().size();i++){Set<String> deps=new HashSet<>();if(i>1)deps.add(t.id()+":"+(i-1));for(var e:t.levels().get(i-1).requires().entrySet()){var required=technologies.get(e.getKey());if(required==null||e.getValue()>required.levels().size())throw new IllegalArgumentException("Неизвестная зависимость технологии");deps.add(e.getKey()+":"+e.getValue());}graph.put(t.id()+":"+i,deps);}Set<String> complete=new HashSet<>();for(String node:graph.keySet())visit(node,graph,new HashSet<>(),complete);}
+    private static void visit(String node,Map<String,Set<String>> graph,Set<String> visiting,Set<String> complete){if(complete.contains(node))return;if(!visiting.add(node))throw new IllegalArgumentException("Циклические требования исследований");for(String dep:graph.get(node))visit(dep,graph,visiting,complete);visiting.remove(node);complete.add(node);}
+}

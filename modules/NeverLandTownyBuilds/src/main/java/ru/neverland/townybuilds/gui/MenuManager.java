@@ -136,6 +136,7 @@ public final class MenuManager implements Listener {
                 List.of("&7Общее хранилище ресурсов.", "&7Открыть: &f/t inv"));
         inventory.setItem(49, storage);
         if(Bukkit.getPluginManager().getPlugin("NeverLandTownyUpkeep")!=null)inventory.setItem(53,actionItem("upkeep",new ItemStack(Material.CLOCK),"&eОбслуживание города",List.of("&7Расходы и состояние зданий.")));
+        if(Bukkit.getPluginManager().getPlugin("NeverLandTownyResearch")!=null)inventory.setItem(50,actionItem("research",new ItemStack(Material.ENCHANTED_BOOK),"&eИсследования города",List.of("&7Технологии, знания и научные здания.")));
         if(Bukkit.getPluginManager().getPlugin("NeverLandTownyPower")!=null)inventory.setItem(52,actionItem("power",new ItemStack(Material.REDSTONE),"&eЭнергия города",List.of("&7Выработка, потребление и приоритеты.")));
         player.openInventory(inventory);
     }
@@ -280,6 +281,8 @@ public final class MenuManager implements Listener {
             ProjectDefinition project = projectFrom(event.getCurrentItem());
             if (project != null && project.type() == list.type()) {
                 openDetails(player, project, list.page(), list.category());
+            } else if ("research".equals(actionFrom(event.getCurrentItem()))) {
+                player.performCommand("townyresearch");
             } else if ("power".equals(actionFrom(event.getCurrentItem()))) {
                 player.performCommand("townypower");
             } else if ("upkeep".equals(actionFrom(event.getCurrentItem()))) {

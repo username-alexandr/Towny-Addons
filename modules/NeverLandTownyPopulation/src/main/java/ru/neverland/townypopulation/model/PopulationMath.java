@@ -52,9 +52,19 @@ public final class PopulationMath {
         if (reasons.isEmpty()) reasons.add(change > 0 ? "Условия для роста выполнены" : "Население стабильно");
         return new Metrics(workers, employed, workers-employed, unemployment, food, water, happiness, change, reasons);
     }
+    public static Metrics evaluate(int population,Capacity capacity,Rules rules,double medicineBonus){
+        var base=evaluate(population,capacity,rules);if(base.change()<=0)return base;
+        double sustainable=Math.min(capacity.housing(),Math.min(capacity.food()/rules.foodDemand(),capacity.water()/rules.waterDemand()));
+        double headroom=Math.max(0,Math.floor(Math.min(rules.maximum(),sustainable))-population);
+        double change=Math.min(headroom,ru.neverland.integration.ResearchEffects.speed(base.change(),medicineBonus));
+        return new Metrics(base.workforce(),base.employed(),base.unemployed(),base.unemployment(),base.foodCoverage(),base.waterCoverage(),base.happiness(),change,base.reasons());
+    }
     private static double coverage(double supply, double demand) { return demand <= 0 ? 1 : Math.min(1, supply/demand); }
     public static PopulationState advance(PopulationState state, Capacity capacity, Rules rules, long now) {
-        double change = evaluate(state.population(), capacity, rules).change();
+        return advance(state,capacity,rules,now,0);
+    }
+    public static PopulationState advance(PopulationState state,Capacity capacity,Rules rules,long now,double medicineBonus){
+        double change = evaluate(state.population(), capacity, rules,medicineBonus).change();
         double remainder = state.remainder();
         if (change == 0 || Math.signum(change) != Math.signum(remainder)) remainder = 0;
         double amount = change + remainder;
