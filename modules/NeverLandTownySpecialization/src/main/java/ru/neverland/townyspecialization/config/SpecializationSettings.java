@@ -1,0 +1,13 @@
+package ru.neverland.townyspecialization.config;
+import org.bukkit.configuration.ConfigurationSection;
+import ru.neverland.townyspecialization.model.Specialization;
+import ru.neverland.integration.SpecializationRules;
+import java.util.*;
+import java.math.BigDecimal;
+public record SpecializationSettings(int minimumTownLevel,int minimumHallLevel,long cooldownMillis,int interval,Map<String,Specialization> profiles){
+    public SpecializationSettings{if(minimumTownLevel<0||minimumTownLevel>100||minimumHallLevel<0||minimumHallLevel>5||cooldownMillis<0||cooldownMillis>365L*86400000||interval<1||interval>60||!profiles.keySet().equals(Set.copyOf(SpecializationRules.PROJECTS.values())))throw new IllegalArgumentException("Неверные требования специализаций");profiles=Collections.unmodifiableMap(new LinkedHashMap<>(profiles));}
+    public static long number(Object raw){try{return new BigDecimal(String.valueOf(raw)).longValueExact();}catch(Exception ex){throw new IllegalArgumentException("Нужно целое число: "+raw);}}
+    private static Map<String,Double> bonuses(ConfigurationSection section){Map<String,Double> out=new LinkedHashMap<>();if(section!=null)for(String key:section.getKeys(false))out.put(key,Double.parseDouble(String.valueOf(section.get(key))));return out;}
+    public static SpecializationSettings load(ConfigurationSection config,ConfigurationSection data){Map<String,Specialization> profiles=new LinkedHashMap<>();var root=data.getConfigurationSection("specializations");if(root==null)throw new IllegalArgumentException("Нет specializations");for(String id:root.getKeys(false)){var p=root.getConfigurationSection(id);if(p==null||!(p.get("enabled",true) instanceof Boolean enabled)||!(p.get("production-projects") instanceof List<?> projects))throw new IllegalArgumentException("Неверный профиль");Set<String> targets=new LinkedHashSet<>();for(Object target:projects){if(!(target instanceof String text)||!targets.add(text))throw new IllegalArgumentException("Неверное или повторное производственное здание");}profiles.put(id,new Specialization(id,p.getString("name"),p.getString("icon"),p.getString("description",""),enabled,p.getString("unique-building"),p.getString("unique-building-name"),Math.toIntExact(number(p.get("minimum-building-level",3))),bonuses(p.getConfigurationSection("bonuses")),bonuses(p.getConfigurationSection("building-bonuses-per-level")),targets));}
+        return new SpecializationSettings(Math.toIntExact(number(config.get("selection.minimum-town-level",3))),Math.toIntExact(number(config.get("selection.minimum-town-hall-level",3))),Math.multiplyExact(number(config.get("selection.change-cooldown-hours",168)),3600000L),Math.toIntExact(number(config.get("simulation.interval-seconds",10))),profiles);}
+}

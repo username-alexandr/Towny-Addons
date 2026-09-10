@@ -30,8 +30,9 @@ public final class BuildingBlueprintGenerator {
     private static final CivicBlueprintGenerator CIVIC_GENERATOR = new CivicBlueprintGenerator();
     private static final Set<String> CIVIC_BUILDINGS = CIVIC_GENERATOR.supportedProjects();
     private static final PowerBlueprintGenerator POWER_GENERATOR = new PowerBlueprintGenerator();
-    private static final Set<String> BUILDINGS = union(union(union(union(CORE_BUILDINGS, EXPANSION_BUILDINGS),
-            IMPORTED_BUILDINGS), CIVIC_BUILDINGS), PowerBlueprintGenerator.PROJECTS);
+    private static final SpecializationBlueprintGenerator SPECIALIZATION_GENERATOR = new SpecializationBlueprintGenerator();
+    private static final Set<String> BUILDINGS = union(union(union(union(union(CORE_BUILDINGS, EXPANSION_BUILDINGS),
+            IMPORTED_BUILDINGS), CIVIC_BUILDINGS), PowerBlueprintGenerator.PROJECTS), SpecializationBlueprintGenerator.PROJECTS);
     private static final Set<String> WONDERS = Set.of(
             "sun_pyramid", "great_colosseum", "alexandria_lighthouse", "hanging_gardens",
             "archmage_spire", "rhodes_colossus", "world_tree", "celestial_orrery",
@@ -68,6 +69,7 @@ public final class BuildingBlueprintGenerator {
         int maximumStage = maximumStage(projectId);
         int level = Math.max(1, Math.min(maximumStage, rawLevel));
         if (!SUPPORTED.contains(projectId)) return null;
+        if (SpecializationBlueprintGenerator.PROJECTS.contains(projectId)) return SPECIALIZATION_GENERATOR.generate(projectId,level);
         if (PowerBlueprintGenerator.PROJECTS.contains(projectId)) return POWER_GENERATOR.generate(projectId,level);
         if (EXPANSION_BUILDINGS.contains(projectId)) {
             return EXPANSION_GENERATOR.generate(projectId, level);
@@ -150,6 +152,7 @@ public final class BuildingBlueprintGenerator {
         if (IMPORTED_BUILDINGS.contains(normalized)) return architectureVersion < 6
                 ? IMPORTED_GENERATOR.generateOriginal(normalized, level)
                 : IMPORTED_GENERATOR.generate(normalized, level);
+        if (SpecializationBlueprintGenerator.PROJECTS.contains(normalized)) return SPECIALIZATION_GENERATOR.generate(normalized,level);
         if (PowerBlueprintGenerator.PROJECTS.contains(normalized)) return POWER_GENERATOR.generate(normalized,level);
         if (CIVIC_BUILDINGS.contains(normalized)) return CIVIC_GENERATOR.generate(normalized, level);
         // Процедурный источник версии 5 остаётся доступным после будущего перехода на .schem,
@@ -182,6 +185,7 @@ public final class BuildingBlueprintGenerator {
     }
 
     public String stageName(String projectId, int level) {
+        if(projectId!=null&&SpecializationBlueprintGenerator.PROJECTS.contains(projectId.toLowerCase(Locale.ROOT)))return SPECIALIZATION_GENERATOR.stageName(level);
         if(projectId!=null&&PowerBlueprintGenerator.PROJECTS.contains(projectId.toLowerCase(Locale.ROOT)))return POWER_GENERATOR.stageName(level);
         if (projectId != null && EXPANSION_BUILDINGS.contains(projectId.toLowerCase(Locale.ROOT))) {
             return EXPANSION_GENERATOR.stageName(projectId.toLowerCase(Locale.ROOT), level);

@@ -1,4 +1,4 @@
-# Все 83 здания и 11 чудес. Для пользовательских проектов добавьте свой ID.
+# Все 90 зданий и 11 чудес. Для пользовательских проектов добавьте свой ID.
 projects:
   town_hall:
     name: Ратуша
@@ -377,3 +377,31 @@ projects:
     name: Электростанция
     icon: REDSTONE_BLOCK
     district: industrial
+  trade_exchange:
+    name: Торговая биржа
+    icon: EMERALD_BLOCK
+    district: commercial
+  citadel:
+    name: Цитадель
+    icon: CHISELED_STONE_BRICKS
+    district: military
+  seed_vault:
+    name: Селекционный центр
+    icon: GOLDEN_CARROT
+    district: agricultural
+  industrial_works:
+    name: Индустриальный комбинат
+    icon: HEAVY_CORE
+    district: industrial
+  academy_of_sciences:
+    name: Академия наук
+    icon: KNOWLEDGE_BOOK
+    district: administrative
+  admiralty:
+    name: Адмиралтейство
+    icon: CONDUIT
+    district: port
+  pilgrimage_center:
+    name: Центр паломничества
+    icon: RECOVERY_COMPASS
+    district: residential

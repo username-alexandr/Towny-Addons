@@ -136,6 +136,7 @@ public final class MenuManager implements Listener {
                 List.of("&7Общее хранилище ресурсов.", "&7Открыть: &f/t inv"));
         inventory.setItem(49, storage);
         if(Bukkit.getPluginManager().getPlugin("NeverLandTownyUpkeep")!=null)inventory.setItem(53,actionItem("upkeep",new ItemStack(Material.CLOCK),"&eОбслуживание города",List.of("&7Расходы и состояние зданий.")));
+        if(Bukkit.getPluginManager().getPlugin("NeverLandTownySpecialization")!=null)inventory.setItem(46,actionItem("specialization",new ItemStack(Material.NETHER_STAR),"&eСпециализация города",List.of("&7Направление, уникальные здания и бонусы.")));
         if(Bukkit.getPluginManager().getPlugin("NeverLandTownyResearch")!=null)inventory.setItem(50,actionItem("research",new ItemStack(Material.ENCHANTED_BOOK),"&eИсследования города",List.of("&7Технологии, знания и научные здания.")));
         if(Bukkit.getPluginManager().getPlugin("NeverLandTownyPower")!=null)inventory.setItem(52,actionItem("power",new ItemStack(Material.REDSTONE),"&eЭнергия города",List.of("&7Выработка, потребление и приоритеты.")));
         player.openInventory(inventory);
@@ -281,6 +282,8 @@ public final class MenuManager implements Listener {
             ProjectDefinition project = projectFrom(event.getCurrentItem());
             if (project != null && project.type() == list.type()) {
                 openDetails(player, project, list.page(), list.category());
+            } else if ("specialization".equals(actionFrom(event.getCurrentItem()))) {
+                player.performCommand("townyspecialization");
             } else if ("research".equals(actionFrom(event.getCurrentItem()))) {
                 player.performCommand("townyresearch");
             } else if ("power".equals(actionFrom(event.getCurrentItem()))) {
@@ -406,6 +409,7 @@ public final class MenuManager implements Listener {
             case NOTHING_NEEDED -> messages.send(player, "contribution-not-needed");
             case NOTHING_MATCHED -> messages.send(player, "contribution-nothing-matched");
             case STORAGE_BUSY -> player.sendMessage("Склад города открыт другим игроком. Закройте склад перед взносом.");
+            case SPECIALIZATION_LOCKED -> messages.send(player,"specialization-required",Map.of("specialization",ru.neverland.integration.SpecializationAccess.requirement(project.id())));
             case INVENTORY_SYNC_FAILED -> messages.send(player, "contribution-sync-failed");
         }
         openDetails(player, project, page, project.type() == ProjectType.BUILDING ? project.category() : null);
@@ -430,6 +434,7 @@ public final class MenuManager implements Listener {
         lore.add(Component.empty());
         lore.add(ColorUtil.component("&7Уровень: &f" + level + "&8/&f" + project.maxLevel()));
         lore.add(ColorUtil.component(progress(level, project.maxLevel())));
+        if(!ru.neverland.integration.SpecializationRules.required(project.id()).isEmpty())lore.add(ColorUtil.component((ru.neverland.integration.SpecializationAccess.allowed(town,project.id())?"&a":"&c")+"Специализация: "+ru.neverland.integration.SpecializationAccess.requirement(project.id())));
         if(level>0&&!ru.neverland.integration.BuildingOperations.active(town,project.id())){
             lore.add(ColorUtil.component("&cНЕАКТИВНО — "+ru.neverland.integration.BuildingOperations.inactiveReason(town,project.id())));
             lore.add(ColorUtil.component("&7Обслуживание: /t upkeep; энергия: /t power"));

@@ -1172,3 +1172,122 @@ buildings:
     - 0
     - 0
     - 0
+  trade_exchange:
+    name: Торговая биржа
+    icon: EMERALD_BLOCK
+    enabled: true
+    priority: 50
+    generation:
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    demand:
+    - 0
+    - 0
+    - 5
+    - 10
+    - 15
+  citadel:
+    name: Цитадель
+    icon: CHISELED_STONE_BRICKS
+    enabled: true
+    priority: 50
+    generation:
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    demand:
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+  seed_vault:
+    name: Селекционный центр
+    icon: GOLDEN_CARROT
+    enabled: true
+    priority: 50
+    generation:
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    demand:
+    - 0
+    - 0
+    - 10
+    - 15
+    - 20
+  industrial_works:
+    name: Индустриальный комбинат
+    icon: HEAVY_CORE
+    enabled: true
+    priority: 50
+    generation:
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    demand:
+    - 0
+    - 0
+    - 30
+    - 50
+    - 80
+  academy_of_sciences:
+    name: Академия наук
+    icon: KNOWLEDGE_BOOK
+    enabled: true
+    priority: 50
+    generation:
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    demand:
+    - 0
+    - 0
+    - 20
+    - 30
+    - 50
+  admiralty:
+    name: Адмиралтейство
+    icon: CONDUIT
+    enabled: true
+    priority: 50
+    generation:
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    demand:
+    - 0
+    - 0
+    - 10
+    - 15
+    - 25
+  pilgrimage_center:
+    name: Центр паломничества
+    icon: RECOVERY_COMPASS
+    enabled: true
+    priority: 50
+    generation:
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    demand:
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0

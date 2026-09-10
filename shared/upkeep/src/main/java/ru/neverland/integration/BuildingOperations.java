@@ -11,8 +11,9 @@ public final class BuildingOperations {
     }
     public static boolean maintained(UUID town,String project){return query(town,project,"NeverLandTownyUpkeep","ru.neverland.townyupkeep.api.TownyUpkeepApi","active");}
     public static boolean powered(UUID town,String project){return query(town,project,"NeverLandTownyPower","ru.neverland.townypower.api.TownyPowerApi","powered");}
-    public static boolean active(UUID town,String project){return maintained(town,project)&&powered(town,project);}
+    public static boolean active(UUID town,String project){return SpecializationAccess.allowed(town,project)&&maintained(town,project)&&powered(town,project);}
     public static String inactiveReason(UUID town,String project){
+        if(!SpecializationAccess.allowed(town,project))return SpecializationAccess.reason(project);
         if(!maintained(town,project))return "Содержание не оплачено или недоступно: /t upkeep";
         if(powered(town,project))return "Здание работает";
         var plugin=Bukkit.getPluginManager().getPlugin("NeverLandTownyPower");

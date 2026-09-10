@@ -1,5 +1,5 @@
 # Мощности добавляются за каждый завершённый уровень от minimum-level до maximum-level.
-# По умолчанию все 83 здания работают после V этапа; 11 чудес — после I.
+# По умолчанию все 90 зданий работают после V этапа; 11 чудес — после I.
 # Еда и вода — возобновляемое снабжение за цикл, не предметы из сундуков.
 # Чтобы отключить вклад здания, задайте нулевые мощности; ID custom-projects тоже поддерживаются.
 buildings:
@@ -609,3 +609,55 @@ buildings:
     minimum-level: 5
     maximum-level: 5
     jobs: 40
+  trade_exchange:
+    name: Торговая биржа
+    icon: EMERALD_BLOCK
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 80
+    happiness: 2
+  citadel:
+    name: Цитадель
+    icon: CHISELED_STONE_BRICKS
+    minimum-level: 5
+    maximum-level: 5
+    housing: 20
+    jobs: 60
+    happiness: 2
+  seed_vault:
+    name: Селекционный центр
+    icon: GOLDEN_CARROT
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 60
+    food: 100
+    happiness: 1
+  industrial_works:
+    name: Индустриальный комбинат
+    icon: HEAVY_CORE
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 120
+    happiness: -2
+  academy_of_sciences:
+    name: Академия наук
+    icon: KNOWLEDGE_BOOK
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 80
+    happiness: 3
+  admiralty:
+    name: Адмиралтейство
+    icon: CONDUIT
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 70
+    happiness: 2
+  pilgrimage_center:
+    name: Центр паломничества
+    icon: RECOVERY_COMPASS
+    minimum-level: 5
+    maximum-level: 5
+    housing: 50
+    jobs: 40
+    happiness: 3

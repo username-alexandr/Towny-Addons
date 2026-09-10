@@ -11,6 +11,7 @@ import ru.neverland.townyupkeep.data.UpkeepRepository;
 import ru.neverland.townyupkeep.integration.CityBridge;
 import ru.neverland.townyupkeep.model.*;
 import ru.neverland.townyupkeep.model.Entry.*;
+import ru.neverland.integration.SpecializationAccess;
 import java.util.*;
 public final class UpkeepService implements TownyUpkeepApi,PaymentProcessor.Store {
     private final JavaPlugin plugin;private final UpkeepRepository repo;private final CityBridge city=new CityBridge();private final PaymentProcessor payments;
@@ -38,10 +39,10 @@ public final class UpkeepService implements TownyUpkeepApi,PaymentProcessor.Stor
     private void pulse(){if(fault)return;try{
         clock=Math.addExact(clock,1);if(clock%5==0)scan();
         List<Key> due=repo.entries().entrySet().stream().filter(e->{var bill=e.getValue().invoice();if(bill!=null)return bill.phase()!=Phase.MONEY_PENDING;
-            var p=settings.profiles().get(e.getKey().project());return p!=null&&p.enabled()&&levels.containsKey(e.getKey())&&e.getValue().due()<=clock;})
+            var p=settings.profiles().get(e.getKey().project());return p!=null&&p.enabled()&&SpecializationAccess.allowed(e.getKey().town(),e.getKey().project())&&levels.containsKey(e.getKey())&&e.getValue().due()<=clock;})
             .sorted(Comparator.<Map.Entry<Key,Entry>>comparingLong(e->e.getValue().due()).thenComparingInt(e->{var p=settings.profiles().get(e.getKey().project());return p==null?50:p.priority();}).thenComparing(e->e.getKey().town()+"/"+e.getKey().project())).map(Map.Entry::getKey).limit(settings.budget()).toList();
         for(var key:due){var e=get(key);if(e.invoice()==null){var p=settings.profiles().get(key.project());put(key,new Entry(false,clock,"Оплата содержания",new Invoice(UUID.randomUUID(),quotes.get(key),settings.period(),Phase.PREPARED)));}
-            else if(e.invoice().phase()==Phase.PREPARED&&(!levels.containsKey(key)||!settings.profiles().containsKey(key.project())||!settings.profiles().get(key.project()).enabled()))payments.cancel(key,"Здание недоступно или обслуживание отключено");
+            else if(e.invoice().phase()==Phase.PREPARED&&(!SpecializationAccess.allowed(key.town(),key.project())||!levels.containsKey(key)||!settings.profiles().containsKey(key.project())||!settings.profiles().get(key.project()).enabled()))payments.cancel(key,"Здание недоступно или обслуживание отключено");
             payments.process(key,clock,settings.retry());}
         if(clock-repo.clock()>=30)repo.save(clock,repo.entries());publish();
     }catch(Exception|LinkageError ex){fault=true;publish();plugin.getLogger().log(java.util.logging.Level.SEVERE,"Обслуживание приостановлено. Устраните причину и выполните /townyupkeep reload. Счета сохранены.",ex);}}

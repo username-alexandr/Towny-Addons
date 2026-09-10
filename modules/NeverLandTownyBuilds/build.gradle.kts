@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ru.neverland"
-version = "0.8.3"
+version = "0.8.4"
 
 repositories {
     mavenCentral()
@@ -58,6 +58,7 @@ val smokeClasses = listOf(
     "ru.neverland.townybuilds.BuildingFootprintsSmoke",
     "ru.neverland.townybuilds.MobilizationSmoke",
     "ru.neverland.townybuilds.RoofSupportSmoke",
+    "ru.neverland.townybuilds.SpecializationBlueprintSmoke",
     "ru.neverland.townybuilds.ProjectIconsSmoke",
     "ru.neverland.townybuilds.MaterialLocalizationSmoke",
     "ru.neverland.townybuilds.ImportedModelsSmoke",
@@ -106,3 +107,5 @@ sourceSets.main { java.srcDir("../../shared/districts/src/main/java") }
 sourceSets.main { java.srcDir("../../shared/upkeep/src/main/java") }
 
 sourceSets.main { java.srcDir("../../shared/research/src/main/java") }
+
+sourceSets.main { java.srcDir("../../shared/specialization/src/main/java") }

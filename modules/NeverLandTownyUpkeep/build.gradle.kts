@@ -1,7 +1,7 @@
 import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 group = "ru.neverland"
-version = "0.1.1"
+version = "0.1.2"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -29,3 +29,5 @@ tasks.register<JavaExec>("smokeTest") {
     mainClass.set("ru.neverland.townyupkeep.UpkeepSmoke")
 }
 
+
+sourceSets.main { java.srcDir("../../shared/specialization/src/main/java") }

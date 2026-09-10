@@ -80,3 +80,5 @@ civic-invalid-stall: "ID торгового места может содержа
 civic-stall-set: "Торговое место &e{stall}&f сохранено в вашей текущей позиции."
 civic-stall-missing: "Торговое место {stall} не найдено."
 civic-stall-removed: "Торговое место &e{stall}&f удалено; привязанный город освобождён."
+
+specialization-required: "Для этого здания нужна специализация «{specialization}». Выбор: /t specialization"

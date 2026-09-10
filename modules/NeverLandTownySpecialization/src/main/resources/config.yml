@@ -1,0 +1,7 @@
+# Уровень Towny, а не виртуальное население Population.
+selection:
+  minimum-town-level: 3
+  minimum-town-hall-level: 3
+  change-cooldown-hours: 168
+simulation:
+  interval-seconds: 10

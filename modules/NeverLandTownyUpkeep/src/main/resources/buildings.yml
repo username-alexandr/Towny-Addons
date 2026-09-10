@@ -818,3 +818,66 @@ buildings:
       metal: 1
       materials: 2
       water: 3
+  trade_exchange:
+    name: Торговая биржа
+    icon: EMERALD_BLOCK
+    enabled: true
+    priority: 40
+    money: 7
+    resources:
+      food: 1
+      materials: 1
+  citadel:
+    name: Цитадель
+    icon: CHISELED_STONE_BRICKS
+    enabled: true
+    priority: 40
+    money: 10
+    resources:
+      food: 2
+      stone: 4
+  seed_vault:
+    name: Селекционный центр
+    icon: GOLDEN_CARROT
+    enabled: true
+    priority: 40
+    money: 5
+    resources:
+      water: 2
+      wood: 1
+  industrial_works:
+    name: Индустриальный комбинат
+    icon: HEAVY_CORE
+    enabled: true
+    priority: 40
+    money: 12
+    resources:
+      stone: 3
+      metal: 2
+  academy_of_sciences:
+    name: Академия наук
+    icon: KNOWLEDGE_BOOK
+    enabled: true
+    priority: 40
+    money: 9
+    resources:
+      food: 1
+      materials: 2
+  admiralty:
+    name: Адмиралтейство
+    icon: CONDUIT
+    enabled: true
+    priority: 40
+    money: 8
+    resources:
+      wood: 2
+      food: 1
+  pilgrimage_center:
+    name: Центр паломничества
+    icon: RECOVERY_COMPASS
+    enabled: true
+    priority: 40
+    money: 6
+    resources:
+      food: 2
+      water: 1

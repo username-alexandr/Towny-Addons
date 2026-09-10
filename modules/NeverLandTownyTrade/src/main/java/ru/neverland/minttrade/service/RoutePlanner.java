@@ -59,15 +59,17 @@ public final class RoutePlanner {
         bonus = Math.min(plugin.getConfig().getDouble("routes.maximum-speed-bonus", 0.45), Math.max(0, bonus));
         double researchSpeed=Math.max(ru.neverland.integration.ResearchBonuses.bonus(seller.getUUID(),"fast_caravans"),ru.neverland.integration.ResearchBonuses.bonus(buyer.getUUID(),"fast_caravans"));
         double navigation=Math.max(ru.neverland.integration.ResearchBonuses.bonus(seller.getUUID(),"navigation"),ru.neverland.integration.ResearchBonuses.bonus(buyer.getUUID(),"navigation"));
+        double specializationSpeed=Math.max(ru.neverland.integration.SpecializationAccess.bonus(seller.getUUID(),"trade_speed"),ru.neverland.integration.SpecializationAccess.bonus(buyer.getUUID(),"trade_speed"));
+        double specializationDelay=Math.max(ru.neverland.integration.SpecializationAccess.bonus(seller.getUUID(),"trade_delay"),ru.neverland.integration.SpecializationAccess.bonus(buyer.getUUID(),"trade_delay"));
         double minutes = distance / Math.max(1, plugin.getConfig().getDouble("routes.blocks-per-minute", 160));
-        minutes = ru.neverland.integration.ResearchEffects.minutes(minutes*(1-bonus),plugin.getConfig().getDouble("routes.minimum-minutes",3),plugin.getConfig().getDouble("routes.maximum-minutes",120),researchSpeed);
+        minutes = ru.neverland.integration.ResearchEffects.minutes(minutes*(1-bonus)*(1-specializationSpeed),plugin.getConfig().getDouble("routes.minimum-minutes",3),plugin.getConfig().getDouble("routes.maximum-minutes",120),researchSpeed);
         double chance = plugin.getConfig().getDouble("routes.delay.base-chance", 0.20)
                 - (sellerMarket + buyerMarket) * plugin.getConfig().getDouble("routes.delay.market-reduction-per-level", 0.015)
                 - colossi * plugin.getConfig().getDouble("routes.delay.colossus-reduction", 0.05)
                 - palaces * plugin.getConfig().getDouble("routes.delay.crystal-palace-reduction", 0.03)
                 - points.stream().filter(value -> value.kind() == RoutePoint.Kind.CAMP).mapToInt(RoutePoint::level).sum()
                 * plugin.getConfig().getDouble("routes.delay.camp-reduction-per-level", 0.025);
-        chance = ru.neverland.integration.ResearchEffects.delay(chance,plugin.getConfig().getDouble("routes.delay.minimum-chance",0.02),navigation);
+        chance = ru.neverland.integration.ResearchEffects.delay(chance-specializationDelay,plugin.getConfig().getDouble("routes.delay.minimum-chance",0.02),navigation);
         return new RoutePlan(List.copyOf(points), transit(points, seller.getUUID(), buyer.getUUID()), distance,
                 Math.max(1000, Math.round(minutes * 60_000)), chance);
     }

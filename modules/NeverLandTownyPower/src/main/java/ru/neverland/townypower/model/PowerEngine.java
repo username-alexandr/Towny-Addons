@@ -3,10 +3,12 @@ import java.util.*;
 /** Stateless capacity allocation. No stored energy, offline accrual or feedback from the previous power result. */
 public final class PowerEngine {
     private PowerEngine(){}
-    public record Building(int level,boolean owned,boolean maintained,double districtBonus) {
+    public record Building(int level,boolean owned,boolean maintained,double districtBonus,boolean specialized) {
+        public Building(int level,boolean owned,boolean maintained,double districtBonus){this(level,owned,maintained,districtBonus,true);}
         public Building{if(level<0||level>5)throw new IllegalArgumentException("Уровень: 0..5");}
     }
     public enum Status {
+        SPECIALIZATION_LOCKED("Требуется соответствующая специализация: /t specialization"),
         NOT_BUILT("Не построено"), FOREIGN("Площадка не принадлежит городу"), UNPAID("Содержание не оплачено"),
         STOPPED("Остановлено городом"), EXEMPT("Энергоснабжение отключено в настройках"),
         ASSEMBLY("Энергоузел ещё не смонтирован"), PRODUCING("Вырабатывает энергию"),
@@ -22,7 +24,7 @@ public final class PowerEngine {
         List<PowerProfile> ordered=new ArrayList<>(profiles.values());ordered.sort(Comparator.comparingInt((PowerProfile p)->town.priorities().getOrDefault(p.id(),p.priority())).thenComparing(PowerProfile::id));
         Map<String,Allocation> result=new LinkedHashMap<>();long generation=0,demand=0,used=0;
         for(var p:ordered){var b=buildings.get(p.id());int level=b==null?0:b.level(),priority=town.priorities().getOrDefault(p.id(),p.priority());
-            Status status=level==0?Status.NOT_BUILT:!b.owned()?Status.FOREIGN:!b.maintained()?Status.UNPAID:!p.enabled()?Status.EXEMPT:town.stopped().contains(p.id())&&p.relevant()?Status.STOPPED:null;
+            Status status=level==0?Status.NOT_BUILT:!b.owned()?Status.FOREIGN:!b.specialized()?Status.SPECIALIZATION_LOCKED:!b.maintained()?Status.UNPAID:!p.enabled()?Status.EXEMPT:town.stopped().contains(p.id())&&p.relevant()?Status.STOPPED:null;
             long output=0,need=0;boolean active=false;
             if(status==Status.EXEMPT)active=true;
             if(status==null){output=p.generation(level);need=p.demand(level);double bonus=Double.isFinite(b.districtBonus())?Math.max(1,Math.min(3,b.districtBonus())):1;

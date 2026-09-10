@@ -1,0 +1,128 @@
+# Базовый бонус действует после выбора; бонус здания — за физический уровень, начиная с III.
+specializations:
+  trade:
+    name: Торговый центр
+    icon: EMERALD_BLOCK
+    description: Быстрее торговые караваны и выше выпуск торговых зданий.
+    enabled: true
+    unique-building: trade_exchange
+    unique-building-name: Торговая биржа
+    minimum-building-level: 3
+    bonuses:
+      trade_speed: 0.1
+      production: 0.1
+    building-bonuses-per-level:
+      trade_speed: 0.02
+      production: 0.02
+    production-projects:
+    - market
+    - merchant_guild
+    - trade_exchange
+  fortress:
+    name: Крепость
+    icon: CHISELED_STONE_BRICKS
+    description: Защита жителей от враждебных мобов на своей территории.
+    enabled: true
+    unique-building: citadel
+    unique-building-name: Цитадель
+    minimum-building-level: 3
+    bonuses:
+      mob_defense: 0.1
+    building-bonuses-per-level:
+      mob_defense: 0.01
+    production-projects: []
+  agricultural:
+    name: Аграрный центр
+    icon: GOLDEN_CARROT
+    description: Выше выпуск продовольствия сельскохозяйственных зданий.
+    enabled: true
+    unique-building: seed_vault
+    unique-building-name: Селекционный центр
+    minimum-building-level: 3
+    bonuses:
+      production: 0.15
+    building-bonuses-per-level:
+      production: 0.02
+    production-projects:
+    - agrarian_complex
+    - mill
+    - bakery
+    - irrigation_station
+    - seed_vault
+  industrial:
+    name: Промышленный город
+    icon: HEAVY_CORE
+    description: Выше выпуск сырья, металла и строительных материалов.
+    enabled: true
+    unique-building: industrial_works
+    unique-building-name: Индустриальный комбинат
+    minimum-building-level: 3
+    bonuses:
+      production: 0.15
+    building-bonuses-per-level:
+      production: 0.02
+    production-projects:
+    - sawmill
+    - quarry
+    - foundry
+    - forge
+    - recycling_yard
+    - industrial_works
+  scientific:
+    name: Научный центр
+    icon: KNOWLEDGE_BOOK
+    description: Выше производство знаний и скорость изучения технологий.
+    enabled: true
+    unique-building: academy_of_sciences
+    unique-building-name: Академия наук
+    minimum-building-level: 3
+    bonuses:
+      production: 0.1
+      research_speed: 0.1
+    building-bonuses-per-level:
+      production: 0.02
+      research_speed: 0.02
+    production-projects:
+    - great_library
+    - university
+    - research
+    - alchemy
+    - academy_of_sciences
+  port:
+    name: Портовый город
+    icon: CONDUIT
+    description: Быстрее курьеры, надёжнее торговля и выше выпуск портовых зданий.
+    enabled: true
+    unique-building: admiralty
+    unique-building-name: Адмиралтейство
+    minimum-building-level: 3
+    bonuses:
+      courier_speed: 0.1
+      trade_delay: 0.02
+      production: 0.1
+    building-bonuses-per-level:
+      courier_speed: 0.02
+      trade_delay: 0.004
+      production: 0.02
+    production-projects:
+    - trade_port
+    - fishing_harbor
+    - admiralty
+  religious:
+    name: Религиозный центр
+    icon: RECOVERY_COMPASS
+    description: Выше довольство населения и влияние духовных зданий.
+    enabled: true
+    unique-building: pilgrimage_center
+    unique-building-name: Центр паломничества
+    minimum-building-level: 3
+    bonuses:
+      happiness: 5
+      production: 0.1
+    building-bonuses-per-level:
+      happiness: 1
+      production: 0.02
+    production-projects:
+    - temple
+    - cathedral
+    - pilgrimage_center

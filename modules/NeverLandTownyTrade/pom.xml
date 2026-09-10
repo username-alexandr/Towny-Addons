@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>ru.neverland</groupId><artifactId>NeverLandTownyTrade</artifactId><version>0.1.7</version>
+    <groupId>ru.neverland</groupId><artifactId>NeverLandTownyTrade</artifactId><version>0.1.8</version>
     <properties><maven.compiler.release>17</maven.compiler.release><project.build.sourceEncoding>UTF-8</project.build.sourceEncoding></properties>
     <repositories>
         <repository><id>paper</id><url>https://repo.papermc.io/repository/maven-public/</url></repository>
@@ -14,5 +14,5 @@
         <dependency><groupId>com.palmergames.bukkit.towny</groupId><artifactId>towny</artifactId><version>0.103.2.0</version><scope>provided</scope></dependency>
         <dependency><groupId>me.clip</groupId><artifactId>placeholderapi</artifactId><version>2.12.3</version><scope>provided</scope></dependency>
     </dependencies>
-    <build><resources><resource><directory>src/main/resources</directory></resource><resource><directory>${project.basedir}/../../shared/localization/src/main/resources</directory></resource></resources><plugins><plugin><groupId>org.codehaus.mojo</groupId><artifactId>build-helper-maven-plugin</artifactId><version>3.6.1</version><executions><execution><id>shared-sources</id><phase>generate-sources</phase><goals><goal>add-source</goal></goals><configuration><sources><source>${project.basedir}/../../shared/localization/src/main/java</source><source>${project.basedir}/../../shared/research/src/main/java</source></sources></configuration></execution></executions></plugin></plugins></build>
+    <build><resources><resource><directory>src/main/resources</directory></resource><resource><directory>${project.basedir}/../../shared/localization/src/main/resources</directory></resource></resources><plugins><plugin><groupId>org.codehaus.mojo</groupId><artifactId>build-helper-maven-plugin</artifactId><version>3.6.1</version><executions><execution><id>shared-sources</id><phase>generate-sources</phase><goals><goal>add-source</goal></goals><configuration><sources><source>${project.basedir}/../../shared/localization/src/main/java</source><source>${project.basedir}/../../shared/research/src/main/java</source><source>${project.basedir}/../../shared/specialization/src/main/java</source></sources></configuration></execution></executions></plugin></plugins></build>
 </project>
