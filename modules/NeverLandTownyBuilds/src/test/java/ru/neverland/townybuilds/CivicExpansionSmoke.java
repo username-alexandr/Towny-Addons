@@ -20,8 +20,8 @@ public final class CivicExpansionSmoke {
         BuildingBlueprintGenerator generator = new BuildingBlueprintGenerator();
         CivicBlueprintGenerator civic = new CivicBlueprintGenerator();
         check(civic.supportedProjects().size() == 18, "Ожидалось 18 новых физических проектов");
-        check(generator.supportedBuildings().size() == 83, "Ожидалось 83 городских проектов");
-        check(generator.supportedProjects().size() == 94, "Ожидалось 94 проектов вместе с Чудесами");
+        check(generator.supportedBuildings().size() == 90, "Ожидалось 90 городских проектов");
+        check(generator.supportedProjects().size() == 101, "Ожидалось 101 проектов вместе с Чудесами");
 
         Set<String> signatures = new HashSet<>();
         for (String project : CivicBlueprintGenerator.PROJECTS) {

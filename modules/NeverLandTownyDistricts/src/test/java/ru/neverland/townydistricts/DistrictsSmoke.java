@@ -13,7 +13,7 @@ public final class DistrictsSmoke {
     private static final UUID TOWN=UUID.randomUUID(), WORLD=UUID.randomUUID();
     public static void main(String[] args)throws Exception {
         var config=resource("config.yml");var settings=DistrictSettings.load(config,resource("projects.yml"));
-        check(settings.projects().size()==94 && DistrictType.values().length==7,"all projects and seven types");
+        check(settings.projects().size()==101 && DistrictType.values().length==7,"all projects and seven types");
         Set<Cell> area=Cell.rectangle(cell(0,0),cell(3,1),8);var district=new District(TOWN,"works","Заводской",DistrictType.INDUSTRIAL,area);
         DistrictRules.validate(district,List.of(),area,8);
         check(Cell.connected(area),"rectangle connected");
@@ -61,7 +61,7 @@ public final class DistrictsSmoke {
         check(DistrictRules.output(1,Double.NaN,0,64)==1,"invalid multiplier neutral");
         config.set("bonuses.matching-building",Double.NaN);fail(()->DistrictSettings.load(config,resource("projects.yml")),"NaN rejected");
         persistence(district);
-        System.out.println("DistrictsSmoke OK: seven types, 94 profiles, ownership, overlaps, complete footprints, combinations, capacity-safe output, persistence");
+        System.out.println("DistrictsSmoke OK: seven types, 101 profiles, ownership, overlaps, complete footprints, combinations, capacity-safe output, persistence");
     }
     private static void persistence(District d)throws Exception{
         Path dir=Files.createTempDirectory("districts-smoke-");Path path=dir.resolve("data.yml");

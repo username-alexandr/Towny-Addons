@@ -12,6 +12,7 @@ public record ContributionResult(Status status, int totalItems, List<String> det
     }
 
     public enum Status {
+        SPECIALIZATION_LOCKED,
         SUCCESS,
         NO_TOWN,
         NOT_MAYOR,

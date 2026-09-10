@@ -16,14 +16,15 @@ public final class ResearchProcessor {
     }
     public static boolean ready(Map<String,Integer> required,Map<String,Integer> actual){return required.entrySet().stream().allMatch(e->actual.getOrDefault(e.getKey(),0)>=e.getValue());}
     public void cancel(UUID town)throws Exception{var state=store.get(town);if(state.active()==null)throw new IllegalArgumentException("Нет текущего исследования");if(state.active().phase()==COMPLETING)throw new IllegalStateException("Исследование уже завершается; дождитесь сохранения результата");store.put(town,state.study(state.active().phase(CANCELLING)));tick(town,0,false);}
-    public void tick(UUID town,int seconds,boolean ready)throws Exception{
+    public void tick(UUID town,int seconds,boolean ready)throws Exception{tick(town,seconds,ready,0);}
+    public void tick(UUID town,int seconds,boolean ready,double speedBonus)throws Exception{
         if(seconds<0||seconds>60)throw new IllegalArgumentException("Шаг расчёта: 0..60 секунд");
         for(UUID invoice:store.get(town).cleanup()){gateway.forget(invoice);store.put(town,store.get(town).forget(invoice));}
         var state=store.get(town);var s=state.active();if(s==null)return;
         if(s.phase()==CANCELLING){String status=gateway.status(s.invoice());if(status.equals("HELD"))gateway.settle(s.invoice(),false);else if(!Set.of("NONE","RELEASED").contains(status))throw new IllegalStateException("Нельзя вернуть уже использованные знания");store.put(town,state.finish(false));return;}
         if(!ready)return;
         if(s.phase()==PREPARED){String status=gateway.status(s.invoice());if(status.equals("NONE")){if(!gateway.reserve(s.invoice(),town,s.cost()))return;}else if(!status.equals("HELD"))throw new IllegalStateException("Несогласованная квитанция исследования");store.put(town,state.study(s.phase(RUNNING)));return;}
-        if(s.phase()==RUNNING){if(!gateway.status(s.invoice()).equals("HELD"))throw new IllegalStateException("Резерв знаний отсутствует");if(seconds==0)return;store.put(town,state.study(s.advance(seconds)));state=store.get(town);s=state.active();}
+        if(s.phase()==RUNNING){if(!gateway.status(s.invoice()).equals("HELD"))throw new IllegalStateException("Резерв знаний отсутствует");if(seconds==0)return;store.put(town,state.study(s.advance(seconds,speedBonus)));state=store.get(town);s=state.active();}
         if(s.phase()==COMPLETING){String status=gateway.status(s.invoice());if(status.equals("HELD"))gateway.settle(s.invoice(),true);else if(!status.equals("CONSUMED"))throw new IllegalStateException("Нет подтверждения расхода знаний");store.put(town,state.finish(true));}
     }
 }

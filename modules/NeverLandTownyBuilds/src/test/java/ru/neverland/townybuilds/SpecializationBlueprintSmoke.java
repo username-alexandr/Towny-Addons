@@ -1,0 +1,13 @@
+package ru.neverland.townybuilds;
+import org.bukkit.Material;
+import ru.neverland.townybuilds.construction.*;
+import java.util.*;
+public final class SpecializationBlueprintSmoke {
+    private static void check(boolean b,String reason){if(!b)throw new AssertionError(reason);}
+    public static void main(String[] args){var generator=new BuildingBlueprintGenerator();Set<Integer> designs=new HashSet<>();int stages=0;Map<String,List<Integer>> sizes=Map.of("trade_exchange",List.of(6,5),"citadel",List.of(7,6),"seed_vault",List.of(7,4),"industrial_works",List.of(7,5),"academy_of_sciences",List.of(6,6),"admiralty",List.of(5,7),"pilgrimage_center",List.of(6,5));
+        for(String id:SpecializationBlueprintGenerator.PROJECTS){Map<BlockOffset,BlueprintBlock> previous=Map.of();for(int stage=1;stage<=5;stage++){var plan=generator.generate(id,stage);var blocks=plan.blocks();check(blocks.size()>previous.size(),"every stage adds physical work");for(var e:previous.entrySet())check(e.getValue().equals(blocks.get(e.getKey())),"old blocks preserved: "+id);for(var b:blocks.values())check(b.stage()<=stage&&b.material()!=Material.AIR,"no future or empty structural block");
+            int hx=sizes.get(id).get(0),hz=sizes.get(id).get(1);if(stage>=3){for(int y=1;y<=4;y++){for(int z=-hz;z<=hz;z++)for(int x:new int[]{-hx,hx})check(blocks.containsKey(new BlockOffset(x,y,z)),"closed side wall");for(int x=-hx;x<=hx;x++)for(int z:new int[]{-hz,hz})check(blocks.containsKey(new BlockOffset(x,y,z)),"closed front/rear wall and door");}for(int x=-hx-1;x<=hx+1;x++)for(int z=-hz-1;z<=hz+1;z++)check(blocks.containsKey(new BlockOffset(x,5,z)),"continuous supported roof");check(blocks.get(new BlockOffset(0,1,-hz)).material()==Material.SPRUCE_DOOR,"usable front door");}
+            Set<BlockOffset> reached=new HashSet<>();ArrayDeque<BlockOffset> queue=new ArrayDeque<>();for(var e:blocks.entrySet())if(e.getKey().y()==0){reached.add(e.getKey());queue.add(e.getKey());}int[][] directions={{1,0,0},{-1,0,0},{0,1,0},{0,-1,0},{0,0,1},{0,0,-1}};while(!queue.isEmpty()){var p=queue.remove();for(var d:directions){var next=new BlockOffset(p.x()+d[0],p.y()+d[1],p.z()+d[2]);if(blocks.containsKey(next)&&reached.add(next))queue.add(next);}}check(reached.size()==blocks.size(),"floating structure: "+id+" stage "+stage);check(generator.generateForArchitecture(id,stage,6).blocks().equals(blocks),"saved-site compatibility");previous=blocks;stages++;}check(designs.add(previous.hashCode()),"unique physical design");}
+        check(stages==35&&designs.size()==7,"seven five-stage designs");System.out.println("SpecializationBlueprintSmoke OK: 7 distinct buildings / 35 additive stages, closed walls, connected roofs, usable doors and saved-site restoration");
+    }
+}

@@ -1,0 +1,38 @@
+package ru.neverland.townyspecialization;
+import org.bukkit.Material;
+import org.bukkit.configuration.file.YamlConfiguration;
+import ru.neverland.townyspecialization.config.SpecializationSettings;
+import ru.neverland.townyspecialization.data.SpecializationRepository;
+import ru.neverland.townyspecialization.model.*;
+import ru.neverland.integration.SpecializationRules;
+import java.util.*;
+import java.nio.file.*;
+import java.io.*;
+public final class SpecializationSmoke {
+    private static void check(boolean b,String reason){if(!b)throw new AssertionError(reason);}
+    private interface Attempt{void run()throws Exception;}
+    private static void fails(Attempt a,String reason)throws Exception{try{a.run();}catch(Exception expected){return;}throw new AssertionError(reason);}
+    private static YamlConfiguration read(String name)throws Exception{var y=new YamlConfiguration();try(var in=SpecializationSmoke.class.getResourceAsStream("/"+name)){y.load(new InputStreamReader(Objects.requireNonNull(in),java.nio.charset.StandardCharsets.UTF_8));}return y;}
+    public static void main(String[] args)throws Exception{
+        var settings=SpecializationSettings.load(read("config.yml"),read("specializations.yml"));check(settings.minimumTownLevel()==3&&settings.minimumHallLevel()==3&&settings.cooldownMillis()==604800000,"default Towny/hall progression and seven real days");check(settings.profiles().size()==7,"seven specializations");Set<String> buildings=new HashSet<>(),icons=new HashSet<>();
+        for(var profile:settings.profiles().values()){check(profile.name().matches(".*[А-Яа-яЁё].*")&&profile.buildingName().matches(".*[А-Яа-яЁё].*"),"Russian names");check(Material.matchMaterial(profile.icon())!=null&&icons.add(profile.icon()),"distinct valid icons");check(buildings.add(profile.building())&&SpecializationRules.required(profile.building()).equals(profile.id()),"unique project belongs to exactly one direction");for(String effect:profile.bonuses().keySet()){check(profile.bonus(effect,2)==profile.bonus(effect,0),"unfinished unique building grants no additional bonus");check(profile.bonus(effect,3)>profile.bonus(effect,0)&&profile.bonus(effect,5)==profile.bonus(effect,100),"working levels increase bonus with cap");}}
+        check(buildings.equals(SpecializationRules.PROJECTS.keySet()),"catalog gate matches profiles");check(settings.profiles().get("industrial").bonus("production",4)==.23,"exact fractional bonus at level four");check(settings.profiles().get("religious").bonus("happiness",5)==10,"religious happiness points");
+        long now=1000000;var empty=CityChoice.empty();var trade=settings.profiles().get("trade");var port=settings.profiles().get("port");
+        fails(()->SelectionPolicy.choose(empty,trade,2,5,settings,now,0,false),"Towny level required independently of buildings");fails(()->SelectionPolicy.choose(empty,trade,5,2,settings,now,0,false),"physical town hall required");
+        var chosen=SelectionPolicy.choose(empty,trade,3,3,settings,now,0,false);check(chosen.specialization().equals("trade")&&chosen.revision()==1&&chosen.nextChangeAt()==now+settings.cooldownMillis(),"first choice saved with cooldown");
+        fails(()->SelectionPolicy.choose(chosen,port,5,5,settings,now+1,1,false),"immediate respecialization rejected");fails(()->SelectionPolicy.choose(chosen,port,5,5,settings,chosen.nextChangeAt()-1,1,false),"cooldown boundary");fails(()->SelectionPolicy.choose(chosen,port,5,5,settings,chosen.nextChangeAt(),0,false),"stale menu/repeated confirmation rejected");fails(()->SelectionPolicy.choose(chosen,trade,5,5,settings,chosen.nextChangeAt(),1,false),"same choice cannot reset timer");
+        var changed=SelectionPolicy.choose(chosen,port,3,3,settings,chosen.nextChangeAt(),1,false);check(changed.specialization().equals("port")&&changed.revision()==2,"eligible switch replaces exactly one direction");
+        var override=SelectionPolicy.choose(chosen,port,0,0,settings,now+1,1,true);check(override.revision()==2,"explicit admin path bypasses requirements and cooldown but keeps revision protection");
+        var invalid=read("specializations.yml");invalid.set("specializations.trade.enabled",false);var disabled=SpecializationSettings.load(read("config.yml"),invalid).profiles().get("trade");fails(()->SelectionPolicy.choose(empty,disabled,5,5,settings,now,0,true),"disabled profile blocked even for admin");check(disabled.bonus("production",5)==0,"disabled direction grants no bonuses");
+        for(Object bad:List.of(-1,"NaN",100)){var y=read("specializations.yml");y.set("specializations.trade.bonuses.trade_speed",bad);fails(()->SpecializationSettings.load(read("config.yml"),y),"invalid bonus rejected");}
+        var mismatch=read("specializations.yml");mismatch.set("specializations.trade.unique-building","admiralty");fails(()->SpecializationSettings.load(read("config.yml"),mismatch),"configuration cannot bypass project ownership");var fractional=read("config.yml");fractional.set("selection.minimum-town-level",1.5);fails(()->SpecializationSettings.load(fractional,read("specializations.yml")),"fractional level rejected");
+        fails(()->new CityChoice("missing",now,now,1),"unknown saved choice rejected");fails(()->new CityChoice("trade",now,now-1,1),"backward saved cooldown rejected");
+        check(SpecializationRules.production(1.495,.25)==1.86875&&SpecializationRules.production(3,.5)==3,"district/research/specialization decimal product and global cap");check(SpecializationRules.hostileDamage(100,.15,true,true)==85,"fortress damage effect");check(SpecializationRules.hostileDamage(100,.15,false,true)==100&&SpecializationRules.hostileDamage(100,.15,true,false)==100,"foreign town and PvP unaffected");check(SpecializationRules.bound("production",Double.NaN)==0&&SpecializationRules.bound("happiness",100)==20,"effect bounds");
+        persistence(chosen,changed);GateSmoke.run();System.out.println("SpecializationSmoke OK: seven directions, exclusive buildings, requirements, stale choices, cooldown, admin path, city isolation, atomic persistence, bonus limits and Bukkit integration");
+    }
+    private static void persistence(CityChoice chosen,CityChoice changed)throws Exception{
+        var dir=Files.createTempDirectory("specialization-smoke");try{var path=dir.resolve("specialization-data.yml");var repo=new SpecializationRepository(path);UUID first=UUID.randomUUID(),second=UUID.randomUUID();fails(()->repo.put(first,chosen),"write before load rejected");repo.load();repo.put(first,chosen);repo.put(second,changed);var restart=new SpecializationRepository(path);restart.load();check(restart.towns().equals(repo.towns()),"restart keeps city choices, cooldown and revisions");check(restart.get(UUID.randomUUID()).equals(CityChoice.empty()),"new city never inherits another city's choice");
+            Files.delete(path);Files.createDirectory(path);Files.writeString(path.resolve("keep"),"keep");fails(()->restart.put(first,changed),"atomic replacement failure");check(restart.get(first).equals(chosen)&&Files.readString(path.resolve("keep")).equals("keep"),"failed write preserves authoritative choice and file");Files.delete(path.resolve("keep"));Files.delete(path);Files.writeString(path,"schema: 1\ntowns: [broken");String corrupt=Files.readString(path);var broken=new SpecializationRepository(path);fails(broken::load,"corrupt YAML rejected");fails(()->broken.put(first,changed),"failed load cannot overwrite database");check(Files.readString(path).equals(corrupt),"damaged data retained");
+        }finally{try(var paths=Files.walk(dir)){for(var p:paths.sorted(Comparator.reverseOrder()).toList())Files.delete(p);}}
+    }
+}

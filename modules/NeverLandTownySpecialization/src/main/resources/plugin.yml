@@ -1,0 +1,20 @@
+name: NeverLandTownySpecialization
+version: '0.1.0'
+main: ru.neverland.townyspecialization.NeverLandTownySpecialization
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: Специализация города, уникальные здания и городские бонусы.
+depend: [Towny, NeverLandTownyBuilds]
+softdepend: [NeverLandTownyPower, NeverLandTownyUpkeep, PlaceholderAPI]
+commands:
+  townyspecialization:
+    aliases: [nltspec, cityspecialization]
+    description: Специализация города
+    usage: /townyspecialization [info|choose|confirm|reload]
+permissions:
+  neverlandtownyspecialization.use:
+    default: true
+  neverlandtownyspecialization.manage:
+    default: false
+  neverlandtownyspecialization.admin:
+    default: op

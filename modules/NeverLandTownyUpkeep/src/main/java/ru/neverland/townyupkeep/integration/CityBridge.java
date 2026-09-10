@@ -20,7 +20,7 @@ public final class CityBridge implements Gateway {
     public Map<String,Integer> buildings(UUID town)throws Exception{
         Class<?> api=api("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi");Object provider=Bukkit.getServicesManager().load(api);if(provider==null)throw new IllegalStateException("API построек недоступен");
         Map<?,?> footprints=(Map<?,?>)api.getMethod("buildingFootprints",UUID.class).invoke(provider,town);Map<String,Integer> out=new HashMap<>();
-        for(var e:footprints.entrySet()){var b=e.getValue();int level=num(b,"completedLevel");if(level>0&&owned(town,b))out.put(e.getKey().toString(),Math.min(5,level));}return Map.copyOf(out);
+        for(var e:footprints.entrySet()){var b=e.getValue();int level=num(b,"completedLevel");if(level>0&&owned(town,b)&&ru.neverland.integration.SpecializationAccess.allowed(town,e.getKey().toString()))out.put(e.getKey().toString(),Math.min(5,level));}return Map.copyOf(out);
     }
     private static int num(Object o,String method)throws Exception{return ((Number)o.getClass().getMethod(method).invoke(o)).intValue();}
     private boolean owned(UUID town,Object b)throws Exception{

@@ -1,7 +1,7 @@
 import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 group = "ru.neverland"
-version = "0.1.3"
+version = "0.1.4"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -36,3 +36,5 @@ sourceSets.main { java.srcDir("../../shared/districts/src/main/java") }
 sourceSets.main { java.srcDir("../../shared/upkeep/src/main/java") }
 
 sourceSets.main { java.srcDir("../../shared/research/src/main/java") }
+
+sourceSets.main { java.srcDir("../../shared/specialization/src/main/java") }

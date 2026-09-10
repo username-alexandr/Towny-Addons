@@ -237,9 +237,10 @@ public final class BuildService {
     }
 
     public List<String> prerequisiteRequirements(Town town, ProjectDefinition project) {
-        if (town == null || project == null || project.requirements().isEmpty()) return List.of();
+        if (town == null || project == null) return List.of();
         TownData data = dataStore.town(town.getUUID());
         List<String> lines = new ArrayList<>();
+        if(!ru.neverland.integration.SpecializationRules.required(project.id()).isEmpty())lines.add((ru.neverland.integration.SpecializationAccess.allowed(town.getUUID(),project.id())?"&a✔ ":"&c✘ ")+"Специализация: "+ru.neverland.integration.SpecializationAccess.requirement(project.id()));
         for (Map.Entry<String, Integer> requirement : project.requirements().entrySet()) {
             ProjectDefinition dependency = definitions.project(requirement.getKey());
             String name = dependency == null ? requirement.getKey() : ColorUtil.plain(dependency.name());
@@ -251,9 +252,9 @@ public final class BuildService {
     }
 
     private List<String> missingPrerequisites(Town town, ProjectDefinition project) {
-        if (project.requirements().isEmpty()) return List.of();
         TownData data = dataStore.town(town.getUUID());
         List<String> missing = new ArrayList<>();
+        if(!ru.neverland.integration.SpecializationAccess.allowed(town.getUUID(),project.id()))missing.add(ru.neverland.integration.SpecializationAccess.reason(project.id()));
         for (Map.Entry<String, Integer> requirement : project.requirements().entrySet()) {
             int current = data.level(requirement.getKey());
             if (current >= requirement.getValue()) continue;
@@ -286,6 +287,7 @@ public final class BuildService {
     }
 
     private ContributionResult contribute(Player player, Town town, ProjectDefinition project, boolean cityStorage) {
+        if(!ru.neverland.integration.SpecializationAccess.allowed(town.getUUID(),project.id()))return new ContributionResult(ContributionResult.Status.SPECIALIZATION_LOCKED,0,List.of(ru.neverland.integration.SpecializationAccess.reason(project.id())));
         if(cityStorage&&dataStore.storageBusy(town.getUUID(),"warehouse"))return ContributionResult.of(ContributionResult.Status.STORAGE_BUSY);
         TownData data = dataStore.town(town.getUUID());
         int targetLevel = data.level(project.id()) + 1;

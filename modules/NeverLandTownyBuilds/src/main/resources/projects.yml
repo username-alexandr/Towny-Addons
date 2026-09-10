@@ -1171,6 +1171,385 @@ buildings:
         - GOLD_INGOT:16
         effects: []
 
+  trade_exchange:
+    name: '&eТорговая биржа'
+    icon: EMERALD_BLOCK
+    category: TRADE
+    order: 200
+    slot: 10
+    description:
+    - 'Уникальное здание: Торговый центр.'
+    - Работает с III уровня, усиливает бонусы направления.
+    requires:
+      town_hall: 3
+      market: 3
+      merchant_guild: 3
+    levels:
+      1:
+        money: 12000
+        bonus-blocks: 0
+        resources:
+        - SMOOTH_SANDSTONE:320
+        - DARK_OAK_PLANKS:192
+        - GOLD_INGOT:32
+        effects: []
+      2:
+        money: 24000
+        bonus-blocks: 0
+        resources:
+        - SMOOTH_SANDSTONE:320
+        - DARK_OAK_PLANKS:192
+        - GOLD_INGOT:32
+        effects: []
+      3:
+        money: 48000
+        bonus-blocks: 0
+        resources:
+        - SMOOTH_SANDSTONE:320
+        - DARK_OAK_PLANKS:192
+        - GOLD_INGOT:32
+        effects: []
+      4:
+        money: 96000
+        bonus-blocks: 0
+        resources:
+        - SMOOTH_SANDSTONE:320
+        - DARK_OAK_PLANKS:192
+        - GOLD_INGOT:32
+        effects: []
+      5:
+        money: 192000
+        bonus-blocks: 0
+        resources:
+        - SMOOTH_SANDSTONE:320
+        - DARK_OAK_PLANKS:192
+        - GOLD_INGOT:32
+        effects: []
+  citadel:
+    name: '&eЦитадель'
+    icon: CHISELED_STONE_BRICKS
+    category: DEFENSE
+    order: 201
+    slot: 11
+    description:
+    - 'Уникальное здание: Крепость.'
+    - Работает с III уровня, усиливает бонусы направления.
+    requires:
+      town_hall: 3
+      fortress_wall: 3
+      army: 3
+    levels:
+      1:
+        money: 18000
+        bonus-blocks: 0
+        resources:
+        - POLISHED_BLACKSTONE_BRICKS:640
+        - DEEPSLATE_BRICKS:384
+        - IRON_INGOT:64
+        effects: []
+      2:
+        money: 36000
+        bonus-blocks: 0
+        resources:
+        - POLISHED_BLACKSTONE_BRICKS:640
+        - DEEPSLATE_BRICKS:384
+        - IRON_INGOT:64
+        effects: []
+      3:
+        money: 72000
+        bonus-blocks: 0
+        resources:
+        - POLISHED_BLACKSTONE_BRICKS:640
+        - DEEPSLATE_BRICKS:384
+        - IRON_INGOT:64
+        effects: []
+      4:
+        money: 144000
+        bonus-blocks: 0
+        resources:
+        - POLISHED_BLACKSTONE_BRICKS:640
+        - DEEPSLATE_BRICKS:384
+        - IRON_INGOT:64
+        effects: []
+      5:
+        money: 288000
+        bonus-blocks: 0
+        resources:
+        - POLISHED_BLACKSTONE_BRICKS:640
+        - DEEPSLATE_BRICKS:384
+        - IRON_INGOT:64
+        effects: []
+  seed_vault:
+    name: '&eСелекционный центр'
+    icon: GOLDEN_CARROT
+    category: PRODUCTION
+    order: 202
+    slot: 12
+    description:
+    - 'Уникальное здание: Аграрный центр.'
+    - Работает с III уровня, усиливает бонусы направления.
+    requires:
+      town_hall: 3
+      agrarian_complex: 3
+      irrigation_station: 3
+    levels:
+      1:
+        money: 10000
+        bonus-blocks: 0
+        resources:
+        - GLASS:384
+        - STONE_BRICKS:256
+        - MOSS_BLOCK:96
+        effects: []
+      2:
+        money: 20000
+        bonus-blocks: 0
+        resources:
+        - GLASS:384
+        - STONE_BRICKS:256
+        - MOSS_BLOCK:96
+        effects: []
+      3:
+        money: 40000
+        bonus-blocks: 0
+        resources:
+        - GLASS:384
+        - STONE_BRICKS:256
+        - MOSS_BLOCK:96
+        effects: []
+      4:
+        money: 80000
+        bonus-blocks: 0
+        resources:
+        - GLASS:384
+        - STONE_BRICKS:256
+        - MOSS_BLOCK:96
+        effects: []
+      5:
+        money: 160000
+        bonus-blocks: 0
+        resources:
+        - GLASS:384
+        - STONE_BRICKS:256
+        - MOSS_BLOCK:96
+        effects: []
+  industrial_works:
+    name: '&eИндустриальный комбинат'
+    icon: HEAVY_CORE
+    category: PRODUCTION
+    order: 203
+    slot: 13
+    description:
+    - 'Уникальное здание: Промышленный город.'
+    - Работает с III уровня, усиливает бонусы направления.
+    requires:
+      town_hall: 3
+      foundry: 3
+      forge: 3
+    levels:
+      1:
+        money: 20000
+        bonus-blocks: 0
+        resources:
+        - DEEPSLATE_BRICKS:512
+        - CUT_COPPER:128
+        - IRON_INGOT:128
+        effects: []
+      2:
+        money: 40000
+        bonus-blocks: 0
+        resources:
+        - DEEPSLATE_BRICKS:512
+        - CUT_COPPER:128
+        - IRON_INGOT:128
+        effects: []
+      3:
+        money: 80000
+        bonus-blocks: 0
+        resources:
+        - DEEPSLATE_BRICKS:512
+        - CUT_COPPER:128
+        - IRON_INGOT:128
+        effects: []
+      4:
+        money: 160000
+        bonus-blocks: 0
+        resources:
+        - DEEPSLATE_BRICKS:512
+        - CUT_COPPER:128
+        - IRON_INGOT:128
+        effects: []
+      5:
+        money: 320000
+        bonus-blocks: 0
+        resources:
+        - DEEPSLATE_BRICKS:512
+        - CUT_COPPER:128
+        - IRON_INGOT:128
+        effects: []
+  academy_of_sciences:
+    name: '&eАкадемия наук'
+    icon: KNOWLEDGE_BOOK
+    category: SCIENCE
+    order: 204
+    slot: 14
+    description:
+    - 'Уникальное здание: Научный центр.'
+    - Работает с III уровня, усиливает бонусы направления.
+    requires:
+      town_hall: 3
+      great_library: 3
+      university: 3
+    levels:
+      1:
+        money: 16000
+        bonus-blocks: 0
+        resources:
+        - QUARTZ_BRICKS:384
+        - LIGHT_BLUE_STAINED_GLASS:128
+        - BOOKSHELF:64
+        effects: []
+      2:
+        money: 32000
+        bonus-blocks: 0
+        resources:
+        - QUARTZ_BRICKS:384
+        - LIGHT_BLUE_STAINED_GLASS:128
+        - BOOKSHELF:64
+        effects: []
+      3:
+        money: 64000
+        bonus-blocks: 0
+        resources:
+        - QUARTZ_BRICKS:384
+        - LIGHT_BLUE_STAINED_GLASS:128
+        - BOOKSHELF:64
+        effects: []
+      4:
+        money: 128000
+        bonus-blocks: 0
+        resources:
+        - QUARTZ_BRICKS:384
+        - LIGHT_BLUE_STAINED_GLASS:128
+        - BOOKSHELF:64
+        effects: []
+      5:
+        money: 256000
+        bonus-blocks: 0
+        resources:
+        - QUARTZ_BRICKS:384
+        - LIGHT_BLUE_STAINED_GLASS:128
+        - BOOKSHELF:64
+        effects: []
+  admiralty:
+    name: '&eАдмиралтейство'
+    icon: CONDUIT
+    category: TRADE
+    order: 205
+    slot: 15
+    description:
+    - 'Уникальное здание: Портовый город.'
+    - Работает с III уровня, усиливает бонусы направления.
+    requires:
+      town_hall: 3
+      trade_port: 3
+      shipyard: 3
+    levels:
+      1:
+        money: 14000
+        bonus-blocks: 0
+        resources:
+        - PRISMARINE_BRICKS:384
+        - DARK_PRISMARINE:192
+        - SPRUCE_PLANKS:256
+        effects: []
+      2:
+        money: 28000
+        bonus-blocks: 0
+        resources:
+        - PRISMARINE_BRICKS:384
+        - DARK_PRISMARINE:192
+        - SPRUCE_PLANKS:256
+        effects: []
+      3:
+        money: 56000
+        bonus-blocks: 0
+        resources:
+        - PRISMARINE_BRICKS:384
+        - DARK_PRISMARINE:192
+        - SPRUCE_PLANKS:256
+        effects: []
+      4:
+        money: 112000
+        bonus-blocks: 0
+        resources:
+        - PRISMARINE_BRICKS:384
+        - DARK_PRISMARINE:192
+        - SPRUCE_PLANKS:256
+        effects: []
+      5:
+        money: 224000
+        bonus-blocks: 0
+        resources:
+        - PRISMARINE_BRICKS:384
+        - DARK_PRISMARINE:192
+        - SPRUCE_PLANKS:256
+        effects: []
+  pilgrimage_center:
+    name: '&eЦентр паломничества'
+    icon: RECOVERY_COMPASS
+    category: CULTURE
+    order: 206
+    slot: 16
+    description:
+    - 'Уникальное здание: Религиозный центр.'
+    - Работает с III уровня, усиливает бонусы направления.
+    requires:
+      town_hall: 3
+      temple: 3
+      cathedral: 3
+    levels:
+      1:
+        money: 12000
+        bonus-blocks: 0
+        resources:
+        - SMOOTH_SANDSTONE:384
+        - RED_SANDSTONE:192
+        - QUARTZ_PILLAR:64
+        effects: []
+      2:
+        money: 24000
+        bonus-blocks: 0
+        resources:
+        - SMOOTH_SANDSTONE:384
+        - RED_SANDSTONE:192
+        - QUARTZ_PILLAR:64
+        effects: []
+      3:
+        money: 48000
+        bonus-blocks: 0
+        resources:
+        - SMOOTH_SANDSTONE:384
+        - RED_SANDSTONE:192
+        - QUARTZ_PILLAR:64
+        effects: []
+      4:
+        money: 96000
+        bonus-blocks: 0
+        resources:
+        - SMOOTH_SANDSTONE:384
+        - RED_SANDSTONE:192
+        - QUARTZ_PILLAR:64
+        effects: []
+      5:
+        money: 192000
+        bonus-blocks: 0
+        resources:
+        - SMOOTH_SANDSTONE:384
+        - RED_SANDSTONE:192
+        - QUARTZ_PILLAR:64
+        effects: []
+
 wonders:
   sun_pyramid:
     name: "&#FFD34E&lПирамида Солнца"

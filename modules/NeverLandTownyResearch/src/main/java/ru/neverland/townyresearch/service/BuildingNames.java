@@ -93,4 +93,11 @@ Map.entry("crystal_palace","Хрустальный дворец"),
 Map.entry("great_canal","Великий канал"),
 Map.entry("water_wheel","Водяное колесо"),
 Map.entry("generator","Генератор"),
-Map.entry("power_station","Электростанция")); public static String name(String id){return NAMES.getOrDefault(id,"Городское здание");} }
+Map.entry("power_station","Электростанция"),
+Map.entry("trade_exchange","Торговая биржа"),
+Map.entry("citadel","Цитадель"),
+Map.entry("seed_vault","Селекционный центр"),
+Map.entry("industrial_works","Индустриальный комбинат"),
+Map.entry("academy_of_sciences","Академия наук"),
+Map.entry("admiralty","Адмиралтейство"),
+Map.entry("pilgrimage_center","Центр паломничества")); public static String name(String id){return NAMES.getOrDefault(id,"Городское здание");} }

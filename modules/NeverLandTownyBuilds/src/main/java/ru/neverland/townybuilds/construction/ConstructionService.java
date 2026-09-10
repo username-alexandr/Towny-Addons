@@ -110,6 +110,7 @@ public final class ConstructionService implements Listener {
 
     public ConstructionPreparation prepare(Player player, Town town, ProjectDefinition project,
                                            int currentLevel, int targetLevel) {
+        if(!ru.neverland.integration.SpecializationAccess.allowed(town.getUUID(),project.id()))return ConstructionPreparation.failed(ConstructionPreparation.Status.UNKNOWN_BLUEPRINT,ru.neverland.integration.SpecializationAccess.reason(project.id()));
         obstructionPreviews.remove(player.getUniqueId());
         if (!supports(project.id(), targetLevel)) {
             return ConstructionPreparation.failed(ConstructionPreparation.Status.UNKNOWN_BLUEPRINT,
@@ -170,6 +171,7 @@ public final class ConstructionService implements Listener {
         if (preparation.status() != ConstructionPreparation.Status.READY || preparation.site() == null) {
             throw new IllegalStateException("Попытка активировать неподготовленный чертёж");
         }
+        if(!ru.neverland.integration.SpecializationAccess.allowed(preparation.townId(),preparation.site().projectId()))throw new IllegalStateException(ru.neverland.integration.SpecializationAccess.reason(preparation.site().projectId()));
         TownData data = dataStore.town(preparation.townId());
         data.setConstructionSite(preparation.site());
         dataStore.markDirty();
@@ -209,6 +211,7 @@ public final class ConstructionService implements Listener {
             messages.send(event.getPlayer(), "construction-not-resident");
             return;
         }
+        if(!ru.neverland.integration.SpecializationAccess.allowed(located.townId(),located.site().projectId())){event.setCancelled(true);messages.send(event.getPlayer(),"specialization-required",Map.of("specialization",ru.neverland.integration.SpecializationAccess.requirement(located.site().projectId())));return;}
         BlueprintBlock expected = located.expected();
         ConstructionSite site = located.site();
         if (!site.active() || expected.stage() < site.buildFromStage() || expected.stage() > site.targetStage()
@@ -345,7 +348,7 @@ public final class ConstructionService implements Listener {
     }
 
     private void checkCompletion(Player player, Town town, ConstructionSite site) {
-        if (!site.active()) return;
+        if (!site.active()||!ru.neverland.integration.SpecializationAccess.allowed(town.getUUID(),site.projectId())) return;
         BlueprintPlan plan = planForSite(site, site.targetStage());
         World world = Bukkit.getWorld(site.worldId());
         if (plan == null || world == null) return;
@@ -490,6 +493,7 @@ public final class ConstructionService implements Listener {
 
     private void applyExpectedState(Block block, BlueprintBlock expected, ConstructionSite site) {
         BlockData data = block.getBlockData();
+        if(site.projectId().equals("seed_vault")&&data instanceof org.bukkit.block.data.type.Leaves leaves)leaves.setPersistent(true);
         if (data instanceof Orientable orientable && expected.axis() != null) {
             org.bukkit.Axis axis = site.worldAxis(expected.axis());
             if (orientable.getAxes().contains(axis)) orientable.setAxis(axis);

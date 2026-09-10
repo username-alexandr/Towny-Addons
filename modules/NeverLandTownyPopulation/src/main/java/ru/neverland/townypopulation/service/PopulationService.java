@@ -70,6 +70,7 @@ public final class PopulationService implements TownyPopulationApi {
             } catch(ReflectiveOperationException | RuntimeException | LinkageError ex) {
                 paused=true;warn("Стратегическое снабжение недоступно: "+ex.getMessage());
             }
+            capacity=capacity.plus(new Capacity(0,0,0,0,ru.neverland.integration.SpecializationAccess.bonus(id,"happiness")));
             double medicine=levels.getOrDefault("infirmary",0)>0?ru.neverland.integration.ResearchBonuses.bonus(id,"medicine"):0;
             if (paused || now < state.lastCycle()) state = state.rebase(now);
             if (!paused && advance && now-state.lastCycle() >= settings.intervalMillis())

@@ -176,6 +176,17 @@ def main() -> int:
                     for helper in ("ResearchBonuses", "ResearchEffects"):
                         if f"ru/neverland/integration/{helper}.class" not in archive.namelist():
                             errors.append(f"{jar.name}: missing research integration {helper}")
+                if name in {"NeverLandTowny" + suffix for suffix in ("Builds", "Resources", "Population", "Districts", "Logistics", "Upkeep", "Power", "Research", "Trade", "Events", "Specialization")}:
+                    for helper in ("SpecializationRules", "SpecializationAccess"):
+                        if f"ru/neverland/integration/{helper}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing specialization integration {helper}")
+                if name == "NeverLandTownySpecialization":
+                    for resource in ("config.yml", "specializations.yml"):
+                        if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
+                            errors.append(f"{jar.name}: {resource} differs from sources")
+                    for helper in ("NeverLandTownySpecialization", "api/TownySpecializationApi", "model/SelectionPolicy", "data/SpecializationRepository", "gui/SpecializationMenu", "service/SpecializationService", "integration/SpecializationExpansion", "integration/FortressProtection"):
+                        if f"ru/neverland/townyspecialization/{helper}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing specialization class {helper}")
                 if name == "NeverLandTownyResearch":
                     for resource in ("config.yml", "technologies.yml"):
                         if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
@@ -266,8 +277,41 @@ def main() -> int:
         "crystal_palace": {"merchant_guild": 5, "gallery": 4, "printing_house": 3},
         "great_canal": {"dam": 5, "pumping_station": 5, "reservoir": 4},
     }
-    if len(configured_ids) != 83 or set(projects["wonders"]) != expected_wonders:
-        errors.append("NeverLandTownyBuilds must contain 83 buildings and the 11 expected wonders")
+    if len(configured_ids) != 90 or set(projects["wonders"]) != expected_wonders:
+        errors.append("NeverLandTownyBuilds must contain 90 buildings and the 11 expected wonders")
+    specialization_mapping = {"trade": "trade_exchange", "fortress": "citadel", "agricultural": "seed_vault", "industrial": "industrial_works", "scientific": "academy_of_sciences", "port": "admiralty", "religious": "pilgrimage_center"}
+    specialization = load_yaml(modules_dir / "NeverLandTownySpecialization/src/main/resources/specializations.yml").get("specializations", {})
+    selection = load_yaml(modules_dir / "NeverLandTownySpecialization/src/main/resources/config.yml").get("selection", {})
+    if selection != {"minimum-town-level": 3, "minimum-town-hall-level": 3, "change-cooldown-hours": 168}:
+        errors.append("Default specialization selection must require Towny III / hall III with seven-day cooldown")
+    if set(specialization) != set(specialization_mapping):
+        errors.append("Specialization must contain all seven directions")
+    effects = {"production", "trade_speed", "mob_defense", "research_speed", "courier_speed", "trade_delay", "happiness"}
+    icons = set()
+    for spec, project in specialization_mapping.items():
+        profile = specialization.get(spec, {})
+        building = projects["buildings"].get(project, {})
+        if profile.get("unique-building") != project or profile.get("minimum-building-level") != 3:
+            errors.append(f"Invalid unique specialization building: {spec}")
+        if not re.search(r"[А-Яа-яЁё]", str(profile.get("name", ""))) or profile.get("unique-building-name") != re.sub(r"&[0-9a-fk-or]", "", building.get("name", "")):
+            errors.append(f"Missing or mismatched Russian specialization name: {spec}")
+        if profile.get("icon") in icons or profile.get("icon") != building.get("icon"):
+            errors.append(f"Unique building icon must be distinct and match specialization: {spec}")
+        icons.add(profile.get("icon"))
+        requirements = building.get("requires", {})
+        if requirements.get("town_hall") != 3 or set(requirements) - configured_ids or set(requirements) & set(specialization_mapping.values()):
+            errors.append(f"Invalid or cyclic specialization prerequisites: {spec}")
+        if set(building.get("levels", {})) != {1, 2, 3, 4, 5}:
+            errors.append(f"Unique building must have five stages: {project}")
+        bonuses, per_level = profile.get("bonuses", {}), profile.get("building-bonuses-per-level", {})
+        if not bonuses or set(bonuses) - effects or set(per_level) - set(bonuses):
+            errors.append(f"Invalid specialization effects: {spec}")
+        for effect, base in bonuses.items():
+            extra = per_level.get(effect, 0)
+            if not isinstance(base, (int, float)) or not isinstance(extra, (int, float)) or base < 0 or extra < 0 or not 0 <= base + extra * 5 <= (20 if effect == "happiness" else .5):
+                errors.append(f"Out-of-range specialization effect: {spec}/{effect}")
+        if set(profile.get("production-projects", [])) - configured_ids:
+            errors.append(f"Unknown specialization producer: {spec}")
     research = load_yaml(modules_dir / "NeverLandTownyResearch/src/main/resources/technologies.yml").get("technologies", {})
     technology_ids = {"irrigation", "walls", "fast_caravans", "medicine", "navigation", "metallurgy", "alchemy"}
     if set(research) != technology_ids:
@@ -350,8 +394,8 @@ def main() -> int:
                 errors.append(f"Invalid power curve: {project}/{field}")
         if any(profile.get("generation", [])): generators.add(project)
         if any(profile.get("demand", [])): consumers.add(project)
-    if generators != {"mill", "water_wheel", "generator", "power_station"} or len(consumers) != 15 or generators & consumers:
-        errors.append("Expected four independent power sources and 15 consumers")
+    if generators != {"mill", "water_wheel", "generator", "power_station"} or len(consumers) != 20 or generators & consumers:
+        errors.append("Expected four independent power sources and 20 consumers")
     for project, prerequisites in {"water_wheel": {"mill": 3}, "generator": {"water_wheel": 3, "foundry": 3}, "power_station": {"generator": 4, "foundry": 4, "research": 3}}.items():
         if projects["buildings"].get(project, {}).get("requires") != prerequisites or projects["buildings"][project].get("category") != "ENERGY":
             errors.append(f"Incorrect energy progression: {project}")
@@ -422,7 +466,7 @@ def main() -> int:
         return 1
 
     jar_status = "source-only" if args.source_only else f"{len(actual_jars)} JARs"
-    print(f"OK: {len(addons)} modules, {jar_status}, {yaml_count} YAML files, 83 buildings / 11 wonders")
+    print(f"OK: {len(addons)} modules, {jar_status}, {yaml_count} YAML files, 90 buildings / 11 wonders")
     return 0
 
 

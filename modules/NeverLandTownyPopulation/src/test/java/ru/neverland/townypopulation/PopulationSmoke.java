@@ -20,7 +20,7 @@ public final class PopulationSmoke {
 
         var config=resource("config.yml"); var buildings=resource("buildings.yml");
         var settings=PopulationSettings.load(config,buildings); var rules=settings.rules();
-        check(settings.buildings().size()==94,"all 83 buildings and 11 wonders have population profiles");
+        check(settings.buildings().size()==101,"all 90 buildings and 11 wonders have population profiles");
         var startup=settings.capacity(id->0);
         check(startup.housing()==20 && startup.food()==20 && startup.water()==20,"starter settlement");
         check(PopulationMath.evaluate(10,startup,rules).change()>0,"starter town grows");
@@ -43,6 +43,10 @@ public final class PopulationSmoke {
         check(medicineState.population()==101&&medicineState.remainder()==0,"medicine preserves sustainable limit and fractions");
         check(healthy.workforce()==60 && healthy.employed()==60 && healthy.unemployed()==0,"employment uses workforce");
         check(healthy.change()>0 && healthy.happiness()==70,"supplied population grows");
+        var religious=supplied.plus(new Capacity(0,0,0,0,10));check(PopulationMath.evaluate(100,religious,rules).happiness()==80,"religious specialization adds happiness points");
+        check(PopulationMath.evaluate(100,new Capacity(200,100,74,200,10),rules).change()<0,"religious happiness cannot remove critical food shortage");
+        check(PopulationMath.evaluate(100,new Capacity(100,100,200,200,10),rules).change()==0,"religious bonus cannot exceed housing");
+        check(PopulationMath.evaluate(100,new Capacity(200,100,200,200,50),rules).happiness()==100,"combined amenity and specialization happiness capped");
         check(PopulationMath.evaluate(100,new Capacity(200,0,200,200,0),rules).change()==0,"unemployment stops low-happiness growth");
         check(PopulationMath.evaluate(100,new Capacity(200,0,200,200,20),rules).happiness()==60,"amenities improve happiness");
         check(PopulationMath.evaluate(100,new Capacity(200,100,80,200,0),rules).change()==0,"moderate food shortage pauses growth");
@@ -84,14 +88,14 @@ public final class PopulationSmoke {
         YamlConfiguration old=new YamlConfiguration(); old.set("buildings.bakery.food",0);
         old.setDefaults(buildings); old.options().copyDefaults(true);
         var inherited=PopulationSettings.load(resource("config.yml"),old);
-        check(inherited.buildings().size()==94 && inherited.buildings().get("bakery").capacity().food()==0,"new defaults inherited; admin zero preserved");
+        check(inherited.buildings().size()==101 && inherited.buildings().get("bakery").capacity().food()==0,"new defaults inherited; admin zero preserved");
         var districtHousing=settings.capacity(id->id.equals("residential_quarter")?5:0,id->1.15);
         check(districtHousing.housing()==158,"district bonus changes real housing while starter capacity stays unscaled");
         check(settings.capacity(id->id.equals("residential_quarter")?4:0,id->1.35).housing()==20,"district cannot activate unfinished housing");
         check(settings.capacity(id->id.equals("bakery")?5:0,id->1.15).food()==112,"district improves real food supply");
         check(settings.capacity(id->id.equals("water_tower")?5:0,id->Double.NaN).water()==220,"invalid district multiplier neutral");
         persistence();
-        System.out.println("PopulationSmoke OK: 94 profiles, growth/decline, shortages, employment, fractions, custom settings, restart and corrupt database");
+        System.out.println("PopulationSmoke OK: 101 profiles, growth/decline, shortages, employment, fractions, custom settings, restart and corrupt database");
     }
     private static void persistence() throws Exception {
         Path dir=Files.createTempDirectory("population-smoke-");
