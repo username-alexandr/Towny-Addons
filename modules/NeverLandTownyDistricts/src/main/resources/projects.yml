@@ -1,0 +1,366 @@
+# Все 80 зданий и 11 чудес. Для пользовательских проектов добавьте свой ID.
+projects:
+  town_hall:
+    name: Ратуша
+    icon: BELL
+    district: administrative
+  forge:
+    name: Кузница
+    icon: ANVIL
+    district: industrial
+  barracks:
+    name: Казармы
+    icon: IRON_SWORD
+    district: military
+  market:
+    name: Рынок
+    icon: EMERALD
+    district: commercial
+  miners_guild:
+    name: Шахтёрская гильдия
+    icon: DIAMOND_PICKAXE
+    district: industrial
+  temple:
+    name: Священный Храм
+    icon: TOTEM_OF_UNDYING
+    district: residential
+  great_library:
+    name: Великая Библиотека
+    icon: ENCHANTED_BOOK
+    district: administrative
+  agrarian_complex:
+    name: Аграрный Комплекс
+    icon: DIAMOND_HOE
+    district: agricultural
+  infirmary:
+    name: Лазарет
+    icon: BREWING_STAND
+    district: residential
+  fire_station:
+    name: Пожарная часть
+    icon: FIRE_CHARGE
+    district: military
+  tavern_inn:
+    name: Таверна и постоялый двор
+    icon: HONEY_BOTTLE
+    district: residential
+  city_bank:
+    name: Городской банк
+    icon: GOLD_INGOT
+    district: commercial
+  embassy:
+    name: Посольство
+    icon: GLOBE_BANNER_PATTERN
+    district: administrative
+  museum:
+    name: Музей
+    icon: DECORATED_POT
+    district: administrative
+  shipyard:
+    name: Верфь
+    icon: OAK_BOAT
+    district: port
+  university:
+    name: Университет
+    icon: ENCHANTING_TABLE
+    district: administrative
+  courthouse:
+    name: Суд
+    icon: IRON_AXE
+    district: administrative
+  aqueduct:
+    name: Акведук
+    icon: PRISMARINE_BRICKS
+    district: agricultural
+  workshop:
+    name: Мастерская
+    icon: SMITHING_TABLE
+    district: industrial
+  watch_fortress:
+    name: Сторожевая крепость
+    icon: POLISHED_BLACKSTONE_BRICKS
+    district: military
+  hunting_lodge:
+    name: Охотничий дом
+    icon: BOW
+    district: agricultural
+  fishing_harbor:
+    name: Рыбацкая гавань
+    icon: FISHING_ROD
+    district: port
+  post_station:
+    name: Почтовая станция
+    icon: WRITABLE_BOOK
+    district: commercial
+  observatory:
+    name: Обсерватория
+    icon: SPYGLASS
+    district: administrative
+  prison:
+    name: Тюрьма
+    icon: IRON_BARS
+    district: administrative
+  sawmill:
+    name: Лесопилка
+    icon: IRON_AXE
+    district: industrial
+  quarry:
+    name: Каменоломня
+    icon: STONE_PICKAXE
+    district: industrial
+  foundry:
+    name: Литейная
+    icon: BLAST_FURNACE
+    district: industrial
+  mill:
+    name: Мельница
+    icon: WHEAT
+    district: agricultural
+  bakery:
+    name: Пекарня
+    icon: BREAD
+    district: agricultural
+  apiary:
+    name: Пасека
+    icon: HONEYCOMB
+    district: agricultural
+  warehouse:
+    name: Городской склад
+    icon: CHEST
+    district: industrial
+  caravanserai:
+    name: Караван-сарай
+    icon: LEAD
+    district: commercial
+  auction:
+    name: Аукционный дом
+    icon: EMERALD
+    district: commercial
+  merchant_guild:
+    name: Торговая гильдия
+    icon: EMERALD_BLOCK
+    district: commercial
+  cargo_terminal:
+    name: Грузовой терминал
+    icon: MINECART
+    district: commercial
+  water_tower:
+    name: Водонапорная башня
+    icon: BUCKET
+    district: agricultural
+  sewer:
+    name: Канализация
+    icon: CAULDRON
+    district: residential
+  baths:
+    name: Городские бани
+    icon: HEART_OF_THE_SEA
+    district: residential
+  roads:
+    name: Дороги
+    icon: STONE_BRICKS
+    district: administrative
+  bridge_service:
+    name: Мостовая служба
+    icon: OAK_FENCE
+    district: port
+  reservoir:
+    name: Резервуар
+    icon: BLUE_CONCRETE
+    district: agricultural
+  guard:
+    name: Городская стража
+    icon: IRON_HELMET
+    district: military
+  arsenal:
+    name: Арсенал
+    icon: CROSSBOW
+    district: military
+  armory:
+    name: Оружейная
+    icon: SMITHING_TABLE
+    district: military
+  watchtower:
+    name: Дозорная башня
+    icon: SPYGLASS
+    district: military
+  fortress_gate:
+    name: Крепостные ворота
+    icon: IRON_DOOR
+    district: military
+  counterintel:
+    name: Палата контрразведки
+    icon: ENDER_EYE
+    district: military
+  alchemy:
+    name: Алхимическая лаборатория
+    icon: BREWING_STAND
+    district: industrial
+  archive:
+    name: Архив
+    icon: BOOK
+    district: administrative
+  cartography:
+    name: Академия картографов
+    icon: FILLED_MAP
+    district: administrative
+  research:
+    name: Исследовательский институт
+    icon: SCULK_SENSOR
+    district: administrative
+  botanical:
+    name: Ботанический сад
+    icon: FLOWERING_AZALEA
+    district: agricultural
+  theater:
+    name: Театр
+    icon: RED_BANNER
+    district: residential
+  square:
+    name: Городская площадь
+    icon: BELL
+    district: residential
+  arena:
+    name: Арена
+    icon: IRON_SWORD
+    district: residential
+  gallery:
+    name: Художественная галерея
+    icon: PAINTING
+    district: residential
+  park:
+    name: Парк
+    icon: OAK_SAPLING
+    district: residential
+  guild_house:
+    name: Дом гильдий
+    icon: NAME_TAG
+    district: residential
+  memorial:
+    name: Мемориал
+    icon: CHISELED_STONE_BRICKS
+    district: residential
+  shelter:
+    name: Приют
+    icon: WHITE_BED
+    district: residential
+  cathedral:
+    name: Собор
+    icon: END_CRYSTAL
+    district: residential
+  printing_house:
+    name: Типография
+    icon: LECTERN
+    district: administrative
+  forestry:
+    name: Лесничество
+    icon: OAK_SAPLING
+    district: agricultural
+  customs:
+    name: Таможня
+    icon: WRITABLE_BOOK
+    district: commercial
+  trade_port:
+    name: Торговый порт
+    icon: OAK_BOAT
+    district: port
+  mint:
+    name: Монетный двор
+    icon: GOLD_INGOT
+    district: commercial
+  stables:
+    name: Конюшни
+    icon: SADDLE
+    district: military
+  fortress_wall:
+    name: Крепостная стена
+    icon: STONE_BRICKS
+    district: military
+  city_moat:
+    name: Городской ров
+    icon: LILY_PAD
+    district: military
+  archery_range:
+    name: Стрельбище
+    icon: TARGET
+    district: military
+  port_fort:
+    name: Портовый форт
+    icon: CROSSBOW
+    district: port
+  census_bureau:
+    name: Бюро переписи населения
+    icon: WRITABLE_BOOK
+    district: administrative
+  insurance_chamber:
+    name: Страховая палата
+    icon: SHIELD
+    district: commercial
+  pumping_station:
+    name: Насосная станция
+    icon: CAULDRON
+    district: agricultural
+  irrigation_station:
+    name: Ирригационная станция
+    icon: COPPER_HOE
+    district: agricultural
+  recycling_yard:
+    name: Перерабатывающий двор
+    icon: CRAFTER
+    district: industrial
+  dam:
+    name: Дамба
+    icon: DEEPSLATE_BRICKS
+    district: port
+  army:
+    name: Штаб армии
+    icon: NETHERITE_HELMET
+    district: military
+  residential_quarter:
+    name: Жилой квартал
+    icon: RED_BED
+    district: residential
+  sun_pyramid:
+    name: Пирамида Солнца
+    icon: GOLD_BLOCK
+    district: administrative
+  great_colosseum:
+    name: Великий Колизей
+    icon: SHIELD
+    district: residential
+  alexandria_lighthouse:
+    name: Александрийский Маяк
+    icon: BEACON
+    district: port
+  hanging_gardens:
+    name: Висячие Сады
+    icon: FLOWERING_AZALEA
+    district: agricultural
+  archmage_spire:
+    name: Шпиль Архимагов
+    icon: END_CRYSTAL
+    district: industrial
+  rhodes_colossus:
+    name: Колосс Родосский
+    icon: LIGHTNING_ROD
+    district: port
+  world_tree:
+    name: Мировое древо
+    icon: FLOWERING_AZALEA_LEAVES
+    district: agricultural
+  celestial_orrery:
+    name: Небесный оррерий
+    icon: RECOVERY_COMPASS
+    district: administrative
+  terracotta_army:
+    name: Терракотовая армия
+    icon: DECORATED_POT
+    district: military
+  crystal_palace:
+    name: Хрустальный дворец
+    icon: AMETHYST_CLUSTER
+    district: residential
+  great_canal:
+    name: Великий канал
+    icon: CONDUIT
+    district: port

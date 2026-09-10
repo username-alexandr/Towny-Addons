@@ -1,0 +1,19 @@
+name: NeverLandTownyDistricts
+version: '0.1.0'
+main: ru.neverland.townydistricts.NeverLandTownyDistricts
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: Городские районы, размещение зданий и совместные бонусы.
+depend: [Towny, NeverLandTownyBuilds]
+commands:
+  townydistricts:
+    description: Управление городскими районами
+    usage: /townydistricts [create|claim|unclaim|delete|rename|pos1|pos2|clear|map|info|reload]
+    aliases: [districts, nltdistricts]
+permissions:
+  neverlandtownydistricts.use:
+    default: true
+  neverlandtownydistricts.manage:
+    default: false
+  neverlandtownydistricts.admin:
+    default: op

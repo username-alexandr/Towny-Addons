@@ -14,8 +14,11 @@ public record PopulationSettings(long intervalMillis, int initial, Capacity base
         public Capacity atLevel(int level) { return capacity.times(Math.max(0, Math.min(maximumLevel,level)-minimumLevel+1)); }
     }
     public Capacity capacity(ToIntFunction<String> levels) {
+        return capacity(levels,id -> 1.0);
+    }
+    public Capacity capacity(ToIntFunction<String> levels, java.util.function.ToDoubleFunction<String> multipliers) {
         Capacity result = base;
-        for (var entry : buildings.entrySet()) result = result.plus(entry.getValue().atLevel(levels.applyAsInt(entry.getKey())));
+        for (var entry : buildings.entrySet()) result = result.plus(entry.getValue().atLevel(levels.applyAsInt(entry.getKey())).scaled(multipliers.applyAsDouble(entry.getKey())));
         return result;
     }
     public static PopulationSettings load(YamlConfiguration config, YamlConfiguration catalog) {

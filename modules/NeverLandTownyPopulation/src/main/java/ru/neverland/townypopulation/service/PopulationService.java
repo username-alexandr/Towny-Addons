@@ -60,7 +60,7 @@ public final class PopulationService implements TownyPopulationApi {
                 warn("Расчёт населения приостановлен: "+ex.getMessage());
             }
             Map<String,Integer> selected = levels;
-            Capacity capacity = settings.capacity(key -> selected.getOrDefault(key,0));
+            Capacity capacity = settings.capacity(key -> selected.getOrDefault(key,0), key -> ru.neverland.integration.DistrictBonuses.multiplier(id,key));
             if (now < state.lastCycle()) state = state.rebase(now);
             if (!paused && advance && now-state.lastCycle() >= settings.intervalMillis())
                 state = PopulationMath.advance(state,capacity,settings.rules(),now);

@@ -74,12 +74,13 @@ public final class PopulationMenu implements Listener {
         var entries=new ArrayList<>(service.settings().buildings().entrySet());
         for(int i=v.page*45;i<Math.min(entries.size(),(v.page+1)*45);i++) {
             var entry=entries.get(i); var b=entry.getValue(); int level=s.buildingLevels().getOrDefault(entry.getKey(),0);
-            var c=b.atLevel(level); Material icon=Material.matchMaterial(b.icon());
+            double multiplier=ru.neverland.integration.DistrictBonuses.multiplier(s.townId(),entry.getKey());
+            var c=b.atLevel(level).scaled(multiplier); Material icon=Material.matchMaterial(b.icon());
             v.inventory.setItem(i%45,item(icon==null||!icon.isItem()?Material.BRICKS:icon,"&e"+b.name(),
                     "Этап: "+level+" / "+b.maximumLevel(),
                     level<b.minimumLevel()?"Начнёт работать с этапа "+b.minimumLevel():"Здание обеспечивает население",
                     "Жильё: +"+c.housing()+"; рабочих мест: +"+c.jobs(),
-                    "Еда: +"+number(c.food())+"; вода: +"+number(c.water()),"Довольство: "+signed(c.happiness()),
+                    "Еда: +"+number(c.food())+"; вода: +"+number(c.water()),"Довольство: "+signed(c.happiness()),"Бонус района: +"+number((multiplier-1)*100)+"%",
                     "На активный уровень: жильё "+b.capacity().housing()+", работа "+b.capacity().jobs(),
                     "Еда "+number(b.capacity().food())+", вода "+number(b.capacity().water())));
         }

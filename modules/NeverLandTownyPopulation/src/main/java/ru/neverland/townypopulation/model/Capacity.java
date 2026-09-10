@@ -13,6 +13,12 @@ public record Capacity(int housing, int jobs, double food, double water, double 
                 Math.min(1e9, food + other.food), Math.min(1e9, water + other.water),
                 Math.max(-1e9, Math.min(1e9, happiness + other.happiness)));
     }
+    public Capacity scaled(double raw) {
+        double multiplier=Double.isFinite(raw)?Math.max(1,Math.min(3,raw)):1;
+        return new Capacity((int)Math.min(10000000, Math.floor(housing*multiplier)),
+                (int)Math.min(10000000,Math.floor(jobs*multiplier)), Math.min(1e9,food*multiplier),
+                Math.min(1e9,water*multiplier), happiness>0?happiness*multiplier:happiness);
+    }
     public Capacity times(int count) {
         return new Capacity((int)Math.min(10000000L, (long)housing * count),
                 (int)Math.min(10000000L, (long)jobs * count),

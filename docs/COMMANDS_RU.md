@@ -2,12 +2,14 @@
 
 Изменения 0.7.8: [крыши, права экспедиций, рейды и армия](UPDATE_0.7.8_RU.md).
 
-# Команды NeverLand Towny Suite 0.7.2
+# Команды NeverLand Towny Suite 0.8.0
 
 Основные городские функции вызываются через `/t <модуль>`. Административные команды имеют единый формат `/towny<модуль>`. Лагеря используют `/camp`, потому что могут работать без Towny.
 
 | Модуль | Команды игроков | Администрирование |
 |---|---|---|
+| Районы | `/t district`, `/t district pos1`, `/t district pos2`, `/t district create <id> <тип>`, `/t district claim <id>`, `/t district map` | `/townydistricts reload` |
+| Население | `/t population`, `/t population info`, `/t population buildings` | `/townypopulation reload` |
 | Территории | `/t stick`, `/t stick list`, `/t stick clear`, `/t claim` | `/townystick reload`, `/townystick give <игрок>` |
 | Лагеря | `/camp`, `/camp create`, `/camp spawn`, `/camp trust`, `/camp pack` | `/townycamps edit`, `/townycamps reload`, `/townycamps info <игрок>`, `/townycamps pack <игрок>` |
 | Постройки | `/t builds`, `/t wonders`, `/t inv`, `/t civic`, `/t shop` | `/buildeditor`, `/townybuilds reload`, `/townybuilds stall set\|remove\|list` |
@@ -43,3 +45,5 @@
 Для выбора территории игрок смотрит на нужный блок и поочерёдно выполняет `pos1` и `pos2`, затем `save`. Обе точки и охваченные чанки должны принадлежать городу. Лавка доступна городу после завершения Гильдии торговцев III уровня.
 
 Население города в 0.7.9: [установка, команды и настройки](UPDATE_0.7.9_RU.md).
+
+Районы: [все команды и права](UPDATE_0.8.0_RU.md).

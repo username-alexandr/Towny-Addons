@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ru.neverland"
-version = "0.7.7"
+version = "0.7.8"
 
 repositories {
     mavenCentral()
@@ -41,6 +41,7 @@ tasks {
         options.release.set(17)
     }
     processResources {
+        inputs.property("pluginVersion", project.version)
         filteringCharset = "UTF-8"
         filesMatching("plugin.yml") {
             expand("version" to project.version)
@@ -52,6 +53,7 @@ tasks {
 }
 
 val smokeClasses = listOf(
+    "ru.neverland.townybuilds.BuildingFootprintsSmoke",
     "ru.neverland.townybuilds.MobilizationSmoke",
     "ru.neverland.townybuilds.RoofSupportSmoke",
     "ru.neverland.townybuilds.ProjectIconsSmoke",
@@ -96,3 +98,5 @@ sourceSets.main {
     java.srcDir("../../shared/localization/src/main/java")
     resources.srcDir("../../shared/localization/src/main/resources")
 }
+
+sourceSets.main { java.srcDir("../../shared/districts/src/main/java") }

@@ -87,6 +87,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
     private final MessageService messages;
     private final RussianItemNames itemNames;
     private final Map<UUID, DraftSelection> selections = new HashMap<>();
+    private final ru.neverland.townybuilds.construction.BuildingFootprints footprints = new ru.neverland.townybuilds.construction.BuildingFootprints();
     private BukkitTask automationTask;
     private BukkitTask previewTask;
 
@@ -773,7 +774,8 @@ public final class CivicService implements Listener, TownyBuildsApi {
         int planted = 0;
         int attempts = Math.min(640, 80 * level);
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        int plantingLimit = level * 3 + data.level("world_tree") * 8;
+        int plantingLimit = ru.neverland.integration.DistrictBonuses.output(level * 3 + data.level("world_tree") * 8,
+                ru.neverland.integration.DistrictBonuses.multiplier(data.townId(), "forestry"));
         for (int attempt = 0; attempt < attempts && planted < plantingLimit; attempt++) {
             int x = random.nextInt(area.minX(), area.maxX() + 1);
             int z = random.nextInt(area.minZ(), area.maxZ() + 1);
@@ -831,9 +833,11 @@ public final class CivicService implements Listener, TownyBuildsApi {
         World world = Bukkit.getWorld(area.worldId());
         if (world == null) return;
         int hydrated = 0;
+        int hydrationLimit = ru.neverland.integration.DistrictBonuses.output(level * 32,
+                ru.neverland.integration.DistrictBonuses.multiplier(data.townId(), "irrigation_station"));
         int attempts = Math.min(1000, 140 * level);
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        for (int attempt = 0; attempt < attempts && hydrated < level * 32; attempt++) {
+        for (int attempt = 0; attempt < attempts && hydrated < hydrationLimit; attempt++) {
             int x = random.nextInt(area.minX(), area.maxX() + 1);
             int z = random.nextInt(area.minZ(), area.maxZ() + 1);
             if (!world.isChunkLoaded(Math.floorDiv(x, 16), Math.floorDiv(z, 16))) continue;
@@ -861,7 +865,8 @@ public final class CivicService implements Listener, TownyBuildsApi {
         for (RecycleRecipe recipe : RECIPES) {
             int operations = Math.min(level, countMaterial(inventory, recipe.input) / recipe.inputAmount);
             if (operations <= 0) continue;
-            ItemStack result = new ItemStack(recipe.output, operations * recipe.outputAmount);
+            ItemStack result = new ItemStack(recipe.output, ru.neverland.integration.DistrictBonuses.output(operations * recipe.outputAmount,
+                    ru.neverland.integration.DistrictBonuses.multiplier(data.townId(), "recycling_yard")));
             if (!canFit(inventory, result)) continue;
             removeMaterial(inventory, recipe.input, operations * recipe.inputAmount);
             addMaterial(inventory, result);
@@ -968,33 +973,46 @@ public final class CivicService implements Listener, TownyBuildsApi {
     }
 
     @Override
+    public Map<String,ru.neverland.townybuilds.api.BuildingFootprint> buildingFootprints(UUID townId) {
+        if(townId==null || towny.town(townId)==null)return Map.of();
+        TownData data=dataStore.town(townId);
+        Map<String,ru.neverland.townybuilds.api.BuildingFootprint> result=new HashMap<>();
+        data.constructionSites().forEach((id,site)->footprints.footprint(site,data.level(id)).ifPresent(value->result.put(id,value)));
+        return Map.copyOf(result);
+    }
+
+    private double benefitLevel(TownData data,String project) {
+        return data.level(project)*ru.neverland.integration.DistrictBonuses.multiplier(data.townId(),project);
+    }
+
+    @Override
     public double benefit(UUID townId, CivicBenefit benefit) {
         if (townId == null || benefit == null) return 0;
         TownData data = dataStore.town(townId);
         double value = switch (benefit) {
-            case PUBLICATION_REACH -> 0.12 * data.level("printing_house") + 0.15 * data.level("crystal_palace");
-            case FORESTRY_CAPACITY -> 0.15 * data.level("forestry") + 0.35 * data.level("world_tree");
-            case CUSTOMS_EFFICIENCY -> 0.06 * data.level("customs") + 0.03 * data.level("trade_port")
-                    + 0.20 * data.level("rhodes_colossus");
-            case TRADE_CAPACITY -> 0.10 * data.level("trade_port") + 0.05 * data.level("merchant_guild")
-                    + 0.20 * data.level("rhodes_colossus") + 0.25 * data.level("crystal_palace");
-            case MINT_FEE_REDUCTION -> 0.04 * data.level("mint");
-            case FRAUD_REDUCTION -> 0.08 * data.level("merchant_guild") + 0.15 * data.level("crystal_palace");
-            case TRADE_REPUTATION -> 0.05 * data.level("merchant_guild") + 0.25 * data.level("crystal_palace");
-            case MOUNT_SPEED -> 0.05 * data.level("stables");
-            case FORTIFICATION -> 0.08 * data.level("fortress_wall") + 0.06 * data.level("city_moat")
-                    + 0.08 * data.level("port_fort") + 0.12 * data.level("rhodes_colossus")
-                    + 0.25 * data.level("terracotta_army");
-            case RANGED_TRAINING -> 0.06 * data.level("archery_range") + 0.20 * data.level("terracotta_army");
-            case POPULATION_ACCURACY -> 0.20 * data.level("census_bureau") + 0.20 * data.level("terracotta_army");
-            case INSURANCE_COVERAGE -> 0.10 * data.level("insurance_chamber");
+            case PUBLICATION_REACH -> 0.12 * benefitLevel(data, "printing_house") + 0.15 * benefitLevel(data, "crystal_palace");
+            case FORESTRY_CAPACITY -> 0.15 * benefitLevel(data, "forestry") + 0.35 * benefitLevel(data, "world_tree");
+            case CUSTOMS_EFFICIENCY -> 0.06 * benefitLevel(data, "customs") + 0.03 * benefitLevel(data, "trade_port")
+                    + 0.20 * benefitLevel(data, "rhodes_colossus");
+            case TRADE_CAPACITY -> 0.10 * benefitLevel(data, "trade_port") + 0.05 * benefitLevel(data, "merchant_guild")
+                    + 0.20 * benefitLevel(data, "rhodes_colossus") + 0.25 * benefitLevel(data, "crystal_palace");
+            case MINT_FEE_REDUCTION -> 0.04 * benefitLevel(data, "mint");
+            case FRAUD_REDUCTION -> 0.08 * benefitLevel(data, "merchant_guild") + 0.15 * benefitLevel(data, "crystal_palace");
+            case TRADE_REPUTATION -> 0.05 * benefitLevel(data, "merchant_guild") + 0.25 * benefitLevel(data, "crystal_palace");
+            case MOUNT_SPEED -> 0.05 * benefitLevel(data, "stables");
+            case FORTIFICATION -> 0.08 * benefitLevel(data, "fortress_wall") + 0.06 * benefitLevel(data, "city_moat")
+                    + 0.08 * benefitLevel(data, "port_fort") + 0.12 * benefitLevel(data, "rhodes_colossus")
+                    + 0.25 * benefitLevel(data, "terracotta_army");
+            case RANGED_TRAINING -> 0.06 * benefitLevel(data, "archery_range") + 0.20 * benefitLevel(data, "terracotta_army");
+            case POPULATION_ACCURACY -> 0.20 * benefitLevel(data, "census_bureau") + 0.20 * benefitLevel(data, "terracotta_army");
+            case INSURANCE_COVERAGE -> 0.10 * benefitLevel(data, "insurance_chamber");
             case WATER_PRESSURE -> waterNetworkActive(townId)
-                    ? 0.12 * data.level("pumping_station") + 0.30 * data.level("great_canal") : 0;
+                    ? 0.12 * benefitLevel(data, "pumping_station") + 0.30 * benefitLevel(data, "great_canal") : 0;
             case IRRIGATION_EFFICIENCY -> waterNetworkActive(townId)
-                    ? 0.14 * data.level("irrigation_station") + 0.30 * data.level("great_canal") : 0;
-            case RECYCLING_EFFICIENCY -> 0.12 * data.level("recycling_yard");
-            case FLOOD_REDUCTION -> 0.12 * data.level("dam") + 0.03 * data.level("city_moat")
-                    + 0.35 * data.level("great_canal");
+                    ? 0.14 * benefitLevel(data, "irrigation_station") + 0.30 * benefitLevel(data, "great_canal") : 0;
+            case RECYCLING_EFFICIENCY -> 0.12 * benefitLevel(data, "recycling_yard");
+            case FLOOD_REDUCTION -> 0.12 * benefitLevel(data, "dam") + 0.03 * benefitLevel(data, "city_moat")
+                    + 0.35 * benefitLevel(data, "great_canal");
         };
         return Math.max(0, Math.min(1, value));
     }
