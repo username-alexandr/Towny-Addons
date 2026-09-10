@@ -218,6 +218,7 @@ buildings:
       knowledge: 1
       food: 1
       water: 1
+      influence: 1
     capacity:
       knowledge: 300
     priority: 30
@@ -694,6 +695,7 @@ buildings:
     consumes:
       knowledge: 2
       metal: 1
+      influence: 1
     capacity: {}
     priority: 35
   botanical:
@@ -1118,6 +1120,7 @@ buildings:
     consumes:
       metal: 2
       food: 2
+      influence: 2
     capacity:
       knowledge: 1000
     priority: 30
@@ -1158,6 +1161,7 @@ buildings:
     consumes:
       metal: 2
       materials: 1
+      influence: 3
     capacity:
       knowledge: 1000
     priority: 30
