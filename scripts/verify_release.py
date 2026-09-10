@@ -18,7 +18,7 @@ except ImportError as exc:  # pragma: no cover - explicit environment guidance
 ROOT = Path(__file__).resolve().parents[1]
 LOCALIZATION_MODULES = {
     "NeverLandTownyBuilds", "NeverLandTownyCamps", "NeverLandTownyContracts",
-    "NeverLandTownyEvents", "NeverLandTownyExpeditions", "NeverLandTownyTrade",
+    "NeverLandTownyEvents", "NeverLandTownyExpeditions", "NeverLandTownyTrade", "NeverLandTownyLogistics",
 }
 LOCALIZATION_RESOURCE = "neverland-localization/materials-ru.properties"
 
@@ -169,6 +169,18 @@ def main() -> int:
                 if name in {"NeverLandTownyBuilds", "NeverLandTownyPopulation"}:
                     if "ru/neverland/integration/DistrictBonuses.class" not in archive.namelist():
                         errors.append(f"{jar.name}: missing district integration")
+                if name == "NeverLandTownyBuilds":
+                    for helper in ("api/BuildingStorageApi", "api/CargoShipment", "storage/ShipmentTransactions", "storage/StorageSessions", "storage/ProductionService", "util/AtomicYamlFile"):
+                        if f"ru/neverland/townybuilds/{helper}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing storage/production helper {helper}")
+                    if archive.read("production.yml") != (module / "src/main/resources/production.yml").read_bytes():
+                        errors.append(f"{jar.name}: production.yml differs from sources")
+                if name == "NeverLandTownyLogistics":
+                    for helper in ("NeverLandTownyLogistics", "service/CourierNpcs", "service/LogisticsService", "model/NavigationPolicy", "gui/LogisticsMenu"):
+                        if f"ru/neverland/townylogistics/{helper}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing logistics class {helper}")
+                    if archive.read("config.yml") != (module / "src/main/resources/config.yml").read_bytes():
+                        errors.append(f"{jar.name}: config.yml differs from sources")
                 if name == "NeverLandTownyDistricts":
                     for resource in ("config.yml", "projects.yml"):
                         if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
@@ -215,6 +227,17 @@ def main() -> int:
     }
     if len(configured_ids) != 80 or set(projects["wonders"]) != expected_wonders:
         errors.append("NeverLandTownyBuilds must contain 80 buildings and the 11 expected wonders")
+    logistics = load_yaml(modules_dir / "NeverLandTownyLogistics/src/main/resources/config.yml")
+    if set(logistics.get("hubs", [])) != {"warehouse", "cargo_terminal", "caravanserai", "trade_port"}:
+        errors.append("Logistics must support the four dispatch buildings")
+    if set(map(str, logistics.get("levels", {}))) != {"1", "2", "3", "4", "5"}:
+        errors.append("Logistics must configure all five building levels")
+    production = load_yaml(builds / "src/main/resources/production.yml")
+    if {recipe.get("building") for recipe in production.get("recipes", {}).values()} != {"sawmill", "quarry", "apiary", "water_tower", "bakery"}:
+        errors.append("Production profiles must cover the five initial producers")
+    water = production.get("recipes", {}).get("water_tower_buckets", {})
+    if water.get("input") != {"BUCKET": 1} or water.get("output") != {"WATER_BUCKET": 1} or water.get("district-bonus") is not False:
+        errors.append("Water production must preserve one empty bucket per filled bucket")
     population = load_yaml(modules_dir / "NeverLandTownyPopulation/src/main/resources/buildings.yml")
     profiles = population.get("buildings", {})
     if set(profiles) != configured_ids | expected_wonders:

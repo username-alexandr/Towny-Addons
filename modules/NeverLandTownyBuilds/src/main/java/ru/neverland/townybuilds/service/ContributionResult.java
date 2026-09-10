@@ -18,6 +18,7 @@ public record ContributionResult(Status status, int totalItems, List<String> det
         MAX_LEVEL,
         NOTHING_NEEDED,
         NOTHING_MATCHED,
+        STORAGE_BUSY,
         INVENTORY_SYNC_FAILED
     }
 }

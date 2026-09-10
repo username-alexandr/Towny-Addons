@@ -33,6 +33,9 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
     private RussianItemNames itemNames;
     private ConstructionService construction;
     private CivicService civic;
+    private ru.neverland.townybuilds.storage.ProductionService production;
+    private ru.neverland.townybuilds.storage.BuildingStorageService storage;
+    public ru.neverland.townybuilds.storage.BuildingStorageService storage(){return storage;}
     private ru.neverland.townybuilds.army.ArmyService army;
 
     @Override
@@ -41,6 +44,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         copyResource("messages.yml");
         copyResource("projects.yml");
         copyResource("item-names.yml");
+        copyResource("production.yml");
 
         messages = new MessageService(this);
         TownyHook towny = new TownyHook();
@@ -50,6 +54,8 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         int storageSize = normalizedStorageSize(getConfig().getInt("settings.storage.size", 54));
         dataStore = new DataStore(this, storageSize);
         dataStore.load();
+        storage = new ru.neverland.townybuilds.storage.BuildingStorageService(this,dataStore,definitions);
+        storage.start();
         BuildService builds = new BuildService(this, towny, dataStore, messages, new ArchaeologyBridge(this), itemNames, definitions);
         construction = new ConstructionService(this, towny, dataStore, messages, itemNames,
                 new BuildingBlueprintGenerator(), builds::completeConstruction);
@@ -83,6 +89,8 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         effects.start();
         construction.start();
         civic.start();
+        if(production==null)production=new ru.neverland.townybuilds.storage.ProductionService(this,dataStore,storage);
+        production.start();
         long autosave = Math.max(20L, getConfig().getLong("settings.storage.autosave-seconds", 60L) * 20L);
         getServer().getScheduler().runTaskTimer(this, dataStore::saveIfDirty, autosave, autosave);
         getLogger().info("NeverLandTownyBuilds " + getPluginMeta().getVersion()
@@ -95,6 +103,8 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         if (construction != null) construction.stop();
         if (civic != null) civic.stop();
         if (army != null) army.stop();
+        if (production != null) production.stop();
+        if (storage != null) storage.stop();
         if (dataStore != null) dataStore.save();
         TownyHook towny = new TownyHook();
         for (String command : TOWN_COMMANDS) towny.unregisterTownCommand(command);
@@ -109,6 +119,8 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         effects.start();
         construction.start();
         civic.start();
+        if(production==null)production=new ru.neverland.townybuilds.storage.ProductionService(this,dataStore,storage);
+        production.start();
     }
 
     private void registerTownCommands(TownyHook towny, MenuManager menus) {

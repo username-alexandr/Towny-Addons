@@ -2,12 +2,13 @@
 
 Изменения 0.7.8: [крыши, права экспедиций, рейды и армия](UPDATE_0.7.8_RU.md).
 
-# Команды NeverLand Towny Suite 0.8.0
+# Команды NeverLand Towny Suite 0.9.0
 
 Основные городские функции вызываются через `/t <модуль>`. Административные команды имеют единый формат `/towny<модуль>`. Лагеря используют `/camp`, потому что могут работать без Towny.
 
 | Модуль | Команды игроков | Администрирование |
 |---|---|---|
+| Логистика | `/t logistics`, `/t logistics node`, `/t logistics link`, `/t logistics route`, `/t logistics storage <здание>` | `/townylogistics reload`, `/townylogistics recover <город UUID> <груз UUID>` |
 | Районы | `/t district`, `/t district pos1`, `/t district pos2`, `/t district create <id> <тип>`, `/t district claim <id>`, `/t district map` | `/townydistricts reload` |
 | Население | `/t population`, `/t population info`, `/t population buildings` | `/townypopulation reload` |
 | Территории | `/t stick`, `/t stick list`, `/t stick clear`, `/t claim` | `/townystick reload`, `/townystick give <игрок>` |
@@ -47,3 +48,5 @@
 Население города в 0.7.9: [установка, команды и настройки](UPDATE_0.7.9_RU.md).
 
 Районы: [все команды и права](UPDATE_0.8.0_RU.md).
+
+NPC-курьеры: [полные команды, маршруты и производство](UPDATE_0.9.0_RU.md).

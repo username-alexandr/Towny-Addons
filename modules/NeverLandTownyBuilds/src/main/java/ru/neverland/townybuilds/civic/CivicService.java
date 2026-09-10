@@ -62,7 +62,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public final class CivicService implements Listener, TownyBuildsApi {
     private static final Set<String> AREA_PROJECTS = CivicBlueprintGenerator.AREA_PROJECTS;
     private static final Set<String> LINE_PROJECTS = CivicBlueprintGenerator.LINE_PROJECTS;
-    private static final Set<String> STORAGE_PROJECTS = Set.of("forestry", "merchant_guild", "recycling_yard");
+    private static final Set<String> STORAGE_PROJECTS = new ru.neverland.townybuilds.construction.BuildingBlueprintGenerator().supportedProjects();
     private static final Set<Material> SAPLINGS = Set.of(
             Material.OAK_SAPLING, Material.BIRCH_SAPLING, Material.SPRUCE_SAPLING,
             Material.JUNGLE_SAPLING, Material.ACACIA_SAPLING, Material.DARK_OAK_SAPLING,
@@ -320,24 +320,8 @@ public final class CivicService implements Listener, TownyBuildsApi {
     }
 
     private void openStorage(Player player, String[] args) {
-        if (args.length < 2) {
-            messages.send(player, "civic-storage-help");
-            return;
-        }
-        Town town = requireTown(player);
-        if (town == null) return;
-        String projectId = projectId(args[1]);
-        TownData data = dataStore.town(town.getUUID());
-        if (!STORAGE_PROJECTS.contains(projectId) || !requireProject(player, data, projectId)) {
-            if (!STORAGE_PROJECTS.contains(projectId)) messages.send(player, "civic-storage-help");
-            return;
-        }
-        int size = inventorySize(projectId, data.level(projectId));
-        Inventory inventory = Bukkit.createInventory(new CivicStorageHolder(town.getUUID(), projectId,
-                        towny.isMayor(player, town)), size,
-                ColorUtil.component("&#63E6BE" + projectName(projectId) + " &8• &fСклад"));
-        inventory.setContents(data.civicInventory(projectId, size));
-        player.openInventory(inventory);
+        if(args.length<2){player.sendMessage("/t civic storage <здание>");return;}
+        ((ru.neverland.townybuilds.NeverLandTownyBuilds)plugin).storage().openStorage(player,projectId(args[1]));
     }
 
     private int inventorySize(String projectId, int level) {
@@ -421,12 +405,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
     }
 
     private void openCivicStorage(Player player, Town town, TownData data, String projectId) {
-        int size = inventorySize(projectId, data.level(projectId));
-        Inventory inventory = Bukkit.createInventory(new CivicStorageHolder(town.getUUID(), projectId,
-                        towny.isMayor(player, town)), size,
-                ColorUtil.component("&#FFD45BГильдия торговцев &8• &fТовары"));
-        inventory.setContents(data.civicInventory(projectId, size));
-        player.openInventory(inventory);
+        ((ru.neverland.townybuilds.NeverLandTownyBuilds)plugin).storage().openStorage(player,projectId);
     }
 
     private void claimShop(Player player, Town town, TownData data, String[] args) {
@@ -616,6 +595,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
     }
 
     private void buy(Player player, UUID sellerTownId, Material material, boolean stack) {
+        if(dataStore.storageBusy(sellerTownId,"merchant_guild")){player.sendMessage("Склад гильдии открыт; покупка временно недоступна.");return;}
         TownData sellerData = dataStore.town(sellerTownId);
         Town seller = towny.town(sellerTownId);
         Resident buyer = towny.resident(player);
@@ -766,6 +746,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
     }
 
     private void runForestry(Town town, TownData data) {
+        if(dataStore.storageBusy(data.townId(),"forestry")||dataStore.storageBusy(data.townId(),"warehouse"))return;
         int level = data.level("forestry");
         CivicArea area = data.civicArea("forestry");
         if (level <= 0 || area == null) return;
@@ -809,6 +790,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
             data.setCivicInventory("forestry", forestry);
             return found;
         }
+        if(Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyLogistics"))return null;
         ItemStack[] city = data.storage();
         found = takeFirst(city, SAPLINGS);
         if (found != null) data.setStorage(city, plugin.getConfig().getInt("settings.storage.size", 54));
@@ -858,6 +840,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
     }
 
     private void runRecycling(TownData data) {
+        if(dataStore.storageBusy(data.townId(),"recycling_yard"))return;
         int level = data.level("recycling_yard");
         if (level <= 0) return;
         ItemStack[] inventory = data.civicInventory("recycling_yard", 54);

@@ -11,6 +11,10 @@ import java.util.UUID;
 
 public final class TownData {
     private final UUID townId;
+    private final Map<UUID,ru.neverland.townybuilds.api.CargoShipment> shipments = new HashMap<>();
+    public Map<UUID,ru.neverland.townybuilds.api.CargoShipment> shipments(){return Map.copyOf(shipments);}
+    public void putShipment(ru.neverland.townybuilds.api.CargoShipment value){shipments.put(value.id(),value);}
+    public void removeShipment(UUID id){shipments.remove(id);}
     private final Map<String, Integer> levels = new HashMap<>();
     private final Map<String, ConstructionSite> constructionSites = new HashMap<>();
     private final Map<String, ResourceFund> resourceFunds = new HashMap<>();
@@ -144,6 +148,11 @@ public final class TownData {
     public void loadCivicLines(Map<String, CivicLine> loaded) {
         civicLines.clear();
         civicLines.putAll(loaded);
+    }
+
+    public int civicOccupiedSlots(String projectId) {
+        var items=civicInventories.get(projectId);if(items==null)return 0;
+        for(int i=items.length-1;i>=0;i--)if(items[i]!=null&&!items[i].getType().isAir()&&items[i].getAmount()>0)return i+1;return 0;
     }
 
     public ItemStack[] civicInventory(String projectId, int size) {

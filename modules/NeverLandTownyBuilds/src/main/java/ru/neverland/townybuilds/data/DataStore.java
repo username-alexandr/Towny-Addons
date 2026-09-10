@@ -23,6 +23,13 @@ public final class DataStore {
     private final int storageSize;
     private final Map<UUID, TownData> towns = new LinkedHashMap<>();
     private boolean dirty;
+    private boolean writable = true;
+    private final ru.neverland.townybuilds.storage.StorageSessions storageLocks=new ru.neverland.townybuilds.storage.StorageSessions();
+    public synchronized boolean storageBusy(UUID town,String project){return storageLocks.busy(town,project);}
+    public synchronized boolean lockStorage(UUID town,String project,UUID session){return storageLocks.acquire(town,project,session);}
+    public synchronized boolean ownsStorage(UUID town,String project,UUID session){return storageLocks.owns(town,project,session);}
+    public synchronized void unlockStorage(UUID town,String project,UUID session){storageLocks.release(town,project,session);}
+
 
     public DataStore(JavaPlugin plugin, int storageSize) {
         this.plugin = plugin;
@@ -31,20 +38,25 @@ public final class DataStore {
     }
 
     public synchronized void load() {
+        writable = false;
         towns.clear();
         if (!file.exists()) {
+            writable = true;
             return;
         }
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
+        YamlConfiguration yaml = new YamlConfiguration();
+        try { yaml.load(file); } catch (Exception ex) { throw new IllegalStateException("town-data.yml повреждён; запись отключена", ex); }
         ConfigurationSection root = yaml.getConfigurationSection("towns");
         if (root == null) {
-            return;
+            if (!yaml.getKeys(false).isEmpty()) throw new IllegalStateException("В базе нет раздела towns; запись отключена");
+            writable = true; return;
         }
         for (String rawId : root.getKeys(false)) {
             try {
                 UUID townId = UUID.fromString(rawId);
                 TownData data = new TownData(townId, storageSize);
                 ConfigurationSection section = root.getConfigurationSection(rawId);
+                if(section==null)throw new IOException("Повреждена запись города");
                 Map<String, Integer> levels = new HashMap<>();
                 ConfigurationSection levelSection = section == null ? null : section.getConfigurationSection("levels");
                 if (levelSection != null) {
@@ -100,12 +112,14 @@ public final class DataStore {
                     ItemStack[] contents = ItemCodec.decode(section.getString("inventory"), storageSize);
                     data.setStorage(contents, storageSize);
                     loadCivicData(section, data);
+                    loadShipments(section, data);
                 }
                 towns.put(townId, data);
             } catch (IllegalArgumentException | IOException | ClassNotFoundException exception) {
-                plugin.getLogger().warning("Пропущены повреждённые данные города " + rawId + ": " + exception.getMessage());
+                throw new IllegalStateException("Повреждены данные города " + rawId + "; запись отключена", exception);
             }
         }
+        writable = true;
         dirty = false;
     }
 
@@ -131,6 +145,12 @@ public final class DataStore {
     }
 
     public synchronized void save() {
+        if (!writable) return;
+        try { saveOrThrow(); } catch (IOException ex) { plugin.getLogger().severe("Не удалось сохранить town-data.yml: " + ex.getMessage()); }
+    }
+
+    public synchronized void saveOrThrow() throws IOException {
+        if (!writable) throw new IOException("Запись повреждённой базы запрещена");
         YamlConfiguration yaml = new YamlConfiguration();
         for (TownData data : towns.values()) {
             String path = "towns." + data.townId();
@@ -161,9 +181,7 @@ public final class DataStore {
                         yaml.set(root + ".entries." + index + ".amount", entry.amount());
                         index++;
                     } catch (IOException exception) {
-                        plugin.getLogger().severe("Не удалось сериализовать фонд проекта " + fundEntry.getKey()
-                                + " города " + data.townId() + ": " + exception.getMessage());
-                        return;
+                        throw new IOException("Не удалось сериализовать фонд " + fundEntry.getKey(), exception);
                     }
                 }
             }
@@ -173,8 +191,13 @@ public final class DataStore {
                     yaml.set(path + ".civic-inventories." + inventory.getKey(), ItemCodec.encode(inventory.getValue()));
                 }
             } catch (IOException exception) {
-                plugin.getLogger().severe("Не удалось сериализовать склад города " + data.townId() + ": " + exception.getMessage());
-                return;
+                throw new IOException("Не удалось сериализовать склад " + data.townId(), exception);
+            }
+            for (var shipment : data.shipments().values()) {
+                String cargoPath = path + ".shipments." + shipment.id();
+                yaml.set(cargoPath + ".route", shipment.route());yaml.set(cargoPath + ".source", shipment.source());
+                yaml.set(cargoPath + ".target", shipment.target());yaml.set(cargoPath + ".status", shipment.status());
+                yaml.set(cargoPath + ".created", shipment.createdAt());yaml.set(cargoPath + ".cargo", ItemCodec.encode(shipment.cargo()));
             }
             for (Map.Entry<String, CivicArea> areaEntry : data.civicAreas().entrySet()) {
                 CivicArea area = areaEntry.getValue();
@@ -203,11 +226,16 @@ public final class DataStore {
             yaml.set(path + ".insurance-reserve", data.insuranceReserve() <= 0 ? null : data.insuranceReserve());
             yaml.set(path + ".bulletin", data.bulletin().isBlank() ? null : data.bulletin());
         }
-        try {
-            yaml.save(file);
-            dirty = false;
-        } catch (IOException exception) {
-            plugin.getLogger().severe("Не удалось сохранить town-data.yml: " + exception.getMessage());
+        ru.neverland.townybuilds.util.AtomicYamlFile.write(yaml,file.toPath());
+        dirty=false;
+    }
+
+    private void loadShipments(ConfigurationSection section,TownData data)throws IOException,ClassNotFoundException {
+        var root=section.getConfigurationSection("shipments");if(root==null){if(section.contains("shipments"))throw new IOException("Повреждён журнал грузов");return;}
+        for(String id:root.getKeys(false)){
+            var c=root.getConfigurationSection(id);if(c==null)throw new IOException("Повреждён груз");
+            data.putShipment(new ru.neverland.townybuilds.api.CargoShipment(UUID.fromString(id),c.getString("route"),c.getString("source"),c.getString("target"),
+                    ItemCodec.decode(c.getString("cargo"),0),c.getString("status"),c.getLong("created")));
         }
     }
 
