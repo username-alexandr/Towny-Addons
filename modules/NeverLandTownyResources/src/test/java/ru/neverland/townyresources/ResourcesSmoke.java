@@ -90,6 +90,7 @@ public final class ResourcesSmoke {
         var inactive=ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,1,true,false)),0,config,100);check(inactive.state().balances().equals(initial.balances()),"inactive production has no output and no inputs");check(inactive.activity().get("producer").status().contains("НЕАКТИВНО"),"inactive status shown in resource menu");
         var unpowered=ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,1,true,false,"Не хватает энергии: /t power")),0,config,100);check(unpowered.state().balances().equals(initial.balances())&&unpowered.activity().get("producer").status().contains("Не хватает энергии"),"power shortage preserves stock and reports its actual cause");
         var inactiveWarehouse=ResourceEngine.calculate(TownState.initial(defaults.initial()),Map.of("warehouse",new ResourceEngine.Building(5,1,true,false)),0,defaults,100);check(inactiveWarehouse.capacity().equals(defaults.baseCapacity()),"inactive warehouse removes strategic capacity bonus");
+        ProductionHistorySmoke.run();
         System.out.println("ResourcesSmoke OK: eight resources, 101 profiles, 1000 city cycles, conservation, reserves, priorities, shortages, capacity, district fractions durable restart and upkeep escrow");
     }
 }

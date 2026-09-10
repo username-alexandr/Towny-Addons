@@ -126,6 +126,13 @@ def main() -> int:
         except Exception as exc:  # noqa: BLE001
             errors.append(f"invalid YAML {yaml_path.relative_to(ROOT)}: {exc}")
 
+    treasury_config = load_yaml(modules_dir / "NeverLandTownyTreasuryPlus/src/main/resources/config.yml")
+    if set(treasury_config["income-shares"]) != {"construction", "army", "infrastructure", "social", "free"} or sum(treasury_config["income-shares"].values()) != 100:
+        errors.append("Treasury: invalid budget allocation")
+    upkeep_projects = load_yaml(modules_dir / "NeverLandTownyUpkeep/src/main/resources/buildings.yml")["buildings"]
+    if set(treasury_config["upkeep-categories"]) != set(upkeep_projects):
+        errors.append("Treasury: upkeep category coverage differs from projects")
+
     source_metadata: dict[str, dict] = {}
     for name, raw_version in addons.items():
         version = str(raw_version)
@@ -160,6 +167,20 @@ def main() -> int:
                 jar_meta = yaml.safe_load(archive.read("plugin.yml").decode("utf-8"))
                 if jar_meta.get("name") != name or str(jar_meta.get("version")) != version:
                     errors.append(f"{jar.name}: plugin.yml identity/version mismatch")
+                if name in {"NeverLandTowny" + suffix for suffix in ("Builds", "Upkeep", "Trade", "Contracts", "Ideologies", "Espionage", "TreasuryPlus")}:
+                    if "ru/neverland/integration/TreasuryAccess.class" not in archive.namelist():
+                        errors.append(f"{jar.name}: missing treasury integration")
+                if name == "NeverLandTownyTreasuryPlus":
+                    for cls in ("NeverLandTownyTreasuryPlus", "api/TownyTreasuryApi", "model/BudgetDebit", "data/TreasuryRepository", "gui/TreasuryMenu", "service/TreasuryService", "service/ReportExporter"):
+                        if f"ru/neverland/townytreasury/{cls}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing treasury class {cls}")
+                    for resource in ("config.yml", "plugin.yml"):
+                        if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
+                            errors.append(f"{jar.name}: outdated treasury resource {resource}")
+                    if any(path.endswith(("TreasurySmoke.class", "DebitSmoke.class")) for path in archive.namelist()):
+                        errors.append(f"{jar.name}: treasury test code leaked")
+                if name == "NeverLandTownyResources" and "ru/neverland/townyresources/model/ProductionHistory.class" not in archive.namelist():
+                    errors.append(f"{jar.name}: missing production report history")
                 if name in LOCALIZATION_MODULES:
                     if archive.read(LOCALIZATION_RESOURCE) != dictionary_bytes:
                         errors.append(f"{jar.name}: bundled Russian dictionary differs from sources")

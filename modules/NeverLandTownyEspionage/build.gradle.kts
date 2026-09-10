@@ -3,7 +3,7 @@ import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 
 group = "ru.neverland"
-version = "0.1.3"
+version = "0.1.4"
 
 repositories {
     mavenCentral()
@@ -30,3 +30,5 @@ tasks {
     processResources { filteringCharset = "UTF-8" }
     jar { archiveBaseName.set("NeverLandTownyEspionage") }
 }
+
+sourceSets.main { java.srcDir("../../shared/treasury/src/main/java") }

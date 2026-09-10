@@ -3,7 +3,7 @@ import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 
 group = "ru.neverland"
-version = "0.1.9"
+version = "0.1.10"
 
 repositories {
     mavenCentral()
@@ -41,3 +41,5 @@ sourceSets.main { java.srcDir("../../shared/research/src/main/java") }
 sourceSets.main { java.srcDir("../../shared/specialization/src/main/java") }
 
 sourceSets.main { java.srcDir("../../shared/policies/src/main/java") }
+
+sourceSets.main { java.srcDir("../../shared/treasury/src/main/java") }

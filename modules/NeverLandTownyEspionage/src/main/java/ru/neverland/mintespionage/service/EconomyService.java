@@ -17,7 +17,7 @@ public final class EconomyService {
     }
     public boolean withdrawUpgrade(Town town,double amount,boolean network){return withdraw(town,amount,plugin.getConfig().getString(network?"economy.network-upgrade-reason":"economy.defense-upgrade-reason","Развитие разведки"));}
     public boolean withdraw(Town town,double amount,String reason){
-        if(amount<=0)return true;try{return town!=null&&town.getAccount().canPayFromHoldings(amount)&&town.getAccount().withdraw(amount,ColorUtil.strip(reason));}catch(RuntimeException exception){return false;}
+        if(amount<=0)return true;try{return town!=null&&ru.neverland.integration.TreasuryAccess.canSpend(town,"army",amount)&&ru.neverland.integration.TreasuryAccess.withdraw(town,"army","espionage",amount,ColorUtil.strip(reason));}catch(RuntimeException exception){return false;}
     }
     public String format(double value){return format.format(value);}
 }

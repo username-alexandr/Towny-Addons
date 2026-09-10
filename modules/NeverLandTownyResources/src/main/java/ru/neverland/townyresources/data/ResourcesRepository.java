@@ -14,6 +14,8 @@ public final class ResourcesRepository {
     private Map<UUID,TownState> states=Map.of();
     private Map<UUID,Reservation> reservations=Map.of();
     private boolean writable;
+    private Map<UUID,Map<String,Map<String,Long>>> production=Map.of();
+    public Map<String,Map<String,Long>> productionWeeks(UUID town){return production.getOrDefault(town,Map.of());}
     public Map<UUID,Reservation> reservations(){return reservations;}
     public ResourcesRepository(Path file) { this.file=file; }
     public Map<UUID,TownState> states() { return states; }
@@ -25,7 +27,7 @@ public final class ResourcesRepository {
         if(!Files.exists(file)){states=Map.of();writable=true;return;}
         var y=new YamlConfiguration();y.load(file.toFile());
         long schema=number(y,"schema");
-        if((schema!=1&&schema!=2)||!y.isConfigurationSection("towns"))throw new IOException("Неверная схема resources-data.yml");
+        if((schema!=1&&schema!=2&&schema!=3)||!y.isConfigurationSection("towns"))throw new IOException("Неверная схема resources-data.yml");
         Map<UUID,TownState> next=new HashMap<>();var towns=y.getConfigurationSection("towns");
         for(String id:towns.getKeys(false)){
             var p=towns.getConfigurationSection(id);if(p==null)throw new IOException("Неверная запись города");
@@ -37,11 +39,13 @@ public final class ResourcesRepository {
             next.put(UUID.fromString(id),state);
         }
         Map<UUID,Reservation> held=new HashMap<>();
-        if(schema==2){var root=y.getConfigurationSection("reservations");if(root==null)throw new IOException("Отсутствует журнал резервирования");
+        if(schema>=2){var root=y.getConfigurationSection("reservations");if(root==null)throw new IOException("Отсутствует журнал резервирования");
             for(String id:root.getKeys(false)){var v=root.getConfigurationSection(id);if(v==null)throw new IOException("Неверный резерв");
                 var receipt=new Reservation(UUID.fromString(v.getString("town")),amounts(v,"amounts"),Reservation.Status.valueOf(v.getString("status")));
                 if(receipt.status()==Reservation.Status.HELD&&!next.containsKey(receipt.town()))throw new IOException("Резерв без города");held.put(UUID.fromString(id),receipt);}}
-        validateHeadroom(next,held);states=Map.copyOf(next);reservations=Map.copyOf(held);writable=true;
+        Map<UUID,Map<String,Map<String,Long>>> history=new HashMap<>();
+        if(schema==3){var root=y.getConfigurationSection("production");if(root==null)throw new IOException("Отсутствует история производства");for(String id:root.getKeys(false)){var section=root.getConfigurationSection(id);if(section==null)throw new IOException("Неверная история города");Map<String,Map<String,Long>> weeks=new HashMap<>();for(String week:section.getKeys(false)){var row=section.getConfigurationSection(week);if(row==null)throw new IOException("Неверная неделя");var values=new HashMap<String,Long>();for(String key:row.getKeys(false))values.put(key,number(row,key));weeks.put(week,values);}history.put(UUID.fromString(id),weeks);}}
+        history=ProductionHistory.copy(history);validateHeadroom(next,held);states=Map.copyOf(next);reservations=Map.copyOf(held);production=history;writable=true;
     }
     private static long number(ConfigurationSection p,String key)throws IOException{
         try{return new java.math.BigDecimal(String.valueOf(p.get(key))).longValueExact();}catch(Exception ex){throw new IOException("Некорректное целое число: "+key,ex);}
@@ -53,11 +57,13 @@ public final class ResourcesRepository {
         var section=p.getConfigurationSection(key);if(section==null||section.getKeys(false).size()!=8)throw new IOException("Неполный список ресурсов: "+key);
         Map<Resource,Long> result=new EnumMap<>(Resource.class);for(var r:Resource.values())result.put(r,number(section,r.id()));return key.equals("income")||key.equals("expense")?Amounts.flows(result):Amounts.copy(result);
     }
-    public void replace(Map<UUID,TownState> next)throws IOException {
+    public void replace(Map<UUID,TownState> next)throws IOException { replace(next,false); }
+    public void replaceCycle(Map<UUID,TownState> next)throws IOException { replace(next,true); }
+    private void replace(Map<UUID,TownState> next,boolean cycle)throws IOException {
         if(!writable)throw new IOException("Запись запрещена до успешной загрузки базы");
         var copy=new HashMap<>(next);
         for(var receipt:reservations.values())if(receipt.status()==Reservation.Status.HELD)copy.putIfAbsent(receipt.town(),states.get(receipt.town()));
-        write(copy,reservations);
+        write(copy,reservations,cycle);
     }
     /** Balance and receipt are one atomic file replacement. Retries do not debit twice. */
     public boolean reserve(UUID id,UUID town,Map<Resource,Long> amounts,Map<Resource,Long> keep)throws IOException{
@@ -86,10 +92,13 @@ public final class ResourcesRepository {
         for(var receipt:receipts.values())if(receipt.status()==Reservation.Status.HELD){var sum=total.computeIfAbsent(receipt.town(),id->Amounts.mutable(Map.of()));for(var r:Resource.values())sum.put(r,Math.addExact(sum.get(r),receipt.amounts().get(r)));}
         for(var e:total.entrySet()){var state=states.get(e.getKey());if(state==null)throw new IOException("Резерв без города");for(var r:Resource.values())if(e.getValue().get(r)>Amounts.MAX-state.balances().get(r))throw new IOException("Запас вместе с резервом превышает числовой предел");}
     }
-    private void write(Map<UUID,TownState> next,Map<UUID,Reservation> receipts)throws IOException{
+    private void write(Map<UUID,TownState> next,Map<UUID,Reservation> receipts)throws IOException{write(next,receipts,false);}
+    private void write(Map<UUID,TownState> next,Map<UUID,Reservation> receipts,boolean cycle)throws IOException{
         if(!writable)throw new IOException("Запись запрещена до успешной загрузки базы");
         validateHeadroom(next,receipts);next=Map.copyOf(next);receipts=Map.copyOf(receipts);if(next.equals(states)&&receipts.equals(reservations))return;
-        var y=new YamlConfiguration();y.set("schema",2);y.createSection("towns");y.createSection("reservations");
+        var history=ProductionHistory.advance(production,states,next,reservations,receipts,System.currentTimeMillis(),cycle);
+        var y=new YamlConfiguration();y.set("schema",3);y.createSection("towns");y.createSection("reservations");y.createSection("production");
+        for(var city:history.entrySet()){y.createSection("production."+city.getKey());for(var week:city.getValue().entrySet())y.createSection("production."+city.getKey()+"."+week.getKey(),week.getValue());}
         for(var entry:receipts.entrySet()){String k="reservations."+entry.getKey()+".";var receipt=entry.getValue();y.set(k+"town",receipt.town().toString());y.set(k+"status",receipt.status().name());put(y,k+"amounts",receipt.amounts());}
         for(var entry:next.entrySet()){
             String k="towns."+entry.getKey()+".";var s=entry.getValue();
@@ -101,7 +110,7 @@ public final class ResourcesRepository {
             byte[] bytes=y.saveToString().getBytes(StandardCharsets.UTF_8);
             try(var channel=FileChannel.open(tmp,StandardOpenOption.WRITE,StandardOpenOption.TRUNCATE_EXISTING)){var buffer=ByteBuffer.wrap(bytes);while(buffer.hasRemaining())channel.write(buffer);channel.force(true);}
             try{Files.move(tmp,file,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);}catch(AtomicMoveNotSupportedException ex){Files.move(tmp,file,StandardCopyOption.REPLACE_EXISTING);}
-            states=next;reservations=receipts;
+            states=next;reservations=receipts;production=history;
         }finally{Files.deleteIfExists(tmp);}
     }
     private static void put(YamlConfiguration y,String key,Map<Resource,Long> values){y.createSection(key);values.forEach((r,n)->y.set(key+"."+r.id(),n));}

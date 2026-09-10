@@ -3,7 +3,7 @@ import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 
 group = "ru.neverland"
-version = "0.1.4"
+version = "0.1.5"
 
 repositories {
     mavenCentral()

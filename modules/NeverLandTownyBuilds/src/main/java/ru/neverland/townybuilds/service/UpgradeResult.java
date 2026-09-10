@@ -16,6 +16,7 @@ public record UpgradeResult(Status status, double requiredMoney, List<String> mi
         NOT_MAYOR,
         MAX_LEVEL,
         NOT_ENOUGH_MONEY,
+        BUDGET_UNAVAILABLE,
         NOT_ENOUGH_RESOURCES,
         NOT_ENOUGH_ARTIFACTS,
         PREREQUISITES_NOT_MET,

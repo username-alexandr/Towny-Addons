@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ru.neverland"
-version = "0.1.3"
+version = "0.1.4"
 
 repositories {
     mavenCentral()
@@ -48,3 +48,5 @@ tasks {
         archiveBaseName.set("NeverLandTownyIdeologies")
     }
 }
+
+sourceSets.main { java.srcDir("../../shared/treasury/src/main/java") }

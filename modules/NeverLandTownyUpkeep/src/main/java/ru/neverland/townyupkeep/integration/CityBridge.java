@@ -35,6 +35,7 @@ public final class CityBridge implements Gateway {
         if(!consume&&status.equals("NONE"))return;resource("settleResources",new Class<?>[]{UUID.class,boolean.class},id,consume);
     }
     @Override public boolean canPay(UUID id,long cents){Town town=TownyAPI.getInstance().getTown(id);return town!=null&&TownyEconomyHandler.isActive()&&town.getAccount().canPayFromHoldings(cents/100.0);}
-    @Override public boolean withdraw(UUID id,long cents,UUID invoice){Town town=TownyAPI.getInstance().getTown(id);return town!=null&&TownyEconomyHandler.isActive()&&town.getAccount().withdraw(cents/100.0,"NeverLand Upkeep "+invoice);}
+    @Override public boolean withdraw(UUID id,long cents,UUID invoice){Town town=TownyAPI.getInstance().getTown(id);return town!=null&&TownyEconomyHandler.isActive()&&ru.neverland.integration.TreasuryAccess.withdraw(town,"infrastructure","upkeep",cents/100.0,"NeverLand Upkeep "+invoice);}
+    @Override public boolean withdraw(UUID id,long cents,UUID invoice,String project){Town town=TownyAPI.getInstance().getTown(id);return town!=null&&TownyEconomyHandler.isActive()&&ru.neverland.integration.TreasuryAccess.withdraw(town,"project/"+project,"upkeep",cents/100.0,"NeverLand Upkeep "+invoice);}
     @Override public void forget(UUID id)throws Exception{resource("forgetReservation",new Class<?>[]{UUID.class},id);}
 }

@@ -9,6 +9,7 @@ public final class PaymentProcessor {
         void settle(UUID id,boolean consume)throws Exception;
         boolean canPay(UUID town,long cents)throws Exception;
         boolean withdraw(UUID town,long cents,UUID invoice)throws Exception;
+        default boolean withdraw(UUID town,long cents,UUID invoice,String project)throws Exception{return withdraw(town,cents,invoice);}
         void forget(UUID id)throws Exception;
     }
     private final Store store;private final Gateway gateway;
@@ -24,8 +25,8 @@ public final class PaymentProcessor {
                 if(!gateway.canPay(key.town(),bill.cost().money())){cancel(key,"Не хватает денег или экономика недоступна");}
                 else {
                     store.put(key,entry.phase(Phase.MONEY_PENDING));
-                    boolean paid=gateway.withdraw(key.town(),bill.cost().money(),bill.id());
-                    if(paid)store.put(key,store.get(key).phase(Phase.MONEY_PAID));else cancel(key,"Казна не оплатила содержание");
+                    boolean paid=gateway.withdraw(key.town(),bill.cost().money(),bill.id(),key.project());
+                    if(paid)store.put(key,store.get(key).phase(Phase.MONEY_PAID));else cancel(key,"Казна или статья бюджета не оплатила содержание");
                 }
             }else store.put(key,entry.phase(Phase.MONEY_PAID));
         }

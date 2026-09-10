@@ -58,8 +58,8 @@ public final class EconomyService {
 
     private Result withdrawTown(Town town, double amount, String reason) {
         if (town == null || town.getAccount() == null) return Result.ERROR;
-        if (!town.getAccount().canPayFromHoldings(amount)) return Result.INSUFFICIENT;
-        return town.getAccount().withdraw(amount, reason) ? Result.SUCCESS : Result.ERROR;
+        if (!ru.neverland.integration.TreasuryAccess.canSpend(town,"social",amount)) return Result.INSUFFICIENT;
+        return ru.neverland.integration.TreasuryAccess.withdraw(town,"social","ideology",amount,reason) ? Result.SUCCESS : Result.ERROR;
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

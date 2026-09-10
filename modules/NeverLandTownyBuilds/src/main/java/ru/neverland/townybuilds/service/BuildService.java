@@ -94,6 +94,7 @@ public final class BuildService {
         if (!town.getAccount().canPayFromHoldings(level.money())) {
             return new UpgradeResult(UpgradeResult.Status.NOT_ENOUGH_MONEY, level.money(), List.of(), next);
         }
+        if (!ru.neverland.integration.TreasuryAccess.canSpend(town,"construction",level.money())) return UpgradeResult.of(UpgradeResult.Status.BUDGET_UNAVAILABLE);
         ResourceFund fund = data.resourceFund(project.id(), next);
         List<String> missing = missing(level.resources(), fund);
         if (!missing.isEmpty()) {
@@ -101,11 +102,11 @@ public final class BuildService {
         }
         String reason = plugin.getConfig().getString("settings.economy.withdraw-reason", "Городская постройка")
                 .replace("{project}", ColorUtil.plain(project.name())).replace("{level}", String.valueOf(next));
-        if (level.money() > 0 && !town.getAccount().withdraw(level.money(), reason)) {
+        if (level.money() > 0 && !ru.neverland.integration.TreasuryAccess.withdraw(town,"construction","construction",level.money(),reason)) {
             return UpgradeResult.of(UpgradeResult.Status.ECONOMY_ERROR);
         }
         if (project.type() == ProjectType.WONDER && !archaeology.consume(town.getUUID(), project.id(), player.getUniqueId())) {
-            if (level.money() > 0) town.getAccount().deposit(level.money(), "Возврат: артефакты для Чуда Света не списаны");
+            if (level.money() > 0) ru.neverland.integration.TreasuryAccess.deposit(town,"construction","construction",true,level.money(),"Возврат: артефакты для Чуда Света не списаны");
             List<String> missingArtifacts = archaeology.missingLines(town.getUUID(), project.id());
             if (missingArtifacts.isEmpty()) missingArtifacts = List.of("Операция музея отменена");
             return new UpgradeResult(UpgradeResult.Status.NOT_ENOUGH_ARTIFACTS, level.money(), missingArtifacts, next);
@@ -115,7 +116,7 @@ public final class BuildService {
                 construction.commit(preparation, player, town);
             } catch (RuntimeException exception) {
                 plugin.getLogger().severe("Не удалось активировать чертёж " + project.id() + ": " + exception.getMessage());
-                if (level.money() > 0) town.getAccount().deposit(level.money(), "Возврат: чертёж не активирован");
+                if (level.money() > 0) ru.neverland.integration.TreasuryAccess.deposit(town,"construction","construction",true,level.money(),"Возврат: чертёж не активирован");
                 return UpgradeResult.of(UpgradeResult.Status.ECONOMY_ERROR);
             }
         }
