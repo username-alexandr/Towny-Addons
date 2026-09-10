@@ -789,3 +789,32 @@ buildings:
     resources:
       materials: 2
       stone: 4
+
+  water_wheel:
+    name: Водяное колесо
+    icon: SPRUCE_TRAPDOOR
+    enabled: true
+    priority: 1
+    money: 3
+    resources:
+      wood: 0.5
+      stone: 0.5
+  generator:
+    name: Генератор
+    icon: BLAST_FURNACE
+    enabled: true
+    priority: 1
+    money: 12
+    resources:
+      metal: 0.5
+      materials: 0.5
+  power_station:
+    name: Электростанция
+    icon: REDSTONE_BLOCK
+    enabled: true
+    priority: 1
+    money: 40
+    resources:
+      metal: 1
+      materials: 2
+      water: 3

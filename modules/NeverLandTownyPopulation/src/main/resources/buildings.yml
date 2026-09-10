@@ -1,5 +1,5 @@
 # Мощности добавляются за каждый завершённый уровень от minimum-level до maximum-level.
-# По умолчанию все 80 зданий работают после V этапа; 11 чудес — после I.
+# По умолчанию все 83 здания работают после V этапа; 11 чудес — после I.
 # Еда и вода — возобновляемое снабжение за цикл, не предметы из сундуков.
 # Чтобы отключить вклад здания, задайте нулевые мощности; ID custom-projects тоже поддерживаются.
 buildings:
@@ -590,3 +590,22 @@ buildings:
     maximum-level: 1
     water: 200
     jobs: 30
+
+  water_wheel:
+    name: Водяное колесо
+    icon: SPRUCE_TRAPDOOR
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 10
+  generator:
+    name: Генератор
+    icon: BLAST_FURNACE
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 20
+  power_station:
+    name: Электростанция
+    icon: REDSTONE_BLOCK
+    minimum-level: 5
+    maximum-level: 5
+    jobs: 40

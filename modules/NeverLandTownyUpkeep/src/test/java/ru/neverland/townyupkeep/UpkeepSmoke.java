@@ -27,7 +27,7 @@ public final class UpkeepSmoke {
         void run()throws Exception{processor().process(key,10,300);}
     }
     public static void main(String[] args)throws Exception{
-        var defaults=UpkeepSettings.load(read("config.yml"),read("buildings.yml"));check(defaults.profiles().size()==91,"91 building/wonder tariffs");check(defaults.grace()==3600&&defaults.period()==3600,"hourly billing and grace");
+        var defaults=UpkeepSettings.load(read("config.yml"),read("buildings.yml"));check(defaults.profiles().size()==94,"94 building/wonder tariffs");check(defaults.grace()==3600&&defaults.period()==3600,"hourly billing and grace");
         for(var p:defaults.profiles().values()){check(!p.name().equals(p.id()),"Russian name "+p.id());for(int level=1;level<=5;level++){var cost=p.cost().multiply(level,defaults.maximum());check(cost.money()>=p.cost().money(),"monotonic level cost");}}
         var small=defaults.factor(1,1,1);var large=defaults.factor(200,100,200);check(large.compareTo(small)>0,"larger cities cost more");check(defaults.factor(Integer.MAX_VALUE,Integer.MAX_VALUE,Integer.MAX_VALUE).equals(defaults.maximum()),"size factor capped without overflow");
         check(defaults.profiles().get("fortress_wall").cost().resources().get("stone")==4000,"wall consumes stone");check(defaults.profiles().get("pumping_station").cost().money()==800,"pump monetary upkeep");check(defaults.profiles().get("guard").cost().resources().get("food")==3000,"guard food upkeep");
@@ -47,6 +47,6 @@ public final class UpkeepSmoke {
         var directory=Files.createTempDirectory("upkeep-smoke");var file=directory.resolve("upkeep.yml");var repo=new UpkeepRepository(file);repo.load();var bill=new Fixture(1500);repo.save(10,Map.of(bill.key,bill.saved));var restarted=new UpkeepRepository(file);restarted.load();check(restarted.clock()==10&&restarted.entries().equals(repo.entries()),"restart invoice exact, no offline clock advance");
         Files.delete(file);Files.createDirectory(file);Files.writeString(file.resolve("keep"),"keep");fails(()->repo.save(11,Map.of()),"atomic replace failure");check(repo.clock()==10&&!repo.entries().isEmpty(),"write failure leaves authoritative memory intact");
         var bad=directory.resolve("bad.yml");Files.writeString(bad,"schema: 1\ntowns: [broken");var broken=new UpkeepRepository(bad);fails(broken::load,"strict YAML");fails(()->broken.save(1,Map.of(bill.key,bill.saved)),"no overwrite after corrupt load");check(Files.readString(bad).contains("[broken"),"corrupt source preserved");
-        System.out.println("UpkeepSmoke OK: 91 tariffs, scaling, grace, partial shortages, refusals, every journal boundary, ambiguous money recovery, resource refunds and atomic persistence");
+        System.out.println("UpkeepSmoke OK: 94 tariffs, scaling, grace, partial shortages, refusals, every journal boundary, ambiguous money recovery, resource refunds and atomic persistence");
     }
 }

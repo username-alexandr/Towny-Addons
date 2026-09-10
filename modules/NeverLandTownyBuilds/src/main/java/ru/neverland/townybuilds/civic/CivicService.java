@@ -193,7 +193,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
 
     private boolean requireProject(Player player, TownData data, String projectId) {
         if (data.operationalLevel(projectId) > 0) return true;
-        if(data.level(projectId)>0){player.sendMessage(ColorUtil.component("&cЗдание НЕАКТИВНО. Содержание: /t upkeep"));return false;}
+        if(data.level(projectId)>0){player.sendMessage(ColorUtil.component("&cЗдание НЕАКТИВНО. Содержание: /t upkeep; энергия: /t power"));return false;}
         messages.send(player, "civic-project-required", Map.of("project", projectName(projectId)));
         return false;
     }
@@ -514,7 +514,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
     }
 
     private void openShop(Player player, TownData sellerData) {
-        if(sellerData.operationalLevel("merchant_guild")==0){player.sendMessage(ColorUtil.component("&cЛавка временно не работает: содержание гильдии не оплачено."));return;}
+        if(sellerData.operationalLevel("merchant_guild")==0){player.sendMessage(ColorUtil.component("&cЛавка временно не работает: проверьте содержание и питание гильдии."));return;}
         Town seller = towny.town(sellerData.townId());
         if (seller == null) {
             messages.send(player, "civic-shop-unavailable");

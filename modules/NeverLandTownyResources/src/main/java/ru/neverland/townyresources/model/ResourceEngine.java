@@ -4,7 +4,7 @@ import java.util.*;
 /** Pure deterministic city cycle. Citizens' food/water reserve is protected from building inputs. */
 public final class ResourceEngine {
     private ResourceEngine() {}
-    public record Building(int completed,double bonus,boolean owned,boolean active) { public Building(int completed,double bonus,boolean owned){this(completed,bonus,owned,true);} }
+    public record Building(int completed,double bonus,boolean owned,boolean active,String inactiveReason) { public Building(int completed,double bonus,boolean owned,boolean active){this(completed,bonus,owned,active,"содержание не оплачено");} public Building(int completed,double bonus,boolean owned){this(completed,bonus,owned,true);} }
     public record Activity(int level,int priority,int operations,String status,Map<Resource,Long> income,Map<Resource,Long> expense) {
         public Activity { income=Amounts.flows(income);expense=Amounts.flows(expense); }
     }
@@ -26,7 +26,7 @@ public final class ResourceEngine {
         var profiles=new ArrayList<>(config.buildings().values());profiles.sort(Comparator.comparingInt((BuildingProfile p)->state.priorities().getOrDefault(p.id(),p.priority())).thenComparing(BuildingProfile::id));
         Map<String,Activity> activities=new LinkedHashMap<>();
         for(var p:profiles){var b=built.get(p.id());int level=b==null?0:p.levels(b.completed());int priority=state.priorities().getOrDefault(p.id(),p.priority());int done=0;
-            String status=!p.enabled()?"Отключено в настройках":level==0?"Не построено или этап не завершён":!b.owned()?"Площадка больше не принадлежит городу":!b.active()?"НЕАКТИВНО — содержание не оплачено":state.paused().contains(p.id())?"Приостановлено городом":"Работает";
+            String status=!p.enabled()?"Отключено в настройках":level==0?"Не построено или этап не завершён":!b.owned()?"Площадка больше не принадлежит городу":!b.active()?"НЕАКТИВНО — "+b.inactiveReason():state.paused().contains(p.id())?"Приостановлено городом":"Работает";
             var produced=Amounts.mutable(Map.of());var consumed=Amounts.mutable(Map.of());
             if(status.equals("Работает"))for(int step=0;step<level;step++){
                 var output=Amounts.mutable(p.produces());for(var r:Resource.values())output.put(r,Amounts.bonus(output.get(r),b.bonus()));

@@ -89,7 +89,7 @@ public final class MenuManager implements Listener {
         Inventory inventory = Bukkit.createInventory(new CategoryHolder(), 27,
                 ColorUtil.component("&#B65CFFКатегории городских построек"));
         decorate(inventory);
-        int[] slots = {10, 11, 12, 13, 14, 15, 16, 22};
+        int[] slots = {10, 11, 12, 13, 14, 15, 16, 21, 23};
         int index = 0;
         for (ProjectCategory category : ProjectCategory.values()) {
             int count = definitions.category(category).size();
@@ -136,6 +136,7 @@ public final class MenuManager implements Listener {
                 List.of("&7Общее хранилище ресурсов.", "&7Открыть: &f/t inv"));
         inventory.setItem(49, storage);
         if(Bukkit.getPluginManager().getPlugin("NeverLandTownyUpkeep")!=null)inventory.setItem(53,actionItem("upkeep",new ItemStack(Material.CLOCK),"&eОбслуживание города",List.of("&7Расходы и состояние зданий.")));
+        if(Bukkit.getPluginManager().getPlugin("NeverLandTownyPower")!=null)inventory.setItem(52,actionItem("power",new ItemStack(Material.REDSTONE),"&eЭнергия города",List.of("&7Выработка, потребление и приоритеты.")));
         player.openInventory(inventory);
     }
 
@@ -279,6 +280,8 @@ public final class MenuManager implements Listener {
             ProjectDefinition project = projectFrom(event.getCurrentItem());
             if (project != null && project.type() == list.type()) {
                 openDetails(player, project, list.page(), list.category());
+            } else if ("power".equals(actionFrom(event.getCurrentItem()))) {
+                player.performCommand("townypower");
             } else if ("upkeep".equals(actionFrom(event.getCurrentItem()))) {
                 player.performCommand("townyupkeep");
             } else if (event.getSlot() == 49) {
@@ -425,8 +428,8 @@ public final class MenuManager implements Listener {
         lore.add(ColorUtil.component("&7Уровень: &f" + level + "&8/&f" + project.maxLevel()));
         lore.add(ColorUtil.component(progress(level, project.maxLevel())));
         if(level>0&&!ru.neverland.integration.BuildingOperations.active(town,project.id())){
-            lore.add(ColorUtil.component("&cНЕАКТИВНО — содержание не оплачено"));
-            lore.add(ColorUtil.component("&7Обслуживание: &f/t upkeep"));
+            lore.add(ColorUtil.component("&cНЕАКТИВНО — "+ru.neverland.integration.BuildingOperations.inactiveReason(town,project.id())));
+            lore.add(ColorUtil.component("&7Обслуживание: /t upkeep; энергия: /t power"));
         }
         lore.add(Component.empty());
         lore.add(ColorUtil.component(level >= project.maxLevel() ? "&aПолностью развито" : "&#63E6BEНажмите для подробностей"));

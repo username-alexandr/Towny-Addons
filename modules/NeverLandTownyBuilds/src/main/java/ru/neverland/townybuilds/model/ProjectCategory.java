@@ -14,6 +14,7 @@ public enum ProjectCategory {
     DEFENSE("Оборона", Material.SHIELD, "&#C0C7D1"),
     SCIENCE("Наука и образование", Material.ENCHANTING_TABLE, "&#8C8CFF"),
     CULTURE("Культура и общество", Material.PAINTING, "&#DFA7FF"),
+    ENERGY("Энергетика", Material.LIGHTNING_ROD, "&#FFE066"),
     OTHER("Прочее", Material.CHEST, "&#AAB4C4");
 
     private static final Set<String> ADMINISTRATION_IDS = Set.of(
@@ -62,6 +63,7 @@ public enum ProjectCategory {
             try { return valueOf(raw.toUpperCase(Locale.ROOT)); }
             catch (IllegalArgumentException ignored) { }
         }
+        if (Set.of("water_wheel","generator","power_station").contains(projectId)) return ENERGY;
         if (ADMINISTRATION_IDS.contains(projectId)) return ADMINISTRATION;
         if (PRODUCTION_IDS.contains(projectId)) return PRODUCTION;
         if (TRADE_IDS.contains(projectId)) return TRADE;
