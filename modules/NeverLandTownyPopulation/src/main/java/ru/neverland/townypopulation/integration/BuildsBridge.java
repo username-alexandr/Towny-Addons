@@ -13,7 +13,7 @@ public final class BuildsBridge {
         Class<?> api = Class.forName("ru.neverland.townybuilds.api.TownyBuildsApi",true,plugin.getClass().getClassLoader());
         Object provider = Bukkit.getServicesManager().load(api);
         if (provider == null) throw new IllegalStateException("API построек не зарегистрирован");
-        Method method = api.getMethod("projectLevel",UUID.class,String.class);
+        Method method = api.getMethod("operationalLevel",UUID.class,String.class);
         Map<String,Integer> levels = new HashMap<>();
         for (String id : projects) levels.put(id,Math.max(0,((Number)method.invoke(provider,town,id)).intValue()));
         return levels;

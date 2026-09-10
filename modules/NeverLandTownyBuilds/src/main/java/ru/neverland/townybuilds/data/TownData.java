@@ -40,6 +40,11 @@ public final class TownData {
         return levels.getOrDefault(projectId, 0);
     }
 
+    /** Operational effects only. Physical levels and the construction history stay intact. */
+    public int operationalLevel(String projectId) {
+        return ru.neverland.integration.BuildingOperations.level(townId,projectId,level(projectId));
+    }
+
     public void setLevel(String projectId, int level) {
         if (level <= 0) {
             levels.remove(projectId);

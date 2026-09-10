@@ -1,0 +1,13 @@
+# Время учитывается только при работающем сервере (20 тиков = 1 секунда).
+# Тарифы в buildings.yml указаны ЗА ПЕРИОД, а не за секунду.
+billing:
+  period-seconds: 3600
+  grace-seconds: 3600
+  retry-seconds: 300
+  invoices-per-second: 2
+# 1 + участки * коэффициент + жители Towny * коэффициент + сумма уровней * коэффициент.
+size:
+  per-plot: 0.005
+  per-resident: 0.002
+  per-building-level: 0.003
+  maximum: 5

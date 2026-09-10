@@ -42,7 +42,7 @@ public final class ProductionService {
         try{
             for(var town:data.towns().values()){
                 var depots=storage.depots(town.townId());
-                for(Recipe recipe:recipes){var depot=depots.get(recipe.project());if(depot==null||storage.busy(town.townId(),recipe.project())||!available(town.townId(),depot))continue;
+                for(Recipe recipe:recipes){var depot=depots.get(recipe.project());if(depot==null||!ru.neverland.integration.BuildingOperations.active(town.townId(),recipe.project())||storage.busy(town.townId(),recipe.project())||!available(town.townId(),depot))continue;
                     ItemStack[] stock=storage.read(town,recipe.project());boolean changed=false;
                     for(int op=0;op<Math.min(5,depot.level());op++){
                         double bonus=recipe.districtBonus()?ru.neverland.integration.DistrictBonuses.multiplier(town.townId(),recipe.project()):1;

@@ -93,6 +93,7 @@ public final class LogisticsService {
         List<CourierJob> queue=new ArrayList<>(jobs.values());if(!queue.isEmpty())Collections.rotate(queue,-Math.floorMod(jobCursor++,queue.size()));
         for(var original:queue){var j=jobs.get(original.id());if(j==null)continue;
             var available=depots.getOrDefault(j.town(),Map.of());if(!available.containsKey(j.hub())||!available.containsKey(j.source())||!available.containsKey(j.target())){npcs.remove(j.id());statuses.put(j.id(),"Ожидает восстановления здания");continue;}
+            if(j.phase()!=Phase.DONE&&(!working(j.town(),j.hub())||!working(j.town(),j.source())||!working(j.town(),j.target()))){npcs.remove(j.id());statuses.put(j.id(),"НЕАКТИВНО — оплатите содержание зданий маршрута; груз сохранён");continue;}
             int level=Math.max(1,Math.min(j.level(),available.get(j.hub()).level()));var path=j.path();
             boolean moving=j.phase()==Phase.TO_SOURCE||j.phase()==Phase.TO_TARGET||j.phase()==Phase.RETURNING;
             Position target=path.get(moving?Math.min(j.waypoint(),path.size()-1):path.size()-1);
@@ -121,6 +122,7 @@ public final class LogisticsService {
         }
         if(now-saved>=settings.checkpoint()*1000L)save();schedule(now);
     }catch(Exception ex){fault=true;npcs.stop();plugin.getLogger().log(java.util.logging.Level.SEVERE,"Логистика приостановлена, груз остаётся в журнале складов",ex);}}
+    private boolean working(UUID town,String project){return ru.neverland.integration.BuildingOperations.active(town,project);}
     private void schedule(long now)throws IOException{
         if(jobs.size()>=settings.active())return;
         record Candidate(Network network,Route route){}List<Candidate> all=new ArrayList<>();for(var n:networks.values())for(var r:n.routes().values())if(r.enabled())all.add(new Candidate(n,r));
@@ -130,7 +132,7 @@ public final class LogisticsService {
             if(now<cooldown.getOrDefault(key,0L))continue;
             var hub=depots.getOrDefault(n.town(),Map.of()).get(n.node(r.hub()).project());if(hub==null){routeStatuses.put(key,"Здание базы недоступно");continue;}if(!npcs.near(n.node(r.hub()).point())){routeStatuses.put(key,"Ожидает игроков рядом с базой");continue;}
             long count=jobs(n.town()).stream().filter(j->j.hub().equals(hub.id())).count();if(count>=settings.level(hub.level()).couriers()){routeStatuses.put(key,"Все курьеры базы заняты");continue;}
-            try{var j=job(n,r);boolean loaded=true;for(var path:List.of(j.outbound(),j.delivery(),j.home()))for(var p:path)if(!CourierNpcs.loaded(p)||!CourierNpcs.owned(n.town(),p)){loaded=false;break;}if(!loaded){routeStatuses.put(key,"Путь не загружен или потеряна территория");continue;}
+            try{var j=job(n,r);if(!working(j.town(),j.hub())||!working(j.town(),j.source())||!working(j.town(),j.target())){routeStatuses.put(key,"НЕАКТИВНО — содержание зданий маршрута не оплачено");continue;}boolean loaded=true;for(var path:List.of(j.outbound(),j.delivery(),j.home()))for(var p:path)if(!CourierNpcs.loaded(p)||!CourierNpcs.owned(n.town(),p)){loaded=false;break;}if(!loaded){routeStatuses.put(key,"Путь не загружен или потеряна территория");continue;}
                 var stock=builds.stock(n.town(),j.source());var filter=BuildsStorage.decode(r.filter());int amount=0;for(var item:stock)if(item!=null&&!item.getType().isAir()&&(filter==null||item.isSimilar(filter)))amount+=item.getAmount();if(amount<=r.keep()){routeStatuses.put(key,"Нет подходящего груза сверх резерва");continue;}
                 var copy=new LinkedHashMap<>(jobs);copy.put(j.id(),j);repository.save(networks,copy);jobs=copy;routeStatuses.put(key,"Курьер отправлен");return;
             }catch(IllegalArgumentException ex){routeStatuses.put(key,ex.getMessage());cooldown.put(key,now+10000);}

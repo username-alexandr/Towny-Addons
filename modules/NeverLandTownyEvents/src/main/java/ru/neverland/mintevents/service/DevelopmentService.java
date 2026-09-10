@@ -46,6 +46,7 @@ public final class DevelopmentService {
     }
 
     private int buildingLevel(UUID townId, String id) {
+        if(!ru.neverland.integration.BuildingOperations.active(townId,id))return 0;
         TownDevelopmentProvider provider = provider();
         if (provider != null) return safe(() -> provider.buildingLevel(townId, id));
         String path = plugin.getConfig().getString("development-sources.builds.path",

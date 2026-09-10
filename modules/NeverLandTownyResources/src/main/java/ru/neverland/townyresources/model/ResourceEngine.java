@@ -4,7 +4,7 @@ import java.util.*;
 /** Pure deterministic city cycle. Citizens' food/water reserve is protected from building inputs. */
 public final class ResourceEngine {
     private ResourceEngine() {}
-    public record Building(int completed,double bonus,boolean owned) {}
+    public record Building(int completed,double bonus,boolean owned,boolean active) { public Building(int completed,double bonus,boolean owned){this(completed,bonus,owned,true);} }
     public record Activity(int level,int priority,int operations,String status,Map<Resource,Long> income,Map<Resource,Long> expense) {
         public Activity { income=Amounts.flows(income);expense=Amounts.flows(expense); }
     }
@@ -12,16 +12,21 @@ public final class ResourceEngine {
         public Result { capacity=Amounts.copy(capacity);demand=Amounts.copy(demand);activity=Collections.unmodifiableMap(new LinkedHashMap<>(activity)); }
     }
     public static Result calculate(TownState state,Map<String,Building> built,int people,ResourcesSettings config,long now) {
+        return calculate(state,built,people,config,now,Map.of());
+    }
+    public static Result calculate(TownState state,Map<String,Building> built,int people,ResourcesSettings config,long now,Map<Resource,Long> held) {
         if(people<0||people>10_000_000)throw new IllegalArgumentException("Некорректное население");
         var stock=Amounts.mutable(state.balances());var cap=Amounts.mutable(config.baseCapacity());var income=Amounts.mutable(Map.of());var expense=Amounts.mutable(Map.of());
         var demand=Amounts.mutable(Map.of());if(config.populationLinked()){demand.put(Resource.FOOD,Amounts.multiply(config.foodPerPerson(),people));demand.put(Resource.WATER,Amounts.multiply(config.waterPerPerson(),people));}
-        for(var p:config.buildings().values()){var b=built.get(p.id());int levels=b!=null&&b.owned()?p.levels(b.completed()):0;
+        for(var p:config.buildings().values()){var b=built.get(p.id());int levels=b!=null&&b.owned()&&b.active()?p.levels(b.completed()):0;
             for(var r:Resource.values())cap.put(r,Amounts.add(cap.get(r),Amounts.multiply(p.capacity().get(r),levels)));}
+        // Escrow must always be refundable within the ledger's numeric limit.
+        for(var r:Resource.values())cap.put(r,Math.min(cap.get(r),Amounts.MAX-Amounts.valid(held.getOrDefault(r,0L))));
         for(var r:Resource.values()){long add=Math.min(config.baseProduction().get(r),Math.max(0,cap.get(r)-stock.get(r)));stock.put(r,stock.get(r)+add);income.put(r,add);}
         var profiles=new ArrayList<>(config.buildings().values());profiles.sort(Comparator.comparingInt((BuildingProfile p)->state.priorities().getOrDefault(p.id(),p.priority())).thenComparing(BuildingProfile::id));
         Map<String,Activity> activities=new LinkedHashMap<>();
         for(var p:profiles){var b=built.get(p.id());int level=b==null?0:p.levels(b.completed());int priority=state.priorities().getOrDefault(p.id(),p.priority());int done=0;
-            String status=!p.enabled()?"Отключено в настройках":level==0?"Не построено или этап не завершён":!b.owned()?"Площадка больше не принадлежит городу":state.paused().contains(p.id())?"Приостановлено городом":"Работает";
+            String status=!p.enabled()?"Отключено в настройках":level==0?"Не построено или этап не завершён":!b.owned()?"Площадка больше не принадлежит городу":!b.active()?"НЕАКТИВНО — содержание не оплачено":state.paused().contains(p.id())?"Приостановлено городом":"Работает";
             var produced=Amounts.mutable(Map.of());var consumed=Amounts.mutable(Map.of());
             if(status.equals("Работает"))for(int step=0;step<level;step++){
                 var output=Amounts.mutable(p.produces());for(var r:Resource.values())output.put(r,Amounts.bonus(output.get(r),b.bonus()));

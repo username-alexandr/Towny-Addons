@@ -8,7 +8,10 @@ import java.util.UUID;
 
 /** Публичный API без жёстких зависимостей между аддонами NeverLand. */
 public interface TownyBuildsApi {
+    /** Physical completed level, including inactive buildings. */
     int projectLevel(UUID townId, String projectId);
+    /** Zero while upkeep suspends this building. */
+    default int operationalLevel(UUID townId,String projectId){return projectLevel(townId,projectId);}
     default java.util.Map<String,BuildingFootprint> buildingFootprints(UUID townId) { return java.util.Map.of(); }
     double benefit(UUID townId, CivicBenefit benefit);
     boolean waterNetworkActive(UUID townId);

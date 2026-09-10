@@ -24,7 +24,7 @@ public final class BuildBridge {
             Field field = source.getClass().getDeclaredField("dataStore"); field.setAccessible(true);
             Object store = field.get(source);
             Object townData = store.getClass().getMethod("town", UUID.class).invoke(store, townId);
-            Method level = townData.getClass().getMethod("level", String.class);
+            Method level = townData.getClass().getMethod("operationalLevel", String.class);
             return ((Number) level.invoke(townData, projectId)).intValue();
         } catch (ReflectiveOperationException | RuntimeException exception) {
             if (!warned) { warned = true; plugin.getLogger().severe("Не удалось прочитать уровни построек: " + exception.getMessage()); }

@@ -57,7 +57,7 @@
                         <id>shared-localization</id><phase>generate-sources</phase>
                         <goals><goal>add-source</goal><goal>add-resource</goal></goals>
                         <configuration>
-                            <sources><source>${project.basedir}/../../shared/localization/src/main/java</source></sources>
+                            <sources><source>${project.basedir}/../../shared/localization/src/main/java</source><source>${project.basedir}/../../shared/upkeep/src/main/java</source></sources>
                             <resources><resource><directory>${project.basedir}/../../shared/localization/src/main/resources</directory></resource></resources>
                         </configuration>
                     </execution>
