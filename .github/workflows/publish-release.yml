@@ -1,8 +1,8 @@
-name: Publish release 0.21.0
+name: Publish release 0.22.0
 
 on:
   push:
-    branches: [release/v0.21.0]
+    branches: [release/v0.22.0]
   workflow_dispatch:
 
 permissions:
@@ -21,12 +21,6 @@ jobs:
           distribution: temurin
           java-version: '25'
           cache: maven
-      - name: Check selection click repeats
-        shell: bash
-        run: |
-          mkdir -p /tmp/selection-click-test
-          javac -d /tmp/selection-click-test modules/NeverLandTownyStick/src/main/java/ru/neverland/morstownstick/service/SelectionClickGate.java modules/NeverLandTownyStick/src/test/java/ru/neverland/morstownstick/SelectionClickGateSmoke.java
-          java -cp /tmp/selection-click-test ru.neverland.morstownstick.SelectionClickGateSmoke
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.0.0'
@@ -36,21 +30,7 @@ jobs:
         run: |
           set -euo pipefail
           rm -f dist/plugins/*.jar
-          for module in modules/*; do
-            name="${module##*/}"
-            version="$(python -c 'import sys,yaml; print(yaml.safe_load(open("versions.yml"))["addons"][sys.argv[1]])' "$name")"
-            if [[ -f "$module/build.gradle.kts" ]]; then
-              if [[ "$name" == "NeverLandTownyBuilds" || "$name" == "NeverLandTownyChronicles" || "$name" == "NeverLandTownyExpeditions" || "$name" == "NeverLandTownyEvents" || "$name" == "NeverLandTownyPopulation" || "$name" == "NeverLandTownyDistricts" || "$name" == "NeverLandTownyLogistics" || "$name" == "NeverLandTownyResources" || "$name" == "NeverLandTownyUpkeep" || "$name" == "NeverLandTownyPower" || "$name" == "NeverLandTownyResearch" || "$name" == "NeverLandTownySpecialization" || "$name" == "NeverLandTownyPolicies" || "$name" == "NeverLandTownyTaxes" || "$name" == "NeverLandTownyTreasuryPlus" || "$name" == "NeverLandTownyTrade" || "$name" == "NeverLandTownyMarket" || "$name" == "NeverLandTownyCompanies" || "$name" == "NeverLandTownyJobs" || "$name" == "NeverLandTownyContracts" ]]; then
-                gradle --no-daemon -p "$module" clean jar smokeTest
-              else
-                gradle --no-daemon -p "$module" clean jar testClasses
-              fi
-              cp "$module/build/libs/$name-$version.jar" "dist/plugins/$name-$version.jar"
-            else
-              mvn -B -f "$module/pom.xml" clean package
-              cp "$module/target/$name-$version.jar" "dist/plugins/$name-$version.jar"
-            fi
-          done
+          python scripts/build_suite.py --stage dist/plugins
       - name: Verify bundled artifacts
         run: |
           python scripts/verify_release.py

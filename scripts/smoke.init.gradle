@@ -1,0 +1,14 @@
+allprojects {
+    plugins.withId('java') {
+        configurations.testCompileClasspath.extendsFrom(configurations.compileOnly)
+        configurations.testRuntimeClasspath.extendsFrom(configurations.compileOnly)
+        tasks.register('writeSmokeClasspath') {
+            dependsOn tasks.named('testClasses')
+            doLast {
+                def output = layout.buildDirectory.file('smoke-classpath.txt').get().asFile
+                output.parentFile.mkdirs()
+                output.text = sourceSets.test.runtimeClasspath.asPath
+            }
+        }
+    }
+}

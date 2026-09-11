@@ -34,6 +34,8 @@ public final class CampRepository {
     private final Map<UUID, Camp> camps = new LinkedHashMap<>();
     private final Map<UUID, Map<Long, Set<UUID>>> chunkIndex = new HashMap<>();
     private boolean dirty;
+    private boolean writable;
+    public boolean writable(){return writable&&ru.neverland.core.AtomicFiles.writable(file.toPath());}
 
     public CampRepository(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -41,12 +43,13 @@ public final class CampRepository {
     }
 
     public void load() {
+        writable=false;
         camps.clear();
         chunkIndex.clear();
-        if (!file.exists()) return;
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
+        if (!file.exists()){writable=true;ru.neverland.core.AtomicFiles.loaded(file.toPath());return;}
+        YamlConfiguration yaml=new YamlConfiguration();try{yaml.load(file);}catch(Exception ex){throw new IllegalStateException("camps.yml повреждён; запись отключена",ex);}
         ConfigurationSection root = yaml.getConfigurationSection("camps");
-        if (root == null) return;
+        if(root==null){if(!yaml.getKeys(false).isEmpty())throw new IllegalStateException("В базе нет раздела camps");writable=true;ru.neverland.core.AtomicFiles.loaded(file.toPath());return;}
         for (String key : root.getKeys(false)) {
             try {
                 UUID owner = UUID.fromString(key);
@@ -73,7 +76,7 @@ public final class CampRepository {
                 for (Map<?, ?> entry : yaml.getMapList(path + "snapshots")) {
                     BlockPos position = BlockPos.parse(String.valueOf(entry.get("pos")));
                     Material material = MaterialNameConfig.matchMaterial(String.valueOf(entry.get("material")));
-                    if (material == null) continue;
+                    if (material == null) throw new IllegalArgumentException("Неизвестный материал снимка лагеря");
                     String data = String.valueOf(entry.get("data"));
                     List<ItemStack> inventory = readItems(entry.get("inventory") instanceof List<?> list ? list : List.of());
                     camp.snapshots().put(position, new BlockSnapshot(material, data, inventory));
@@ -81,11 +84,11 @@ public final class CampRepository {
                 for (String value : yaml.getStringList(path + "placed-blocks")) camp.placedBlocks().add(BlockPos.parse(value));
                 camps.put(owner, camp);
             } catch (RuntimeException exception) {
-                plugin.getLogger().severe("Не удалось загрузить лагерь " + key + ": " + exception.getMessage());
+                throw new IllegalStateException("Не удалось загрузить лагерь " + key + "; запись отключена",exception);
             }
         }
         rebuildIndex();
-        dirty = false;
+        dirty = false;writable=true;ru.neverland.core.AtomicFiles.loaded(file.toPath());
         plugin.getLogger().info("Загружено активных лагерей: " + camps.size() + ".");
     }
 
@@ -154,6 +157,11 @@ public final class CampRepository {
     }
 
     public void save() {
+        if(!writable())throw new IllegalStateException("Хранилище лагерей недоступно");
+        try{saveOrThrow();}catch(IOException ex){writable=false;throw new java.io.UncheckedIOException(ex);}
+    }
+    public void saveOrThrow()throws IOException {
+        if(!writable())throw new IOException("Хранилище лагерей недоступно");
         YamlConfiguration yaml = new YamlConfiguration();
         for (Camp camp : camps.values()) {
             String path = "camps." + camp.ownerId() + ".";
@@ -187,21 +195,12 @@ public final class CampRepository {
             yaml.set(path + "snapshots", snapshots);
             yaml.set(path + "placed-blocks", camp.placedBlocks().stream().map(BlockPos::key).toList());
         }
-        try {
-            File parent = file.getParentFile();
-            if (parent != null && !parent.exists() && !parent.mkdirs()) {
-                plugin.getLogger().warning("Не удалось создать папку данных NeverLandTownyCamps.");
-            }
-            yaml.save(file);
-            dirty = false;
-        } catch (IOException exception) {
-            plugin.getLogger().severe("Не удалось сохранить camps.yml: " + exception.getMessage());
-        }
+        try{ru.neverland.core.AtomicFiles.write(file.toPath(),yaml::saveToString);dirty=false;}catch(IOException ex){writable=false;throw ex;}
     }
 
     private List<ItemStack> readItems(List<?> values) {
         List<ItemStack> items = new ArrayList<>();
-        for (Object value : values) if (value instanceof ItemStack item) items.add(item.clone()); else items.add(null);
+        for (Object value : values) if (value instanceof ItemStack item) items.add(item.clone()); else if(value==null)items.add(null);else throw new IllegalArgumentException("Повреждён предмет лагеря");
         return items;
     }
 

@@ -1,5 +1,5 @@
 name: NeverLandTownyPopulation
-version: '0.1.7'
+version: '0.1.8'
 main: ru.neverland.townypopulation.NeverLandTownyPopulation
 api-version: '26.2'
 authors: [Alexander Sokolov]

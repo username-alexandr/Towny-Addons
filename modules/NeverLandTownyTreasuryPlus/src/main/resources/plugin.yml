@@ -1,5 +1,5 @@
 name: NeverLandTownyTreasuryPlus
-version: '0.1.1'
+version: '0.1.2'
 main: ru.neverland.townytreasury.NeverLandTownyTreasuryPlus
 api-version: '1.21'
 authors:

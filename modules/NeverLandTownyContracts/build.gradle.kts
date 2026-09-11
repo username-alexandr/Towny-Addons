@@ -3,7 +3,7 @@ import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 
 group = "ru.neverland"
-version = "0.3.0"
+version = "0.3.1"
 
 repositories {
     mavenCentral()
@@ -44,3 +44,5 @@ tasks.register<JavaExec>("smokeTest") {
     classpath = sourceSets.test.get().runtimeClasspath
     mainClass.set("ru.neverland.mintcontracts.MunicipalContractsSmoke")
 }
+
+sourceSets.main { java.srcDir("../../shared/core/src/main/java") }

@@ -15,7 +15,7 @@
         <dependency><groupId>com.palmergames.bukkit.towny</groupId><artifactId>towny</artifactId><version>0.103.2.0</version><scope>provided</scope></dependency>
         <dependency><groupId>me.clip</groupId><artifactId>placeholderapi</artifactId><version>2.12.3</version><scope>provided</scope></dependency>
     </dependencies>
-    <build><finalName>NeverLandTownyContracts-${project.version}</finalName><plugins>
+    <build><finalName>NeverLandTownyContracts-${project.version}</finalName><plugins><plugin><groupId>org.codehaus.mojo</groupId><artifactId>build-helper-maven-plugin</artifactId><version>3.6.1</version><executions><execution><id>neverland-core</id><phase>generate-sources</phase><goals><goal>add-source</goal></goals><configuration><sources><source>${project.basedir}/../../shared/core/src/main/java</source></sources></configuration></execution></executions></plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>

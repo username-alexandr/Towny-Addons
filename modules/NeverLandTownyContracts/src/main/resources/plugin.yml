@@ -1,5 +1,5 @@
 name: NeverLandTownyContracts
-version: '0.3.0'
+version: '0.3.1'
 main: ru.neverland.mintcontracts.MintTownyContracts
 api-version: '26.2'
 authors: [Alexander Sokolov]

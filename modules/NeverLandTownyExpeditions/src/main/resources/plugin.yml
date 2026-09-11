@@ -1,5 +1,5 @@
 name: NeverLandTownyExpeditions
-version: 0.1.10
+version: 0.1.11
 main: ru.neverland.mintexpeditions.MintTownyExpeditions
 api-version: '26.2'
 authors: [Alexander Sokolov]

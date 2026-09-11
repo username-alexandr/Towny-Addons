@@ -96,7 +96,7 @@ public final class TownyArchaeology extends JavaPlugin {
     public void onDisable() {
         if (sites != null) sites.stop();
         if (autosave != null) autosave.cancel();
-        if (repository != null) repository.save();
+        if (repository != null && repository.writable()) repository.save();
         if (towny != null) {
             for (String name : USER_TOWN_COMMANDS) towny.unregister(name);
             towny.unregister("museum");

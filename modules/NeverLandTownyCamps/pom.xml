@@ -6,7 +6,7 @@
 
     <groupId>ru.neverland</groupId>
     <artifactId>neverlandtownycamps</artifactId>
-    <version>0.1.7</version>
+    <version>0.1.8</version>
     <name>NeverLandTownyCamps</name>
 
     <properties>
@@ -33,7 +33,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>26.2.build.112-stable</version>
+            <version>26.2.build.121-stable</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -52,7 +52,7 @@
 
     <build>
         <finalName>NeverLandTownyCamps-${project.version}</finalName>
-        <plugins>
+        <plugins><plugin><groupId>org.codehaus.mojo</groupId><artifactId>build-helper-maven-plugin</artifactId><version>3.6.1</version><executions><execution><id>neverland-core</id><phase>generate-sources</phase><goals><goal>add-source</goal></goals><configuration><sources><source>${project.basedir}/../../shared/core/src/main/java</source></sources></configuration></execution></executions></plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>

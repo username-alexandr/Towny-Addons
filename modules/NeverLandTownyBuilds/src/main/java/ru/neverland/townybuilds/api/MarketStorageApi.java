@@ -3,7 +3,8 @@ import java.util.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 /** Builds 0.8.8. Main thread only; caller persists lot/order UUID before first mutation. */
-public interface MarketStorageApi {
+public interface MarketStorageApi extends ru.neverland.core.ApiContract {
+    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("acknowledge", "claim", "close", "deliver", "forget", "level", "open", "refund", "reserve", "resolveClaim", "snapshot"); }
     int level(UUID town,String project);
     String open(UUID town,UUID lot,ItemStack sample,int amount)throws Exception;
     Map<String,Object> snapshot(UUID town,UUID lot);

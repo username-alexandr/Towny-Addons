@@ -5,8 +5,7 @@ import java.util.UUID;
 public final class BuildingOperations {
     private BuildingOperations(){}
     private static boolean query(UUID town,String project,String pluginName,String apiName,String method){
-        var plugin=Bukkit.getPluginManager().getPlugin(pluginName);if(plugin==null)return true;if(!plugin.isEnabled())return false;
-        try{Class<?> api=Class.forName(apiName,true,plugin.getClass().getClassLoader());Object service=Bukkit.getServicesManager().load(api);return service!=null&&Boolean.TRUE.equals(api.getMethod(method,UUID.class,String.class).invoke(service,town,project));}
+        try{var c=ru.neverland.core.ApiServices.connect(pluginName,apiName,1,method);if(c.state()==ru.neverland.core.ApiServices.State.NOT_INSTALLED)return true;return c.ready()&&Boolean.TRUE.equals(c.invoke(method,new Class<?>[]{UUID.class,String.class},town,project));}
         catch(ReflectiveOperationException|RuntimeException|LinkageError ex){return false;}
     }
     public static boolean maintained(UUID town,String project){return query(town,project,"NeverLandTownyUpkeep","ru.neverland.townyupkeep.api.TownyUpkeepApi","active");}
@@ -16,8 +15,7 @@ public final class BuildingOperations {
         if(!SpecializationAccess.allowed(town,project))return SpecializationAccess.reason(project);
         if(!maintained(town,project))return "Содержание не оплачено или недоступно: /t upkeep";
         if(powered(town,project))return "Здание работает";
-        var plugin=Bukkit.getPluginManager().getPlugin("NeverLandTownyPower");
-        try{if(plugin!=null&&plugin.isEnabled()){Class<?> api=Class.forName("ru.neverland.townypower.api.TownyPowerApi",true,plugin.getClass().getClassLoader());Object service=Bukkit.getServicesManager().load(api);if(service!=null)return api.getMethod("status",UUID.class,String.class).invoke(service,town,project)+": /t power";}}
+        try{var c=ru.neverland.core.ApiServices.connect("NeverLandTownyPower","ru.neverland.townypower.api.TownyPowerApi",1,"status");if(c.ready())return c.invoke("status",new Class<?>[]{UUID.class,String.class},town,project)+": /t power";}
         catch(ReflectiveOperationException|RuntimeException|LinkageError ignored){}
         return "Энергосеть недоступна: /t power";
     }

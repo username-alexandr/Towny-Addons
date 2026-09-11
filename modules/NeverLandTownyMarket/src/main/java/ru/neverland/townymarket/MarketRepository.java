@@ -19,7 +19,7 @@ public final class MarketRepository implements MarketPayments.Store {
             var d=section(y,"demand");for(String id:d.getKeys(false)){var s=section(d,id);ds.add(new Demand(UUID.fromString(id),text(s,"scope"),text(s,"product"),uuid(s,"buyer"),num(s,"at"),integer(s,"amount")));}
             validate(ls,os);
         }catch(Exception ex){throw new IOException("market-data.yml повреждён; операции рынка остановлены",ex);}
-        listings=Collections.unmodifiableMap(ls);orders=Collections.unmodifiableMap(os);demand=List.copyOf(ds);writable=true;
+        listings=Collections.unmodifiableMap(ls);orders=Collections.unmodifiableMap(os);demand=List.copyOf(ds);writable=true;ru.neverland.core.AtomicFiles.loaded(file);
     }
     private static void validate(Map<UUID,Listing> ls,Map<UUID,Order> os)throws IOException {for(var o:os.values()){var l=ls.get(o.lot());if(l==null||!l.town().equals(o.seller())||o.city()!=(l.scope()==Scope.GLOBAL))throw new IOException("Покупка не соответствует предложению");}}
     public void put(Listing l)throws IOException{var ls=new LinkedHashMap<>(listings);ls.put(l.id(),l);save(ls,orders,demand);}
@@ -43,7 +43,7 @@ public final class MarketRepository implements MarketPayments.Store {
             atomic(y,file);listings=Collections.unmodifiableMap(new LinkedHashMap<>(ls));orders=Collections.unmodifiableMap(new LinkedHashMap<>(os));demand=List.copyOf(ds);
         }catch(IOException|RuntimeException ex){writable=false;throw new IOException("Не удалось сохранить рынок; операции остановлены",ex);}
     }
-    public static void atomic(YamlConfiguration y,Path path)throws IOException {Path target=path.toAbsolutePath();Files.createDirectories(target.getParent());var tmp=Files.createTempFile(target.getParent(),"market-",".tmp");try{y.save(tmp.toFile());try(var ch=FileChannel.open(tmp,StandardOpenOption.WRITE)){ch.force(true);}try{Files.move(tmp,target,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);}catch(AtomicMoveNotSupportedException ex){Files.move(tmp,target,StandardCopyOption.REPLACE_EXISTING);}}finally{Files.deleteIfExists(tmp);}}
+    public static void atomic(YamlConfiguration yaml,Path path)throws IOException {ru.neverland.core.AtomicFiles.write(path,yaml::saveToString);}
     private static ConfigurationSection section(ConfigurationSection s,String key)throws IOException{var v=s.getConfigurationSection(key);if(v==null)throw new IOException("Нет раздела "+key);return v;}
     private static String text(ConfigurationSection s,String key)throws IOException{if(!s.isString(key))throw new IOException("Нет строки "+key);return s.getString(key);}
     private static UUID uuid(ConfigurationSection s,String key)throws IOException{return UUID.fromString(text(s,key));}

@@ -4,7 +4,7 @@ import org.bukkit.Bukkit;
 /** Optional service lookup; unavailable import controls cannot silently open a border. */
 public final class PoliciesAccess {
     private PoliciesAccess(){}
-    private static Object call(String method,Class<?>[] signature,Object... values){try{var plugin=Bukkit.getPluginManager().getPlugin("NeverLandTownyPolicies");if(plugin==null||!plugin.isEnabled())return null;Class<?> type=Class.forName("ru.neverland.townypolicies.api.TownyPoliciesApi",true,plugin.getClass().getClassLoader());Object api=Bukkit.getServicesManager().load(type);return api==null?null:type.getMethod(method,signature).invoke(api,values);}catch(Exception|LinkageError e){return null;}}
+    private static Object call(String method,Class<?>[] signature,Object... values){try{var c=ru.neverland.core.ApiServices.connect("NeverLandTownyPolicies","ru.neverland.townypolicies.api.TownyPoliciesApi",1,method);return c.ready()?c.invoke(method,signature,values):null;}catch(Exception|LinkageError e){return null;}}
     public static double effect(UUID town,String key){Object v=call("effect",new Class<?>[]{UUID.class,String.class},town,key);return v instanceof Number n?PolicyEffects.bound(n.doubleValue(),key.equals("happiness")?-40:-.5,key.equals("happiness")?40:.5,0):0;}
     private static double multiplier(String method,UUID town,String project){Object v=call(method,new Class<?>[]{UUID.class,String.class},town,project);return v instanceof Number n?PolicyEffects.bound(n.doubleValue(),method.equals("upkeepMultiplier")?1:.25,method.equals("upkeepMultiplier")?3:2,1):1;}
     public static double production(UUID town,String project){return multiplier("productionMultiplier",town,project);}

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ru.neverland"
-version = "0.1.4"
+version = "0.1.5"
 
 repositories {
     mavenCentral()
@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:26.2.build.+")
+    compileOnly("io.papermc.paper:paper-api:26.2.build.121-stable")
     compileOnly("com.palmergames.bukkit.towny:towny:0.103.2.0")
     compileOnly("me.clip:placeholderapi:2.12.3")
 }
@@ -50,3 +50,5 @@ tasks {
 }
 
 sourceSets.main { java.srcDir("../../shared/treasury/src/main/java") }
+
+sourceSets.main { java.srcDir("../../shared/core/src/main/java") }

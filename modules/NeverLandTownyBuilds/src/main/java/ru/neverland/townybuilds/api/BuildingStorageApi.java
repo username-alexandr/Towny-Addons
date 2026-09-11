@@ -4,7 +4,8 @@ import org.bukkit.inventory.ItemStack;
 import java.util.*;
 import java.io.IOException;
 /** Main-thread API. Idempotent pickup and unload; terminal receipts remain until acknowledged. */
-public interface BuildingStorageApi {
+public interface BuildingStorageApi extends ru.neverland.core.ApiContract {
+    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("IOException", "acknowledgeTrade", "depots", "openStorage", "reserveTrade", "settleTrade", "shipmentTowns", "shipments", "stock"); }
     Map<String,BuildingDepot> depots(UUID town);
     ItemStack[] stock(UUID town,String project);
     Map<UUID,CargoShipment> shipments(UUID town);

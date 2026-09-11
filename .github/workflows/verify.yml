@@ -29,27 +29,13 @@ jobs:
           distribution: temurin
           java-version: '25'
           cache: maven
-      - name: Check selection click repeats
-        shell: bash
-        run: |
-          mkdir -p /tmp/selection-click-test
-          javac -d /tmp/selection-click-test modules/NeverLandTownyStick/src/main/java/ru/neverland/morstownstick/service/SelectionClickGate.java modules/NeverLandTownyStick/src/test/java/ru/neverland/morstownstick/SelectionClickGateSmoke.java
-          java -cp /tmp/selection-click-test ru.neverland.morstownstick.SelectionClickGateSmoke
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.0.0'
-      - name: Build every add-on
-        shell: bash
-        run: |
-          set -euo pipefail
-          for module in modules/*; do
-            if [[ -f "$module/build.gradle.kts" ]]; then
-              if [[ "${module##*/}" == "NeverLandTownyBuilds" || "${module##*/}" == "NeverLandTownyChronicles" || "${module##*/}" == "NeverLandTownyExpeditions" || "${module##*/}" == "NeverLandTownyEvents" || "${module##*/}" == "NeverLandTownyPopulation" || "${module##*/}" == "NeverLandTownyDistricts" || "${module##*/}" == "NeverLandTownyLogistics" || "${module##*/}" == "NeverLandTownyResources" || "${module##*/}" == "NeverLandTownyUpkeep" || "${module##*/}" == "NeverLandTownyPower" || "${module##*/}" == "NeverLandTownyResearch" || "${module##*/}" == "NeverLandTownySpecialization" || "${module##*/}" == "NeverLandTownyPolicies" || "${module##*/}" == "NeverLandTownyTaxes" || "${module##*/}" == "NeverLandTownyTreasuryPlus" || "${module##*/}" == "NeverLandTownyTrade" || "${module##*/}" == "NeverLandTownyMarket" || "${module##*/}" == "NeverLandTownyCompanies" || "${module##*/}" == "NeverLandTownyJobs" || "${module##*/}" == "NeverLandTownyContracts" ]]; then
-                gradle --no-daemon -p "$module" clean jar smokeTest
-              else
-                gradle --no-daemon -p "$module" clean jar testClasses
-              fi
-            else
-              mvn -B -f "$module/pom.xml" clean package
-            fi
-          done
+      - name: Build and run every executable test
+        run: python scripts/build_suite.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: suite-tests
+          path: build/suite-tests.json

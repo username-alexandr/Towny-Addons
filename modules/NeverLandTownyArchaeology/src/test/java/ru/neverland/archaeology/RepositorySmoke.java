@@ -1,0 +1,12 @@
+package ru.neverland.archaeology;
+import java.util.*;import java.nio.file.*;import ru.neverland.archaeology.service.ArchaeologyRepository;import ru.neverland.archaeology.model.DigSite;
+public final class RepositorySmoke {
+    static int checks;static void ok(boolean v,String m){checks++;if(!v)throw new AssertionError(m);}interface Action{void run()throws Exception;}static void reject(Action a)throws Exception{try{a.run();}catch(Exception expected){checks++;return;}throw new AssertionError("expected rejection");}
+    public static void main(String[] args)throws Exception{
+        Path dir=Files.createTempDirectory("archaeology-repository-");Path file=dir.resolve("data.yml");UUID town=UUID.randomUUID(),player=UUID.randomUUID();var repo=new ArchaeologyRepository(file);repo.load();repo.museum(town,"Город").add("seal",3,5,player);repo.journal(player,"Игрок").discover("seal","serial-1");repo.accept("batch",2);var site=new DigSite(UUID.randomUUID(),"ruins",UUID.randomUUID(),"world",-10,64,8,1);site.blocks().add("-10,64,8");repo.addSite(site);repo.dirty();repo.save();var reloaded=new ArchaeologyRepository(file);reloaded.load();ok(reloaded.museum(town).points()==15&&reloaded.journal(player).totalFound()==1&&reloaded.acceptedCount("batch")==2&&reloaded.sites().size()==1,"all data round trips");
+        String valid=Files.readString(file);Files.writeString(file,valid.replace("schema: 1\n",""));var legacy=new ArchaeologyRepository(file);legacy.load();ok(legacy.museum(town).points()==15,"legacy schema remains readable");
+        for(String damaged:List.of("towns: [wrong]\n","towns:\n  not-a-uuid: {}\n","sites: [42]\n","accepted-batches:\n  batch: -1\n","accepted-serials: [42]\n",valid.replace("points: 15","points: invalid"),valid.replace("completed: false","completed: unknown"))){Files.writeString(file,damaged);var bad=new ArchaeologyRepository(file);reject(bad::load);reject(bad::save);reject(()->bad.museum(town,"Тест"));ok(Files.readString(file).equals(damaged),"damaged data preserved without skipping");}
+        Files.writeString(file,valid);var blocked=new ArchaeologyRepository(file);blocked.load();Files.delete(file);Files.createDirectory(file);Files.writeString(file.resolve("keep"),"original");blocked.dirty();reject(blocked::save);ok(!blocked.writable(),"disk fault closes mutation gate");reject(()->blocked.journal(player,"Игрок"));ok(Files.readString(file.resolve("keep")).equals("original"),"save fault does not replace previous target");
+        System.out.println("RepositorySmoke OK: "+checks+" checks");
+    }
+}

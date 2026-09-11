@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>ru.neverland</groupId><artifactId>NeverLandTownyEspionage</artifactId><version>0.1.4</version>
+  <groupId>ru.neverland</groupId><artifactId>NeverLandTownyEspionage</artifactId><version>0.1.5</version>
   <properties><maven.compiler.release>17</maven.compiler.release><project.build.sourceEncoding>UTF-8</project.build.sourceEncoding></properties>
   <repositories>
     <repository><id>papermc</id><url>https://repo.papermc.io/repository/maven-public/</url></repository>
@@ -10,9 +10,9 @@
     <repository><id>placeholderapi</id><url>https://repo.extendedclip.com/releases/</url></repository>
   </repositories>
   <dependencies>
-    <dependency><groupId>io.papermc.paper</groupId><artifactId>paper-api</artifactId><version>26.2.build.112-stable</version><scope>provided</scope></dependency>
+    <dependency><groupId>io.papermc.paper</groupId><artifactId>paper-api</artifactId><version>26.2.build.121-stable</version><scope>provided</scope></dependency>
     <dependency><groupId>com.palmergames.bukkit.towny</groupId><artifactId>towny</artifactId><version>0.103.2.0</version><scope>provided</scope></dependency>
     <dependency><groupId>me.clip</groupId><artifactId>placeholderapi</artifactId><version>2.12.3</version><scope>provided</scope></dependency>
   </dependencies>
-<build><plugins><plugin><groupId>org.codehaus.mojo</groupId><artifactId>build-helper-maven-plugin</artifactId><version>3.6.1</version><executions><execution><id>shared-treasury</id><phase>generate-sources</phase><goals><goal>add-source</goal></goals><configuration><sources><source>${project.basedir}/../../shared/treasury/src/main/java</source></sources></configuration></execution></executions></plugin></plugins></build>
+<build><plugins><plugin><groupId>org.codehaus.mojo</groupId><artifactId>build-helper-maven-plugin</artifactId><version>3.6.1</version><executions><execution><id>neverland-core</id><phase>generate-sources</phase><goals><goal>add-source</goal></goals><configuration><sources><source>${project.basedir}/../../shared/core/src/main/java</source></sources></configuration></execution></executions></plugin><plugin><groupId>org.codehaus.mojo</groupId><artifactId>build-helper-maven-plugin</artifactId><version>3.6.1</version><executions><execution><id>shared-treasury</id><phase>generate-sources</phase><goals><goal>add-source</goal></goals><configuration><sources><source>${project.basedir}/../../shared/treasury/src/main/java</source></sources></configuration></execution></executions></plugin></plugins></build>
 </project>
