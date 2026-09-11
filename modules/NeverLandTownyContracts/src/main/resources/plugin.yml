@@ -1,5 +1,5 @@
 name: NeverLandTownyContracts
-version: '0.2.0'
+version: '0.3.0'
 main: ru.neverland.mintcontracts.MintTownyContracts
 api-version: '26.2'
 authors: [Alexander Sokolov]
@@ -11,7 +11,7 @@ softdepend: [PlaceholderAPI, ItemsAdder]
 commands:
   townycontracts:
     description: Административное управление городскими заказами
-    usage: /townycontracts <start|cancel|list|reload>
+    usage: /townycontracts <start|cancel|list|reload|payments|deliveries|resolve|resolve-delivery>
     aliases: [mintcontracts, mcontracts, neverlandtownycontracts, nltcontracts]
     permission: mintcontracts.admin
 permissions:

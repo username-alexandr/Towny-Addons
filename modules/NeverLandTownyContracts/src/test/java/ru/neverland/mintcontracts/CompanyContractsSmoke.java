@@ -20,7 +20,7 @@ public final class CompanyContractsSmoke {
         reload.addHistory(restored,ContractStatus.EXPIRED,25,75,30,1001);check(reload.save(),"history after custody transfer");reload.load();check(reload.active(town).isEmpty()&&reload.history(town).size()==1,"completed assignment no longer active");
         // Legacy contracts have no company or settlement keys and retain their contributions.
         repo=new ContractRepository(file.toFile(),logger);repo.add(new ActiveContract(UUID.randomUUID(),town,"miners_duty",1,1000,10,100,100,Map.of(actor,10)));check(repo.save(),"legacy fixture");
-        String legacy=Files.readString(file).replace("schema: 2\n","").replaceAll("(?m)^ +(?:company|settlement-status|settlement-payout|settlement-refund):.*\\R","");Files.writeString(file,legacy);repo.load();check(repo.active(town).get(0).companyId()==null&&repo.active(town).get(0).progress()==10,"legacy migration");
+        String legacy=Files.readString(file).replace("schema: 3\n","").replaceAll("(?m)^ +(?:company|settlement-status|settlement-payout|settlement-refund):.*\\R","");Files.writeString(file,legacy);repo.load();check(repo.active(town).get(0).companyId()==null&&repo.active(town).get(0).progress()==10,"legacy migration");
         Files.writeString(file,"towns: wrong\n");var corrupt=new ContractRepository(file.toFile(),logger);fails(corrupt::load,"corrupt data refused");check(!corrupt.save(),"corrupt data not overwritten");
         Files.delete(file);Files.delete(dir);System.out.println("CompanyContractsSmoke OK: ownership, escrow, settlement restart and legacy migration");
     }

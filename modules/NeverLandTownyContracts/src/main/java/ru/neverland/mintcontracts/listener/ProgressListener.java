@@ -23,8 +23,22 @@ public final class ProgressListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBreak(BlockBreakEvent event) {
+        contracts.fieldWork().broken(event.getBlock());
         contracts.record(event.getPlayer(), ContractType.BLOCK_BREAK, event.getBlock().getType().name(), 1);
     }
+
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)
+    public void onPlace(org.bukkit.event.block.BlockPlaceEvent e){contracts.fieldWork().placed(e.getPlayer(),e.getBlockPlaced());}
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)
+    public void onMove(org.bukkit.event.player.PlayerMoveEvent e){if(!(e instanceof org.bukkit.event.player.PlayerTeleportEvent))contracts.fieldWork().move(e.getPlayer(),e.getFrom(),e.getTo());}
+    @EventHandler(priority=EventPriority.MONITOR)
+    public void onTeleport(org.bukkit.event.player.PlayerTeleportEvent e){contracts.fieldWork().reset(e.getPlayer());}
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void onExplosion(org.bukkit.event.entity.EntityExplodeEvent e){e.blockList().forEach(contracts.fieldWork()::broken);}
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void onBlockExplosion(org.bukkit.event.block.BlockExplodeEvent e){e.blockList().forEach(contracts.fieldWork()::broken);}
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void onPiston(org.bukkit.event.block.BlockPistonExtendEvent e){e.getBlocks().forEach(contracts.fieldWork()::broken);}
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void onRetract(org.bukkit.event.block.BlockPistonRetractEvent e){e.getBlocks().forEach(contracts.fieldWork()::broken);}
+    @EventHandler public void onQuit(org.bukkit.event.player.PlayerQuitEvent e){contracts.fieldWork().reset(e.getPlayer());}
+    @EventHandler public void onWorld(org.bukkit.event.player.PlayerChangedWorldEvent e){contracts.fieldWork().reset(e.getPlayer());}
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onFish(PlayerFishEvent event) {

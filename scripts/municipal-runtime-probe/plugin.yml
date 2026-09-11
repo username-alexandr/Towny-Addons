@@ -1,0 +1,6 @@
+name: NeverLandMunicipalRuntimeProbe
+version: '1.0.0'
+main: ru.neverland.runtime.MunicipalRuntimeProbe
+api-version: '26.2'
+depend: [Towny, Vault, Essentials, NeverLandTownyBuilds, NeverLandTownyContracts, NeverLandTownyTreasuryPlus, NeverLandTownyCompanies]
+description: Disposable loopback probe; never install on a live server.

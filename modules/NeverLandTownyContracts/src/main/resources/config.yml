@@ -1,5 +1,6 @@
 contracts:
   max-active-per-town: 3
+  max-active-server: 500
   allow-duplicate-template: false
   partial-payout-on-expire: true
   partial-payout-on-cancel: true
@@ -30,3 +31,18 @@ announcements:
   contract-start: true
   contract-complete: true
   contract-expire: true
+
+# Муниципальные задания. Суммы — в монетах, срок — в реальных часах.
+municipal:
+  max-amount: 1000000
+  max-reward: 1000000
+  max-hours: 720
+  road:
+    materials: [COBBLESTONE, STONE_BRICKS, SMOOTH_STONE, GRAVEL, ANDESITE]
+    max-blocks: 256
+    stable-seconds: 60
+  scout:
+    max-chunks: 64
+    dwell-seconds: 30
+progress:
+  allow-creative: false

@@ -1,74 +1,40 @@
 package ru.neverland.mintcontracts.command;
-
-import com.palmergames.bukkit.towny.object.Town;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 import ru.neverland.mintcontracts.gui.ContractMenuManager;
 import ru.neverland.mintcontracts.integration.TownyHook;
-import ru.neverland.mintcontracts.model.ActiveContract;
-import ru.neverland.mintcontracts.model.ContractDefinition;
-import ru.neverland.mintcontracts.service.ContractService;
-import ru.neverland.mintcontracts.service.MessageService;
+import ru.neverland.mintcontracts.model.ContractType;
+import ru.neverland.mintcontracts.service.*;
 import ru.neverland.mintcontracts.util.ColorUtil;
-
-import java.util.Map;
-
+import java.util.*;
 public final class TownContractsCommand implements CommandExecutor {
-    private final TownyHook towny;
-    private final ContractService contracts;
-    private final ContractMenuManager menus;
-    private final MessageService messages;
-    public TownContractsCommand(TownyHook towny, ContractService contracts, ContractMenuManager menus, MessageService messages) {
-        this.towny = towny; this.contracts = contracts; this.menus = menus; this.messages = messages;
+    private final TownyHook towny;private final ContractService contracts;private final ContractMenuManager menus;private final MessageService messages;
+    public TownContractsCommand(TownyHook towny,ContractService contracts,ContractMenuManager menus,MessageService messages){this.towny=towny;this.contracts=contracts;this.menus=menus;this.messages=messages;}
+    @Override public boolean onCommand(CommandSender sender,Command cmd,String label,String[] args){
+        if(!(sender instanceof Player p)){messages.send(sender,"only-player");return true;}if(!p.hasPermission("mintcontracts.use")){messages.send(p,"no-permission");return true;}if(towny.town(p)==null){messages.send(p,"no-town");return true;}
+        try{if(args.length==0){menus.open(p);return true;}
+            switch(args[0].toLowerCase(Locale.ROOT)){
+                case "history"->menus.openHistory(p,towny.town(p));
+                case "claim"->{double n=contracts.claim(p);messages.send(p,n>0?"claim-success":n==0?"no-pending-reward":"economy-error",Map.of("amount",contracts.economy().format(Math.max(0,n))));}
+                case "pos1","pos2"->menus.drafts().select(p,args[0].equalsIgnoreCase("pos1"));
+                case "confirm"->menus.confirm(p);
+                case "info"->{if(args.length!=2)throw new IllegalArgumentException("/t contracts info <ID>");menus.detail(p,args[1]);}
+                case "cancel"->{if(args.length!=2)throw new IllegalArgumentException("/t contracts cancel <ID>");menus.cancel(p,args[1]);}
+                case "start"->{if(args.length!=2)throw new IllegalArgumentException("/t contracts start <шаблон>");menus.drafts().template(p,contracts.registry().get(args[1]));menus.preview(p);}
+                case "create"->create(p,args);
+                default->help(p);
+            }
+        }catch(IllegalArgumentException|IllegalStateException ex){p.sendMessage(ColorUtil.color("&6NeverLand &8» &c"+(ex instanceof NumberFormatException?"Количество, награда и срок должны быть числами.":ex.getMessage())));}return true;
     }
-    @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                                       @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player player)) { messages.send(sender, "only-player"); return true; }
-        if (!player.hasPermission("mintcontracts.use")) { messages.send(player, "no-permission"); return true; }
-        Town town = towny.town(player);
-        if (town == null) { messages.send(player, "no-town"); return true; }
-        if (args.length == 0) { menus.open(player); return true; }
-        switch (args[0].toLowerCase()) {
-            case "history" -> menus.openHistory(player, town);
-            case "claim" -> claim(player);
-            case "start", "create" -> start(player, town, args);
-            case "cancel" -> cancel(player, town, args);
-            default -> player.sendMessage(ColorUtil.color("&#FFFFFF/t contracts &8— &7доска заказов\n&#FFFFFF/t contracts start <шаблон>\n&#FFFFFF/t contracts cancel <ID>\n&#FFFFFF/t contracts claim\n&#FFFFFF/t contracts history"));
-        }
-        return true;
+    private void create(Player p,String[] a){if(a.length==1){menus.create(p);return;}String kind=a[1].toLowerCase(Locale.ROOT);
+        // Preserve the old create <template> alias.
+        if(a.length==2&&contracts.registry().get(a[1])!=null){menus.drafts().template(p,contracts.registry().get(a[1]));menus.preview(p);return;}
+        switch(kind){
+            case "delivery","hunt"->{if(a.length<5||a.length>6)throw new IllegalArgumentException("/t contracts create "+kind+" <цель> <количество> <награда> [часы]");menus.drafts().create(p,kind.equals("delivery")?ContractType.DELIVERY:ContractType.MOB_KILL,a[2],Integer.parseInt(a[3]),a[4],a.length==6?Long.parseLong(a[5]):24);}
+            case "road"->{if(a.length<4||a.length>5)throw new IllegalArgumentException("/t contracts create road <материал> <награда> [часы]");menus.drafts().create(p,ContractType.ROAD,a[2],1,a[3],a.length==5?Long.parseLong(a[4]):24);}
+            case "scout"->{if(a.length<3||a.length>4)throw new IllegalArgumentException("/t contracts create scout <награда> [часы]");menus.drafts().create(p,ContractType.SCOUT,"AREA",1,a[2],a.length==4?Long.parseLong(a[3]):24);}
+            default->throw new IllegalArgumentException("Типы: delivery, hunt, road, scout. Без аргументов откроется конструктор.");
+        }menus.preview(p);
     }
-    private void start(Player player, Town town, String[] args) {
-        if (!player.hasPermission("mintcontracts.manage") || !towny.isManager(player, town)) { messages.send(player, "only-manager"); return; }
-        if (args.length < 2) { player.sendMessage(ColorUtil.color("&#FFFFFFИспользование: /t contracts start <шаблон>")); return; }
-        ContractDefinition definition = contracts.registry().get(args[1]);
-        if (definition == null) { messages.send(player, "unknown-template", Map.of("template", args[1])); return; }
-        sendActivate(player, definition, contracts.activate(town, definition));
-    }
-    private void cancel(Player player, Town town, String[] args) {
-        if (!player.hasPermission("mintcontracts.manage") || !towny.isManager(player, town)) { messages.send(player, "only-manager"); return; }
-        if (args.length < 2) { player.sendMessage(ColorUtil.color("&#FFFFFFИспользование: /t contracts cancel <ID>")); return; }
-        ActiveContract contract = contracts.find(town.getUUID(), args[1]);
-        if (contract == null) { messages.send(player, "contract-not-found", Map.of("contract", args[1])); return; }
-        ContractDefinition definition = contracts.definition(contract);
-        contracts.cancel(town, contract);
-        messages.send(player, "cancelled", Map.of("contract", definition == null ? contract.templateId() : ColorUtil.strip(definition.name())));
-    }
-    private void claim(Player player) {
-        double amount = contracts.claim(player);
-        if (amount > 0) messages.send(player, "claim-success", Map.of("amount", contracts.economy().format(amount)));
-        else if (amount == 0) messages.send(player, "no-pending-reward"); else messages.send(player, "economy-error");
-    }
-    public void sendActivate(CommandSender sender, ContractDefinition definition, ContractService.ActivateResult result) {
-        switch (result) {
-            case SUCCESS -> messages.send(sender, "activated", Map.of("contract", ColorUtil.strip(definition.name()), "reward", contracts.economy().format(definition.reward())));
-            case MAX_ACTIVE -> messages.send(sender, "max-active");
-            case DUPLICATE -> messages.send(sender, "duplicate-template");
-            case NO_MONEY -> messages.send(sender, "not-enough-treasury", Map.of("reward", contracts.economy().format(definition.reward())));
-            case ECONOMY_ERROR, SAVE_ERROR -> messages.send(sender, "economy-error");
-            case WAREHOUSE_UNAVAILABLE -> messages.send(sender, "warehouse-unavailable");
-        }
-    }
+    private void help(Player p){p.sendMessage(ColorUtil.color("&f/t contracts &7— доска заказов\n&f/t contracts create &7— конструктор\n&f/t contracts create delivery hand 1000 3000 24\n&f/t contracts create hunt ZOMBIE 100 3000 24\n&f/t contracts pos1 &7и &f/t contracts pos2 &7— участок\n&f/t contracts create road STONE_BRICKS 3000 24\n&f/t contracts create scout 3000 24\n&f/t contracts confirm &7— подтвердить черновик\n&f/t contracts info <ID> &7— условия\n&f/t contracts cancel <ID> &7— отмена с подтверждением\n&f/t contracts claim &7— отложенная награда"));}
 }

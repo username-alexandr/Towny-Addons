@@ -10,6 +10,11 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class TownData {
+    private final Map<UUID,ru.neverland.townybuilds.api.MunicipalReceipt> municipalReceipts=new HashMap<>();
+    public Map<UUID,ru.neverland.townybuilds.api.MunicipalReceipt> municipalReceipts(){return Map.copyOf(municipalReceipts);}
+    public void putMunicipalReceipt(ru.neverland.townybuilds.api.MunicipalReceipt value){municipalReceipts.put(value.id(),value);}
+    public void removeMunicipalReceipt(UUID id){municipalReceipts.remove(id);}
+
     private final Map<UUID,ru.neverland.townybuilds.api.MarketStock> marketStock=new HashMap<>();
     public Map<UUID,ru.neverland.townybuilds.api.MarketStock> marketStock(){return Map.copyOf(marketStock);}
     public void putMarketStock(ru.neverland.townybuilds.api.MarketStock value){marketStock.put(value.id(),value);}

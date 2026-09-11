@@ -32,11 +32,12 @@ public final class MintTownyContracts extends JavaPlugin {
 
     @Override public void onEnable() {
         ru.neverland.mintcontracts.util.LegacyDataMigrator.migrate(this, "MintTownyContracts");
-        saveDefaultConfig(); copy("messages.yml"); copy("contracts.yml"); copy("item-names.yml");
+        saveDefaultConfig();getConfig().options().copyDefaults(true);saveConfig(); copy("messages.yml"); copy("contracts.yml"); copy("item-names.yml");
         towny = new TownyHook(this); itemsAdder = new ItemsAdderHook(this); messages = new MessageService(this); names = new RussianNames(this);
         registry = new ContractRegistry(this, itemsAdder); repository = new ContractRepository(this); repository.load();
         WarehouseBridge warehouse = new WarehouseBridge(this); EconomyService economy = new EconomyService(this, towny);
         contracts = new ContractService(this, towny, registry, repository, warehouse, economy, messages);
+        try{contracts.initialize();}catch(Exception ex){getLogger().severe("Контракты отключены: "+ex.getMessage());getServer().getPluginManager().disablePlugin(this);return;}
         ContractMenuManager menus = new ContractMenuManager(this, towny, contracts, messages, names);
         getServer().getPluginManager().registerEvents(menus, this);
         getServer().getPluginManager().registerEvents(new ProgressListener(contracts), this);
@@ -49,7 +50,7 @@ public final class MintTownyContracts extends JavaPlugin {
         getServer().getServicesManager().register(MintTownyContractsApi.class, contracts, this, ServicePriority.Normal);
         boolean placeholders = PlaceholderHook.register(this, towny, contracts);
         contracts.start();
-        getLogger().info("NeverLandTownyContracts 0.2.0 включён: шаблонов " + registry.all().size()
+        getLogger().info("NeverLandTownyContracts 0.3.0 включён: шаблонов " + registry.all().size()
                 + ", склад=" + warehouse.available() + ", PlaceholderAPI=" + placeholders + ".");
     }
 

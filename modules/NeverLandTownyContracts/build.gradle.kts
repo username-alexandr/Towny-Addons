@@ -3,7 +3,7 @@ import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 
 group = "ru.neverland"
-version = "0.2.0"
+version = "0.3.0"
 
 repositories {
     mavenCentral()
@@ -42,5 +42,5 @@ configurations.named("testRuntimeClasspath") { extendsFrom(configurations.named(
 tasks.register<JavaExec>("smokeTest") {
     dependsOn(tasks.testClasses)
     classpath = sourceSets.test.get().runtimeClasspath
-    mainClass.set("ru.neverland.mintcontracts.CompanyContractsSmoke")
+    mainClass.set("ru.neverland.mintcontracts.MunicipalContractsSmoke")
 }

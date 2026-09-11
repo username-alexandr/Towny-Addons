@@ -52,7 +52,7 @@ public final class ContractRegistry {
             }
         }
     }
-    private ItemStack targetItem(String target) {
+    public ItemStack targetItem(String target) {
         if (target.toLowerCase(Locale.ROOT).startsWith("itemsadder:"))
             return itemsAdder.item(target.substring("itemsadder:".length()));
         Material material = MaterialNameConfig.matchMaterial(target);
