@@ -115,6 +115,9 @@ public final class DataStore {
                     loadShipments(section, data);
                     loadTradeCargo(section, data);
                     loadMarket(section,data);
+                    var deposits=section.getConfigurationSection("municipal-receipts");
+                    if(deposits==null&&section.contains("municipal-receipts"))throw new IOException("Повреждены квитанции муниципальных поставок");
+                    if(deposits!=null)for(String key:deposits.getKeys(false)){var receipt=deposits.getConfigurationSection(key);if(receipt==null)throw new IOException("Повреждена квитанция");data.putMunicipalReceipt(new ru.neverland.townybuilds.api.MunicipalReceipt(UUID.fromString(key),ItemCodec.decodeSingle(receipt.getString("sample","")),receipt.getInt("amount")));}
                 }
                 towns.put(townId, data);
             } catch (IllegalArgumentException | IOException | ClassNotFoundException exception) {
@@ -195,6 +198,7 @@ public final class DataStore {
             } catch (IOException exception) {
                 throw new IOException("Не удалось сериализовать склад " + data.townId(), exception);
             }
+            for(var receipt:data.municipalReceipts().values()){String c=path+".municipal-receipts."+receipt.id();yaml.set(c+".sample",ItemCodec.encodeSingle(receipt.sample()));yaml.set(c+".amount",receipt.amount());}
             for(var lot:data.marketStock().values()) {
                 String c=path+".market-stock."+lot.id();yaml.set(c+".sample",ItemCodec.encodeSingle(lot.sample()));yaml.set(c+".total",lot.total());yaml.set(c+".available",lot.available());yaml.set(c+".open",lot.open());
                 yaml.createSection(c+".holds");for(var h:lot.holds().values()){String o=c+".holds."+h.id();yaml.set(o+".buyer",h.buyer().toString());yaml.set(o+".city",h.city());yaml.set(o+".amount",h.amount());yaml.set(o+".status",h.status());}

@@ -33,6 +33,9 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         if (!sender.hasPermission("mintcontracts.admin")) { messages.send(sender, "no-permission"); return true; }
         if (args.length == 0) { messages.list("admin-help").forEach(sender::sendMessage); return true; }
         switch (args[0].toLowerCase()) {
+            case "payments" -> {contracts.repository().payments().values().stream().filter(p->p.phase()==ru.neverland.mintcontracts.model.MunicipalPayment.Phase.PENDING||p.phase()==ru.neverland.mintcontracts.model.MunicipalPayment.Phase.READY).forEach(p->sender.sendMessage(p.id()+" | "+p.kind()+" | "+p.phase()+" | "+p.cents()+" коп. | город "+p.town()+" | счёт "+p.account()));}
+            case "deliveries" -> {contracts.repository().deliveries().values().stream().filter(d->d.phase()!=ru.neverland.mintcontracts.model.DeliveryIntent.Phase.REJECTED&&(!d.acknowledged())).forEach(d->sender.sendMessage(d.id()+" | "+d.phase()+" | "+d.amount()+" шт. | игрок "+d.actor()));}
+            case "resolve", "resolve-delivery" -> reconcile(sender,args);
             case "reload" -> { plugin.reloadPlugin(); messages.send(sender, "reload"); }
             case "list" -> list(sender);
             case "start" -> start(sender, args);
@@ -40,6 +43,11 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             default -> messages.list("admin-help").forEach(sender::sendMessage);
         }
         return true;
+    }
+    private void reconcile(CommandSender sender,String[] args){
+        boolean delivery=args[0].equalsIgnoreCase("resolve-delivery");String yes=delivery?"taken":"applied",no=delivery?"untouched":"rejected";
+        if(args.length!=4||!args[3].equalsIgnoreCase("confirm")||!args[2].equalsIgnoreCase(yes)&&!args[2].equalsIgnoreCase(no)){sender.sendMessage("После проверки журнала банка или инвентаря: /townycontracts "+args[0]+" <UUID> "+yes+"|"+no+" confirm");return;}
+        try{java.util.UUID id=java.util.UUID.fromString(args[1]);boolean applied=args[2].equalsIgnoreCase(yes);if(delivery)contracts.reconcileDelivery(id,applied);else contracts.reconcilePayment(id,applied);plugin.getLogger().warning("Ручная сверка: оператор="+sender.getName()+", операция="+id+", результат="+args[2]);sender.sendMessage("Результат сверки сохранён.");}catch(Exception ex){sender.sendMessage("Сверка не выполнена: "+ex.getMessage());}
     }
     private void start(CommandSender sender, String[] args) {
         if (args.length < 3) { sender.sendMessage(ColorUtil.color("&#FFFFFFИспользование: /townycontracts start <шаблон> <город>")); return; }
@@ -58,7 +66,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         ActiveContract contract = contracts.find(town.getUUID(), args[1]);
         if (contract == null) { messages.send(sender, "contract-not-found", Map.of("contract", args[1])); return; }
         ContractDefinition definition = contracts.definition(contract);
-        contracts.cancel(town, contract);
+        if(!contracts.cancel(town, contract)){sender.sendMessage("Заказ ожидает расчёта или поставки; отмена недоступна.");return;}
         messages.send(sender, "cancelled", Map.of("contract", definition == null ? contract.templateId() : ColorUtil.strip(definition.name())));
     }
     private void list(CommandSender sender) {
@@ -83,7 +91,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     private String join(String[] args, int start) { return String.join(" ", Arrays.copyOfRange(args, start, args.length)); }
     @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
                                                            @NotNull String alias, @NotNull String[] args) {
-        if (args.length == 1) return filter(List.of("start", "cancel", "list", "reload"), args[0]);
+        if (args.length == 1) return filter(List.of("start", "cancel", "list", "reload", "payments", "deliveries", "resolve", "resolve-delivery"), args[0]);
         if (args.length == 2 && args[0].equalsIgnoreCase("start")) return filter(contracts.registry().all().stream().map(ContractDefinition::id).toList(), args[1]);
         if (args.length == 3 && (args[0].equalsIgnoreCase("start") || args[0].equalsIgnoreCase("cancel")))
             return filter(towny.towns().stream().map(Town::getName).toList(), args[2]);

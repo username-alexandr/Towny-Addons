@@ -22,6 +22,12 @@ public final class MessageService {
         try (InputStream stream = plugin.getResource("messages.yml")) {
             if (stream != null) yaml.setDefaults(YamlConfiguration.loadConfiguration(
                     new InputStreamReader(stream, StandardCharsets.UTF_8)));
+            try(InputStream oldStream=plugin.getResource("messages-0.2.0.yml")){
+                if(oldStream!=null){var old=YamlConfiguration.loadConfiguration(new InputStreamReader(oldStream,StandardCharsets.UTF_8));boolean changed=false;
+                    for(String key:old.getKeys(false))if(java.util.Objects.equals(yaml.get(key),old.get(key))&&!java.util.Objects.equals(old.get(key),yaml.getDefaults().get(key))){yaml.set(key,yaml.getDefaults().get(key));changed=true;}
+                    if(changed)yaml.save(new File(plugin.getDataFolder(),"messages.yml"));
+                }
+            }
         } catch (Exception exception) {
             plugin.getLogger().warning("Не удалось загрузить встроенные сообщения: " + exception.getMessage());
         }

@@ -179,7 +179,19 @@ def main() -> int:
                             errors.append(f"{jar.name}: outdated company resource {resource}")
                     if "ru/neverland/townycompanies/CompaniesSmoke.class" in archive.namelist():
                         errors.append(f"{jar.name}: company test code leaked")
+                if name == "NeverLandTownyBuilds":
+                    for cls in ("api/MunicipalStorageApi", "api/MunicipalReceipt", "storage/MunicipalDeposits", "storage/MunicipalStorageService"):
+                        if f"ru/neverland/townybuilds/{cls}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing municipal warehouse class {cls}")
                 if name == "NeverLandTownyContracts":
+                    for cls in ("service/MunicipalPayments", "service/MunicipalDeliveries", "service/MunicipalDrafts", "service/FieldWorkService", "service/RoadAudit", "service/ScoutTracker", "integration/MunicipalBank", "model/WorkArea"):
+                        if f"ru/neverland/mintcontracts/{cls}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing municipal contract class {cls}")
+                    for resource in ("config.yml", "plugin.yml", "messages.yml", "messages-0.2.0.yml"):
+                        if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
+                            errors.append(f"{jar.name}: outdated contract resource {resource}")
+                    if "ru/neverland/mintcontracts/MunicipalContractsSmoke.class" in archive.namelist():
+                        errors.append(f"{jar.name}: municipal test code leaked")
                     if "ru/neverland/mintcontracts/integration/CompaniesBridge.class" not in archive.namelist():
                         errors.append(f"{jar.name}: missing companies integration")
                 if name == "NeverLandTownyMarket":
