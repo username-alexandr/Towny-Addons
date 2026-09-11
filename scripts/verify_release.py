@@ -18,7 +18,7 @@ except ImportError as exc:  # pragma: no cover - explicit environment guidance
 ROOT = Path(__file__).resolve().parents[1]
 LOCALIZATION_MODULES = {
     "NeverLandTownyBuilds", "NeverLandTownyCamps", "NeverLandTownyContracts",
-    "NeverLandTownyEvents", "NeverLandTownyExpeditions", "NeverLandTownyTrade", "NeverLandTownyLogistics", "NeverLandTownyMarket",
+    "NeverLandTownyEvents", "NeverLandTownyExpeditions", "NeverLandTownyTrade", "NeverLandTownyLogistics", "NeverLandTownyMarket", "NeverLandTownyCompanies",
 }
 LOCALIZATION_RESOURCE = "neverland-localization/materials-ru.properties"
 
@@ -167,9 +167,21 @@ def main() -> int:
                 jar_meta = yaml.safe_load(archive.read("plugin.yml").decode("utf-8"))
                 if jar_meta.get("name") != name or str(jar_meta.get("version")) != version:
                     errors.append(f"{jar.name}: plugin.yml identity/version mismatch")
-                if name in {"NeverLandTowny" + suffix for suffix in ("Builds", "Upkeep", "Trade", "Contracts", "Ideologies", "Espionage", "TreasuryPlus")}:
+                if name in {"NeverLandTowny" + suffix for suffix in ("Builds", "Upkeep", "Trade", "Contracts", "Ideologies", "Espionage", "TreasuryPlus", "Companies")}:
                     if "ru/neverland/integration/TreasuryAccess.class" not in archive.namelist():
                         errors.append(f"{jar.name}: missing treasury integration")
+                if name == "NeverLandTownyCompanies":
+                    for cls in ("NeverLandTownyCompanies", "CompanyService", "CompanyRepository", "CompanyLedger", "CompanyData", "CompanyBank", "CompanyCommand", "CompanyMenus", "ContractsBridge", "PaymentEvidence", "api/CompaniesApi"):
+                        if f"ru/neverland/townycompanies/{cls}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing company class {cls}")
+                    for resource in ("config.yml", "plugin.yml"):
+                        if archive.read(resource) != (module / "src/main/resources" / resource).read_bytes():
+                            errors.append(f"{jar.name}: outdated company resource {resource}")
+                    if "ru/neverland/townycompanies/CompaniesSmoke.class" in archive.namelist():
+                        errors.append(f"{jar.name}: company test code leaked")
+                if name == "NeverLandTownyContracts":
+                    if "ru/neverland/mintcontracts/integration/CompaniesBridge.class" not in archive.namelist():
+                        errors.append(f"{jar.name}: missing companies integration")
                 if name == "NeverLandTownyMarket":
                     for cls in ("NeverLandTownyMarket", "MarketService", "MarketRepository", "MarketPayments", "MarketPrices", "MarketGateway", "MarketMenus", "PaymentEvidence", "MarketApi"):
                         if f"ru/neverland/townymarket/{cls}.class" not in archive.namelist():

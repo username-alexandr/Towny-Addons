@@ -36,6 +36,8 @@ public final class ContractService implements MintTownyContractsApi {
     private final EconomyService economy;
     private final MessageService messages;
     private BukkitTask task;
+    private RussianNames companyNames;
+    private final ru.neverland.mintcontracts.integration.CompaniesBridge companies = new ru.neverland.mintcontracts.integration.CompaniesBridge();
 
     public ContractService(JavaPlugin plugin, TownyHook towny, ContractRegistry registry, ContractRepository repository,
                            WarehouseBridge warehouse, EconomyService economy, MessageService messages) {
@@ -51,6 +53,7 @@ public final class ContractService implements MintTownyContractsApi {
     public void shutdown() { if (task != null) task.cancel(); task = null; repository.save(); }
 
     public ActivateResult activate(Town town, ContractDefinition definition) {
+        if(!Bukkit.isPrimaryThread()||!repository.writable())return ActivateResult.SAVE_ERROR;
         if (town == null || definition == null) return ActivateResult.SAVE_ERROR;
         if (repository.active(town.getUUID()).size() >= plugin.getConfig().getInt("contracts.max-active-per-town", 3)) return ActivateResult.MAX_ACTIVE;
         if (!plugin.getConfig().getBoolean("contracts.allow-duplicate-template", false) && repository.hasTemplate(town.getUUID(), definition.id()))
@@ -74,6 +77,7 @@ public final class ContractService implements MintTownyContractsApi {
     }
 
     public DeliveryResult deliver(Player player, ActiveContract contract, boolean all) {
+        if(!canContribute(contract,player.getUniqueId()))return new DeliveryResult(WarehouseBridge.Status.UNAVAILABLE,0,contract==null?0:contract.progress());
         Town town = towny.town(player);
         ContractDefinition definition = definition(contract);
         if (town == null || definition == null || definition.type() != ContractType.DELIVERY || !town.getUUID().equals(contract.townId()))
@@ -100,30 +104,35 @@ public final class ContractService implements MintTownyContractsApi {
     }
 
     private boolean addInternal(ActiveContract contract, UUID contributor, int amount) {
-        if (contract == null || contributor == null) return false;
+        if (!canContribute(contract,contributor)) return false;
         int accepted = contract.add(contributor, amount);
         if (accepted <= 0) return false;
         repository.changed();
         if (contract.completed()) resolve(contract, ContractStatus.SUCCESS);
-        else saveNow();
+        else if(contract.companyId()!=null){if(!repository.save())return false;}else saveNow();
         return true;
     }
 
     public boolean cancel(Town town, ActiveContract contract) {
-        if (town == null || contract == null || !town.getUUID().equals(contract.townId())) return false;
+        if (!Bukkit.isPrimaryThread()||!repository.writable()||town == null || contract == null || !town.getUUID().equals(contract.townId())||repository.find(town.getUUID(),contract.id().toString())!=contract) return false;
         resolve(contract, ContractStatus.CANCELLED);
         return true;
     }
 
     private void tick() {
+        if(!repository.writable())return;
         long now = System.currentTimeMillis();
         for (ActiveContract contract : new ArrayList<>(repository.allActive()))
-            if (now >= contract.expiresAt()) resolve(contract, ContractStatus.EXPIRED);
+            if (contract.settlementStatus()!=null) resolve(contract,contract.settlementStatus());
+            else if(contract.completed())resolve(contract,ContractStatus.SUCCESS);
+            else if (now >= contract.expiresAt()) resolve(contract, ContractStatus.EXPIRED);
         retryTownRefunds();
         repository.saveIfDirty();
     }
 
     private void resolve(ActiveContract contract, ContractStatus status) {
+        if(!repository.writable())return;
+        if(contract.companyId()!=null){resolveCompany(contract,status);return;}
         ContractDefinition definition = definition(contract);
         if (definition == null) {
             plugin.getLogger().warning("Шаблон " + contract.templateId() + " удалён; контракт " + contract.id()
@@ -154,6 +163,50 @@ public final class ContractService implements MintTownyContractsApi {
                 definition, contract, paid);
     }
 
+    private boolean canContribute(ActiveContract c,UUID actor) {
+        if(!Bukkit.isPrimaryThread()||!repository.writable()||c==null||actor==null||c.settlementStatus()!=null||System.currentTimeMillis()>=c.expiresAt()||repository.find(c.townId(),c.id().toString())!=c)return false;
+        return c.companyId()==null||companies.allow("canContribute",actor,c.companyId(),c.townId());
+    }
+    private void resolveCompany(ActiveContract c,ContractStatus status) {
+        if(c.settlementStatus()==null){
+            boolean partial=status==ContractStatus.EXPIRED?plugin.getConfig().getBoolean("contracts.partial-payout-on-expire",true):plugin.getConfig().getBoolean("contracts.partial-payout-on-cancel",true);
+            long total=Math.round(c.escrow()*100);long payout=status==ContractStatus.SUCCESS?total:partial?Math.min(total,Math.round(total*c.ratio())):0;
+            c.settlement(status,payout,total-payout);repository.changed();if(!repository.save())return;
+        }
+        if(!companies.settle(c.id(),c.companyId(),c.townId(),c.settlementPayout(),c.settlementRefund()))return;
+        repository.addHistory(c,c.settlementStatus(),c.settlementPayout()/100.0,c.settlementRefund()/100.0,plugin.getConfig().getInt("contracts.history-limit-per-town",30),System.currentTimeMillis());
+        if(!repository.save())return;
+        Town town=towny.town(c.townId());ContractDefinition d=definition(c);if(d==null)d=fallback(c);
+        if(town!=null)announce(town,c.settlementStatus()==ContractStatus.SUCCESS?"contract-complete-town":c.settlementStatus()==ContractStatus.CANCELLED?"contract-cancel-town":"contract-expire-town",d,c,c.settlementPayout()/100.0);
+    }
+    public boolean companyContributor(Player p,ActiveContract c){return canContribute(c,p.getUniqueId());}
+    public int companyActiveCount(UUID company){return (int)repository.allActive().stream().filter(c->company.equals(c.companyId())).count();}
+    public String companyName(ActiveContract c){return c.companyId()==null?"Жители города":companies.name(c.companyId());}
+    public List<Map<String,Object>> companyOffers(UUID town) {
+        if(!Bukkit.isPrimaryThread()||!repository.writable())throw new IllegalStateException("Контракты временно недоступны");
+        List<Map<String,Object>> result=new ArrayList<>();
+        if(companyNames==null)companyNames=new RussianNames(plugin);
+        var names=companyNames;
+        for(ActiveContract c:active(town)) {
+            var d=definition(c);if(d==null)continue;
+            Map<String,Object> row=new LinkedHashMap<>();row.put("id",c.id().toString());row.put("name",ColorUtil.strip(d.name()));row.put("company",c.companyId()==null?"":c.companyId().toString());row.put("assignee",companyName(c));
+            row.put("progress",c.progress());row.put("goal",c.goal());row.put("reward",economy.format(c.escrow()));row.put("expires",c.expiresAt());
+            row.put("target",d.type()==ContractType.DELIVERY?names.item(d.deliveryItem()):d.target().equalsIgnoreCase("ANY")?"Любая подходящая цель":names.value(d.target()));result.add(Map.copyOf(row));
+        }return List.copyOf(result);
+    }
+    public boolean takeCompanyContract(Player p,UUID company,UUID id) {
+        if(!Bukkit.isPrimaryThread()||!repository.writable())return false;
+        Town town=towny.town(p);if(town==null)return false;ActiveContract c=find(town.getUUID(),id.toString());
+        if(c==null||c.companyId()!=null||c.progress()!=0||c.settlementStatus()!=null||System.currentTimeMillis()>=c.expiresAt()||!companies.allow("canTake",p.getUniqueId(),company,town.getUUID()))return false;
+        c.companyId(company);repository.changed();return repository.save();
+    }
+    public boolean releaseCompanyContract(Player p,UUID company,UUID id) {
+        if(!Bukkit.isPrimaryThread()||!repository.writable())return false;
+        Town town=towny.town(p);if(town==null)return false;ActiveContract c=find(town.getUUID(),id.toString());
+        if(c==null||!company.equals(c.companyId())||c.progress()!=0||c.settlementStatus()!=null||System.currentTimeMillis()>=c.expiresAt()||!companies.allow("canManage",p.getUniqueId(),company,town.getUUID()))return false;
+        c.companyId(null);repository.changed();return repository.save();
+    }
+
     private Map<UUID, Long> shares(Map<UUID, Integer> contributions, long totalCents) {
         Map<UUID, Long> result = new LinkedHashMap<>();
         if (totalCents <= 0 || contributions.isEmpty()) return result;
@@ -171,6 +224,7 @@ public final class ContractService implements MintTownyContractsApi {
     }
 
     public double claim(Player player) {
+        if(!Bukkit.isPrimaryThread()||!repository.writable())return -1;
         double amount = repository.pendingPlayer(player.getUniqueId());
         if (amount <= 0) return 0;
         ContractDefinition fallback = registry.all().stream().findFirst().orElse(null);
@@ -181,6 +235,7 @@ public final class ContractService implements MintTownyContractsApi {
     }
 
     private void retryTownRefunds() {
+        if(!repository.writable())return;
         ContractDefinition fallback = registry.all().stream().findFirst().orElse(null);
         if (fallback == null) return;
         for (Map.Entry<UUID, Double> entry : repository.pendingTowns().entrySet()) {
@@ -230,7 +285,7 @@ public final class ContractService implements MintTownyContractsApi {
     public ContractRepository repository() { return repository; }
     public EconomyService economy() { return economy; }
     public double pending(UUID playerId) { return repository.pendingPlayer(playerId); }
-    public void reloadRuntime() { start(); }
+    public void reloadRuntime() { companyNames=null;start(); }
     private void saveNow() { if (plugin.getConfig().getBoolean("contracts.save-immediately", true)) repository.save(); }
 
     @Override public List<ContractSnapshot> activeContracts(UUID townId) {

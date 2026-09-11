@@ -14,6 +14,9 @@ public final class ActiveContract {
     private final double escrow;
     private final Map<UUID, Integer> contributions = new LinkedHashMap<>();
     private int progress;
+    private UUID companyId;
+    private ContractStatus settlementStatus;
+    private long settlementPayout, settlementRefund;
 
     public ActiveContract(UUID id, UUID townId, String templateId, long createdAt, long expiresAt,
                           int progress, int goal, double escrow, Map<UUID, Integer> contributions) {
@@ -22,6 +25,17 @@ public final class ActiveContract {
         this.escrow = Math.max(0, escrow); this.contributions.putAll(contributions);
     }
     public UUID id() { return id; }
+    public UUID companyId() { return companyId; }
+    public void companyId(UUID id) { if(progress!=0||settlementStatus!=null)throw new IllegalStateException("Начатый контракт нельзя передать");companyId=id; }
+    public void restoreCompany(UUID id) { companyId=id; }
+    public ContractStatus settlementStatus() { return settlementStatus; }
+    public long settlementPayout() { return settlementPayout; }
+    public long settlementRefund() { return settlementRefund; }
+    public void settlement(ContractStatus status,long payout,long refund) {
+        if(companyId==null||status==null||payout<0||refund<0||Math.addExact(payout,refund)!=Math.round(escrow*100))throw new IllegalArgumentException("Некорректный расчёт компании");
+        if(settlementStatus!=null&&(settlementStatus!=status||settlementPayout!=payout||settlementRefund!=refund))throw new IllegalArgumentException("Условия расчёта уже зафиксированы");
+        settlementStatus=status;settlementPayout=payout;settlementRefund=refund;
+    }
     public UUID townId() { return townId; }
     public String templateId() { return templateId; }
     public long createdAt() { return createdAt; }
@@ -31,6 +45,7 @@ public final class ActiveContract {
     public double escrow() { return escrow; }
     public Map<UUID, Integer> contributions() { return Map.copyOf(contributions); }
     public int add(UUID playerId, int amount) {
+        if(settlementStatus!=null)return 0;
         int accepted = Math.min(Math.max(0, amount), goal - progress);
         if (accepted <= 0) return 0;
         progress += accepted;

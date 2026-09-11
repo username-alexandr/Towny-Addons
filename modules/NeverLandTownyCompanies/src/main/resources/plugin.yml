@@ -1,0 +1,22 @@
+name: NeverLandTownyCompanies
+version: '0.1.0'
+main: ru.neverland.townycompanies.NeverLandTownyCompanies
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: Предприятия игроков, общий счёт, налоги и городские контракты.
+depend: [Towny, NeverLandTownyContracts]
+softdepend: [NeverLandTownyTreasuryPlus, Vault, Reserve, Essentials]
+commands:
+  townycompanies:
+    aliases: [company, companies, nltcompanies]
+    description: Предприятия игроков
+    usage: /company [help|create|members|contracts|deposit|withdraw]
+permissions:
+  neverlandtownycompanies.use:
+    default: true
+  neverlandtownycompanies.create:
+    default: true
+  neverlandtownycompanies.contracts:
+    default: true
+  neverlandtownycompanies.admin:
+    default: op

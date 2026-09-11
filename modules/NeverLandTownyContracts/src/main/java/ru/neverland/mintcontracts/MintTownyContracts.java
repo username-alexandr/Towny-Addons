@@ -49,7 +49,7 @@ public final class MintTownyContracts extends JavaPlugin {
         getServer().getServicesManager().register(MintTownyContractsApi.class, contracts, this, ServicePriority.Normal);
         boolean placeholders = PlaceholderHook.register(this, towny, contracts);
         contracts.start();
-        getLogger().info("NeverLandTownyContracts 0.1.2 включён: шаблонов " + registry.all().size()
+        getLogger().info("NeverLandTownyContracts 0.2.0 включён: шаблонов " + registry.all().size()
                 + ", склад=" + warehouse.available() + ", PlaceholderAPI=" + placeholders + ".");
     }
 
@@ -58,6 +58,8 @@ public final class MintTownyContracts extends JavaPlugin {
         if (towny != null) towny.unregister("contracts");
         getServer().getServicesManager().unregisterAll(this);
     }
+
+    public ContractService companyContracts() { return contracts; }
 
     public void reloadPlugin() {
         reloadConfig(); messages.reload(); itemsAdder.reload(); names.reload(); registry.reload(); contracts.reloadRuntime();
