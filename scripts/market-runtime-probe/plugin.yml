@@ -1,0 +1,6 @@
+name: NeverLandMarketRuntimeProbe
+version: '1.0.0'
+main: ru.neverland.runtime.MarketRuntimeProbe
+api-version: '26.2'
+depend: [Towny, Vault, Essentials, NeverLandTownyBuilds, NeverLandTownyMarket, NeverLandTownyTreasuryPlus, NeverLandTownyPolicies, NeverLandTownyTaxes, NeverLandTownyUpkeep, NeverLandTownyPower]
+description: Disposable loopback integration probe; never install on a live server.
