@@ -16,7 +16,7 @@ public final class OperationGateSmoke {
     public static void run()throws Exception{
         Map<String,Plugin> plugins=new HashMap<>();var services=new SimpleServicesManager();
         var manager=proxy(PluginManager.class,(p,m,a)->m.getName().equals("getPlugin")?plugins.get(a[0]):fallback(p,m,a));
-        var server=proxy(Server.class,(p,m,a)->switch(m.getName()){case "getPluginManager"->manager;case "getServicesManager"->services;case "getLogger"->Logger.getLogger("power-test");case "getName","getVersion","getBukkitVersion"->"power-test";default->fallback(p,m,a);});
+        var server=proxy(Server.class,(p,m,a)->switch(m.getName()){case "getPluginManager"->manager;case "getServicesManager"->services;case "getLogger"->Logger.getLogger("power-test");case "isPrimaryThread"->true;case "getName","getVersion","getBukkitVersion"->"power-test";default->fallback(p,m,a);});
         // Paper setServer() prints build metadata supplied only by a real server distribution.
         var field=Bukkit.class.getDeclaredField("server");field.setAccessible(true);field.set(null,server);UUID town=UUID.randomUUID();check(BuildingOperations.active(town,"foundry"),"optional plugins absent preserve original behavior");
         var enabled=new AtomicBoolean(true);var upkeep=proxy(Plugin.class,(p,m,a)->m.getName().equals("isEnabled")?true:fallback(p,m,a));var power=proxy(Plugin.class,(p,m,a)->m.getName().equals("isEnabled")?enabled.get():fallback(p,m,a));

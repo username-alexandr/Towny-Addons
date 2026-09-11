@@ -1,6 +1,7 @@
 package ru.neverland.townypolicies.api;
 import java.util.*;
-public interface TownyPoliciesApi {
+public interface TownyPoliciesApi extends ru.neverland.core.ApiContract {
+    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("effect", "importsAllowed", "policies", "productionMultiplier", "residentPolicies", "tariff", "tariffManaged", "taxMultiplier", "upkeepMultiplier"); }
     double effect(UUID town,String key);
     double productionMultiplier(UUID town,String project);
     double upkeepMultiplier(UUID town,String project);

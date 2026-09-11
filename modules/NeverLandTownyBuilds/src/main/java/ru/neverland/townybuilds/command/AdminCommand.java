@@ -31,6 +31,8 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             messages.send(sender, "no-permission");
             return true;
         }
+        if(args.length>0&&args[0].equalsIgnoreCase("shop")){civic.shops().admin(sender,args);return true;}
+        if(args.length==1&&args[0].equalsIgnoreCase("diagnostics")){ru.neverland.core.Diagnostics.show(sender);return true;}
         if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
             plugin.reloadPlugin();
             messages.send(sender, "reload-success");
@@ -50,14 +52,14 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
         }
-        sender.sendMessage("/townybuilds reload | /townybuilds stall <set|remove|list> [id]");
+        sender.sendMessage("/townybuilds reload | /townybuilds stall <set|remove|list> [id] | /townybuilds shop payments | /townybuilds diagnostics");
         return true;
     }
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
                                                  @NotNull String label, @NotNull String[] args) {
-        if (args.length == 1) return List.of("reload", "stall");
+        if (args.length == 1) return List.of("reload", "stall", "shop", "diagnostics");
         if (args.length == 2 && args[0].equalsIgnoreCase("stall")) return List.of("set", "remove", "list");
         if (args.length == 3 && args[0].equalsIgnoreCase("stall") && args[1].equalsIgnoreCase("remove")) {
             return civic.stallIds();

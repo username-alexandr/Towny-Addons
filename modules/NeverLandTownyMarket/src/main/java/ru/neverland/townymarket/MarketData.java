@@ -12,7 +12,9 @@ public final class MarketData {
         public String shortId(){return id.toString().substring(0,8);}
         public String scopeKey(){return scope==Scope.GLOBAL?"global":"local_"+town;}
     }
-    public record Order(UUID id,UUID lot,UUID seller,UUID buyer,UUID actor,boolean city,int amount,long unit,long created,Phase phase,long check,String note,boolean finalized){
+    public record Order(UUID id,UUID lot,UUID seller,UUID buyer,UUID actor,boolean city,int amount,long unit,long created,Phase phase,long check,String note,boolean finalized) implements ru.neverland.core.PurchaseSaga.Purchase<Order> {
+        public String paymentStep(){return phase.name();}
+        public Order paymentStep(String step,long at,String note){return phase(Phase.valueOf(step),at,note);}
         public Order {if(id==null||lot==null||seller==null||buyer==null||actor==null||city&&seller.equals(buyer)||!city&&!buyer.equals(actor)||amount<1||amount>3456||unit<1||unit>MAX/amount||created<0||phase==null||check<0||note==null||finalized&&phase!=Phase.COMPLETE&&phase!=Phase.CANCELLED)throw new IllegalArgumentException("Некорректная покупка");}
         public long total(){return unit*amount;}
         public Order phase(Phase s,long at,String n){return new Order(id,lot,seller,buyer,actor,city,amount,unit,created,s,at,noteText(n),false);}

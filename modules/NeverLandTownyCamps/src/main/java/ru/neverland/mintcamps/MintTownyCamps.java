@@ -61,6 +61,7 @@ public final class MintTownyCamps extends JavaPlugin {
         costs = new CostStore(this);
         repository = new CampRepository(this);
         repository.load();
+        Bukkit.getServicesManager().register(ru.neverland.mintcamps.api.TownyCampsApi.class,new ru.neverland.mintcamps.service.CampsApiService(repository),this,org.bukkit.plugin.ServicePriority.Normal);
         ResourceService resources = new ResourceService();
         StructureGenerator generator = new StructureGenerator();
         StructureService structures = new StructureService(this, generator);
@@ -104,11 +105,12 @@ public final class MintTownyCamps extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        Bukkit.getServicesManager().unregisterAll(this);
         stopTasks();
         if (protection != null) protection.stop();
         if (holograms != null) holograms.stop(true);
         if (teleports != null) teleports.cancelAll();
-        if (repository != null) repository.save();
+        if (repository != null && repository.writable()) repository.save();
         if (expansion != null) expansion.unregister();
     }
 

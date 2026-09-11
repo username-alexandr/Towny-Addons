@@ -1,5 +1,5 @@
 name: NeverLandTownyEvents
-version: '0.2.3'
+version: '0.2.4'
 main: ru.neverland.mintevents.MintTownyEvents
 api-version: '26.2'
 authors: [Alexander Sokolov]

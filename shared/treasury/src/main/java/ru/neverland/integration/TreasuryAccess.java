@@ -7,7 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 public final class TreasuryAccess {
     private TreasuryAccess(){}
     private static Object invoke(String method,Class<?>[] signature,Object... args){
-        try{var plugin=Bukkit.getPluginManager().getPlugin("NeverLandTownyTreasuryPlus");if(plugin==null||!plugin.isEnabled())return false;Class<?> api=Class.forName("ru.neverland.townytreasury.api.TownyTreasuryApi",true,plugin.getClass().getClassLoader());Object service=Bukkit.getServicesManager().load(api);return service==null?false:api.getMethod(method,signature).invoke(service,args);}
+        try{var c=ru.neverland.core.ApiServices.connect("NeverLandTownyTreasuryPlus","ru.neverland.townytreasury.api.TownyTreasuryApi",1,method);return c.ready()?c.invoke(method,signature,args):false;}
         catch(InvocationTargetException ex){throw new IllegalStateException("Казна: "+ex.getCause().getMessage(),ex.getCause());}
         catch(ReflectiveOperationException|LinkageError ex){return false;}
     }

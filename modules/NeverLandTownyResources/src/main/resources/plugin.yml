@@ -1,5 +1,5 @@
 name: NeverLandTownyResources
-version: '0.1.7'
+version: '0.1.8'
 main: ru.neverland.townyresources.NeverLandTownyResources
 api-version: '26.2'
 authors: [Alexander Sokolov]

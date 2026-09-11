@@ -41,7 +41,7 @@ public final class DataStore {
         writable = false;
         towns.clear();
         if (!file.exists()) {
-            writable = true;
+            writable = true; ru.neverland.core.AtomicFiles.loaded(file.toPath());
             return;
         }
         YamlConfiguration yaml = new YamlConfiguration();
@@ -49,7 +49,7 @@ public final class DataStore {
         ConfigurationSection root = yaml.getConfigurationSection("towns");
         if (root == null) {
             if (!yaml.getKeys(false).isEmpty()) throw new IllegalStateException("В базе нет раздела towns; запись отключена");
-            writable = true; return;
+            writable = true; ru.neverland.core.AtomicFiles.loaded(file.toPath()); return;
         }
         for (String rawId : root.getKeys(false)) {
             try {
@@ -70,7 +70,7 @@ public final class DataStore {
                 if (construction != null) {
                     for (String projectId : construction.getKeys(false)) {
                         ConfigurationSection site = construction.getConfigurationSection(projectId);
-                        if (site == null) continue;
+                        if (site == null) throw new IOException("Повреждена строительная площадка");
                         try {
                             UUID worldId = UUID.fromString(site.getString("world", ""));
                             BlockFace facing = BlockFace.valueOf(site.getString("facing", "NORTH"));
@@ -80,8 +80,7 @@ public final class DataStore {
                                     site.getInt("build-from-stage", 1), site.getBoolean("active"),
                                     site.getInt("architecture-version", 1)));
                         } catch (IllegalArgumentException exception) {
-                            plugin.getLogger().warning("Повреждена строительная площадка " + projectId
-                                    + " города " + townId + ": " + exception.getMessage());
+                            throw new IOException("Повреждена строительная площадка " + projectId + " города " + townId,exception);
                         }
                     }
                 }
@@ -91,16 +90,16 @@ public final class DataStore {
                 if (fundSection != null) {
                     for (String projectId : fundSection.getKeys(false)) {
                         ConfigurationSection projectFund = fundSection.getConfigurationSection(projectId);
-                        if (projectFund == null) continue;
+                        if (projectFund == null) throw new IOException("Повреждён фонд ресурсов");
                         ResourceFund fund = new ResourceFund(projectFund.getInt("target-level", 1));
                         ConfigurationSection entries = projectFund.getConfigurationSection("entries");
                         if (entries != null) {
                             for (String entryId : entries.getKeys(false)) {
                                 ConfigurationSection entry = entries.getConfigurationSection(entryId);
-                                if (entry == null) continue;
+                                if (entry == null) throw new IOException("Повреждена запись фонда");
                                 String encoded = entry.getString("item", "");
                                 int amount = entry.getInt("amount");
-                                if (encoded.isBlank() || amount <= 0) continue;
+                                if (encoded.isBlank() || amount <= 0) throw new IOException("Повреждён предмет фонда");
                                 fund.add(ItemCodec.decodeSingle(encoded), amount);
                             }
                         }
@@ -124,11 +123,14 @@ public final class DataStore {
                 throw new IllegalStateException("Повреждены данные города " + rawId + "; запись отключена", exception);
             }
         }
-        writable = true;
+        writable = true; ru.neverland.core.AtomicFiles.loaded(file.toPath());
         dirty = false;
     }
 
+    public synchronized boolean writable() {return writable && ru.neverland.core.AtomicFiles.writable(file.toPath());}
+
     public synchronized TownData town(UUID townId) {
+        if(!writable())throw new IllegalStateException("Хранилище построек остановлено после ошибки записи");
         return towns.computeIfAbsent(townId, id -> {
             dirty = true;
             return new TownData(id, storageSize);
@@ -151,11 +153,11 @@ public final class DataStore {
 
     public synchronized void save() {
         if (!writable) return;
-        try { saveOrThrow(); } catch (IOException ex) { plugin.getLogger().severe("Не удалось сохранить town-data.yml: " + ex.getMessage()); }
+        try { saveOrThrow(); } catch (IOException ex) { writable=false; plugin.getLogger().severe("Не удалось сохранить town-data.yml: " + ex.getMessage()); throw new java.io.UncheckedIOException(ex); }
     }
 
     public synchronized void saveOrThrow() throws IOException {
-        if (!writable) throw new IOException("Запись повреждённой базы запрещена");
+        if (!writable()) throw new IOException("Запись повреждённой базы запрещена");
         YamlConfiguration yaml = new YamlConfiguration();
         for (TownData data : towns.values()) {
             String path = "towns." + data.townId();

@@ -1,7 +1,8 @@
 package ru.neverland.townyresources.api;
 import java.util.*;
 /** Immutable snapshots; reservation mutations require the server thread and durable receipts. */
-public interface TownyResourcesApi {
+public interface TownyResourcesApi extends ru.neverland.core.ApiContract {
+    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("productionWeeks", "reservationStatus", "reservations", "residentResources", "resources", "towns"); }
     Optional<ResourceSnapshot> resources(UUID townId);
     Optional<ResourceSnapshot> residentResources(UUID residentId);
     Collection<ResourceSnapshot> towns();
