@@ -759,7 +759,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
         int attempts = Math.min(640, 80 * level);
         ThreadLocalRandom random = ThreadLocalRandom.current();
         int plantingLimit = ru.neverland.integration.DistrictBonuses.output(level * 3 + data.operationalLevel("world_tree") * 8,
-                ru.neverland.integration.DistrictBonuses.multiplier(data.townId(), "forestry"));
+                ru.neverland.integration.JobsAccess.multiplier(data.townId(),"forestry",ru.neverland.integration.DistrictBonuses.multiplier(data.townId(), "forestry")));
         for (int attempt = 0; attempt < attempts && planted < plantingLimit; attempt++) {
             int x = random.nextInt(area.minX(), area.maxX() + 1);
             int z = random.nextInt(area.minZ(), area.maxZ() + 1);
@@ -819,7 +819,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
         if (world == null) return;
         int hydrated = 0;
         int hydrationLimit = ru.neverland.integration.DistrictBonuses.output(level * 32,
-                ru.neverland.integration.ResearchBonuses.production(data.townId(),"irrigation_station",ru.neverland.integration.DistrictBonuses.multiplier(data.townId(), "irrigation_station")));
+                ru.neverland.integration.JobsAccess.multiplier(data.townId(),"irrigation_station",ru.neverland.integration.ResearchBonuses.production(data.townId(),"irrigation_station",ru.neverland.integration.DistrictBonuses.multiplier(data.townId(), "irrigation_station"))));
         int attempts = Math.min(1000, 140 * level);
         ThreadLocalRandom random = ThreadLocalRandom.current();
         for (int attempt = 0; attempt < attempts && hydrated < hydrationLimit; attempt++) {
@@ -852,7 +852,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
             int operations = Math.min(level, countMaterial(inventory, recipe.input) / recipe.inputAmount);
             if (operations <= 0) continue;
             ItemStack result = new ItemStack(recipe.output, ru.neverland.integration.DistrictBonuses.output(operations * recipe.outputAmount,
-                    ru.neverland.integration.DistrictBonuses.multiplier(data.townId(), "recycling_yard")));
+                    ru.neverland.integration.JobsAccess.multiplier(data.townId(),"recycling_yard",ru.neverland.integration.DistrictBonuses.multiplier(data.townId(), "recycling_yard"))));
             if (!canFit(inventory, result)) continue;
             removeMaterial(inventory, recipe.input, operations * recipe.inputAmount);
             addMaterial(inventory, result);
@@ -970,8 +970,12 @@ public final class CivicService implements Listener, TownyBuildsApi {
         return Map.copyOf(result);
     }
 
+    @Override public Map<String,ru.neverland.townybuilds.api.BuildingWorkplace> workplaces(UUID townId){
+        Map<String,ru.neverland.townybuilds.api.BuildingWorkplace> result=new HashMap<>();if(townId==null||towny.town(townId)==null)return Map.of();var data=dataStore.town(townId);
+        buildingFootprints(townId).forEach((id,area)->{var site=data.constructionSites().get(id);if(site!=null)result.put(id,new ru.neverland.townybuilds.api.BuildingWorkplace(area.worldId(),area.minX(),area.minZ(),area.maxX(),area.maxZ(),site.originY(),area.completedLevel()));});return Map.copyOf(result);
+    }
     private double benefitLevel(TownData data,String project) {
-        return data.operationalLevel(project)*ru.neverland.integration.DistrictBonuses.multiplier(data.townId(),project);
+        return data.operationalLevel(project)*ru.neverland.integration.JobsAccess.multiplier(data.townId(),project,ru.neverland.integration.DistrictBonuses.multiplier(data.townId(),project));
     }
 
     @Override

@@ -1,0 +1,6 @@
+name: NeverLandJobsRuntimeProbe
+version: '1.0.0'
+main: ru.neverland.runtime.JobsRuntimeProbe
+api-version: '26.2'
+depend: [Towny, NeverLandTownyJobs, NeverLandTownyBuilds, NeverLandTownyResources, NeverLandTownyResearch, NeverLandTownyUpkeep, NeverLandTownyPower, NeverLandTownyPolicies]
+description: Disposable loopback fixture; never install on a live server.
