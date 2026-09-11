@@ -1,8 +1,8 @@
-name: Publish release 0.18.1
+name: Publish release 0.19.0
 
 on:
   push:
-    branches: [release/v0.18.1]
+    branches: [release/v0.19.0]
   workflow_dispatch:
 
 permissions:
@@ -40,7 +40,7 @@ jobs:
             name="${module##*/}"
             version="$(python -c 'import sys,yaml; print(yaml.safe_load(open("versions.yml"))["addons"][sys.argv[1]])' "$name")"
             if [[ -f "$module/build.gradle.kts" ]]; then
-              if [[ "$name" == "NeverLandTownyBuilds" || "$name" == "NeverLandTownyChronicles" || "$name" == "NeverLandTownyExpeditions" || "$name" == "NeverLandTownyEvents" || "$name" == "NeverLandTownyPopulation" || "$name" == "NeverLandTownyDistricts" || "$name" == "NeverLandTownyLogistics" || "$name" == "NeverLandTownyResources" || "$name" == "NeverLandTownyUpkeep" || "$name" == "NeverLandTownyPower" || "$name" == "NeverLandTownyResearch" || "$name" == "NeverLandTownySpecialization" || "$name" == "NeverLandTownyPolicies" || "$name" == "NeverLandTownyTaxes" || "$name" == "NeverLandTownyTreasuryPlus" || "$name" == "NeverLandTownyTrade" || "$name" == "NeverLandTownyMarket" ]]; then
+              if [[ "$name" == "NeverLandTownyBuilds" || "$name" == "NeverLandTownyChronicles" || "$name" == "NeverLandTownyExpeditions" || "$name" == "NeverLandTownyEvents" || "$name" == "NeverLandTownyPopulation" || "$name" == "NeverLandTownyDistricts" || "$name" == "NeverLandTownyLogistics" || "$name" == "NeverLandTownyResources" || "$name" == "NeverLandTownyUpkeep" || "$name" == "NeverLandTownyPower" || "$name" == "NeverLandTownyResearch" || "$name" == "NeverLandTownySpecialization" || "$name" == "NeverLandTownyPolicies" || "$name" == "NeverLandTownyTaxes" || "$name" == "NeverLandTownyTreasuryPlus" || "$name" == "NeverLandTownyTrade" || "$name" == "NeverLandTownyMarket" || "$name" == "NeverLandTownyCompanies" || "$name" == "NeverLandTownyContracts" ]]; then
                 gradle --no-daemon -p "$module" clean jar smokeTest
               else
                 gradle --no-daemon -p "$module" clean jar testClasses

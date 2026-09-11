@@ -78,6 +78,7 @@ public final class ContractMenuManager implements Listener {
                 "&#63E6BEПолучить награду", List.of("&7Ожидает выплаты: &#FFFFFF" + contracts.economy().format(pending), "", "&#63E6BEНажмите для получения")));
         inventory.setItem(49, actionItem("history", Material.WRITABLE_BOOK, "&#65B8FFИстория заказов",
                 List.of("&7Завершённые и просроченные задания.")));
+        if(Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyCompanies"))inventory.setItem(51,actionItem("companies",Material.CHEST_MINECART,"&#FFD45AПредприятия города",List.of("&7Общий счёт, участники и заказы компаний.")));
         player.openInventory(inventory);
     }
 
@@ -104,9 +105,18 @@ public final class ContractMenuManager implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
+        Inventory inventory=event.getView().getTopInventory();
+        if(!(inventory.getHolder() instanceof ContractMenuHolder))return;
+        event.setCancelled(true);
+        if(!(event.getWhoClicked() instanceof Player player)||event.getRawSlot()<0||event.getRawSlot()>=inventory.getSize())return;
+        Bukkit.getScheduler().runTask(plugin,()->{if(player.isOnline()&&player.getOpenInventory().getTopInventory()==inventory)handleClick(event);});
+    }
+
+    private void handleClick(InventoryClickEvent event) {
         if (!(event.getInventory().getHolder() instanceof ContractMenuHolder holder)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player)) return;
+        if(event.getRawSlot()<0||event.getRawSlot()>=event.getView().getTopInventory().getSize()||!player.hasPermission("mintcontracts.use"))return;
         Town town = towny.town(player);
         if (town == null || !town.getUUID().equals(holder.townId())) { player.closeInventory(); return; }
         ItemStack clicked = event.getCurrentItem();
@@ -116,6 +126,7 @@ public final class ContractMenuManager implements Listener {
             if ("back".equals(action)) open(player);
             return;
         }
+        if("companies".equals(action)){Bukkit.getScheduler().runTask(plugin,()->{if(player.isOnline()&&player.getOpenInventory().getTopInventory()==event.getView().getTopInventory())player.performCommand("company");});return;}
         if ("history".equals(action)) { openHistory(player, town); return; }
         if ("claim".equals(action)) { claim(player); return; }
         String templateId = clicked.getItemMeta().getPersistentDataContainer().get(templateKey, PersistentDataType.STRING);
@@ -126,6 +137,7 @@ public final class ContractMenuManager implements Listener {
         ContractDefinition definition = contracts.definition(contract);
         if (contract == null || definition == null || definition.type() != ContractType.DELIVERY) return;
         if (!player.hasPermission("mintcontracts.contribute")) { messages.send(player, "no-permission"); return; }
+        if(contract.companyId()!=null&&!contracts.companyContributor(player,contract)){player.sendMessage(ColorUtil.color("&6NeverLand &8» &fЭтот заказ выполняют участники компании «"+contracts.companyName(contract)+"»."));return;}
         ContractService.DeliveryResult result = contracts.deliver(player, contract, event.isShiftClick());
         switch (result.status()) {
             case BUSY -> messages.send(player, "warehouse-busy");
@@ -139,6 +151,8 @@ public final class ContractMenuManager implements Listener {
         }
         open(player);
     }
+
+    @EventHandler public void onDrag(org.bukkit.event.inventory.InventoryDragEvent event){if(event.getView().getTopInventory().getHolder() instanceof ContractMenuHolder)event.setCancelled(true);}
 
     private void activate(Player player, Town town, ContractDefinition definition) {
         if (!player.hasPermission("mintcontracts.manage") || !towny.isManager(player, town)) { messages.send(player, "only-manager"); return; }
@@ -175,6 +189,9 @@ public final class ContractMenuManager implements Listener {
         lore.add("&#FFFFFFНаграда: &#FFD45A" + contracts.economy().format(contract.escrow()));
         lore.add("&#FFFFFFОсталось: &#65B8FF" + TimeUtil.format((contract.expiresAt() - System.currentTimeMillis()) / 1000));
         lore.add("&#FFFFFFID: &7" + contract.shortId());
+        lore.add("&fИсполнитель: &e"+contracts.companyName(contract));
+        if(contract.companyId()!=null)lore.add("&7Награда — на общий счёт компании");
+        if(contract.settlementStatus()!=null)lore.add("&eОжидает завершения расчёта");
         List<Map.Entry<java.util.UUID, Integer>> leaders = contract.contributions().entrySet().stream()
                 .sorted(Map.Entry.<java.util.UUID, Integer>comparingByValue(Comparator.reverseOrder())).limit(3).toList();
         if (!leaders.isEmpty()) { lore.add(""); lore.add("&#C9A7FFЛучшие участники:"); }
