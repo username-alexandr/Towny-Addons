@@ -18,7 +18,7 @@ except ImportError as exc:  # pragma: no cover - explicit environment guidance
 ROOT = Path(__file__).resolve().parents[1]
 LOCALIZATION_MODULES = {
     "NeverLandTownyBuilds", "NeverLandTownyCamps", "NeverLandTownyContracts",
-    "NeverLandTownyEvents", "NeverLandTownyExpeditions", "NeverLandTownyTrade", "NeverLandTownyLogistics", "NeverLandTownyMarket", "NeverLandTownyCompanies",
+    "NeverLandTownyEvents", "NeverLandTownyExpeditions", "NeverLandTownyTrade", "NeverLandTownyLogistics", "NeverLandTownyMarket", "NeverLandTownyCompanies", "NeverLandTownyJobs",
 }
 LOCALIZATION_RESOURCE = "neverland-localization/materials-ru.properties"
 
@@ -170,6 +170,16 @@ def main() -> int:
                 if name in {"NeverLandTowny" + suffix for suffix in ("Builds", "Upkeep", "Trade", "Contracts", "Ideologies", "Espionage", "TreasuryPlus", "Companies")}:
                     if "ru/neverland/integration/TreasuryAccess.class" not in archive.namelist():
                         errors.append(f"{jar.name}: missing treasury integration")
+                if name in {"NeverLandTownyBuilds", "NeverLandTownyResources", "NeverLandTownyResearch"}:
+                    for cls in ("JobsAccess", "JobsEffects"):
+                        if f"ru/neverland/integration/{cls}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing Jobs integration {cls}")
+                if name == "NeverLandTownyJobs":
+                    for cls in ("NeverLandTownyJobs", "JobsService", "JobsRepository", "JobsMenus", "JobsCommand", "JobsListener", "WorkPolicy", "Career", "api/TownyJobsApi"):
+                        if f"ru/neverland/townyjobs/{cls}.class" not in archive.namelist():
+                            errors.append(f"{jar.name}: missing Jobs class {cls}")
+                    if archive.read("config.yml") != (module / "src/main/resources/config.yml").read_bytes():
+                        errors.append(f"{jar.name}: Jobs configuration differs from sources")
                 if name == "NeverLandTownyCompanies":
                     for cls in ("NeverLandTownyCompanies", "CompanyService", "CompanyRepository", "CompanyLedger", "CompanyData", "CompanyBank", "CompanyCommand", "CompanyMenus", "ContractsBridge", "PaymentEvidence", "api/CompaniesApi"):
                         if f"ru/neverland/townycompanies/{cls}.class" not in archive.namelist():
@@ -460,6 +470,18 @@ def main() -> int:
                     errors.append(f"Policy references unknown buildings: {group}/{mode}/{field}")
     if set(policies.get("imports", {}).get("options", {})) != {"open", "nation", "closed"}:
         errors.append("Import modes must be open, same nation and closed")
+    jobs = load_yaml(modules_dir / "NeverLandTownyJobs/src/main/resources/config.yml")
+    job_profiles = jobs.get("profiles", {})
+    if set(job_profiles) != {"blacksmith", "farmer", "engineer", "guard", "merchant", "researcher", "alchemist"}:
+        errors.append("Jobs must configure all seven professions")
+    if len({p.get("icon") for p in job_profiles.values()}) != 7:
+        errors.append("Professions need distinct icons")
+    for role, profile in job_profiles.items():
+        buildings = profile.get("buildings", [])
+        if not buildings or set(buildings) - configured_ids:
+            errors.append(f"Jobs references unknown building: {role}")
+        if not re.search(r"[А-Яа-яЁё]", str(profile.get("name", ""))) or any(not re.search(r"[А-Яа-яЁё]", str(jobs.get("building-names", {}).get(b, ""))) for b in buildings):
+            errors.append(f"Jobs requires Russian profession and building names: {role}")
     resource_ids = {"wood", "stone", "metal", "food", "water", "materials", "knowledge", "influence"}
     strategic = load_yaml(modules_dir / "NeverLandTownyResources/src/main/resources/config.yml")
     if set(strategic.get("resources", {})) != resource_ids:

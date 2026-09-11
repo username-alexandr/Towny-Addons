@@ -1,0 +1,167 @@
+# Опыт начисляется за время активной смены. Выплат за действия нет.
+refresh-seconds: 10
+change-cooldown-hours: 6
+warmup-seconds: 30
+activity-seconds: 90
+work-radius: 8
+height-radius: 16
+seats-per-building-level: 2
+maximum-building-bonus: 0.3
+level-minutes:
+- 0
+- 30
+- 120
+- 360
+- 900
+profiles:
+  blacksmith:
+    name: Кузнец
+    icon: ANVIL
+    enabled: true
+    buildings:
+    - forge
+    - foundry
+    - armory
+    bonus-per-level:
+    - 0.02
+    - 0.035
+    - 0.05
+    - 0.075
+    - 0.1
+    description:
+    - Повышает выпуск металла и ресурсов мастерских.
+    - 'Работа: ковка, изготовление металлических предметов, плавка.'
+  farmer:
+    name: Фермер
+    icon: WHEAT
+    enabled: true
+    buildings:
+    - agrarian_complex
+    - mill
+    - bakery
+    - apiary
+    - forestry
+    bonus-per-level:
+    - 0.02
+    - 0.035
+    - 0.05
+    - 0.075
+    - 0.1
+    description:
+    - Повышает производство еды, мёда и работу лесничества.
+    - 'Работа: зрелый урожай, разведение животных, уход за пасекой.'
+  engineer:
+    name: Инженер
+    icon: REDSTONE
+    enabled: true
+    buildings:
+    - pumping_station
+    - irrigation_station
+    - water_tower
+    - recycling_yard
+    - dam
+    bonus-per-level:
+    - 0.02
+    - 0.035
+    - 0.05
+    - 0.075
+    - 0.1
+    description:
+    - Повышает выпуск и функции инженерных зданий.
+    - 'Работа: установка блоков, обслуживание механизмов.'
+  guard:
+    name: Стражник
+    icon: SHIELD
+    enabled: true
+    buildings:
+    - guard
+    - watchtower
+    - watch_fortress
+    - port_fort
+    - archery_range
+    bonus-per-level:
+    - 0.02
+    - 0.035
+    - 0.05
+    - 0.075
+    - 0.1
+    description:
+    - Усиливает охранные здания и защиту жителей от монстров.
+    - 'Работа: патруль у здания или уничтожение монстров.'
+  merchant:
+    name: Торговец
+    icon: EMERALD
+    enabled: true
+    buildings:
+    - market
+    - merchant_guild
+    - trade_port
+    - customs
+    bonus-per-level:
+    - 0.02
+    - 0.035
+    - 0.05
+    - 0.075
+    - 0.1
+    description:
+    - Повышает выпуск и торговые функции здания.
+    - 'Работа: обслуживание хранилищ и торговых стоек.'
+  researcher:
+    name: Исследователь
+    icon: ENCHANTED_BOOK
+    enabled: true
+    buildings:
+    - great_library
+    - university
+    - observatory
+    bonus-per-level:
+    - 0.02
+    - 0.035
+    - 0.05
+    - 0.075
+    - 0.1
+    description:
+    - Повышает выпуск знаний и скорость городских исследований.
+    - 'Работа: книги, кафедра, стол зачарований или картографа.'
+  alchemist:
+    name: Алхимик
+    icon: BREWING_STAND
+    enabled: true
+    buildings:
+    - alchemy
+    bonus-per-level:
+    - 0.02
+    - 0.035
+    - 0.05
+    - 0.075
+    - 0.1
+    description:
+    - Повышает выпуск ресурсов алхимической лаборатории.
+    - 'Работа: обслуживание зельеварок и приготовление зелий.'
+building-names:
+  forge: Кузница
+  foundry: Литейная
+  armory: Оружейная
+  agrarian_complex: Аграрный Комплекс
+  mill: Мельница
+  bakery: Пекарня
+  apiary: Пасека
+  forestry: Лесничество
+  pumping_station: Насосная станция
+  irrigation_station: Ирригационная станция
+  water_tower: Водонапорная башня
+  recycling_yard: Перерабатывающий двор
+  dam: Дамба
+  guard: Городская стража
+  watchtower: Дозорная башня
+  watch_fortress: Сторожевая крепость
+  port_fort: Портовый форт
+  archery_range: Стрельбище
+  market: Рынок
+  merchant_guild: Торговая гильдия
+  trade_port: Торговый порт
+  customs: Таможня
+  great_library: Великая Библиотека
+  university: Университет
+  observatory: Обсерватория
+  alchemy: Алхимическая лаборатория

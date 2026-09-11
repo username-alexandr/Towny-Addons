@@ -44,8 +44,11 @@ public final class ProductionService {
                 var depots=storage.depots(town.townId());
                 for(Recipe recipe:recipes){var depot=depots.get(recipe.project());if(depot==null||!ru.neverland.integration.BuildingOperations.active(town.townId(),recipe.project())||storage.busy(town.townId(),recipe.project())||!available(town.townId(),depot))continue;
                     ItemStack[] stock=storage.read(town,recipe.project());boolean changed=false;
-                    for(int op=0;op<Math.min(5,depot.level());op++){
-                        double bonus=recipe.districtBonus()?ru.neverland.integration.DistrictBonuses.multiplier(town.townId(),recipe.project()):1;
+                    // Container recipes gain complete operations: every filled bucket still consumes an empty one.
+                    int operations=Math.min(5,depot.level());
+                    if(!recipe.districtBonus())operations=ru.neverland.integration.DistrictBonuses.output(operations,ru.neverland.integration.JobsAccess.multiplier(town.townId(),recipe.project(),1));
+                    double bonus=recipe.districtBonus()?ru.neverland.integration.JobsAccess.multiplier(town.townId(),recipe.project(),ru.neverland.integration.DistrictBonuses.multiplier(town.townId(),recipe.project())):1;
+                    for(int op=0;op<operations;op++){
                         ItemStack[] output=recipe.output().stream().map(s->{var v=s.clone();v.setAmount(ru.neverland.integration.DistrictBonuses.output(s.getAmount(),bonus));return v;}).toArray(ItemStack[]::new);
                         var result=StockMath.recipe(stock,recipe.input(),output);if(result.isEmpty())break;stock=result.get();changed=true;
                     }

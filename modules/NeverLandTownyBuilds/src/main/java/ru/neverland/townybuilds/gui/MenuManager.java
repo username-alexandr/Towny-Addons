@@ -442,6 +442,11 @@ public final class MenuManager implements Listener {
         lore.add(Component.empty());
         lore.add(ColorUtil.component("&7Уровень: &f" + level + "&8/&f" + project.maxLevel()));
         lore.add(ColorUtil.component(progress(level, project.maxLevel())));
+        if(ru.neverland.integration.JobsAccess.supports(project.id())){
+            lore.add(ColorUtil.component("&7Специалистов на смене: &f"+ru.neverland.integration.JobsAccess.workers(town,project.id())));
+            lore.add(ColorUtil.component("&7Бонус профессий: &a+"+String.format(java.util.Locale.ROOT,"%.1f",100*ru.neverland.integration.JobsAccess.bonus(town,project.id()))+"%"));
+            lore.add(ColorUtil.component("&7Профессия и рабочее место: /t jobs"));
+        }
         if(!ru.neverland.integration.SpecializationRules.required(project.id()).isEmpty())lore.add(ColorUtil.component((ru.neverland.integration.SpecializationAccess.allowed(town,project.id())?"&a":"&c")+"Специализация: "+ru.neverland.integration.SpecializationAccess.requirement(project.id())));
         if(level>0&&!ru.neverland.integration.BuildingOperations.active(town,project.id())){
             lore.add(ColorUtil.component("&cНЕАКТИВНО — "+ru.neverland.integration.BuildingOperations.inactiveReason(town,project.id())));

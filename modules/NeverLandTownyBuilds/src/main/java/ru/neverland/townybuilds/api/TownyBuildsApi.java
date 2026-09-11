@@ -13,6 +13,7 @@ public interface TownyBuildsApi {
     /** Zero while upkeep or power suspends this building. */
     default int operationalLevel(UUID townId,String projectId){return projectLevel(townId,projectId);}
     default java.util.Map<String,BuildingFootprint> buildingFootprints(UUID townId) { return java.util.Map.of(); }
+    default java.util.Map<String,BuildingWorkplace> workplaces(UUID townId){return java.util.Map.of();}
     double benefit(UUID townId, CivicBenefit benefit);
     boolean waterNetworkActive(UUID townId);
     double insuranceReserve(UUID townId);
