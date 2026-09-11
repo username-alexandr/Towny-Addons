@@ -1,0 +1,70 @@
+Filtered runtime assertions; environment limits are documented in UPDATE_0.18.1_RU.md.
+
+first-passed-full.log
+[10:02:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] Loading server plugin NeverLandMarketRuntimeProbe v1.0.0
+[10:02:58] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] Enabling NeverLandMarketRuntimeProbe v1.0.0
+[10:03:03] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: MarketStorageApi registered
+[10:03:03] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: MarketApi registered
+[10:03:03] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: all 25 add-ons enabled, got 25
+[10:03:03] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: Towny economy active through Vault and EssentialsX
+[10:03:03] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: market command registered
+[10:03:03] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: all 16 default products loaded
+[10:03:03] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: fresh probe journal
+[10:03:03] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: fixture city does not already exist
+[10:03:03] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: fixture city does not already exist
+[10:03:03] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: seed seller bank
+[10:03:03] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: seed buyer bank
+[10:03:03] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: seed resident bank
+[10:03:03] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: native item metadata roundtrip
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: reserve export listing [expected=OPEN, actual=OPEN]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: export removed physical stock [expected=64, actual=64]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: export buildings active [expected=null, actual=null]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: actual Policies and Taxes bridge [expected=null, actual=null]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: infrastructure budget permits purchase [expected=null, actual=null]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: global order completed and acknowledged
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: seller credited once [expected=1128.0, actual=1128.0]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: buyer debited once [expected=9872.0, actual=9872.0]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: buyer received exact metadata items [expected=32, actual=32]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: completed payment replay safe [expected=9872.0, actual=9872.0]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: completed delivery replay safe [expected=32, actual=32]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: reserve local listing [expected=OPEN, actual=OPEN]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: personal order paid [expected=COMPLETE, actual=COMPLETE]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: personal goods retained for pickup [expected=PICKUP, actual=PICKUP]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: unclaimed goods are not acknowledged
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: real personal bank debit [expected=936.0, actual=936.0]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: local revenue credited to seller [expected=1192.0, actual=1192.0]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: only completed purchases create demand [expected=2, actual=2]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: open warehouse lock
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: closing waits for open warehouse [expected=BUSY, actual=BUSY]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: unreserved remainder returned [expected=CLOSED, actual=CLOSED]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: only 16 unsold local items returned [expected=48, actual=48]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: closing preserves paid personal goods [expected=PICKUP, actual=PICKUP]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: stop after debit before delivery [expected=PAID, actual=PAID]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: second debit committed before restart [expected=9840.0, actual=9840.0]
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] MARKET_RUNTIME_FIRST_PASS
+[10:03:04] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] Disabling NeverLandMarketRuntimeProbe v1.0.0
+
+restart-passed-full.log
+[10:03:44] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] Loading server plugin NeverLandMarketRuntimeProbe v1.0.0
+[10:03:47] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] Enabling NeverLandMarketRuntimeProbe v1.0.0
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: MarketStorageApi registered
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: MarketApi registered
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: all 25 add-ons enabled, got 25
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: Towny economy active through Vault and EssentialsX
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: market command registered
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: all 16 default products loaded
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: paid phase persisted across full server restart [expected=PAID, actual=PAID]
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: warehouse reservation persisted [expected=HELD, actual=HELD]
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: real economy debit persisted [expected=9840.0, actual=9840.0]
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: paid purchase recovered
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: recovery delivered eight items once [expected=40, actual=40]
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: recovery did not debit again [expected=9840.0, actual=9840.0]
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: recovery credited seller once [expected=1224.0, actual=1224.0]
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: recovered delivery replay safe [expected=40, actual=40]
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: personal pickup survived restart [expected=PICKUP, actual=PICKUP]
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: demand journal persisted without duplicates [expected=3, actual=3]
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: return remaining export stock [expected=CLOSED, actual=CLOSED]
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: stock conservation: 136 seller + 40 buyer + 16 pickup = 192 [expected=136, actual=136]
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] PASS: personal balance persisted [expected=936.0, actual=936.0]
+[10:03:53] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] MARKET_RUNTIME_RESTART_PASS
+[10:03:54] [Server thread/INFO]: [NeverLandMarketRuntimeProbe] Disabling NeverLandMarketRuntimeProbe v1.0.0

@@ -27,15 +27,18 @@ public final class TreasuryService implements TownyTreasuryApi {
     public TreasuryService(Plugin plugin,TreasuryRepository repo,TreasurySettings settings){this.plugin=plugin;this.repo=repo;this.settings=settings;}
     public boolean fault(){return fault;}public TreasurySettings settings(){return settings;}public Map<UUID,CityLedger> cities(){return repo.cities();}
     private void primary(){if(!Bukkit.isPrimaryThread())throw new IllegalStateException("Нужен основной поток сервера");}
-    private void ready(){primary();if(fault)throw new IllegalStateException("Учёт казны требует восстановления; обратитесь к администратору");}
+    private void ready(){primary();if(!initialized)throw new IllegalStateException("Казна ожидает загрузки экономики");if(fault)throw new IllegalStateException("Учёт казны требует восстановления; обратитесь к администратору");}
     public Town town(Player player){var resident=TownyAPI.getInstance().getResident(player);return resident==null?null:resident.getTownOrNull();}
     public boolean manager(Player player,Town town){var r=TownyAPI.getInstance().getResident(player);return r!=null&&town!=null&&town.equals(r.getTownOrNull())&&(town.isMayor(r)||player.hasPermission("neverlandtownytreasury.manage"));}
-    public void start()throws Exception{primary();scan();task=Bukkit.getScheduler().runTaskTimer(plugin,this::pulse,20,20);}
-    private int ticks;
-    private void pulse(){if(fault)return;try{flush();if(++ticks%5==0)scan();}catch(Exception ex){fail(ex);}}
+    // Vault may expose a provider during onLoad, before its onEnable has finished.
+    // Start scanning on the first server tick, after all plugin enable callbacks.
+    // Budget operations stay closed until that first scan succeeds.
+    public void start()throws Exception{primary();task=Bukkit.getScheduler().runTaskTimer(plugin,this::pulse,1,20);}
+    private int ticks;private boolean initialized;
+    private void pulse(){if(fault)return;try{if(!initialized){scan();initialized=true;}flush();if(++ticks%5==0)scan();}catch(Exception ex){fail(ex);}}
     private void fail(Exception ex){fault=true;plugin.getLogger().log(java.util.logging.Level.SEVERE,"Учёт казны приостановлен; новые бюджетные списания закрыты. Сохранённые счета требуют проверки.",ex);}
     public void stop(){if(task!=null)task.cancel();for(var value:watched.values())value.account().removeObserver(value.observer());watched.clear();try{flush();}catch(Exception ex){fail(ex);}offers.clear();}
-    public void reload(TreasurySettings value)throws Exception{primary();var previous=settings;flush();settings=value;offers.clear();fault=false;try{scan();}catch(Exception ex){settings=previous;fault=true;throw ex;}}
+    public void reload(TreasurySettings value)throws Exception{primary();var previous=settings;flush();settings=value;offers.clear();fault=false;try{scan();initialized=true;}catch(Exception ex){settings=previous;fault=true;throw ex;}}
     private void attach(Town town)throws Exception{UUID id=town.getUUID();Account account=town.getAccount();var old=watched.get(id);if(old!=null&&old.account()==account)return;if(old!=null)old.account().removeObserver(old.observer());
         var observer=new AccountObserver(){
             public void withdrew(Account source,double amount,String reason){capture(source,amount,reason,false);}
