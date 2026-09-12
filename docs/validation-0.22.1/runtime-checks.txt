@@ -1,0 +1,102 @@
+27 add-ons enabled
+API capabilities: TownArmyApi
+API capabilities: TownyReputationApi
+API capabilities: MunicipalStorageApi
+API capabilities: TownyUpkeepApi
+API capabilities: TownyTreasuryApi
+API capabilities: TownyChroniclesApi
+API capabilities: BuildingStorageApi
+API capabilities: TownyBuildsApi
+API capabilities: TownyPopulationApi
+API capabilities: TownyGovernanceApi
+API capabilities: NeverLandTownyTaxesApi
+API capabilities: TownyDistrictsApi
+API capabilities: TownyCampsApi
+API capabilities: TownyPowerApi
+API capabilities: TownyResearchApi
+API capabilities: TownyJobsApi
+API capabilities: TownyPoliciesApi
+API capabilities: MintTownyTradeApi
+API capabilities: TownySpecializationApi
+API capabilities: TownyArchaeologyApi
+API capabilities: TownyResourcesApi
+API capabilities: CompaniesApi
+API capabilities: MintTownyEspionageApi
+API capabilities: MintTownyContractsApi
+API capabilities: MintTownyEventsApi
+API capabilities: MarketStorageApi
+API capabilities: WarehouseApi
+API capabilities: MarketApi
+public services registered: 28
+BuildingStorage mutations compatible
+resource reservations compatible
+absent dependency distinguished
+incompatible major distinguished
+compatible service recovers
+fixture inventory cleared
+native inventory reward completed; remaining=false, diamonds=3
+real Towny personal reward: 100.0
+silent native player-save failure remains pending
+uncertain in-memory inventory retained for reconciliation
+warehouse replay has no extra stock
+warehouse ID binds exact amount
+warehouse write fault surfaced
+warehouse blocked after write failure
+disk restore preserves original stock without false receipt
+Trade honors unavailable maintenance/power
+Trade reads public building level
+Expeditions reads public orrery bonus
+native caravan debit
+lost bank reply persisted
+pending caravan retains exact reserved cargo
+buyer debited once before hard stop: 890.0
+27 add-ons enabled
+API capabilities: TownyJobsApi
+API capabilities: TownyResourcesApi
+API capabilities: TownySpecializationApi
+API capabilities: TownyUpkeepApi
+API capabilities: MintTownyContractsApi
+API capabilities: TownyBuildsApi
+API capabilities: TownyReputationApi
+API capabilities: TownyResearchApi
+API capabilities: MunicipalStorageApi
+API capabilities: TownyPowerApi
+API capabilities: TownyPoliciesApi
+API capabilities: TownyDistrictsApi
+API capabilities: NeverLandTownyTaxesApi
+API capabilities: TownyCampsApi
+API capabilities: TownArmyApi
+API capabilities: TownyPopulationApi
+API capabilities: MintTownyTradeApi
+API capabilities: BuildingStorageApi
+API capabilities: CompaniesApi
+API capabilities: MintTownyEspionageApi
+API capabilities: TownyChroniclesApi
+API capabilities: MintTownyEventsApi
+API capabilities: WarehouseApi
+API capabilities: TownyTreasuryApi
+API capabilities: MarketApi
+API capabilities: MarketStorageApi
+API capabilities: TownyArchaeologyApi
+API capabilities: TownyGovernanceApi
+public services registered: 28
+BuildingStorage mutations compatible
+resource reservations compatible
+absent dependency distinguished
+incompatible major distinguished
+compatible service recovers
+hard restart restores only confirmed native inventory
+pending item receipt survives hard restart
+ambiguous item never automatically repeats
+verified undelivered reward completes once
+personal money not replayed: 100.0
+pending caravan recovered
+hard restart does not repeat buyer debit: 890.0
+warehouse reservation survives process death
+reconciled caravan completes actual delivery and credits
+cargo conserved after recovery
+seller credited exactly once: 100.0
+transit credited exactly once: 10.0
+repeated completion cannot unload twice
+buyer never charged again: 890.0
+final item delivery persisted in native playerdata

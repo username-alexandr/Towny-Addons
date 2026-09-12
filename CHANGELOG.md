@@ -1,3 +1,10 @@
+## 0.22.1
+
+- Durable expedition rewards and one-off caravan settlement with explicit reconciliation.
+- Idempotent warehouse receipts and verified native player inventory persistence on 26.2.
+- Public API capability checks, unified atomic storage and repository fault probes.
+- Automatic smoke discovery and source archives without stale JARs or build caches.
+
 # 0.22.0
 
 - Введён общий контракт API: версия, список возможностей и диагностика состояний `не установлен`, `отключён`, `сервис недоступен`, `несовместимый API` и `ошибка вызова`.

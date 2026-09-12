@@ -17,6 +17,7 @@ public final class ApiContractProbe {
             if (!Integer.valueOf(1).equals(type.getMethod("apiVersion").invoke(api))) throw new AssertionError(name + ": major version");
             Set<String> methods = new TreeSet<>();
             for (Method m : type.getMethods()) if (!Modifier.isStatic(m.getModifiers()) && m.getDeclaringClass() != Object.class
+                && !m.getDeclaringClass().getName().equals("ru.neverland.core.ApiContract")
                 && !Set.of("apiVersion", "capabilities").contains(m.getName())) methods.add(m.getName());
             Object capabilities = type.getMethod("capabilities").invoke(api);
             if (!methods.equals(capabilities)) throw new AssertionError(name + ": declared " + capabilities + ", actual " + methods);

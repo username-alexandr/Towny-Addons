@@ -1,0 +1,6 @@
+name: NeverLandReliabilityRuntimeProbe
+version: '1.0.0'
+main: ru.neverland.runtime.ReliabilityRuntimeProbe
+api-version: '26.2'
+depend: [Towny, Vault, Essentials, NeverLandTownyBuilds, NeverLandTownyExpeditions, NeverLandTownyTrade, NeverLandTownyTreasuryPlus]
+description: Destructive fixture for an explicitly marked disposable loopback server only.
