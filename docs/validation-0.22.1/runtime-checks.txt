@@ -1,32 +1,32 @@
 27 add-ons enabled
-API capabilities: TownArmyApi
-API capabilities: TownyReputationApi
-API capabilities: MunicipalStorageApi
-API capabilities: TownyUpkeepApi
-API capabilities: TownyTreasuryApi
-API capabilities: TownyChroniclesApi
-API capabilities: BuildingStorageApi
-API capabilities: TownyBuildsApi
-API capabilities: TownyPopulationApi
-API capabilities: TownyGovernanceApi
-API capabilities: NeverLandTownyTaxesApi
-API capabilities: TownyDistrictsApi
 API capabilities: TownyCampsApi
-API capabilities: TownyPowerApi
 API capabilities: TownyResearchApi
-API capabilities: TownyJobsApi
-API capabilities: TownyPoliciesApi
-API capabilities: MintTownyTradeApi
-API capabilities: TownySpecializationApi
-API capabilities: TownyArchaeologyApi
+API capabilities: TownyPopulationApi
 API capabilities: TownyResourcesApi
+API capabilities: TownyPowerApi
+API capabilities: TownyPoliciesApi
+API capabilities: TownyTreasuryApi
+API capabilities: MunicipalStorageApi
+API capabilities: TownyArchaeologyApi
+API capabilities: MintTownyTradeApi
+API capabilities: BuildingStorageApi
+API capabilities: TownyJobsApi
+API capabilities: TownyGovernanceApi
 API capabilities: CompaniesApi
-API capabilities: MintTownyEspionageApi
+API capabilities: MarketStorageApi
+API capabilities: MarketApi
+API capabilities: TownyReputationApi
+API capabilities: TownyDistrictsApi
+API capabilities: TownyChroniclesApi
+API capabilities: TownyUpkeepApi
+API capabilities: TownySpecializationApi
 API capabilities: MintTownyContractsApi
 API capabilities: MintTownyEventsApi
-API capabilities: MarketStorageApi
+API capabilities: TownyBuildsApi
+API capabilities: TownArmyApi
 API capabilities: WarehouseApi
-API capabilities: MarketApi
+API capabilities: NeverLandTownyTaxesApi
+API capabilities: MintTownyEspionageApi
 public services registered: 28
 BuildingStorage mutations compatible
 resource reservations compatible
@@ -35,6 +35,8 @@ incompatible major distinguished
 compatible service recovers
 fixture inventory cleared
 native inventory reward completed; remaining=false, diamonds=3
+one claim removes every completed batch
+completed batch removal survives reload
 real Towny personal reward: 100.0
 silent native player-save failure remains pending
 uncertain in-memory inventory retained for reconciliation
@@ -51,34 +53,34 @@ lost bank reply persisted
 pending caravan retains exact reserved cargo
 buyer debited once before hard stop: 890.0
 27 add-ons enabled
-API capabilities: TownyJobsApi
-API capabilities: TownyResourcesApi
-API capabilities: TownySpecializationApi
+API capabilities: TownyArchaeologyApi
+API capabilities: TownyTreasuryApi
 API capabilities: TownyUpkeepApi
-API capabilities: MintTownyContractsApi
-API capabilities: TownyBuildsApi
-API capabilities: TownyReputationApi
-API capabilities: TownyResearchApi
-API capabilities: MunicipalStorageApi
-API capabilities: TownyPowerApi
-API capabilities: TownyPoliciesApi
-API capabilities: TownyDistrictsApi
-API capabilities: NeverLandTownyTaxesApi
-API capabilities: TownyCampsApi
-API capabilities: TownArmyApi
 API capabilities: TownyPopulationApi
+API capabilities: MarketStorageApi
+API capabilities: TownyResourcesApi
 API capabilities: MintTownyTradeApi
 API capabilities: BuildingStorageApi
-API capabilities: CompaniesApi
-API capabilities: MintTownyEspionageApi
-API capabilities: TownyChroniclesApi
-API capabilities: MintTownyEventsApi
+API capabilities: TownyCampsApi
 API capabilities: WarehouseApi
-API capabilities: TownyTreasuryApi
-API capabilities: MarketApi
-API capabilities: MarketStorageApi
-API capabilities: TownyArchaeologyApi
+API capabilities: TownyJobsApi
+API capabilities: TownyChroniclesApi
+API capabilities: TownyReputationApi
+API capabilities: MintTownyEspionageApi
+API capabilities: MintTownyContractsApi
 API capabilities: TownyGovernanceApi
+API capabilities: MintTownyEventsApi
+API capabilities: MunicipalStorageApi
+API capabilities: TownyResearchApi
+API capabilities: TownyDistrictsApi
+API capabilities: TownArmyApi
+API capabilities: CompaniesApi
+API capabilities: NeverLandTownyTaxesApi
+API capabilities: TownySpecializationApi
+API capabilities: MarketApi
+API capabilities: TownyBuildsApi
+API capabilities: TownyPoliciesApi
+API capabilities: TownyPowerApi
 public services registered: 28
 BuildingStorage mutations compatible
 resource reservations compatible
