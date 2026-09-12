@@ -39,6 +39,19 @@ def main():
     parser.add_argument('--report', type=Path, default=ROOT/'build/suite-tests.json')
     args = parser.parse_args()
     records = []
+    storage_probes = {
+        'NeverLandTownyGovernance': ('ru.neverland.governance.service.GovernanceRepository','data.yml','towns'),
+        'NeverLandTownyReputation': ('ru.neverland.reputation.service.ReputationRepository','data.yml','relations'),
+        'NeverLandTownyEvents': ('ru.neverland.mintevents.service.EventRepository','events-data.yml','active'),
+        'NeverLandTownyIdeologies': ('ru.neverland.townyideologies.data.DataStore','towns.yml','towns'),
+        'NeverLandTownyChronicles': ('ru.neverland.townychronicles.service.ChronicleRepository','chronicles.yml','towns'),
+        'NeverLandTownyTaxes': ('ru.neverland.townytaxes.data.CivicRepository','data.yml','policies'),
+        'NeverLandTownyEspionage': ('ru.neverland.mintespionage.service.EspionageRepository','data.yml','towns'),
+    }
+    probe_classes = ROOT/'build/api-contract-probe'
+    probe_classes.mkdir(parents=True, exist_ok=True)
+    javac = str(Path(os.environ['JAVA_HOME'])/'bin/javac') if os.environ.get('JAVA_HOME') else 'javac'
+    subprocess.run([javac, '--release', '17', '-d', str(probe_classes), str(ROOT/'scripts/ApiContractProbe.java')], check=True)
     args.report.parent.mkdir(parents=True, exist_ok=True)
     def run(command, cwd):
         subprocess.run(command, cwd=cwd, check=True)
@@ -72,12 +85,24 @@ def main():
                 command.append(str(module/'src/main/resources'))
             run(command, module)
             tests.append(name)
+        contracts = []
+        for source in sorted((module/'src/main/java').rglob('*Api.java')):
+            source_text = source.read_text()
+            if not re.search(r'(?:interface\s+\w+\s+extends|class\s+\w+\s+implements)\s+(?:ru\.neverland\.core\.)?ApiContract', source_text):
+                continue
+            package = re.search(r'\bpackage\s+([\w.]+)\s*;', source_text)
+            contracts.append(package.group(1)+'.'+source.stem)
+        if contracts:
+            run([os.environ.get('JAVA', 'java'), '-ea', '-cp', os.pathsep.join([str(probe_classes), classpath]), 'ApiContractProbe', *contracts], module)
+        if module.name in storage_probes:
+            run([javac, '--release', '17', '-cp', classpath, '-d', str(probe_classes), str(ROOT/'scripts/RepositoryFaultProbe.java')], module)
+            run([os.environ.get('JAVA', 'java'), '-ea', '-cp', os.pathsep.join([str(probe_classes), classpath]), 'RepositoryFaultProbe', *storage_probes[module.name]], module)
         if args.stage:
             jars = [p for p in jars if not p.name.endswith(('-sources.jar','-javadoc.jar'))]
             jar = plugin_jar(jars, module.name)
             args.stage.mkdir(parents=True, exist_ok=True)
             shutil.copy2(jar, args.stage/jar.name)
-        records.append(dict(module=module.name, tests=tests, seconds=round(time.monotonic()-start, 3)))
+        records.append(dict(module=module.name, tests=tests, api_contracts=contracts, repository_fault_probe=module.name in storage_probes, seconds=round(time.monotonic()-start, 3)))
         args.report.write_text(json.dumps(records, ensure_ascii=False, indent=2)+'\n')
         print(f'PASS {module.name}: {len(tests)} executable tests', flush=True)
     if not records:

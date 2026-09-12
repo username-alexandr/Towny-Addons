@@ -65,6 +65,12 @@ public final class DataStore {
                     }
                 }
                 data.loadLevels(levels);
+                var movements=ru.neverland.core.SafeYaml.section(section,"warehouse-movements");
+                if(movements!=null)for(String key:movements.getKeys(false)){
+                    var m=ru.neverland.core.SafeYaml.section(movements,key);
+                    if(m==null||!m.isBoolean("incoming"))throw new IOException("Повреждена квитанция склада");
+                    data.putWarehouseMovement(new ru.neverland.townybuilds.api.WarehouseMovement(UUID.fromString(key),ItemCodec.decodeSingle(ru.neverland.core.SafeYaml.text(m,"item")),Math.toIntExact(ru.neverland.core.SafeYaml.integer(m,"amount")),m.getBoolean("incoming")));
+                }
                 Map<String, ConstructionSite> sites = new HashMap<>();
                 ConfigurationSection construction = section == null ? null : section.getConfigurationSection("construction");
                 if (construction != null) {
@@ -161,6 +167,10 @@ public final class DataStore {
         YamlConfiguration yaml = new YamlConfiguration();
         for (TownData data : towns.values()) {
             String path = "towns." + data.townId();
+            for(var m:data.warehouseMovements().values()){
+                String p=path+".warehouse-movements."+m.id();
+                yaml.set(p+".item",ItemCodec.encodeSingle(m.sample()));yaml.set(p+".amount",m.amount());yaml.set(p+".incoming",m.incoming());
+            }
             for (Map.Entry<String, Integer> level : data.levels().entrySet()) {
                 yaml.set(path + ".levels." + level.getKey(), level.getValue());
             }

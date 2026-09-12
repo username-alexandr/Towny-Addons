@@ -83,8 +83,8 @@ public final class TreasuryService implements TownyTreasuryApi {
         }
     }
     private void production(UUID town)throws Exception{
-        var plugin=Bukkit.getPluginManager().getPlugin("NeverLandTownyResources");if(plugin==null||!plugin.isEnabled())return;
-        try{Class<?> api=Class.forName("ru.neverland.townyresources.api.TownyResourcesApi",true,plugin.getClass().getClassLoader());Object service=Bukkit.getServicesManager().load(api);if(service==null)return;Object raw=api.getMethod("productionWeeks",UUID.class).invoke(service,town);if(!(raw instanceof Map<?,?> map))return;
+        var api=ru.neverland.core.ApiServices.connect("NeverLandTownyResources","ru.neverland.townyresources.api.TownyResourcesApi",1,"productionWeeks");if(!api.ready())return;
+        try{Object raw=api.invoke("productionWeeks",new Class<?>[]{UUID.class},town);if(!(raw instanceof Map<?,?> map))return;
             Map<String,Map<String,Long>> totals=new HashMap<>();for(var e:map.entrySet()){Map<String,Long> values=new HashMap<>();for(var v:((Map<?,?>)e.getValue()).entrySet())values.put((String)v.getKey(),((Number)v.getValue()).longValue());totals.put((String)e.getKey(),values);}repo.put(town,repo.cities().get(town).production(totals));
         }catch(ReflectiveOperationException|LinkageError ex){/* Older/temporarily unavailable Resources leaves explicit coverage flags. */}
     }

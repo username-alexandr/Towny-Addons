@@ -2,7 +2,7 @@ import org.gradle.api.attributes.java.TargetJvmVersion
 
 plugins { java }
 group = "ru.neverland"
-version = "0.1.5"
+version = "0.1.6"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -30,26 +30,12 @@ tasks {
     jar { archiveBaseName.set("NeverLandTownyChronicles") }
 }
 
-val smokeClasses = listOf(
-    "ru.neverland.townychronicles.ChronicleSmoke",
-    "ru.neverland.townychronicles.LinkageSmoke",
-    "ru.neverland.townychronicles.StartupAnnouncementSmoke"
-)
 
-val smokeTasks = smokeClasses.map { className ->
-    val suffix = className.substringAfterLast('.')
-    tasks.register<JavaExec>("smoke$suffix") {
-        group = "verification"
-        dependsOn(tasks.named("testClasses"))
-        classpath = sourceSets.test.get().runtimeClasspath
-        mainClass.set(className)
-    }
-}
 
-tasks.register("smokeTest") {
-    group = "verification"
-    description = "Runs the executable NeverLand Towny Chronicles regression suite."
-    dependsOn(smokeTasks)
-}
+
+
+
 
 sourceSets.main { java.srcDir("../../shared/core/src/main/java") }
+
+apply(from = "../../scripts/smoke.gradle")

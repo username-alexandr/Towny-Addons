@@ -14,7 +14,7 @@ public final class CompanyRepository implements CompanyLedger.Store {
     private boolean writable;
     public CompanyRepository(Path file){this.file=file;}
     public CompanyLedger.State state(){return state;}
-    public boolean writable(){return writable;}
+    public boolean writable(){return writable&&ru.neverland.core.AtomicFiles.writable(file);}
     public void load()throws IOException {
         writable=false;
         try {
@@ -33,7 +33,7 @@ public final class CompanyRepository implements CompanyLedger.Store {
                 root=section(y,"payments");for(String key:root.getKeys(false)){var s=section(root,key);UUID id=UUID.fromString(key);ps.put(id,new Payment(id,uuid(s,"company"),uuid(s,"account"),Purpose.valueOf(text(s,"purpose")),num(s,"amount"),Phase.valueOf(text(s,"phase")),num(s,"created")));}
                 root=section(y,"receipts");for(String key:root.getKeys(false)){var s=section(root,key);UUID id=UUID.fromString(key);rs.put(id,new Receipt(id,uuid(s,"company"),uuid(s,"town"),num(s,"payout"),num(s,"refund")));}
             }
-            state=new CompanyLedger.State(cs,ps,rs);writable=true;
+            state=new CompanyLedger.State(cs,ps,rs);ru.neverland.core.AtomicFiles.loaded(file);writable=true;
         }catch(Exception ex){throw new IOException("companies.yml повреждён; операции остановлены",ex);}
     }
     public void save(CompanyLedger.State next)throws IOException {
@@ -50,9 +50,7 @@ public final class CompanyRepository implements CompanyLedger.Store {
             atomic(y,file);state=next;
         }catch(IOException|RuntimeException ex){writable=false;throw new IOException("Не удалось сохранить компании; денежные операции остановлены",ex);}
     }
-    public static void atomic(YamlConfiguration y,Path path)throws IOException {
-        Path target=path.toAbsolutePath();Files.createDirectories(target.getParent());Path tmp=Files.createTempFile(target.getParent(),"companies-",".tmp");
-        try{y.save(tmp.toFile());try(var ch=FileChannel.open(tmp,StandardOpenOption.WRITE)){ch.force(true);}try{Files.move(tmp,target,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);}catch(AtomicMoveNotSupportedException ex){Files.move(tmp,target,StandardCopyOption.REPLACE_EXISTING);}}finally{Files.deleteIfExists(tmp);}
+    public static void atomic(YamlConfiguration y,Path path)throws IOException {ru.neverland.core.AtomicFiles.write(path,y::saveToString);
     }
     private static ConfigurationSection section(ConfigurationSection s,String k)throws IOException{var v=s.getConfigurationSection(k);if(v==null)throw new IOException("Нет раздела "+k);return v;}
     private static String text(ConfigurationSection s,String k)throws IOException{if(!s.isString(k))throw new IOException("Нет строки "+k);return s.getString(k);}

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ru.neverland"
-version = "0.1.5"
+version = "0.1.6"
 
 repositories {
     mavenCentral()
@@ -52,3 +52,5 @@ tasks {
 sourceSets.main { java.srcDir("../../shared/treasury/src/main/java") }
 
 sourceSets.main { java.srcDir("../../shared/core/src/main/java") }
+
+apply(from = "../../scripts/smoke.gradle")

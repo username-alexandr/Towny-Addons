@@ -29,8 +29,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public final class TradeService {
     public enum ProposeResult { SUCCESS, SAME_TOWN, MARKET_REQUIRED, ROUTE_LIMIT, DUPLICATE, ROUTE_UNAVAILABLE, SANCTIONED, IMPORT_RESTRICTED }
     public enum AcceptResult { SUCCESS, NOT_FOUND, NOT_BUYER, MARKET_REQUIRED, ROUTE_LIMIT, ROUTE_UNAVAILABLE,
-        NO_MONEY, STOCK_LOW, WAREHOUSE_BUSY, WAREHOUSE_UNAVAILABLE, ECONOMY_ERROR, SAVE_ERROR, SANCTIONED, IMPORT_RESTRICTED }
-    public enum CancelResult { SUCCESS, NOT_FOUND, NOT_PARTY, WAREHOUSE_BUSY, WAREHOUSE_UNAVAILABLE }
+        NO_MONEY, STOCK_LOW, WAREHOUSE_BUSY, WAREHOUSE_UNAVAILABLE, ECONOMY_ERROR, SAVE_ERROR, SANCTIONED, IMPORT_RESTRICTED, PROCESSING }
+    public enum CancelResult { SUCCESS, NOT_FOUND, NOT_PARTY, WAREHOUSE_BUSY, WAREHOUSE_UNAVAILABLE, PAYMENT_PENDING }
     public record ProposeOutcome(ProposeResult result, TradeOffer offer) {}
     public record AcceptOutcome(AcceptResult result, Caravan caravan, double required) {}
 
@@ -56,7 +56,7 @@ public final class TradeService {
         if (task != null) task.cancel();
         task = Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 20, 20);
     }
-    public void shutdown() { if (task != null) task.cancel(); task = null; repository.save(); }
+    public void shutdown() { if (task != null) task.cancel(); task = null; if(repository.writable())repository.save(); }
 
     public static boolean importsAllowed(Town buyer,Town seller){var nation=buyer.getNationOrNull();boolean sameNation=nation!=null&&seller.getNationOrNull()!=null&&nation.getUUID().equals(seller.getNationOrNull().getUUID());return ru.neverland.integration.PoliciesAccess.importsAllowed(buyer.getUUID(),seller.getUUID(),sameNation);}
     public ProposeOutcome propose(Town seller, Town buyer, ExportDefinition definition) {
@@ -80,7 +80,8 @@ public final class TradeService {
     }
 
     public AcceptOutcome accept(Town buyer, TradeOffer offer) {
-        if (offer == null) return new AcceptOutcome(AcceptResult.NOT_FOUND, null, 0);
+        if (!repository.writable()) return new AcceptOutcome(AcceptResult.SAVE_ERROR,null,0);
+        if (offer == null || repository.findOffer(offer.id().toString())==null) return new AcceptOutcome(AcceptResult.NOT_FOUND, null, 0);
         if (buyer == null || !buyer.getUUID().equals(offer.buyerId())) return new AcceptOutcome(AcceptResult.NOT_BUYER, null, 0);
         Town seller = towny.town(offer.sellerId()); ExportDefinition definition = registry.get(offer.exportId());
         if (seller == null || definition == null) { repository.remove(offer); saveNow(); return new AcceptOutcome(AcceptResult.NOT_FOUND, null, 0); }
@@ -93,31 +94,17 @@ public final class TradeService {
         Map<UUID, Double> tolls = tolls(definition, plan.transitTowns(), seller, buyer);
         double total = cents(definition.price() + tolls.values().stream().mapToDouble(Double::doubleValue).sum());
         if (!economy.canWithdraw(buyer, total)) return new AcceptOutcome(AcceptResult.NO_MONEY, null, total);
-        WarehouseBridge.Result taken = warehouse.take(seller.getUUID(), definition.item(), definition.amount());
-        if (taken.status() == WarehouseBridge.Status.INSUFFICIENT) return new AcceptOutcome(AcceptResult.STOCK_LOW, null, total);
-        if (taken.status() == WarehouseBridge.Status.BUSY) return new AcceptOutcome(AcceptResult.WAREHOUSE_BUSY, null, total);
-        if (taken.status() != WarehouseBridge.Status.SUCCESS) return new AcceptOutcome(AcceptResult.WAREHOUSE_UNAVAILABLE, null, total);
-        if (!economy.withdraw(buyer, total, definition)) {
-            warehouse.deposit(seller.getUUID(), definition.item(), definition.amount());
-            return new AcceptOutcome(AcceptResult.ECONOMY_ERROR, null, total);
-        }
         long now = System.currentTimeMillis(), arrives = now + plan.durationMillis();
-        Caravan caravan = new Caravan(UUID.randomUUID(), seller.getUUID(), buyer.getUUID(), definition.id(), definition.item(),
-                definition.amount(), definition.amount(), definition.price(), total, tolls, plan.points(), now, arrives,
+        Caravan caravan = new Caravan(offer.id(), seller.getUUID(), buyer.getUUID(), definition.id(), definition.item(),
+                definition.amount(), definition.amount(), cents(definition.price()), total, tolls, plan.points(), now, arrives,
                 now + Math.max(1000, Math.round(plan.durationMillis() * 0.55)),
                 ThreadLocalRandom.current().nextDouble() < plan.delayChance(), false, CaravanStatus.ACTIVE);
         repository.remove(offer); repository.add(caravan);
-        if (!repository.save()) {
-            repository.remove(caravan); repository.add(offer);
-            if (!economy.deposit(buyer, total, definition, "economy.refund-reason")) repository.addPending(buyer.getUUID(), total);
-            WarehouseBridge.Result restored = warehouse.deposit(seller.getUUID(), definition.item(), definition.amount());
-            if (restored.status() != WarehouseBridge.Status.SUCCESS)
-                plugin.getLogger().severe("Не удалось откатить товар после ошибки сохранения сделки " + caravan.id());
-            repository.save();
-            return new AcceptOutcome(AcceptResult.SAVE_ERROR, null, total);
-        }
-        if (plugin.getConfig().getBoolean("announcements.departure", true)) announceBoth(caravan, "caravan-town-departed", definition, Map.of());
-        return new AcceptOutcome(AcceptResult.SUCCESS, caravan, total);
+        repository.save();
+        try {advance(caravan);}catch(Exception ex){warn(caravan,ex);return new AcceptOutcome(AcceptResult.PROCESSING,caravan,total);}
+        if(!caravan.settlement().equals("ACTIVE"))return new AcceptOutcome(AcceptResult.PROCESSING,caravan,total);
+        if(plugin.getConfig().getBoolean("announcements.departure",true))announceBoth(caravan,"caravan-town-departed",definition,Map.of());
+        return new AcceptOutcome(AcceptResult.SUCCESS,caravan,total);
     }
 
     public CancelResult reject(Town buyer, TradeOffer offer) {
@@ -131,17 +118,13 @@ public final class TradeService {
         repository.remove(offer); saveNow(); return CancelResult.SUCCESS;
     }
     public CancelResult cancelCaravan(Caravan caravan) {
-        if (caravan == null) return CancelResult.NOT_FOUND;
-        ExportDefinition definition = definition(caravan);
-        WarehouseBridge.Result restored = warehouse.deposit(caravan.sellerId(), caravan.cargoItem(), caravan.remainingCargo());
-        if (restored.status() == WarehouseBridge.Status.BUSY) return CancelResult.WAREHOUSE_BUSY;
-        if (restored.status() != WarehouseBridge.Status.SUCCESS) return CancelResult.WAREHOUSE_UNAVAILABLE;
-        Town buyer = towny.town(caravan.buyerId());
-        if (!economy.deposit(buyer, caravan.escrow(), definition, "economy.refund-reason")) repository.addPending(caravan.buyerId(), caravan.escrow());
-        finishHistory(caravan, CaravanStatus.CANCELLED);
-        return CancelResult.SUCCESS;
+        if(caravan==null||caravan.terminal())return CancelResult.NOT_FOUND;
+        if(!repository.writable())return CancelResult.WAREHOUSE_UNAVAILABLE;
+        if(!java.util.Set.of("PREPARED","ACTIVE","RETURNING").contains(caravan.settlement())||repository.effects().state(caravan.operation("debit"))==ru.neverland.core.EffectJournal.State.PENDING)return CancelResult.PAYMENT_PENDING;
+        caravan.settlement("RETURNING");repository.save();
+        try{advance(caravan);return caravan.terminal()?CancelResult.SUCCESS:CancelResult.WAREHOUSE_BUSY;}catch(Exception ex){warn(caravan,ex);return CancelResult.PAYMENT_PENDING;}
     }
-    public boolean forceComplete(Caravan caravan) { return caravan != null && deliver(caravan); }
+    public boolean forceComplete(Caravan caravan){if(caravan==null||!repository.writable())return false;return deliver(caravan);}
 
     public double tariff(Town town) { return tariff(town.getUUID()); }
     private double tariff(UUID town) { return ru.neverland.integration.PoliciesAccess.tariff(town,repository.tariff(town,plugin.getConfig().getDouble("tariffs.default-percent",0)),maxTariff()); }
@@ -164,54 +147,72 @@ public final class TradeService {
     public int activeCount(Town town) { return town == null ? 0 : repository.caravans(town.getUUID()).size(); }
     public boolean hasRouteSlot(Town town) { return activeCount(town) < routeLimit(town); }
 
+    private long warned;
+    private void warn(Caravan c,Exception ex){if(System.currentTimeMillis()-warned>60000){warned=System.currentTimeMillis();plugin.getLogger().log(java.util.logging.Level.WARNING,"Караван "+c.id()+" ожидает восстановления: "+c.settlement(),ex);}}
     private void tick() {
-        long now = System.currentTimeMillis();
-        for (TradeOffer offer : new ArrayList<>(repository.offers())) if (now >= offer.expiresAt()) repository.remove(offer);
-        for (Caravan caravan : new ArrayList<>(repository.caravans())) {
-            if (towny.town(caravan.buyerId()) == null) { cancelCaravan(caravan); continue; }
-            if (!caravan.incidentHandled() && now >= caravan.incidentAt()) {
-                caravan.incidentHandled(true);
-                if (caravan.shouldDelay()) {
-                    long delay = Math.max(1, plugin.getConfig().getLong("routes.delay.seconds", 300)) * 1000;
-                    caravan.delay(delay);
-                    if (plugin.getConfig().getBoolean("announcements.delay", true)) announceBoth(caravan, "caravan-delayed", definition(caravan),
-                            Map.of("time", TimeUtil.format(delay)));
+        if(!repository.writable())return;
+        long now=System.currentTimeMillis();
+        for(var offer:new ArrayList<>(repository.offers()))if(now>=offer.expiresAt())repository.remove(offer);
+        for(var c:new ArrayList<>(repository.allCaravans()))try{
+            if(!repository.writable())return;
+            if(c.terminal()){cleanup(c);continue;}
+            if(c.settlement().equals("LEGACY_REVIEW"))continue;
+            if(c.settlement().equals("ACTIVE")){
+                if(towny.town(c.buyerId())==null){cancelCaravan(c);continue;}
+                if(!c.incidentHandled()&&now>=c.incidentAt()){
+                    c.incidentHandled(true);if(c.shouldDelay()){long delay=Math.max(1,plugin.getConfig().getLong("routes.delay.seconds",300))*1000;c.delay(delay);repository.save();if(plugin.getConfig().getBoolean("announcements.delay",true))announceBoth(c,"caravan-delayed",definition(c),Map.of("time",TimeUtil.format(delay)));}repository.changed();
                 }
-                repository.changed();
+                if(now>=c.arrivesAt()){c.settlement("DELIVERING");repository.save();}
             }
-            if (now >= caravan.arrivesAt() || caravan.status() == CaravanStatus.WAITING_WAREHOUSE) deliver(caravan);
-        }
-        retryCredits(); repository.saveIfDirty();
+            advance(c);
+        }catch(Exception ex){warn(c,ex);}
+        if(repository.writable()){retryCredits();repository.saveIfDirty();}
     }
-    private boolean deliver(Caravan caravan) {
-        ExportDefinition definition = definition(caravan);
-        WarehouseBridge.Result delivered = warehouse.deposit(caravan.buyerId(), caravan.cargoItem(), caravan.remainingCargo());
-        if (delivered.status() != WarehouseBridge.Status.SUCCESS) {
-            if (caravan.status() != CaravanStatus.WAITING_WAREHOUSE) {
-                caravan.status(CaravanStatus.WAITING_WAREHOUSE); repository.changed();
-                Town buyer = towny.town(caravan.buyerId()); if (buyer != null) announce(buyer, "waiting-warehouse", Map.of());
+    private boolean deliver(Caravan c){
+        if(c.settlement().equals("ACTIVE")){c.settlement("DELIVERING");repository.save();}
+        if(!java.util.Set.of("DELIVERING","PAYING").contains(c.settlement()))return false;
+        try{advance(c);if(c.settlement().equals("PAYING"))advance(c);return c.terminal();}catch(Exception ex){warn(c,ex);return false;}
+    }
+    private String creditDescription(Caravan c,UUID recipient,double amount,String kind){return "Караван "+c.id()+" "+kind+" город "+recipient+": "+amount;}
+    private void advance(Caravan c)throws Exception {
+        if(!repository.writable())throw new IllegalStateException("Хранилище торговли недоступно");
+        CaravanProcessor.advance(c,new CaravanProcessor.Store(){public void save(){repository.save();}public void finish(Caravan value,CaravanStatus status){finishHistory(value,status);}},new CaravanProcessor.Gateway(){
+            public boolean reserve(Caravan value)throws Exception{return warehouse.transfer(value.operation("take"),value.sellerId(),value.cargoItem(),value.totalCargo(),false).status()==WarehouseBridge.Status.SUCCESS;}
+            public boolean debit(Caravan value)throws Exception{return repository.effects().execute(value.operation("debit"),"Списание каравана "+value.id()+" город "+value.buyerId()+": "+value.escrow(),()->economy.transfer(towny.town(value.buyerId()),value.escrow(),definition(value),"debit",value.operation("debit"),false));}
+            public boolean deliver(Caravan value)throws Exception{return warehouse.transfer(value.operation("delivery"),value.buyerId(),value.cargoItem(),value.remainingCargo(),true).status()==WarehouseBridge.Status.SUCCESS;}
+            public boolean credit(Caravan value,UUID recipient,double amount,String kind)throws Exception{
+                if(amount<=0)return true;UUID id=value.operation(kind+":"+recipient);
+                return repository.effects().execute(id,creditDescription(value,recipient,amount,kind),()->economy.transfer(towny.town(recipient),amount,definition(value),kind,id,true));
             }
-            return false;
-        }
-        caravan.remainingCargo(0); Town seller = towny.town(caravan.sellerId()), buyer = towny.town(caravan.buyerId());
-        if (!economy.deposit(seller, caravan.basePrice(), definition, "economy.sale-reason")) repository.addPending(caravan.sellerId(), caravan.basePrice());
-        for (Map.Entry<UUID, Double> toll : caravan.tariffs().entrySet()) {
-            Town transit = towny.town(toll.getKey());
-            if (!economy.deposit(transit, toll.getValue(), definition, "economy.tariff-reason")) repository.addPending(toll.getKey(), toll.getValue());
-        }
-        finishHistory(caravan, CaravanStatus.COMPLETED);
-        if (plugin.getConfig().getBoolean("announcements.arrival", true)) {
-            if (buyer != null) announce(buyer, "caravan-arrived", Map.of("from", seller == null ? "Удалённый город" : seller.getName()));
-            if (seller != null) announce(seller, "caravan-completed", Map.of("export", ColorUtil.strip(definition.name()), "amount", economy.format(caravan.basePrice())));
-        }
-        return true;
+            public boolean sourceTaken(Caravan value)throws Exception{return value.legacyFunded()||warehouse.transferred(value.operation("take"),value.sellerId());}
+            public boolean funded(Caravan value){return value.legacyFunded()||repository.effects().state(value.operation("debit"))==ru.neverland.core.EffectJournal.State.DONE;}
+            public boolean returnStock(Caravan value)throws Exception{return warehouse.transfer(value.operation("return"),value.sellerId(),value.cargoItem(),value.remainingCargo(),true).status()==WarehouseBridge.Status.SUCCESS;}
+        });
     }
-    private void finishHistory(Caravan caravan, CaravanStatus status) {
-        repository.remove(caravan);
-        repository.addHistory(new TradeHistory(caravan.id(), caravan.sellerId(), caravan.buyerId(), caravan.exportId(),
-                caravan.totalCargo(), caravan.basePrice(), caravan.tariffs().values().stream().mapToDouble(Double::doubleValue).sum(),
-                System.currentTimeMillis(), status), plugin.getConfig().getInt("trade.history-limit-per-town", 30));
-        saveNow();
+    private void finishHistory(Caravan c,CaravanStatus status){
+        c.settlement(status==CaravanStatus.COMPLETED?"COMPLETE":"CANCELLED");
+        repository.addHistory(new TradeHistory(c.id(),c.sellerId(),c.buyerId(),c.exportId(),c.totalCargo(),c.basePrice(),c.tariffs().values().stream().mapToDouble(Double::doubleValue).sum(),System.currentTimeMillis(),status),plugin.getConfig().getInt("trade.history-limit-per-town",30));
+        repository.save();
+        if(status==CaravanStatus.COMPLETED&&plugin.getConfig().getBoolean("announcements.arrival",true))announceBoth(c,"caravan-arrived",definition(c),Map.of());
+    }
+    private void cleanup(Caravan c)throws Exception {
+        warehouse.acknowledge(c.operation("take"),c.sellerId());warehouse.acknowledge(c.operation("return"),c.sellerId());warehouse.acknowledge(c.operation("delivery"),c.buyerId());
+        repository.remove(c);repository.save();pruneEffects();
+    }
+    private void pruneEffects()throws Exception{
+        java.util.Set<UUID> needed=new java.util.HashSet<>();for(var c:repository.allCaravans()){needed.add(c.operation("debit"));needed.add(c.operation("seller:"+c.sellerId()));needed.add(c.operation("refund:"+c.buyerId()));c.tariffs().keySet().forEach(t->needed.add(c.operation("tariff:"+t)));}
+        repository.pendingCredits().keySet().forEach(t->needed.add(ru.neverland.core.EffectJournal.id("legacy-trade-credit:"+t)));repository.effects().retain(needed);
+    }
+    public void resolveCaravan(String id,String decision)throws Exception{
+        var c=repository.findCaravan(id);if(c==null||!c.settlement().equals("LEGACY_REVIEW"))throw new IllegalArgumentException("Нет старого каравана, ожидающего сверки");
+        if(decision.equals("legacy-active")){if(c.remainingCargo()<1)throw new IllegalArgumentException("Груз уже выгружен: используйте legacy-delivered или legacy-complete");c.settlement("ACTIVE");}
+        else if(decision.equals("legacy-complete")){finishHistory(c,CaravanStatus.COMPLETED);return;}
+        else if(decision.equals("legacy-delivered")){
+            c.settlement("PAYING");
+            if(c.basePrice()>0)repository.effects().review(c.operation("seller:"+c.sellerId()),creditDescription(c,c.sellerId(),c.basePrice(),"seller"));
+            for(var t:c.tariffs().entrySet())if(t.getValue()>0)repository.effects().review(c.operation("tariff:"+t.getKey()),creditDescription(c,t.getKey(),t.getValue(),"tariff"));
+        }else throw new IllegalArgumentException("Решение: legacy-active, legacy-delivered или legacy-complete");
+        repository.save();
     }
     private Map<UUID, Double> tolls(ExportDefinition definition, List<UUID> towns, Town seller, Town buyer) {
         Map<UUID, Double> result = new LinkedHashMap<>();
@@ -222,12 +223,13 @@ public final class TradeService {
         }
         return result;
     }
-    private void retryCredits() {
-        ExportDefinition fallback = registry.all().stream().findFirst().orElse(null); if (fallback == null) return;
-        for (Map.Entry<UUID, Double> entry : repository.pendingCredits().entrySet()) {
-            Town town = towny.town(entry.getKey());
-            if (economy.deposit(town, entry.getValue(), fallback, "economy.pending-reason")) repository.clearPending(entry.getKey());
-        }
+    private void retryCredits(){
+        var fallback=registry.all().stream().findFirst().orElse(null);if(fallback==null)return;
+        for(var entry:repository.pendingCredits().entrySet())try{
+            UUID id=ru.neverland.core.EffectJournal.id("legacy-trade-credit:"+entry.getKey());
+            if(repository.effects().state(id)==ru.neverland.core.EffectJournal.State.PENDING)continue;
+            if(repository.effects().execute(id,"Старое зачисление городу "+entry.getKey()+": "+entry.getValue(),()->economy.transfer(towny.town(entry.getKey()),entry.getValue(),fallback,"pending",id,true))){repository.clearPending(entry.getKey());repository.save();}
+        }catch(Exception ex){plugin.getLogger().warning("Старое зачисление ожидает сверки: "+entry.getKey()+" "+ex.getMessage());}
     }
     private ExportDefinition definition(Caravan caravan) {
         ExportDefinition current = registry.get(caravan.exportId());
@@ -245,7 +247,7 @@ public final class TradeService {
         String text = messages.text(key, values, true);
         for (Player player : Bukkit.getOnlinePlayers()) { Town playerTown = towny.town(player); if (town.equals(playerTown)) player.sendMessage(text); }
     }
-    private void saveNow() { if (plugin.getConfig().getBoolean("trade.save-immediately", true)) repository.save(); else repository.changed(); }
+    private void saveNow() { repository.save(); }
     private double cents(double value) { return TradeMath.cents(value); }
 
     public ExportRegistry registry() { return registry; }

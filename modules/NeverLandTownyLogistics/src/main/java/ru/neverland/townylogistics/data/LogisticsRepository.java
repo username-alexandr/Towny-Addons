@@ -8,10 +8,10 @@ import java.nio.file.*;
 import java.io.IOException;
 public final class LogisticsRepository {
     public record Snapshot(Map<UUID,Network> networks,Map<UUID,CourierJob> jobs){public Snapshot{networks=Map.copyOf(networks);jobs=Map.copyOf(jobs);}}
-    private final Path file;private Snapshot last;
+    private final Path file;private Snapshot last;private boolean ready;
     public LogisticsRepository(Path file){this.file=file;}
-    public Snapshot load()throws Exception{
-        if(!Files.exists(file))return new Snapshot(Map.of(),Map.of());var c=new YamlConfiguration();c.load(file.toFile());
+    public Snapshot load()throws Exception{ready=false;
+        if(!Files.exists(file)){ru.neverland.core.AtomicFiles.loaded(file);ready=true;return new Snapshot(Map.of(),Map.of());}var c=new YamlConfiguration();c.load(file.toFile());
         if(c.getInt("schema")!=1||c.getConfigurationSection("towns")==null||c.getConfigurationSection("jobs")==null)throw new IOException("Повреждена база логистики");
         Map<UUID,Network> towns=new HashMap<>();var root=c.getConfigurationSection("towns");
         for(String raw:root.getKeys(false)){
@@ -29,11 +29,11 @@ public final class LogisticsRepository {
                 CourierJob.Phase.valueOf(j.getString("phase","")),j.getInt("waypoint"),Position.decode(j.getString("position","")),j.getInt("handling"));
             if(job.waypoint()>job.path().size())throw new IOException("Повреждён прогресс курьера");jobs.put(id,job);
         }
-        last=new Snapshot(towns,jobs);return last;
+        last=new Snapshot(towns,jobs);ru.neverland.core.AtomicFiles.loaded(file);ready=true;return last;
     }
     private ConfigurationSection required(ConfigurationSection c,String key)throws IOException{var value=c.getConfigurationSection(key);if(value==null)throw new IOException("Нет раздела "+key);return value;}
     private List<Position> positions(ConfigurationSection c,String key){return c.getStringList(key).stream().map(Position::decode).toList();}
-    public void save(Map<UUID,Network> networks,Map<UUID,CourierJob> jobs)throws IOException{
+    public void save(Map<UUID,Network> networks,Map<UUID,CourierJob> jobs)throws IOException{if(!ready||!ru.neverland.core.AtomicFiles.writable(file))throw new IOException("База логистики недоступна");
         var proposed=new Snapshot(networks,jobs);if(proposed.equals(last))return;
         var c=new YamlConfiguration();c.set("schema",1);c.createSection("towns");c.createSection("jobs");
         for(var n:networks.values()){
@@ -45,9 +45,7 @@ public final class LogisticsRepository {
         for(var j:jobs.values()){String k="jobs."+j.id()+".";c.set(k+"town",j.town().toString());c.set(k+"route",j.route());c.set(k+"hub",j.hub());c.set(k+"source",j.source());c.set(k+"target",j.target());c.set(k+"level",j.level());
             c.set(k+"outbound",j.outbound().stream().map(Position::encode).toList());c.set(k+"delivery",j.delivery().stream().map(Position::encode).toList());c.set(k+"home",j.home().stream().map(Position::encode).toList());
             c.set(k+"phase",j.phase().name());c.set(k+"waypoint",j.waypoint());c.set(k+"position",j.position().encode());c.set(k+"handling",j.handlingTicks());}
-        var target=file.toAbsolutePath();Files.createDirectories(target.getParent());var tmp=Files.createTempFile(target.getParent(),"logistics-",".tmp");
-        try{c.save(tmp.toFile());try{Files.move(tmp,target,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);}catch(AtomicMoveNotSupportedException ex){Files.move(tmp,target,StandardCopyOption.REPLACE_EXISTING);}}
-        finally{Files.deleteIfExists(tmp);}
+        ru.neverland.core.AtomicFiles.write(file,c::saveToString);
         last=proposed;
     }
 }

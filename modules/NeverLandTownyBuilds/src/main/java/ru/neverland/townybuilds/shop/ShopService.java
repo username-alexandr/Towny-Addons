@@ -46,7 +46,7 @@ public final class ShopService implements PurchaseSaga.Gateway<ShopOrder> {
         thread();var o=journal.order(id);if(o==null||!o.buyer().equals(player.getUniqueId()))throw new IllegalArgumentException("Покупка не принадлежит игроку");
         if(!player.isOnline()||player.getGameMode()==GameMode.CREATIVE||player.getGameMode()==GameMode.SPECTATOR)throw new IllegalArgumentException("Выдача доступна в выживании или приключении");
         if(!o.paymentStep().equals("COMPLETE"))return o.title();if(o.finalized())return "CLAIMED";
-        String result=MarketTransactions.claim(data.town(o.seller()),access(),o.id(),o.id(),new MarketTransactions.Inventory(){public UUID owner(){return player.getUniqueId();}public ItemStack[] read(){return player.getInventory().getStorageContents();}public void write(ItemStack[] items){player.getInventory().setStorageContents(items);}public void save(){player.saveData();}});
+        String result=MarketTransactions.claim(data.town(o.seller()),access(),o.id(),o.id(),new MarketTransactions.Inventory(){private final ru.neverland.core.PlayerSaveReceipt receipt=ru.neverland.core.PlayerSaveReceipt.before(player);public UUID owner(){return player.getUniqueId();}public ItemStack[] read(){return player.getInventory().getStorageContents();}public void write(ItemStack[] items){player.getInventory().setStorageContents(items);}public void save(){receipt.save(player);}});
         if(result.equals("CLAIMED"))advance(id);return result;
     }
     public void advance(UUID id)throws Exception{thread();PurchaseSaga.advance(id,System.currentTimeMillis(),5000,journal,this);}

@@ -119,6 +119,7 @@ public final class TradeMenuManager implements Listener {
         switch (outcome.result()) {
             case SUCCESS -> messages.send(player, "caravan-departed", Map.of("export", ColorUtil.strip(trade.definitionOf(outcome.caravan()).name()),
                     "time", TimeUtil.format(outcome.caravan().arrivesAt() - System.currentTimeMillis())));
+            case PROCESSING -> player.sendMessage("Договор сохранён. Караван ожидает резерв товара, платёж или восстановление; состояние видно в списке караванов.");
             case NOT_FOUND -> messages.send(player, "offer-not-found", Map.of("offer", "?"));
             case NOT_BUYER -> messages.send(player, "not-offer-party"); case MARKET_REQUIRED -> messages.send(player, "market-required");
             case ROUTE_LIMIT -> messages.send(player, "route-limit"); case ROUTE_UNAVAILABLE -> messages.send(player, "route-unavailable");
@@ -152,12 +153,13 @@ public final class TradeMenuManager implements Listener {
     private ItemStack caravanItem(Caravan caravan, Town viewer) {
         ExportDefinition definition = trade.definitionOf(caravan); Town from = towny.town(caravan.sellerId()), to = towny.town(caravan.buyerId());
         return item(definition.icon(), definition.name(), List.of("&7Маршрут: &f" + name(from) + " &7→ &f" + name(to),
-                "&7Статус: " + (caravan.status() == CaravanStatus.WAITING_WAREHOUSE ? "&#FFFF55Ожидает склад" : "&#55FF55В пути"),
+                "&7Статус: " + caravanState(caravan),
                 "&7Прогресс: &#63E6BE" + Math.round(caravan.progress(System.currentTimeMillis()) * 100) + "%",
                 "&7До прибытия: &#65B8FF" + TimeUtil.format(caravan.arrivesAt() - System.currentTimeMillis()),
                 "&7Перевалочных лагерей: &f" + caravan.campStops(), "&7Пошлины: &#FFD45A" + trade.economy().format(caravan.escrow() - caravan.basePrice()),
                 "&7ID: &f" + caravan.shortId()));
     }
+    private String caravanState(Caravan c){return switch(c.settlement()){case "ACTIVE"->"В пути";case "PREPARED"->"Подготовка / платёж";case "DELIVERING"->"Ожидает склад";case "PAYING"->"Ожидает расчёт";case "RETURNING"->"Ожидает возврат";case "LEGACY_REVIEW"->"Требует сверки администратора";default->"Завершён";};}
     private String name(Town town) { return town == null ? "Удалённый город" : town.getName(); }
     private void fill(Inventory inventory) { Material material = MaterialNameConfig.matchMaterial(plugin.getConfig().getString("gui.filler", "BLACK_STAINED_GLASS_PANE")); ItemStack filler = item(material == null ? Material.BLACK_STAINED_GLASS_PANE : material, " ", List.of()); for (int i = 0; i < inventory.getSize(); i++) inventory.setItem(i, filler); }
     private ItemStack actionItem(String action, Material material, String name, List<String> lore) { return keyed(item(material, name, lore), actionKey, action); }

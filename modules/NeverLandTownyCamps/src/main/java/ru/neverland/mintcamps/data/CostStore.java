@@ -26,7 +26,7 @@ public final class CostStore {
 
     public void reload() {
         costs.clear();
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
+        YamlConfiguration yaml = ru.neverland.core.SafeYaml.load(file.toPath());
         for (int level = 1; level <= 3; level++) {
             List<ItemStack> items = new ArrayList<>();
             for (Object value : yaml.getList("costs." + level, Collections.emptyList())) {
@@ -52,10 +52,8 @@ public final class CostStore {
         YamlConfiguration yaml = new YamlConfiguration();
         for (int level = 1; level <= 3; level++) yaml.set("costs." + level, costs.getOrDefault(level, List.of()));
         try {
-            yaml.save(file);
-        } catch (IOException exception) {
-            plugin.getLogger().severe("Не удалось сохранить upgrade-costs.yml: " + exception.getMessage());
-        }
+            ru.neverland.core.AtomicFiles.write(file.toPath(),yaml::saveToString);
+        } catch(IOException exception){throw new java.io.UncheckedIOException(exception);}
     }
 
     private ItemStack parse(Object value) {

@@ -7,11 +7,7 @@ import java.util.*;
 
 public final class CityBridge {
     public Map<String,Integer> levels(UUID town)throws ReflectiveOperationException {
-        var plugin=Bukkit.getPluginManager().getPlugin("NeverLandTownyBuilds");
-        if(plugin==null||!plugin.isEnabled())throw new IllegalStateException("Постройки недоступны");
-        Class<?> type=Class.forName("ru.neverland.townybuilds.api.TownyBuildsApi",true,plugin.getClass().getClassLoader());
-        Object api=Bukkit.getServicesManager().load(type);if(api==null)throw new IllegalStateException("API построек недоступен");
-        Map<?,?> values=(Map<?,?>)type.getMethod("buildingFootprints",UUID.class).invoke(api,town);Map<String,Integer> result=new HashMap<>();
+        Map<?,?> values=(Map<?,?>)ru.neverland.core.ApiServices.call("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","buildingFootprints",new Class<?>[]{UUID.class},town);Map<String,Integer> result=new HashMap<>();
         for(var entry:values.entrySet()){
             Object b=entry.getValue();String id=entry.getKey().toString();int completed=integer(b,"completedLevel");
             if((id.equals("town_hall")||SpecializationRules.PROJECTS.containsKey(id))&&owned(town,b))result.put(id,Math.max(0,Math.min(5,completed)));

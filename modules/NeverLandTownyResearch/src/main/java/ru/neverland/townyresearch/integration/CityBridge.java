@@ -6,20 +6,16 @@ import ru.neverland.townyresearch.model.ResearchProcessor.Gateway;
 import java.util.*;
 import java.lang.reflect.*;
 public final class CityBridge implements Gateway {
-    private static Class<?> api(String pluginName,String name)throws Exception{
-        var plugin=Bukkit.getPluginManager().getPlugin(pluginName);if(plugin==null||!plugin.isEnabled())throw new IllegalStateException(pluginName+" недоступен");return Class.forName(name,true,plugin.getClass().getClassLoader());
-    }
     private Object resource(String method,Class<?>[] types,Object... args)throws Exception{
-        Class<?> api=api("NeverLandTownyResources","ru.neverland.townyresources.api.TownyResourcesApi");Object provider=Bukkit.getServicesManager().load(api);if(provider==null)throw new IllegalStateException("API ресурсов недоступен");
-        try{return api.getMethod(method,types).invoke(provider,args);}catch(InvocationTargetException ex){if(ex.getCause() instanceof Exception cause)throw cause;throw ex;}
+        try{return ru.neverland.core.ApiServices.call("NeverLandTownyResources","ru.neverland.townyresources.api.TownyResourcesApi",method,types,args);}
+        catch(InvocationTargetException ex){if(ex.getCause() instanceof Exception cause)throw cause;throw ex;}
     }
-    public void verify()throws Exception{
-        api("NeverLandTownyResources","ru.neverland.townyresources.api.TownyResourcesApi").getMethod("reserveResources",UUID.class,UUID.class,Map.class);
-        api("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi").getMethod("operationalLevel",UUID.class,String.class);
+    public void verify(){
+        ru.neverland.core.ApiServices.require("NeverLandTownyResources","ru.neverland.townyresources.api.TownyResourcesApi","reserveResources","settleResources","forgetReservation","reservationStatus");
+        ru.neverland.core.ApiServices.require("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","operationalLevel","buildingFootprints");
     }
     public Map<String,Integer> buildings(UUID town)throws Exception{
-        Class<?> api=api("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi");Object provider=Bukkit.getServicesManager().load(api);if(provider==null)throw new IllegalStateException("API построек недоступен");
-        Map<?,?> footprints=(Map<?,?>)api.getMethod("buildingFootprints",UUID.class).invoke(provider,town);Map<String,Integer> out=new HashMap<>();
+        Map<?,?> footprints=(Map<?,?>)ru.neverland.core.ApiServices.call("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","buildingFootprints",new Class<?>[]{UUID.class},town);Map<String,Integer> out=new HashMap<>();
         for(var e:footprints.entrySet()){var b=e.getValue();int level=num(b,"completedLevel");if(level>0&&owned(town,b)&&ru.neverland.integration.BuildingOperations.active(town,e.getKey().toString()))out.put(e.getKey().toString(),Math.min(5,level));}return Map.copyOf(out);
     }
     private static int num(Object o,String method)throws Exception{return ((Number)o.getClass().getMethod(method).invoke(o)).intValue();}

@@ -25,6 +25,15 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         if (!sender.hasPermission("minttrade.admin")) { messages.send(sender, "no-permission"); return true; }
         if (args.length == 0) { messages.list("admin-help").forEach(sender::sendMessage); return true; }
         switch (args[0].toLowerCase()) {
+            case "payments" -> {for(var e:trade.repository().effects().entries())if(e.state()==ru.neverland.core.EffectJournal.State.PENDING)sender.sendMessage(e.id()+" | "+e.description());for(var c:trade.repository().caravans())if(c.settlement().equals("LEGACY_REVIEW"))sender.sendMessage(c.id()+" | старый караван требует сверки /townytrade legacy");}
+            case "resolve-payment" -> {
+                if(args.length!=4||!args[3].equals("confirm")||!java.util.Set.of("received","not-received").contains(args[2])){sender.sendMessage("После проверки банка: /townytrade resolve-payment <UUID> <received|not-received> confirm");return true;}
+                try{trade.repository().effects().resolve(java.util.UUID.fromString(args[1]),args[2].equals("received"));plugin.getLogger().warning(sender.getName()+" сверил платёж "+args[1]+": "+args[2]);sender.sendMessage("Результат сохранён. Обработка продолжится автоматически. Также сверьте зависший платёж Treasury+, если он есть.");}catch(Exception ex){sender.sendMessage("Сверка не выполнена: "+ex.getMessage());}
+            }
+            case "legacy" -> {
+                if(args.length!=4||!args[3].equals("confirm")){sender.sendMessage("После проверки склада и банка: /townytrade legacy <ID> <legacy-active|legacy-delivered|legacy-complete> confirm");return true;}
+                try{trade.resolveCaravan(args[1],args[2]);plugin.getLogger().warning(sender.getName()+" сверил старый караван "+args[1]+": "+args[2]);sender.sendMessage("Сверка сохранена. Платежи после legacy-delivered: /townytrade payments.");}catch(Exception ex){sender.sendMessage("Сверка не выполнена: "+ex.getMessage());}
+            }
             case "contracts" -> {for(var c:plugin.supplies().all())if(c.open())sender.sendMessage(c.terms().id()+" | "+ru.neverland.minttrade.contract.SupplyMenus.state(c)+" | "+c.note());}
             case "contract" -> {
                 var c=args.length==2?plugin.supplies().find(args[1]):null;
@@ -52,23 +61,23 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         for (Caravan caravan : trade.repository().caravans()) {
             Town from = towny.town(caravan.sellerId()), to = towny.town(caravan.buyerId()); ExportDefinition definition = trade.definitionOf(caravan);
             sender.sendMessage(ColorUtil.color("&8- &f" + caravan.shortId() + " &7| &f" + name(from) + " &7→ &f" + name(to)
-                    + " &7| " + definition.name() + " &7| " + Math.round(caravan.progress(System.currentTimeMillis()) * 100) + "%"));
+                    + " &7| " + definition.name() + " &7| " + Math.round(caravan.progress(System.currentTimeMillis()) * 100) + "% | " + caravan.settlement()));
         }
     }
     private void complete(CommandSender sender, String[] args) {
         if (args.length < 2) { sender.sendMessage(ColorUtil.color("&fИспользование: /townytrade complete <ID>")); return; }
         Caravan caravan = trade.caravan(args[1]);
         if (caravan == null) { messages.send(sender, "caravan-not-found", java.util.Map.of("caravan", args[1])); return; }
-        if (trade.forceComplete(caravan)) messages.send(sender, "admin-completed"); else messages.send(sender, "warehouse-full");
+        if (trade.forceComplete(caravan)) messages.send(sender, "admin-completed"); else sender.sendMessage("Караван ожидает склад, платёж или сверку. /townytrade list; /townytrade payments");
     }
     private void cancel(CommandSender sender, String[] args) {
         if (args.length < 2) { sender.sendMessage(ColorUtil.color("&fИспользование: /townytrade cancel <ID>")); return; }
         TradeService.CancelResult result = trade.cancelCaravan(trade.caravan(args[1]));
-        switch (result) { case SUCCESS -> messages.send(sender, "admin-cancelled"); case NOT_FOUND -> messages.send(sender, "caravan-not-found", java.util.Map.of("caravan", args[1])); case WAREHOUSE_BUSY -> messages.send(sender, "warehouse-busy"); default -> messages.send(sender, "warehouse-unavailable"); }
+        switch (result) { case SUCCESS -> messages.send(sender, "admin-cancelled"); case PAYMENT_PENDING -> sender.sendMessage("Возврат ожидает сверки платежа: /townytrade payments"); case NOT_FOUND -> messages.send(sender, "caravan-not-found", java.util.Map.of("caravan", args[1])); case WAREHOUSE_BUSY -> messages.send(sender, "warehouse-busy"); default -> messages.send(sender, "warehouse-unavailable"); }
     }
     private String name(Town town) { return town == null ? "Удалённый город" : town.getName(); }
     @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        if (args.length == 1) return filter(List.of("list", "complete", "cancel", "reload", "contracts", "contract", "resolve"), args[0]);
+        if (args.length == 1) return filter(List.of("list", "complete", "cancel", "reload", "contracts", "contract", "resolve", "payments", "resolve-payment", "legacy"), args[0]);
         if (args.length == 2 && (args[0].equalsIgnoreCase("complete") || args[0].equalsIgnoreCase("cancel"))) return filter(trade.repository().caravans().stream().map(Caravan::shortId).toList(), args[1]);
         if(args.length==2&&(args[0].equalsIgnoreCase("contract")||args[0].equalsIgnoreCase("resolve")))return filter(plugin.supplies().all().stream().filter(ru.neverland.minttrade.contract.SupplyContract::open).map(c->c.terms().shortId()).toList(),args[1]);
         if(args.length==3&&args[0].equalsIgnoreCase("resolve")){var c=plugin.supplies().find(args[1]);return c==null||c.attempt()==null?List.of():filter(List.of(c.attempt().id().toString()),args[2]);}

@@ -35,16 +35,16 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
     public ArmyService(JavaPlugin plugin, TownyHook towny, DataStore data) {
         this.plugin = plugin; this.towny = towny; this.data = data;
         file = new File(plugin.getDataFolder(), "army-data.yml");
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
+        YamlConfiguration yaml = ru.neverland.core.SafeYaml.load(file.toPath());
         var ageRoot = yaml.getConfigurationSection("ages");
         if (ageRoot != null) for (String id : ageRoot.getKeys(false)) try {
             var value = MobilizationPolicy.parseAge(ageRoot.getString(id));
             if (value.isPresent()) ages.put(UUID.fromString(id), value.getAsInt());
-        } catch (IllegalArgumentException ignored) { plugin.getLogger().warning("Повреждённый возраст в army-data.yml: " + id); }
+        } catch (IllegalArgumentException ignored) { throw new IllegalStateException("Повреждён возраст: "+id,ignored); }
         var soldiers = yaml.getConfigurationSection("soldiers");
         if (soldiers != null) for (String id : soldiers.getKeys(false)) try {
             roster.put(UUID.fromString(id), UUID.fromString(soldiers.getString(id)));
-        } catch (IllegalArgumentException ignored) { plugin.getLogger().warning("Повреждённый солдат в army-data.yml: " + id); }
+        } catch (IllegalArgumentException ignored) { throw new IllegalStateException("Повреждён солдат: "+id,ignored); }
     }
     public void start() {
         Bukkit.getServicesManager().register(TownArmyApi.class, this, plugin, ServicePriority.Normal);
@@ -216,7 +216,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         YamlConfiguration yaml = new YamlConfiguration();
         ages.forEach((id, age) -> yaml.set("ages." + id, age));
         roster.forEach((id, town) -> yaml.set("soldiers." + id, town.toString()));
-        try { yaml.save(file); } catch (IOException ex) { plugin.getLogger().severe("Не удалось сохранить army-data.yml: " + ex.getMessage()); }
+        try { ru.neverland.core.AtomicFiles.write(file.toPath(),yaml::saveToString); } catch(IOException ex){throw new java.io.UncheckedIOException(ex);}
     }
     @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> choices = new ArrayList<>();

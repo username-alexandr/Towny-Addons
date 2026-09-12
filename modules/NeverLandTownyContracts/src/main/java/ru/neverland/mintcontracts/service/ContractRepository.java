@@ -26,14 +26,14 @@ public final class ContractRepository {
     private final Map<UUID,DeliveryIntent> deliveries=new LinkedHashMap<>();
     private boolean dirty;
     private boolean writable = true;
-    public boolean writable() { return writable; }
+    public boolean writable() { return writable&&ru.neverland.core.AtomicFiles.writable(file.toPath()); }
 
     public ContractRepository(JavaPlugin plugin) { this(new File(plugin.getDataFolder(), "contract-data.yml"),plugin.getLogger()); }
     public ContractRepository(File file,java.util.logging.Logger logger) {this.file=file;this.logger=logger;}
 
     public synchronized void load() {
-        active.clear(); history.clear(); pendingPlayers.clear(); pendingTowns.clear();payments.clear();deliveries.clear();
-        if (!file.exists()) return;
+        writable=false;active.clear(); history.clear(); pendingPlayers.clear(); pendingTowns.clear();payments.clear();deliveries.clear();
+        if (!file.exists()){ru.neverland.core.AtomicFiles.loaded(file.toPath());writable=true;return;}
         YamlConfiguration yaml = new YamlConfiguration();
         try { yaml.load(file); } catch (Exception ex) { writable=false; throw new IllegalStateException("contract-data.yml повреждён; операции остановлены", ex); }
         if(yaml.contains("schema")&&yaml.getInt("schema")!=2&&yaml.getInt("schema")!=3){writable=false;throw new IllegalStateException("Неизвестная схема контрактов");}
@@ -90,7 +90,7 @@ public final class ContractRepository {
             for(ActiveContract c:allActive())if(!c.funded()&&payments.values().stream().noneMatch(m->c.id().equals(m.contract())&&m.kind()==MunicipalPayment.Kind.RESERVE&&(m.phase()==MunicipalPayment.Phase.READY||m.phase()==MunicipalPayment.Phase.PENDING)))throw new IllegalArgumentException("Нет резерва неоплаченного задания");
             for(DeliveryIntent d:deliveries.values())if(d.phase()==DeliveryIntent.Phase.PLAYER_PENDING||d.phase()==DeliveryIntent.Phase.TAKEN){ActiveContract c=find(d.town(),d.contract().toString());if(c==null||!c.funded()||c.settlementStatus()!=null)throw new IllegalArgumentException("Поставка без действующего контракта");}
         }catch(RuntimeException ex){writable=false;throw new IllegalStateException("Повреждён журнал операций контрактов",ex);}
-        dirty = false;
+        dirty = false;ru.neverland.core.AtomicFiles.loaded(file.toPath());writable=true;
     }
 
     private static boolean integral(Object value){return value instanceof Integer||value instanceof Long;}
@@ -181,12 +181,7 @@ public final class ContractRepository {
         yaml.createSection("deliveries");
         for(var d:deliveries.values()){var v=yaml.createSection("deliveries."+d.id());v.set("contract",d.contract().toString());v.set("town",d.town().toString());v.set("actor",d.actor().toString());v.set("sample",d.sample());v.set("amount",d.amount());v.set("phase",d.phase().name());v.set("created",d.created());v.set("acknowledged",d.acknowledged());}
         try {
-            java.nio.file.Path target=file.toPath().toAbsolutePath();java.nio.file.Files.createDirectories(target.getParent());
-            var tmp=java.nio.file.Files.createTempFile(target.getParent(),"contracts-",".tmp");
-            try {yaml.save(tmp.toFile());try(var channel=java.nio.channels.FileChannel.open(tmp,java.nio.file.StandardOpenOption.WRITE)){channel.force(true);}
-                try{java.nio.file.Files.move(tmp,target,java.nio.file.StandardCopyOption.ATOMIC_MOVE,java.nio.file.StandardCopyOption.REPLACE_EXISTING);}
-                catch(java.nio.file.AtomicMoveNotSupportedException ex){java.nio.file.Files.move(tmp,target,java.nio.file.StandardCopyOption.REPLACE_EXISTING);}
-            }finally{java.nio.file.Files.deleteIfExists(tmp);}
+            ru.neverland.core.AtomicFiles.write(file.toPath(),yaml::saveToString);
             dirty = false; return true; }
         catch (IOException|RuntimeException exception) { writable=false; logger.severe("Не удалось сохранить contract-data.yml: " + exception.getMessage()); return false; }
     }

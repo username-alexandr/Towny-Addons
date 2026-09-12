@@ -7,11 +7,7 @@ import java.util.*;
 
 public final class CityBridge {
     public Map<String,Building> buildings(UUID town)throws ReflectiveOperationException {
-        var plugin=Bukkit.getPluginManager().getPlugin("NeverLandTownyBuilds");
-        if(plugin==null||!plugin.isEnabled())throw new IllegalStateException("Постройки недоступны");
-        Class<?> type=Class.forName("ru.neverland.townybuilds.api.TownyBuildsApi",true,plugin.getClass().getClassLoader());
-        Object api=Bukkit.getServicesManager().load(type);if(api==null)throw new IllegalStateException("API построек недоступен");
-        Map<?,?> values=(Map<?,?>)type.getMethod("buildingFootprints",UUID.class).invoke(api,town);Map<String,Building> result=new HashMap<>();
+        Map<?,?> values=(Map<?,?>)ru.neverland.core.ApiServices.call("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","buildingFootprints",new Class<?>[]{UUID.class},town);Map<String,Building> result=new HashMap<>();
         for(var entry:values.entrySet()){
             Object b=entry.getValue();String id=entry.getKey().toString();int completed=integer(b,"completedLevel");
             result.put(id,new Building(Math.max(0,Math.min(5,completed)),owned(town,b),ru.neverland.integration.BuildingOperations.maintained(town,id),ru.neverland.integration.DistrictBonuses.multiplier(town,id),ru.neverland.integration.SpecializationAccess.allowed(town,id)));

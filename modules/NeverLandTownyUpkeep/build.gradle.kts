@@ -1,7 +1,7 @@
 import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 group = "ru.neverland"
-version = "0.1.5"
+version = "0.1.6"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -23,11 +23,7 @@ tasks {
     compileTestJava { options.encoding = "UTF-8" }
     jar { archiveBaseName.set("NeverLandTownyUpkeep") }
 }
-tasks.register<JavaExec>("smokeTest") {
-    dependsOn(tasks.testClasses)
-    classpath = sourceSets.test.get().runtimeClasspath
-    mainClass.set("ru.neverland.townyupkeep.UpkeepSmoke")
-}
+
 
 
 sourceSets.main { java.srcDir("../../shared/specialization/src/main/java") }
@@ -37,3 +33,5 @@ sourceSets.main { java.srcDir("../../shared/policies/src/main/java") }
 sourceSets.main { java.srcDir("../../shared/treasury/src/main/java") }
 
 sourceSets.main { java.srcDir("../../shared/core/src/main/java") }
+
+apply(from = "../../scripts/smoke.gradle")

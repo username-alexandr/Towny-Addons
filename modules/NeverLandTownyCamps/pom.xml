@@ -6,7 +6,7 @@
 
     <groupId>ru.neverland</groupId>
     <artifactId>neverlandtownycamps</artifactId>
-    <version>0.1.8</version>
+    <version>0.1.9</version>
     <name>NeverLandTownyCamps</name>
 
     <properties>
@@ -52,12 +52,7 @@
 
     <build>
         <finalName>NeverLandTownyCamps-${project.version}</finalName>
-        <plugins><plugin><groupId>org.codehaus.mojo</groupId><artifactId>build-helper-maven-plugin</artifactId><version>3.6.1</version><executions><execution><id>neverland-core</id><phase>generate-sources</phase><goals><goal>add-source</goal></goals><configuration><sources><source>${project.basedir}/../../shared/core/src/main/java</source></sources></configuration></execution></executions></plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.6.0</version>
-                <executions>
+        <plugins><plugin><groupId>org.codehaus.mojo</groupId><artifactId>build-helper-maven-plugin</artifactId><version>3.6.1</version><executions><execution><id>neverland-core</id><phase>generate-sources</phase><goals><goal>add-source</goal></goals><configuration><sources><source>${project.basedir}/../../shared/core/src/main/java</source></sources></configuration></execution>
                     <execution>
                         <id>shared-localization</id><phase>generate-sources</phase>
                         <goals><goal>add-source</goal><goal>add-resource</goal></goals>
@@ -66,8 +61,8 @@
                             <resources><resource><directory>${project.basedir}/../../shared/localization/src/main/resources</directory></resource></resources>
                         </configuration>
                     </execution>
-                </executions>
-            </plugin>
+                </executions></plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

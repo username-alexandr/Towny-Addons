@@ -15,15 +15,9 @@ public final class SupplyGateway implements SupplyProcessor.Gateway {
     private final JavaPlugin plugin;private final TownyHook towny;private final TradeService trade;private final TaxesBridge taxes;
     public SupplyGateway(JavaPlugin plugin,TownyHook towny,TradeService trade,TaxesBridge taxes){this.plugin=plugin;this.towny=towny;this.trade=trade;this.taxes=taxes;}
     public boolean available(){try{access();return true;}catch(Exception ex){return false;}}
-    private Object access()throws ReflectiveOperationException {
-        var source=Bukkit.getPluginManager().getPlugin(plugin.getConfig().getString("warehouse.plugin","NeverLandTownyBuilds"));
-        if(source==null||!source.isEnabled())throw new IllegalStateException("NeverLandTownyBuilds недоступен");
-        Class<?> api=Class.forName("ru.neverland.townybuilds.api.BuildingStorageApi",true,source.getClass().getClassLoader());
-        api.getMethod("reserveTrade",UUID.class,UUID.class,UUID.class,ItemStack.class,int.class);
-        Object service=Bukkit.getServicesManager().load(api);if(service==null)throw new IllegalStateException("Склад не зарегистрирован");return service;
-    }
+    private ru.neverland.core.ApiServices.Connection access(){return ru.neverland.core.ApiServices.require(plugin.getConfig().getString("warehouse.plugin","NeverLandTownyBuilds"),"ru.neverland.townybuilds.api.BuildingStorageApi","reserveTrade","settleTrade","acknowledgeTrade");}
     private Object call(String method,Class<?>[] signature,Object... args)throws Exception {
-        Object service=access();try{return service.getClass().getMethod(method,signature).invoke(service,args);}
+        try{return access().invoke(method,signature,args);}
         catch(InvocationTargetException ex){if(ex.getCause() instanceof Exception e)throw e;throw new IllegalStateException(ex.getCause());}
     }
     public String termsReady(SupplyContract c){

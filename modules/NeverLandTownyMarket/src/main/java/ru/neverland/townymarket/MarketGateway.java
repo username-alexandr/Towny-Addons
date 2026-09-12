@@ -16,8 +16,8 @@ public final class MarketGateway implements MarketPayments.Gateway {
     public Town town(UUID id){return TownyAPI.getInstance().getTown(id);}
     public Town town(Player p){var r=TownyAPI.getInstance().getResident(p);return r==null?null:r.getTownOrNull();}
     public String name(UUID id){var t=town(id);return t==null?"Удалённый город":t.getName();}
-    private Object storage()throws Exception {var p=Bukkit.getPluginManager().getPlugin("NeverLandTownyBuilds");if(p==null||!p.isEnabled())throw new IllegalStateException("Нужен Builds 0.8.8 или новее");var api=Class.forName("ru.neverland.townybuilds.api.MarketStorageApi",true,p.getClass().getClassLoader());var service=Bukkit.getServicesManager().load(api);if(service==null)throw new IllegalStateException("Склад рынка недоступен");return service;}
-    public Object call(String method,Class<?>[] types,Object... values)throws Exception {var target=storage();try{return target.getClass().getMethod(method,types).invoke(target,values);}catch(InvocationTargetException ex){if(ex.getCause() instanceof Exception e)throw e;throw new IllegalStateException(ex.getCause());}}
+    private ru.neverland.core.ApiServices.Connection storage(){return ru.neverland.core.ApiServices.require("NeverLandTownyBuilds","ru.neverland.townybuilds.api.MarketStorageApi","snapshot","reserve","deliver","release","acknowledge");}
+    public Object call(String method,Class<?>[] types,Object... values)throws Exception {try{return storage().invoke(method,types,values);}catch(InvocationTargetException ex){if(ex.getCause() instanceof Exception e)throw e;throw new IllegalStateException(ex.getCause());}}
     public boolean available(){try{storage();return true;}catch(Exception ex){return false;}}
     public int level(UUID id,String project){if(id==null)return 0;try{return ((Number)call("level",new Class<?>[]{UUID.class,String.class},id,project)).intValue();}catch(Exception ex){return 0;}}
     @SuppressWarnings("unchecked") public Map<String,Object> snapshot(Listing l)throws Exception{return (Map<String,Object>)call("snapshot",new Class<?>[]{UUID.class,UUID.class},l.town(),l.id());}
