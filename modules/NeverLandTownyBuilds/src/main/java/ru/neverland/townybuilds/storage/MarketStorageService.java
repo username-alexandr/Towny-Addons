@@ -25,7 +25,7 @@ public final class MarketStorageService implements MarketStorageApi {
     public void acknowledge(UUID town,UUID lot,UUID order)throws Exception{thread();MarketTransactions.acknowledge(data.town(town),access(),lot,order);}
     public void forget(UUID town,UUID lot)throws Exception{thread();MarketTransactions.forget(data.town(town),access(),lot);}
     public String claim(Player player,UUID town,UUID lot,UUID order)throws Exception{thread();if(!player.isOnline()||player.getGameMode()==GameMode.CREATIVE||player.getGameMode()==GameMode.SPECTATOR)return "MODE";
-        return MarketTransactions.claim(data.town(town),access(),lot,order,new MarketTransactions.Inventory(){public UUID owner(){return player.getUniqueId();}public ItemStack[] read(){return player.getInventory().getStorageContents();}public void write(ItemStack[] items){player.getInventory().setStorageContents(items);}public void save(){player.saveData();}});
+        return MarketTransactions.claim(data.town(town),access(),lot,order,new MarketTransactions.Inventory(){private final ru.neverland.core.PlayerSaveReceipt receipt=ru.neverland.core.PlayerSaveReceipt.before(player);public UUID owner(){return player.getUniqueId();}public ItemStack[] read(){return player.getInventory().getStorageContents();}public void write(ItemStack[] items){player.getInventory().setStorageContents(items);}public void save(){receipt.save(player);}});
     }
     public void resolveClaim(UUID town,UUID lot,UUID order,boolean received)throws Exception{thread();MarketTransactions.resolveClaim(data.town(town),access(),lot,order,received);}
 }

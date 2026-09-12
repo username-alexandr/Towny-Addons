@@ -7,11 +7,7 @@ import java.util.*;
 
 public final class CityBridge {
     public Map<String,Building> buildings(UUID town)throws ReflectiveOperationException {
-        var plugin=Bukkit.getPluginManager().getPlugin("NeverLandTownyBuilds");
-        if(plugin==null||!plugin.isEnabled())throw new IllegalStateException("Постройки недоступны");
-        Class<?> type=Class.forName("ru.neverland.townybuilds.api.TownyBuildsApi",true,plugin.getClass().getClassLoader());
-        Object api=Bukkit.getServicesManager().load(type);if(api==null)throw new IllegalStateException("API построек недоступен");
-        Map<?,?> values=(Map<?,?>)type.getMethod("buildingFootprints",UUID.class).invoke(api,town);Map<String,Building> result=new HashMap<>();
+        Map<?,?> values=(Map<?,?>)ru.neverland.core.ApiServices.call("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","buildingFootprints",new Class<?>[]{UUID.class},town);Map<String,Building> result=new HashMap<>();
         for(var entry:values.entrySet()){
             Object b=entry.getValue();String id=entry.getKey().toString();int completed=integer(b,"completedLevel");
             result.put(id,new Building(Math.max(0,Math.min(5,completed)),ru.neverland.integration.JobsAccess.multiplier(town,id,ru.neverland.integration.SpecializationAccess.production(town,id,ru.neverland.integration.ResearchBonuses.production(town,id,ru.neverland.integration.DistrictBonuses.multiplier(town,id)))),owned(town,b),ru.neverland.integration.BuildingOperations.active(town,id),ru.neverland.integration.BuildingOperations.inactiveReason(town,id),ru.neverland.integration.PoliciesAccess.production(town,id)));
@@ -28,11 +24,9 @@ public final class CityBridge {
         return true; // Towny's territory metadata does not load Minecraft chunks.
     }
     public int population(Town town)throws ReflectiveOperationException{
-        var plugin=Bukkit.getPluginManager().getPlugin("NeverLandTownyPopulation");if(plugin==null)return town.getResidents().size();
-        if(!plugin.isEnabled())throw new IllegalStateException("Население временно недоступно");
-        Class<?> type=Class.forName("ru.neverland.townypopulation.api.TownyPopulationApi",true,plugin.getClass().getClassLoader());Object api=Bukkit.getServicesManager().load(type);
-        if(api==null)throw new IllegalStateException("API населения недоступен");
-        var value=(Optional<?>)type.getMethod("population",UUID.class).invoke(api,town.getUUID());if(value.isEmpty())throw new IllegalStateException("Ожидается перепись населения");
+        var api=ru.neverland.core.ApiServices.connect("NeverLandTownyPopulation","ru.neverland.townypopulation.api.TownyPopulationApi",1,"population");
+        if(api.state()==ru.neverland.core.ApiServices.State.NOT_INSTALLED)return town.getResidents().size();
+        var value=(Optional<?>)api.invoke("population",new Class<?>[]{UUID.class},town.getUUID());if(value.isEmpty())throw new IllegalStateException("Ожидается перепись населения");
         return integer(value.get(),"population");
     }
 }

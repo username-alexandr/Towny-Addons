@@ -20,14 +20,14 @@ public final class ReturnTickets {
     }
     ReturnTickets(File file, java.util.logging.Logger logger, long now) {
         this.file = file; this.logger = logger;
-        if (!file.exists()) return;
-        var yaml = YamlConfiguration.loadConfiguration(file);
+        if (!file.exists()){ru.neverland.core.AtomicFiles.loaded(file.toPath());return;}
+        var yaml = ru.neverland.core.SafeYaml.load(file.toPath());
         for (String id : yaml.getKeys(false)) {
             try {
                 Ticket ticket = new Ticket(UUID.fromString(yaml.getString(id + ".camp")), yaml.getLong(id + ".expires"));
                 if (ticket.expiresAt() > now) tickets.put(UUID.fromString(id), ticket);
             } catch (RuntimeException exception) {
-                logger.warning("Пропущено повреждённое право возврата из экспедиции: " + id);
+                throw new IllegalStateException("Повреждён возврат экспедиции: "+id,exception);
             }
         }
     }
@@ -38,6 +38,7 @@ public final class ReturnTickets {
     }
 
     public void grant(Iterable<UUID> players, UUID camp, long expiresAt) {
+        if(!ru.neverland.core.AtomicFiles.writable(file.toPath()))throw new IllegalStateException("Хранилище возвратов недоступно");
         for (UUID player : players) tickets.put(player, new Ticket(camp, expiresAt));
         save();
     }
@@ -54,7 +55,7 @@ public final class ReturnTickets {
             yaml.set(player + ".camp", ticket.campOwner().toString());
             yaml.set(player + ".expires", ticket.expiresAt());
         });
-        try { yaml.save(file); }
-        catch (IOException exception) { logger.severe("Не удалось сохранить возвраты экспедиций: " + exception.getMessage()); }
+        try { ru.neverland.core.AtomicFiles.write(file.toPath(),yaml::saveToString); }
+        catch (IOException exception) { throw new java.io.UncheckedIOException(exception); }
     }
 }

@@ -5,15 +5,13 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public final class BuildBridge {
     public record Defense(double successPenalty,double detectionBonus,Map<String,Integer> levels){}
-    private final JavaPlugin plugin;private boolean warned;
+    private final JavaPlugin plugin;
     public BuildBridge(JavaPlugin plugin){this.plugin=plugin;}
     public Defense defense(UUID townId){
         ConfigurationSection section=plugin.getConfig().getConfigurationSection("buildings.defense");if(section==null)return new Defense(0,0,Map.of());
@@ -27,13 +25,11 @@ public final class BuildBridge {
         String[] projects={"town_hall","forge","barracks","market","miners_guild","temple","great_library","agrarian_complex"};
         Map<String,Integer> result=new LinkedHashMap<>();for(String project:projects)result.put(project,level(townId,project));return result;
     }
-    private int level(UUID townId,String project){
-        Plugin source=Bukkit.getPluginManager().getPlugin(plugin.getConfig().getString("buildings.plugin","NeverLandTownyBuilds"));
-        if(source==null||!source.isEnabled())return 0;
-        try{
-            Field field=source.getClass().getDeclaredField("dataStore");field.setAccessible(true);Object store=field.get(source);
-            Object townData=store.getClass().getMethod("town",UUID.class).invoke(store,townId);Method method=townData.getClass().getMethod("operationalLevel",String.class);
-            return Math.max(0,((Number)method.invoke(townData,project)).intValue());
-        }catch(ReflectiveOperationException|RuntimeException exception){if(!warned){warned=true;plugin.getLogger().warning("Не удалось прочитать уровни оборонных зданий: "+exception.getMessage());}return 0;}
+    private int level(UUID townId,String project) {
+        if(townId==null||project==null||project.isBlank())return 0;
+        var api=ru.neverland.core.ApiServices.connect(plugin.getConfig().getString("buildings.plugin","NeverLandTownyBuilds"),"ru.neverland.townybuilds.api.TownyBuildsApi",1,"operationalLevel");
+        if(!api.ready())return 0;
+        try{return Math.max(0,((Number)api.invoke("operationalLevel",new Class<?>[]{UUID.class,String.class},townId,project)).intValue());}
+        catch(ReflectiveOperationException|RuntimeException ex){return 0;}
     }
 }

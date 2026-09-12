@@ -1,5 +1,5 @@
 name: NeverLandTownyTrade
-version: '0.2.2'
+version: 0.2.3
 main: ru.neverland.minttrade.MintTownyTrade
 api-version: '26.2'
 authors: [Alexander Sokolov]

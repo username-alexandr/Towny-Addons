@@ -3,7 +3,7 @@ import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 
 group = "ru.neverland"
-version = "0.3.1"
+version = "0.3.2"
 
 repositories {
     mavenCentral()
@@ -39,10 +39,8 @@ sourceSets.main {
 sourceSets.main { java.srcDir("../../shared/treasury/src/main/java") }
 
 configurations.named("testRuntimeClasspath") { extendsFrom(configurations.named("compileOnly").get()) }
-tasks.register<JavaExec>("smokeTest") {
-    dependsOn(tasks.testClasses)
-    classpath = sourceSets.test.get().runtimeClasspath
-    mainClass.set("ru.neverland.mintcontracts.MunicipalContractsSmoke")
-}
+
 
 sourceSets.main { java.srcDir("../../shared/core/src/main/java") }
+
+apply(from = "../../scripts/smoke.gradle")

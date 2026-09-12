@@ -1,0 +1,15 @@
+{
+  "production_commit": "c4d067405090dda75febb55fc7d2232cea82bd77",
+  "verify_run": "https://github.com/username-alexandr/Towny-Addons/actions/runs/34724301791",
+  "artifact_id": 10307372017,
+  "artifact_zip_sha256": "6d7b328d7e0c6b4441c829f2ad2abb60ebcb8271ca3257da73068ba99123b7d5",
+  "runtime_jars_modified": false,
+  "runtime_assertions": {
+    "before_hard_halt": 54,
+    "after_restart": 50
+  },
+  "modules": 27,
+  "executable_test_classes": 89,
+  "api_contracts": 28,
+  "repository_fault_probes": 7
+}

@@ -2,7 +2,7 @@ import org.gradle.api.attributes.java.TargetJvmVersion
 
 plugins { java }
 group = "ru.neverland"
-version = "0.1.11"
+version = "0.1.12"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -34,12 +34,7 @@ tasks.register<JavaExec>("smokeAccess") {
     classpath = sourceSets.test.get().runtimeClasspath
     mainClass.set("ru.neverland.mintexpeditions.service.ExpeditionAccessSmoke")
 }
-tasks.register<JavaExec>("smokeTest") {
-    dependsOn("smokeAccess")
-    dependsOn(tasks.testClasses)
-    classpath = sourceSets.test.get().runtimeClasspath
-    mainClass.set("ru.neverland.mintexpeditions.service.MessageServiceSmoke")
-}
+
 
 // Bundle shared labels without adding a runtime plugin dependency.
 sourceSets.main {
@@ -48,3 +43,5 @@ sourceSets.main {
 }
 
 sourceSets.main { java.srcDir("../../shared/core/src/main/java") }
+
+apply(from = "../../scripts/smoke.gradle")

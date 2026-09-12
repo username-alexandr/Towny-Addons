@@ -116,7 +116,7 @@ public final class ContractService implements MintTownyContractsApi {
         int amount=Math.min(space,Math.min(contract.goal()-contract.progress(),all?found:Math.min(found,sample.getMaxStackSize())));
         if(amount<=0)return new DeliveryResult(WarehouseBridge.Status.SUCCESS,0,contract.progress());
         var intent=new DeliveryIntent(UUID.randomUUID(),contract.id(),town.getUUID(),player.getUniqueId(),ContractCodec.item(sample),amount,DeliveryIntent.Phase.PLAYER_PENDING,System.currentTimeMillis(),false);
-        try{deliveries.start(intent,()->{if(count(player,sample)<amount)return false;remove(player,sample,amount);player.saveData();return true;});
+        try{deliveries.start(intent,()->{if(count(player,sample)<amount)return false;var receipt=ru.neverland.core.PlayerSaveReceipt.before(player);remove(player,sample,amount);receipt.save(player);return true;});
             if(repository.deliveries().get(intent.id()).phase()==DeliveryIntent.Phase.COMPLETE){if(contract.completed())resolve(contract,ContractStatus.SUCCESS);return new DeliveryResult(WarehouseBridge.Status.SUCCESS,amount,contract.progress());}
         }catch(Exception ex){plugin.getLogger().severe("Поставка "+intent.id()+" ожидает восстановления: "+ex.getMessage());}
         player.sendMessage(ColorUtil.color("&6NeverLand &8» &eПоставка сохранена и ожидает завершения: "+intent.id()));return new DeliveryResult(WarehouseBridge.Status.UNAVAILABLE,0,contract.progress());

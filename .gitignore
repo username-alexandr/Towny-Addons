@@ -20,3 +20,8 @@ eula.txt
 raw/
 dist/NeverLandTownySuite-*.zip
 dist/SHA256SUMS.txt
+
+# Published binaries and generated Python bytecode
+dist/plugins/*.jar
+__pycache__/
+*.py[cod]

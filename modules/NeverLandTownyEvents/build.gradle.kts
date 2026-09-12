@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ru.neverland"
-version = "0.2.4"
+version = "0.2.5"
 
 repositories {
     mavenCentral()
@@ -57,12 +57,7 @@ tasks.register<JavaExec>("smokeRaidWaves") {
     classpath = sourceSets.test.get().runtimeClasspath
     mainClass.set("ru.neverland.mintevents.RaidWavesSmoke")
 }
-tasks.register<JavaExec>("smokeTest") {
-    dependsOn("smokeRaidWaves")
-    dependsOn(tasks.testClasses)
-    classpath = sourceSets.test.get().runtimeClasspath
-    mainClass.set("ru.neverland.mintevents.RaidKillAndMessagesSmoke")
-}
+
 
 // Bundle shared labels without adding a runtime plugin dependency.
 sourceSets.main {
@@ -75,3 +70,5 @@ sourceSets.main { java.srcDir("../../shared/upkeep/src/main/java") }
 sourceSets.main { java.srcDir("../../shared/specialization/src/main/java") }
 
 sourceSets.main { java.srcDir("../../shared/core/src/main/java") }
+
+apply(from = "../../scripts/smoke.gradle")

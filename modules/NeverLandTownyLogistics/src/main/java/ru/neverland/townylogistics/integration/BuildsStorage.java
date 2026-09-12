@@ -11,15 +11,10 @@ public final class BuildsStorage {
         public boolean contains(Position p){return world.equals(p.world())&&p.x()>=minX-6&&p.x()<=maxX+7&&p.z()>=minZ-6&&p.z()<=maxZ+7&&Math.abs(p.y()-y)<=16;}
     }
     public record Shipment(UUID id,String route,String source,String target,ItemStack[] cargo,String status){public boolean transit(){return status.equals("TRANSIT");}}
-    private final Class<?> api;private final Object provider;
-    public BuildsStorage()throws Exception{
-        var plugin=Bukkit.getPluginManager().getPlugin("NeverLandTownyBuilds");if(plugin==null||!plugin.isEnabled())throw new IllegalStateException("Требуется Builds 0.8.0 или новее");
-        api=Class.forName("ru.neverland.townybuilds.api.BuildingStorageApi",true,plugin.getClass().getClassLoader());provider=Bukkit.getServicesManager().load(api);
-        if(provider==null)throw new IllegalStateException("API складов недоступен");
-    }
+    public BuildsStorage(){ru.neverland.core.ApiServices.require("NeverLandTownyBuilds","ru.neverland.townybuilds.api.BuildingStorageApi","depots","shipments","pickup","unload","acknowledge","stock","shipmentTowns","openStorage");}
     private Object call(String name,Class<?>[] types,Object... args)throws IOException{
-        if(!Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyBuilds"))throw new IOException("Склады отключены");
-        try{return api.getMethod(name,types).invoke(provider,args);}catch(InvocationTargetException ex){if(ex.getCause() instanceof IOException io)throw io;throw new IllegalStateException(ex.getCause());}
+        try{return ru.neverland.core.ApiServices.call("NeverLandTownyBuilds","ru.neverland.townybuilds.api.BuildingStorageApi",name,types,args);}
+        catch(InvocationTargetException ex){if(ex.getCause() instanceof IOException io)throw io;throw new IllegalStateException(ex.getCause());}
         catch(ReflectiveOperationException ex){throw new IllegalStateException("Несовместимый API складов",ex);}
     }
     private static Object field(Object value,String name){try{return value.getClass().getMethod(name).invoke(value);}catch(ReflectiveOperationException ex){throw new IllegalStateException(ex);}}

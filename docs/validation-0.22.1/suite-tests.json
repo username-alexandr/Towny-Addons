@@ -1,0 +1,358 @@
+[
+  {
+    "module": "NeverLandTownyArchaeology",
+    "tests": [
+      "ru.neverland.archaeology.ArtifactBatchSmoke",
+      "ru.neverland.archaeology.CryptoSmoke",
+      "ru.neverland.archaeology.JournalSmoke",
+      "ru.neverland.archaeology.MuseumDataSmoke",
+      "ru.neverland.archaeology.OptionalDependencySmoke",
+      "ru.neverland.archaeology.RepositorySmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.archaeology.api.TownyArchaeologyApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 8.329
+  },
+  {
+    "module": "NeverLandTownyBuilds",
+    "tests": [
+      "ru.neverland.townybuilds.BlockOrientationSmoke",
+      "ru.neverland.townybuilds.BlueprintDump",
+      "ru.neverland.townybuilds.BlueprintGeometrySmoke",
+      "ru.neverland.townybuilds.BlueprintLocalizationSmoke",
+      "ru.neverland.townybuilds.BlueprintSeamSmoke",
+      "ru.neverland.townybuilds.BuildingFootprintsSmoke",
+      "ru.neverland.townybuilds.CivicExpansionSmoke",
+      "ru.neverland.townybuilds.ColorCompatibilitySmoke",
+      "ru.neverland.townybuilds.ConstructionPoliciesSmoke",
+      "ru.neverland.townybuilds.EffectJournalSmoke",
+      "ru.neverland.townybuilds.ExcavationPlannerSmoke",
+      "ru.neverland.townybuilds.ExpansionIntegrationSmoke",
+      "ru.neverland.townybuilds.ImportedModelsSmoke",
+      "ru.neverland.townybuilds.MarketStorageSmoke",
+      "ru.neverland.townybuilds.MaterialLocalizationSmoke",
+      "ru.neverland.townybuilds.MobilizationSmoke",
+      "ru.neverland.townybuilds.MunicipalStorageSmoke",
+      "ru.neverland.townybuilds.OptionalArchaeologySmoke",
+      "ru.neverland.townybuilds.PowerBlueprintSmoke",
+      "ru.neverland.townybuilds.ProjectIconsSmoke",
+      "ru.neverland.townybuilds.ResourceBalanceSmoke",
+      "ru.neverland.townybuilds.ResourceFundSmoke",
+      "ru.neverland.townybuilds.ResourceTransferSmoke",
+      "ru.neverland.townybuilds.RoofSupportSmoke",
+      "ru.neverland.townybuilds.ShipmentStorageSmoke",
+      "ru.neverland.townybuilds.ShopReliabilitySmoke",
+      "ru.neverland.townybuilds.SpecializationBlueprintSmoke",
+      "ru.neverland.townybuilds.TradeStorageSmoke",
+      "ru.neverland.townybuilds.WonderBlueprintSmoke",
+      "ru.neverland.townybuilds.WonderPreviewRenderer",
+      "ru.neverland.townybuilds.construction.ObstructionValidationSmoke",
+      "ru.neverland.townybuilds.service.DefinitionOverlaySmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townybuilds.api.BuildingStorageApi",
+      "ru.neverland.townybuilds.api.MarketStorageApi",
+      "ru.neverland.townybuilds.api.MunicipalStorageApi",
+      "ru.neverland.townybuilds.api.TownArmyApi",
+      "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "ru.neverland.townybuilds.api.WarehouseApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 40.83
+  },
+  {
+    "module": "NeverLandTownyCamps",
+    "tests": [
+      "ru.neverland.mintcamps.CampIntegrationSmoke",
+      "ru.neverland.mintcamps.ColorUtilSmoke",
+      "ru.neverland.mintcamps.HologramLifecycleSmoke",
+      "ru.neverland.mintcamps.OptionalDependencySmoke",
+      "ru.neverland.mintcamps.StructureGeneratorSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.mintcamps.api.TownyCampsApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 6.332
+  },
+  {
+    "module": "NeverLandTownyChronicles",
+    "tests": [
+      "ru.neverland.townychronicles.ChronicleSmoke",
+      "ru.neverland.townychronicles.LinkageSmoke",
+      "ru.neverland.townychronicles.StartupAnnouncementSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townychronicles.api.TownyChroniclesApi"
+    ],
+    "repository_fault_probe": true,
+    "seconds": 16.168
+  },
+  {
+    "module": "NeverLandTownyCompanies",
+    "tests": [
+      "ru.neverland.townycompanies.CompaniesSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townycompanies.api.CompaniesApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 15.174
+  },
+  {
+    "module": "NeverLandTownyContracts",
+    "tests": [
+      "ru.neverland.mintcontracts.CompanyContractsSmoke",
+      "ru.neverland.mintcontracts.ContractMathSmoke",
+      "ru.neverland.mintcontracts.MunicipalContractsSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.mintcontracts.api.MintTownyContractsApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 16.074
+  },
+  {
+    "module": "NeverLandTownyDistricts",
+    "tests": [
+      "ru.neverland.townydistricts.DistrictsSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townydistricts.api.TownyDistrictsApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 15.151
+  },
+  {
+    "module": "NeverLandTownyEspionage",
+    "tests": [
+      "ru.neverland.mintespionage.EspionageMathSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.mintespionage.api.MintTownyEspionageApi"
+    ],
+    "repository_fault_probe": true,
+    "seconds": 15.827
+  },
+  {
+    "module": "NeverLandTownyEvents",
+    "tests": [
+      "ru.neverland.mintevents.EventMathSmoke",
+      "ru.neverland.mintevents.LinkageSmoke",
+      "ru.neverland.mintevents.RaidKillAndMessagesSmoke",
+      "ru.neverland.mintevents.RaidSpawnPlannerSmoke",
+      "ru.neverland.mintevents.RaidWavesSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.mintevents.api.MintTownyEventsApi"
+    ],
+    "repository_fault_probe": true,
+    "seconds": 17.921
+  },
+  {
+    "module": "NeverLandTownyExpeditions",
+    "tests": [
+      "ru.neverland.mintexpeditions.LinkageTest",
+      "ru.neverland.mintexpeditions.SiteGeneratorTest",
+      "ru.neverland.mintexpeditions.service.ExpeditionAccessSmoke",
+      "ru.neverland.mintexpeditions.service.MessageServiceSmoke",
+      "ru.neverland.mintexpeditions.service.RewardPersistenceSmoke"
+    ],
+    "api_contracts": [],
+    "repository_fault_probe": false,
+    "seconds": 16.458
+  },
+  {
+    "module": "NeverLandTownyGovernance",
+    "tests": [
+      "ru.neverland.governance.GovernanceMathSmoke",
+      "ru.neverland.governance.OptionalDependencySmoke",
+      "ru.neverland.governance.ProposalSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.governance.api.TownyGovernanceApi"
+    ],
+    "repository_fault_probe": true,
+    "seconds": 16.148
+  },
+  {
+    "module": "NeverLandTownyIdeologies",
+    "tests": [
+      "ru.neverland.townyideologies.EffectFormatterSmoke"
+    ],
+    "api_contracts": [],
+    "repository_fault_probe": true,
+    "seconds": 16.508
+  },
+  {
+    "module": "NeverLandTownyJobs",
+    "tests": [
+      "ru.neverland.townyjobs.JobsSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townyjobs.api.TownyJobsApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 15.213
+  },
+  {
+    "module": "NeverLandTownyLogistics",
+    "tests": [
+      "ru.neverland.townylogistics.LogisticsSmoke"
+    ],
+    "api_contracts": [],
+    "repository_fault_probe": false,
+    "seconds": 15.278
+  },
+  {
+    "module": "NeverLandTownyMarket",
+    "tests": [
+      "ru.neverland.townymarket.MarketSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townymarket.MarketApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 15.12
+  },
+  {
+    "module": "NeverLandTownyPolicies",
+    "tests": [
+      "ru.neverland.townypolicies.PoliciesSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townypolicies.api.TownyPoliciesApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 15.185
+  },
+  {
+    "module": "NeverLandTownyPopulation",
+    "tests": [
+      "ru.neverland.townypopulation.PopulationSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townypopulation.api.TownyPopulationApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 15.301
+  },
+  {
+    "module": "NeverLandTownyPower",
+    "tests": [
+      "ru.neverland.townypower.PowerSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townypower.api.TownyPowerApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 15.451
+  },
+  {
+    "module": "NeverLandTownyReputation",
+    "tests": [
+      "ru.neverland.reputation.ColorUtilSmoke",
+      "ru.neverland.reputation.ConfigurationSmoke",
+      "ru.neverland.reputation.OptionalDependencySmoke",
+      "ru.neverland.reputation.RelationKeySmoke",
+      "ru.neverland.reputation.ReputationMathSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.reputation.api.TownyReputationApi"
+    ],
+    "repository_fault_probe": true,
+    "seconds": 16.768
+  },
+  {
+    "module": "NeverLandTownyResearch",
+    "tests": [
+      "ru.neverland.townyresearch.ResearchSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townyresearch.api.TownyResearchApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 16.328
+  },
+  {
+    "module": "NeverLandTownyResources",
+    "tests": [
+      "ru.neverland.townyresources.ResourcesSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townyresources.api.TownyResourcesApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 16.791
+  },
+  {
+    "module": "NeverLandTownySpecialization",
+    "tests": [
+      "ru.neverland.townyspecialization.SpecializationSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townyspecialization.api.TownySpecializationApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 15.268
+  },
+  {
+    "module": "NeverLandTownyStick",
+    "tests": [
+      "ru.neverland.morstownstick.SelectionClickGateSmoke",
+      "ru.neverland.morstownstick.SmokeTest"
+    ],
+    "api_contracts": [],
+    "repository_fault_probe": false,
+    "seconds": 5.403
+  },
+  {
+    "module": "NeverLandTownyTaxes",
+    "tests": [
+      "ru.neverland.townytaxes.DomainSmoke",
+      "ru.neverland.townytaxes.MunicipalTaxesSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townytaxes.api.NeverLandTownyTaxesApi"
+    ],
+    "repository_fault_probe": true,
+    "seconds": 16.104
+  },
+  {
+    "module": "NeverLandTownyTrade",
+    "tests": [
+      "ru.neverland.minttrade.CaravanReliabilitySmoke",
+      "ru.neverland.minttrade.SupplyContractSmoke",
+      "ru.neverland.minttrade.TradeMathSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.minttrade.api.MintTownyTradeApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 16.69
+  },
+  {
+    "module": "NeverLandTownyTreasuryPlus",
+    "tests": [
+      "ru.neverland.townytreasury.TreasurySmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townytreasury.api.TownyTreasuryApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 15.273
+  },
+  {
+    "module": "NeverLandTownyUpkeep",
+    "tests": [
+      "ru.neverland.townyupkeep.UpkeepSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townyupkeep.api.TownyUpkeepApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 15.305
+  }
+]

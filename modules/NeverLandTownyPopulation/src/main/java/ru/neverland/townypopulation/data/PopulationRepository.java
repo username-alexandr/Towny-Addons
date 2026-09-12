@@ -10,9 +10,10 @@ import java.util.*;
 public final class PopulationRepository {
     private final Path file;
     private final Map<UUID, PopulationState> states = new HashMap<>();
-    private boolean dirty;
+    private boolean dirty,ready;
+    private void gate(){if(!ready||!ru.neverland.core.AtomicFiles.writable(file))throw new IllegalStateException("Хранилище населения недоступно");}
     public PopulationRepository(Path file) { this.file = file; }
-    public void load() throws Exception {
+    public void load() throws Exception {ready=false;
         Map<UUID, PopulationState> loaded = new HashMap<>();
         if (Files.exists(file)) {
             YamlConfiguration yaml = new YamlConfiguration(); yaml.load(file.toFile());
@@ -30,14 +31,14 @@ public final class PopulationRepository {
                         yaml.getDouble(key+"remainder"), yaml.getInt(key+"last-change"), yaml.getLong(key+"last-cycle")));
             }
         }
-        states.clear(); states.putAll(loaded); dirty = false;
+        states.clear(); states.putAll(loaded); dirty = false;ru.neverland.core.AtomicFiles.loaded(file);ready=true;
     }
     public PopulationState get(UUID id) { return states.get(id); }
     public Set<UUID> ids() { return Set.copyOf(states.keySet()); }
-    public void put(UUID id, PopulationState state) { if (!state.equals(states.put(id,state))) dirty = true; }
-    public void retain(Set<UUID> ids) { if (states.keySet().retainAll(ids)) dirty = true; }
+    public void put(UUID id, PopulationState state) {gate(); if (!state.equals(states.put(id,state))) dirty = true; }
+    public void retain(Set<UUID> ids) {gate(); if (states.keySet().retainAll(ids)) dirty = true; }
     public void rebase(long now) { for (UUID id : ids()) put(id,states.get(id).rebase(now)); }
-    public void save() throws IOException {
+    public void save() throws IOException {gate();
         if (!dirty) return;
         Files.createDirectories(file.toAbsolutePath().getParent());
         YamlConfiguration yaml = new YamlConfiguration(); yaml.set("schema",1); yaml.createSection("towns");
@@ -46,12 +47,6 @@ public final class PopulationRepository {
             yaml.set(key+"population",s.population()); yaml.set(key+"remainder",s.remainder());
             yaml.set(key+"last-change",s.lastChange()); yaml.set(key+"last-cycle",s.lastCycle());
         }
-        Path temp = Files.createTempFile(file.toAbsolutePath().getParent(),"population-",".tmp");
-        try {
-            yaml.save(temp.toFile());
-            try { Files.move(temp,file,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING); }
-            catch (AtomicMoveNotSupportedException ex) { Files.move(temp,file,StandardCopyOption.REPLACE_EXISTING); }
-            dirty = false;
-        } finally { Files.deleteIfExists(temp); }
+        ru.neverland.core.AtomicFiles.write(file,yaml::saveToString);dirty=false;
     }
 }

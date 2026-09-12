@@ -1,0 +1,20 @@
+// Use the same discovery rule as build_suite.py; each test gets its own JVM.
+plugins.withId('java') {
+    configurations.testCompileClasspath.extendsFrom(configurations.compileOnly)
+    configurations.testRuntimeClasspath.extendsFrom(configurations.compileOnly)
+    def probes = []
+    fileTree('src/test/java').matching { include '**/*.java' }.files.sort().each { source ->
+        def text = source.getText('UTF-8')
+        if (!(text =~ /public\s+static\s+void\s+main\s*\(\s*String\s*(?:\[\s*\]|\.\.\.)/).find()) return
+        def pkg = text =~ /\bpackage\s+([\w.]+)\s*;/
+        def name = (pkg.find() ? pkg.group(1) + '.' : '') + source.name.replaceFirst(/\.java$/, '')
+        probes.add(tasks.register('smoke_' + name.replace('.', '_'), JavaExec) {
+            dependsOn tasks.named('testClasses')
+            classpath = sourceSets.test.runtimeClasspath
+            mainClass = name
+            enableAssertions = true
+            if ((text =~ /args\s*\[\s*0\s*\]/).find() && !(text =~ /args\s*\.\s*length/).find()) args file('src/main/resources').absolutePath
+        })
+    }
+    tasks.register('smokeTest') { dependsOn probes }
+}

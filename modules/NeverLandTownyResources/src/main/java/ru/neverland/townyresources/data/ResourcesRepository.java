@@ -24,7 +24,7 @@ public final class ResourcesRepository {
     }
     public void load() throws Exception {
         writable=false;
-        if(!Files.exists(file)){states=Map.of();writable=true;return;}
+        if(!Files.exists(file)){states=Map.of();ru.neverland.core.AtomicFiles.loaded(file);writable=true;return;}
         var y=new YamlConfiguration();y.load(file.toFile());
         long schema=number(y,"schema");
         if((schema!=1&&schema!=2&&schema!=3)||!y.isConfigurationSection("towns"))throw new IOException("Неверная схема resources-data.yml");
@@ -45,7 +45,7 @@ public final class ResourcesRepository {
                 if(receipt.status()==Reservation.Status.HELD&&!next.containsKey(receipt.town()))throw new IOException("Резерв без города");held.put(UUID.fromString(id),receipt);}}
         Map<UUID,Map<String,Map<String,Long>>> history=new HashMap<>();
         if(schema==3){var root=y.getConfigurationSection("production");if(root==null)throw new IOException("Отсутствует история производства");for(String id:root.getKeys(false)){var section=root.getConfigurationSection(id);if(section==null)throw new IOException("Неверная история города");Map<String,Map<String,Long>> weeks=new HashMap<>();for(String week:section.getKeys(false)){var row=section.getConfigurationSection(week);if(row==null)throw new IOException("Неверная неделя");var values=new HashMap<String,Long>();for(String key:row.getKeys(false))values.put(key,number(row,key));weeks.put(week,values);}history.put(UUID.fromString(id),weeks);}}
-        history=ProductionHistory.copy(history);validateHeadroom(next,held);states=Map.copyOf(next);reservations=Map.copyOf(held);production=history;writable=true;
+        history=ProductionHistory.copy(history);validateHeadroom(next,held);states=Map.copyOf(next);reservations=Map.copyOf(held);production=history;ru.neverland.core.AtomicFiles.loaded(file);writable=true;
     }
     private static long number(ConfigurationSection p,String key)throws IOException{
         try{return new java.math.BigDecimal(String.valueOf(p.get(key))).longValueExact();}catch(Exception ex){throw new IOException("Некорректное целое число: "+key,ex);}
@@ -60,7 +60,7 @@ public final class ResourcesRepository {
     public void replace(Map<UUID,TownState> next)throws IOException { replace(next,false); }
     public void replaceCycle(Map<UUID,TownState> next)throws IOException { replace(next,true); }
     private void replace(Map<UUID,TownState> next,boolean cycle)throws IOException {
-        if(!writable)throw new IOException("Запись запрещена до успешной загрузки базы");
+        if(!writable||!ru.neverland.core.AtomicFiles.writable(file))throw new IOException("Запись запрещена до успешной загрузки базы");
         var copy=new HashMap<>(next);
         for(var receipt:reservations.values())if(receipt.status()==Reservation.Status.HELD)copy.putIfAbsent(receipt.town(),states.get(receipt.town()));
         write(copy,reservations,cycle);
@@ -94,7 +94,7 @@ public final class ResourcesRepository {
     }
     private void write(Map<UUID,TownState> next,Map<UUID,Reservation> receipts)throws IOException{write(next,receipts,false);}
     private void write(Map<UUID,TownState> next,Map<UUID,Reservation> receipts,boolean cycle)throws IOException{
-        if(!writable)throw new IOException("Запись запрещена до успешной загрузки базы");
+        if(!writable||!ru.neverland.core.AtomicFiles.writable(file))throw new IOException("Запись запрещена до успешной загрузки базы");
         validateHeadroom(next,receipts);next=Map.copyOf(next);receipts=Map.copyOf(receipts);if(next.equals(states)&&receipts.equals(reservations))return;
         var history=ProductionHistory.advance(production,states,next,reservations,receipts,System.currentTimeMillis(),cycle);
         var y=new YamlConfiguration();y.set("schema",3);y.createSection("towns");y.createSection("reservations");y.createSection("production");
@@ -105,13 +105,7 @@ public final class ResourcesRepository {
             put(y,k+"balances",s.balances());put(y,k+"reserves",s.reserves());put(y,k+"income",s.income());put(y,k+"expense",s.expense());
             y.set(k+"paused",s.paused().stream().sorted().toList());y.createSection(k+"priorities",s.priorities());y.set(k+"cycles",s.cycles());y.set(k+"last-cycle",s.lastCycle());y.set(k+"food-coverage",s.foodCoverage());y.set(k+"water-coverage",s.waterCoverage());
         }
-        Path parent=file.toAbsolutePath().getParent();Files.createDirectories(parent);Path tmp=Files.createTempFile(parent,"resources-",".tmp");
-        try{
-            byte[] bytes=y.saveToString().getBytes(StandardCharsets.UTF_8);
-            try(var channel=FileChannel.open(tmp,StandardOpenOption.WRITE,StandardOpenOption.TRUNCATE_EXISTING)){var buffer=ByteBuffer.wrap(bytes);while(buffer.hasRemaining())channel.write(buffer);channel.force(true);}
-            try{Files.move(tmp,file,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);}catch(AtomicMoveNotSupportedException ex){Files.move(tmp,file,StandardCopyOption.REPLACE_EXISTING);}
-            states=next;reservations=receipts;production=history;
-        }finally{Files.deleteIfExists(tmp);}
+        ru.neverland.core.AtomicFiles.write(file,y::saveToString);states=next;reservations=receipts;production=history;
     }
     private static void put(YamlConfiguration y,String key,Map<Resource,Long> values){y.createSection(key);values.forEach((r,n)->y.set(key+"."+r.id(),n));}
 }

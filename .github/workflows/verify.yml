@@ -33,9 +33,14 @@ jobs:
         with:
           gradle-version: '9.0.0'
       - name: Build and run every executable test
-        run: python scripts/build_suite.py
+        run: python scripts/build_suite.py --stage dist/plugins
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: suite-tests
           path: build/suite-tests.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-plugins
+          path: dist/plugins/*.jar
+          if-no-files-found: error

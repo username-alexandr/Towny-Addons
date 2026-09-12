@@ -104,6 +104,19 @@ def main() -> int:
     modules_dir = ROOT / "modules"
     plugins_dir = args.plugins_dir
     errors: list[str] = []
+    import xml.etree.ElementTree as ET
+    for source in modules_dir.glob('*/src/main/java/**/*.java'):
+        if re.search(r'getDeclaredField\s*\(\s*"dataStore"', source.read_text()):
+            errors.append(f'private cross-plugin datastore access: {source.relative_to(ROOT)}')
+    ns = {'m': 'http://maven.apache.org/POM/4.0.0'}
+    for pom in modules_dir.glob('*/pom.xml'):
+        root = ET.parse(pom).getroot()
+        seen = set()
+        for plugin in root.findall('m:build/m:plugins/m:plugin', ns):
+            key = (plugin.findtext('m:groupId', 'org.apache.maven.plugins', ns), plugin.findtext('m:artifactId', namespaces=ns))
+            if key in seen:
+                errors.append(f'duplicate Maven plugin {key}: {pom.relative_to(ROOT)}')
+            seen.add(key)
     dictionary = ROOT / "shared/localization/src/main/resources" / LOCALIZATION_RESOURCE
     dictionary_bytes = dictionary.read_bytes() if dictionary.exists() else None
     if dictionary_bytes is None:

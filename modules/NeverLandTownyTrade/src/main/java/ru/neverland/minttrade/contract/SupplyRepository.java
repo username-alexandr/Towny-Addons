@@ -10,7 +10,7 @@ import static ru.neverland.minttrade.contract.SupplyContract.*;
 public final class SupplyRepository implements SupplyProcessor.Store {
     private final Path path;private volatile Map<UUID,SupplyContract> contracts=Map.of();private boolean writable;
     public SupplyRepository(Path path){this.path=path;}
-    public boolean writable(){return writable;}
+    public boolean writable(){return writable&&ru.neverland.core.AtomicFiles.writable(path);}
     public Collection<SupplyContract> all(){return contracts.values();}
     @Override public SupplyContract get(UUID id){return contracts.get(id);}
     public void load()throws IOException {
@@ -21,7 +21,7 @@ public final class SupplyRepository implements SupplyProcessor.Store {
             var root=yaml.getConfigurationSection("contracts");if(root==null)throw new IOException("Отсутствует раздел contracts");
             for(String id:root.getKeys(false)){var c=read(UUID.fromString(id),root.getConfigurationSection(id));next.put(c.terms().id(),c);}
         }catch(Exception ex){throw new IOException("contracts-data.yml повреждён; автопоставки остановлены",ex);}
-        contracts=Collections.unmodifiableMap(next);writable=true;
+        contracts=Collections.unmodifiableMap(next);ru.neverland.core.AtomicFiles.loaded(path);writable=true;
     }
     @Override public void put(SupplyContract contract)throws IOException {
         var next=new LinkedHashMap<>(contracts);next.put(contract.terms().id(),contract);save(next);
@@ -38,11 +38,7 @@ public final class SupplyRepository implements SupplyProcessor.Store {
             atomic(yaml,path);contracts=Collections.unmodifiableMap(new LinkedHashMap<>(next));
         }catch(IOException|RuntimeException ex){writable=false;throw new IOException("Не удалось сохранить договоры; выполнение остановлено",ex);}
     }
-    public static void atomic(YamlConfiguration yaml,Path path)throws IOException {
-        var target=path.toAbsolutePath();Files.createDirectories(target.getParent());var tmp=Files.createTempFile(target.getParent(),"contracts-",".tmp");
-        try{yaml.save(tmp.toFile());try(var channel=FileChannel.open(tmp,StandardOpenOption.WRITE)){channel.force(true);}
-            try{Files.move(tmp,target,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);}catch(AtomicMoveNotSupportedException ex){Files.move(tmp,target,StandardCopyOption.REPLACE_EXISTING);}
-        }finally{Files.deleteIfExists(tmp);}
+    public static void atomic(YamlConfiguration yaml,Path path)throws IOException {ru.neverland.core.AtomicFiles.write(path,yaml::saveToString);
     }
     private static String string(ConfigurationSection s,String key)throws IOException {if(!s.isString(key))throw new IOException("Нет строки "+key);return s.getString(key);}
     private static long number(ConfigurationSection s,String key)throws IOException {Object n=s.get(key);if(!(n instanceof Number v)||v.doubleValue()!=v.longValue())throw new IOException("Нет целого числа "+key);return v.longValue();}

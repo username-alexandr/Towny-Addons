@@ -15,6 +15,10 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class EventRepository {
+    private boolean ready;
+    private void loaded(){ru.neverland.core.AtomicFiles.loaded(file.toPath());ready=true;}
+    private void gate(){if(!ready||!ru.neverland.core.AtomicFiles.writable(file.toPath()))throw new IllegalStateException("Хранилище заблокировано: восстановите данные и перезапустите сервер");}
+
     private final JavaPlugin plugin;
     private final File file;
     private final Map<UUID, ActiveEvent> active = new LinkedHashMap<>();
@@ -27,37 +31,37 @@ public final class EventRepository {
         this.file = new File(plugin.getDataFolder(), "events-data.yml");
     }
 
-    public synchronized void load() {
+    public synchronized void load() {ready=false;
         active.clear();
         history.clear();
         cooldowns.clear();
-        if (!file.exists()) return;
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
-        ConfigurationSection activeRoot = yaml.getConfigurationSection("active");
+
+        YamlConfiguration yaml = ru.neverland.core.SafeYaml.load(file.toPath());ru.neverland.core.SafeYaml.keys(yaml,"active","towns");
+        ConfigurationSection activeRoot = ru.neverland.core.SafeYaml.section(yaml,"active");
         if (activeRoot != null) {
             for (String raw : activeRoot.getKeys(false)) {
                 try {
                     UUID id = UUID.fromString(raw);
                     String path = "active." + raw + ".";
-                    active.put(id, new ActiveEvent(id, yaml.getString(path + "event", ""),
-                            yaml.getLong(path + "started-at"), yaml.getLong(path + "ends-at"),
-                            yaml.getInt(path + "progress"), yaml.getInt(path + "goal", 1),
-                            yaml.getDouble(path + "protection"), yaml.getLong(path + "last-raid-wave")));
+                    active.put(id, new ActiveEvent(id, ru.neverland.core.SafeYaml.stringValue(yaml,path + "event", ""),
+                            ru.neverland.core.SafeYaml.longValue(yaml,path + "started-at"), ru.neverland.core.SafeYaml.longValue(yaml,path + "ends-at"),
+                            ru.neverland.core.SafeYaml.intValue(yaml,path + "progress"), ru.neverland.core.SafeYaml.intValue(yaml,path + "goal", 1),
+                            ru.neverland.core.SafeYaml.doubleValue(yaml,path + "protection"), ru.neverland.core.SafeYaml.longValue(yaml,path + "last-raid-wave")));
                     if (yaml.isConfigurationSection(path + "raid")) active.get(id).raid(
-                            ru.neverland.mintevents.model.RaidState.load(yaml.getConfigurationSection(path + "raid")));
+                            ru.neverland.mintevents.model.RaidState.load(ru.neverland.core.SafeYaml.section(yaml,path + "raid")));
                 } catch (IllegalArgumentException exception) {
-                    plugin.getLogger().warning("Повреждённая запись активного события " + raw);
+                    throw new IllegalArgumentException("Повреждены сохранённые данные: EventRepository");
                 }
             }
         }
-        ConfigurationSection townRoot = yaml.getConfigurationSection("towns");
+        ConfigurationSection townRoot = ru.neverland.core.SafeYaml.section(yaml,"towns");
         if (townRoot != null) {
             for (String raw : townRoot.getKeys(false)) {
                 try {
                     UUID id = UUID.fromString(raw);
-                    cooldowns.put(id, yaml.getLong("towns." + raw + ".last-event-at"));
+                    cooldowns.put(id, ru.neverland.core.SafeYaml.longValue(yaml,"towns." + raw + ".last-event-at"));
                     List<HistoryEntry> entries = new ArrayList<>();
-                    List<Map<?, ?>> maps = yaml.getMapList("towns." + raw + ".history");
+                    List<Map<?, ?>> maps = ru.neverland.core.SafeYaml.maps(yaml,"towns." + raw + ".history");
                     for (Map<?, ?> map : maps) {
                         entries.add(new HistoryEntry(text(map.get("event")), number(map.get("started-at")),
                                 number(map.get("ended-at")), (int) number(map.get("progress")),
@@ -65,25 +69,25 @@ public final class EventRepository {
                     }
                     history.put(id, entries);
                 } catch (IllegalArgumentException exception) {
-                    plugin.getLogger().warning("Повреждённая история города " + raw);
+                    throw new IllegalArgumentException("Повреждены сохранённые данные: EventRepository");
                 }
             }
         }
         dirty = false;
-    }
+    loaded();}
 
     private String text(Object value) { return value == null ? "" : String.valueOf(value); }
     private long number(Object value) { return value instanceof Number n ? n.longValue() : 0; }
 
-    public synchronized Map<UUID, ActiveEvent> active() { return new LinkedHashMap<>(active); }
-    public synchronized ActiveEvent active(UUID townId) { return active.get(townId); }
-    public synchronized void put(ActiveEvent event) { active.put(event.townId(), event); dirty = true; }
-    public synchronized ActiveEvent remove(UUID townId) { ActiveEvent old = active.remove(townId); dirty |= old != null; return old; }
-    public synchronized List<HistoryEntry> history(UUID townId) { return List.copyOf(history.getOrDefault(townId, List.of())); }
-    public synchronized long lastEventAt(UUID townId) { return cooldowns.getOrDefault(townId, 0L); }
-    public synchronized void changed() { dirty = true; }
+    public synchronized Map<UUID, ActiveEvent> active() {gate(); return new LinkedHashMap<>(active); }
+    public synchronized ActiveEvent active(UUID townId) {gate(); return active.get(townId); }
+    public synchronized void put(ActiveEvent event) {gate(); active.put(event.townId(), event); dirty = true; }
+    public synchronized ActiveEvent remove(UUID townId) {gate(); ActiveEvent old = active.remove(townId); dirty |= old != null; return old; }
+    public synchronized List<HistoryEntry> history(UUID townId) {gate(); return List.copyOf(history.getOrDefault(townId, List.of())); }
+    public synchronized long lastEventAt(UUID townId) {gate(); return cooldowns.getOrDefault(townId, 0L); }
+    public synchronized void changed() {gate(); dirty = true; }
 
-    public synchronized void complete(ActiveEvent event, boolean success, int limit, long now) {
+    public synchronized void complete(ActiveEvent event, boolean success, int limit, long now) {gate();
         active.remove(event.townId());
         cooldowns.put(event.townId(), now);
         List<HistoryEntry> entries = history.computeIfAbsent(event.townId(), key -> new ArrayList<>());
@@ -92,9 +96,9 @@ public final class EventRepository {
         dirty = true;
     }
 
-    public synchronized void saveIfDirty() { if (dirty) save(); }
+    public synchronized void saveIfDirty() {gate(); if (dirty) save(); }
 
-    public synchronized void save() {
+    public synchronized void save() {gate();
         YamlConfiguration yaml = new YamlConfiguration();
         for (ActiveEvent event : active.values()) {
             String path = "active." + event.townId() + ".";
@@ -125,10 +129,8 @@ public final class EventRepository {
             yaml.set("towns." + town.getKey() + ".history", entries);
         }
         try {
-            yaml.save(file);
+            ru.neverland.core.AtomicFiles.write(file.toPath(),yaml::saveToString);
             dirty = false;
-        } catch (IOException exception) {
-            plugin.getLogger().severe("Не удалось сохранить events-data.yml: " + exception.getMessage());
-        }
+        } catch(IOException exception){throw new java.io.UncheckedIOException(exception);}
     }
 }
