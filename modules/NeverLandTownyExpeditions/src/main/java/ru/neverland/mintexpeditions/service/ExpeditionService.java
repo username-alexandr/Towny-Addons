@@ -378,7 +378,7 @@ public final class ExpeditionService {
             double paid = 0.0;
             EffectJournal journal = this.repository.effects();
 
-            label76:
+            rewardBatches:
             for (RewardBatch batch : this.repository.rewards(player.getUniqueId())) {
                if (batch.money() > 0.0) {
                   boolean already = journal.state(batch.moneyId()) == EffectJournal.State.DONE;
@@ -409,10 +409,7 @@ public final class ExpeditionService {
                      ItemStack[] plan = InventoryPlan.insert(player.getInventory().getStorageContents(), item);
                      if (plan == null) {
                         complete = false;
-                        if (batch.effects().stream().allMatch(idx -> journal.state(idx) == EffectJournal.State.DONE)) {
-                           this.repository.completeReward(batch);
-                        }
-                        continue label76;
+                        continue rewardBatches;
                      }
 
                      journal.execute(id, "Предмет награды " + batch.id() + " игроку " + batch.owner() + " #" + i, () -> {
@@ -424,7 +421,7 @@ public final class ExpeditionService {
                   }
                }
 
-               return;
+               this.repository.completeReward(batch);
             }
 
             this.repository.pruneEffects();

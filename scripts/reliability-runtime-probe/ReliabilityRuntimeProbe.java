@@ -315,6 +315,13 @@ public final class ReliabilityRuntimeProbe extends JavaPlugin {
       var4.save();
       this.expedition.claim(this.player);
       this.check(!var4.hasReward(this.actor) && this.diamonds() == 3, "native inventory reward completed; remaining="+var4.hasReward(this.actor)+", diamonds="+this.diamonds());
+      var4.reward(id("completed-queue-one"), this.actor, List.of(), 0.0);
+      var4.reward(id("completed-queue-two"), this.actor, List.of(), 0.0);
+      var4.save();
+      this.expedition.claim(this.player);
+      this.check(!var4.hasReward(this.actor), "one claim removes every completed batch");
+      var4.load();
+      this.check(!var4.hasReward(this.actor), "completed batch removal survives reload");
       this.near(this.getConfig().getDouble("actor-before") + 100.0, var3.getAccount().getHoldingBalance(), "real Towny personal reward");
       var4.reward(this.pendingReward, this.actor, List.of(new ItemStack(Material.DIAMOND, 2)), 0.0);
       var4.save();
