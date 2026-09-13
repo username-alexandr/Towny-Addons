@@ -176,6 +176,8 @@ public final class TradeService {
     private String creditDescription(Caravan c,UUID recipient,double amount,String kind){return "Караван "+c.id()+" "+kind+" город "+recipient+": "+amount;}
     private void advance(Caravan c)throws Exception {
         if(!repository.writable())throw new IllegalStateException("Хранилище торговли недоступно");
+        if(c.settlement().equals("PREPARED") && taxes.tradeBlocked(c.sellerId(),c.buyerId())
+                && repository.effects().state(c.operation("debit"))==ru.neverland.core.EffectJournal.State.READY){c.settlement("RETURNING");repository.save();}
         CaravanProcessor.advance(c,new CaravanProcessor.Store(){public void save(){repository.save();}public void finish(Caravan value,CaravanStatus status){finishHistory(value,status);}},new CaravanProcessor.Gateway(){
             public boolean reserve(Caravan value)throws Exception{return warehouse.transfer(value.operation("take"),value.sellerId(),value.cargoItem(),value.totalCargo(),false).status()==WarehouseBridge.Status.SUCCESS;}
             public boolean debit(Caravan value)throws Exception{return repository.effects().execute(value.operation("debit"),"Списание каравана "+value.id()+" город "+value.buyerId()+": "+value.escrow(),()->economy.transfer(towny.town(value.buyerId()),value.escrow(),definition(value),"debit",value.operation("debit"),false));}
@@ -219,7 +221,8 @@ public final class TradeService {
         double preference = taxes.preferenceMultiplier(seller.getUUID(), buyer.getUUID());
         for (UUID townId : towns) {
             double percent = tariff(townId);
-            double amount = cents(TradeMath.tariff(definition.price(), percent) * preference); if (amount > 0) result.put(townId, amount);
+            double agreed = ru.neverland.core.DiplomacyAccess.tariffMultiplier(seller.getUUID(), buyer.getUUID(), townId);
+            double amount = cents(TradeMath.tariff(definition.price(), percent) * Math.min(preference, agreed)); if (amount > 0) result.put(townId, amount);
         }
         return result;
     }

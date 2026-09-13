@@ -25,7 +25,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class EspionageService {
-    public enum StartStatus { SUCCESS, NO_TOWN, SELF_TARGET, LIMIT, DUPLICATE, COOLDOWN, NO_MONEY, ECONOMY_ERROR }
+    public enum StartStatus { SUCCESS, NO_TOWN, SELF_TARGET, DIPLOMACY_BLOCKED, LIMIT, DUPLICATE, COOLDOWN, NO_MONEY, ECONOMY_ERROR }
     public record StartOutcome(StartStatus status,SpyOperation operation,long remaining,double required){}
     public enum UpgradeStatus { SUCCESS, MAXIMUM, NO_MONEY, ECONOMY_ERROR }
     public record UpgradeOutcome(UpgradeStatus status,int level,double cost){}
@@ -44,6 +44,7 @@ public final class EspionageService {
     public StartOutcome start(Player actor,Town target,OperationDefinition definition){
         Town attacker=towny.town(actor);if(attacker==null||target==null)return new StartOutcome(StartStatus.NO_TOWN,null,0,0);
         if(attacker.getUUID().equals(target.getUUID()))return new StartOutcome(StartStatus.SELF_TARGET,null,0,0);
+        if(ru.neverland.core.DiplomacyAccess.hostileBlocked(attacker.getUUID(),target.getUUID()))return new StartOutcome(StartStatus.DIPLOMACY_BLOCKED,null,0,0);
         int active=repository.active(attacker.getUUID()).size();int limit=activeLimit(attacker);
         if(active>=limit)return new StartOutcome(StartStatus.LIMIT,null,0,0);
         if(repository.active(attacker.getUUID()).stream().anyMatch(value->value.targetTownId().equals(target.getUUID())&&value.type().equals(definition.id())))return new StartOutcome(StartStatus.DUPLICATE,null,0,0);
@@ -61,7 +62,7 @@ public final class EspionageService {
         if(economy.balance(town)<cost)return new UpgradeOutcome(UpgradeStatus.NO_MONEY,current,cost);if(!economy.withdrawUpgrade(town,cost,network))return new UpgradeOutcome(UpgradeStatus.ECONOMY_ERROR,current,cost);
         if(network)data.networkLevel(current+1);else data.defenseLevel(current+1);repository.markDirty();repository.save();return new UpgradeOutcome(UpgradeStatus.SUCCESS,current+1,cost);
     }
-    public boolean forceComplete(UUID id){SpyOperation operation=repository.operation(id);if(operation==null||operation.status()!=OperationStatus.ACTIVE)return false;complete(operation,true);return true;}
+    public boolean forceComplete(UUID id){SpyOperation operation=repository.operation(id);if(operation==null||operation.status()!=OperationStatus.ACTIVE)return false;complete(operation,true);return operation.status()!=OperationStatus.ACTIVE;}
     public boolean cancel(UUID id){SpyOperation operation=repository.operation(id);if(operation==null||operation.status()!=OperationStatus.ACTIVE)return false;operation.finish(OperationStatus.CANCELLED,false);repository.markDirty();repository.save();return true;}
     public void setLevel(Town town,boolean network,int level){TownSpyData data=repository.town(town.getUUID());int max=plugin.getConfig().getInt((network?"network":"counterintelligence")+".maximum-level",5);if(network)data.networkLevel(Math.min(max,Math.max(0,level)));else data.defenseLevel(Math.min(max,Math.max(0,level)));repository.markDirty();repository.save();}
     public int activeLimit(Town town){TownSpyData data=repository.town(town.getUUID());return Math.max(1,plugin.getConfig().getInt("network.base-active-operations",1)+data.networkLevel()*plugin.getConfig().getInt("network.operations-per-level",1));}
@@ -78,6 +79,10 @@ public final class EspionageService {
     public TownSpyData data(Town town){return repository.town(town.getUUID());}public DefinitionRegistry registry(){return registry;}public EspionageRepository repository(){return repository;}public EconomyService economy(){return economy;}
     private void tick(){long now=System.currentTimeMillis();for(SpyOperation operation:repository.operations())if(operation.status()==OperationStatus.ACTIVE&&operation.completesAt()<=now)complete(operation,null);repository.cleanup(now);repository.saveIfDirty();}
     private void complete(SpyOperation operation,Boolean forceSuccess){
+        if(!ru.neverland.core.DiplomacyAccess.available())return;
+        if(ru.neverland.core.DiplomacyAccess.hostileBlocked(operation.attackerTownId(),operation.targetTownId())){
+            operation.finish(OperationStatus.CANCELLED,false);repository.markDirty();repository.save();return;
+        }
         OperationDefinition definition=registry.get(operation.type());boolean success=forceSuccess!=null?forceSuccess:ThreadLocalRandom.current().nextDouble()<operation.successChance();
         boolean detected=ThreadLocalRandom.current().nextDouble()<operation.detectionChance();operation.finish(success?OperationStatus.SUCCEEDED:OperationStatus.FAILED,detected);
         Town target=towny.town(operation.targetTownId());Town attacker=towny.town(operation.attackerTownId());

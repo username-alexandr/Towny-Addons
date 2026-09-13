@@ -40,6 +40,14 @@ public final class TownyHook {
     }
     public String relation(Town first,Town second){
         if(first==null||second==null)return "неизвестно";
+        var diplomatic=ru.neverland.core.DiplomacyAccess.relations(first.getUUID(),second.getUUID());
+        if(diplomatic.contains("UNAVAILABLE"))return "дипломатия недоступна";
+        if(diplomatic.contains("VASSALAGE"))return "вассалитет";
+        if(diplomatic.contains("ALLIANCE"))return "союзники";
+        if(diplomatic.contains("NONAGGRESSION"))return "пакт о ненападении";
+        if(diplomatic.contains("GUARANTEE"))return "гарантия независимости";
+        if(diplomatic.contains("EMBARGO")||diplomatic.contains("SANCTIONS"))return "дипломатические ограничения";
+        if(diplomatic.contains("TRADE"))return "торговый договор";
         Object result=invoke(first,"isAlliedWith",new Class<?>[]{Town.class},second);if(Boolean.TRUE.equals(result))return "союзники";
         result=invoke(first,"hasAlly",new Class<?>[]{Town.class},second);if(Boolean.TRUE.equals(result))return "союзники";
         result=invoke(first,"isEnemy",new Class<?>[]{Town.class},second);if(Boolean.TRUE.equals(result))return "противники";

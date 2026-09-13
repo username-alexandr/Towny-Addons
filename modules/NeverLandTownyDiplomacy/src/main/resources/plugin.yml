@@ -1,0 +1,23 @@
+name: NeverLandTownyDiplomacy
+version: 0.1.0
+main: ru.neverland.townydiplomacy.NeverLandTownyDiplomacy
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: Межгородские договоры, вассалитет, гарантии, эмбарго и санкции.
+depend: [Towny]
+softdepend: [NeverLandTownyCitizens, NeverLandTownyCouncil]
+loadbefore: [NeverLandTownyTaxes, NeverLandTownyTrade, NeverLandTownyMarket, NeverLandTownyEspionage]
+commands:
+  townydiplomacy:
+    aliases: [diplomacy, nltdiplomacy]
+    description: Расширенная дипломатия городов
+    usage: /diplomacy help
+permissions:
+  neverlandtownydiplomacy.use:
+    default: true
+  neverlandtownydiplomacy.manage:
+    description: Договоры своего города; дополнительно требуется мэрство или должность министра
+    default: true
+  neverlandtownydiplomacy.admin:
+    description: Команды as и reload; операции любого города с записью в журнал
+    default: op

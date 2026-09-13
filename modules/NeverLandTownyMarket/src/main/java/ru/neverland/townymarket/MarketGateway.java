@@ -30,8 +30,9 @@ public final class MarketGateway implements MarketPayments.Gateway {
     public String imports(UUID sellerId,UUID buyerId){Town seller=town(sellerId),buyer=town(buyerId);if(seller==null||buyer==null)return "Один из городов удалён";
         var nation=buyer.getNationOrNull();boolean same=nation!=null&&seller.getNationOrNull()!=null&&nation.getUUID().equals(seller.getNationOrNull().getUUID());
         if(!PoliciesAccess.importsAllowed(buyerId,sellerId,same))return "Импорт ограничен политикой покупателя";
+        if(ru.neverland.core.DiplomacyAccess.tradeBlocked(sellerId,buyerId))return "Торговля закрыта дипломатией или реестр недоступен";
         var taxes=Bukkit.getPluginManager().getPlugin("NeverLandTownyTaxes");if(taxes==null)taxes=Bukkit.getPluginManager().getPlugin("TaxyTowny");
-        if(taxes!=null){if(!taxes.isEnabled())return "Система санкций недоступна";try{var result=taxes.getClass().getMethod("isTradeBlocked",UUID.class,UUID.class).invoke(taxes,sellerId,buyerId);if(!(result instanceof Boolean b))return "Система санкций недоступна";if(b)return "Торговля запрещена санкциями";}catch(ReflectiveOperationException ex){return "Система санкций недоступна";}}
+        if(taxes!=null){if(!taxes.isEnabled())return "Система санкций недоступна";try{var result=taxes.getName().equals("NeverLandTownyTaxes")?ru.neverland.core.ApiServices.call("NeverLandTownyTaxes","ru.neverland.townytaxes.api.NeverLandTownyTaxesApi","isTradeBlocked",new Class<?>[]{UUID.class,UUID.class},sellerId,buyerId):taxes.getClass().getMethod("isTradeBlocked",UUID.class,UUID.class).invoke(taxes,sellerId,buyerId);if(!(result instanceof Boolean b))return "Система санкций недоступна";if(b)return "Торговля запрещена санкциями";}catch(ReflectiveOperationException|RuntimeException|LinkageError ex){return "Система санкций недоступна";}}
         return null;
     }
     @Override public String ready(Order o){var l=repo.listing(o.lot());if(l==null||l.state()!=ListingState.ACTIVE)return "Предложение закрыто";if(!plugin.getConfig().getBoolean("enabled",true))return "Новые покупки отключены";

@@ -1,0 +1,56 @@
+all 31 addons enabled
+versioned healthy Diplomacy API registered
+ordinary resident cannot sign treaties
+foreign mayor cannot sign for another town
+foreign minister has both agreement and sanction authority
+citizenship revocation takes effect before attachment refresh
+unsigned alliance grants no protection
+initiator cannot accept own offer
+accepted alliance protects both sides through public API
+repeated acceptance is rejected
+termination notice retains protection
+party discount excludes independent tariff collector
+accepted vassalage has one direct suzerain and defense obligation
+native service rejects vassal cycles
+guaranteed independence blocks vassalage
+unilateral embargo affects only its two towns
+target cannot lift another town's embargo
+Trade, recurring supply, Taxes and Market enforce embargo
+unrelated partner remains open in all trade integrations
+diplomatic sanctions block new bilateral offers
+diplomatic-only sanctions leave trade open
+guarantor receives durable defense obligation
+incident cooldown suppresses repeat notifications
+nonaggression rejects espionage before bank debit
+new pact cancels unfinished intelligence without a report
+installed provider outage closes new cross-town purchases
+provider outage pauses paid espionage without fabricated cancellation
+API recovery restores unchanged relations
+native player damage vetoed by nonaggression
+Towny PvP custom event receives treaty veto
+projectile resolves its shooter and blocks attack
+harmful area cloud excludes treaty-protected player
+listener leaves unrelated attack to Towny rules
+existing protection cancellation is never cleared
+mayor change cancels unsigned offer and retains active treaty
+Towny diplomacy subcommand registered
+readable paginated diplomacy menu opens
+acceptance has explicit confirmation page
+confirmation menu blocks item extraction
+stale GUI confirmation cannot bypass minister dismissal
+all 31 addons enabled
+versioned healthy Diplomacy API registered
+Towny diplomatic parties survive restart
+termination notice survives restart
+pact, vassal and guarantee effects survive restart
+embargo and sanction scope survive restart
+tariff consent survives restart
+incident and cooldown survive restart
+mayor-change audit persisted
+foreign minister authority restored from Council
+persisted offer can be accepted after restart
+save failure closes trade and combat while enabled
+failed embargo was not published in memory
+repair alone cannot silently unlock failed registry
+explicit validated load restores original treaty state
+disabled provider unregisters API and closes integration gates

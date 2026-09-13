@@ -1,0 +1,5 @@
+name: NeverLandDiplomacyRuntimeProbe
+version: 0.27.0
+main: ru.neverland.runtime.DiplomacyRuntimeProbe
+api-version: '26.2'
+depend: [NeverLandTownyPolicies, NeverLandTownyCouncil, NeverLandTownyMarket, Towny, NeverLandTownyDiplomacy, NeverLandTownyCitizens, NeverLandTownyGovernance, NeverLandTownyElections, NeverLandTownyBuilds, NeverLandTownyTreasuryPlus, NeverLandTownyTaxes, NeverLandTownyTrade, NeverLandTownyEspionage]
