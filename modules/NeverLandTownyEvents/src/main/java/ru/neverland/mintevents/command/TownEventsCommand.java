@@ -52,6 +52,8 @@ public final class TownEventsCommand implements CommandExecutor {
             return true;
         }
         if (args.length > 0 && args[0].equalsIgnoreCase("history")) menus.openHistory(player, town);
+        else if (args.length > 0 && args[0].equalsIgnoreCase("repairs")) menus.openRepairs(player, town);
+        else if (args.length > 0 && args[0].equalsIgnoreCase("repair")) { menus.confirmRepairs(player, town); menus.openRepairs(player, town); }
         else menus.open(player);
         return true;
     }

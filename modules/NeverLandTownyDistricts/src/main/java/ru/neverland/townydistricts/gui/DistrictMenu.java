@@ -19,7 +19,7 @@ public final class DistrictMenu implements Listener {
     public DistrictMenu(Plugin plugin,DistrictService service,DistrictCommand command){this.plugin=plugin;this.service=service;this.command=command;}
     public void open(Player player,UUID townId,String districtId,int requestedPage){
         var town=service.town(player);if(town==null||!town.getUUID().equals(townId)||!player.hasPermission("neverlandtownydistricts.use"))return;
-        View v=new View(townId);v.inventory=Bukkit.createInventory(v,54,color("&2"+(districtId==null?"Районы города":"Район: "+service.require(townId,districtId).name())));
+        View v=new View(townId);v.inventory=ru.neverland.core.MenuStyle.inventory(plugin, v,54,color("&2"+(districtId==null?"Районы города":"Район: "+service.require(townId,districtId).name())));
         boolean manager=service.manager(player,town);
         if(districtId==null){
             var districts=service.list(townId);int pages=Math.max(1,(districts.size()+26)/27),page=Math.max(0,Math.min(pages-1,requestedPage));
@@ -67,7 +67,7 @@ public final class DistrictMenu implements Listener {
     private static String percent(double n){return String.format(Locale.ROOT,"+%.0f%%",(n-1)*100);}
     private Material material(String name){Material m=Material.matchMaterial(name);return m==null||!m.isItem()?Material.BRICKS:m;}
     private void button(View v,int slot,Material material,String title,String[] action,String... lore){v.inventory.setItem(slot,item(material,title,lore));v.actions.put(slot,action);}
-    private ItemStack item(Material material,String title,String... lore){var item=new ItemStack(material);var meta=item.getItemMeta();meta.setDisplayName(color(title));meta.setLore(Arrays.stream(lore).map(s->color("&7"+s)).toList());item.setItemMeta(meta);return item;}
+    private ItemStack item(Material material,String title,String... lore){var item=new ItemStack(material);var meta=item.getItemMeta();meta.setDisplayName(ru.neverland.core.MenuStyle.nameLegacy(color(title)));meta.setLore(ru.neverland.core.MenuStyle.loreStrings(Arrays.stream(lore).map(s->color("&7"+s)).toList()));item.setItemMeta(meta);return item;}
     private static String color(String text){return ChatColor.translateAlternateColorCodes('&',text);}
     @EventHandler public void click(InventoryClickEvent event){
         if(!(event.getView().getTopInventory().getHolder() instanceof View view))return;event.setCancelled(true);

@@ -19,7 +19,7 @@ public final class LogisticsMenu implements Listener {
     private String name(Map<String,BuildsStorage.Depot> depots,String project){var d=depots.get(project);return d==null?"Недоступное здание ("+project+")":d.name();}
     public void open(Player player,String mode,String id,int requested)throws IOException{
         var town=service.town(player);if(town==null||!player.hasPermission("neverlandtownylogistics.use"))return;UUID uuid=town.getUUID();var network=service.network(uuid);var depots=service.depots(uuid);boolean manager=service.manager(player,town);
-        View v=new View(uuid);v.inventory=Bukkit.createInventory(v,54,color("&2Логистика города"));List<Runnable> cards=new ArrayList<>();
+        View v=new View(uuid);v.inventory=ru.neverland.core.MenuStyle.inventory(plugin, v,54,color("&2Логистика города"));List<Runnable> cards=new ArrayList<>();
         if(mode.equals("info")){
             var route=network.route(id);var hub=network.node(route.hub());var h=depots.get(hub.project());var level=service.settings().level(h==null?1:h.level());
             put(v,10,Material.CHEST,"&e"+name(depots,network.node(route.source()).project()),new String[]{"storage",network.node(route.source()).project()},"Отправитель: "+route.source());
@@ -44,7 +44,7 @@ public final class LogisticsMenu implements Listener {
         player.openInventory(v.inventory);
     }
     private Material material(String id){Material value=Material.matchMaterial(id);return value!=null&&value.isItem()?value:Material.BRICKS;}
-    private void put(View v,int slot,Material material,String title,String[] action,String... lore){var item=new ItemStack(material);var meta=item.getItemMeta();meta.setDisplayName(color(title));meta.setLore(Arrays.stream(lore).map(s->color("&7"+s)).toList());item.setItemMeta(meta);v.inventory.setItem(slot,item);if(action!=null)v.actions.put(slot,action);}
+    private void put(View v,int slot,Material material,String title,String[] action,String... lore){var item=new ItemStack(material);var meta=item.getItemMeta();meta.setDisplayName(ru.neverland.core.MenuStyle.nameLegacy(color(title)));meta.setLore(ru.neverland.core.MenuStyle.loreStrings(Arrays.stream(lore).map(s->color("&7"+s)).toList()));item.setItemMeta(meta);v.inventory.setItem(slot,item);if(action!=null)v.actions.put(slot,action);}
     private static String color(String text){return ChatColor.translateAlternateColorCodes('&',text);}
     @EventHandler public void click(InventoryClickEvent event){if(!(event.getView().getTopInventory().getHolder() instanceof View v))return;event.setCancelled(true);if(!(event.getWhoClicked() instanceof Player p)||event.getRawSlot()<0||event.getRawSlot()>=54)return;
         var action=v.actions.get(event.getRawSlot());if(action==null)return;Bukkit.getScheduler().runTask(plugin,()->{if(!p.isOnline()||p.getOpenInventory().getTopInventory().getHolder()!=v)return;var t=service.town(p);if(t==null||!t.getUUID().equals(v.town)){p.closeInventory();return;}command.onCommand(p,null,"townylogistics",action);});}

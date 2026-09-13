@@ -319,7 +319,7 @@ public final class MenuManager implements Listener {
     }
 
     private Inventory create(MenuHolder holder, int size, String title) {
-        Inventory inventory = Bukkit.createInventory(holder, size, ColorUtil.component(title));
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, holder, size, ColorUtil.component(title));
         holder.inventory(inventory);
         return inventory;
     }
@@ -336,7 +336,7 @@ public final class MenuManager implements Listener {
             item = new ItemStack(material == null ? Material.BLACK_STAINED_GLASS_PANE : material);
         }
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.empty());
+        meta.displayName(ru.neverland.core.MenuStyle.nameComponent(Component.empty()));
         meta.setHideTooltip(true);
         item.setItemMeta(meta);
         return item;
@@ -346,8 +346,8 @@ public final class MenuManager implements Listener {
         ItemStack item = configKey == null ? null : itemsAdder.item(plugin.getConfig().getString("settings.itemsadder." + configKey), 1);
         if (item == null) item = new ItemStack(fallback);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(ColorUtil.component(name));
-        meta.lore(lore);
+        meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component(name)));
+        meta.lore(ru.neverland.core.MenuStyle.loreComponents(lore));
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         item.setItemMeta(meta);
         return item;

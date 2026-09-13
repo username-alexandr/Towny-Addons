@@ -14,7 +14,7 @@ public final class MarketMenus implements Listener {
     private final JavaPlugin plugin;private final MarketService service;
     private static final class View implements InventoryHolder {final Map<Integer,Runnable> actions=new HashMap<>();Inventory inventory;public Inventory getInventory(){return inventory;}}
     public MarketMenus(JavaPlugin plugin,MarketService service){this.plugin=plugin;this.service=service;}
-    private View view(Player p,String title){service.requireUse(p);var v=new View();v.inventory=Bukkit.createInventory(v,54,color(title));return v;}
+    private View view(Player p,String title){service.requireUse(p);var v=new View();v.inventory=ru.neverland.core.MenuStyle.inventory(plugin, v,54,color(title));return v;}
     public void open(Player p,String mode,int requested)throws Exception {
         var town=service.bridge.town(p);boolean mine=mode.equals("mine"),global=mode.equals("global");var v=view(p,mine?"&2Предложения города":global?"&2Международный рынок":"&2Городской рынок");
         var list=service.listings().stream().filter(l->mine?town!=null&&l.town().equals(town.getUUID()):l.state()==ListingState.ACTIVE&&(global?l.scope()==Scope.GLOBAL:l.scope()==Scope.LOCAL&&town!=null&&l.town().equals(town.getUUID()))).toList();
@@ -56,7 +56,7 @@ public final class MarketMenus implements Listener {
     public static String state(ListingState s){return switch(s){case PREPARING->"Резервирование товара";case ACTIVE->"Выставлен";case CLOSING->"Возврат остатка";case CLOSED->"Снят с продажи";};}
     public static String phase(Phase p){return switch(p){case PREPARED->"Подготовка";case DEBIT_PENDING->"Сверка списания";case PAID->"Оплачено, ожидает доставки";case DELIVERED->"Ожидает расчёта с продавцом";case CREDIT_PENDING->"Сверка зачисления";case RETURNING->"Возврат резерва";case COMPLETE->"Завершено";case CANCELLED->"Отменено";};}
     private static String color(String s){return ChatColor.translateAlternateColorCodes('&',s);}
-    private void button(View v,int slot,Material type,String title,List<String> lore,Runnable action){var item=new ItemStack(type);var meta=item.getItemMeta();meta.setDisplayName(color(title));meta.setLore(lore.stream().map(MarketMenus::color).toList());item.setItemMeta(meta);v.inventory.setItem(slot,item);v.actions.put(slot,action);}
+    private void button(View v,int slot,Material type,String title,List<String> lore,Runnable action){var item=new ItemStack(type);var meta=item.getItemMeta();meta.setDisplayName(ru.neverland.core.MenuStyle.nameLegacy(color(title)));meta.setLore(ru.neverland.core.MenuStyle.loreStrings(lore.stream().map(MarketMenus::color).toList()));item.setItemMeta(meta);v.inventory.setItem(slot,item);v.actions.put(slot,action);}
     public interface Action{void run()throws Exception;}public static void run(Player p,Action action){try{action.run();}catch(Exception ex){MarketService.tell(p,"&c"+(ex.getMessage()==null?"Не удалось выполнить действие":ex.getMessage()));}}
     @EventHandler public void click(InventoryClickEvent e){if(!(e.getView().getTopInventory().getHolder() instanceof View v))return;e.setCancelled(true);if(!(e.getWhoClicked() instanceof Player p)||e.getRawSlot()<0||e.getRawSlot()>=54)return;var action=v.actions.get(e.getRawSlot());if(action==null)return;
         Bukkit.getScheduler().runTask(plugin,()->{if(p.isOnline()&&p.getOpenInventory().getTopInventory()==v.inventory)run(p,()->{service.requireUse(p);action.run();});});}

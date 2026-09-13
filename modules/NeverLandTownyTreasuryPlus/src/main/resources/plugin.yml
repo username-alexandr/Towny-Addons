@@ -1,5 +1,5 @@
 name: NeverLandTownyTreasuryPlus
-version: '0.1.3'
+version: 0.1.4
 main: ru.neverland.townytreasury.NeverLandTownyTreasuryPlus
 api-version: '1.21'
 authors:
@@ -34,5 +34,8 @@ permissions:
     default: true
   neverlandtownytreasury.manage:
     default: false
+  neverlandtownytreasury.export:
+    description: Просмотр кнопки и экспорт недельного отчёта казны в CSV
+    default: op
   neverlandtownytreasury.admin:
     default: op

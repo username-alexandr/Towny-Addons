@@ -59,7 +59,7 @@ public final class EventMenuManager implements Listener {
             return;
         }
         EventMenuHolder holder = new EventMenuHolder(town.getUUID(), EventMenuHolder.Type.MAIN);
-        Inventory inventory = Bukkit.createInventory(holder, 54,
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, holder, 54,
                 ColorUtil.color(plugin.getConfig().getString("gui.title", "Городское событие")));
         holder.inventory(inventory);
         fill(inventory);
@@ -91,12 +91,76 @@ public final class EventMenuManager implements Listener {
             inventory.setItem(40, protectionItem(town, definition, active));
         }
         inventory.setItem(49, item(Material.BOOK, "&#65B8FFИстория событий", List.of("&7Показать последние результаты города.")));
+        int damaged = events.fires().damage(town.getUUID()).size();
+        inventory.setItem(45, item(Material.ANVIL, "&eРемонт после пожара", List.of(
+                "&7Мест для восстановления: &f" + damaged,
+                "&7Установите нужные блоки на прежние места.", "&7Затем подтвердите ремонт в этом разделе.",
+                "", "&eЛКМ — список материалов и координат")));
+        inventory.setItem(53, item(Material.BARRIER, "&fЗакрыть", List.of("&7Вернуться в игру.")));
+        if (events.fireActive(town.getUUID())) inventory.setItem(48, item(Material.WATER_BUCKET, "&bТушение пожара", List.of(
+                "&7Очагов поблизости жителей: &f" + events.fires().burning(town.getUUID()),
+                "&7Разлейте воду рядом с огнём: это даёт очки защиты.",
+                "&7Дерево и декор могут уцелеть или исчезнуть.",
+                "&7После завершения события восстановите утраченные блоки.",
+                "&7Проверить места: &f/t events repairs")));
         player.openInventory(inventory);
+    }
+
+    public void openRepairs(Player player, Town town) { openRepairs(player, town, 0); }
+
+    private void openRepairs(Player player, Town town, int requestedPage) {
+        List<ru.neverland.mintevents.model.FireDamage> damage = events.fires().damage(town.getUUID());
+        int pages = Math.max(1, (damage.size() + 44) / 45);
+        int page = Math.max(0, Math.min(pages - 1, requestedPage));
+        EventMenuHolder holder = new EventMenuHolder(town.getUUID(), EventMenuHolder.Type.REPAIRS);
+        holder.page(page);
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, holder, 54, "Ремонт после пожара · " + (page + 1) + "/" + pages);
+        holder.inventory(inventory);
+        fill(inventory);
+        var labels = new ru.neverland.localization.MaterialLabels();
+        for (int index = page * 45; index < Math.min(damage.size(), (page + 1) * 45); index++) {
+            var d = damage.get(index);
+            var world = Bukkit.getWorld(d.world());
+            int slot = index % 45;
+            holder.repairs().put(slot, d.id());
+            inventory.setItem(slot, item(Material.valueOf(d.material()), "&e" + labels.name(d.material()), List.of(
+                    "&7Мир: &f" + (world == null ? d.world().toString() : world.getName()),
+                    "&7Координаты: &f" + d.x() + " / " + d.y() + " / " + d.z(), "",
+                    events.fires().placed(d) ? "&aНужный материал установлен. Подтвердите ремонт." : "&eУстановите этот материал на указанное место.",
+                    "&7Направление блока восстановится при подтверждении.", "", "&bЛКМ — подсветить место рядом с вами")));
+        }
+        if (damage.isEmpty()) inventory.setItem(22, item(Material.LIME_DYE, "&aРемонт завершён", List.of("&7В городе нет незакрытых повреждений пожара.")));
+        inventory.setItem(45, item(Material.ARROW, "&f← Назад", List.of("&7К городскому событию.")));
+        if (page > 0) inventory.setItem(46, item(Material.PAPER, "&f← Предыдущая страница", List.of()));
+        if (page + 1 < pages) inventory.setItem(52, item(Material.PAPER, "&fСледующая страница →", List.of()));
+        if (player.hasPermission("mintevents.repair")) inventory.setItem(49, item(Material.SMITHING_TABLE, "&aПодтвердить ремонт", List.of(
+                "&7Проверить установленные блоки в загруженных участках.",
+                "&7Сначала завершите пожар и разместите нужные материалы.", "", "&aЛКМ — подтвердить восстановленные места")));
+        inventory.setItem(53, item(Material.SPYGLASS, "&bОбновить", List.of("&7Проверить состояние блоков.")));
+        player.openInventory(inventory);
+    }
+
+    public void confirmRepairs(Player player, Town town) {
+        try {
+            int count = events.fires().confirmRepairs(player, events.fireActive(town.getUUID()));
+            player.sendMessage(count > 0 ? "§aПодтверждено мест ремонта: §f" + count
+                    : "§eНет установленных блоков для подтверждения. Проверьте материалы и подойдите к месту ремонта.");
+        } catch (IllegalArgumentException error) {
+            player.sendMessage("§e" + error.getMessage());
+        } catch (java.io.IOException | RuntimeException error) {
+            player.sendMessage("§cНе удалось сохранить ремонт. Установленные блоки остались на месте; сообщите администратору.");
+            plugin.getLogger().log(java.util.logging.Level.SEVERE, "Не удалось подтвердить ремонт после пожара", error);
+        }
+    }
+
+    @EventHandler
+    public void onDrag(org.bukkit.event.inventory.InventoryDragEvent event) {
+        if (event.getView().getTopInventory().getHolder() instanceof EventMenuHolder) event.setCancelled(true);
     }
 
     public void openHistory(Player player, Town town) {
         EventMenuHolder holder = new EventMenuHolder(town.getUUID(), EventMenuHolder.Type.HISTORY);
-        Inventory inventory = Bukkit.createInventory(holder, 54,
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, holder, 54,
                 ColorUtil.color(plugin.getConfig().getString("gui.history-title", "История событий")));
         holder.inventory(inventory);
         fill(inventory);
@@ -121,6 +185,7 @@ public final class EventMenuManager implements Listener {
         if (!(event.getInventory().getHolder() instanceof EventMenuHolder holder)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!player.hasPermission("mintevents.use")) { player.closeInventory(); messages.send(player, "no-permission"); return; }
         Town town = towny.town(player);
         if (town == null || !town.getUUID().equals(holder.townId())) {
             player.closeInventory();
@@ -128,10 +193,21 @@ public final class EventMenuManager implements Listener {
             return;
         }
         int slot = event.getRawSlot();
+        if (holder.type() == EventMenuHolder.Type.REPAIRS) {
+            if (slot == 45) open(player);
+            else if (slot == 49) { confirmRepairs(player, town); openRepairs(player, town, holder.page()); }
+            else if (slot == 46 && holder.page() > 0) openRepairs(player, town, holder.page() - 1);
+            else if (slot == 52) openRepairs(player, town, holder.page() + 1);
+            else if (slot == 53) openRepairs(player, town, holder.page());
+            else if (holder.repairs().containsKey(slot)) { player.closeInventory(); events.fires().highlight(player, holder.repairs().get(slot)); }
+            return;
+        }
         if (holder.type() == EventMenuHolder.Type.HISTORY) {
             if (slot == 49) open(player);
             return;
         }
+        if (slot == 45) { openRepairs(player, town); return; }
+        if (slot == 53) { player.closeInventory(); return; }
         if (slot == 49) {
             openHistory(player, town);
             return;
@@ -215,8 +291,8 @@ public final class EventMenuManager implements Listener {
     private ItemStack item(Material material, String name, List<String> lore) {
         ItemStack stack = new ItemStack(material == null ? Material.PAPER : material);
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(ColorUtil.color(name));
-        meta.setLore(lore.stream().map(ColorUtil::color).toList());
+        meta.setDisplayName(ru.neverland.core.MenuStyle.nameLegacy(ColorUtil.color(name)));
+        meta.setLore(ru.neverland.core.MenuStyle.loreStrings(lore.stream().map(ColorUtil::color).toList()));
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         stack.setItemMeta(meta);
         return stack;

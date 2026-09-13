@@ -240,7 +240,7 @@ public final class CivicShopMenus implements Listener {
             return;
         }
         Map<Integer, Offer> displayed = new LinkedHashMap<>();
-        Inventory inventory = Bukkit.createInventory(new ShopHolder(player.getUniqueId(),sellerData.townId(), displayed), 54,
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new ShopHolder(player.getUniqueId(),sellerData.townId(), displayed), 54,
                 ColorUtil.component("&#FFD45BЛавка &8• &f" + seller.getName()));
         ItemStack[] stock = sellerData.civicInventory("merchant_guild", 54);
         int slot = 10;
@@ -255,18 +255,18 @@ public final class CivicShopMenus implements Listener {
             if (slot >= 44) break;
             ItemStack icon = new ItemStack(material, Math.min(amount, material.getMaxStackSize()));
             ItemMeta meta = icon.getItemMeta();
-            meta.displayName(ColorUtil.component(itemNames.name(material)));
-            meta.lore(List.of(
+            meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component(itemNames.name(material))));
+            meta.lore(ru.neverland.core.MenuStyle.loreComponents(List.of(
                     ColorUtil.component("&7Цена за единицу: &e" + MONEY.format(listing.getValue())),
                     ColorUtil.component("&7В наличии: &f" + amount),
                     ColorUtil.component("&#63E6BEЛКМ: 1 &8• &#63E6BEShift+ЛКМ: стак")
-            ));
+            )));
             icon.setItemMeta(meta);
             inventory.setItem(slot, icon);
             displayed.put(slot, new Offer(material,ru.neverland.townybuilds.shop.ShopService.cents(listing.getValue())));
             slot++;
         }
-        var button=new ItemStack(Material.CHEST);var meta=button.getItemMeta();meta.displayName(ColorUtil.component("&aМои покупки"));button.setItemMeta(meta);inventory.setItem(49,button);
+        var button=new ItemStack(Material.CHEST);var meta=button.getItemMeta();meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component("&aМои покупки")));button.setItemMeta(meta);inventory.setItem(49,button);
         player.openInventory(inventory);
     }
 
@@ -314,11 +314,11 @@ public final class CivicShopMenus implements Listener {
 
     public void purchases(Player player,int page){
         var list=service.journal().all().stream().filter(o->o.buyer().equals(player.getUniqueId())&&!o.finalized()).sorted(java.util.Comparator.comparingLong(ru.neverland.townybuilds.shop.ShopOrder::created)).toList();
-        Map<Integer,UUID> orders=new HashMap<>();var inventory=Bukkit.createInventory(new PurchasesHolder(player.getUniqueId(),orders,page),54,ColorUtil.component("&dПокупки в городских лавках"));int slot=0;
+        Map<Integer,UUID> orders=new HashMap<>();var inventory=ru.neverland.core.MenuStyle.inventory(plugin, new PurchasesHolder(player.getUniqueId(),orders,page),54,ColorUtil.component("&dПокупки в городских лавках"));int slot=0;
         for(var order:list.stream().skip(page*45L).limit(45).toList()){
-            var item=new ItemStack(Material.valueOf(order.material()),Math.min(order.amount(),64));var meta=item.getItemMeta();meta.displayName(ColorUtil.component("&f"+itemNames.name(item.getType())));
+            var item=new ItemStack(Material.valueOf(order.material()),Math.min(order.amount(),64));var meta=item.getItemMeta();meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component("&f"+itemNames.name(item.getType()))));
             String receipt;try{receipt=service.receipt(order);}catch(Exception ex){receipt="UNAVAILABLE";}
-            String status=receipt.equals("CLAIM_PENDING")?"Выдача требует сверки администратора":order.title();meta.lore(List.of(ColorUtil.component("&7Количество: &f"+order.amount()),ColorUtil.component("&7Стоимость: &e"+MONEY.format(order.total()/100.0)),ColorUtil.component("&7"+status),ColorUtil.component("&8ID: "+order.id()),ColorUtil.component("&aНажмите, чтобы забрать готовую покупку")));item.setItemMeta(meta);inventory.setItem(slot,item);orders.put(slot++,order.id());
+            String status=receipt.equals("CLAIM_PENDING")?"Выдача требует сверки администратора":order.title();meta.lore(ru.neverland.core.MenuStyle.loreComponents(List.of(ColorUtil.component("&7Количество: &f"+order.amount()),ColorUtil.component("&7Стоимость: &e"+MONEY.format(order.total()/100.0)),ColorUtil.component("&7"+status),ColorUtil.component("&8ID: "+order.id()),ColorUtil.component("&aНажмите, чтобы забрать готовую покупку"))));item.setItemMeta(meta);inventory.setItem(slot,item);orders.put(slot++,order.id());
         }
         if(page>0)inventory.setItem(45,new ItemStack(Material.ARROW));if((page+1)*45<list.size())inventory.setItem(53,new ItemStack(Material.ARROW));player.openInventory(inventory);
     }

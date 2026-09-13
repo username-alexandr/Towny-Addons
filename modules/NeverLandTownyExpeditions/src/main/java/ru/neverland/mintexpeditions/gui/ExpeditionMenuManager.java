@@ -36,7 +36,7 @@ public final class ExpeditionMenuManager implements Listener {
     }
 
     public void open(Player player) {
-        Inventory inventory = Bukkit.createInventory(
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin,
                 new ExpeditionMenuHolder(), 54,
                 ColorUtil.color(plugin.getConfig().getString(
                         "gui.title", "&#18243AЭкспедиции NeverLand")));
@@ -80,8 +80,8 @@ public final class ExpeditionMenuManager implements Listener {
     private ItemStack item(Material material, String name, List<String> lore) {
         ItemStack stack = new ItemStack(material);
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(ColorUtil.color(name));
-        meta.setLore(lore.stream().map(ColorUtil::color).toList());
+        meta.setDisplayName(ru.neverland.core.MenuStyle.nameLegacy(ColorUtil.color(name)));
+        meta.setLore(ru.neverland.core.MenuStyle.loreStrings(lore.stream().map(ColorUtil::color).toList()));
         stack.setItemMeta(meta);
         return stack;
     }

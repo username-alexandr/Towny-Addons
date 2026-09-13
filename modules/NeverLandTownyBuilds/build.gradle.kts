@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ru.neverland"
-version = "0.8.12"
+version = "0.8.13"
 
 repositories {
     mavenCentral()

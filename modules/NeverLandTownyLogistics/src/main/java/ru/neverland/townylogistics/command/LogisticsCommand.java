@@ -37,13 +37,7 @@ public final class LogisticsCommand implements CommandExecutor,TabCompleter {
         if(action.equals("info")){count(args,2,"/t logistics info <маршрут>");n.route(args[1]);menu.open(p,"info",args[1],0);return;}
         if(action.equals("storage")){count(args,2,"/t logistics storage <здание>");service.builds().open(p,args[1]);return;}
         if(action.equals("map")){showMap(p,n);tell(p,"Ближайшие узлы и связи показаны частицами.");return;}
-        if(action.equals("help")){
-            tell(p,"&e1. /t logistics node <id> <здание> &7— точка погрузки под вами.");
-            tell(p,"&e2. /t logistics waypoint <id> road|rail|port &7— промежуточный узел.");
-            tell(p,"&e3. /t logistics link <узел1> <узел2> &7— соединить соседние точки.");
-            tell(p,"&e4. /t logistics route <id> <база> <отправитель> <получатель>");
-            tell(p,"filter <id> hand|all|<материал>; limit <id> <количество>; keep <id> <остаток>; pause/resume <id>.");return;
-        }
+        if(action.equals("help")){for(String line:helpLines())tell(p,line);return;}
         if(!service.manager(p,town))throw new IllegalArgumentException("Логистикой управляет мэр, помощник или уполномоченный житель");
         if(action.equals("node")||action.equals("waypoint")){
             count(args,3,"/t logistics "+action+" <id> <здание или тип узла>");String nodeId=Network.id(args[1].toLowerCase(Locale.ROOT));
@@ -82,6 +76,29 @@ public final class LogisticsCommand implements CommandExecutor,TabCompleter {
         }
         service.change(new Network(id,n.nodes(),n.links(),routes),topology);tell(p,"&aМаршрут обновлён.");menu.open(p,"routes",null,0);
     }
+    public static List<String> helpLines(){return List.of(
+        "&6&lСоздание логистической сети",
+        "&f/t logistics node <id> <здание>",
+        "&7  Точка погрузки в вашем текущем положении.",
+        "&f/t logistics waypoint <id> <тип>",
+        "&7  Тип: &e road &7— дорога; &e rail &7— рельсы; &e port &7— порт.",
+        "&f/t logistics link <узел1> <узел2>",
+        "&7  Соединить соседние точки сети.",
+        "&f/t logistics route <id> <база> <откуда> <куда>",
+        "&7  Создать маршрут между складами.",
+        "&6&lНастройка маршрута",
+        "&f/t logistics filter <id> <фильтр>",
+        "&7  &ehand &7— предмет в руке; &eall &7— все предметы.",
+        "&7  Вместо hand или all можно указать материал.",
+        "&f/t logistics limit <id> <количество>",
+        "&7  Сколько предметов переносить за рейс.",
+        "&f/t logistics keep <id> <остаток>",
+        "&7  Сколько предметов оставлять отправителю.",
+        "&f/t logistics pause <id>",
+        "&7  Приостановить маршрут.",
+        "&f/t logistics resume <id>",
+        "&7  Возобновить маршрут.",
+        "&f/t logistics &7— открыть меню сети.");}
     private void showMap(Player p,Network network){int points=0;for(var link:network.links()){
         var a=network.node(link.a()).point();var b=network.node(link.b()).point();if(!a.world().equals(p.getWorld().getUID()))continue;
         int count=Math.max(1,(int)Math.ceil(a.distance(b)));for(int i=0;i<=count&&points<300;i+=2){double f=(double)i/count;var v=new Position(a.world(),a.x()+(b.x()-a.x())*f,a.y()+(b.y()-a.y())*f+0.2,a.z()+(b.z()-a.z())*f);

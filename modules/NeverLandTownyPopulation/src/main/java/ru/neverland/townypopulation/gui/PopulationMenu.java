@@ -31,7 +31,7 @@ public final class PopulationMenu implements Listener {
         int pages=Math.max(1,(service.settings().buildings().size()+44)/45);
         int page=Math.max(0,Math.min(pages-1,requestedPage));
         View view=new View(townId,buildings,page);
-        view.inventory=Bukkit.createInventory(view,54,Messages.color("&2"+(buildings?"Здания и население":"Население города")));
+        view.inventory=ru.neverland.core.MenuStyle.inventory(plugin, view,54,Messages.color("&2"+(buildings?"Здания и население":"Население города")));
         if (buildings) sources(view,s,pages); else overview(view,s);
         view.inventory.setItem(49,item(Material.SUNFLOWER,"&aОбновить", "Нажмите, чтобы обновить показатели."));
         player.openInventory(view.inventory);
@@ -89,8 +89,8 @@ public final class PopulationMenu implements Listener {
         if(v.page+1<pages) v.inventory.setItem(53,item(Material.ARROW,"&aДалее"));
     }
     private ItemStack item(Material material, String title, String... lore) {
-        ItemStack item=new ItemStack(material); var meta=item.getItemMeta(); meta.setDisplayName(Messages.color(title));
-        meta.setLore(Arrays.stream(lore).map(line->Messages.color("&7"+line)).toList()); item.setItemMeta(meta); return item;
+        ItemStack item=new ItemStack(material); var meta=item.getItemMeta(); meta.setDisplayName(ru.neverland.core.MenuStyle.nameLegacy(Messages.color(title)));
+        meta.setLore(ru.neverland.core.MenuStyle.loreStrings(Arrays.stream(lore).map(line->Messages.color("&7"+line)).toList())); item.setItemMeta(meta); return item;
     }
     private static String signed(double n) { return (n>0?"+":"")+number(n); }
     @EventHandler public void click(InventoryClickEvent event) {

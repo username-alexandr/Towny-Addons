@@ -50,3 +50,7 @@ settings:
     filler-material: BLACK_STAINED_GLASS_PANE
     progress-filled: "&a■"
     progress-empty: "&7□"
+
+# Светлый заголовок для тёмного ресурспака; для ванильного светлого окна: "#273247".
+menu-style:
+  title-color: "#F4F7FC"

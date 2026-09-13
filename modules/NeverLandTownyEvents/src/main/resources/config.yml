@@ -55,7 +55,17 @@ gameplay:
   raid-warning-interval-seconds: 60
   raid-announce-wave: true
   raid-log-spawns: true
-  fire-particle-count: 12
+  fire:
+    enabled: true
+    # Очаги используют частицы: обычное распространение огня не включается.
+    max-hotspots: 6
+    hotspot-seconds: 25
+    # Вероятность потери блока дополнительно уменьшается защитой города.
+    damage-chance: 0.25
+    max-damaged-blocks: 24
+    search-radius: 16
+    search-attempts: 128
+    extinguish-points: 8
 
 gui:
   title: "&#241A33Городское событие"
@@ -67,3 +77,7 @@ commands-on-all-placeholders:
   - "%event% — название события"
   - "%progress% и %goal% — прогресс"
   - "%protection% — защита в процентах"
+
+# Светлый заголовок для тёмного ресурспака; для ванильного светлого окна: "#273247".
+menu-style:
+  title-color: "#F4F7FC"

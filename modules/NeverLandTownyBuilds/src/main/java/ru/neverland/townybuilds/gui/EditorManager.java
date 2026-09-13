@@ -57,7 +57,7 @@ public final class EditorManager implements Listener {
     }
 
     public void openIndex(Player player) {
-        Inventory inventory = Bukkit.createInventory(new EditorIndexHolder(), 54,
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new EditorIndexHolder(), 54,
                 ColorUtil.component("&#B65CFFРедактор городских проектов"));
         fill(inventory);
         List<Integer> slots = contentSlots();
@@ -79,7 +79,7 @@ public final class EditorManager implements Listener {
 
     public void openProject(Player player, ProjectDefinition project, int levelNumber) {
         int level = Math.max(1, Math.min(project.maxLevel(), levelNumber));
-        Inventory inventory = Bukkit.createInventory(new ProjectEditorHolder(project.id(), level), 54,
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new ProjectEditorHolder(project.id(), level), 54,
                 ColorUtil.component("&#B65CFFРедактор: " + project.name()));
         fill(inventory);
         inventory.setItem(4, icon(project));
@@ -113,7 +113,7 @@ public final class EditorManager implements Listener {
     }
 
     private void openResources(Player player, ProjectDefinition project, int level) {
-        Inventory inventory = Bukkit.createInventory(new ResourceEditorHolder(project.id(), level), 54,
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new ResourceEditorHolder(project.id(), level), 54,
                 ColorUtil.component("&#63E6BEРесурсы: уровень " + level));
         int slot = 0;
         for (ItemStack resource : project.level(level).resources()) {
@@ -131,7 +131,7 @@ public final class EditorManager implements Listener {
     }
 
     private void openEffects(Player player, ProjectDefinition project, int level) {
-        Inventory inventory = Bukkit.createInventory(new EffectEditorHolder(project.id(), level), 54,
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new EffectEditorHolder(project.id(), level), 54,
                 ColorUtil.component("&#B65CFFЭффекты: уровень " + level));
         fill(inventory);
         int slotIndex = 0;
@@ -448,14 +448,14 @@ public final class EditorManager implements Listener {
         ItemStack item = project.editorIcon();
         if (item == null) item = new ItemStack(project.icon());
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(ColorUtil.component(project.name()));
+        meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component(project.name())));
         List<Component> lore = new ArrayList<>();
         lore.add(ColorUtil.component("&7ID: &f" + project.id()));
         lore.add(ColorUtil.component("&7Тип: &f" + (project.type() == ProjectType.BUILDING ? "здание" : "чудо")));
         lore.add(ColorUtil.component("&7Уровней: &f" + project.maxLevel()));
         lore.add(Component.empty());
         lore.add(ColorUtil.component("&#63E6BEНажмите для редактирования"));
-        meta.lore(lore);
+        meta.lore(ru.neverland.core.MenuStyle.loreComponents(lore));
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         item.setItemMeta(meta);
         item.setAmount(1);
@@ -473,8 +473,8 @@ public final class EditorManager implements Listener {
     private ItemStack simple(Material material, String name, List<String> lore) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(ColorUtil.component(name));
-        meta.lore(lore.stream().map(ColorUtil::component).toList());
+        meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component(name)));
+        meta.lore(ru.neverland.core.MenuStyle.loreComponents(lore.stream().map(ColorUtil::component).toList()));
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         item.setItemMeta(meta);
         return item;

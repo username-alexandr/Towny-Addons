@@ -31,6 +31,20 @@ public final class EventGameplayListener implements Listener {
         this.events = events;
     }
 
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onWater(org.bukkit.event.player.PlayerBucketEmptyEvent event) {
+        if (event.getBucket() != org.bukkit.Material.WATER_BUCKET) return;
+        var block = event.getBlock();
+        var player = event.getPlayer();
+        org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
+            if (!player.isOnline() || !block.getWorld().isChunkLoaded(block.getX() >> 4, block.getZ() >> 4)) return;
+            if (block.getType() == org.bukkit.Material.WATER
+                    || block.getBlockData() instanceof org.bukkit.block.data.Waterlogged data && data.isWaterlogged()) {
+                events.extinguish(player, block.getLocation());
+            }
+        });
+    }
+
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onGrow(BlockGrowEvent event) {
         Town town = towny.townAt(event.getBlock().getLocation());

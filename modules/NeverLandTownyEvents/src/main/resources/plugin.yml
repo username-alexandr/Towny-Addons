@@ -1,5 +1,5 @@
 name: NeverLandTownyEvents
-version: 0.2.5
+version: 0.3.0
 main: ru.neverland.mintevents.MintTownyEvents
 api-version: '26.2'
 authors: [Alexander Sokolov]
@@ -24,3 +24,6 @@ permissions:
   mintevents.admin:
     description: Административное управление событиями
     default: op
+  mintevents.repair:
+    description: Подтверждение вручную восстановленных блоков после пожара
+    default: true

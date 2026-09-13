@@ -88,7 +88,7 @@ public final class BuildingStorageService implements BuildingStorageApi,Listener
         View v=new View(town.getUUID(),project);
         if(!data.lockStorage(town.getUUID(),project,v.session)){tell(player,"Склад уже открыт другим игроком. Дождитесь его закрытия.");return;}
         String name=project.equals("warehouse")?"Склад города":def.name();
-        try{v.inventory=Bukkit.createInventory(v,size(t,project),ru.neverland.townybuilds.util.ColorUtil.component("&2"+name+" &8• Склад"));v.inventory.setContents(read(t,project));player.openInventory(v.inventory);if(player.getOpenInventory().getTopInventory()!=v.inventory)data.unlockStorage(v.town,v.project,v.session);}
+        try{v.inventory=ru.neverland.core.MenuStyle.inventory(plugin, v,size(t,project),ru.neverland.townybuilds.util.ColorUtil.component("&2"+name+" &8• Склад"));v.inventory.setContents(read(t,project));player.openInventory(v.inventory);if(player.getOpenInventory().getTopInventory()!=v.inventory)data.unlockStorage(v.town,v.project,v.session);}
         catch(RuntimeException ex){data.unlockStorage(v.town,v.project,v.session);throw ex;}
     }
     private void tell(Player p,String message){p.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&aNeverLand &8• &fСклады&8] &r"+message));}

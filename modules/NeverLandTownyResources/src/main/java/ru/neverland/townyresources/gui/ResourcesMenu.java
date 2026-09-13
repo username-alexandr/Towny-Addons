@@ -22,7 +22,7 @@ public final class ResourcesMenu implements Listener {
         if(!access(p,id)){tell(p,"&cНет доступа к ресурсам этого города.");return;}
         var s=service.resources(id).orElse(null);if(s==null){tell(p,"Первый расчёт города ещё не выполнен.");return;}
         int pages=Math.max(1,(service.settings().buildings().size()+35)/36);int page=Math.max(0,Math.min(pages-1,requested));var view=new View(id,kind,project,page);
-        view.inventory=Bukkit.createInventory(view,54,color("&2"+(kind.equals("buildings")?"Производство города":kind.equals("info")?"Ресурсы здания":"Городские ресурсы")));
+        view.inventory=ru.neverland.core.MenuStyle.inventory(plugin, view,54,color("&2"+(kind.equals("buildings")?"Производство города":kind.equals("info")?"Ресурсы здания":"Городские ресурсы")));
         if(kind.equals("buildings"))buildings(p,view,s,pages);else if(kind.equals("info"))detail(p,view,s);else overview(p,view,s);
         button(view,49,Material.SUNFLOWER,"&aОбновить",List.of("Показать текущие запасы и прогноз."),()->open(p,id,kind,project,page));p.openInventory(view.inventory);
     }
@@ -61,7 +61,7 @@ public final class ResourcesMenu implements Listener {
     private void manage(Player p,View v,Edit action){var town=service.town(p);if(town==null||!town.getUUID().equals(v.town)||!service.manager(p,town)){tell(p,"&cНедостаточно прав для управления этим городом.");return;}
         try{action.run();open(p,v.town,"info",v.project,0);}catch(Exception ex){tell(p,"&cОперация не завершена: "+ex.getMessage());}}
     private static String percent(double n){return String.format(Locale.forLanguageTag("ru-RU"),"%.1f",n*100);}
-    private void button(View v,int slot,Material icon,String name,List<String> lore,Runnable action){var item=new ItemStack(icon);var meta=item.getItemMeta();meta.setDisplayName(color(name));meta.setLore(lore.stream().map(s->color("&7"+s)).toList());item.setItemMeta(meta);v.inventory.setItem(slot,item);if(action!=null)v.actions.put(slot,action);}
+    private void button(View v,int slot,Material icon,String name,List<String> lore,Runnable action){var item=new ItemStack(icon);var meta=item.getItemMeta();meta.setDisplayName(ru.neverland.core.MenuStyle.nameLegacy(color(name)));meta.setLore(ru.neverland.core.MenuStyle.loreStrings(lore.stream().map(s->color("&7"+s)).toList()));item.setItemMeta(meta);v.inventory.setItem(slot,item);if(action!=null)v.actions.put(slot,action);}
     @EventHandler public void click(InventoryClickEvent e){if(!(e.getView().getTopInventory().getHolder() instanceof View v))return;e.setCancelled(true);if(!(e.getWhoClicked() instanceof Player p))return;if(!access(p,v.town)){p.closeInventory();return;}var action=v.actions.get(e.getRawSlot());if(action!=null)Bukkit.getScheduler().runTask(plugin,()->{if(p.isOnline()&&p.getOpenInventory().getTopInventory().getHolder()==v&&access(p,v.town))action.run();});}
     @EventHandler public void drag(InventoryDragEvent e){if(e.getView().getTopInventory().getHolder() instanceof View)e.setCancelled(true);}
 }
