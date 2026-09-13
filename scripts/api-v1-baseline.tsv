@@ -1,0 +1,740 @@
+# Published v0.27.0; plugins ZIP SHA256 b199fe552417ef0fc94962092f4c76953b072e04c5057941584212d01aa5212b
+ru.neverland.archaeology.api.TownyArchaeologyApi	apiVersion():int throws []
+ru.neverland.archaeology.api.TownyArchaeologyApi	artifactName(java.lang.String):java.lang.String throws []
+ru.neverland.archaeology.api.TownyArchaeologyApi	available(java.util.UUID,java.lang.String):int throws []
+ru.neverland.archaeology.api.TownyArchaeologyApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.archaeology.api.TownyArchaeologyApi	capability artifactName
+ru.neverland.archaeology.api.TownyArchaeologyApi	capability available
+ru.neverland.archaeology.api.TownyArchaeologyApi	capability consumeForWonder
+ru.neverland.archaeology.api.TownyArchaeologyApi	capability createArtifact
+ru.neverland.archaeology.api.TownyArchaeologyApi	capability isAuthenticArtifact
+ru.neverland.archaeology.api.TownyArchaeologyApi	capability missingForWonder
+ru.neverland.archaeology.api.TownyArchaeologyApi	capability museum
+ru.neverland.archaeology.api.TownyArchaeologyApi	capability wonderRequirements
+ru.neverland.archaeology.api.TownyArchaeologyApi	consumeForWonder(java.util.UUID,java.lang.String,java.util.UUID):boolean throws []
+ru.neverland.archaeology.api.TownyArchaeologyApi	createArtifact(java.lang.String):org.bukkit.inventory.ItemStack throws []
+ru.neverland.archaeology.api.TownyArchaeologyApi	default apiVersion()
+ru.neverland.archaeology.api.TownyArchaeologyApi	default capabilities()
+ru.neverland.archaeology.api.TownyArchaeologyApi	default integrationDiagnostics()
+ru.neverland.archaeology.api.TownyArchaeologyApi	default storageMetrics()
+ru.neverland.archaeology.api.TownyArchaeologyApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.archaeology.api.TownyArchaeologyApi	isAuthenticArtifact(org.bukkit.inventory.ItemStack):boolean throws []
+ru.neverland.archaeology.api.TownyArchaeologyApi	missingForWonder(java.util.UUID,java.lang.String):java.util.Map<java.lang.String, java.lang.Integer> throws []
+ru.neverland.archaeology.api.TownyArchaeologyApi	museum(java.util.UUID):ru.neverland.archaeology.api.MuseumSnapshot throws []
+ru.neverland.archaeology.api.TownyArchaeologyApi	record ru.neverland.archaeology.api.MuseumSnapshot [townId:java.util.UUID, townName:java.lang.String, points:int, available:java.util.Map<java.lang.String, java.lang.Integer>, donated:java.util.Map<java.lang.String, java.lang.Integer>, completedCollections:java.util.Set<java.lang.String>]
+ru.neverland.archaeology.api.TownyArchaeologyApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.archaeology.api.TownyArchaeologyApi	wonderRequirements(java.lang.String):java.util.Map<java.lang.String, java.lang.Integer> throws []
+ru.neverland.townybuilds.api.BuildingStorageApi	acknowledge(java.util.UUID,java.util.UUID):void throws [java.io.IOException]
+ru.neverland.townybuilds.api.BuildingStorageApi	acknowledgeTrade(java.util.UUID,java.util.UUID):void throws [java.io.IOException]
+ru.neverland.townybuilds.api.BuildingStorageApi	apiVersion():int throws []
+ru.neverland.townybuilds.api.BuildingStorageApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townybuilds.api.BuildingStorageApi	capability acknowledge
+ru.neverland.townybuilds.api.BuildingStorageApi	capability acknowledgeTrade
+ru.neverland.townybuilds.api.BuildingStorageApi	capability depots
+ru.neverland.townybuilds.api.BuildingStorageApi	capability openStorage
+ru.neverland.townybuilds.api.BuildingStorageApi	capability pickup
+ru.neverland.townybuilds.api.BuildingStorageApi	capability reserveTrade
+ru.neverland.townybuilds.api.BuildingStorageApi	capability settleTrade
+ru.neverland.townybuilds.api.BuildingStorageApi	capability shipmentTowns
+ru.neverland.townybuilds.api.BuildingStorageApi	capability shipments
+ru.neverland.townybuilds.api.BuildingStorageApi	capability stock
+ru.neverland.townybuilds.api.BuildingStorageApi	capability unload
+ru.neverland.townybuilds.api.BuildingStorageApi	default acknowledgeTrade(java.util.UUID,java.util.UUID)
+ru.neverland.townybuilds.api.BuildingStorageApi	default apiVersion()
+ru.neverland.townybuilds.api.BuildingStorageApi	default capabilities()
+ru.neverland.townybuilds.api.BuildingStorageApi	default integrationDiagnostics()
+ru.neverland.townybuilds.api.BuildingStorageApi	default reserveTrade(java.util.UUID,java.util.UUID,java.util.UUID,org.bukkit.inventory.ItemStack,int)
+ru.neverland.townybuilds.api.BuildingStorageApi	default settleTrade(java.util.UUID,java.util.UUID,boolean)
+ru.neverland.townybuilds.api.BuildingStorageApi	default storageMetrics()
+ru.neverland.townybuilds.api.BuildingStorageApi	depots(java.util.UUID):java.util.Map<java.lang.String, ru.neverland.townybuilds.api.BuildingDepot> throws []
+ru.neverland.townybuilds.api.BuildingStorageApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.BuildingStorageApi	openStorage(org.bukkit.entity.Player,java.lang.String):void throws []
+ru.neverland.townybuilds.api.BuildingStorageApi	pickup(java.util.UUID,java.util.UUID,java.lang.String,java.lang.String,java.lang.String,org.bukkit.inventory.ItemStack,int,int):ru.neverland.townybuilds.api.CargoShipment throws [java.io.IOException]
+ru.neverland.townybuilds.api.BuildingStorageApi	record ru.neverland.townybuilds.api.BuildingDepot [id:java.lang.String, name:java.lang.String, icon:java.lang.String, world:java.util.UUID, minX:int, minZ:int, maxX:int, maxZ:int, y:int, level:int, slots:int]
+ru.neverland.townybuilds.api.BuildingStorageApi	record ru.neverland.townybuilds.api.CargoShipment [id:java.util.UUID, route:java.lang.String, source:java.lang.String, target:java.lang.String, cargo:org.bukkit.inventory.ItemStack[], status:java.lang.String, createdAt:long]
+ru.neverland.townybuilds.api.BuildingStorageApi	reserveTrade(java.util.UUID,java.util.UUID,java.util.UUID,org.bukkit.inventory.ItemStack,int):java.lang.String throws [java.io.IOException]
+ru.neverland.townybuilds.api.BuildingStorageApi	settleTrade(java.util.UUID,java.util.UUID,boolean):java.lang.String throws [java.io.IOException]
+ru.neverland.townybuilds.api.BuildingStorageApi	shipmentTowns():java.util.Set<java.util.UUID> throws []
+ru.neverland.townybuilds.api.BuildingStorageApi	shipments(java.util.UUID):java.util.Map<java.util.UUID, ru.neverland.townybuilds.api.CargoShipment> throws []
+ru.neverland.townybuilds.api.BuildingStorageApi	stock(java.util.UUID,java.lang.String):org.bukkit.inventory.ItemStack[] throws []
+ru.neverland.townybuilds.api.BuildingStorageApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.BuildingStorageApi	unload(java.util.UUID,java.util.UUID,boolean):boolean throws [java.io.IOException]
+ru.neverland.townybuilds.api.MarketStorageApi	acknowledge(java.util.UUID,java.util.UUID,java.util.UUID):void throws [java.lang.Exception]
+ru.neverland.townybuilds.api.MarketStorageApi	apiVersion():int throws []
+ru.neverland.townybuilds.api.MarketStorageApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townybuilds.api.MarketStorageApi	capability acknowledge
+ru.neverland.townybuilds.api.MarketStorageApi	capability claim
+ru.neverland.townybuilds.api.MarketStorageApi	capability close
+ru.neverland.townybuilds.api.MarketStorageApi	capability deliver
+ru.neverland.townybuilds.api.MarketStorageApi	capability forget
+ru.neverland.townybuilds.api.MarketStorageApi	capability level
+ru.neverland.townybuilds.api.MarketStorageApi	capability open
+ru.neverland.townybuilds.api.MarketStorageApi	capability refund
+ru.neverland.townybuilds.api.MarketStorageApi	capability reserve
+ru.neverland.townybuilds.api.MarketStorageApi	capability resolveClaim
+ru.neverland.townybuilds.api.MarketStorageApi	capability snapshot
+ru.neverland.townybuilds.api.MarketStorageApi	claim(org.bukkit.entity.Player,java.util.UUID,java.util.UUID,java.util.UUID):java.lang.String throws [java.lang.Exception]
+ru.neverland.townybuilds.api.MarketStorageApi	close(java.util.UUID,java.util.UUID):java.lang.String throws [java.lang.Exception]
+ru.neverland.townybuilds.api.MarketStorageApi	default apiVersion()
+ru.neverland.townybuilds.api.MarketStorageApi	default capabilities()
+ru.neverland.townybuilds.api.MarketStorageApi	default integrationDiagnostics()
+ru.neverland.townybuilds.api.MarketStorageApi	default storageMetrics()
+ru.neverland.townybuilds.api.MarketStorageApi	deliver(java.util.UUID,java.util.UUID,java.util.UUID):java.lang.String throws [java.lang.Exception]
+ru.neverland.townybuilds.api.MarketStorageApi	forget(java.util.UUID,java.util.UUID):void throws [java.lang.Exception]
+ru.neverland.townybuilds.api.MarketStorageApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.MarketStorageApi	level(java.util.UUID,java.lang.String):int throws []
+ru.neverland.townybuilds.api.MarketStorageApi	open(java.util.UUID,java.util.UUID,org.bukkit.inventory.ItemStack,int):java.lang.String throws [java.lang.Exception]
+ru.neverland.townybuilds.api.MarketStorageApi	refund(java.util.UUID,java.util.UUID,java.util.UUID):java.lang.String throws [java.lang.Exception]
+ru.neverland.townybuilds.api.MarketStorageApi	reserve(java.util.UUID,java.util.UUID,java.util.UUID,java.util.UUID,boolean,int):java.lang.String throws [java.lang.Exception]
+ru.neverland.townybuilds.api.MarketStorageApi	resolveClaim(java.util.UUID,java.util.UUID,java.util.UUID,boolean):void throws [java.lang.Exception]
+ru.neverland.townybuilds.api.MarketStorageApi	snapshot(java.util.UUID,java.util.UUID):java.util.Map<java.lang.String, java.lang.Object> throws []
+ru.neverland.townybuilds.api.MarketStorageApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.MunicipalStorageApi	acknowledge(java.util.UUID,java.util.UUID):void throws [java.io.IOException]
+ru.neverland.townybuilds.api.MunicipalStorageApi	apiVersion():int throws []
+ru.neverland.townybuilds.api.MunicipalStorageApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townybuilds.api.MunicipalStorageApi	capability acknowledge
+ru.neverland.townybuilds.api.MunicipalStorageApi	capability capacity
+ru.neverland.townybuilds.api.MunicipalStorageApi	capability deposit
+ru.neverland.townybuilds.api.MunicipalStorageApi	capacity(java.util.UUID,org.bukkit.inventory.ItemStack):int throws []
+ru.neverland.townybuilds.api.MunicipalStorageApi	default apiVersion()
+ru.neverland.townybuilds.api.MunicipalStorageApi	default capabilities()
+ru.neverland.townybuilds.api.MunicipalStorageApi	default integrationDiagnostics()
+ru.neverland.townybuilds.api.MunicipalStorageApi	default storageMetrics()
+ru.neverland.townybuilds.api.MunicipalStorageApi	deposit(java.util.UUID,java.util.UUID,org.bukkit.inventory.ItemStack,int):java.lang.String throws [java.io.IOException]
+ru.neverland.townybuilds.api.MunicipalStorageApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.MunicipalStorageApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.TownArmyApi	apiVersion():int throws []
+ru.neverland.townybuilds.api.TownArmyApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townybuilds.api.TownArmyApi	capability isMobilized
+ru.neverland.townybuilds.api.TownArmyApi	capability soldiers
+ru.neverland.townybuilds.api.TownArmyApi	default apiVersion()
+ru.neverland.townybuilds.api.TownArmyApi	default capabilities()
+ru.neverland.townybuilds.api.TownArmyApi	default integrationDiagnostics()
+ru.neverland.townybuilds.api.TownArmyApi	default storageMetrics()
+ru.neverland.townybuilds.api.TownArmyApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.TownArmyApi	isMobilized(java.util.UUID):boolean throws []
+ru.neverland.townybuilds.api.TownArmyApi	soldiers(java.util.UUID):java.util.Set<java.util.UUID> throws []
+ru.neverland.townybuilds.api.TownArmyApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	apiVersion():int throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	area(java.util.UUID,java.lang.String):java.util.Optional<ru.neverland.townybuilds.civic.CivicArea> throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	benefit(java.util.UUID,ru.neverland.townybuilds.api.CivicBenefit):double throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	buildingFootprints(java.util.UUID):java.util.Map<java.lang.String, ru.neverland.townybuilds.api.BuildingFootprint> throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	capability area
+ru.neverland.townybuilds.api.TownyBuildsApi	capability benefit
+ru.neverland.townybuilds.api.TownyBuildsApi	capability buildingFootprints
+ru.neverland.townybuilds.api.TownyBuildsApi	capability consumeInsurance
+ru.neverland.townybuilds.api.TownyBuildsApi	capability insuranceReserve
+ru.neverland.townybuilds.api.TownyBuildsApi	capability line
+ru.neverland.townybuilds.api.TownyBuildsApi	capability operationalLevel
+ru.neverland.townybuilds.api.TownyBuildsApi	capability projectLevel
+ru.neverland.townybuilds.api.TownyBuildsApi	capability supportedProjects
+ru.neverland.townybuilds.api.TownyBuildsApi	capability waterNetworkActive
+ru.neverland.townybuilds.api.TownyBuildsApi	capability workplaces
+ru.neverland.townybuilds.api.TownyBuildsApi	consumeInsurance(java.util.UUID,double):double throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	default apiVersion()
+ru.neverland.townybuilds.api.TownyBuildsApi	default buildingFootprints(java.util.UUID)
+ru.neverland.townybuilds.api.TownyBuildsApi	default capabilities()
+ru.neverland.townybuilds.api.TownyBuildsApi	default integrationDiagnostics()
+ru.neverland.townybuilds.api.TownyBuildsApi	default operationalLevel(java.util.UUID,java.lang.String)
+ru.neverland.townybuilds.api.TownyBuildsApi	default storageMetrics()
+ru.neverland.townybuilds.api.TownyBuildsApi	default supportedProjects()
+ru.neverland.townybuilds.api.TownyBuildsApi	default workplaces(java.util.UUID)
+ru.neverland.townybuilds.api.TownyBuildsApi	enum ru.neverland.townybuilds.api.CivicBenefit CUSTOMS_EFFICIENCY
+ru.neverland.townybuilds.api.TownyBuildsApi	enum ru.neverland.townybuilds.api.CivicBenefit FLOOD_REDUCTION
+ru.neverland.townybuilds.api.TownyBuildsApi	enum ru.neverland.townybuilds.api.CivicBenefit FORESTRY_CAPACITY
+ru.neverland.townybuilds.api.TownyBuildsApi	enum ru.neverland.townybuilds.api.CivicBenefit FORTIFICATION
+ru.neverland.townybuilds.api.TownyBuildsApi	enum ru.neverland.townybuilds.api.CivicBenefit FRAUD_REDUCTION
+ru.neverland.townybuilds.api.TownyBuildsApi	enum ru.neverland.townybuilds.api.CivicBenefit INSURANCE_COVERAGE
+ru.neverland.townybuilds.api.TownyBuildsApi	enum ru.neverland.townybuilds.api.CivicBenefit IRRIGATION_EFFICIENCY
+ru.neverland.townybuilds.api.TownyBuildsApi	enum ru.neverland.townybuilds.api.CivicBenefit MINT_FEE_REDUCTION
+ru.neverland.townybuilds.api.TownyBuildsApi	enum ru.neverland.townybuilds.api.CivicBenefit MOUNT_SPEED
+ru.neverland.townybuilds.api.TownyBuildsApi	enum ru.neverland.townybuilds.api.CivicBenefit POPULATION_ACCURACY
+ru.neverland.townybuilds.api.TownyBuildsApi	enum ru.neverland.townybuilds.api.CivicBenefit PUBLICATION_REACH
+ru.neverland.townybuilds.api.TownyBuildsApi	enum ru.neverland.townybuilds.api.CivicBenefit RANGED_TRAINING
+ru.neverland.townybuilds.api.TownyBuildsApi	enum ru.neverland.townybuilds.api.CivicBenefit RECYCLING_EFFICIENCY
+ru.neverland.townybuilds.api.TownyBuildsApi	enum ru.neverland.townybuilds.api.CivicBenefit TRADE_CAPACITY
+ru.neverland.townybuilds.api.TownyBuildsApi	enum ru.neverland.townybuilds.api.CivicBenefit TRADE_REPUTATION
+ru.neverland.townybuilds.api.TownyBuildsApi	enum ru.neverland.townybuilds.api.CivicBenefit WATER_PRESSURE
+ru.neverland.townybuilds.api.TownyBuildsApi	insuranceReserve(java.util.UUID):double throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	line(java.util.UUID,java.lang.String):java.util.Optional<ru.neverland.townybuilds.civic.CivicLine> throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	operationalLevel(java.util.UUID,java.lang.String):int throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	projectLevel(java.util.UUID,java.lang.String):int throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	record ru.neverland.townybuilds.api.BuildingFootprint [worldId:java.util.UUID, minX:int, minZ:int, maxX:int, maxZ:int, completedLevel:int, requiredLevel:int]
+ru.neverland.townybuilds.api.TownyBuildsApi	record ru.neverland.townybuilds.api.BuildingWorkplace [worldId:java.util.UUID, minX:int, minZ:int, maxX:int, maxZ:int, y:int, completedLevel:int]
+ru.neverland.townybuilds.api.TownyBuildsApi	record ru.neverland.townybuilds.civic.CivicArea [worldId:java.util.UUID, minX:int, maxX:int, minZ:int, maxZ:int]
+ru.neverland.townybuilds.api.TownyBuildsApi	record ru.neverland.townybuilds.civic.CivicLine [worldId:java.util.UUID, x1:int, y1:int, z1:int, x2:int, y2:int, z2:int]
+ru.neverland.townybuilds.api.TownyBuildsApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	supportedProjects():java.util.Set<java.lang.String> throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	waterNetworkActive(java.util.UUID):boolean throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	workplaces(java.util.UUID):java.util.Map<java.lang.String, ru.neverland.townybuilds.api.BuildingWorkplace> throws []
+ru.neverland.townybuilds.api.WarehouseApi	acknowledgeMovement(java.util.UUID,java.util.UUID):void throws [java.io.IOException]
+ru.neverland.townybuilds.api.WarehouseApi	apiVersion():int throws []
+ru.neverland.townybuilds.api.WarehouseApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townybuilds.api.WarehouseApi	capability acknowledgeMovement
+ru.neverland.townybuilds.api.WarehouseApi	capability deposit
+ru.neverland.townybuilds.api.WarehouseApi	capability take
+ru.neverland.townybuilds.api.WarehouseApi	capability transfer
+ru.neverland.townybuilds.api.WarehouseApi	capability transferred
+ru.neverland.townybuilds.api.WarehouseApi	default apiVersion()
+ru.neverland.townybuilds.api.WarehouseApi	default capabilities()
+ru.neverland.townybuilds.api.WarehouseApi	default integrationDiagnostics()
+ru.neverland.townybuilds.api.WarehouseApi	default storageMetrics()
+ru.neverland.townybuilds.api.WarehouseApi	deposit(java.util.UUID,org.bukkit.inventory.ItemStack,int):java.util.Map<java.lang.String, java.lang.Object> throws [java.io.IOException]
+ru.neverland.townybuilds.api.WarehouseApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.WarehouseApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.WarehouseApi	take(java.util.UUID,org.bukkit.inventory.ItemStack,int):java.util.Map<java.lang.String, java.lang.Object> throws [java.io.IOException]
+ru.neverland.townybuilds.api.WarehouseApi	transfer(java.util.UUID,java.util.UUID,org.bukkit.inventory.ItemStack,int,boolean):java.util.Map<java.lang.String, java.lang.Object> throws [java.io.IOException]
+ru.neverland.townybuilds.api.WarehouseApi	transferred(java.util.UUID,java.util.UUID):boolean throws []
+ru.neverland.mintcamps.api.TownyCampsApi	apiVersion():int throws []
+ru.neverland.mintcamps.api.TownyCampsApi	camp(java.util.UUID):java.util.Map<java.lang.String, java.lang.Object> throws []
+ru.neverland.mintcamps.api.TownyCampsApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.mintcamps.api.TownyCampsApi	capability camp
+ru.neverland.mintcamps.api.TownyCampsApi	capability consume
+ru.neverland.mintcamps.api.TownyCampsApi	capability stashBusy
+ru.neverland.mintcamps.api.TownyCampsApi	consume(java.util.UUID,org.bukkit.inventory.ItemStack[]):boolean throws [java.io.IOException]
+ru.neverland.mintcamps.api.TownyCampsApi	default apiVersion()
+ru.neverland.mintcamps.api.TownyCampsApi	default capabilities()
+ru.neverland.mintcamps.api.TownyCampsApi	default integrationDiagnostics()
+ru.neverland.mintcamps.api.TownyCampsApi	default storageMetrics()
+ru.neverland.mintcamps.api.TownyCampsApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.mintcamps.api.TownyCampsApi	stashBusy(java.util.UUID):boolean throws []
+ru.neverland.mintcamps.api.TownyCampsApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townychronicles.api.TownyChroniclesApi	apiVersion():int throws []
+ru.neverland.townychronicles.api.TownyChroniclesApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townychronicles.api.TownyChroniclesApi	capability entries
+ru.neverland.townychronicles.api.TownyChroniclesApi	capability latest
+ru.neverland.townychronicles.api.TownyChroniclesApi	capability record
+ru.neverland.townychronicles.api.TownyChroniclesApi	default apiVersion()
+ru.neverland.townychronicles.api.TownyChroniclesApi	default capabilities()
+ru.neverland.townychronicles.api.TownyChroniclesApi	default integrationDiagnostics()
+ru.neverland.townychronicles.api.TownyChroniclesApi	default storageMetrics()
+ru.neverland.townychronicles.api.TownyChroniclesApi	entries(java.util.UUID):java.util.List<ru.neverland.townychronicles.model.ChronicleEntry> throws []
+ru.neverland.townychronicles.api.TownyChroniclesApi	enum ru.neverland.townychronicles.model.ChronicleCategory ACHIEVEMENT
+ru.neverland.townychronicles.api.TownyChroniclesApi	enum ru.neverland.townychronicles.model.ChronicleCategory CUSTOM
+ru.neverland.townychronicles.api.TownyChroniclesApi	enum ru.neverland.townychronicles.model.ChronicleCategory DISSOLUTION
+ru.neverland.townychronicles.api.TownyChroniclesApi	enum ru.neverland.townychronicles.model.ChronicleCategory FOUNDING
+ru.neverland.townychronicles.api.TownyChroniclesApi	enum ru.neverland.townychronicles.model.ChronicleCategory MAYOR
+ru.neverland.townychronicles.api.TownyChroniclesApi	enum ru.neverland.townychronicles.model.ChronicleCategory NATION
+ru.neverland.townychronicles.api.TownyChroniclesApi	enum ru.neverland.townychronicles.model.ChronicleCategory TERRITORY
+ru.neverland.townychronicles.api.TownyChroniclesApi	enum ru.neverland.townychronicles.model.ChronicleCategory WAR
+ru.neverland.townychronicles.api.TownyChroniclesApi	enum ru.neverland.townychronicles.model.ChronicleCategory WONDER
+ru.neverland.townychronicles.api.TownyChroniclesApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townychronicles.api.TownyChroniclesApi	latest(java.util.UUID):ru.neverland.townychronicles.model.ChronicleEntry throws []
+ru.neverland.townychronicles.api.TownyChroniclesApi	record ru.neverland.townychronicles.model.ChronicleEntry [id:java.util.UUID, townId:java.util.UUID, townName:java.lang.String, category:ru.neverland.townychronicles.model.ChronicleCategory, timestamp:long, title:java.lang.String, details:java.util.List<java.lang.String>, actor:java.lang.String, source:java.lang.String]
+ru.neverland.townychronicles.api.TownyChroniclesApi	record(java.util.UUID,ru.neverland.townychronicles.model.ChronicleCategory,java.lang.String,java.util.List<java.lang.String>,java.lang.String,java.lang.String):ru.neverland.townychronicles.model.ChronicleEntry throws []
+ru.neverland.townychronicles.api.TownyChroniclesApi	record(java.util.UUID,ru.neverland.townychronicles.model.ChronicleCategory,long,java.lang.String,java.util.List<java.lang.String>,java.lang.String,java.lang.String):ru.neverland.townychronicles.model.ChronicleEntry throws []
+ru.neverland.townychronicles.api.TownyChroniclesApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townycitizens.api.TownyCitizensApi	allows(java.util.UUID,java.util.UUID,java.lang.String):boolean throws []
+ru.neverland.townycitizens.api.TownyCitizensApi	apiVersion():int throws []
+ru.neverland.townycitizens.api.TownyCitizensApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townycitizens.api.TownyCitizensApi	capability allows
+ru.neverland.townycitizens.api.TownyCitizensApi	capability expiresAt
+ru.neverland.townycitizens.api.TownyCitizensApi	capability healthy
+ru.neverland.townycitizens.api.TownyCitizensApi	capability passport
+ru.neverland.townycitizens.api.TownyCitizensApi	capability passportFields
+ru.neverland.townycitizens.api.TownyCitizensApi	capability status
+ru.neverland.townycitizens.api.TownyCitizensApi	capability taxMultiplier
+ru.neverland.townycitizens.api.TownyCitizensApi	default apiVersion()
+ru.neverland.townycitizens.api.TownyCitizensApi	default capabilities()
+ru.neverland.townycitizens.api.TownyCitizensApi	default integrationDiagnostics()
+ru.neverland.townycitizens.api.TownyCitizensApi	default storageMetrics()
+ru.neverland.townycitizens.api.TownyCitizensApi	expiresAt(java.util.UUID,java.util.UUID):long throws []
+ru.neverland.townycitizens.api.TownyCitizensApi	healthy():boolean throws []
+ru.neverland.townycitizens.api.TownyCitizensApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townycitizens.api.TownyCitizensApi	passport(java.util.UUID):java.util.Map<java.lang.String, java.lang.String> throws []
+ru.neverland.townycitizens.api.TownyCitizensApi	passportFields(java.util.UUID,java.util.UUID):java.util.Map<java.lang.String, java.lang.String> throws []
+ru.neverland.townycitizens.api.TownyCitizensApi	status(java.util.UUID,java.util.UUID):java.lang.String throws []
+ru.neverland.townycitizens.api.TownyCitizensApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townycitizens.api.TownyCitizensApi	taxMultiplier(java.util.UUID,java.util.UUID):double throws []
+ru.neverland.townycompanies.api.CompaniesApi	apiVersion():int throws []
+ru.neverland.townycompanies.api.CompaniesApi	canContribute(java.util.UUID,java.util.UUID,java.util.UUID):boolean throws []
+ru.neverland.townycompanies.api.CompaniesApi	canManage(java.util.UUID,java.util.UUID,java.util.UUID):boolean throws []
+ru.neverland.townycompanies.api.CompaniesApi	canTake(java.util.UUID,java.util.UUID,java.util.UUID):boolean throws []
+ru.neverland.townycompanies.api.CompaniesApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townycompanies.api.CompaniesApi	capability canContribute
+ru.neverland.townycompanies.api.CompaniesApi	capability canManage
+ru.neverland.townycompanies.api.CompaniesApi	capability canTake
+ru.neverland.townycompanies.api.CompaniesApi	capability companyName
+ru.neverland.townycompanies.api.CompaniesApi	capability settleEscrow
+ru.neverland.townycompanies.api.CompaniesApi	companyName(java.util.UUID):java.lang.String throws []
+ru.neverland.townycompanies.api.CompaniesApi	default apiVersion()
+ru.neverland.townycompanies.api.CompaniesApi	default capabilities()
+ru.neverland.townycompanies.api.CompaniesApi	default integrationDiagnostics()
+ru.neverland.townycompanies.api.CompaniesApi	default storageMetrics()
+ru.neverland.townycompanies.api.CompaniesApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townycompanies.api.CompaniesApi	settleEscrow(java.util.UUID,java.util.UUID,java.util.UUID,long,long):boolean throws []
+ru.neverland.townycompanies.api.CompaniesApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.mintcontracts.api.MintTownyContractsApi	activeContracts(java.util.UUID):java.util.List<ru.neverland.mintcontracts.api.ContractSnapshot> throws []
+ru.neverland.mintcontracts.api.MintTownyContractsApi	addProgress(java.util.UUID,java.util.UUID,int,java.lang.String):boolean throws []
+ru.neverland.mintcontracts.api.MintTownyContractsApi	apiVersion():int throws []
+ru.neverland.mintcontracts.api.MintTownyContractsApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.mintcontracts.api.MintTownyContractsApi	capability activeContracts
+ru.neverland.mintcontracts.api.MintTownyContractsApi	capability addProgress
+ru.neverland.mintcontracts.api.MintTownyContractsApi	capability pendingReward
+ru.neverland.mintcontracts.api.MintTownyContractsApi	default apiVersion()
+ru.neverland.mintcontracts.api.MintTownyContractsApi	default capabilities()
+ru.neverland.mintcontracts.api.MintTownyContractsApi	default integrationDiagnostics()
+ru.neverland.mintcontracts.api.MintTownyContractsApi	default storageMetrics()
+ru.neverland.mintcontracts.api.MintTownyContractsApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.mintcontracts.api.MintTownyContractsApi	pendingReward(java.util.UUID):double throws []
+ru.neverland.mintcontracts.api.MintTownyContractsApi	record ru.neverland.mintcontracts.api.ContractSnapshot [id:java.util.UUID, townId:java.util.UUID, templateId:java.lang.String, name:java.lang.String, type:java.lang.String, progress:int, goal:int, escrow:double, expiresAt:long]
+ru.neverland.mintcontracts.api.MintTownyContractsApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townycouncil.api.TownyCouncilApi	allows(java.util.UUID,java.util.UUID,java.lang.String):boolean throws []
+ru.neverland.townycouncil.api.TownyCouncilApi	apiVersion():int throws []
+ru.neverland.townycouncil.api.TownyCouncilApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townycouncil.api.TownyCouncilApi	capability allows
+ru.neverland.townycouncil.api.TownyCouncilApi	capability healthy
+ru.neverland.townycouncil.api.TownyCouncilApi	capability holders
+ru.neverland.townycouncil.api.TownyCouncilApi	capability permissions
+ru.neverland.townycouncil.api.TownyCouncilApi	capability role
+ru.neverland.townycouncil.api.TownyCouncilApi	default apiVersion()
+ru.neverland.townycouncil.api.TownyCouncilApi	default capabilities()
+ru.neverland.townycouncil.api.TownyCouncilApi	default integrationDiagnostics()
+ru.neverland.townycouncil.api.TownyCouncilApi	default storageMetrics()
+ru.neverland.townycouncil.api.TownyCouncilApi	healthy():boolean throws []
+ru.neverland.townycouncil.api.TownyCouncilApi	holders(java.util.UUID):java.util.Map<java.lang.String, java.util.UUID> throws []
+ru.neverland.townycouncil.api.TownyCouncilApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townycouncil.api.TownyCouncilApi	permissions(java.lang.String):java.util.Set<java.lang.String> throws []
+ru.neverland.townycouncil.api.TownyCouncilApi	role(java.util.UUID,java.util.UUID):java.lang.String throws []
+ru.neverland.townycouncil.api.TownyCouncilApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	apiVersion():int throws []
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	capability defenders
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	capability healthy
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	capability hostileBlocked
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	capability overlord
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	capability relations
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	capability tariffMultiplier
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	capability tradeBlocked
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	capability treaties
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	default apiVersion()
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	default capabilities()
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	default integrationDiagnostics()
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	default storageMetrics()
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	defenders(java.util.UUID):java.util.Set<java.util.UUID> throws []
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	healthy():boolean throws []
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	hostileBlocked(java.util.UUID,java.util.UUID):boolean throws []
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	overlord(java.util.UUID):java.util.UUID throws []
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	relations(java.util.UUID,java.util.UUID):java.util.Set<java.lang.String> throws []
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	tariffMultiplier(java.util.UUID,java.util.UUID,java.util.UUID):double throws []
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	tradeBlocked(java.util.UUID,java.util.UUID):boolean throws []
+ru.neverland.townydiplomacy.api.TownyDiplomacyApi	treaties(java.util.UUID):java.util.List<java.util.Map<java.lang.String, java.lang.String>> throws []
+ru.neverland.townydistricts.api.TownyDistrictsApi	apiVersion():int throws []
+ru.neverland.townydistricts.api.TownyDistrictsApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townydistricts.api.TownyDistrictsApi	capability districtAt
+ru.neverland.townydistricts.api.TownyDistrictsApi	capability districts
+ru.neverland.townydistricts.api.TownyDistrictsApi	capability multiplier
+ru.neverland.townydistricts.api.TownyDistrictsApi	default apiVersion()
+ru.neverland.townydistricts.api.TownyDistrictsApi	default capabilities()
+ru.neverland.townydistricts.api.TownyDistrictsApi	default integrationDiagnostics()
+ru.neverland.townydistricts.api.TownyDistrictsApi	default storageMetrics()
+ru.neverland.townydistricts.api.TownyDistrictsApi	districtAt(java.util.UUID,int,int):java.util.Optional<ru.neverland.townydistricts.model.District> throws []
+ru.neverland.townydistricts.api.TownyDistrictsApi	districts(java.util.UUID):java.util.Collection<ru.neverland.townydistricts.model.District> throws []
+ru.neverland.townydistricts.api.TownyDistrictsApi	enum ru.neverland.townydistricts.model.DistrictType ADMINISTRATIVE
+ru.neverland.townydistricts.api.TownyDistrictsApi	enum ru.neverland.townydistricts.model.DistrictType AGRICULTURAL
+ru.neverland.townydistricts.api.TownyDistrictsApi	enum ru.neverland.townydistricts.model.DistrictType COMMERCIAL
+ru.neverland.townydistricts.api.TownyDistrictsApi	enum ru.neverland.townydistricts.model.DistrictType INDUSTRIAL
+ru.neverland.townydistricts.api.TownyDistrictsApi	enum ru.neverland.townydistricts.model.DistrictType MILITARY
+ru.neverland.townydistricts.api.TownyDistrictsApi	enum ru.neverland.townydistricts.model.DistrictType PORT
+ru.neverland.townydistricts.api.TownyDistrictsApi	enum ru.neverland.townydistricts.model.DistrictType RESIDENTIAL
+ru.neverland.townydistricts.api.TownyDistrictsApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townydistricts.api.TownyDistrictsApi	multiplier(java.util.UUID,java.lang.String):double throws []
+ru.neverland.townydistricts.api.TownyDistrictsApi	record ru.neverland.townydistricts.model.Cell [world:java.util.UUID, x:int, z:int]
+ru.neverland.townydistricts.api.TownyDistrictsApi	record ru.neverland.townydistricts.model.District [town:java.util.UUID, id:java.lang.String, name:java.lang.String, type:ru.neverland.townydistricts.model.DistrictType, cells:java.util.Set<ru.neverland.townydistricts.model.Cell>]
+ru.neverland.townydistricts.api.TownyDistrictsApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyelections.api.TownyElectionsApi	apiVersion():int throws []
+ru.neverland.townyelections.api.TownyElectionsApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townyelections.api.TownyElectionsApi	capability elective
+ru.neverland.townyelections.api.TownyElectionsApi	capability healthy
+ru.neverland.townyelections.api.TownyElectionsApi	capability snapshot
+ru.neverland.townyelections.api.TownyElectionsApi	default apiVersion()
+ru.neverland.townyelections.api.TownyElectionsApi	default capabilities()
+ru.neverland.townyelections.api.TownyElectionsApi	default integrationDiagnostics()
+ru.neverland.townyelections.api.TownyElectionsApi	default storageMetrics()
+ru.neverland.townyelections.api.TownyElectionsApi	elective(java.util.UUID):boolean throws []
+ru.neverland.townyelections.api.TownyElectionsApi	healthy():boolean throws []
+ru.neverland.townyelections.api.TownyElectionsApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyelections.api.TownyElectionsApi	snapshot(java.util.UUID):java.util.Map<java.lang.String, java.lang.String> throws []
+ru.neverland.townyelections.api.TownyElectionsApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.mintespionage.api.MintTownyEspionageApi	apiVersion():int throws []
+ru.neverland.mintespionage.api.MintTownyEspionageApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.mintespionage.api.MintTownyEspionageApi	capability defenseStrength
+ru.neverland.mintespionage.api.MintTownyEspionageApi	capability snapshot
+ru.neverland.mintespionage.api.MintTownyEspionageApi	capability unreadReports
+ru.neverland.mintespionage.api.MintTownyEspionageApi	default apiVersion()
+ru.neverland.mintespionage.api.MintTownyEspionageApi	default capabilities()
+ru.neverland.mintespionage.api.MintTownyEspionageApi	default integrationDiagnostics()
+ru.neverland.mintespionage.api.MintTownyEspionageApi	default storageMetrics()
+ru.neverland.mintespionage.api.MintTownyEspionageApi	defenseStrength(java.util.UUID):double throws []
+ru.neverland.mintespionage.api.MintTownyEspionageApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.mintespionage.api.MintTownyEspionageApi	record ru.neverland.mintespionage.api.EspionageSnapshot [networkLevel:int, defenseLevel:int, activeOperations:int, operationLimit:int, unreadReports:int, defenseStrength:double]
+ru.neverland.mintespionage.api.MintTownyEspionageApi	snapshot(java.util.UUID):ru.neverland.mintespionage.api.EspionageSnapshot throws []
+ru.neverland.mintespionage.api.MintTownyEspionageApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.mintespionage.api.MintTownyEspionageApi	unreadReports(java.util.UUID):int throws []
+ru.neverland.mintevents.api.MintTownyEventsApi	activeEvent(java.util.UUID):java.util.Optional<ru.neverland.mintevents.api.EventSnapshot> throws []
+ru.neverland.mintevents.api.MintTownyEventsApi	addProgress(java.util.UUID,int,java.lang.String):boolean throws []
+ru.neverland.mintevents.api.MintTownyEventsApi	apiVersion():int throws []
+ru.neverland.mintevents.api.MintTownyEventsApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.mintevents.api.MintTownyEventsApi	capability activeEvent
+ru.neverland.mintevents.api.MintTownyEventsApi	capability addProgress
+ru.neverland.mintevents.api.MintTownyEventsApi	capability hasFireDamage
+ru.neverland.mintevents.api.MintTownyEventsApi	capability protection
+ru.neverland.mintevents.api.MintTownyEventsApi	capability requiresRepair
+ru.neverland.mintevents.api.MintTownyEventsApi	default apiVersion()
+ru.neverland.mintevents.api.MintTownyEventsApi	default capabilities()
+ru.neverland.mintevents.api.MintTownyEventsApi	default hasFireDamage(java.util.UUID)
+ru.neverland.mintevents.api.MintTownyEventsApi	default integrationDiagnostics()
+ru.neverland.mintevents.api.MintTownyEventsApi	default requiresRepair(java.util.UUID,int,int,int)
+ru.neverland.mintevents.api.MintTownyEventsApi	default storageMetrics()
+ru.neverland.mintevents.api.MintTownyEventsApi	hasFireDamage(java.util.UUID):boolean throws []
+ru.neverland.mintevents.api.MintTownyEventsApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.mintevents.api.MintTownyEventsApi	protection(java.util.UUID):double throws []
+ru.neverland.mintevents.api.MintTownyEventsApi	record ru.neverland.mintevents.api.EventSnapshot [townId:java.util.UUID, eventId:java.lang.String, name:java.lang.String, endsAt:long, progress:int, goal:int, protection:double]
+ru.neverland.mintevents.api.MintTownyEventsApi	requiresRepair(java.util.UUID,int,int,int):boolean throws []
+ru.neverland.mintevents.api.MintTownyEventsApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.governance.api.TownyGovernanceApi	apiVersion():int throws []
+ru.neverland.governance.api.TownyGovernanceApi	applyElection(java.util.UUID,java.util.UUID,java.util.Map<java.lang.String, java.util.List<java.util.UUID>>):void throws []
+ru.neverland.governance.api.TownyGovernanceApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.governance.api.TownyGovernanceApi	capability applyElection
+ru.neverland.governance.api.TownyGovernanceApi	capability constructionCostMultiplier
+ru.neverland.governance.api.TownyGovernanceApi	capability electionReceipt
+ru.neverland.governance.api.TownyGovernanceApi	capability hasLaw
+ru.neverland.governance.api.TownyGovernanceApi	capability ideologyCostMultiplier
+ru.neverland.governance.api.TownyGovernanceApi	capability ideologyExperienceMultiplier
+ru.neverland.governance.api.TownyGovernanceApi	capability officeCatalog
+ru.neverland.governance.api.TownyGovernanceApi	capability officeHolders
+ru.neverland.governance.api.TownyGovernanceApi	capability snapshot
+ru.neverland.governance.api.TownyGovernanceApi	constructionCostMultiplier(java.util.UUID):double throws []
+ru.neverland.governance.api.TownyGovernanceApi	default apiVersion()
+ru.neverland.governance.api.TownyGovernanceApi	default capabilities()
+ru.neverland.governance.api.TownyGovernanceApi	default integrationDiagnostics()
+ru.neverland.governance.api.TownyGovernanceApi	default storageMetrics()
+ru.neverland.governance.api.TownyGovernanceApi	electionReceipt(java.util.UUID):java.lang.String throws []
+ru.neverland.governance.api.TownyGovernanceApi	hasLaw(java.util.UUID,java.lang.String):boolean throws []
+ru.neverland.governance.api.TownyGovernanceApi	ideologyCostMultiplier(java.util.UUID):double throws []
+ru.neverland.governance.api.TownyGovernanceApi	ideologyExperienceMultiplier(java.util.UUID):double throws []
+ru.neverland.governance.api.TownyGovernanceApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.governance.api.TownyGovernanceApi	officeCatalog():java.util.Map<java.lang.String, java.lang.Integer> throws []
+ru.neverland.governance.api.TownyGovernanceApi	officeHolders(java.util.UUID):java.util.Map<java.lang.String, java.util.List<java.util.UUID>> throws []
+ru.neverland.governance.api.TownyGovernanceApi	record ru.neverland.governance.api.GovernanceSnapshot [townId:java.util.UUID, activeLaws:java.util.Set<java.lang.String>, councilSize:int, openProposals:int, constructionCostMultiplier:double, ideologyCostMultiplier:double, ideologyExperienceMultiplier:double]
+ru.neverland.governance.api.TownyGovernanceApi	snapshot(java.util.UUID):ru.neverland.governance.api.GovernanceSnapshot throws []
+ru.neverland.governance.api.TownyGovernanceApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyideologies.api.TownyIdeologiesApi	apiVersion():int throws []
+ru.neverland.townyideologies.api.TownyIdeologiesApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townyideologies.api.TownyIdeologiesApi	capability governmentForm
+ru.neverland.townyideologies.api.TownyIdeologiesApi	capability ideology
+ru.neverland.townyideologies.api.TownyIdeologiesApi	default apiVersion()
+ru.neverland.townyideologies.api.TownyIdeologiesApi	default capabilities()
+ru.neverland.townyideologies.api.TownyIdeologiesApi	default integrationDiagnostics()
+ru.neverland.townyideologies.api.TownyIdeologiesApi	default storageMetrics()
+ru.neverland.townyideologies.api.TownyIdeologiesApi	governmentForm(java.util.UUID):java.lang.String throws []
+ru.neverland.townyideologies.api.TownyIdeologiesApi	ideology(java.util.UUID):java.lang.String throws []
+ru.neverland.townyideologies.api.TownyIdeologiesApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyideologies.api.TownyIdeologiesApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyjobs.api.TownyJobsApi	apiVersion():int throws []
+ru.neverland.townyjobs.api.TownyJobsApi	bonus(java.util.UUID,java.lang.String):double throws []
+ru.neverland.townyjobs.api.TownyJobsApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townyjobs.api.TownyJobsApi	capability bonus
+ru.neverland.townyjobs.api.TownyJobsApi	capability supports
+ru.neverland.townyjobs.api.TownyJobsApi	capability townBonus
+ru.neverland.townyjobs.api.TownyJobsApi	capability workers
+ru.neverland.townyjobs.api.TownyJobsApi	default apiVersion()
+ru.neverland.townyjobs.api.TownyJobsApi	default capabilities()
+ru.neverland.townyjobs.api.TownyJobsApi	default integrationDiagnostics()
+ru.neverland.townyjobs.api.TownyJobsApi	default storageMetrics()
+ru.neverland.townyjobs.api.TownyJobsApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyjobs.api.TownyJobsApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyjobs.api.TownyJobsApi	supports(java.lang.String):boolean throws []
+ru.neverland.townyjobs.api.TownyJobsApi	townBonus(java.util.UUID,java.lang.String):double throws []
+ru.neverland.townyjobs.api.TownyJobsApi	workers(java.util.UUID,java.lang.String):int throws []
+ru.neverland.townymarket.MarketApi	apiVersion():int throws []
+ru.neverland.townymarket.MarketApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townymarket.MarketApi	capability offers
+ru.neverland.townymarket.MarketApi	default apiVersion()
+ru.neverland.townymarket.MarketApi	default integrationDiagnostics()
+ru.neverland.townymarket.MarketApi	default storageMetrics()
+ru.neverland.townymarket.MarketApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townymarket.MarketApi	offers(java.util.UUID):java.util.List<ru.neverland.townymarket.MarketApi$Offer> throws [java.lang.Exception]
+ru.neverland.townymarket.MarketApi	record ru.neverland.townymarket.MarketApi$Offer [id:java.util.UUID, town:java.util.UUID, item:java.lang.String, scope:java.lang.String, automatic:boolean, unitCents:long, available:int, state:java.lang.String]
+ru.neverland.townymarket.MarketApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townypolicies.api.TownyPoliciesApi	apiVersion():int throws []
+ru.neverland.townypolicies.api.TownyPoliciesApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townypolicies.api.TownyPoliciesApi	capability effect
+ru.neverland.townypolicies.api.TownyPoliciesApi	capability importsAllowed
+ru.neverland.townypolicies.api.TownyPoliciesApi	capability policies
+ru.neverland.townypolicies.api.TownyPoliciesApi	capability productionMultiplier
+ru.neverland.townypolicies.api.TownyPoliciesApi	capability residentPolicies
+ru.neverland.townypolicies.api.TownyPoliciesApi	capability tariff
+ru.neverland.townypolicies.api.TownyPoliciesApi	capability tariffManaged
+ru.neverland.townypolicies.api.TownyPoliciesApi	capability taxMultiplier
+ru.neverland.townypolicies.api.TownyPoliciesApi	capability upkeepMultiplier
+ru.neverland.townypolicies.api.TownyPoliciesApi	default apiVersion()
+ru.neverland.townypolicies.api.TownyPoliciesApi	default capabilities()
+ru.neverland.townypolicies.api.TownyPoliciesApi	default integrationDiagnostics()
+ru.neverland.townypolicies.api.TownyPoliciesApi	default storageMetrics()
+ru.neverland.townypolicies.api.TownyPoliciesApi	effect(java.util.UUID,java.lang.String):double throws []
+ru.neverland.townypolicies.api.TownyPoliciesApi	importsAllowed(java.util.UUID,java.util.UUID,boolean):boolean throws []
+ru.neverland.townypolicies.api.TownyPoliciesApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townypolicies.api.TownyPoliciesApi	policies(java.util.UUID):java.util.Optional<ru.neverland.townypolicies.api.PoliciesSnapshot> throws []
+ru.neverland.townypolicies.api.TownyPoliciesApi	productionMultiplier(java.util.UUID,java.lang.String):double throws []
+ru.neverland.townypolicies.api.TownyPoliciesApi	record ru.neverland.townypolicies.api.PoliciesSnapshot [townId:java.util.UUID, townName:java.lang.String, state:ru.neverland.townypolicies.model.CityPolicies, status:java.util.Map<java.lang.String, java.lang.String>]
+ru.neverland.townypolicies.api.TownyPoliciesApi	record ru.neverland.townypolicies.model.CityPolicies [revision:long, choices:java.util.Map<java.lang.String, ru.neverland.townypolicies.model.CityPolicies$Choice>, history:java.util.List<ru.neverland.townypolicies.model.CityPolicies$Change>]
+ru.neverland.townypolicies.api.TownyPoliciesApi	record ru.neverland.townypolicies.model.CityPolicies$Change [at:long, group:java.lang.String, before:java.lang.String, after:java.lang.String, actor:java.util.UUID, actorName:java.lang.String]
+ru.neverland.townypolicies.api.TownyPoliciesApi	record ru.neverland.townypolicies.model.CityPolicies$Choice [mode:java.lang.String, chosenAt:long, nextChangeAt:long]
+ru.neverland.townypolicies.api.TownyPoliciesApi	residentPolicies(java.util.UUID):java.util.Optional<ru.neverland.townypolicies.api.PoliciesSnapshot> throws []
+ru.neverland.townypolicies.api.TownyPoliciesApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townypolicies.api.TownyPoliciesApi	tariff(java.util.UUID,double,double):double throws []
+ru.neverland.townypolicies.api.TownyPoliciesApi	tariffManaged(java.util.UUID):boolean throws []
+ru.neverland.townypolicies.api.TownyPoliciesApi	taxMultiplier(java.util.UUID):double throws []
+ru.neverland.townypolicies.api.TownyPoliciesApi	upkeepMultiplier(java.util.UUID,java.lang.String):double throws []
+ru.neverland.townypopulation.api.TownyPopulationApi	apiVersion():int throws []
+ru.neverland.townypopulation.api.TownyPopulationApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townypopulation.api.TownyPopulationApi	capability population
+ru.neverland.townypopulation.api.TownyPopulationApi	capability populations
+ru.neverland.townypopulation.api.TownyPopulationApi	capability residentPopulation
+ru.neverland.townypopulation.api.TownyPopulationApi	default apiVersion()
+ru.neverland.townypopulation.api.TownyPopulationApi	default capabilities()
+ru.neverland.townypopulation.api.TownyPopulationApi	default integrationDiagnostics()
+ru.neverland.townypopulation.api.TownyPopulationApi	default storageMetrics()
+ru.neverland.townypopulation.api.TownyPopulationApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townypopulation.api.TownyPopulationApi	population(java.util.UUID):java.util.Optional<ru.neverland.townypopulation.api.PopulationSnapshot> throws []
+ru.neverland.townypopulation.api.TownyPopulationApi	populations():java.util.Collection<ru.neverland.townypopulation.api.PopulationSnapshot> throws []
+ru.neverland.townypopulation.api.TownyPopulationApi	record ru.neverland.townypopulation.api.PopulationSnapshot [townId:java.util.UUID, townName:java.lang.String, population:int, capacity:ru.neverland.townypopulation.model.Capacity, metrics:ru.neverland.townypopulation.model.PopulationMath$Metrics, lastChange:int, nextCycle:long, paused:boolean, buildingLevels:java.util.Map<java.lang.String, java.lang.Integer>]
+ru.neverland.townypopulation.api.TownyPopulationApi	record ru.neverland.townypopulation.model.Capacity [housing:int, jobs:int, food:double, water:double, happiness:double]
+ru.neverland.townypopulation.api.TownyPopulationApi	record ru.neverland.townypopulation.model.PopulationMath$Metrics [workforce:int, employed:int, unemployed:int, unemployment:double, foodCoverage:double, waterCoverage:double, happiness:double, change:double, reasons:java.util.List<java.lang.String>]
+ru.neverland.townypopulation.api.TownyPopulationApi	residentPopulation(java.util.UUID):java.util.Optional<ru.neverland.townypopulation.api.PopulationSnapshot> throws []
+ru.neverland.townypopulation.api.TownyPopulationApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townypower.api.TownyPowerApi	apiVersion():int throws []
+ru.neverland.townypower.api.TownyPowerApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townypower.api.TownyPowerApi	capability power
+ru.neverland.townypower.api.TownyPowerApi	capability powered
+ru.neverland.townypower.api.TownyPowerApi	capability residentPower
+ru.neverland.townypower.api.TownyPowerApi	capability status
+ru.neverland.townypower.api.TownyPowerApi	capability towns
+ru.neverland.townypower.api.TownyPowerApi	default apiVersion()
+ru.neverland.townypower.api.TownyPowerApi	default capabilities()
+ru.neverland.townypower.api.TownyPowerApi	default integrationDiagnostics()
+ru.neverland.townypower.api.TownyPowerApi	default storageMetrics()
+ru.neverland.townypower.api.TownyPowerApi	enum ru.neverland.townypower.model.PowerEngine$Status ASSEMBLY
+ru.neverland.townypower.api.TownyPowerApi	enum ru.neverland.townypower.model.PowerEngine$Status EXEMPT
+ru.neverland.townypower.api.TownyPowerApi	enum ru.neverland.townypower.model.PowerEngine$Status FOREIGN
+ru.neverland.townypower.api.TownyPowerApi	enum ru.neverland.townypower.model.PowerEngine$Status LOW_LEVEL
+ru.neverland.townypower.api.TownyPowerApi	enum ru.neverland.townypower.model.PowerEngine$Status NOT_BUILT
+ru.neverland.townypower.api.TownyPowerApi	enum ru.neverland.townypower.model.PowerEngine$Status PRODUCING
+ru.neverland.townypower.api.TownyPowerApi	enum ru.neverland.townypower.model.PowerEngine$Status SHORTAGE
+ru.neverland.townypower.api.TownyPowerApi	enum ru.neverland.townypower.model.PowerEngine$Status SPECIALIZATION_LOCKED
+ru.neverland.townypower.api.TownyPowerApi	enum ru.neverland.townypower.model.PowerEngine$Status STOPPED
+ru.neverland.townypower.api.TownyPowerApi	enum ru.neverland.townypower.model.PowerEngine$Status SUPPLIED
+ru.neverland.townypower.api.TownyPowerApi	enum ru.neverland.townypower.model.PowerEngine$Status UNAVAILABLE
+ru.neverland.townypower.api.TownyPowerApi	enum ru.neverland.townypower.model.PowerEngine$Status UNPAID
+ru.neverland.townypower.api.TownyPowerApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townypower.api.TownyPowerApi	power(java.util.UUID):java.util.Optional<ru.neverland.townypower.api.PowerSnapshot> throws []
+ru.neverland.townypower.api.TownyPowerApi	powered(java.util.UUID,java.lang.String):boolean throws []
+ru.neverland.townypower.api.TownyPowerApi	record ru.neverland.townypower.api.PowerSnapshot [townId:java.util.UUID, townName:java.lang.String, paused:boolean, status:java.lang.String, grid:ru.neverland.townypower.model.PowerEngine$Grid, state:ru.neverland.townypower.model.TownPowerState]
+ru.neverland.townypower.api.TownyPowerApi	record ru.neverland.townypower.model.PowerEngine$Allocation [project:java.lang.String, level:int, priority:int, powered:boolean, generation:long, demand:long, supplied:long, status:ru.neverland.townypower.model.PowerEngine$Status]
+ru.neverland.townypower.api.TownyPowerApi	record ru.neverland.townypower.model.PowerEngine$Grid [generation:long, demand:long, supplied:long, buildings:java.util.Map<java.lang.String, ru.neverland.townypower.model.PowerEngine$Allocation>]
+ru.neverland.townypower.api.TownyPowerApi	record ru.neverland.townypower.model.TownPowerState [stopped:java.util.Set<java.lang.String>, priorities:java.util.Map<java.lang.String, java.lang.Integer>]
+ru.neverland.townypower.api.TownyPowerApi	residentPower(java.util.UUID):java.util.Optional<ru.neverland.townypower.api.PowerSnapshot> throws []
+ru.neverland.townypower.api.TownyPowerApi	status(java.util.UUID,java.lang.String):java.lang.String throws []
+ru.neverland.townypower.api.TownyPowerApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townypower.api.TownyPowerApi	towns():java.util.Collection<ru.neverland.townypower.api.PowerSnapshot> throws []
+ru.neverland.reputation.api.TownyReputationApi	apiVersion():int throws []
+ru.neverland.reputation.api.TownyReputationApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.reputation.api.TownyReputationApi	capability change
+ru.neverland.reputation.api.TownyReputationApi	capability featureUnlocked
+ru.neverland.reputation.api.TownyReputationApi	capability score
+ru.neverland.reputation.api.TownyReputationApi	capability set
+ru.neverland.reputation.api.TownyReputationApi	capability snapshot
+ru.neverland.reputation.api.TownyReputationApi	change(ru.neverland.reputation.model.ReputationScope,java.util.UUID,java.lang.String,java.util.UUID,java.lang.String,int,java.lang.String,java.lang.String,java.lang.String,java.util.UUID,java.lang.String):ru.neverland.reputation.api.ReputationChangeResult throws []
+ru.neverland.reputation.api.TownyReputationApi	default apiVersion()
+ru.neverland.reputation.api.TownyReputationApi	default capabilities()
+ru.neverland.reputation.api.TownyReputationApi	default integrationDiagnostics()
+ru.neverland.reputation.api.TownyReputationApi	default storageMetrics()
+ru.neverland.reputation.api.TownyReputationApi	enum ru.neverland.reputation.model.ChangeStatus CANCELLED
+ru.neverland.reputation.api.TownyReputationApi	enum ru.neverland.reputation.model.ChangeStatus DUPLICATE
+ru.neverland.reputation.api.TownyReputationApi	enum ru.neverland.reputation.model.ChangeStatus INVALID
+ru.neverland.reputation.api.TownyReputationApi	enum ru.neverland.reputation.model.ChangeStatus NO_CHANGE
+ru.neverland.reputation.api.TownyReputationApi	enum ru.neverland.reputation.model.ChangeStatus RATE_LIMITED
+ru.neverland.reputation.api.TownyReputationApi	enum ru.neverland.reputation.model.ChangeStatus SELF_TARGET
+ru.neverland.reputation.api.TownyReputationApi	enum ru.neverland.reputation.model.ChangeStatus SUCCESS
+ru.neverland.reputation.api.TownyReputationApi	enum ru.neverland.reputation.model.ReputationScope NATION
+ru.neverland.reputation.api.TownyReputationApi	enum ru.neverland.reputation.model.ReputationScope PLAYER
+ru.neverland.reputation.api.TownyReputationApi	enum ru.neverland.reputation.model.ReputationScope TOWN
+ru.neverland.reputation.api.TownyReputationApi	featureUnlocked(java.lang.String,ru.neverland.reputation.model.ReputationScope,java.util.UUID,java.util.UUID):boolean throws []
+ru.neverland.reputation.api.TownyReputationApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.reputation.api.TownyReputationApi	record ru.neverland.reputation.api.ReputationChangeResult [status:ru.neverland.reputation.model.ChangeStatus, oldScore:int, newScore:int, requestedDelta:int, appliedDelta:int]
+ru.neverland.reputation.api.TownyReputationApi	record ru.neverland.reputation.api.ReputationSnapshot [scope:ru.neverland.reputation.model.ReputationScope, first:java.util.UUID, second:java.util.UUID, score:int, tierId:java.lang.String, tierName:java.lang.String, privileges:java.util.Set<java.lang.String>, tradeDiscountPercent:double, rewardMultiplier:double]
+ru.neverland.reputation.api.TownyReputationApi	score(ru.neverland.reputation.model.ReputationScope,java.util.UUID,java.util.UUID):int throws []
+ru.neverland.reputation.api.TownyReputationApi	set(ru.neverland.reputation.model.ReputationScope,java.util.UUID,java.lang.String,java.util.UUID,java.lang.String,int,java.lang.String,java.lang.String,java.lang.String,java.util.UUID,java.lang.String):ru.neverland.reputation.api.ReputationChangeResult throws []
+ru.neverland.reputation.api.TownyReputationApi	snapshot(ru.neverland.reputation.model.ReputationScope,java.util.UUID,java.util.UUID):ru.neverland.reputation.api.ReputationSnapshot throws []
+ru.neverland.reputation.api.TownyReputationApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyresearch.api.TownyResearchApi	apiVersion():int throws []
+ru.neverland.townyresearch.api.TownyResearchApi	bonus(java.util.UUID,java.lang.String):double throws []
+ru.neverland.townyresearch.api.TownyResearchApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townyresearch.api.TownyResearchApi	capability bonus
+ru.neverland.townyresearch.api.TownyResearchApi	capability level
+ru.neverland.townyresearch.api.TownyResearchApi	capability name
+ru.neverland.townyresearch.api.TownyResearchApi	capability research
+ru.neverland.townyresearch.api.TownyResearchApi	capability residentResearch
+ru.neverland.townyresearch.api.TownyResearchApi	capability towns
+ru.neverland.townyresearch.api.TownyResearchApi	default apiVersion()
+ru.neverland.townyresearch.api.TownyResearchApi	default capabilities()
+ru.neverland.townyresearch.api.TownyResearchApi	default integrationDiagnostics()
+ru.neverland.townyresearch.api.TownyResearchApi	default storageMetrics()
+ru.neverland.townyresearch.api.TownyResearchApi	enum ru.neverland.townyresearch.model.CityStudy$Phase CANCELLING
+ru.neverland.townyresearch.api.TownyResearchApi	enum ru.neverland.townyresearch.model.CityStudy$Phase COMPLETING
+ru.neverland.townyresearch.api.TownyResearchApi	enum ru.neverland.townyresearch.model.CityStudy$Phase PREPARED
+ru.neverland.townyresearch.api.TownyResearchApi	enum ru.neverland.townyresearch.model.CityStudy$Phase RUNNING
+ru.neverland.townyresearch.api.TownyResearchApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyresearch.api.TownyResearchApi	level(java.util.UUID,java.lang.String):int throws []
+ru.neverland.townyresearch.api.TownyResearchApi	name(java.lang.String):java.lang.String throws []
+ru.neverland.townyresearch.api.TownyResearchApi	record ru.neverland.townyresearch.api.ResearchSnapshot [townId:java.util.UUID, townName:java.lang.String, state:ru.neverland.townyresearch.model.CityStudy, knowledge:long, reserve:long, paused:boolean, status:java.lang.String, buildings:java.util.Map<java.lang.String, java.lang.Integer>]
+ru.neverland.townyresearch.api.TownyResearchApi	record ru.neverland.townyresearch.model.CityStudy [learned:java.util.Map<java.lang.String, java.lang.Integer>, active:ru.neverland.townyresearch.model.CityStudy$Study, cleanup:java.util.Set<java.util.UUID>]
+ru.neverland.townyresearch.api.TownyResearchApi	record ru.neverland.townyresearch.model.CityStudy$Study [invoice:java.util.UUID, technology:java.lang.String, level:int, cost:long, duration:int, remaining:int, buildings:java.util.Map<java.lang.String, java.lang.Integer>, phase:ru.neverland.townyresearch.model.CityStudy$Phase, fraction:int]
+ru.neverland.townyresearch.api.TownyResearchApi	research(java.util.UUID):java.util.Optional<ru.neverland.townyresearch.api.ResearchSnapshot> throws []
+ru.neverland.townyresearch.api.TownyResearchApi	residentResearch(java.util.UUID):java.util.Optional<ru.neverland.townyresearch.api.ResearchSnapshot> throws []
+ru.neverland.townyresearch.api.TownyResearchApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyresearch.api.TownyResearchApi	towns():java.util.Collection<ru.neverland.townyresearch.api.ResearchSnapshot> throws []
+ru.neverland.townyresources.api.TownyResourcesApi	apiVersion():int throws []
+ru.neverland.townyresources.api.TownyResourcesApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townyresources.api.TownyResourcesApi	capability forgetReservation
+ru.neverland.townyresources.api.TownyResourcesApi	capability productionWeeks
+ru.neverland.townyresources.api.TownyResourcesApi	capability reservationStatus
+ru.neverland.townyresources.api.TownyResourcesApi	capability reservations
+ru.neverland.townyresources.api.TownyResourcesApi	capability reserveResources
+ru.neverland.townyresources.api.TownyResourcesApi	capability residentResources
+ru.neverland.townyresources.api.TownyResourcesApi	capability resources
+ru.neverland.townyresources.api.TownyResourcesApi	capability settleResources
+ru.neverland.townyresources.api.TownyResourcesApi	capability towns
+ru.neverland.townyresources.api.TownyResourcesApi	default apiVersion()
+ru.neverland.townyresources.api.TownyResourcesApi	default capabilities()
+ru.neverland.townyresources.api.TownyResourcesApi	default integrationDiagnostics()
+ru.neverland.townyresources.api.TownyResourcesApi	default productionWeeks(java.util.UUID)
+ru.neverland.townyresources.api.TownyResourcesApi	default storageMetrics()
+ru.neverland.townyresources.api.TownyResourcesApi	enum ru.neverland.townyresources.model.Resource FOOD
+ru.neverland.townyresources.api.TownyResourcesApi	enum ru.neverland.townyresources.model.Resource INFLUENCE
+ru.neverland.townyresources.api.TownyResourcesApi	enum ru.neverland.townyresources.model.Resource KNOWLEDGE
+ru.neverland.townyresources.api.TownyResourcesApi	enum ru.neverland.townyresources.model.Resource MATERIALS
+ru.neverland.townyresources.api.TownyResourcesApi	enum ru.neverland.townyresources.model.Resource METAL
+ru.neverland.townyresources.api.TownyResourcesApi	enum ru.neverland.townyresources.model.Resource STONE
+ru.neverland.townyresources.api.TownyResourcesApi	enum ru.neverland.townyresources.model.Resource WATER
+ru.neverland.townyresources.api.TownyResourcesApi	enum ru.neverland.townyresources.model.Resource WOOD
+ru.neverland.townyresources.api.TownyResourcesApi	forgetReservation(java.util.UUID):void throws [java.io.IOException]
+ru.neverland.townyresources.api.TownyResourcesApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyresources.api.TownyResourcesApi	productionWeeks(java.util.UUID):java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.Long>> throws []
+ru.neverland.townyresources.api.TownyResourcesApi	record ru.neverland.townyresources.api.ResourceSnapshot [townId:java.util.UUID, townName:java.lang.String, population:int, populationLinked:boolean, paused:boolean, status:java.lang.String, nextCycle:long, state:ru.neverland.townyresources.model.TownState, capacity:java.util.Map<ru.neverland.townyresources.model.Resource, java.lang.Long>, forecastIncome:java.util.Map<ru.neverland.townyresources.model.Resource, java.lang.Long>, forecastExpense:java.util.Map<ru.neverland.townyresources.model.Resource, java.lang.Long>, populationDemand:java.util.Map<ru.neverland.townyresources.model.Resource, java.lang.Long>, buildings:java.util.Map<java.lang.String, ru.neverland.townyresources.model.ResourceEngine$Activity>, foodCoverage:double, waterCoverage:double]
+ru.neverland.townyresources.api.TownyResourcesApi	record ru.neverland.townyresources.model.ResourceEngine$Activity [level:int, priority:int, operations:int, status:java.lang.String, income:java.util.Map<ru.neverland.townyresources.model.Resource, java.lang.Long>, expense:java.util.Map<ru.neverland.townyresources.model.Resource, java.lang.Long>]
+ru.neverland.townyresources.api.TownyResourcesApi	record ru.neverland.townyresources.model.TownState [balances:java.util.Map<ru.neverland.townyresources.model.Resource, java.lang.Long>, reserves:java.util.Map<ru.neverland.townyresources.model.Resource, java.lang.Long>, paused:java.util.Set<java.lang.String>, priorities:java.util.Map<java.lang.String, java.lang.Integer>, cycles:long, lastCycle:long, income:java.util.Map<ru.neverland.townyresources.model.Resource, java.lang.Long>, expense:java.util.Map<ru.neverland.townyresources.model.Resource, java.lang.Long>, foodCoverage:double, waterCoverage:double]
+ru.neverland.townyresources.api.TownyResourcesApi	reservationStatus(java.util.UUID):java.lang.String throws []
+ru.neverland.townyresources.api.TownyResourcesApi	reservations():java.util.Map<java.util.UUID, java.lang.String> throws []
+ru.neverland.townyresources.api.TownyResourcesApi	reserveResources(java.util.UUID,java.util.UUID,java.util.Map<java.lang.String, java.lang.Long>):boolean throws [java.io.IOException]
+ru.neverland.townyresources.api.TownyResourcesApi	residentResources(java.util.UUID):java.util.Optional<ru.neverland.townyresources.api.ResourceSnapshot> throws []
+ru.neverland.townyresources.api.TownyResourcesApi	resources(java.util.UUID):java.util.Optional<ru.neverland.townyresources.api.ResourceSnapshot> throws []
+ru.neverland.townyresources.api.TownyResourcesApi	settleResources(java.util.UUID,boolean):void throws [java.io.IOException]
+ru.neverland.townyresources.api.TownyResourcesApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyresources.api.TownyResourcesApi	towns():java.util.Collection<ru.neverland.townyresources.api.ResourceSnapshot> throws []
+ru.neverland.townyspecialization.api.TownySpecializationApi	apiVersion():int throws []
+ru.neverland.townyspecialization.api.TownySpecializationApi	bonus(java.util.UUID,java.lang.String):double throws []
+ru.neverland.townyspecialization.api.TownySpecializationApi	canUseBuilding(java.util.UUID,java.lang.String):boolean throws []
+ru.neverland.townyspecialization.api.TownySpecializationApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townyspecialization.api.TownySpecializationApi	capability bonus
+ru.neverland.townyspecialization.api.TownySpecializationApi	capability canUseBuilding
+ru.neverland.townyspecialization.api.TownySpecializationApi	capability productionBonus
+ru.neverland.townyspecialization.api.TownySpecializationApi	capability residentSpecialization
+ru.neverland.townyspecialization.api.TownySpecializationApi	capability specialization
+ru.neverland.townyspecialization.api.TownySpecializationApi	capability towns
+ru.neverland.townyspecialization.api.TownySpecializationApi	default apiVersion()
+ru.neverland.townyspecialization.api.TownySpecializationApi	default capabilities()
+ru.neverland.townyspecialization.api.TownySpecializationApi	default integrationDiagnostics()
+ru.neverland.townyspecialization.api.TownySpecializationApi	default storageMetrics()
+ru.neverland.townyspecialization.api.TownySpecializationApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyspecialization.api.TownySpecializationApi	productionBonus(java.util.UUID,java.lang.String):double throws []
+ru.neverland.townyspecialization.api.TownySpecializationApi	record ru.neverland.townyspecialization.api.SpecializationSnapshot [townId:java.util.UUID, townName:java.lang.String, townLevel:int, hallLevel:int, state:ru.neverland.townyspecialization.model.CityChoice, uniqueLevel:int, bonuses:java.util.Map<java.lang.String, java.lang.Double>, paused:boolean, status:java.lang.String]
+ru.neverland.townyspecialization.api.TownySpecializationApi	record ru.neverland.townyspecialization.model.CityChoice [specialization:java.lang.String, chosenAt:long, nextChangeAt:long, revision:long]
+ru.neverland.townyspecialization.api.TownySpecializationApi	residentSpecialization(java.util.UUID):java.util.Optional<ru.neverland.townyspecialization.api.SpecializationSnapshot> throws []
+ru.neverland.townyspecialization.api.TownySpecializationApi	specialization(java.util.UUID):java.util.Optional<ru.neverland.townyspecialization.api.SpecializationSnapshot> throws []
+ru.neverland.townyspecialization.api.TownySpecializationApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyspecialization.api.TownySpecializationApi	towns():java.util.Collection<ru.neverland.townyspecialization.api.SpecializationSnapshot> throws []
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	apiVersion():int throws []
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	capability isTradeBlocked
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	capability municipalTaxConfigured
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	capability serverReserve
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	capability taxDebt
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	capability tradePreferenceMultiplier
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	default apiVersion()
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	default capabilities()
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	default integrationDiagnostics()
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	default storageMetrics()
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	isTradeBlocked(java.util.UUID,java.util.UUID):boolean throws []
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	municipalTaxConfigured(java.util.UUID):boolean throws []
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	serverReserve():double throws []
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	taxDebt(java.util.UUID):double throws []
+ru.neverland.townytaxes.api.NeverLandTownyTaxesApi	tradePreferenceMultiplier(java.util.UUID,java.util.UUID):double throws []
+ru.neverland.minttrade.api.MintTownyTradeApi	activeRoutes(java.util.UUID):java.util.List<ru.neverland.minttrade.api.TradeSnapshot> throws []
+ru.neverland.minttrade.api.MintTownyTradeApi	apiVersion():int throws []
+ru.neverland.minttrade.api.MintTownyTradeApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.minttrade.api.MintTownyTradeApi	capability activeRoutes
+ru.neverland.minttrade.api.MintTownyTradeApi	capability marketLevel
+ru.neverland.minttrade.api.MintTownyTradeApi	capability supplyContracts
+ru.neverland.minttrade.api.MintTownyTradeApi	capability tariffPercent
+ru.neverland.minttrade.api.MintTownyTradeApi	default apiVersion()
+ru.neverland.minttrade.api.MintTownyTradeApi	default capabilities()
+ru.neverland.minttrade.api.MintTownyTradeApi	default integrationDiagnostics()
+ru.neverland.minttrade.api.MintTownyTradeApi	default storageMetrics()
+ru.neverland.minttrade.api.MintTownyTradeApi	default supplyContracts(java.util.UUID)
+ru.neverland.minttrade.api.MintTownyTradeApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.minttrade.api.MintTownyTradeApi	marketLevel(java.util.UUID):int throws []
+ru.neverland.minttrade.api.MintTownyTradeApi	record ru.neverland.minttrade.api.SupplySnapshot [id:java.util.UUID, seller:java.util.UUID, buyer:java.util.UUID, itemName:java.lang.String, amount:int, priceCents:long, days:int, status:java.lang.String, pausedBy:java.util.Set<java.util.UUID>, nextDue:long, delivered:long, paymentState:java.lang.String, note:java.lang.String]
+ru.neverland.minttrade.api.MintTownyTradeApi	record ru.neverland.minttrade.api.TradeSnapshot [caravanId:java.util.UUID, sellerTownId:java.util.UUID, buyerTownId:java.util.UUID, exportId:java.lang.String, cargo:int, price:double, arrivalTime:long, progress:double, campStops:int]
+ru.neverland.minttrade.api.MintTownyTradeApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.minttrade.api.MintTownyTradeApi	supplyContracts(java.util.UUID):java.util.List<ru.neverland.minttrade.api.SupplySnapshot> throws []
+ru.neverland.minttrade.api.MintTownyTradeApi	tariffPercent(java.util.UUID):double throws []
+ru.neverland.townytreasury.api.TownyTreasuryApi	apiVersion():int throws []
+ru.neverland.townytreasury.api.TownyTreasuryApi	canSpend(java.util.UUID,java.lang.String,double):boolean throws []
+ru.neverland.townytreasury.api.TownyTreasuryApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townytreasury.api.TownyTreasuryApi	capability canSpend
+ru.neverland.townytreasury.api.TownyTreasuryApi	capability spend
+ru.neverland.townytreasury.api.TownyTreasuryApi	capability treasury
+ru.neverland.townytreasury.api.TownyTreasuryApi	default apiVersion()
+ru.neverland.townytreasury.api.TownyTreasuryApi	default capabilities()
+ru.neverland.townytreasury.api.TownyTreasuryApi	default integrationDiagnostics()
+ru.neverland.townytreasury.api.TownyTreasuryApi	default storageMetrics()
+ru.neverland.townytreasury.api.TownyTreasuryApi	enum ru.neverland.townytreasury.model.Budget ARMY
+ru.neverland.townytreasury.api.TownyTreasuryApi	enum ru.neverland.townytreasury.model.Budget CONSTRUCTION
+ru.neverland.townytreasury.api.TownyTreasuryApi	enum ru.neverland.townytreasury.model.Budget FREE
+ru.neverland.townytreasury.api.TownyTreasuryApi	enum ru.neverland.townytreasury.model.Budget INFRASTRUCTURE
+ru.neverland.townytreasury.api.TownyTreasuryApi	enum ru.neverland.townytreasury.model.Budget SOCIAL
+ru.neverland.townytreasury.api.TownyTreasuryApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townytreasury.api.TownyTreasuryApi	record ru.neverland.townytreasury.model.CityLedger [balance:long, enabled:boolean, funds:java.util.Map<ru.neverland.townytreasury.model.Budget, java.lang.Long>, shares:java.util.Map<ru.neverland.townytreasury.model.Budget, java.lang.Integer>, revision:long, started:long, notified:java.lang.String, weeks:java.util.Map<java.lang.String, ru.neverland.townytreasury.model.Week>, pending:ru.neverland.townytreasury.model.CityLedger$Pending, history:java.util.List<java.lang.String>]
+ru.neverland.townytreasury.api.TownyTreasuryApi	record ru.neverland.townytreasury.model.CityLedger$Pending [id:java.util.UUID, at:long, amount:long, category:ru.neverland.townytreasury.model.Budget, source:java.lang.String, reason:java.lang.String]
+ru.neverland.townytreasury.api.TownyTreasuryApi	record ru.neverland.townytreasury.model.Week [income:java.util.Map<java.lang.String, java.lang.Long>, expenses:java.util.Map<java.lang.String, java.lang.Long>, categories:java.util.Map<ru.neverland.townytreasury.model.Budget, java.lang.Long>, refunds:long, adjustments:long, production:java.util.Map<java.lang.String, java.lang.Long>, productionKnown:boolean]
+ru.neverland.townytreasury.api.TownyTreasuryApi	spend(java.util.UUID,java.lang.String,java.lang.String,double,java.lang.String):boolean throws []
+ru.neverland.townytreasury.api.TownyTreasuryApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townytreasury.api.TownyTreasuryApi	treasury(java.util.UUID):java.util.Optional<ru.neverland.townytreasury.model.CityLedger> throws []
+ru.neverland.townyupkeep.api.TownyUpkeepApi	active(java.util.UUID,java.lang.String):boolean throws []
+ru.neverland.townyupkeep.api.TownyUpkeepApi	apiVersion():int throws []
+ru.neverland.townyupkeep.api.TownyUpkeepApi	buildings(java.util.UUID):java.util.List<ru.neverland.townyupkeep.api.UpkeepSnapshot> throws []
+ru.neverland.townyupkeep.api.TownyUpkeepApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townyupkeep.api.TownyUpkeepApi	capability active
+ru.neverland.townyupkeep.api.TownyUpkeepApi	capability buildings
+ru.neverland.townyupkeep.api.TownyUpkeepApi	default apiVersion()
+ru.neverland.townyupkeep.api.TownyUpkeepApi	default capabilities()
+ru.neverland.townyupkeep.api.TownyUpkeepApi	default integrationDiagnostics()
+ru.neverland.townyupkeep.api.TownyUpkeepApi	default storageMetrics()
+ru.neverland.townyupkeep.api.TownyUpkeepApi	enum ru.neverland.townyupkeep.model.Entry$Phase CANCELLED
+ru.neverland.townyupkeep.api.TownyUpkeepApi	enum ru.neverland.townyupkeep.model.Entry$Phase MONEY_PAID
+ru.neverland.townyupkeep.api.TownyUpkeepApi	enum ru.neverland.townyupkeep.model.Entry$Phase MONEY_PENDING
+ru.neverland.townyupkeep.api.TownyUpkeepApi	enum ru.neverland.townyupkeep.model.Entry$Phase PREPARED
+ru.neverland.townyupkeep.api.TownyUpkeepApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyupkeep.api.TownyUpkeepApi	record ru.neverland.townyupkeep.api.UpkeepSnapshot [key:ru.neverland.townyupkeep.model.Entry$Key, name:java.lang.String, icon:java.lang.String, level:int, priority:int, active:boolean, status:java.lang.String, seconds:long, cost:ru.neverland.townyupkeep.model.Cost, invoice:ru.neverland.townyupkeep.model.Entry$Invoice]
+ru.neverland.townyupkeep.api.TownyUpkeepApi	record ru.neverland.townyupkeep.model.Cost [money:long, resources:java.util.Map<java.lang.String, java.lang.Long>]
+ru.neverland.townyupkeep.api.TownyUpkeepApi	record ru.neverland.townyupkeep.model.Entry$Invoice [id:java.util.UUID, cost:ru.neverland.townyupkeep.model.Cost, period:int, phase:ru.neverland.townyupkeep.model.Entry$Phase]
+ru.neverland.townyupkeep.api.TownyUpkeepApi	record ru.neverland.townyupkeep.model.Entry$Key [town:java.util.UUID, project:java.lang.String]
+ru.neverland.townyupkeep.api.TownyUpkeepApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []

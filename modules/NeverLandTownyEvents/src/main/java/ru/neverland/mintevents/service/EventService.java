@@ -656,7 +656,7 @@ public final class EventService implements MintTownyEventsApi {
     }
 
     @Override
-    public Optional<EventSnapshot> activeEvent(UUID townId) {
+    public Optional<EventSnapshot> activeEvent(UUID townId) {ru.neverland.core.ApiServices.primaryThread();
         ActiveEvent event = repository.active(townId);
         EventDefinition definition = definition(event);
         if (event == null || definition == null) return Optional.empty();
@@ -666,13 +666,13 @@ public final class EventService implements MintTownyEventsApi {
     }
 
     @Override
-    public boolean addProgress(UUID townId, int points, String source) {
+    public boolean addProgress(UUID townId, int points, String source) {ru.neverland.core.ApiServices.primaryThread();
         Town town = town(townId);
         return town != null && points > 0 && contribute(town, points) >= 0;
     }
 
     @Override
-    public double protection(UUID townId) {
+    public double protection(UUID townId) {ru.neverland.core.ApiServices.primaryThread();
         ActiveEvent event = repository.active(townId);
         return event == null ? 0 : event.protection();
     }
