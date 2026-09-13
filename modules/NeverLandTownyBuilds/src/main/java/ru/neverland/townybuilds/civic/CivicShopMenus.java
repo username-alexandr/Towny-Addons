@@ -58,7 +58,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public final class CivicShopMenus implements Listener {
     private record Offer(Material material,long cents){}
     private record ShopHolder(UUID viewer,UUID townId,Map<Integer,Offer> displayed) implements InventoryHolder {public Inventory getInventory(){return null;}}
-    private record PurchasesHolder(UUID viewer,Map<Integer,UUID> orders,int page) implements InventoryHolder {public Inventory getInventory(){return null;}}
+    private record PurchasesHolder(UUID viewer,Map<Integer,UUID> orders,int page,Inventory back) implements InventoryHolder {public Inventory getInventory(){return null;}}
     private static final DecimalFormat MONEY=new DecimalFormat("#,##0.##",DecimalFormatSymbols.getInstance(Locale.forLanguageTag("ru-RU")));
     private final JavaPlugin plugin;private final TownyHook towny;private final DataStore dataStore;private final MessageService messages;private final RussianItemNames itemNames;private final CivicService civic;
     private final ru.neverland.townybuilds.shop.ShopService service;
@@ -267,6 +267,8 @@ public final class CivicShopMenus implements Listener {
             slot++;
         }
         var button=new ItemStack(Material.CHEST);var meta=button.getItemMeta();meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component("&aМои покупки")));button.setItemMeta(meta);inventory.setItem(49,button);
+        inventory.setItem(45,menuButton(Material.BARRIER,"&fЗакрыть",List.of("&7Вернуться в игру.")));
+        if(displayed.isEmpty())inventory.setItem(22,menuButton(Material.BARREL,"&eЛавка ждёт товары",List.of("&7Сейчас здесь нет товаров в продаже.","&7Проверьте ассортимент позже.")));
         player.openInventory(inventory);
     }
 
@@ -314,24 +316,32 @@ public final class CivicShopMenus implements Listener {
 
     public void purchases(Player player,int page){
         var list=service.journal().all().stream().filter(o->o.buyer().equals(player.getUniqueId())&&!o.finalized()).sorted(java.util.Comparator.comparingLong(ru.neverland.townybuilds.shop.ShopOrder::created)).toList();
-        Map<Integer,UUID> orders=new HashMap<>();var inventory=ru.neverland.core.MenuStyle.inventory(plugin, new PurchasesHolder(player.getUniqueId(),orders,page),54,ColorUtil.component("&dПокупки в городских лавках"));int slot=0;
+        page=Math.max(0,Math.min(Math.max(0,(list.size()-1)/45),page));
+        var previous=player.getOpenInventory().getTopInventory();var back=previous.getHolder() instanceof PurchasesHolder old?old.back():ru.neverland.core.MenuStyle.previousMenu(player);
+        Map<Integer,UUID> orders=new HashMap<>();var inventory=ru.neverland.core.MenuStyle.inventory(plugin, new PurchasesHolder(player.getUniqueId(),orders,page,back),54,ColorUtil.component("&dПокупки в городских лавках · "+(page+1)));int slot=0;
         for(var order:list.stream().skip(page*45L).limit(45).toList()){
             var item=new ItemStack(Material.valueOf(order.material()),Math.min(order.amount(),64));var meta=item.getItemMeta();meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component("&f"+itemNames.name(item.getType()))));
             String receipt;try{receipt=service.receipt(order);}catch(Exception ex){receipt="UNAVAILABLE";}
             String status=receipt.equals("CLAIM_PENDING")?"Выдача требует сверки администратора":order.title();meta.lore(ru.neverland.core.MenuStyle.loreComponents(List.of(ColorUtil.component("&7Количество: &f"+order.amount()),ColorUtil.component("&7Стоимость: &e"+MONEY.format(order.total()/100.0)),ColorUtil.component("&7"+status),ColorUtil.component("&8ID: "+order.id()),ColorUtil.component("&aНажмите, чтобы забрать готовую покупку"))));item.setItemMeta(meta);inventory.setItem(slot,item);orders.put(slot++,order.id());
         }
-        if(page>0)inventory.setItem(45,new ItemStack(Material.ARROW));if((page+1)*45<list.size())inventory.setItem(53,new ItemStack(Material.ARROW));player.openInventory(inventory);
+        if(list.isEmpty())inventory.setItem(22,menuButton(Material.CHEST,"&aНет покупок к получению",List.of("&7Здесь появятся оплаченные товары из городских лавок.","&7Все ранее полученные покупки уже завершены.","","&eОткрыть ближайшую лавку: /t shop")));
+        if(page>0)inventory.setItem(45,menuButton(Material.ARROW,"&f← Предыдущая страница",List.of()));
+        if((page+1)*45<list.size())inventory.setItem(53,menuButton(Material.ARROW,"&fСледующая страница →",List.of()));
+        inventory.setItem(49,menuButton(back==null?Material.BARRIER:Material.ARROW,back==null?"&fЗакрыть":"&f← Назад",List.of(back==null?"&7Вернуться в игру.":"&7Вернуться в предыдущее меню.")));
+        inventory.setItem(48,menuButton(Material.SPYGLASS,"&bОбновить",List.of("&7Проверить готовность покупок.")));
+        player.openInventory(inventory);
     }
+    private ItemStack menuButton(Material material,String title,List<String> lines){var item=new ItemStack(material);var meta=item.getItemMeta();meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component(title)));meta.lore(ru.neverland.core.MenuStyle.loreComponents(lines.stream().map(ColorUtil::component).toList()));item.setItemMeta(meta);return item;}
     @EventHandler public void click(InventoryClickEvent event){
         Inventory inventory=event.getView().getTopInventory();var holder=inventory.getHolder();if(!(holder instanceof ShopHolder)&&!(holder instanceof PurchasesHolder))return;event.setCancelled(true);
         if(!(event.getWhoClicked() instanceof Player player)||event.getRawSlot()<0||event.getRawSlot()>=inventory.getSize())return;
         UUID viewer=holder instanceof ShopHolder shop?shop.viewer():((PurchasesHolder)holder).viewer();int slot=event.getRawSlot();boolean stack=event.isShiftClick();
         Bukkit.getScheduler().runTask(plugin,()->{if(!player.isOnline()||!player.getUniqueId().equals(viewer)||player.getOpenInventory().getTopInventory()!=inventory)return;
-            try{if(holder instanceof ShopHolder shop){if(slot==49){purchases(player,0);return;}var offer=shop.displayed().get(slot);if(offer==null)return;
+            try{if(holder instanceof ShopHolder shop){if(slot==45){player.closeInventory();return;}if(slot==49){purchases(player,0);return;}var offer=shop.displayed().get(slot);if(offer==null)return;
                 var order=service.purchase(player,shop.townId(),offer.material(),offer.cents(),stack);
                 if(order.finalized()&&order.paymentStep().equals("COMPLETE"))messages.send(player,"civic-shop-purchased",Map.of("amount",order.amount(),"material",itemNames.name(offer.material()),"price",MONEY.format(order.total()/100.0),"town",towny.town(shop.townId()).getName()));
                 else player.sendMessage(ColorUtil.component("&e"+order.title()+". Состояние доступно в «Мои покупки»."));openShop(player,dataStore.town(shop.townId()));
-            }else {var list=(PurchasesHolder)holder;if(slot==45&&list.page()>0){purchases(player,list.page()-1);return;}if(slot==53){purchases(player,list.page()+1);return;}UUID order=list.orders().get(slot);if(order==null)return;String result=service.claim(player,order);player.sendMessage(ColorUtil.component(result.equals("CLAIMED")?"&aПокупка получена":result.equals("FULL")?"&eОсвободите место в инвентаре":result.equals("CLAIM_PENDING")?"&eВыдача ожидает сверки администратора":"&e"+result));purchases(player,list.page());}
+            }else {var list=(PurchasesHolder)holder;if(slot==49){ru.neverland.core.MenuStyle.returnTo(player,list.back());return;}if(slot==48){purchases(player,list.page());return;}if(slot==45&&list.page()>0){purchases(player,list.page()-1);return;}if(slot==53){purchases(player,list.page()+1);return;}UUID order=list.orders().get(slot);if(order==null)return;String result=service.claim(player,order);player.sendMessage(ColorUtil.component(result.equals("CLAIMED")?"&aПокупка получена":result.equals("FULL")?"&eОсвободите место в инвентаре":result.equals("CLAIM_PENDING")?"&eВыдача ожидает сверки администратора":"&e"+result));purchases(player,list.page());}
             }catch(Exception ex){player.sendMessage(ColorUtil.component("&c"+ex.getMessage()+". Проверьте «Мои покупки»: /t shop purchases"));player.closeInventory();}
         });
     }
