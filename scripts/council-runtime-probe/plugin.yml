@@ -1,0 +1,5 @@
+name: NeverLandCouncilRuntimeProbe
+version: 0.26.0
+main: ru.neverland.runtime.CouncilRuntimeProbe
+api-version: '26.2'
+depend: [Towny, NeverLandTownyCouncil, NeverLandTownyCitizens, NeverLandTownyGovernance, NeverLandTownyElections, NeverLandTownyBuilds, NeverLandTownyTreasuryPlus, NeverLandTownyTaxes, NeverLandTownyTrade, NeverLandTownyEspionage]

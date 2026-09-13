@@ -1,0 +1,53 @@
+name: NeverLandTownyCouncil
+version: 0.1.0
+main: ru.neverland.townycouncil.NeverLandTownyCouncil
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: Назначаемые мэром министры и права городских служб.
+depend: [Towny]
+softdepend: [NeverLandTownyCitizens]
+loadbefore: [NeverLandTownyGovernance, NeverLandTownyBuilds, NeverLandTownyTaxes, NeverLandTownyTreasuryPlus, NeverLandTownyTrade, NeverLandTownyEspionage]
+commands:
+  townycouncil:
+    aliases: [council, ministers, nltcouncil]
+    description: Министры городского совета
+    usage: /council [menu|appoint|dismiss|permissions|history|help|reload]
+permissions:
+  neverlandtownycouncil.use:
+    default: true
+  neverlandtownycouncil.manage:
+    description: Назначение министров мэром своего города
+    default: true
+  neverlandtownycouncil.admin:
+    description: Управление министрами любого города и перезагрузка настроек
+    default: op
+  neverlandtownycouncil.minister.economy:
+    default: false
+  neverlandtownycouncil.action.budget:
+    default: false
+  neverlandtownycouncil.action.tax:
+    default: false
+  neverlandtownycouncil.action.export:
+    default: false
+  neverlandtownycouncil.action.law_tax:
+    default: false
+  neverlandtownycouncil.minister.defense:
+    default: false
+  neverlandtownycouncil.action.army:
+    default: false
+  neverlandtownycouncil.action.espionage:
+    default: false
+  neverlandtownycouncil.minister.construction:
+    default: false
+  neverlandtownycouncil.action.build:
+    default: false
+  neverlandtownycouncil.action.law_construction:
+    default: false
+  neverlandtownycouncil.minister.foreign:
+    default: false
+  neverlandtownycouncil.action.agreements:
+    default: false
+  neverlandtownycouncil.action.sanctions:
+    default: false
+  neverlandtownycouncil.action.trade:
+    default: false

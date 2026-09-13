@@ -29,7 +29,7 @@ public final class TownyHook {
         if (plugin.getConfig().getBoolean("management.mayor", true) && town.isMayor(resident)) return true;
         List<String> ranks = plugin.getConfig().getStringList("management.allowed-town-ranks");
         for (String rank : ranks) if (resident.hasTownRank(rank)) return true;
-        return false;
+        return ru.neverland.core.CouncilAccess.allows(player, town.getUUID(), "trade");
     }
     public boolean register(String name, CommandExecutor executor) {
         return TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.TOWN, name, executor);
