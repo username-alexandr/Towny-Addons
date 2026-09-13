@@ -1,5 +1,5 @@
 name: NeverLandTownyChronicles
-version: 0.1.9
+version: 0.1.10
 main: ru.neverland.townychronicles.TownyChronicles
 api-version: '26.2'
 authors: [Alexander Sokolov]

@@ -239,6 +239,7 @@ public final class CivicShopMenus implements Listener {
             messages.send(player, "civic-shop-unavailable");
             return;
         }
+        int crimeIncome;try{crimeIncome=ru.neverland.core.CrimeAccess.incomeBasisPoints(sellerData.townId());}catch(Exception ex){player.sendMessage(ColorUtil.component("&cРасчёт выручки временно недоступен. Попробуйте позже."));return;}
         Map<Integer, Offer> displayed = new LinkedHashMap<>();
         Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new ShopHolder(player.getUniqueId(),sellerData.townId(), displayed), 54,
                 ColorUtil.component("&#FFD45BЛавка &8• &f" + seller.getName()));
@@ -259,6 +260,8 @@ public final class CivicShopMenus implements Listener {
             meta.lore(ru.neverland.core.MenuStyle.loreComponents(List.of(
                     ColorUtil.component("&7Цена за единицу: &e" + MONEY.format(listing.getValue())),
                     ColorUtil.component("&7В наличии: &f" + amount),
+                    ColorUtil.component("&7Город получает: &e"+MONEY.format(crimeIncome/100.0)+"% цены"),
+                    ColorUtil.component("&7Потери от преступности: &c"+MONEY.format((10000-crimeIncome)/100.0)+"%"),
                     ColorUtil.component("&#63E6BEЛКМ: 1 &8• &#63E6BEShift+ЛКМ: стак")
             )));
             icon.setItemMeta(meta);

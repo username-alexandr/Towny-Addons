@@ -1,0 +1,45 @@
+all expected exact-version addons enabled
+all public contracts from source inventory
+provider ABI/capabilities: ru.neverland.archaeology.api.TownyArchaeologyApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.BuildingStorageApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.MarketStorageApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.MunicipalStorageApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.TownArmyApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.TownyBuildsApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.WarehouseApi
+provider ABI/capabilities: ru.neverland.mintcamps.api.TownyCampsApi
+provider ABI/capabilities: ru.neverland.townychronicles.api.TownyChroniclesApi
+provider ABI/capabilities: ru.neverland.townycitizens.api.TownyCitizensApi
+provider ABI/capabilities: ru.neverland.townycompanies.api.CompaniesApi
+provider ABI/capabilities: ru.neverland.mintcontracts.api.MintTownyContractsApi
+provider ABI/capabilities: ru.neverland.townycouncil.api.TownyCouncilApi
+provider ABI/capabilities: ru.neverland.townycrime.api.TownyCrimeApi
+provider ABI/capabilities: ru.neverland.townydiplomacy.api.TownyDiplomacyApi
+provider ABI/capabilities: ru.neverland.townydistricts.api.TownyDistrictsApi
+provider ABI/capabilities: ru.neverland.townyelections.api.TownyElectionsApi
+provider ABI/capabilities: ru.neverland.mintespionage.api.MintTownyEspionageApi
+provider ABI/capabilities: ru.neverland.mintevents.api.MintTownyEventsApi
+provider ABI/capabilities: ru.neverland.governance.api.TownyGovernanceApi
+provider ABI/capabilities: ru.neverland.townyideologies.api.TownyIdeologiesApi
+provider ABI/capabilities: ru.neverland.townyjobs.api.TownyJobsApi
+provider ABI/capabilities: ru.neverland.townymarket.MarketApi
+provider ABI/capabilities: ru.neverland.townypolicies.api.TownyPoliciesApi
+provider ABI/capabilities: ru.neverland.townypopulation.api.TownyPopulationApi
+provider ABI/capabilities: ru.neverland.townypower.api.TownyPowerApi
+provider ABI/capabilities: ru.neverland.reputation.api.TownyReputationApi
+provider ABI/capabilities: ru.neverland.townyresearch.api.TownyResearchApi
+provider ABI/capabilities: ru.neverland.townyresources.api.TownyResourcesApi
+provider ABI/capabilities: ru.neverland.townyspecialization.api.TownySpecializationApi
+provider ABI/capabilities: ru.neverland.townytaxes.api.NeverLandTownyTaxesApi
+provider ABI/capabilities: ru.neverland.minttrade.api.MintTownyTradeApi
+provider ABI/capabilities: ru.neverland.townytreasury.api.TownyTreasuryApi
+provider ABI/capabilities: ru.neverland.townyupkeep.api.TownyUpkeepApi
+native Crime and Resources services available
+real Population snapshot available for new town
+Crime level survives real restart without offline catch-up
+pending lost-reply theft reconciles on actual restart
+restart recovery does not steal resource twice
+protected virtual reserve survives theft and restart
+consumer committed outcome before removing provider receipt
+shop journal preserves gross and agreed net on real restart
+recovered Crime quote matches stable crime level

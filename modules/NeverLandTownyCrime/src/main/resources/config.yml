@@ -1,0 +1,22 @@
+# Один цикл за 10 минут онлайн. Пропущенное время не отыгрывается.
+cycle-seconds: 600
+maximum-change: 5.0
+unhappiness-weight: 0.8
+unguarded-pressure: 20.0
+guard-level-strength: 20.0
+guard-worker-strength: 5.0
+guard-reduction: 0.6
+# Постоянная потеря выручки: до 25%, пропорционально преступности.
+maximum-shop-loss-bps: 2500
+incidents:
+  minimum-crime: 40.0
+  chance-per-cycle: 0.15
+  cooldown-seconds: 3600
+  duration-seconds: 900
+  extortion-loss-bps: 1000
+  # Тысячные доли виртуального ресурса. Городские резервы защищены.
+  theft-share-bps: 200
+  theft-cap: 10000
+  resources: [wood, stone, metal, materials]
+menu-style:
+  title-color: '#F4F7FC'
