@@ -1,0 +1,157 @@
+[
+  {
+    "name": "NeverLandTownyArchaeology",
+    "version": "0.1.9",
+    "sha256": "7d24edb8f1efa32755ce6fd822429f86fea8eaa303e5d58834102411be993329"
+  },
+  {
+    "name": "NeverLandTownyBuilds",
+    "version": "0.8.15",
+    "sha256": "09c03c98af423aaebfb6c565722e57fb77bfed9c176bb92840687b1177d601ed"
+  },
+  {
+    "name": "NeverLandTownyCamps",
+    "version": "0.1.10",
+    "sha256": "9bfe023e6ec8db67e4c9d080dfe8e4460fc91944013c0a1a3b33b10b3c795ac5"
+  },
+  {
+    "name": "NeverLandTownyChronicles",
+    "version": "0.1.7",
+    "sha256": "4b3d9915532ce2cb9622a18bbf63c081cdf7a34b045d2c42f915aca5a4be6e06"
+  },
+  {
+    "name": "NeverLandTownyContracts",
+    "version": "0.3.3",
+    "sha256": "ac1f0e4a4544a8d5a92aedeea2667d475cc16df72d02206f836a1e65c3aa955b"
+  },
+  {
+    "name": "NeverLandTownyEspionage",
+    "version": "0.1.9",
+    "sha256": "5ff09efe7fe18fb78719a34d93ab1cfd3200415016f22f6320e8213ba9db1504"
+  },
+  {
+    "name": "NeverLandTownyEvents",
+    "version": "0.3.0",
+    "sha256": "831171cba9482be984e904c15dbc5ff9082c1b01e27fcbfe5e7bf63feb45aa0c"
+  },
+  {
+    "name": "NeverLandTownyExpeditions",
+    "version": "0.1.13",
+    "sha256": "61a193c1bf24a14e3adcb6dbcdae896715a7fc3d08accd84532ae29fddbed9a2"
+  },
+  {
+    "name": "NeverLandTownyGovernance",
+    "version": "0.1.11",
+    "sha256": "4468675c6d1c356f7dbb8e78dd41d64d9090c6f14797431dc4848c8e1c385196"
+  },
+  {
+    "name": "NeverLandTownyIdeologies",
+    "version": "0.1.8",
+    "sha256": "579ac2ef138c0ec7659561152f6c39f68fad7ee09b24d2c031e91b7992b7d806"
+  },
+  {
+    "name": "NeverLandTownyReputation",
+    "version": "0.1.6",
+    "sha256": "d47d846fe9abbdac5a4ba3a73cb45cb0b0a78d9f3414275e1252f052161a72d0"
+  },
+  {
+    "name": "NeverLandTownyStick",
+    "version": "0.1.9",
+    "sha256": "98ef45d4530b64761b85c2e28bbad45aa74dda1efa539580692061e0bced0f57"
+  },
+  {
+    "name": "NeverLandTownyTaxes",
+    "version": "0.1.8",
+    "sha256": "0be3e464110630b721e8e6a5a1770c4af396e238bef202fae26e76a02996f03d"
+  },
+  {
+    "name": "NeverLandTownyTrade",
+    "version": "0.2.6",
+    "sha256": "94f49d552638c14335e8584789fe51fb5a3c85581d690fc489fa8c6ac60881fa"
+  },
+  {
+    "name": "NeverLandTownyPopulation",
+    "version": "0.1.10",
+    "sha256": "df1da444ef3b5dea2b8e6ae061da7b491e45ae657dd46ecbc6d518002e6198ba"
+  },
+  {
+    "name": "NeverLandTownyDistricts",
+    "version": "0.1.6",
+    "sha256": "f0d21c596381c01fade2c2d0104100fcbfee19e5fe5b24eed2cd4f326597c512"
+  },
+  {
+    "name": "NeverLandTownyLogistics",
+    "version": "0.1.7",
+    "sha256": "561bdcf7ad4647eb931b08596683eab844c4e0895a9537dbe49e7508b02d2b4e"
+  },
+  {
+    "name": "NeverLandTownyResources",
+    "version": "0.1.10",
+    "sha256": "80f57afe29df0b56d2e63aef5aa3b1b12c0ebfb3e78db91d477c9286d6bc236b"
+  },
+  {
+    "name": "NeverLandTownyUpkeep",
+    "version": "0.1.7",
+    "sha256": "1e780975672ad44768b7e17adde258467423105734eeda2f34195f4f2b93d41e"
+  },
+  {
+    "name": "NeverLandTownyPower",
+    "version": "0.1.4",
+    "sha256": "4080698e537119d434c53fcb95a054e0e0721af082b69317362e9323f2a4eb8e"
+  },
+  {
+    "name": "NeverLandTownyResearch",
+    "version": "0.1.5",
+    "sha256": "6ae51036659eeff78012370010e89bcf3ab1b228275d9bfd8c4305575d51030e"
+  },
+  {
+    "name": "NeverLandTownySpecialization",
+    "version": "0.1.3",
+    "sha256": "b1c62c2a10fdf4a0c5edb3f7f168f3c7db0d8e44b6a15c0993e5fa88b969d06c"
+  },
+  {
+    "name": "NeverLandTownyPolicies",
+    "version": "0.1.3",
+    "sha256": "4dba65558bc7a13fc2f39fd0b56ecb8addd22c304b07e1e94a79ce356eb3f80c"
+  },
+  {
+    "name": "NeverLandTownyTreasuryPlus",
+    "version": "0.1.5",
+    "sha256": "42dec71ee7338fa7cf339813a895945ff837a6e996e9f6d701dea86e6215576b"
+  },
+  {
+    "name": "NeverLandTownyMarket",
+    "version": "0.1.4",
+    "sha256": "803fac27024fcdabf391bb7a5223b09f81c6621967a6bc38ac185beb302cce51"
+  },
+  {
+    "name": "NeverLandTownyCompanies",
+    "version": "0.1.3",
+    "sha256": "fe0cff4f9c6e72192f527abe7f72bb4a375e9c6d2f7c1c999d067c83de85952b"
+  },
+  {
+    "name": "NeverLandTownyJobs",
+    "version": "0.1.3",
+    "sha256": "30c0cd1b356213089786e299fe607a29ad885729fd2b57ba5a48405dd3e3f0b4"
+  },
+  {
+    "name": "NeverLandTownyCitizens",
+    "version": "0.1.0",
+    "sha256": "f9339034f6ca8db334dfe45eeb41707b8d1ca55f9fa47110b6b99df9f734817b"
+  },
+  {
+    "name": "NeverLandTownyElections",
+    "version": "0.1.0",
+    "sha256": "40f7a23185980ce7582ec5c369747e9a1acfcff76d07e5c918a3c90f21d0110e"
+  },
+  {
+    "name": "NeverLandTownyCouncil",
+    "version": "0.1.1",
+    "sha256": "5323a626bb55b8147b94bffbfa0b367b429924665da97b352605020fbc4d1af9"
+  },
+  {
+    "name": "NeverLandTownyDiplomacy",
+    "version": "0.1.0",
+    "sha256": "0fe3b01c846ba57ef3ed52ec1e0528e708ba04f492c80cacd7b284fa50c71a3f"
+  }
+]

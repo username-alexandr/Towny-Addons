@@ -35,6 +35,8 @@ public final class CouncilMenus implements Listener {
             menu.setItem(SLOTS[index++], item(switch (role) { case ECONOMY -> Material.GOLD_INGOT; case DEFENSE -> Material.SHIELD; case CONSTRUCTION -> Material.BRICKS; case FOREIGN -> Material.WRITABLE_BOOK; }, "&f" + role.title(), lore));
         }
         menu.setItem(36, item(Material.ARROW, back == null ? "&fЗакрыть" : "&fНазад", List.of("&7Вернуться к предыдущему меню.")));
+        if (org.bukkit.Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyDiplomacy") && viewer.hasPermission("neverlandtownydiplomacy.use"))
+            menu.setItem(42, item(Material.COMPASS, "&eДипломатия", List.of("&7Договоры, вассалитет и гарантии.", "&fНажмите — отношения городов.")));
         menu.setItem(40, item(Material.BOOK, "&eПомощь", List.of("&7Назначения, снятие и права.", "&fНажмите — список команд.")));
         menu.setItem(44, item(Material.SUNFLOWER, "&fОбновить", List.of("&7Показать текущий состав.")));
         viewer.openInventory(menu);
@@ -49,6 +51,7 @@ public final class CouncilMenus implements Listener {
         var town = TownyAPI.getInstance().getTown(h.town());
         if (e.getRawSlot() == 36) org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> MenuStyle.returnTo(p, h.back()));
         else if (e.getRawSlot() == 40) CouncilCommand.help(p);
+        else if (e.getRawSlot() == 42 && p.hasPermission("neverlandtownydiplomacy.use")) org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> p.performCommand("townydiplomacy"));
         else if (e.getRawSlot() == 44 && town != null) org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> open(p, town));
         else for (int i = 0; i < SLOTS.length; i++) if (e.getRawSlot() == SLOTS[i]) {
             var role = MinisterRole.values()[i]; CouncilCommand.tell(p, "&e" + role.title() + " • Права:");
