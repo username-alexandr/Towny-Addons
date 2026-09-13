@@ -141,6 +141,7 @@ public final class MenusFireRuntimeProbe extends JavaPlugin {
                 }
             }
         }
+        town.getAccount().deposit(50,"Disposable CSV income");
         check(TownyAPI.getInstance().getTown(player).getUUID().equals(TOWN),"native actor is town mayor");
     }
     private void command(String line)throws Exception{
@@ -167,7 +168,7 @@ public final class MenusFireRuntimeProbe extends JavaPlugin {
     private boolean hasCsv(){ItemStack i=top.getItem(40);return i!=null&&i.hasItemMeta()&&plain(i.getItemMeta().displayName()).contains("CSV");}
     private long csvCount()throws Exception{Path p=plugin("TreasuryPlus").getDataFolder().toPath().resolve("reports");if(!Files.exists(p))return 0;try(var walk=Files.walk(p)){return walk.filter(f->f.toString().endsWith(".csv")).count();}}
     private void menus()throws Exception{
-        for(String cmd:List.of("builds","wonders","army","museum","chronicles","companies","contracts","districts","espionage","events","expeditions","governance","ideologies","jobs","logistics","market","policies","population","power","reputation","research","resources","specialization","trade","treasury","upkeep")){
+        for(String cmd:List.of("builds","wonders","army","museum","chronicles","companies","contracts","district","espionage","events","expeditions","governance","ideologies","jobs","logistics","market","policies","population","power","reputation","research","resources","specialization","trade","treasury","upkeep")){
             if(!TownyCommandAddonAPI.hasCommand(TownyCommandAddonAPI.CommandType.TOWN,cmd)){getLogger().info("GUI alias unavailable: "+cmd);continue;}
             player.closeInventory();Inventory before=top;command(cmd);check(top!=before,"command opens menu: "+cmd);styled(cmd);
         }
@@ -187,8 +188,9 @@ public final class MenusFireRuntimeProbe extends JavaPlugin {
     private void firstFire()throws Exception{
         var generator=(BuildingBlueprintGenerator)field(construction,"generator");BlueprintPlan plan=generator.generate("warehouse",1);
         var site=new ConstructionSite("warehouse",world.getUID(),1616,90,1616,BlockFace.NORTH,1,1,2,false);
-        var entry=plan.blocks().entrySet().stream().filter(e->FireMaterials.combustible(e.getValue().material().name())&&!e.getValue().material().name().endsWith("_LOG")&&!e.getValue().material().name().endsWith("_WOOD")).findFirst().orElseThrow();
-        damaged=site.location(world,entry.getKey()).getBlock();damaged.setType(entry.getValue().material(),false);original=damaged.getBlockData().getAsString();
+        // A resident has installed wooden interior steps inside this completed building.
+        var entry=plan.blocks().entrySet().iterator().next();
+        damaged=site.location(world,entry.getKey()).getBlock();damaged.setType(Material.OAK_STAIRS,false);var stairs=(org.bukkit.block.data.type.Stairs)damaged.getBlockData();stairs.setFacing(BlockFace.WEST);stairs.setHalf(org.bukkit.block.data.Bisected.Half.TOP);damaged.setBlockData(stairs,false);original=damaged.getBlockData().getAsString();
         data.town(TOWN).setConstructionSite(site);data.markDirty();data.save();
         check(events.startEvent(town,events.registry().get("fire")),"fire event starts");var active=events.active(TOWN);
         Block visual=world.getBlockAt(1635,92,1635);visual.setType(Material.OAK_PLANKS,false);
@@ -210,7 +212,7 @@ public final class MenusFireRuntimeProbe extends JavaPlugin {
         site.setArchitectureVersion(5);invokePrivate(construction,"migrateLegacySites");
         check(site.architectureVersion()==5&&damaged.getType()==Material.AIR,"legacy architecture migration waits for fire repairs");
         site.setArchitectureVersion(ConstructionSite.CURRENT_ARCHITECTURE_VERSION);data.markDirty();data.save();
-        command("events repairs");styled("fire repairs");check(top.getItem(0)!=null&&top.getItem(0).getType()==entry.getValue().material(),"repair menu shows required material");
+        command("events repairs");styled("fire repairs");check(top.getItem(0)!=null&&top.getItem(0).getType()==Material.OAK_STAIRS,"repair menu shows required material");
         var receipt=fires.damage(TOWN).getFirst();getConfig().set("damage.x",receipt.x());getConfig().set("damage.y",receipt.y());getConfig().set("damage.z",receipt.z());getConfig().set("damage.original",receipt.blockData());saveConfig();
         Path file=plugin("Events").getDataFolder().toPath().resolve("fire-damage.yml"),backup=file.resolveSibling("fire-damage.fixture-backup");
         Files.move(file,backup);Files.createDirectory(file);Files.writeString(file.resolve("blocker"),"intentional fault");
