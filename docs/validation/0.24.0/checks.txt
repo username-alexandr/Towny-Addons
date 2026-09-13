@@ -1,0 +1,42 @@
+all 28 addons enabled
+Passport 0.4.0 enabled
+Citizens public API registered
+existing Towny member defaults to citizen
+guest defaults to foreigner
+citizen franchise
+unknown right denied
+ordinary resident cannot self-promote
+mayor cannot lose citizenship
+citizenship cannot invent Towny membership
+temporary resident lacks electoral rights
+temporary municipal restrictions
+temporary basic rights
+passport shows temporary status
+passport identity data remains unchanged
+passport resolves town through public API
+Citizens PlaceholderAPI integration
+citizenship menu opens through Towny command
+Governance excludes temporary voter
+temporary manager cannot appoint officials
+temporary manager cannot dismiss officials
+Governance includes honorary resident
+passport follows a status change without reissue
+honorary guest receives no membership-only rights
+honorary municipal tax is half and charged once
+temporary municipal tax multiplier is applied
+citizen opens municipal warehouse
+open warehouse rechecks changed citizenship on click
+foreigner cannot destroy town blocks
+citizenship never uncancels protection
+Governance recalculates electorate after demotion
+temporary expiry written before shutdown
+all 28 addons enabled
+Passport 0.4.0 enabled
+Citizens public API registered
+town survives restart
+honorary status survives restart
+temporary status expires while offline
+expired resident cannot vote after restart
+expired resident receives foreigner tax policy
+passport reads persisted live status
+assignment author persists

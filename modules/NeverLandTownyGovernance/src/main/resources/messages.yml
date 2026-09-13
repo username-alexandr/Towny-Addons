@@ -24,6 +24,7 @@ proposal-created: "&#63E6BEГолосование #%id% создано: %law%&#6
 proposal-broadcast: "&#74C0FC%player% вынес на голосование: %action% %law%&r&#74C0FC. Используйте /t vote."
 vote-recorded: "&#63E6BEВаш голос «%choice%&#63E6BE» принят для предложения #%id%."
 vote-change-disabled: "&#FF6B6BВы уже голосовали и изменение голоса отключено."
+elected-office: "&#FF6B6BЭта должность занята по итогам выборов. Изменить состав можно на следующих выборах: /t elections."
 not-eligible: "&#FF6B6BВы не входите в число избирателей этого голосования."
 unknown-proposal: "&#FF6B6BОткрытое предложение #%id% не найдено."
 proposal-passed: "&#63E6BEРешение принято: %action% %law%&r&#63E6BE. Голоса: %yes% за, %no% против, %abstain% воздержались."

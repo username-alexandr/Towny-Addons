@@ -106,10 +106,13 @@ public final class GovernanceService {
 
     public Result appoint(Player actor, String officeId, String residentName) {
         Town town = towny.town(actor); if (town == null) return Result.NO_TOWN;
-        if (!actor.hasPermission("townygovernance.offices") || !towny.isManager(actor, town)) return Result.NO_PERMISSION;
+        if (!actor.hasPermission("townygovernance.offices") || !towny.isManager(actor, town)
+                || !ru.neverland.core.CitizensAccess.allows(town.getUUID(), actor.getUniqueId(), "HOLD_OFFICE")) return Result.NO_PERMISSION;
         OfficeDefinition office = definitions.office(officeId); if (office == null) return Result.UNKNOWN_OFFICE;
+        if (data(town).electedOffices().contains(office.id()) && elective(town) && !actor.hasPermission("townygovernance.bypass")) return Result.CHANGE_DISABLED;
         Resident resident = towny.resident(residentName); if (resident == null) return Result.UNKNOWN_PLAYER;
         if (!town.equals(resident.getTownOrNull())) return Result.NOT_RESIDENT;
+        if (!ru.neverland.core.CitizensAccess.allows(town.getUUID(), resident.getUUID(), "HOLD_OFFICE")) return Result.NOT_ELIGIBLE;
         TownGovernanceData data = data(town); List<OfficeHolder> holders = data.offices().computeIfAbsent(office.id(), key -> new ArrayList<>());
         if (holders.stream().anyMatch(value -> value.residentId().equals(resident.getUUID()))) return Result.ALREADY_APPOINTED;
         if (holders.size() >= office.maxHolders()) return Result.OFFICE_FULL;
@@ -122,8 +125,10 @@ public final class GovernanceService {
 
     public Result dismiss(Player actor, String officeId, String residentName) {
         Town town = towny.town(actor); if (town == null) return Result.NO_TOWN;
-        if (!actor.hasPermission("townygovernance.offices") || !towny.isManager(actor, town)) return Result.NO_PERMISSION;
+        if (!actor.hasPermission("townygovernance.offices") || !towny.isManager(actor, town)
+                || !ru.neverland.core.CitizensAccess.allows(town.getUUID(), actor.getUniqueId(), "HOLD_OFFICE")) return Result.NO_PERMISSION;
         OfficeDefinition office = definitions.office(officeId); if (office == null) return Result.UNKNOWN_OFFICE;
+        if (data(town).electedOffices().contains(office.id()) && elective(town) && !actor.hasPermission("townygovernance.bypass")) return Result.CHANGE_DISABLED;
         TownGovernanceData data = data(town); List<OfficeHolder> holders = data.offices().getOrDefault(office.id(), new ArrayList<>());
         OfficeHolder holder = holders.stream().filter(value -> value.residentName().equalsIgnoreCase(residentName)).findFirst().orElse(null);
         if (holder == null) return Result.NOT_APPOINTED;
@@ -134,6 +139,7 @@ public final class GovernanceService {
     }
 
     public boolean mayPropose(Player player, Town town, LawCategory category) {
+        if (!ru.neverland.core.CitizensAccess.allows(town.getUUID(), player.getUniqueId(), "HOLD_OFFICE")) return false;
         if (player.hasPermission("townygovernance.bypass") || towny.isManager(player, town)) return true;
         TownGovernanceData data = data(town);
         for (Map.Entry<String, List<OfficeHolder>> entry : data.offices().entrySet()) {
@@ -146,18 +152,81 @@ public final class GovernanceService {
     public Set<UUID> council(Town town) {
         Set<UUID> result = new LinkedHashSet<>(towny.townRankCouncil(town));
         TownGovernanceData data = data(town);
+        boolean electedCouncil = data.electedOffices().contains("councillor") && elective(town);
+        if (electedCouncil) {
+            result.clear();
+            if (plugin.getConfig().getBoolean("council.mayor-is-member", true) && town.getMayor() != null) result.add(town.getMayor().getUUID());
+        }
         for (Map.Entry<String, List<OfficeHolder>> entry : data.offices().entrySet()) {
             OfficeDefinition office = definitions.office(entry.getKey()); if (office == null || !office.councilMember()) continue;
+            if (electedCouncil && !entry.getKey().equals("councillor")) continue;
             for (OfficeHolder holder : entry.getValue()) if (isResident(town, holder.residentId())) result.add(holder.residentId());
         }
+        result.removeIf(id -> !ru.neverland.core.CitizensAccess.allows(town.getUUID(), id, "HOLD_OFFICE"));
         return result;
     }
 
     public Set<UUID> electorate(Town town) {
         if (plugin.getConfig().getString("voting.electorate", "COUNCIL").equalsIgnoreCase("ALL_RESIDENTS")) {
-            Set<UUID> result = new LinkedHashSet<>(); town.getResidents().forEach(resident -> result.add(resident.getUUID())); return result;
+            Set<UUID> result = new LinkedHashSet<>(); town.getResidents().forEach(resident -> result.add(resident.getUUID()));
+            result.removeIf(id -> !ru.neverland.core.CitizensAccess.allows(town.getUUID(), id, "VOTE")); return result;
         }
-        return council(town);
+        Set<UUID> result = council(town);
+        result.removeIf(id -> !ru.neverland.core.CitizensAccess.allows(town.getUUID(), id, "VOTE"));
+        return result;
+    }
+
+    private void electionThread() { if (!Bukkit.isPrimaryThread()) throw new IllegalStateException("Governance API: main thread required"); }
+    private boolean elective(Town town) {
+        var connection = ru.neverland.core.ApiServices.connect("NeverLandTownyElections", "ru.neverland.townyelections.api.TownyElectionsApi", 1, "elective");
+        if (connection.state() == ru.neverland.core.ApiServices.State.NOT_INSTALLED) return false;
+        try { return Boolean.TRUE.equals(connection.invoke("elective", new Class<?>[]{UUID.class}, town.getUUID())); }
+        catch (ReflectiveOperationException | RuntimeException ex) { return true; } // Keep elected seats protected while an installed API is unavailable.
+    }
+    public Map<String, Integer> officeCatalog() {
+        electionThread(); Map<String, Integer> result = new java.util.LinkedHashMap<>();
+        offices().forEach(o -> result.put(o.id(), o.maxHolders())); return Map.copyOf(result);
+    }
+    public Map<String, List<UUID>> officeHolders(UUID id) {
+        electionThread(); Town town = towny.town(id); if (town == null) throw new IllegalArgumentException("Unknown town");
+        Map<String, List<UUID>> result = new java.util.LinkedHashMap<>();
+        data(town).offices().forEach((key, holders) -> result.put(key, holders.stream().map(OfficeHolder::residentId).toList()));
+        return Map.copyOf(result);
+    }
+    public String electionReceipt(UUID id) {
+        electionThread(); Town town = towny.town(id); if (town == null) throw new IllegalArgumentException("Unknown town"); return data(town).electionReceipt();
+    }
+    public void applyElection(UUID id, UUID election, Map<String, List<UUID>> winners) {
+        electionThread(); java.util.Objects.requireNonNull(election);
+        Town town = towny.town(id); if (town == null) throw new IllegalArgumentException("Unknown town");
+        TownGovernanceData data = data(town);
+        if (election.toString().equals(data.electionReceipt())) return;
+        var next = new java.util.LinkedHashMap<String, List<OfficeHolder>>(); var seen = new java.util.HashSet<UUID>();
+        long now = System.currentTimeMillis();
+        for (var entry : winners.entrySet()) {
+            var definition = definitions.office(entry.getKey());
+            if (definition == null || entry.getValue().isEmpty() || entry.getValue().size() > definition.maxHolders()) throw new IllegalArgumentException("Invalid elected office");
+            var holders = new ArrayList<OfficeHolder>();
+            for (UUID resident : entry.getValue()) {
+                if (!seen.add(resident) || !town.hasResident(resident) || !ru.neverland.core.CitizensAccess.allows(id, resident, "HOLD_OFFICE")) throw new IllegalArgumentException("Ineligible elected resident");
+                holders.add(new OfficeHolder(resident, towny.resident(resident).getName(), now, election));
+            }
+            next.put(entry.getKey(), holders);
+        }
+        if (!plugin.getConfig().getBoolean("management.allow-multiple-offices", true)) {
+            for (var entry : data.offices().entrySet()) if (!winners.containsKey(entry.getKey())
+                    && entry.getValue().stream().anyMatch(h -> seen.contains(h.residentId()))) throw new IllegalArgumentException("Multiple offices disabled");
+        }
+        var old = new java.util.LinkedHashMap<>(data.offices()); var oldManaged = Set.copyOf(data.electedOffices());
+        String oldReceipt = data.electionReceipt(); var oldHistory = new ArrayList<>(data.history());
+        try {
+            data.offices().putAll(next); data.electedOffices().addAll(next.keySet()); data.electionReceipt(election.toString());
+            repository.history(data, new HistoryEntry(now, "ELECTION", "Итоги выборов " + election, election, "Выборы"));
+            repository.save();
+        } catch (RuntimeException ex) {
+            data.offices().clear(); data.offices().putAll(old); data.electedOffices().clear(); data.electedOffices().addAll(oldManaged);
+            data.electionReceipt(oldReceipt); data.history().clear(); data.history().addAll(oldHistory); throw ex;
+        }
     }
 
     public TownGovernanceData data(Town town) { return repository.town(town.getUUID(), town.getName()); }
@@ -211,6 +280,7 @@ public final class GovernanceService {
     }
 
     private void resolve(Proposal proposal, boolean forced) {
+        if (!ru.neverland.core.CitizensAccess.available()) return;
         Town town = towny.town(proposal.townId()); LawDefinition law = definitions.law(proposal.lawId());
         if (town == null || law == null) { proposal.status(ProposalStatus.CANCELLED); repository.remove(proposal); return; }
         Set<UUID> electorate = electorate(town); int yes = 0, no = 0, abstain = 0;

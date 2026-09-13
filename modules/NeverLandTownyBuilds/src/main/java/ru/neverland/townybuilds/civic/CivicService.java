@@ -278,6 +278,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
     private void insurance(Player player, String[] args) {
         Town town = requireTown(player);
         if (town == null) return;
+        if (!ru.neverland.core.CitizensAccess.allows(town.getUUID(),player.getUniqueId(),"INSURANCE")) { player.sendMessage(ColorUtil.component("&cВаш статус не даёт доступа к страховой палате.")); return; }
         TownData data = dataStore.town(town.getUUID());
         if (!requireProject(player, data, "insurance_chamber")) return;
         if (args.length == 1 || args[1].equalsIgnoreCase("status")) {

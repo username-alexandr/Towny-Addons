@@ -54,3 +54,11 @@ settings:
 # Светлый заголовок для тёмного ресурспака; для ванильного светлого окна: "#273247".
 menu-style:
   title-color: "#F4F7FC"
+
+# Связь выбранной идеологии с Elections. Любой свой ID можно сопоставить форме.
+# Неизвестная форма блокирует Elections с диагностикой.
+government:
+  ideology-forms:
+    none: DEMOCRACY
+    monarchy: MONARCHY
+    autocracy: AUTOCRACY

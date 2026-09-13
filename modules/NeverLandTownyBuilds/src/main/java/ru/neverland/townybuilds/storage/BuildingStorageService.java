@@ -83,6 +83,7 @@ public final class BuildingStorageService implements BuildingStorageApi,Listener
     @Override public void acknowledgeTrade(UUID seller,UUID id)throws IOException {thread();TradeStorageTransactions.acknowledge(data.town(seller),tradeAccess(),id);}
     @Override public void openStorage(Player player,String project){
         thread();var town=towny.town(player);if(town==null){tell(player,"Вы не состоите в городе.");return;}
+        if(!ru.neverland.core.CitizensAccess.allows(town.getUUID(),player.getUniqueId(),"STORAGE")){tell(player,"Ваш статус не даёт доступа к муниципальному складу.");return;}
         var t=data.town(town.getUUID());var def=definitions.all().stream().filter(d->d.id().equals(project)).findFirst().orElse(null);
         if(!project.equals("warehouse")&&(def==null||level(t,project)<1)){tell(player,"У здания ещё нет завершённого этапа.");return;}
         View v=new View(town.getUUID(),project);
@@ -92,7 +93,7 @@ public final class BuildingStorageService implements BuildingStorageApi,Listener
         catch(RuntimeException ex){data.unlockStorage(v.town,v.project,v.session);throw ex;}
     }
     private void tell(Player p,String message){p.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&aNeverLand &8• &fСклады&8] &r"+message));}
-    private boolean citizen(Player p,View v){var t=towny.town(p);return t!=null&&t.getUUID().equals(v.town);}
+    private boolean citizen(Player p,View v){var t=towny.town(p);return t!=null&&t.getUUID().equals(v.town)&&ru.neverland.core.CitizensAccess.allows(v.town,p.getUniqueId(),"STORAGE");}
     @EventHandler public void click(InventoryClickEvent e){
         if(!(e.getView().getTopInventory().getHolder() instanceof View v)||!(e.getWhoClicked() instanceof Player p))return;
         if(!citizen(p,v)){e.setCancelled(true);Bukkit.getScheduler().runTask(plugin,()->p.closeInventory());return;}

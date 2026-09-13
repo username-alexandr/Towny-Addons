@@ -1,0 +1,48 @@
+all 29 addons enabled
+Passport remains enabled
+Elections public API registered
+Ideologies public API registered
+default economic ideology permits elections
+Governance publishes office capacity
+monarchy cancels open campaign durably
+monarchy blocks manual election start
+monarchy preserves ruler
+unknown government form blocks election API
+overlapping campaigns rejected
+temporary resident cannot stand for office
+honorary member can stand for mayor
+one candidacy per resident
+Towny elections subcommand registered
+readable election menu opens
+election menu blocks item extraction
+ordinary voter cannot administer elections
+scheduler opens voting after nomination
+downtime grants a full voting window
+temporary resident cannot vote
+guest cannot vote in another town
+repeated vote never duplicates turnout
+multi-seat menu restores saved ballot
+results completed durably
+election changes actual Towny mayor
+election installs both council members
+revoked citizenship disqualifies elected office candidate
+no quorum preserves existing office
+Governance council uses elected seats and mayor
+mayor cannot remove elected councillor manually
+replaying same election result is idempotent
+next campaign keeps configured N-day cadence
+public API never exposes individual ballots
+all 29 addons enabled
+Passport remains enabled
+Elections public API registered
+Ideologies public API registered
+Towny town persists across restart
+elected Towny mayor persists across restart
+elected council persists across restart
+interrupted application requires review on startup
+recovery requires exact campaign identity
+reviewed application resumes idempotently
+Governance result receipt survives restart
+elected council retains legislative powers
+saved ballots survive restart
+campaign audit history survives restart

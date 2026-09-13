@@ -1,0 +1,19 @@
+# Citizens дополняет ограничения Towny; членство, ранги и паспортные данные не изменяются.
+# Множители применяются NeverLandTownyTaxes к муниципальному налогу в бюджет своего города.
+temporary:
+  maximum-days: 365
+statuses:
+  citizen:
+    tax-multiplier: 1.0
+    rights: [BUILD, DESTROY, VOTE, HOLD_OFFICE, STORAGE, SHOP, STABLES, INSURANCE]
+  temporary:
+    tax-multiplier: 1.25
+    rights: [BUILD, DESTROY, SHOP, STABLES]
+  foreigner:
+    tax-multiplier: 1.5
+    rights: [SHOP]
+  honorary:
+    tax-multiplier: 0.5
+    rights: [BUILD, DESTROY, VOTE, HOLD_OFFICE, STORAGE, SHOP, STABLES, INSURANCE]
+menu-style:
+  title-color: '#F4F7FC'

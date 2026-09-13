@@ -1,0 +1,5 @@
+name: NeverLandElectionsRuntimeProbe
+version: 0.25.0
+main: ru.neverland.runtime.ElectionsRuntimeProbe
+api-version: '26.2'
+depend: [Towny, NeverLandTownyElections, NeverLandTownyCitizens, NeverLandTownyGovernance, NeverLandTownyIdeologies, NeverLandPassport]

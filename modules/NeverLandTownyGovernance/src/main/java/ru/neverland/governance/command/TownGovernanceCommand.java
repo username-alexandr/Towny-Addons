@@ -79,6 +79,7 @@ public final class TownGovernanceCommand implements TabExecutor {
             case UNKNOWN_OFFICE -> messages.send(player, "unknown-office", Map.of("office", args[1])); case UNKNOWN_PLAYER -> messages.send(player, "unknown-player", Map.of("player", args[2]));
             case NOT_RESIDENT -> messages.send(player, "not-town-resident"); case OFFICE_FULL -> messages.send(player, "office-full");
             case ALREADY_APPOINTED -> messages.send(player, "already-appointed"); case MULTIPLE_OFFICES -> messages.send(player, "multiple-offices-disabled");
+            case CHANGE_DISABLED -> messages.send(player, "elected-office");
             default -> messages.send(player, "no-permission");
         }
     }
@@ -89,6 +90,7 @@ public final class TownGovernanceCommand implements TabExecutor {
             case SUCCESS -> messages.send(player, "dismissed", Map.of("player", args[2], "office", office.name()));
             case NO_TOWN -> messages.send(player, "no-town"); case NO_PERMISSION -> messages.send(player, "not-manager");
             case UNKNOWN_OFFICE -> messages.send(player, "unknown-office", Map.of("office", args[1])); case NOT_APPOINTED -> messages.send(player, "not-appointed");
+            case CHANGE_DISABLED -> messages.send(player, "elected-office");
             default -> messages.send(player, "no-permission");
         }
     }

@@ -1,0 +1,30 @@
+# Начало кампании каждые N дней; незавершённая кампания не перекрывается следующей.
+schedule:
+  interval-days: 14
+  first-election-delay-days: 1
+  nomination-hours: 24
+  voting-hours: 24
+  check-seconds: 30
+# Доля имеющих право голоса жителей на старте, сохранивших его к подсчёту.
+quorum: 0.25
+# false: выборы идут даже при MONARCHY/AUTOCRACY.
+allow-authoritarian: true
+# Ключи должностей совпадают с Governance/offices.yml. mayor — настоящий мэр Towny.
+seats:
+  mayor: 1
+  councillor: 3
+  deputy_mayor: 1
+  treasurer: 1
+  architect: 1
+  ideologist: 1
+  clerk: 1
+names:
+  mayor: Мэр
+  councillor: Городской совет
+  deputy_mayor: Заместитель мэра
+  treasurer: Казначей
+  architect: Главный архитектор
+  ideologist: Советник по идеологии
+  clerk: Секретарь
+menu-style:
+  title-color: '#F4F7FC'

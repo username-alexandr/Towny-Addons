@@ -96,7 +96,7 @@ public final class CivicAutomationService {
             Town town = towny.town(player);
             if (town == null || !(player.getVehicle() instanceof AbstractHorse horse)) continue;
             int level = dataStore.town(town.getUUID()).operationalLevel("stables");
-            if (level > 0 && town.equals(towny.townAt(player.getLocation()))) {
+            if (level > 0 && ru.neverland.core.CitizensAccess.allows(town.getUUID(),player.getUniqueId(),"STABLES") && town.equals(towny.townAt(player.getLocation()))) {
                 horse.addPotionEffect(new PotionEffect(PotionEffectType.SPEED,
                         Math.max(140, plugin.getConfig().getInt("settings.civic.automation-interval-ticks", 1200) + 40),
                         level >= 4 ? 1 : 0, true, false, true));

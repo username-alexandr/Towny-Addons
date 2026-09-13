@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 import subprocess
 import zipfile
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -24,8 +25,10 @@ def main():
     source = [p for p in tracked if not set(Path(p).parts)&excluded and not p.startswith(('assets/', 'dist/'))]
     assets = [p for p in tracked if p.startswith('assets/')]
     jars = [str(p.relative_to(ROOT)) for p in (ROOT/'dist/plugins').glob('*.jar')]
-    if len(jars) != 27:
-        raise SystemExit(f'Expected 27 freshly verified JARs, got {len(jars)}')
+    matrix = yaml.safe_load((ROOT/'versions.yml').read_text())['addons']
+    expected = {f'dist/plugins/{name}-{version}.jar' for name, version in matrix.items()}
+    if set(jars) != expected:
+        raise SystemExit(f'Release JARs differ from versions.yml: missing={sorted(expected-set(jars))}, extra={sorted(set(jars)-expected)}')
     prefix = f'NeverLandTownySuite-{version}'
     archive(args.output/f'{prefix}-sources.zip', source)
     archive(args.output/f'{prefix}-plugins.zip', jars+['dist/plugins/README.md'])

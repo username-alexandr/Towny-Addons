@@ -1,0 +1,23 @@
+name: NeverLandTownyElections
+version: 0.1.0
+main: ru.neverland.townyelections.NeverLandTownyElections
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: Выборы мэра, городского совета и должностных лиц.
+depend: [Towny, NeverLandTownyGovernance]
+softdepend: [NeverLandTownyCitizens, NeverLandTownyIdeologies]
+commands:
+  elections:
+    aliases: [townyelections, nltelections]
+    description: Выборы города
+    usage: /elections help
+    permission: townyelections.use
+permissions:
+  townyelections.use:
+    default: true
+  townyelections.vote:
+    default: true
+  townyelections.candidate:
+    default: true
+  townyelections.admin:
+    default: op
