@@ -206,7 +206,7 @@ public final class ContractService implements MintTownyContractsApi {
         if(town!=null)announce(town,c.settlementStatus()==ContractStatus.SUCCESS?"contract-complete-town":c.settlementStatus()==ContractStatus.CANCELLED?"contract-cancel-town":"contract-expire-town",d,c,c.settlementPayout()/100.0);
     }
     public boolean companyContributor(Player p,ActiveContract c){return canContribute(c,p.getUniqueId());}
-    public int companyActiveCount(UUID company){return (int)repository.allActive().stream().filter(c->company.equals(c.companyId())).count();}
+    public int companyActiveCount(UUID company){ru.neverland.core.ApiServices.primaryThread();return (int)repository.allActive().stream().filter(c->company.equals(c.companyId())).count();}
     public String companyName(ActiveContract c){return c.companyId()==null?"Жители города":companies.name(c.companyId());}
     public List<Map<String,Object>> companyOffers(UUID town) {
         if(!Bukkit.isPrimaryThread()||!repository.writable())throw new IllegalStateException("Контракты временно недоступны");
@@ -300,7 +300,7 @@ public final class ContractService implements MintTownyContractsApi {
     public void reloadRuntime() { companyNames=null;start(); }
     private void saveNow() { if (plugin.getConfig().getBoolean("contracts.save-immediately", true)) repository.save(); }
 
-    @Override public List<ContractSnapshot> activeContracts(UUID townId) {
+    @Override public List<ContractSnapshot> activeContracts(UUID townId) {ru.neverland.core.ApiServices.primaryThread();
         return active(townId).stream().map(contract -> {
             ContractDefinition definition = definition(contract);
             return new ContractSnapshot(contract.id(), contract.townId(), contract.templateId(),
@@ -309,7 +309,7 @@ public final class ContractService implements MintTownyContractsApi {
                     contract.escrow(), contract.expiresAt());
         }).toList();
     }
-    @Override public boolean addProgress(UUID contractId, UUID contributorId, int amount, String source) {
+    @Override public boolean addProgress(UUID contractId, UUID contributorId, int amount, String source) {ru.neverland.core.ApiServices.primaryThread();
         for (ActiveContract contract : repository.allActive()) if (contract.id().equals(contractId)) {
             ContractDefinition definition = definition(contract);
             if (definition == null || definition.type() == ContractType.DELIVERY||definition.type()==ContractType.ROAD||definition.type()==ContractType.SCOUT) return false;
@@ -317,5 +317,5 @@ public final class ContractService implements MintTownyContractsApi {
         }
         return false;
     }
-    @Override public double pendingReward(UUID residentId) { return repository.pendingPlayer(residentId); }
+    @Override public double pendingReward(UUID residentId) {ru.neverland.core.ApiServices.primaryThread(); return repository.pendingPlayer(residentId); }
 }

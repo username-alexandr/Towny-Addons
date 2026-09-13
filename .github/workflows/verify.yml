@@ -38,7 +38,9 @@ jobs:
         if: always()
         with:
           name: suite-tests
-          path: build/suite-tests.json
+          path: |
+            build/suite-tests.json
+            build/api-source-inventory.json
       - uses: actions/upload-artifact@v4
         with:
           name: verified-plugins

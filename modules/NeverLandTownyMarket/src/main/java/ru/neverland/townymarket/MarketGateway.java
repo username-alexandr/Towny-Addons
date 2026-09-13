@@ -16,7 +16,7 @@ public final class MarketGateway implements MarketPayments.Gateway {
     public Town town(UUID id){return TownyAPI.getInstance().getTown(id);}
     public Town town(Player p){var r=TownyAPI.getInstance().getResident(p);return r==null?null:r.getTownOrNull();}
     public String name(UUID id){var t=town(id);return t==null?"Удалённый город":t.getName();}
-    private ru.neverland.core.ApiServices.Connection storage(){return ru.neverland.core.ApiServices.require("NeverLandTownyBuilds","ru.neverland.townybuilds.api.MarketStorageApi","snapshot","reserve","deliver","release","acknowledge");}
+    private ru.neverland.core.ApiServices.Connection storage(){return ru.neverland.core.ApiServices.require("NeverLandTownyBuilds","ru.neverland.townybuilds.api.MarketStorageApi","level","open","snapshot","reserve","deliver","refund","close","acknowledge","forget","claim","resolveClaim");}
     public Object call(String method,Class<?>[] types,Object... values)throws Exception {try{return storage().invoke(method,types,values);}catch(InvocationTargetException ex){if(ex.getCause() instanceof Exception e)throw e;throw new IllegalStateException(ex.getCause());}}
     public boolean available(){try{storage();return true;}catch(Exception ex){return false;}}
     public int level(UUID id,String project){if(id==null)return 0;try{return ((Number)call("level",new Class<?>[]{UUID.class,String.class},id,project)).intValue();}catch(Exception ex){return 0;}}

@@ -1,0 +1,190 @@
+{
+  "suite": "0.27.1",
+  "base_commit": "d5fce348d2d121e433d765aa54c6f9ffb7f4cccd",
+  "artifacts": "local javac --release 17 build, installed server dependencies; canonical Gradle/Maven checked separately in CI",
+  "modules": 31,
+  "executable_tests": 100,
+  "checker_regressions": 7,
+  "contracts": 33,
+  "api_call_sites": 55,
+  "resolved_capability_requests": 88,
+  "partially_dynamic_sites": [
+    "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/integration/CompaniesBridge.java:7"
+  ],
+  "published_v1_baseline": {
+    "release": "v0.27.0",
+    "zip_sha256": "b199fe552417ef0fc94962092f4c76953b072e04c5057941584212d01aa5212b",
+    "signatures_and_capabilities": 739
+  },
+  "native": {
+    "platform": "Purpur 26.2-2632 / Towny 0.103.2.0 / Java 25",
+    "first": 226,
+    "restart": 224,
+    "total": 450,
+    "production": false
+  },
+  "tests_by_module": {
+    "NeverLandTownyArchaeology": [
+      "ru.neverland.archaeology.ArtifactBatchSmoke",
+      "ru.neverland.archaeology.CryptoSmoke",
+      "ru.neverland.archaeology.JournalSmoke",
+      "ru.neverland.archaeology.MuseumDataSmoke",
+      "ru.neverland.archaeology.OptionalDependencySmoke",
+      "ru.neverland.archaeology.RepositorySmoke"
+    ],
+    "NeverLandTownyBuilds": [
+      "ru.neverland.townybuilds.BlockOrientationSmoke",
+      "ru.neverland.townybuilds.BlueprintDump",
+      "ru.neverland.townybuilds.BlueprintGeometrySmoke",
+      "ru.neverland.townybuilds.BlueprintLocalizationSmoke",
+      "ru.neverland.townybuilds.BlueprintSeamSmoke",
+      "ru.neverland.townybuilds.BuildingFootprintsSmoke",
+      "ru.neverland.townybuilds.CivicExpansionSmoke",
+      "ru.neverland.townybuilds.ColorCompatibilitySmoke",
+      "ru.neverland.townybuilds.ConstructionPoliciesSmoke",
+      "ru.neverland.townybuilds.EffectJournalSmoke",
+      "ru.neverland.townybuilds.ExcavationPlannerSmoke",
+      "ru.neverland.townybuilds.ExpansionIntegrationSmoke",
+      "ru.neverland.townybuilds.ImportedModelsSmoke",
+      "ru.neverland.townybuilds.MarketStorageSmoke",
+      "ru.neverland.townybuilds.MaterialLocalizationSmoke",
+      "ru.neverland.townybuilds.MenuStyleSmoke",
+      "ru.neverland.townybuilds.MobilizationSmoke",
+      "ru.neverland.townybuilds.MunicipalStorageSmoke",
+      "ru.neverland.townybuilds.OptionalArchaeologySmoke",
+      "ru.neverland.townybuilds.PowerBlueprintSmoke",
+      "ru.neverland.townybuilds.ProjectIconsSmoke",
+      "ru.neverland.townybuilds.ResourceBalanceSmoke",
+      "ru.neverland.townybuilds.ResourceFundSmoke",
+      "ru.neverland.townybuilds.ResourceTransferSmoke",
+      "ru.neverland.townybuilds.RoofSupportSmoke",
+      "ru.neverland.townybuilds.ShipmentStorageSmoke",
+      "ru.neverland.townybuilds.ShopReliabilitySmoke",
+      "ru.neverland.townybuilds.SpecializationBlueprintSmoke",
+      "ru.neverland.townybuilds.TradeStorageSmoke",
+      "ru.neverland.townybuilds.WonderBlueprintSmoke",
+      "ru.neverland.townybuilds.WonderPreviewRenderer",
+      "ru.neverland.townybuilds.construction.ObstructionValidationSmoke",
+      "ru.neverland.townybuilds.service.DefinitionOverlaySmoke"
+    ],
+    "NeverLandTownyCamps": [
+      "ru.neverland.mintcamps.CampIntegrationSmoke",
+      "ru.neverland.mintcamps.ColorUtilSmoke",
+      "ru.neverland.mintcamps.HologramLifecycleSmoke",
+      "ru.neverland.mintcamps.OptionalDependencySmoke",
+      "ru.neverland.mintcamps.StructureGeneratorSmoke"
+    ],
+    "NeverLandTownyChronicles": [
+      "ru.neverland.townychronicles.ChronicleSmoke",
+      "ru.neverland.townychronicles.LinkageSmoke",
+      "ru.neverland.townychronicles.StartupAnnouncementSmoke"
+    ],
+    "NeverLandTownyCitizens": [
+      "ru.neverland.townycitizens.CitizensSmoke"
+    ],
+    "NeverLandTownyCompanies": [
+      "ru.neverland.townycompanies.CompaniesSmoke"
+    ],
+    "NeverLandTownyContracts": [
+      "ru.neverland.mintcontracts.CompanyContractsSmoke",
+      "ru.neverland.mintcontracts.ContractMathSmoke",
+      "ru.neverland.mintcontracts.MunicipalContractsSmoke"
+    ],
+    "NeverLandTownyCouncil": [
+      "ru.neverland.townycouncil.CouncilRepositorySmoke",
+      "ru.neverland.townycouncil.CouncilSettingsSmoke"
+    ],
+    "NeverLandTownyDiplomacy": [
+      "ru.neverland.townydiplomacy.DiplomacyRepositorySmoke",
+      "ru.neverland.townydiplomacy.DiplomacyRulesSmoke"
+    ],
+    "NeverLandTownyDistricts": [
+      "ru.neverland.townydistricts.DistrictsSmoke"
+    ],
+    "NeverLandTownyElections": [
+      "ru.neverland.townyelections.ElectionSmoke",
+      "ru.neverland.townyelections.ElectionsRepositorySmoke"
+    ],
+    "NeverLandTownyEspionage": [
+      "ru.neverland.mintespionage.EspionageMathSmoke"
+    ],
+    "NeverLandTownyEvents": [
+      "ru.neverland.mintevents.EventMathSmoke",
+      "ru.neverland.mintevents.FireDamageSmoke",
+      "ru.neverland.mintevents.LinkageSmoke",
+      "ru.neverland.mintevents.RaidKillAndMessagesSmoke",
+      "ru.neverland.mintevents.RaidSpawnPlannerSmoke",
+      "ru.neverland.mintevents.RaidWavesSmoke"
+    ],
+    "NeverLandTownyExpeditions": [
+      "ru.neverland.mintexpeditions.LinkageTest",
+      "ru.neverland.mintexpeditions.SiteGeneratorTest",
+      "ru.neverland.mintexpeditions.service.ExpeditionAccessSmoke",
+      "ru.neverland.mintexpeditions.service.MessageServiceSmoke",
+      "ru.neverland.mintexpeditions.service.RewardPersistenceSmoke"
+    ],
+    "NeverLandTownyGovernance": [
+      "ru.neverland.governance.GovernanceMathSmoke",
+      "ru.neverland.governance.OptionalDependencySmoke",
+      "ru.neverland.governance.ProposalSmoke"
+    ],
+    "NeverLandTownyIdeologies": [
+      "ru.neverland.townyideologies.EffectFormatterSmoke"
+    ],
+    "NeverLandTownyJobs": [
+      "ru.neverland.townyjobs.JobsSmoke"
+    ],
+    "NeverLandTownyLogistics": [
+      "ru.neverland.townylogistics.LogisticsHelpSmoke",
+      "ru.neverland.townylogistics.LogisticsSmoke"
+    ],
+    "NeverLandTownyMarket": [
+      "ru.neverland.townymarket.MarketSmoke"
+    ],
+    "NeverLandTownyPolicies": [
+      "ru.neverland.townypolicies.PoliciesSmoke"
+    ],
+    "NeverLandTownyPopulation": [
+      "ru.neverland.townypopulation.PopulationSmoke"
+    ],
+    "NeverLandTownyPower": [
+      "ru.neverland.townypower.PowerSmoke"
+    ],
+    "NeverLandTownyReputation": [
+      "ru.neverland.reputation.ColorUtilSmoke",
+      "ru.neverland.reputation.ConfigurationSmoke",
+      "ru.neverland.reputation.OptionalDependencySmoke",
+      "ru.neverland.reputation.RelationKeySmoke",
+      "ru.neverland.reputation.ReputationMathSmoke"
+    ],
+    "NeverLandTownyResearch": [
+      "ru.neverland.townyresearch.ResearchSmoke"
+    ],
+    "NeverLandTownyResources": [
+      "ru.neverland.townyresources.ResourcesSmoke"
+    ],
+    "NeverLandTownySpecialization": [
+      "ru.neverland.townyspecialization.SpecializationSmoke"
+    ],
+    "NeverLandTownyStick": [
+      "ru.neverland.morstownstick.SelectionClickGateSmoke",
+      "ru.neverland.morstownstick.SmokeTest"
+    ],
+    "NeverLandTownyTaxes": [
+      "ru.neverland.townytaxes.DomainSmoke",
+      "ru.neverland.townytaxes.MunicipalTaxesSmoke"
+    ],
+    "NeverLandTownyTrade": [
+      "ru.neverland.minttrade.CaravanReliabilitySmoke",
+      "ru.neverland.minttrade.SupplyContractSmoke",
+      "ru.neverland.minttrade.TradeMathSmoke"
+    ],
+    "NeverLandTownyTreasuryPlus": [
+      "ru.neverland.townytreasury.TreasuryAccessSmoke",
+      "ru.neverland.townytreasury.TreasurySmoke"
+    ],
+    "NeverLandTownyUpkeep": [
+      "ru.neverland.townyupkeep.UpkeepSmoke"
+    ]
+  }
+}

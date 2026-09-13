@@ -1,0 +1,1710 @@
+{
+  "sites": [
+    "modules/NeverLandTownyBuilds/src/main/java/ru/neverland/townybuilds/integration/ArchaeologyBridge.java:24",
+    "modules/NeverLandTownyBuilds/src/main/java/ru/neverland/townybuilds/integration/FireRepairAccess.java:10",
+    "modules/NeverLandTownyChronicles/src/main/java/ru/neverland/townychronicles/integration/BuildBridge.java:17",
+    "modules/NeverLandTownyCompanies/src/main/java/ru/neverland/townycompanies/ContractsBridge.java:7",
+    "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/integration/CompaniesBridge.java:7",
+    "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/integration/WarehouseBridge.java:13",
+    "modules/NeverLandTownyDistricts/src/main/java/ru/neverland/townydistricts/integration/BuildsBridge.java:10",
+    "modules/NeverLandTownyDistricts/src/main/java/ru/neverland/townydistricts/integration/BuildsBridge.java:7",
+    "modules/NeverLandTownyElections/src/main/java/ru/neverland/townyelections/ElectionIntegrations.java:10",
+    "modules/NeverLandTownyElections/src/main/java/ru/neverland/townyelections/ElectionIntegrations.java:8",
+    "modules/NeverLandTownyEspionage/src/main/java/ru/neverland/mintespionage/integration/BuildBridge.java:30",
+    "modules/NeverLandTownyExpeditions/src/main/java/ru/neverland/mintexpeditions/integration/BuildBridge.java:25",
+    "modules/NeverLandTownyExpeditions/src/main/java/ru/neverland/mintexpeditions/integration/CampFacade.java:8",
+    "modules/NeverLandTownyGovernance/src/main/java/ru/neverland/governance/service/GovernanceService.java:182",
+    "modules/NeverLandTownyJobs/src/main/java/ru/neverland/townyjobs/CityBridge.java:6",
+    "modules/NeverLandTownyLogistics/src/main/java/ru/neverland/townylogistics/integration/BuildsStorage.java:14",
+    "modules/NeverLandTownyLogistics/src/main/java/ru/neverland/townylogistics/integration/BuildsStorage.java:16",
+    "modules/NeverLandTownyMarket/src/main/java/ru/neverland/townymarket/MarketGateway.java:19",
+    "modules/NeverLandTownyMarket/src/main/java/ru/neverland/townymarket/MarketGateway.java:35",
+    "modules/NeverLandTownyPolicies/src/main/java/ru/neverland/townypolicies/service/PoliciesService.java:30",
+    "modules/NeverLandTownyPopulation/src/main/java/ru/neverland/townypopulation/integration/BuildsBridge.java:11",
+    "modules/NeverLandTownyPopulation/src/main/java/ru/neverland/townypopulation/integration/ResourcesBridge.java:8",
+    "modules/NeverLandTownyPower/src/main/java/ru/neverland/townypower/integration/CityBridge.java:10",
+    "modules/NeverLandTownyResearch/src/main/java/ru/neverland/townyresearch/integration/CityBridge.java:10",
+    "modules/NeverLandTownyResearch/src/main/java/ru/neverland/townyresearch/integration/CityBridge.java:14",
+    "modules/NeverLandTownyResearch/src/main/java/ru/neverland/townyresearch/integration/CityBridge.java:15",
+    "modules/NeverLandTownyResearch/src/main/java/ru/neverland/townyresearch/integration/CityBridge.java:18",
+    "modules/NeverLandTownyResources/src/main/java/ru/neverland/townyresources/integration/CityBridge.java:10",
+    "modules/NeverLandTownyResources/src/main/java/ru/neverland/townyresources/integration/CityBridge.java:27",
+    "modules/NeverLandTownySpecialization/src/main/java/ru/neverland/townyspecialization/integration/CityBridge.java:10",
+    "modules/NeverLandTownyTrade/src/main/java/ru/neverland/minttrade/contract/SupplyGateway.java:18",
+    "modules/NeverLandTownyTrade/src/main/java/ru/neverland/minttrade/integration/BuildBridge.java:18",
+    "modules/NeverLandTownyTrade/src/main/java/ru/neverland/minttrade/integration/TaxesBridge.java:24",
+    "modules/NeverLandTownyTrade/src/main/java/ru/neverland/minttrade/integration/WarehouseBridge.java:14",
+    "modules/NeverLandTownyTreasuryPlus/src/main/java/ru/neverland/townytreasury/service/TreasuryService.java:86",
+    "modules/NeverLandTownyUpkeep/src/main/java/ru/neverland/townyupkeep/integration/CityBridge.java:10",
+    "modules/NeverLandTownyUpkeep/src/main/java/ru/neverland/townyupkeep/integration/CityBridge.java:14",
+    "modules/NeverLandTownyUpkeep/src/main/java/ru/neverland/townyupkeep/integration/CityBridge.java:15",
+    "modules/NeverLandTownyUpkeep/src/main/java/ru/neverland/townyupkeep/integration/CityBridge.java:18",
+    "shared/core/src/main/java/ru/neverland/core/CitizensAccess.java:11",
+    "shared/core/src/main/java/ru/neverland/core/CitizensAccess.java:18",
+    "shared/core/src/main/java/ru/neverland/core/CitizensAccess.java:25",
+    "shared/core/src/main/java/ru/neverland/core/CouncilAccess.java:13",
+    "shared/core/src/main/java/ru/neverland/core/DiplomacyAccess.java:10",
+    "shared/core/src/main/java/ru/neverland/core/DiplomacyAccess.java:17",
+    "shared/core/src/main/java/ru/neverland/core/DiplomacyAccess.java:26",
+    "shared/core/src/main/java/ru/neverland/core/DiplomacyAccess.java:36",
+    "shared/districts/src/main/java/ru/neverland/integration/DistrictBonuses.java:10",
+    "shared/jobs/src/main/java/ru/neverland/integration/JobsAccess.java:9",
+    "shared/policies/src/main/java/ru/neverland/integration/PoliciesAccess.java:7",
+    "shared/research/src/main/java/ru/neverland/integration/ResearchBonuses.java:7",
+    "shared/specialization/src/main/java/ru/neverland/integration/SpecializationAccess.java:7",
+    "shared/treasury/src/main/java/ru/neverland/integration/TreasuryAccess.java:10",
+    "shared/upkeep/src/main/java/ru/neverland/integration/BuildingOperations.java:18",
+    "shared/upkeep/src/main/java/ru/neverland/integration/BuildingOperations.java:8"
+  ],
+  "contracts": [
+    {
+      "source": "modules/NeverLandTownyArchaeology/src/main/java/ru/neverland/archaeology/api/TownyArchaeologyApi.java",
+      "contract": "ru.neverland.archaeology.api.TownyArchaeologyApi",
+      "major": 1,
+      "capabilities": [
+        "artifactName",
+        "available",
+        "consumeForWonder",
+        "createArtifact",
+        "isAuthenticArtifact",
+        "missingForWonder",
+        "museum",
+        "wonderRequirements"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/main/java/ru/neverland/townybuilds/api/BuildingStorageApi.java",
+      "contract": "ru.neverland.townybuilds.api.BuildingStorageApi",
+      "major": 1,
+      "capabilities": [
+        "acknowledge",
+        "acknowledgeTrade",
+        "depots",
+        "openStorage",
+        "pickup",
+        "reserveTrade",
+        "settleTrade",
+        "shipmentTowns",
+        "shipments",
+        "stock",
+        "unload"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/main/java/ru/neverland/townybuilds/api/MarketStorageApi.java",
+      "contract": "ru.neverland.townybuilds.api.MarketStorageApi",
+      "major": 1,
+      "capabilities": [
+        "acknowledge",
+        "claim",
+        "close",
+        "deliver",
+        "forget",
+        "level",
+        "open",
+        "refund",
+        "reserve",
+        "resolveClaim",
+        "snapshot"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/main/java/ru/neverland/townybuilds/api/MunicipalStorageApi.java",
+      "contract": "ru.neverland.townybuilds.api.MunicipalStorageApi",
+      "major": 1,
+      "capabilities": [
+        "acknowledge",
+        "capacity",
+        "deposit"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/main/java/ru/neverland/townybuilds/api/TownArmyApi.java",
+      "contract": "ru.neverland.townybuilds.api.TownArmyApi",
+      "major": 1,
+      "capabilities": [
+        "isMobilized",
+        "soldiers"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/main/java/ru/neverland/townybuilds/api/TownyBuildsApi.java",
+      "contract": "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "major": 1,
+      "capabilities": [
+        "area",
+        "benefit",
+        "buildingFootprints",
+        "consumeInsurance",
+        "insuranceReserve",
+        "line",
+        "operationalLevel",
+        "projectLevel",
+        "supportedProjects",
+        "waterNetworkActive",
+        "workplaces"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/main/java/ru/neverland/townybuilds/api/WarehouseApi.java",
+      "contract": "ru.neverland.townybuilds.api.WarehouseApi",
+      "major": 1,
+      "capabilities": [
+        "acknowledgeMovement",
+        "deposit",
+        "take",
+        "transfer",
+        "transferred"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyCamps/src/main/java/ru/neverland/mintcamps/api/TownyCampsApi.java",
+      "contract": "ru.neverland.mintcamps.api.TownyCampsApi",
+      "major": 1,
+      "capabilities": [
+        "camp",
+        "consume",
+        "stashBusy"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyChronicles/src/main/java/ru/neverland/townychronicles/api/TownyChroniclesApi.java",
+      "contract": "ru.neverland.townychronicles.api.TownyChroniclesApi",
+      "major": 1,
+      "capabilities": [
+        "entries",
+        "latest",
+        "record"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyCitizens/src/main/java/ru/neverland/townycitizens/api/TownyCitizensApi.java",
+      "contract": "ru.neverland.townycitizens.api.TownyCitizensApi",
+      "major": 1,
+      "capabilities": [
+        "allows",
+        "expiresAt",
+        "healthy",
+        "passport",
+        "passportFields",
+        "status",
+        "taxMultiplier"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyCompanies/src/main/java/ru/neverland/townycompanies/api/CompaniesApi.java",
+      "contract": "ru.neverland.townycompanies.api.CompaniesApi",
+      "major": 1,
+      "capabilities": [
+        "canContribute",
+        "canManage",
+        "canTake",
+        "companyName",
+        "settleEscrow"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/api/MintTownyContractsApi.java",
+      "contract": "ru.neverland.mintcontracts.api.MintTownyContractsApi",
+      "major": 1,
+      "capabilities": [
+        "activeContracts",
+        "addProgress",
+        "companyActiveCount",
+        "companyOffers",
+        "pendingReward",
+        "releaseCompanyContract",
+        "takeCompanyContract"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyCouncil/src/main/java/ru/neverland/townycouncil/api/TownyCouncilApi.java",
+      "contract": "ru.neverland.townycouncil.api.TownyCouncilApi",
+      "major": 1,
+      "capabilities": [
+        "allows",
+        "healthy",
+        "holders",
+        "permissions",
+        "role"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyDiplomacy/src/main/java/ru/neverland/townydiplomacy/api/TownyDiplomacyApi.java",
+      "contract": "ru.neverland.townydiplomacy.api.TownyDiplomacyApi",
+      "major": 1,
+      "capabilities": [
+        "defenders",
+        "healthy",
+        "hostileBlocked",
+        "overlord",
+        "relations",
+        "tariffMultiplier",
+        "tradeBlocked",
+        "treaties"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyDistricts/src/main/java/ru/neverland/townydistricts/api/TownyDistrictsApi.java",
+      "contract": "ru.neverland.townydistricts.api.TownyDistrictsApi",
+      "major": 1,
+      "capabilities": [
+        "districtAt",
+        "districts",
+        "multiplier"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyElections/src/main/java/ru/neverland/townyelections/api/TownyElectionsApi.java",
+      "contract": "ru.neverland.townyelections.api.TownyElectionsApi",
+      "major": 1,
+      "capabilities": [
+        "elective",
+        "healthy",
+        "snapshot"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyEspionage/src/main/java/ru/neverland/mintespionage/api/MintTownyEspionageApi.java",
+      "contract": "ru.neverland.mintespionage.api.MintTownyEspionageApi",
+      "major": 1,
+      "capabilities": [
+        "defenseStrength",
+        "snapshot",
+        "unreadReports"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyEvents/src/main/java/ru/neverland/mintevents/api/MintTownyEventsApi.java",
+      "contract": "ru.neverland.mintevents.api.MintTownyEventsApi",
+      "major": 1,
+      "capabilities": [
+        "activeEvent",
+        "addProgress",
+        "hasFireDamage",
+        "protection",
+        "requiresRepair"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyGovernance/src/main/java/ru/neverland/governance/api/TownyGovernanceApi.java",
+      "contract": "ru.neverland.governance.api.TownyGovernanceApi",
+      "major": 1,
+      "capabilities": [
+        "applyElection",
+        "constructionCostMultiplier",
+        "electionReceipt",
+        "hasLaw",
+        "ideologyCostMultiplier",
+        "ideologyExperienceMultiplier",
+        "officeCatalog",
+        "officeHolders",
+        "snapshot"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyIdeologies/src/main/java/ru/neverland/townyideologies/api/TownyIdeologiesApi.java",
+      "contract": "ru.neverland.townyideologies.api.TownyIdeologiesApi",
+      "major": 1,
+      "capabilities": [
+        "governmentForm",
+        "ideology"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyJobs/src/main/java/ru/neverland/townyjobs/api/TownyJobsApi.java",
+      "contract": "ru.neverland.townyjobs.api.TownyJobsApi",
+      "major": 1,
+      "capabilities": [
+        "bonus",
+        "supports",
+        "townBonus",
+        "workers"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyMarket/src/main/java/ru/neverland/townymarket/MarketApi.java",
+      "contract": "ru.neverland.townymarket.MarketApi",
+      "major": 1,
+      "capabilities": [
+        "offers"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyPolicies/src/main/java/ru/neverland/townypolicies/api/TownyPoliciesApi.java",
+      "contract": "ru.neverland.townypolicies.api.TownyPoliciesApi",
+      "major": 1,
+      "capabilities": [
+        "effect",
+        "importsAllowed",
+        "policies",
+        "productionMultiplier",
+        "residentPolicies",
+        "tariff",
+        "tariffManaged",
+        "taxMultiplier",
+        "upkeepMultiplier"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyPopulation/src/main/java/ru/neverland/townypopulation/api/TownyPopulationApi.java",
+      "contract": "ru.neverland.townypopulation.api.TownyPopulationApi",
+      "major": 1,
+      "capabilities": [
+        "population",
+        "populations",
+        "residentPopulation"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyPower/src/main/java/ru/neverland/townypower/api/TownyPowerApi.java",
+      "contract": "ru.neverland.townypower.api.TownyPowerApi",
+      "major": 1,
+      "capabilities": [
+        "power",
+        "powered",
+        "residentPower",
+        "status",
+        "towns"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyReputation/src/main/java/ru/neverland/reputation/api/TownyReputationApi.java",
+      "contract": "ru.neverland.reputation.api.TownyReputationApi",
+      "major": 1,
+      "capabilities": [
+        "change",
+        "featureUnlocked",
+        "score",
+        "set",
+        "snapshot"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyResearch/src/main/java/ru/neverland/townyresearch/api/TownyResearchApi.java",
+      "contract": "ru.neverland.townyresearch.api.TownyResearchApi",
+      "major": 1,
+      "capabilities": [
+        "bonus",
+        "level",
+        "name",
+        "research",
+        "residentResearch",
+        "towns"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyResources/src/main/java/ru/neverland/townyresources/api/TownyResourcesApi.java",
+      "contract": "ru.neverland.townyresources.api.TownyResourcesApi",
+      "major": 1,
+      "capabilities": [
+        "forgetReservation",
+        "productionWeeks",
+        "reservationStatus",
+        "reservations",
+        "reserveResources",
+        "residentResources",
+        "resources",
+        "settleResources",
+        "towns"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownySpecialization/src/main/java/ru/neverland/townyspecialization/api/TownySpecializationApi.java",
+      "contract": "ru.neverland.townyspecialization.api.TownySpecializationApi",
+      "major": 1,
+      "capabilities": [
+        "bonus",
+        "canUseBuilding",
+        "productionBonus",
+        "residentSpecialization",
+        "specialization",
+        "towns"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyTaxes/src/main/java/ru/neverland/townytaxes/api/NeverLandTownyTaxesApi.java",
+      "contract": "ru.neverland.townytaxes.api.NeverLandTownyTaxesApi",
+      "major": 1,
+      "capabilities": [
+        "isTradeBlocked",
+        "municipalTaxConfigured",
+        "serverReserve",
+        "taxDebt",
+        "tradePreferenceMultiplier"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyTrade/src/main/java/ru/neverland/minttrade/api/MintTownyTradeApi.java",
+      "contract": "ru.neverland.minttrade.api.MintTownyTradeApi",
+      "major": 1,
+      "capabilities": [
+        "activeRoutes",
+        "marketLevel",
+        "supplyContracts",
+        "tariffPercent"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyTreasuryPlus/src/main/java/ru/neverland/townytreasury/api/TownyTreasuryApi.java",
+      "contract": "ru.neverland.townytreasury.api.TownyTreasuryApi",
+      "major": 1,
+      "capabilities": [
+        "canSpend",
+        "spend",
+        "treasury"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyUpkeep/src/main/java/ru/neverland/townyupkeep/api/TownyUpkeepApi.java",
+      "contract": "ru.neverland.townyupkeep.api.TownyUpkeepApi",
+      "major": 1,
+      "capabilities": [
+        "active",
+        "buildings"
+      ]
+    }
+  ],
+  "consumers": [
+    {
+      "source": "modules/NeverLandTownyBuilds/src/main/java/ru/neverland/townybuilds/integration/ArchaeologyBridge.java:24",
+      "plugin": "NeverLandTownyArchaeology",
+      "contract": "ru.neverland.archaeology.api.TownyArchaeologyApi",
+      "major": 1,
+      "capabilities": [
+        "wonderRequirements",
+        "missingForWonder",
+        "available",
+        "consumeForWonder",
+        "artifactName"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/main/java/ru/neverland/townybuilds/integration/FireRepairAccess.java:10",
+      "plugin": "NeverLandTownyEvents",
+      "contract": "ru.neverland.mintevents.api.MintTownyEventsApi",
+      "major": 1,
+      "capabilities": [
+        "hasFireDamage"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyChronicles/src/main/java/ru/neverland/townychronicles/integration/BuildBridge.java:17",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "major": 1,
+      "capabilities": [
+        "projectLevel"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyCompanies/src/main/java/ru/neverland/townycompanies/ContractsBridge.java:7",
+      "plugin": "NeverLandTownyContracts",
+      "contract": "ru.neverland.mintcontracts.api.MintTownyContractsApi",
+      "major": 1,
+      "capabilities": [
+        "companyActiveCount"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyCompanies/src/main/java/ru/neverland/townycompanies/ContractsBridge.java:7",
+      "plugin": "NeverLandTownyContracts",
+      "contract": "ru.neverland.mintcontracts.api.MintTownyContractsApi",
+      "major": 1,
+      "capabilities": [
+        "companyOffers"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyCompanies/src/main/java/ru/neverland/townycompanies/ContractsBridge.java:7",
+      "plugin": "NeverLandTownyContracts",
+      "contract": "ru.neverland.mintcontracts.api.MintTownyContractsApi",
+      "major": 1,
+      "capabilities": [
+        "releaseCompanyContract"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyCompanies/src/main/java/ru/neverland/townycompanies/ContractsBridge.java:7",
+      "plugin": "NeverLandTownyContracts",
+      "contract": "ru.neverland.mintcontracts.api.MintTownyContractsApi",
+      "major": 1,
+      "capabilities": [
+        "takeCompanyContract"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/integration/CompaniesBridge.java:7",
+      "plugin": "NeverLandTownyCompanies",
+      "contract": "ru.neverland.townycompanies.api.CompaniesApi",
+      "major": 1,
+      "capabilities": [
+        "companyName"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/integration/CompaniesBridge.java:7",
+      "plugin": "NeverLandTownyCompanies",
+      "contract": "ru.neverland.townycompanies.api.CompaniesApi",
+      "major": 1,
+      "capabilities": [
+        "settleEscrow"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/integration/WarehouseBridge.java:13",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.MunicipalStorageApi",
+      "major": 1,
+      "capabilities": [
+        "capacity",
+        "deposit",
+        "acknowledge"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyDistricts/src/main/java/ru/neverland/townydistricts/integration/BuildsBridge.java:10",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "major": 1,
+      "capabilities": [
+        "buildingFootprints"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyDistricts/src/main/java/ru/neverland/townydistricts/integration/BuildsBridge.java:7",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "major": 1,
+      "capabilities": [
+        "buildingFootprints"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyElections/src/main/java/ru/neverland/townyelections/ElectionIntegrations.java:10",
+      "plugin": "NeverLandTownyIdeologies",
+      "contract": "ru.neverland.townyideologies.api.TownyIdeologiesApi",
+      "major": 1,
+      "capabilities": [
+        "governmentForm"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyElections/src/main/java/ru/neverland/townyelections/ElectionIntegrations.java:8",
+      "plugin": "NeverLandTownyGovernance",
+      "contract": "ru.neverland.governance.api.TownyGovernanceApi",
+      "major": 1,
+      "capabilities": [
+        "officeCatalog",
+        "officeHolders",
+        "applyElection",
+        "electionReceipt"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyEspionage/src/main/java/ru/neverland/mintespionage/integration/BuildBridge.java:30",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "major": 1,
+      "capabilities": [
+        "operationalLevel"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyExpeditions/src/main/java/ru/neverland/mintexpeditions/integration/BuildBridge.java:25",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "major": 1,
+      "capabilities": [
+        "operationalLevel"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyExpeditions/src/main/java/ru/neverland/mintexpeditions/integration/CampFacade.java:8",
+      "plugin": "NeverLandTownyCamps",
+      "contract": "ru.neverland.mintcamps.api.TownyCampsApi",
+      "major": 1,
+      "capabilities": [
+        "camp",
+        "stashBusy",
+        "consume"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyGovernance/src/main/java/ru/neverland/governance/service/GovernanceService.java:182",
+      "plugin": "NeverLandTownyElections",
+      "contract": "ru.neverland.townyelections.api.TownyElectionsApi",
+      "major": 1,
+      "capabilities": [
+        "elective"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyJobs/src/main/java/ru/neverland/townyjobs/CityBridge.java:6",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "major": 1,
+      "capabilities": [
+        "supportedProjects",
+        "workplaces"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyLogistics/src/main/java/ru/neverland/townylogistics/integration/BuildsStorage.java:14",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.BuildingStorageApi",
+      "major": 1,
+      "capabilities": [
+        "depots",
+        "shipments",
+        "pickup",
+        "unload",
+        "acknowledge",
+        "stock",
+        "shipmentTowns",
+        "openStorage"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyLogistics/src/main/java/ru/neverland/townylogistics/integration/BuildsStorage.java:16",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.BuildingStorageApi",
+      "major": 1,
+      "capabilities": [
+        "acknowledge"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyLogistics/src/main/java/ru/neverland/townylogistics/integration/BuildsStorage.java:16",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.BuildingStorageApi",
+      "major": 1,
+      "capabilities": [
+        "depots"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyLogistics/src/main/java/ru/neverland/townylogistics/integration/BuildsStorage.java:16",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.BuildingStorageApi",
+      "major": 1,
+      "capabilities": [
+        "openStorage"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyLogistics/src/main/java/ru/neverland/townylogistics/integration/BuildsStorage.java:16",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.BuildingStorageApi",
+      "major": 1,
+      "capabilities": [
+        "pickup"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyLogistics/src/main/java/ru/neverland/townylogistics/integration/BuildsStorage.java:16",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.BuildingStorageApi",
+      "major": 1,
+      "capabilities": [
+        "shipmentTowns"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyLogistics/src/main/java/ru/neverland/townylogistics/integration/BuildsStorage.java:16",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.BuildingStorageApi",
+      "major": 1,
+      "capabilities": [
+        "shipments"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyLogistics/src/main/java/ru/neverland/townylogistics/integration/BuildsStorage.java:16",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.BuildingStorageApi",
+      "major": 1,
+      "capabilities": [
+        "stock"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyLogistics/src/main/java/ru/neverland/townylogistics/integration/BuildsStorage.java:16",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.BuildingStorageApi",
+      "major": 1,
+      "capabilities": [
+        "unload"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyMarket/src/main/java/ru/neverland/townymarket/MarketGateway.java:19",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.MarketStorageApi",
+      "major": 1,
+      "capabilities": [
+        "level",
+        "open",
+        "snapshot",
+        "reserve",
+        "deliver",
+        "refund",
+        "close",
+        "acknowledge",
+        "forget",
+        "claim",
+        "resolveClaim"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyMarket/src/main/java/ru/neverland/townymarket/MarketGateway.java:35",
+      "plugin": "NeverLandTownyTaxes",
+      "contract": "ru.neverland.townytaxes.api.NeverLandTownyTaxesApi",
+      "major": 1,
+      "capabilities": [
+        "isTradeBlocked"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyPolicies/src/main/java/ru/neverland/townypolicies/service/PoliciesService.java:30",
+      "plugin": "NeverLandTownyTaxes",
+      "contract": "ru.neverland.townytaxes.api.NeverLandTownyTaxesApi",
+      "major": 1,
+      "capabilities": [
+        "municipalTaxConfigured"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyPopulation/src/main/java/ru/neverland/townypopulation/integration/BuildsBridge.java:11",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "major": 1,
+      "capabilities": [
+        "operationalLevel"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyPopulation/src/main/java/ru/neverland/townypopulation/integration/ResourcesBridge.java:8",
+      "plugin": "NeverLandTownyResources",
+      "contract": "ru.neverland.townyresources.api.TownyResourcesApi",
+      "major": 1,
+      "capabilities": [
+        "resources"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyPower/src/main/java/ru/neverland/townypower/integration/CityBridge.java:10",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "major": 1,
+      "capabilities": [
+        "buildingFootprints"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyResearch/src/main/java/ru/neverland/townyresearch/integration/CityBridge.java:10",
+      "plugin": "NeverLandTownyResources",
+      "contract": "ru.neverland.townyresources.api.TownyResourcesApi",
+      "major": 1,
+      "capabilities": [
+        "forgetReservation"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyResearch/src/main/java/ru/neverland/townyresearch/integration/CityBridge.java:10",
+      "plugin": "NeverLandTownyResources",
+      "contract": "ru.neverland.townyresources.api.TownyResourcesApi",
+      "major": 1,
+      "capabilities": [
+        "reservationStatus"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyResearch/src/main/java/ru/neverland/townyresearch/integration/CityBridge.java:10",
+      "plugin": "NeverLandTownyResources",
+      "contract": "ru.neverland.townyresources.api.TownyResourcesApi",
+      "major": 1,
+      "capabilities": [
+        "reserveResources"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyResearch/src/main/java/ru/neverland/townyresearch/integration/CityBridge.java:10",
+      "plugin": "NeverLandTownyResources",
+      "contract": "ru.neverland.townyresources.api.TownyResourcesApi",
+      "major": 1,
+      "capabilities": [
+        "resources"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyResearch/src/main/java/ru/neverland/townyresearch/integration/CityBridge.java:10",
+      "plugin": "NeverLandTownyResources",
+      "contract": "ru.neverland.townyresources.api.TownyResourcesApi",
+      "major": 1,
+      "capabilities": [
+        "settleResources"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyResearch/src/main/java/ru/neverland/townyresearch/integration/CityBridge.java:14",
+      "plugin": "NeverLandTownyResources",
+      "contract": "ru.neverland.townyresources.api.TownyResourcesApi",
+      "major": 1,
+      "capabilities": [
+        "reserveResources",
+        "settleResources",
+        "forgetReservation",
+        "reservationStatus"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyResearch/src/main/java/ru/neverland/townyresearch/integration/CityBridge.java:15",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "major": 1,
+      "capabilities": [
+        "operationalLevel",
+        "buildingFootprints"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyResearch/src/main/java/ru/neverland/townyresearch/integration/CityBridge.java:18",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "major": 1,
+      "capabilities": [
+        "buildingFootprints"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyResources/src/main/java/ru/neverland/townyresources/integration/CityBridge.java:10",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "major": 1,
+      "capabilities": [
+        "buildingFootprints"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyResources/src/main/java/ru/neverland/townyresources/integration/CityBridge.java:27",
+      "plugin": "NeverLandTownyPopulation",
+      "contract": "ru.neverland.townypopulation.api.TownyPopulationApi",
+      "major": 1,
+      "capabilities": [
+        "population"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownySpecialization/src/main/java/ru/neverland/townyspecialization/integration/CityBridge.java:10",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "major": 1,
+      "capabilities": [
+        "buildingFootprints"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyTrade/src/main/java/ru/neverland/minttrade/contract/SupplyGateway.java:18",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.BuildingStorageApi",
+      "major": 1,
+      "capabilities": [
+        "reserveTrade",
+        "settleTrade",
+        "acknowledgeTrade"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyTrade/src/main/java/ru/neverland/minttrade/integration/BuildBridge.java:18",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "major": 1,
+      "capabilities": [
+        "operationalLevel"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyTrade/src/main/java/ru/neverland/minttrade/integration/TaxesBridge.java:24",
+      "plugin": "NeverLandTownyTaxes",
+      "contract": "ru.neverland.townytaxes.api.NeverLandTownyTaxesApi",
+      "major": 1,
+      "capabilities": [
+        "isTradeBlocked"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyTrade/src/main/java/ru/neverland/minttrade/integration/TaxesBridge.java:24",
+      "plugin": "NeverLandTownyTaxes",
+      "contract": "ru.neverland.townytaxes.api.NeverLandTownyTaxesApi",
+      "major": 1,
+      "capabilities": [
+        "tradePreferenceMultiplier"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyTrade/src/main/java/ru/neverland/minttrade/integration/WarehouseBridge.java:14",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.WarehouseApi",
+      "major": 1,
+      "capabilities": [
+        "transfer",
+        "transferred",
+        "acknowledgeMovement"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyTreasuryPlus/src/main/java/ru/neverland/townytreasury/service/TreasuryService.java:86",
+      "plugin": "NeverLandTownyResources",
+      "contract": "ru.neverland.townyresources.api.TownyResourcesApi",
+      "major": 1,
+      "capabilities": [
+        "productionWeeks"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyUpkeep/src/main/java/ru/neverland/townyupkeep/integration/CityBridge.java:10",
+      "plugin": "NeverLandTownyResources",
+      "contract": "ru.neverland.townyresources.api.TownyResourcesApi",
+      "major": 1,
+      "capabilities": [
+        "forgetReservation"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyUpkeep/src/main/java/ru/neverland/townyupkeep/integration/CityBridge.java:10",
+      "plugin": "NeverLandTownyResources",
+      "contract": "ru.neverland.townyresources.api.TownyResourcesApi",
+      "major": 1,
+      "capabilities": [
+        "reservationStatus"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyUpkeep/src/main/java/ru/neverland/townyupkeep/integration/CityBridge.java:10",
+      "plugin": "NeverLandTownyResources",
+      "contract": "ru.neverland.townyresources.api.TownyResourcesApi",
+      "major": 1,
+      "capabilities": [
+        "reserveResources"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyUpkeep/src/main/java/ru/neverland/townyupkeep/integration/CityBridge.java:10",
+      "plugin": "NeverLandTownyResources",
+      "contract": "ru.neverland.townyresources.api.TownyResourcesApi",
+      "major": 1,
+      "capabilities": [
+        "settleResources"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyUpkeep/src/main/java/ru/neverland/townyupkeep/integration/CityBridge.java:14",
+      "plugin": "NeverLandTownyResources",
+      "contract": "ru.neverland.townyresources.api.TownyResourcesApi",
+      "major": 1,
+      "capabilities": [
+        "reserveResources",
+        "settleResources",
+        "forgetReservation",
+        "reservationStatus"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyUpkeep/src/main/java/ru/neverland/townyupkeep/integration/CityBridge.java:15",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "major": 1,
+      "capabilities": [
+        "operationalLevel",
+        "buildingFootprints"
+      ]
+    },
+    {
+      "source": "modules/NeverLandTownyUpkeep/src/main/java/ru/neverland/townyupkeep/integration/CityBridge.java:18",
+      "plugin": "NeverLandTownyBuilds",
+      "contract": "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "major": 1,
+      "capabilities": [
+        "buildingFootprints"
+      ]
+    },
+    {
+      "source": "shared/core/src/main/java/ru/neverland/core/CitizensAccess.java:11",
+      "plugin": "NeverLandTownyCitizens",
+      "contract": "ru.neverland.townycitizens.api.TownyCitizensApi",
+      "major": 1,
+      "capabilities": [
+        "healthy",
+        "allows",
+        "taxMultiplier"
+      ]
+    },
+    {
+      "source": "shared/core/src/main/java/ru/neverland/core/CitizensAccess.java:18",
+      "plugin": "NeverLandTownyCitizens",
+      "contract": "ru.neverland.townycitizens.api.TownyCitizensApi",
+      "major": 1,
+      "capabilities": [
+        "allows"
+      ]
+    },
+    {
+      "source": "shared/core/src/main/java/ru/neverland/core/CitizensAccess.java:25",
+      "plugin": "NeverLandTownyCitizens",
+      "contract": "ru.neverland.townycitizens.api.TownyCitizensApi",
+      "major": 1,
+      "capabilities": [
+        "taxMultiplier"
+      ]
+    },
+    {
+      "source": "shared/core/src/main/java/ru/neverland/core/CouncilAccess.java:13",
+      "plugin": "NeverLandTownyCouncil",
+      "contract": "ru.neverland.townycouncil.api.TownyCouncilApi",
+      "major": 1,
+      "capabilities": [
+        "allows"
+      ]
+    },
+    {
+      "source": "shared/core/src/main/java/ru/neverland/core/DiplomacyAccess.java:10",
+      "plugin": "NeverLandTownyDiplomacy",
+      "contract": "ru.neverland.townydiplomacy.api.TownyDiplomacyApi",
+      "major": 1,
+      "capabilities": [
+        "healthy"
+      ]
+    },
+    {
+      "source": "shared/core/src/main/java/ru/neverland/core/DiplomacyAccess.java:17",
+      "plugin": "NeverLandTownyDiplomacy",
+      "contract": "ru.neverland.townydiplomacy.api.TownyDiplomacyApi",
+      "major": 1,
+      "capabilities": [
+        "hostileBlocked"
+      ]
+    },
+    {
+      "source": "shared/core/src/main/java/ru/neverland/core/DiplomacyAccess.java:17",
+      "plugin": "NeverLandTownyDiplomacy",
+      "contract": "ru.neverland.townydiplomacy.api.TownyDiplomacyApi",
+      "major": 1,
+      "capabilities": [
+        "tradeBlocked"
+      ]
+    },
+    {
+      "source": "shared/core/src/main/java/ru/neverland/core/DiplomacyAccess.java:26",
+      "plugin": "NeverLandTownyDiplomacy",
+      "contract": "ru.neverland.townydiplomacy.api.TownyDiplomacyApi",
+      "major": 1,
+      "capabilities": [
+        "tariffMultiplier"
+      ]
+    },
+    {
+      "source": "shared/core/src/main/java/ru/neverland/core/DiplomacyAccess.java:36",
+      "plugin": "NeverLandTownyDiplomacy",
+      "contract": "ru.neverland.townydiplomacy.api.TownyDiplomacyApi",
+      "major": 1,
+      "capabilities": [
+        "relations"
+      ]
+    },
+    {
+      "source": "shared/districts/src/main/java/ru/neverland/integration/DistrictBonuses.java:10",
+      "plugin": "NeverLandTownyDistricts",
+      "contract": "ru.neverland.townydistricts.api.TownyDistrictsApi",
+      "major": 1,
+      "capabilities": [
+        "multiplier"
+      ]
+    },
+    {
+      "source": "shared/jobs/src/main/java/ru/neverland/integration/JobsAccess.java:9",
+      "plugin": "NeverLandTownyJobs",
+      "contract": "ru.neverland.townyjobs.api.TownyJobsApi",
+      "major": 1,
+      "capabilities": [
+        "bonus"
+      ]
+    },
+    {
+      "source": "shared/jobs/src/main/java/ru/neverland/integration/JobsAccess.java:9",
+      "plugin": "NeverLandTownyJobs",
+      "contract": "ru.neverland.townyjobs.api.TownyJobsApi",
+      "major": 1,
+      "capabilities": [
+        "supports"
+      ]
+    },
+    {
+      "source": "shared/jobs/src/main/java/ru/neverland/integration/JobsAccess.java:9",
+      "plugin": "NeverLandTownyJobs",
+      "contract": "ru.neverland.townyjobs.api.TownyJobsApi",
+      "major": 1,
+      "capabilities": [
+        "townBonus"
+      ]
+    },
+    {
+      "source": "shared/jobs/src/main/java/ru/neverland/integration/JobsAccess.java:9",
+      "plugin": "NeverLandTownyJobs",
+      "contract": "ru.neverland.townyjobs.api.TownyJobsApi",
+      "major": 1,
+      "capabilities": [
+        "workers"
+      ]
+    },
+    {
+      "source": "shared/policies/src/main/java/ru/neverland/integration/PoliciesAccess.java:7",
+      "plugin": "NeverLandTownyPolicies",
+      "contract": "ru.neverland.townypolicies.api.TownyPoliciesApi",
+      "major": 1,
+      "capabilities": [
+        "effect"
+      ]
+    },
+    {
+      "source": "shared/policies/src/main/java/ru/neverland/integration/PoliciesAccess.java:7",
+      "plugin": "NeverLandTownyPolicies",
+      "contract": "ru.neverland.townypolicies.api.TownyPoliciesApi",
+      "major": 1,
+      "capabilities": [
+        "importsAllowed"
+      ]
+    },
+    {
+      "source": "shared/policies/src/main/java/ru/neverland/integration/PoliciesAccess.java:7",
+      "plugin": "NeverLandTownyPolicies",
+      "contract": "ru.neverland.townypolicies.api.TownyPoliciesApi",
+      "major": 1,
+      "capabilities": [
+        "productionMultiplier"
+      ]
+    },
+    {
+      "source": "shared/policies/src/main/java/ru/neverland/integration/PoliciesAccess.java:7",
+      "plugin": "NeverLandTownyPolicies",
+      "contract": "ru.neverland.townypolicies.api.TownyPoliciesApi",
+      "major": 1,
+      "capabilities": [
+        "tariff"
+      ]
+    },
+    {
+      "source": "shared/policies/src/main/java/ru/neverland/integration/PoliciesAccess.java:7",
+      "plugin": "NeverLandTownyPolicies",
+      "contract": "ru.neverland.townypolicies.api.TownyPoliciesApi",
+      "major": 1,
+      "capabilities": [
+        "tariffManaged"
+      ]
+    },
+    {
+      "source": "shared/policies/src/main/java/ru/neverland/integration/PoliciesAccess.java:7",
+      "plugin": "NeverLandTownyPolicies",
+      "contract": "ru.neverland.townypolicies.api.TownyPoliciesApi",
+      "major": 1,
+      "capabilities": [
+        "taxMultiplier"
+      ]
+    },
+    {
+      "source": "shared/policies/src/main/java/ru/neverland/integration/PoliciesAccess.java:7",
+      "plugin": "NeverLandTownyPolicies",
+      "contract": "ru.neverland.townypolicies.api.TownyPoliciesApi",
+      "major": 1,
+      "capabilities": [
+        "upkeepMultiplier"
+      ]
+    },
+    {
+      "source": "shared/research/src/main/java/ru/neverland/integration/ResearchBonuses.java:7",
+      "plugin": "NeverLandTownyResearch",
+      "contract": "ru.neverland.townyresearch.api.TownyResearchApi",
+      "major": 1,
+      "capabilities": [
+        "bonus"
+      ]
+    },
+    {
+      "source": "shared/specialization/src/main/java/ru/neverland/integration/SpecializationAccess.java:7",
+      "plugin": "NeverLandTownySpecialization",
+      "contract": "ru.neverland.townyspecialization.api.TownySpecializationApi",
+      "major": 1,
+      "capabilities": [
+        "bonus"
+      ]
+    },
+    {
+      "source": "shared/specialization/src/main/java/ru/neverland/integration/SpecializationAccess.java:7",
+      "plugin": "NeverLandTownySpecialization",
+      "contract": "ru.neverland.townyspecialization.api.TownySpecializationApi",
+      "major": 1,
+      "capabilities": [
+        "canUseBuilding"
+      ]
+    },
+    {
+      "source": "shared/specialization/src/main/java/ru/neverland/integration/SpecializationAccess.java:7",
+      "plugin": "NeverLandTownySpecialization",
+      "contract": "ru.neverland.townyspecialization.api.TownySpecializationApi",
+      "major": 1,
+      "capabilities": [
+        "productionBonus"
+      ]
+    },
+    {
+      "source": "shared/treasury/src/main/java/ru/neverland/integration/TreasuryAccess.java:10",
+      "plugin": "NeverLandTownyTreasuryPlus",
+      "contract": "ru.neverland.townytreasury.api.TownyTreasuryApi",
+      "major": 1,
+      "capabilities": [
+        "canSpend"
+      ]
+    },
+    {
+      "source": "shared/treasury/src/main/java/ru/neverland/integration/TreasuryAccess.java:10",
+      "plugin": "NeverLandTownyTreasuryPlus",
+      "contract": "ru.neverland.townytreasury.api.TownyTreasuryApi",
+      "major": 1,
+      "capabilities": [
+        "spend"
+      ]
+    },
+    {
+      "source": "shared/upkeep/src/main/java/ru/neverland/integration/BuildingOperations.java:18",
+      "plugin": "NeverLandTownyPower",
+      "contract": "ru.neverland.townypower.api.TownyPowerApi",
+      "major": 1,
+      "capabilities": [
+        "status"
+      ]
+    },
+    {
+      "source": "shared/upkeep/src/main/java/ru/neverland/integration/BuildingOperations.java:8",
+      "plugin": "NeverLandTownyPower",
+      "contract": "ru.neverland.townypower.api.TownyPowerApi",
+      "major": 1,
+      "capabilities": [
+        "powered"
+      ]
+    },
+    {
+      "source": "shared/upkeep/src/main/java/ru/neverland/integration/BuildingOperations.java:8",
+      "plugin": "NeverLandTownyUpkeep",
+      "contract": "ru.neverland.townyupkeep.api.TownyUpkeepApi",
+      "major": 1,
+      "capabilities": [
+        "active"
+      ]
+    }
+  ],
+  "dynamic_sites": [
+    "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/integration/CompaniesBridge.java:7"
+  ],
+  "tests": [
+    {
+      "source": "modules/NeverLandTownyArchaeology/src/test/java/ru/neverland/archaeology/ArtifactBatchSmoke.java",
+      "class": "ru.neverland.archaeology.ArtifactBatchSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyArchaeology/src/test/java/ru/neverland/archaeology/CryptoSmoke.java",
+      "class": "ru.neverland.archaeology.CryptoSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyArchaeology/src/test/java/ru/neverland/archaeology/JournalSmoke.java",
+      "class": "ru.neverland.archaeology.JournalSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyArchaeology/src/test/java/ru/neverland/archaeology/MuseumDataSmoke.java",
+      "class": "ru.neverland.archaeology.MuseumDataSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyArchaeology/src/test/java/ru/neverland/archaeology/OptionalDependencySmoke.java",
+      "class": "ru.neverland.archaeology.OptionalDependencySmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyArchaeology/src/test/java/ru/neverland/archaeology/RepositorySmoke.java",
+      "class": "ru.neverland.archaeology.RepositorySmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/BlockOrientationSmoke.java",
+      "class": "ru.neverland.townybuilds.BlockOrientationSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/BlueprintDump.java",
+      "class": "ru.neverland.townybuilds.BlueprintDump"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/BlueprintGeometrySmoke.java",
+      "class": "ru.neverland.townybuilds.BlueprintGeometrySmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/BlueprintLocalizationSmoke.java",
+      "class": "ru.neverland.townybuilds.BlueprintLocalizationSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/BlueprintSeamSmoke.java",
+      "class": "ru.neverland.townybuilds.BlueprintSeamSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/BuildingFootprintsSmoke.java",
+      "class": "ru.neverland.townybuilds.BuildingFootprintsSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/CivicExpansionSmoke.java",
+      "class": "ru.neverland.townybuilds.CivicExpansionSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/ColorCompatibilitySmoke.java",
+      "class": "ru.neverland.townybuilds.ColorCompatibilitySmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/ConstructionPoliciesSmoke.java",
+      "class": "ru.neverland.townybuilds.ConstructionPoliciesSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/EffectJournalSmoke.java",
+      "class": "ru.neverland.townybuilds.EffectJournalSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/ExcavationPlannerSmoke.java",
+      "class": "ru.neverland.townybuilds.ExcavationPlannerSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/ExpansionIntegrationSmoke.java",
+      "class": "ru.neverland.townybuilds.ExpansionIntegrationSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/ImportedModelsSmoke.java",
+      "class": "ru.neverland.townybuilds.ImportedModelsSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/MarketStorageSmoke.java",
+      "class": "ru.neverland.townybuilds.MarketStorageSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/MaterialLocalizationSmoke.java",
+      "class": "ru.neverland.townybuilds.MaterialLocalizationSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/MenuStyleSmoke.java",
+      "class": "ru.neverland.townybuilds.MenuStyleSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/MobilizationSmoke.java",
+      "class": "ru.neverland.townybuilds.MobilizationSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/MunicipalStorageSmoke.java",
+      "class": "ru.neverland.townybuilds.MunicipalStorageSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/OptionalArchaeologySmoke.java",
+      "class": "ru.neverland.townybuilds.OptionalArchaeologySmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/PowerBlueprintSmoke.java",
+      "class": "ru.neverland.townybuilds.PowerBlueprintSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/ProjectIconsSmoke.java",
+      "class": "ru.neverland.townybuilds.ProjectIconsSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/ResourceBalanceSmoke.java",
+      "class": "ru.neverland.townybuilds.ResourceBalanceSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/ResourceFundSmoke.java",
+      "class": "ru.neverland.townybuilds.ResourceFundSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/ResourceTransferSmoke.java",
+      "class": "ru.neverland.townybuilds.ResourceTransferSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/RoofSupportSmoke.java",
+      "class": "ru.neverland.townybuilds.RoofSupportSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/ShipmentStorageSmoke.java",
+      "class": "ru.neverland.townybuilds.ShipmentStorageSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/ShopReliabilitySmoke.java",
+      "class": "ru.neverland.townybuilds.ShopReliabilitySmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/SpecializationBlueprintSmoke.java",
+      "class": "ru.neverland.townybuilds.SpecializationBlueprintSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/TradeStorageSmoke.java",
+      "class": "ru.neverland.townybuilds.TradeStorageSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/WonderBlueprintSmoke.java",
+      "class": "ru.neverland.townybuilds.WonderBlueprintSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/WonderPreviewRenderer.java",
+      "class": "ru.neverland.townybuilds.WonderPreviewRenderer"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/construction/ObstructionValidationSmoke.java",
+      "class": "ru.neverland.townybuilds.construction.ObstructionValidationSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/service/DefinitionOverlaySmoke.java",
+      "class": "ru.neverland.townybuilds.service.DefinitionOverlaySmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyCamps/src/test/java/ru/neverland/mintcamps/CampIntegrationSmoke.java",
+      "class": "ru.neverland.mintcamps.CampIntegrationSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyCamps/src/test/java/ru/neverland/mintcamps/ColorUtilSmoke.java",
+      "class": "ru.neverland.mintcamps.ColorUtilSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyCamps/src/test/java/ru/neverland/mintcamps/HologramLifecycleSmoke.java",
+      "class": "ru.neverland.mintcamps.HologramLifecycleSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyCamps/src/test/java/ru/neverland/mintcamps/OptionalDependencySmoke.java",
+      "class": "ru.neverland.mintcamps.OptionalDependencySmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyCamps/src/test/java/ru/neverland/mintcamps/StructureGeneratorSmoke.java",
+      "class": "ru.neverland.mintcamps.StructureGeneratorSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyChronicles/src/test/java/ru/neverland/townychronicles/ChronicleSmoke.java",
+      "class": "ru.neverland.townychronicles.ChronicleSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyChronicles/src/test/java/ru/neverland/townychronicles/LinkageSmoke.java",
+      "class": "ru.neverland.townychronicles.LinkageSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyChronicles/src/test/java/ru/neverland/townychronicles/StartupAnnouncementSmoke.java",
+      "class": "ru.neverland.townychronicles.StartupAnnouncementSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyCitizens/src/test/java/ru/neverland/townycitizens/CitizensSmoke.java",
+      "class": "ru.neverland.townycitizens.CitizensSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyCompanies/src/test/java/ru/neverland/townycompanies/CompaniesSmoke.java",
+      "class": "ru.neverland.townycompanies.CompaniesSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/CompanyContractsSmoke.java",
+      "class": "ru.neverland.mintcontracts.CompanyContractsSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/ContractMathSmoke.java",
+      "class": "ru.neverland.mintcontracts.ContractMathSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/MunicipalContractsSmoke.java",
+      "class": "ru.neverland.mintcontracts.MunicipalContractsSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyCouncil/src/test/java/ru/neverland/townycouncil/CouncilRepositorySmoke.java",
+      "class": "ru.neverland.townycouncil.CouncilRepositorySmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyCouncil/src/test/java/ru/neverland/townycouncil/CouncilSettingsSmoke.java",
+      "class": "ru.neverland.townycouncil.CouncilSettingsSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyDiplomacy/src/test/java/ru/neverland/townydiplomacy/DiplomacyRepositorySmoke.java",
+      "class": "ru.neverland.townydiplomacy.DiplomacyRepositorySmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyDiplomacy/src/test/java/ru/neverland/townydiplomacy/DiplomacyRulesSmoke.java",
+      "class": "ru.neverland.townydiplomacy.DiplomacyRulesSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyDistricts/src/test/java/ru/neverland/townydistricts/DistrictsSmoke.java",
+      "class": "ru.neverland.townydistricts.DistrictsSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyElections/src/test/java/ru/neverland/townyelections/ElectionSmoke.java",
+      "class": "ru.neverland.townyelections.ElectionSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyElections/src/test/java/ru/neverland/townyelections/ElectionsRepositorySmoke.java",
+      "class": "ru.neverland.townyelections.ElectionsRepositorySmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyEspionage/src/test/java/ru/neverland/mintespionage/EspionageMathSmoke.java",
+      "class": "ru.neverland.mintespionage.EspionageMathSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyEvents/src/test/java/ru/neverland/mintevents/EventMathSmoke.java",
+      "class": "ru.neverland.mintevents.EventMathSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyEvents/src/test/java/ru/neverland/mintevents/FireDamageSmoke.java",
+      "class": "ru.neverland.mintevents.FireDamageSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyEvents/src/test/java/ru/neverland/mintevents/LinkageSmoke.java",
+      "class": "ru.neverland.mintevents.LinkageSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyEvents/src/test/java/ru/neverland/mintevents/RaidKillAndMessagesSmoke.java",
+      "class": "ru.neverland.mintevents.RaidKillAndMessagesSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyEvents/src/test/java/ru/neverland/mintevents/RaidSpawnPlannerSmoke.java",
+      "class": "ru.neverland.mintevents.RaidSpawnPlannerSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyEvents/src/test/java/ru/neverland/mintevents/RaidWavesSmoke.java",
+      "class": "ru.neverland.mintevents.RaidWavesSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyExpeditions/src/test/java/ru/neverland/mintexpeditions/LinkageTest.java",
+      "class": "ru.neverland.mintexpeditions.LinkageTest"
+    },
+    {
+      "source": "modules/NeverLandTownyExpeditions/src/test/java/ru/neverland/mintexpeditions/SiteGeneratorTest.java",
+      "class": "ru.neverland.mintexpeditions.SiteGeneratorTest"
+    },
+    {
+      "source": "modules/NeverLandTownyExpeditions/src/test/java/ru/neverland/mintexpeditions/service/ExpeditionAccessSmoke.java",
+      "class": "ru.neverland.mintexpeditions.service.ExpeditionAccessSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyExpeditions/src/test/java/ru/neverland/mintexpeditions/service/MessageServiceSmoke.java",
+      "class": "ru.neverland.mintexpeditions.service.MessageServiceSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyExpeditions/src/test/java/ru/neverland/mintexpeditions/service/RewardPersistenceSmoke.java",
+      "class": "ru.neverland.mintexpeditions.service.RewardPersistenceSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyGovernance/src/test/java/ru/neverland/governance/GovernanceMathSmoke.java",
+      "class": "ru.neverland.governance.GovernanceMathSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyGovernance/src/test/java/ru/neverland/governance/OptionalDependencySmoke.java",
+      "class": "ru.neverland.governance.OptionalDependencySmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyGovernance/src/test/java/ru/neverland/governance/ProposalSmoke.java",
+      "class": "ru.neverland.governance.ProposalSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyIdeologies/src/test/java/ru/neverland/townyideologies/EffectFormatterSmoke.java",
+      "class": "ru.neverland.townyideologies.EffectFormatterSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyJobs/src/test/java/ru/neverland/townyjobs/JobsSmoke.java",
+      "class": "ru.neverland.townyjobs.JobsSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyLogistics/src/test/java/ru/neverland/townylogistics/LogisticsHelpSmoke.java",
+      "class": "ru.neverland.townylogistics.LogisticsHelpSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyLogistics/src/test/java/ru/neverland/townylogistics/LogisticsSmoke.java",
+      "class": "ru.neverland.townylogistics.LogisticsSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyMarket/src/test/java/ru/neverland/townymarket/MarketSmoke.java",
+      "class": "ru.neverland.townymarket.MarketSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyPolicies/src/test/java/ru/neverland/townypolicies/PoliciesSmoke.java",
+      "class": "ru.neverland.townypolicies.PoliciesSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyPopulation/src/test/java/ru/neverland/townypopulation/PopulationSmoke.java",
+      "class": "ru.neverland.townypopulation.PopulationSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyPower/src/test/java/ru/neverland/townypower/PowerSmoke.java",
+      "class": "ru.neverland.townypower.PowerSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyReputation/src/test/java/ru/neverland/reputation/ColorUtilSmoke.java",
+      "class": "ru.neverland.reputation.ColorUtilSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyReputation/src/test/java/ru/neverland/reputation/ConfigurationSmoke.java",
+      "class": "ru.neverland.reputation.ConfigurationSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyReputation/src/test/java/ru/neverland/reputation/OptionalDependencySmoke.java",
+      "class": "ru.neverland.reputation.OptionalDependencySmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyReputation/src/test/java/ru/neverland/reputation/RelationKeySmoke.java",
+      "class": "ru.neverland.reputation.RelationKeySmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyReputation/src/test/java/ru/neverland/reputation/ReputationMathSmoke.java",
+      "class": "ru.neverland.reputation.ReputationMathSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyResearch/src/test/java/ru/neverland/townyresearch/ResearchSmoke.java",
+      "class": "ru.neverland.townyresearch.ResearchSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyResources/src/test/java/ru/neverland/townyresources/ResourcesSmoke.java",
+      "class": "ru.neverland.townyresources.ResourcesSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownySpecialization/src/test/java/ru/neverland/townyspecialization/SpecializationSmoke.java",
+      "class": "ru.neverland.townyspecialization.SpecializationSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyStick/src/test/java/ru/neverland/morstownstick/SelectionClickGateSmoke.java",
+      "class": "ru.neverland.morstownstick.SelectionClickGateSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyStick/src/test/java/ru/neverland/morstownstick/SmokeTest.java",
+      "class": "ru.neverland.morstownstick.SmokeTest"
+    },
+    {
+      "source": "modules/NeverLandTownyTaxes/src/test/java/ru/neverland/townytaxes/DomainSmoke.java",
+      "class": "ru.neverland.townytaxes.DomainSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyTaxes/src/test/java/ru/neverland/townytaxes/MunicipalTaxesSmoke.java",
+      "class": "ru.neverland.townytaxes.MunicipalTaxesSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyTrade/src/test/java/ru/neverland/minttrade/CaravanReliabilitySmoke.java",
+      "class": "ru.neverland.minttrade.CaravanReliabilitySmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyTrade/src/test/java/ru/neverland/minttrade/SupplyContractSmoke.java",
+      "class": "ru.neverland.minttrade.SupplyContractSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyTrade/src/test/java/ru/neverland/minttrade/TradeMathSmoke.java",
+      "class": "ru.neverland.minttrade.TradeMathSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyTreasuryPlus/src/test/java/ru/neverland/townytreasury/TreasuryAccessSmoke.java",
+      "class": "ru.neverland.townytreasury.TreasuryAccessSmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyTreasuryPlus/src/test/java/ru/neverland/townytreasury/TreasurySmoke.java",
+      "class": "ru.neverland.townytreasury.TreasurySmoke"
+    },
+    {
+      "source": "modules/NeverLandTownyUpkeep/src/test/java/ru/neverland/townyupkeep/UpkeepSmoke.java",
+      "class": "ru.neverland.townyupkeep.UpkeepSmoke"
+    }
+  ]
+}

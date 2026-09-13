@@ -1,14 +1,11 @@
 package ru.neverland.townycompanies;
 import java.util.*;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public final class ContractsBridge {
     private Object call(String method,Class<?>[] types,Object... args) {
-        var plugin=Bukkit.getPluginManager().getPlugin("NeverLandTownyContracts");
-        if(plugin==null||!plugin.isEnabled())throw new IllegalStateException("Городские контракты недоступны");
-        try {Object api=plugin.getClass().getMethod("companyContracts").invoke(plugin);return api.getClass().getMethod(method,types).invoke(api,args);}
-        catch(ReflectiveOperationException ex){throw new IllegalStateException("Требуется NeverLandTownyContracts 0.2.0 или новее",ex);}
+        try {return ru.neverland.core.ApiServices.call("NeverLandTownyContracts","ru.neverland.mintcontracts.api.MintTownyContractsApi",method,types,args);}
+        catch(ReflectiveOperationException|RuntimeException|LinkageError ex){throw new IllegalStateException("Публичный API городских контрактов недоступен",ex);}
     }
     @SuppressWarnings("unchecked") public List<Map<String,Object>> offers(UUID town) {return (List<Map<String,Object>>)call("companyOffers",new Class<?>[]{UUID.class},town);}
     public int count(UUID company) {return ((Number)call("companyActiveCount",new Class<?>[]{UUID.class},company)).intValue();}

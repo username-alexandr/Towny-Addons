@@ -1,8 +1,8 @@
-name: Publish release 0.27.0
+name: Publish release 0.27.1
 
 on:
   push:
-    branches: [release/v0.27.0]
+    branches: [release/v0.27.1]
   workflow_dispatch:
 
 permissions:
@@ -62,6 +62,7 @@ jobs:
           work_dir="$RUNNER_TEMP/neverland-release"
           assets=(
             build/suite-tests.json
+            build/api-source-inventory.json
             modules/NeverLandTownyBuilds/build/reports/resource-balance.csv
             dist/plugins/*.jar
             assets/models/*.zip

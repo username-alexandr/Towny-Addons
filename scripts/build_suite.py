@@ -11,7 +11,8 @@ import time
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = re.compile(r'public\s+static\s+void\s+main\s*\(\s*String\s*(?:\[\s*\]|\.\.\.)')
+from api_audit import inventory
+from run_smoke import run_tests
 
 def plugin_jar(candidates, module_name):
     """Select the freshly built plugin JAR and ignore stale versioned outputs."""
@@ -38,7 +39,17 @@ def main():
     parser.add_argument('--stage', type=Path)
     parser.add_argument('--report', type=Path, default=ROOT/'build/suite-tests.json')
     args = parser.parse_args()
+    args.report.parent.mkdir(parents=True, exist_ok=True)
+    args.report.write_text('[]\n')
     records = []
+    available = {m.name for m in (ROOT/'modules').iterdir() if m.is_dir()}
+    selected = {name if name in available else 'NeverLandTowny'+name for name in args.modules}
+    if selected - available:
+        raise RuntimeError('Unknown modules: '+', '.join(sorted(selected-available)))
+    subprocess.run([os.environ.get('PYTHON', 'python3'), str(ROOT/'scripts/test_api_audit.py')], check=True)
+    data = inventory()
+    (ROOT/'build').mkdir(exist_ok=True)
+    (ROOT/'build/api-source-inventory.json').write_text(json.dumps(data, ensure_ascii=False, indent=2)+'\n')
     storage_probes = {
         'NeverLandTownyGovernance': ('ru.neverland.governance.service.GovernanceRepository','data.yml','towns'),
         'NeverLandTownyReputation': ('ru.neverland.reputation.service.ReputationRepository','data.yml','relations'),
@@ -52,7 +63,6 @@ def main():
     probe_classes.mkdir(parents=True, exist_ok=True)
     javac = str(Path(os.environ['JAVA_HOME'])/'bin/javac') if os.environ.get('JAVA_HOME') else 'javac'
     subprocess.run([javac, '--release', '17', '-d', str(probe_classes), str(ROOT/'scripts/ApiContractProbe.java')], check=True)
-    args.report.parent.mkdir(parents=True, exist_ok=True)
     def run(command, cwd):
         subprocess.run(command, cwd=cwd, check=True)
     for module in sorted((ROOT/'modules').iterdir()):
@@ -70,30 +80,10 @@ def main():
             jars = list((module/'target').glob('*.jar'))
         else:
             raise RuntimeError('No build definition: '+module.name)
-        tests = []
-        for source in sorted((module/'src/test/java').rglob('*.java')):
-            text = source.read_text()
-            if not MAIN.search(text):
-                continue
-            package = re.search(r'\bpackage\s+([\w.]+)\s*;', text)
-            name = (package.group(1)+'.' if package else '')+source.stem
-            print('TEST '+module.name+' '+name, flush=True)
-            command = [os.environ.get('JAVA', 'java'), '-ea', '-cp', classpath, name]
-            # Legacy configuration probes require the resource root, while tools
-            # with optional CLI arguments must continue to exercise defaults.
-            if re.search(r'args\s*\[\s*0\s*\]', text) and not re.search(r'args\s*\.\s*length', text):
-                command.append(str(module/'src/main/resources'))
-            run(command, module)
-            tests.append(name)
-        contracts = []
-        for source in sorted((module/'src/main/java').rglob('*Api.java')):
-            source_text = source.read_text()
-            if not re.search(r'(?:interface\s+\w+\s+extends|class\s+\w+\s+implements)\s+(?:ru\.neverland\.core\.)?ApiContract', source_text):
-                continue
-            package = re.search(r'\bpackage\s+([\w.]+)\s*;', source_text)
-            contracts.append(package.group(1)+'.'+source.stem)
+        tests = run_tests(module, classpath, data)
+        contracts = [c['contract'] for c in data['contracts'] if Path(c['source']).parts[1] == module.name]
         if contracts:
-            run([os.environ.get('JAVA', 'java'), '-ea', '-cp', os.pathsep.join([str(probe_classes), classpath]), 'ApiContractProbe', *contracts], module)
+            run([os.environ.get('JAVA', 'java'), '-ea', '-cp', os.pathsep.join([str(probe_classes), classpath]), 'ApiContractProbe', '--baseline', str(ROOT/'scripts/api-v1-baseline.tsv'), *contracts], module)
         if module.name in storage_probes:
             run([javac, '--release', '17', '-cp', classpath, '-d', str(probe_classes), str(ROOT/'scripts/RepositoryFaultProbe.java')], module)
             run([os.environ.get('JAVA', 'java'), '-ea', '-cp', os.pathsep.join([str(probe_classes), classpath]), 'RepositoryFaultProbe', *storage_probes[module.name]], module)

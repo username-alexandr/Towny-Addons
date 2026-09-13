@@ -1,0 +1,226 @@
+all 31 addons enabled
+fresh disposable fixture
+inventory contains 33 public contracts
+registered v1 provider: ru.neverland.archaeology.api.TownyArchaeologyApi
+native read: TownyArchaeologyApi.museum
+metadata callable: TownyArchaeologyApi
+registered v1 provider: ru.neverland.townybuilds.api.BuildingStorageApi
+native read: BuildingStorageApi.stock
+metadata callable: BuildingStorageApi
+registered v1 provider: ru.neverland.townybuilds.api.MarketStorageApi
+native read: MarketStorageApi.snapshot
+metadata callable: MarketStorageApi
+registered v1 provider: ru.neverland.townybuilds.api.MunicipalStorageApi
+native read: MunicipalStorageApi.capacity
+metadata callable: MunicipalStorageApi
+registered v1 provider: ru.neverland.townybuilds.api.TownArmyApi
+native read: TownArmyApi.soldiers
+metadata callable: TownArmyApi
+registered v1 provider: ru.neverland.townybuilds.api.TownyBuildsApi
+native read: TownyBuildsApi.buildingFootprints
+metadata callable: TownyBuildsApi
+registered v1 provider: ru.neverland.townybuilds.api.WarehouseApi
+native read: WarehouseApi.transferred
+metadata callable: WarehouseApi
+registered v1 provider: ru.neverland.mintcamps.api.TownyCampsApi
+native read: TownyCampsApi.camp
+metadata callable: TownyCampsApi
+registered v1 provider: ru.neverland.townychronicles.api.TownyChroniclesApi
+native read: TownyChroniclesApi.entries
+metadata callable: TownyChroniclesApi
+registered v1 provider: ru.neverland.townycitizens.api.TownyCitizensApi
+native read: TownyCitizensApi.passport
+metadata callable: TownyCitizensApi
+registered v1 provider: ru.neverland.townycompanies.api.CompaniesApi
+native read: CompaniesApi.companyName
+metadata callable: CompaniesApi
+registered v1 provider: ru.neverland.mintcontracts.api.MintTownyContractsApi
+native read: MintTownyContractsApi.activeContracts
+metadata callable: MintTownyContractsApi
+registered v1 provider: ru.neverland.townycouncil.api.TownyCouncilApi
+native read: TownyCouncilApi.holders
+metadata callable: TownyCouncilApi
+registered v1 provider: ru.neverland.townydiplomacy.api.TownyDiplomacyApi
+native read: TownyDiplomacyApi.relations
+metadata callable: TownyDiplomacyApi
+registered v1 provider: ru.neverland.townydistricts.api.TownyDistrictsApi
+native read: TownyDistrictsApi.districts
+metadata callable: TownyDistrictsApi
+registered v1 provider: ru.neverland.townyelections.api.TownyElectionsApi
+native read: TownyElectionsApi.snapshot
+metadata callable: TownyElectionsApi
+registered v1 provider: ru.neverland.mintespionage.api.MintTownyEspionageApi
+native read: MintTownyEspionageApi.snapshot
+metadata callable: MintTownyEspionageApi
+registered v1 provider: ru.neverland.mintevents.api.MintTownyEventsApi
+native read: MintTownyEventsApi.activeEvent
+metadata callable: MintTownyEventsApi
+registered v1 provider: ru.neverland.governance.api.TownyGovernanceApi
+native read: TownyGovernanceApi.snapshot
+metadata callable: TownyGovernanceApi
+registered v1 provider: ru.neverland.townyideologies.api.TownyIdeologiesApi
+native read: TownyIdeologiesApi.ideology
+metadata callable: TownyIdeologiesApi
+registered v1 provider: ru.neverland.townyjobs.api.TownyJobsApi
+native read: TownyJobsApi.supports
+metadata callable: TownyJobsApi
+registered v1 provider: ru.neverland.townymarket.MarketApi
+native read: MarketApi.offers
+metadata callable: MarketApi
+registered v1 provider: ru.neverland.townypolicies.api.TownyPoliciesApi
+native read: TownyPoliciesApi.policies
+metadata callable: TownyPoliciesApi
+registered v1 provider: ru.neverland.townypopulation.api.TownyPopulationApi
+native read: TownyPopulationApi.population
+metadata callable: TownyPopulationApi
+registered v1 provider: ru.neverland.townypower.api.TownyPowerApi
+native read: TownyPowerApi.power
+metadata callable: TownyPowerApi
+registered v1 provider: ru.neverland.reputation.api.TownyReputationApi
+native read: TownyReputationApi.snapshot
+metadata callable: TownyReputationApi
+registered v1 provider: ru.neverland.townyresearch.api.TownyResearchApi
+native read: TownyResearchApi.research
+metadata callable: TownyResearchApi
+registered v1 provider: ru.neverland.townyresources.api.TownyResourcesApi
+native read: TownyResourcesApi.resources
+metadata callable: TownyResourcesApi
+registered v1 provider: ru.neverland.townyspecialization.api.TownySpecializationApi
+native read: TownySpecializationApi.specialization
+metadata callable: TownySpecializationApi
+registered v1 provider: ru.neverland.townytaxes.api.NeverLandTownyTaxesApi
+native read: NeverLandTownyTaxesApi.serverReserve
+metadata callable: NeverLandTownyTaxesApi
+registered v1 provider: ru.neverland.minttrade.api.MintTownyTradeApi
+native read: MintTownyTradeApi.activeRoutes
+metadata callable: MintTownyTradeApi
+registered v1 provider: ru.neverland.townytreasury.api.TownyTreasuryApi
+native read: TownyTreasuryApi.treasury
+metadata callable: TownyTreasuryApi
+registered v1 provider: ru.neverland.townyupkeep.api.TownyUpkeepApi
+native read: TownyUpkeepApi.buildings
+metadata callable: TownyUpkeepApi
+consumer requirement 1: ru.neverland.archaeology.api.TownyArchaeologyApi wonderRequirements,missingForWonder,available,consumeForWonder,artifactName
+consumer requirement 2: ru.neverland.mintevents.api.MintTownyEventsApi hasFireDamage
+consumer requirement 3: ru.neverland.townybuilds.api.TownyBuildsApi projectLevel
+consumer requirement 4: ru.neverland.mintcontracts.api.MintTownyContractsApi companyActiveCount
+consumer requirement 5: ru.neverland.mintcontracts.api.MintTownyContractsApi companyOffers
+consumer requirement 6: ru.neverland.mintcontracts.api.MintTownyContractsApi releaseCompanyContract
+consumer requirement 7: ru.neverland.mintcontracts.api.MintTownyContractsApi takeCompanyContract
+consumer requirement 8: ru.neverland.townycompanies.api.CompaniesApi companyName
+consumer requirement 9: ru.neverland.townycompanies.api.CompaniesApi settleEscrow
+consumer requirement 10: ru.neverland.townybuilds.api.MunicipalStorageApi capacity,deposit,acknowledge
+consumer requirement 11: ru.neverland.townybuilds.api.TownyBuildsApi buildingFootprints
+consumer requirement 12: ru.neverland.townybuilds.api.TownyBuildsApi buildingFootprints
+consumer requirement 13: ru.neverland.townyideologies.api.TownyIdeologiesApi governmentForm
+consumer requirement 14: ru.neverland.governance.api.TownyGovernanceApi officeCatalog,officeHolders,applyElection,electionReceipt
+consumer requirement 15: ru.neverland.townybuilds.api.TownyBuildsApi operationalLevel
+consumer requirement 16: ru.neverland.townybuilds.api.TownyBuildsApi operationalLevel
+consumer requirement 17: ru.neverland.mintcamps.api.TownyCampsApi camp,stashBusy,consume
+consumer requirement 18: ru.neverland.townyelections.api.TownyElectionsApi elective
+consumer requirement 19: ru.neverland.townybuilds.api.TownyBuildsApi supportedProjects,workplaces
+consumer requirement 20: ru.neverland.townybuilds.api.BuildingStorageApi depots,shipments,pickup,unload,acknowledge,stock,shipmentTowns,openStorage
+consumer requirement 21: ru.neverland.townybuilds.api.BuildingStorageApi acknowledge
+consumer requirement 22: ru.neverland.townybuilds.api.BuildingStorageApi depots
+consumer requirement 23: ru.neverland.townybuilds.api.BuildingStorageApi openStorage
+consumer requirement 24: ru.neverland.townybuilds.api.BuildingStorageApi pickup
+consumer requirement 25: ru.neverland.townybuilds.api.BuildingStorageApi shipmentTowns
+consumer requirement 26: ru.neverland.townybuilds.api.BuildingStorageApi shipments
+consumer requirement 27: ru.neverland.townybuilds.api.BuildingStorageApi stock
+consumer requirement 28: ru.neverland.townybuilds.api.BuildingStorageApi unload
+consumer requirement 29: ru.neverland.townybuilds.api.MarketStorageApi level,open,snapshot,reserve,deliver,refund,close,acknowledge,forget,claim,resolveClaim
+consumer requirement 30: ru.neverland.townytaxes.api.NeverLandTownyTaxesApi isTradeBlocked
+consumer requirement 31: ru.neverland.townytaxes.api.NeverLandTownyTaxesApi municipalTaxConfigured
+consumer requirement 32: ru.neverland.townybuilds.api.TownyBuildsApi operationalLevel
+consumer requirement 33: ru.neverland.townyresources.api.TownyResourcesApi resources
+consumer requirement 34: ru.neverland.townybuilds.api.TownyBuildsApi buildingFootprints
+consumer requirement 35: ru.neverland.townyresources.api.TownyResourcesApi forgetReservation
+consumer requirement 36: ru.neverland.townyresources.api.TownyResourcesApi reservationStatus
+consumer requirement 37: ru.neverland.townyresources.api.TownyResourcesApi reserveResources
+consumer requirement 38: ru.neverland.townyresources.api.TownyResourcesApi resources
+consumer requirement 39: ru.neverland.townyresources.api.TownyResourcesApi settleResources
+consumer requirement 40: ru.neverland.townyresources.api.TownyResourcesApi reserveResources,settleResources,forgetReservation,reservationStatus
+consumer requirement 41: ru.neverland.townybuilds.api.TownyBuildsApi operationalLevel,buildingFootprints
+consumer requirement 42: ru.neverland.townybuilds.api.TownyBuildsApi buildingFootprints
+consumer requirement 43: ru.neverland.townybuilds.api.TownyBuildsApi buildingFootprints
+consumer requirement 44: ru.neverland.townypopulation.api.TownyPopulationApi population
+consumer requirement 45: ru.neverland.townybuilds.api.TownyBuildsApi buildingFootprints
+consumer requirement 46: ru.neverland.townybuilds.api.BuildingStorageApi reserveTrade,settleTrade,acknowledgeTrade
+consumer requirement 47: ru.neverland.townybuilds.api.TownyBuildsApi operationalLevel
+consumer requirement 48: ru.neverland.townytaxes.api.NeverLandTownyTaxesApi isTradeBlocked
+consumer requirement 49: ru.neverland.townytaxes.api.NeverLandTownyTaxesApi tradePreferenceMultiplier
+consumer requirement 50: ru.neverland.townybuilds.api.WarehouseApi transfer,transferred,acknowledgeMovement
+consumer requirement 51: ru.neverland.townyresources.api.TownyResourcesApi productionWeeks
+consumer requirement 52: ru.neverland.townyresources.api.TownyResourcesApi forgetReservation
+consumer requirement 53: ru.neverland.townyresources.api.TownyResourcesApi reservationStatus
+consumer requirement 54: ru.neverland.townyresources.api.TownyResourcesApi reserveResources
+consumer requirement 55: ru.neverland.townyresources.api.TownyResourcesApi settleResources
+consumer requirement 56: ru.neverland.townyresources.api.TownyResourcesApi reserveResources,settleResources,forgetReservation,reservationStatus
+consumer requirement 57: ru.neverland.townybuilds.api.TownyBuildsApi operationalLevel,buildingFootprints
+consumer requirement 58: ru.neverland.townybuilds.api.TownyBuildsApi buildingFootprints
+consumer requirement 59: ru.neverland.townycitizens.api.TownyCitizensApi healthy,allows,taxMultiplier
+consumer requirement 60: ru.neverland.townycitizens.api.TownyCitizensApi allows
+consumer requirement 61: ru.neverland.townycitizens.api.TownyCitizensApi taxMultiplier
+consumer requirement 62: ru.neverland.townycouncil.api.TownyCouncilApi allows
+consumer requirement 63: ru.neverland.townydiplomacy.api.TownyDiplomacyApi healthy
+consumer requirement 64: ru.neverland.townydiplomacy.api.TownyDiplomacyApi hostileBlocked
+consumer requirement 65: ru.neverland.townydiplomacy.api.TownyDiplomacyApi tradeBlocked
+consumer requirement 66: ru.neverland.townydiplomacy.api.TownyDiplomacyApi tariffMultiplier
+consumer requirement 67: ru.neverland.townydiplomacy.api.TownyDiplomacyApi relations
+consumer requirement 68: ru.neverland.townydistricts.api.TownyDistrictsApi multiplier
+consumer requirement 69: ru.neverland.townyjobs.api.TownyJobsApi bonus
+consumer requirement 70: ru.neverland.townyjobs.api.TownyJobsApi supports
+consumer requirement 71: ru.neverland.townyjobs.api.TownyJobsApi townBonus
+consumer requirement 72: ru.neverland.townyjobs.api.TownyJobsApi workers
+consumer requirement 73: ru.neverland.townypolicies.api.TownyPoliciesApi effect
+consumer requirement 74: ru.neverland.townypolicies.api.TownyPoliciesApi importsAllowed
+consumer requirement 75: ru.neverland.townypolicies.api.TownyPoliciesApi productionMultiplier
+consumer requirement 76: ru.neverland.townypolicies.api.TownyPoliciesApi tariff
+consumer requirement 77: ru.neverland.townypolicies.api.TownyPoliciesApi tariffManaged
+consumer requirement 78: ru.neverland.townypolicies.api.TownyPoliciesApi taxMultiplier
+consumer requirement 79: ru.neverland.townypolicies.api.TownyPoliciesApi upkeepMultiplier
+consumer requirement 80: ru.neverland.townyresearch.api.TownyResearchApi bonus
+consumer requirement 81: ru.neverland.townyspecialization.api.TownySpecializationApi bonus
+consumer requirement 82: ru.neverland.townyspecialization.api.TownySpecializationApi canUseBuilding
+consumer requirement 83: ru.neverland.townyspecialization.api.TownySpecializationApi productionBonus
+consumer requirement 84: ru.neverland.townytreasury.api.TownyTreasuryApi canSpend
+consumer requirement 85: ru.neverland.townytreasury.api.TownyTreasuryApi spend
+consumer requirement 86: ru.neverland.townypower.api.TownyPowerApi status
+consumer requirement 87: ru.neverland.townypower.api.TownyPowerApi powered
+consumer requirement 88: ru.neverland.townyupkeep.api.TownyUpkeepApi active
+Companies reads Contracts public service
+dynamic Companies permission denies unknown company: canTake
+public Companies method callable: canTake
+dynamic Companies permission denies unknown company: canManage
+public Companies method callable: canManage
+dynamic Companies permission denies unknown company: canContribute
+public Companies method callable: canContribute
+dynamic bridge executes public method: canTake
+dynamic bridge executes public method: canManage
+dynamic bridge executes public method: canContribute
+Companies name bridge callable
+MarketGateway accepts current Builds capabilities
+Market gateway opens actual Builds stock
+Market gateway reserves stock
+refund through consumer is idempotent
+close through consumer is idempotent
+stock conserved across refund and close
+worker mutation rejected before data access 0
+worker mutation rejected before data access 1
+worker mutation rejected before data access 2
+worker mutation rejected before data access 3
+worker mutation rejected before data access 4
+missing plugin diagnosed distinctly
+wrong major diagnosed distinctly
+missing capability diagnosed distinctly
+unregistered provider diagnosed distinctly
+rejected unsafe call: companyName
+saved connection preserves unavailable diagnosis
+rejected unsafe call: companyName
+saved connection rejects replaced provider
+rejected unsafe call: companyName
+provider exception diagnosed distinctly
+real provider recovers after replacement
+disabled plugin diagnosed distinctly
+rejected unsafe call: population
+saved connection preserves disabled diagnosis

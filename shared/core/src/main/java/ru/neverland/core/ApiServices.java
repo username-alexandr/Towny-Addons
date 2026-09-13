@@ -16,6 +16,11 @@ public final class ApiServices {
    private ApiServices() {
    }
 
+   /** For APIs that access live Bukkit/Towny state or mutate data. */
+   public static void primaryThread() {
+      if (!Bukkit.isPrimaryThread()) throw new IllegalStateException("API требует основного потока сервера");
+   }
+
    public static ApiServices.Connection require(String plugin, String contract, String... capabilities) {
       ApiServices.Connection connection = connect(plugin, contract, 1, capabilities);
       if (!connection.ready()) {
@@ -109,7 +114,35 @@ public final class ApiServices {
          if (!this.ready()) {
             throw new IllegalStateException(this.plugin + ": " + this.state + " — " + this.detail);
          } else {
+            // A Connection is a snapshot. Never invoke a disabled or replaced provider,
+            // and keep the lifecycle diagnosis separate from a provider call failure.
             try {
+               primaryThread();
+            } catch (IllegalStateException ex) {
+               ApiServices.report(this.plugin, this.contract.getName(), ApiServices.State.INVOCATION_ERROR, ex.getMessage());
+               throw ex;
+            }
+            Plugin current = Bukkit.getPluginManager().getPlugin(this.plugin);
+            if (current == null || !current.isEnabled()) {
+               ApiServices.report(this.plugin, this.contract.getName(), current == null ? ApiServices.State.NOT_INSTALLED : ApiServices.State.DISABLED, "Сохранённое соединение больше недоступно");
+               throw new IllegalStateException(this.plugin + ": provider unavailable");
+            }
+            try {
+               if (Class.forName(this.contract.getName(), false, current.getClass().getClassLoader()) != this.contract
+                     || Bukkit.getServicesManager().load(this.contract) != this.service) {
+                  ApiServices.report(this.plugin, this.contract.getName(), ApiServices.State.SERVICE_UNAVAILABLE, "Поставщик API изменился; получите новое соединение");
+                  throw new IllegalStateException(this.plugin + ": stale API connection");
+               }
+            } catch (ClassNotFoundException | LinkageError ex) {
+               ApiServices.report(this.plugin, this.contract.getName(), ApiServices.State.INCOMPATIBLE_API, ex.toString());
+               throw ex;
+            }
+            try {
+               Object advertised = this.contract.getMethod("capabilities").invoke(this.service);
+               if (!Set.of("apiVersion", "capabilities", "storageMetrics", "integrationDiagnostics").contains(method)
+                     && (!(advertised instanceof Set<?> capabilities) || !capabilities.contains(method))) {
+                  throw new NoSuchMethodException(this.contract.getName() + ": capability not advertised: " + method);
+               }
                Object result = this.contract.getMethod(method, signature).invoke(this.service, args);
                ApiServices.report(this.plugin, this.contract.getName(), ApiServices.State.READY, "");
                return result;
