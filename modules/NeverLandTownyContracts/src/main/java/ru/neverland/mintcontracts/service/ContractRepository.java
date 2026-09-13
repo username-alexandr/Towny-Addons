@@ -24,6 +24,9 @@ public final class ContractRepository {
     private final Map<UUID, Double> pendingTowns = new LinkedHashMap<>();
     private final Map<UUID,MunicipalPayment> payments=new LinkedHashMap<>();
     private final Map<UUID,DeliveryIntent> deliveries=new LinkedHashMap<>();
+    private final ru.neverland.core.ReputationOutbox reputation = new ru.neverland.core.ReputationOutbox();
+    public void flushReputation(){reputation.flush(this::writable,()->{if(!save())throw new IllegalStateException("Контракты не сохранены");});}
+    public void outcome(ru.neverland.core.ReputationOutcome outcome){if(!writable())throw new IllegalStateException("Контракты остановлены");reputation.add(outcome);dirty=true;}
     private boolean dirty;
     private boolean writable = true;
     public boolean writable() { return writable&&ru.neverland.core.AtomicFiles.writable(file.toPath()); }
@@ -32,10 +35,11 @@ public final class ContractRepository {
     public ContractRepository(File file,java.util.logging.Logger logger) {this.file=file;this.logger=logger;}
 
     public synchronized void load() {
-        writable=false;active.clear(); history.clear(); pendingPlayers.clear(); pendingTowns.clear();payments.clear();deliveries.clear();
+        writable=false;reputation.load(new YamlConfiguration());active.clear(); history.clear(); pendingPlayers.clear(); pendingTowns.clear();payments.clear();deliveries.clear();
         if (!file.exists()){ru.neverland.core.AtomicFiles.loaded(file.toPath());writable=true;return;}
         YamlConfiguration yaml = new YamlConfiguration();
         try { yaml.load(file); } catch (Exception ex) { writable=false; throw new IllegalStateException("contract-data.yml повреждён; операции остановлены", ex); }
+        reputation.load(yaml);
         if(yaml.contains("schema")&&yaml.getInt("schema")!=2&&yaml.getInt("schema")!=3){writable=false;throw new IllegalStateException("Неизвестная схема контрактов");}
         for(String section:List.of("towns","pending","pending.players","pending.towns","payments","deliveries"))if(yaml.contains(section)&&!yaml.isConfigurationSection(section)){writable=false;throw new IllegalStateException("Повреждённый раздел "+section);}
         ConfigurationSection root = yaml.getConfigurationSection("towns");
@@ -148,7 +152,7 @@ public final class ContractRepository {
     public synchronized boolean save() {
         if(!writable)return false;
         YamlConfiguration yaml = new YamlConfiguration();
-        yaml.set("schema",3);yaml.createSection("towns");yaml.createSection("pending.players");yaml.createSection("pending.towns");
+        reputation.write(yaml);yaml.set("schema",3);yaml.createSection("towns");yaml.createSection("pending.players");yaml.createSection("pending.towns");
         for (ActiveContract contract : allActive()) {
             String path = "towns." + contract.townId() + ".active." + contract.id() + ".";
             yaml.set(path + "template", contract.templateId()); yaml.set(path + "created-at", contract.createdAt());

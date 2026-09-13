@@ -21,6 +21,14 @@ public final class DiplomacyRepository {
             if(attacker.equals(victim)||at<0||location==null||location.length()>200||defenders.isEmpty()||defenders.contains(victim))throw new IllegalArgumentException("Повреждён оборонный инцидент");
         }
     }
+    private final ru.neverland.core.ReputationOutbox reputation = new ru.neverland.core.ReputationOutbox();
+    public void flushReputation(){reputation.flush(this::writable,()->{try{commit(treaties,List.of(),List.of());}catch(IOException ex){throw new java.io.UncheckedIOException(ex);}});}
+    public void commit(Map<UUID,Treaty> values,List<Audit> additions,List<Incident> newIncidents,List<ru.neverland.core.ReputationOutcome> outcomes)throws IOException {
+        if(!writable())throw new IOException("Реестр дипломатии остановлен");
+        // Validate before adding events; malformed proposed snapshots must not leave an outbox entry.
+        DiplomacyRules.validateSnapshot(values.values(),System.currentTimeMillis());
+        outcomes.forEach(reputation::add);commit(values,additions,newIncidents);
+    }
     private final Path file;
     private Map<UUID,Treaty> treaties=Map.of(); private List<Audit> history=List.of(); private List<Incident> incidents=List.of(); private boolean writable;
     public DiplomacyRepository(Path file) { this.file=file; }
@@ -29,9 +37,10 @@ public final class DiplomacyRepository {
     public List<Audit> history() { return history; }
     public List<Incident> incidents() { return incidents; }
     public void load()throws Exception {
-        writable=false;var next=new LinkedHashMap<UUID,Treaty>();var audit=new ArrayList<Audit>();var alerts=new ArrayList<Incident>();
+        writable=false;reputation.load(new YamlConfiguration());var next=new LinkedHashMap<UUID,Treaty>();var audit=new ArrayList<Audit>();var alerts=new ArrayList<Incident>();
         if(Files.exists(file)) {
             var y=new YamlConfiguration();y.load(file.toFile());
+            reputation.load(y);
             if(number(y,"schema")!=1)throw new IOException("Неизвестная схема дипломатии");
             for(String key:section(y,"treaties").getKeys(false)) {
                 var s=section(y,"treaties."+key);UUID id=UUID.fromString(key);
@@ -63,7 +72,7 @@ public final class DiplomacyRepository {
         closed.stream().skip(500).forEach(t->next.remove(t.id()));
         var audit=new ArrayList<>(history);audit.addAll(additions);if(audit.size()>2000)audit=new ArrayList<>(audit.subList(audit.size()-2000,audit.size()));
         var alerts=new ArrayList<>(incidents);alerts.addAll(newIncidents);if(alerts.size()>500)alerts=new ArrayList<>(alerts.subList(alerts.size()-500,alerts.size()));
-        var y=new YamlConfiguration();y.set("schema",1);y.createSection("treaties");y.createSection("history");y.createSection("incidents");
+        var y=new YamlConfiguration();reputation.write(y);y.set("schema",1);y.createSection("treaties");y.createSection("history");y.createSection("incidents");
         new TreeMap<>(next).forEach((id,t)->{
             String p="treaties."+id+".";y.set(p+"type",t.type().id());y.set(p+"first",t.first().toString());y.set(p+"second",t.second().toString());
             y.set(p+"first-mayor",t.firstMayor().toString());y.set(p+"second-mayor",t.secondMayor().toString());y.set(p+"actor",t.actor());y.set(p+"reason",t.reason());

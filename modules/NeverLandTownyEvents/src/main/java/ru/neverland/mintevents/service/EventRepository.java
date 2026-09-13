@@ -15,6 +15,9 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class EventRepository {
+    private final ru.neverland.core.ReputationOutbox reputation = new ru.neverland.core.ReputationOutbox();
+    public boolean writable(){return ready && ru.neverland.core.AtomicFiles.writable(file.toPath());}
+    public void flushReputation(){reputation.flush(this::writable,this::save);}
     private boolean ready;
     private void loaded(){ru.neverland.core.AtomicFiles.loaded(file.toPath());ready=true;}
     private void gate(){if(!ready||!ru.neverland.core.AtomicFiles.writable(file.toPath()))throw new IllegalStateException("Хранилище заблокировано: восстановите данные и перезапустите сервер");}
@@ -36,7 +39,7 @@ public final class EventRepository {
         history.clear();
         cooldowns.clear();
 
-        YamlConfiguration yaml = ru.neverland.core.SafeYaml.load(file.toPath());ru.neverland.core.SafeYaml.keys(yaml,"active","towns");
+        YamlConfiguration yaml = ru.neverland.core.SafeYaml.load(file.toPath());ru.neverland.core.SafeYaml.keys(yaml,"active","towns","reputation-outbox");reputation.load(yaml);
         ConfigurationSection activeRoot = ru.neverland.core.SafeYaml.section(yaml,"active");
         if (activeRoot != null) {
             for (String raw : activeRoot.getKeys(false)) {
@@ -88,6 +91,8 @@ public final class EventRepository {
     public synchronized void changed() {gate(); dirty = true; }
 
     public synchronized void complete(ActiveEvent event, boolean success, int limit, long now) {gate();
+        if(active.get(event.townId())!=event)throw new IllegalArgumentException("Событие уже завершено или заменено");
+        if(event.raid()!=null)reputation.add(ru.neverland.core.ReputationOutcome.town("raid:"+event.eventId()+":"+event.startedAt(),event.townId(),success?"RAID_VICTORY":"RAID_DEFEAT",now,"Набег на город"));
         active.remove(event.townId());
         cooldowns.put(event.townId(), now);
         List<HistoryEntry> entries = history.computeIfAbsent(event.townId(), key -> new ArrayList<>());
@@ -99,7 +104,7 @@ public final class EventRepository {
     public synchronized void saveIfDirty() {gate(); if (dirty) save(); }
 
     public synchronized void save() {gate();
-        YamlConfiguration yaml = new YamlConfiguration();
+        YamlConfiguration yaml = new YamlConfiguration();reputation.write(yaml);
         for (ActiveEvent event : active.values()) {
             String path = "active." + event.townId() + ".";
             yaml.set(path + "event", event.eventId());

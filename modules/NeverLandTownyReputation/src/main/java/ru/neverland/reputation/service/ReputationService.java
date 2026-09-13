@@ -33,6 +33,9 @@ public final class ReputationService {
 
     private final JavaPlugin plugin; private final ReputationRegistry registry; private final ReputationRepository repository;
     private final ZoneId zone = ZoneId.systemDefault(); private BukkitTask autosaveTask; private BukkitTask decayTask;
+    private ReputationProfiles profiles;
+    public void profiles(ReputationProfiles value) { this.profiles = java.util.Objects.requireNonNull(value); }
+    public ReputationProfiles profiles() { return java.util.Objects.requireNonNull(profiles, "Профили ещё не загружены"); }
     private int minimum; private int maximum; private int historyLimit;
     public ReputationService(JavaPlugin plugin, ReputationRegistry registry, ReputationRepository repository) {
         this.plugin = plugin; this.registry = registry; this.repository = repository; reloadSettings();
@@ -43,9 +46,9 @@ public final class ReputationService {
         historyLimit = Math.max(1, plugin.getConfig().getInt("storage.history-per-relation", 30));
     }
     public void start() {
-        stopTasks(); reloadSettings();
+        stopTasks(); reloadSettings();repository.flushReputation();
         long saveTicks = Math.max(20L, plugin.getConfig().getLong("storage.autosave-seconds", 60) * 20L);
-        autosaveTask = Bukkit.getScheduler().runTaskTimer(plugin, repository::save, saveTicks, saveTicks);
+        autosaveTask = Bukkit.getScheduler().runTaskTimer(plugin, ()->{repository.save();repository.flushReputation();}, saveTicks, saveTicks);
         long decayTicks = Math.max(1200L, plugin.getConfig().getLong("decay.check-interval-minutes", 30) * 1200L);
         decayTask = Bukkit.getScheduler().runTaskTimer(plugin, this::runDecayIfNeeded, 20L, decayTicks);
     }
@@ -122,7 +125,9 @@ public final class ReputationService {
         ReputationChangeResult change = change(ReputationScope.PLAYER, actor.getUniqueId(), actor.getName(), target.getUniqueId(), target.getName(), delta,
                 "player_feedback", positive ? "Положительный отзыв игрока" : "Отрицательный отзыв игрока", "feedback:" + pair + ":" + LocalDate.now(zone), actor.getUniqueId(), actor.getName());
         if (change.status() != ChangeStatus.SUCCESS && change.appliedDelta() == 0) return new FeedbackResult(FeedbackStatus.CHANGE_FAILED, change, 0);
-        repository.feedbackCooldown(pair, now); repository.feedbackDaily(dayKey, used + 1); return new FeedbackResult(FeedbackStatus.SUCCESS, change, 0);
+        repository.feedbackCooldown(pair, now); repository.feedbackDaily(dayKey, used + 1);
+        repository.outcome(new ru.neverland.core.ReputationOutcome("feedback:"+pair+":"+LocalDate.now(zone),"PLAYER",target.getUniqueId(),positive?"PLAYER_ENDORSE":"PLAYER_DENOUNCE",now,"Отзыв игрока "+actor.getName()));
+        repository.save();repository.flushReputation();return new FeedbackResult(FeedbackStatus.SUCCESS, change, 0);
     }
 
     public int runDecayNow() { return runDecay(true); }

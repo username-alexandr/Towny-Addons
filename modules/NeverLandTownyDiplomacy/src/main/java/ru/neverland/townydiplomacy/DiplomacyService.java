@@ -76,12 +76,16 @@ public final class DiplomacyService implements TownyDiplomacyApi {
         return a!=null&&b!=null&&a.getMayor()!=null&&b.getMayor()!=null&&a.getMayor().getUUID().equals(t.firstMayor())&&b.getMayor().getUUID().equals(t.secondMayor());
     }
     public void maintain(long now)throws IOException {
-        primary();ready();var values=new LinkedHashMap<>(repository.all());var audit=new ArrayList<DiplomacyRepository.Audit>();
+        primary();ready();repository.flushReputation();var values=new LinkedHashMap<>(repository.all());var audit=new ArrayList<DiplomacyRepository.Audit>();var outcomes=new ArrayList<ReputationOutcome>();
         for(var t:repository.all().values())if(t.phase()!=Phase.ENDED) {
             String reason=!exists(t.first())||!exists(t.second())?"TOWN_DELETED":t.phase()==Phase.PENDING&&!sameMayors(t)?"MAYOR_CHANGED":!t.open(now)?"EXPIRED":null;
-            if(reason!=null){values.put(t.id(),t.end());audit.add(audit(t,"SYSTEM",reason,now));}
+            if(reason!=null){
+                if(reason.equals("EXPIRED") && t.phase()==Phase.ACTIVE && t.type().bilateral() && now>=t.expires())
+                    for(UUID party:List.of(t.first(),t.second()))outcomes.add(ReputationOutcome.town("treaty-honoured:"+t.id(),party,"TREATY_HONOURED",t.expires(),"Соблюдён договор: "+t.type().title()));
+                values.put(t.id(),t.end());audit.add(audit(t,"SYSTEM",reason,now));
+            }
         }
-        if(!audit.isEmpty())repository.commit(values,audit,List.of());
+        if(!audit.isEmpty())repository.commit(values,audit,List.of(),outcomes);repository.flushReputation();
     }
     private List<Treaty> live() {
         long now=System.currentTimeMillis();return repository.all().values().stream().filter(t->t.active(now)&&exists(t.first())&&exists(t.second())).toList();

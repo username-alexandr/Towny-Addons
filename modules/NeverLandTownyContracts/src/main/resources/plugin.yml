@@ -1,5 +1,5 @@
 name: NeverLandTownyContracts
-version: 0.3.4
+version: 0.3.5
 main: ru.neverland.mintcontracts.MintTownyContracts
 api-version: '26.2'
 authors: [Alexander Sokolov]
@@ -7,7 +7,7 @@ website: https://neverland.ru
 description: Городские заказы и совместные задания для экосистемы Towny проекта NeverLand.
 provides: [MintTownyContracts]
 depend: [Towny, NeverLandTownyBuilds]
-softdepend: [PlaceholderAPI, ItemsAdder]
+softdepend: [NeverLandTownyReputation, PlaceholderAPI, ItemsAdder]
 commands:
   townycontracts:
     description: Административное управление городскими заказами

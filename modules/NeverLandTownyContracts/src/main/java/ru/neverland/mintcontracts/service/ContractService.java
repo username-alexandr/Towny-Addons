@@ -152,7 +152,7 @@ public final class ContractService implements MintTownyContractsApi {
     public void tick() {
         if(!repository.writable())return;
         try{
-            fieldWork.pulse();if(++pulses%Math.max(1,plugin.getConfig().getInt("contracts.expiration-check-seconds",30))!=0)return;
+            repository.flushReputation();fieldWork.pulse();if(++pulses%Math.max(1,plugin.getConfig().getInt("contracts.expiration-check-seconds",30))!=0)return;
             for(var d:repository.deliveries().values())if(d.phase()==DeliveryIntent.Phase.TAKEN||d.phase()==DeliveryIntent.Phase.COMPLETE&&!d.acknowledged()){
                 try{deliveries.process(d.id());}catch(Exception ex){if(!repository.writable())throw ex;}
             }
@@ -200,8 +200,11 @@ public final class ContractService implements MintTownyContractsApi {
             c.settlement(status,payout,total-payout);repository.changed();if(!repository.save())return;
         }
         if(!companies.settle(c.id(),c.companyId(),c.townId(),c.settlementPayout(),c.settlementRefund()))return;
+        long reputationAt=System.currentTimeMillis();
+        repository.outcome(ru.neverland.core.ReputationOutcome.town("municipal:"+c.id(),c.townId(),c.settlementStatus()==ContractStatus.SUCCESS?"MUNICIPAL_SUCCESS":"MUNICIPAL_FAILED",reputationAt,"Контракт компании "+c.shortId()));
         repository.addHistory(c,c.settlementStatus(),c.settlementPayout()/100.0,c.settlementRefund()/100.0,plugin.getConfig().getInt("contracts.history-limit-per-town",30),System.currentTimeMillis());
         if(!repository.save())return;
+        repository.flushReputation();
         Town town=towny.town(c.townId());ContractDefinition d=definition(c);if(d==null)d=fallback(c);
         if(town!=null)announce(town,c.settlementStatus()==ContractStatus.SUCCESS?"contract-complete-town":c.settlementStatus()==ContractStatus.CANCELLED?"contract-cancel-town":"contract-expire-town",d,c,c.settlementPayout()/100.0);
     }

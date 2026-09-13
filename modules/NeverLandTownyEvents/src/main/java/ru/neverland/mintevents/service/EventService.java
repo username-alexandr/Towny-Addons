@@ -161,6 +161,8 @@ public final class EventService implements MintTownyEventsApi {
         long now = System.currentTimeMillis();
         repository.complete(active, success,
                 plugin.getConfig().getInt("runtime.history-limit-per-town", 20), now);
+        // Persist terminal state and its reputation receipt before external completion effects.
+        repository.save();repository.flushReputation();
         cleanupRaidMobs(active.townId());
         fires.finish(active.townId());
         int repairs = fires.damage(active.townId()).size();
@@ -229,6 +231,7 @@ public final class EventService implements MintTownyEventsApi {
     }
 
     private void tick() {
+        repository.flushReputation();
         long now = System.currentTimeMillis();
         long refresh = Math.max(1, plugin.getConfig().getLong("runtime.effects-refresh-seconds", 8)) * 1000;
         boolean applyEffects = now - effectsTick >= refresh;

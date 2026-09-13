@@ -43,7 +43,7 @@ public final class SupplyMenus implements Listener {
         button(v,22,Material.BOOK,"&fПоследние 20 поставок",history,()->{});
         if(c.status()==Status.PROPOSED&&c.terms().buyer().equals(v.town))button(v,29,Material.LIME_DYE,"&aПринять условия",List.of("&7Перейти к подтверждению."),()->confirm(p,id,"accept",page));
         if(c.status()==Status.ACTIVE){boolean paused=c.pausedBy().contains(v.town);button(v,29,paused?Material.LIME_DYE:Material.CLOCK,paused?"&aСнять паузу своего города":"&eПриостановить поставки",List.of("&7Пауза другого города сохраняется.","&7Начатый расчёт будет завершён."),()->confirm(p,id,paused?"resume":"pause",page));}
-        if(c.status()==Status.PROPOSED||c.status()==Status.ACTIVE)button(v,33,Material.RED_DYE,"&cОтменить договор",List.of("&7Будущие поставки прекращаются.","&7Начатый расчёт будет завершён."),()->confirm(p,id,"cancel",page));
+        if(c.status()==Status.PROPOSED||c.status()==Status.ACTIVE)button(v,33,Material.RED_DYE,"&cОтменить договор",List.of("&7Будущие поставки прекращаются.","&7Начатый расчёт будет завершён.",c.status()==Status.ACTIVE?"&cРасторжение снижает торговую репутацию.":"&7Отказ от предложения не даёт штрафа."),()->confirm(p,id,"cancel",page));
         button(v,49,Material.ARROW,"&fНазад",List.of(),()->open(p,page));p.openInventory(v.inventory);
     }
     public void confirm(Player p,String id,String action,int page){
@@ -51,7 +51,7 @@ public final class SupplyMenus implements Listener {
         var c=supply.find(id);if(c==null||!c.terms().party(v.town))throw new IllegalArgumentException("Договор не найден");
         button(v,13,icon(c),c.terms().itemName(),summary(c),()->{});
         String label=switch(action){case "accept"->"Принять договор";case "pause"->"Приостановить";case "resume"->"Снять свою паузу";default->"Отменить договор";};
-        button(v,29,Material.LIME_CONCRETE,"&aПодтвердить: "+label,List.of("&7Количество и цена указаны за одну поставку.","&7Цена фиксированная, дополнительных сборов нет.","&7Первая поставка через "+c.terms().days()+" дн. после принятия."),()->{
+        button(v,29,Material.LIME_CONCRETE,"&aПодтвердить: "+label,List.of("&7Количество и цена указаны за одну поставку.","&7Цена фиксированная, дополнительных сборов нет.","&7Первая поставка через "+c.terms().days()+" дн. после принятия.", action.equals("cancel")&&c.status()==Status.ACTIVE?"&cРасторжение снизит торговую репутацию города.":"&7Нарушения срока поставки ухудшают репутацию."),()->{
             var current=towny.town(p);if(current==null||!current.getUUID().equals(v.town)||!manage(p,current))return;
             try{supply.action(v.town,id,action,c.terms());detail(p,id,page);}catch(Exception ex){error(p,ex);}
         });

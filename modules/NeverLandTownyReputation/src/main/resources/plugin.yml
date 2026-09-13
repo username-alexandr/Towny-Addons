@@ -1,5 +1,5 @@
 name: NeverLandTownyReputation
-version: 0.1.7
+version: 0.2.0
 main: ru.neverland.reputation.TownyReputation
 api-version: '26.2'
 authors: [Alexander Sokolov]
@@ -12,12 +12,12 @@ commands:
   reputation:
     aliases: [rep]
     description: Просмотр и изменение репутации
-    usage: /reputation [player|town|nation|endorse|denounce|top|history]
+    usage: /reputation [profile|player|town|nation|endorse|denounce|top|history]
     permission: townyreputation.use
   townyreputation:
     aliases: [trep, neverlandtownyreputation, nltreputation]
     description: Администрирование NeverLandTownyReputation
-    usage: /townyreputation <reload|change|set|reset|info|decay>
+    usage: /townyreputation <profile|reload|change|set|reset|info|decay>
     permission: townyreputation.admin
 permissions:
   townyreputation.use:

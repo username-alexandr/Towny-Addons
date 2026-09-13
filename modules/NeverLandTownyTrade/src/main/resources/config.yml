@@ -78,6 +78,8 @@ gui:
 
 # Регулярные межгородские поставки физическими предметами /t inv.
 contracts:
+  # Only confirmed lack of seller stock counts; bank/API downtime never does.
+  reputation-grace-hours: 24
   enabled: true
   default-days: 7
   proposal-hours: 24

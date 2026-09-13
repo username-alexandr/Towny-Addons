@@ -9,15 +9,23 @@ import static ru.neverland.minttrade.contract.SupplyContract.*;
 /** Separate strict, atomic journal; old trade-data.yml remains compatible. Failed writes freeze this journal. */
 public final class SupplyRepository implements SupplyProcessor.Store {
     private final Path path;private volatile Map<UUID,SupplyContract> contracts=Map.of();private boolean writable;
+    private final ru.neverland.core.ReputationOutbox reputation = new ru.neverland.core.ReputationOutbox();
+    public int pendingReputation(){return reputation.size();}
+    public void flushReputation(){reputation.flush(this::writable,()->{try{save(contracts);}catch(IOException ex){throw new java.io.UncheckedIOException(ex);}});}
+    @Override public void put(SupplyContract contract,List<ru.neverland.core.ReputationOutcome> outcomes)throws IOException {
+        if(!writable())throw new IOException("Журнал договоров остановлен");
+        outcomes.forEach(reputation::add);put(contract);
+    }
     public SupplyRepository(Path path){this.path=path;}
     public boolean writable(){return writable&&ru.neverland.core.AtomicFiles.writable(path);}
     public Collection<SupplyContract> all(){return contracts.values();}
     @Override public SupplyContract get(UUID id){return contracts.get(id);}
     public void load()throws IOException {
-        writable=false;Map<UUID,SupplyContract> next=new LinkedHashMap<>();
+        writable=false;reputation.load(new YamlConfiguration());Map<UUID,SupplyContract> next=new LinkedHashMap<>();
         if(Files.exists(path))try {
             var yaml=new YamlConfiguration();yaml.load(path.toFile());
             if(yaml.getInt("schema")!=1)throw new IOException("Неизвестная схема договоров");
+            reputation.load(yaml);
             var root=yaml.getConfigurationSection("contracts");if(root==null)throw new IOException("Отсутствует раздел contracts");
             for(String id:root.getKeys(false)){var c=read(UUID.fromString(id),root.getConfigurationSection(id));next.put(c.terms().id(),c);}
         }catch(Exception ex){throw new IOException("contracts-data.yml повреждён; автопоставки остановлены",ex);}
@@ -35,7 +43,7 @@ public final class SupplyRepository implements SupplyProcessor.Store {
         try {
             var yaml=new YamlConfiguration();yaml.set("schema",1);yaml.createSection("contracts");
             for(var c:next.values())write(yaml.createSection("contracts."+c.terms().id()),c);
-            atomic(yaml,path);contracts=Collections.unmodifiableMap(new LinkedHashMap<>(next));
+            reputation.write(yaml);atomic(yaml,path);contracts=Collections.unmodifiableMap(new LinkedHashMap<>(next));
         }catch(IOException|RuntimeException ex){writable=false;throw new IOException("Не удалось сохранить договоры; выполнение остановлено",ex);}
     }
     public static void atomic(YamlConfiguration yaml,Path path)throws IOException {ru.neverland.core.AtomicFiles.write(path,yaml::saveToString);
