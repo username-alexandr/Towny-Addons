@@ -65,7 +65,7 @@ public final class MenuManager implements Listener {
             return;
         }
         String title = plugin.getConfig().getString("settings.gui.list-title", "&8Идеологии города");
-        Inventory inventory = Bukkit.createInventory(new IdeologyListHolder(), 27, ColorUtil.component(title));
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new IdeologyListHolder(), 27, ColorUtil.component(title));
         fill(inventory);
         TownIdeology current = ideologies.get(town).orElse(null);
         for (IdeologyDefinition definition : registry.all()) {
@@ -85,7 +85,7 @@ public final class MenuManager implements Listener {
         int shownLevel = current != null && current.ideologyId().equals(definition.id()) ? current.level() : 1;
         String title = plugin.getConfig().getString("settings.gui.details-title", "&8Идеология: {ideology}")
                 .replace("{ideology}", ColorUtil.strip(definition.name()));
-        Inventory inventory = Bukkit.createInventory(new DetailsHolder(definition.id()), 27, ColorUtil.component(title));
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new DetailsHolder(definition.id()), 27, ColorUtil.component(title));
         fill(inventory);
         inventory.setItem(11, ideologyIcon(definition, current));
         inventory.setItem(15, purchaseButton(definition, current));
@@ -96,7 +96,7 @@ public final class MenuManager implements Listener {
     private void openConfirm(Player player, IdeologyDefinition definition) {
         TownIdeology current = ideologies.get(player).orElse(null);
         String title = plugin.getConfig().getString("settings.gui.confirm-title", "&8Подтверждение");
-        Inventory inventory = Bukkit.createInventory(new ConfirmHolder(definition.id()), 27, ColorUtil.component(title));
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new ConfirmHolder(definition.id()), 27, ColorUtil.component(title));
         fill(inventory);
         int nextLevel = current != null && current.ideologyId().equals(definition.id()) ? current.level() + 1 : 1;
         double price = definition.priceForLevel(nextLevel);
@@ -186,7 +186,7 @@ public final class MenuManager implements Listener {
         ItemStack icon = itemsAdder.item(definition.itemsAdderIcon(), 1);
         if (icon == null) icon = new ItemStack(definition.material());
         ItemMeta meta = icon.getItemMeta();
-        meta.displayName(ColorUtil.component(definition.name()));
+        meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component(definition.name())));
         List<Component> lore = new ArrayList<>();
         definition.description().forEach(line -> lore.add(ColorUtil.component(line)));
         lore.add(Component.empty());
@@ -206,7 +206,7 @@ public final class MenuManager implements Listener {
             lore.add(ColorUtil.component(messages.raw("gui.available")));
         } else lore.add(ColorUtil.component(messages.raw("gui.unavailable")));
         lore.add(ColorUtil.component(messages.raw("gui.left-click")));
-        meta.lore(lore);
+        meta.lore(ru.neverland.core.MenuStyle.loreComponents(lore));
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
         meta.getPersistentDataContainer().set(ideologyKey, PersistentDataType.STRING, definition.id());
         icon.setItemMeta(meta);
@@ -235,8 +235,8 @@ public final class MenuManager implements Listener {
     private ItemStack actionItem(ItemStack base, String action, String name, List<String> lore) {
         ItemStack item = base.clone();
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(ColorUtil.component(name));
-        meta.lore(lore.stream().map(ColorUtil::component).toList());
+        meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component(name)));
+        meta.lore(ru.neverland.core.MenuStyle.loreComponents(lore.stream().map(ColorUtil::component).toList()));
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
         meta.getPersistentDataContainer().set(actionKey, PersistentDataType.STRING, action);
         item.setItemMeta(meta);
@@ -250,7 +250,7 @@ public final class MenuManager implements Listener {
             Material material = Material.matchMaterial(plugin.getConfig().getString("settings.gui.filler-material", "BLACK_STAINED_GLASS_PANE"));
             filler = new ItemStack(material == null ? Material.BLACK_STAINED_GLASS_PANE : material);
             ItemMeta meta = filler.getItemMeta();
-            meta.displayName(Component.text(" "));
+            meta.displayName(ru.neverland.core.MenuStyle.nameComponent(Component.text(" ")));
             filler.setItemMeta(meta);
         }
         for (int slot = 0; slot < inventory.getSize(); slot++) inventory.setItem(slot, filler);

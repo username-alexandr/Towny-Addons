@@ -178,7 +178,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         List<Resident> residents = town.getResidents().stream().sorted(Comparator.comparing(Resident::getName, String.CASE_INSENSITIVE_ORDER)).toList();
         int current = Math.max(0, Math.min(page, Math.max(0, (residents.size() - 1) / 45)));
         ArmyHolder holder = new ArmyHolder(town.getUUID(), current);
-        holder.inventory = Bukkit.createInventory(holder, 54, ColorUtil.component("&#B65CFFАрмия города · " + (current + 1)));
+        holder.inventory = ru.neverland.core.MenuStyle.inventory(plugin, holder, 54, ColorUtil.component("&#B65CFFАрмия города · " + (current + 1)));
         for (int n = current * 45; n < Math.min(residents.size(), current * 45 + 45); n++) {
             Resident resident = residents.get(n); UUID id = resident.getUUID(); int slot = n % 45;
             boolean mobilized = town.getUUID().equals(roster.get(id)); OptionalInt age = age(id);
@@ -196,7 +196,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
     }
     private ItemStack item(Material material, String name, List<String> lore) {
         ItemStack item = new ItemStack(material);
-        item.editMeta(meta -> { meta.displayName(ColorUtil.component("&f" + name)); meta.lore(lore.stream().map(ColorUtil::component).toList()); });
+        item.editMeta(meta -> { meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component("&f" + name))); meta.lore(ru.neverland.core.MenuStyle.loreComponents(lore.stream().map(ColorUtil::component).toList())); });
         return item;
     }
     @EventHandler public void click(InventoryClickEvent event) {

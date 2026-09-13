@@ -76,6 +76,10 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             return;
         }
         if (!events.startEvent(town, definition)) {
+            if (definition.mode() == ru.neverland.mintevents.model.EventMode.FIRE && events.hasFireDamage(town.getUUID())) {
+                sender.sendMessage("§eПожар недоступен: завершите ремонт (/t events repairs) и проверьте журнал fire-damage.yml.");
+                return;
+            }
             messages.send(sender, "already-active");
             return;
         }

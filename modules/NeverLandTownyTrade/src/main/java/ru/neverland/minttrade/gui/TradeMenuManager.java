@@ -49,8 +49,13 @@ public final class TradeMenuManager implements Listener {
     public void open(Player player) {
         Town town = towny.town(player); if (town == null) { messages.send(player, "no-town"); return; }
         TradeMenuHolder holder = new TradeMenuHolder(town.getUUID(), TradeMenuHolder.Type.BOARD);
-        Inventory inventory = Bukkit.createInventory(holder, 54, ColorUtil.color(plugin.getConfig().getString("gui.title", "Городская торговля")));
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, holder, 54, ColorUtil.color(plugin.getConfig().getString("gui.title", "Городская торговля")));
         holder.inventory(inventory); fill(inventory);
+        inventory.setItem(1,item(Material.CHEST,"&bВходящие предложения",List.of("Города предлагают вам товары.","Предложения находятся под этой карточкой.")));
+        inventory.setItem(5,item(Material.ENDER_CHEST,"&dИсходящие предложения",List.of("Ваши предложения другим городам.","Ожидают решения покупателя.")));
+        inventory.setItem(22,item(Material.KNOWLEDGE_BOOK,"&eШаблоны поставок",List.of("Ниже — товары, размер партии и цена.","Команда предложения указана у каждого товара.")));
+        inventory.setItem(45,actionItem("close",Material.BARRIER,"&cЗакрыть",List.of("Закрыть городскую торговлю.")));
+        inventory.setItem(53,actionItem("refresh",Material.SPYGLASS,"&bОбновить",List.of("Проверить новые предложения и караваны.")));
         listOffers(inventory, trade.incoming(town), INCOMING, true);
         listOffers(inventory, trade.outgoing(town), OUTGOING, false);
         for (ExportDefinition definition : trade.registry().all()) {
@@ -61,7 +66,7 @@ public final class TradeMenuManager implements Listener {
         List<Caravan> caravans = trade.caravans(town);
         for (int index = 0; index < CARAVANS.length; index++) inventory.setItem(CARAVANS[index], index < caravans.size()
                 ? caravanItem(caravans.get(index), town) : item(Material.GRAY_STAINED_GLASS_PANE, "&#555555Свободный маршрут", List.of()));
-        inventory.setItem(36, item(Material.EMERALD, "&#63E6BEТорговый центр", List.of(
+        inventory.setItem(4, item(Material.BELL, "&#FFD480Торговый центр", List.of(
                 "&7Уровень Рынка: &#FFFFFF" + trade.marketLevel(town),
                 "&7Маршруты: &#FFFFFF" + trade.activeCount(town) + "&7/&#FFFFFF" + trade.routeLimit(town),
                 "&7Казна: &#FFD45A" + trade.economy().format(trade.economy().balance(town)),
@@ -73,7 +78,7 @@ public final class TradeMenuManager implements Listener {
     }
     public void openHistory(Player player, Town town) {
         TradeMenuHolder holder = new TradeMenuHolder(town.getUUID(), TradeMenuHolder.Type.HISTORY);
-        Inventory inventory = Bukkit.createInventory(holder, 54, ColorUtil.color(plugin.getConfig().getString("gui.history-title", "История торговли")));
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, holder, 54, ColorUtil.color(plugin.getConfig().getString("gui.history-title", "История торговли")));
         holder.inventory(inventory); fill(inventory); int slot = 0;
         for (TradeHistory entry : trade.history(town)) {
             ExportDefinition definition = trade.registry().get(entry.exportId());
@@ -98,6 +103,8 @@ public final class TradeMenuManager implements Listener {
         ItemStack clicked = event.getCurrentItem(); if (clicked == null || !clicked.hasItemMeta()) return;
         String action = clicked.getItemMeta().getPersistentDataContainer().get(actionKey, PersistentDataType.STRING);
         if (holder.type() == TradeMenuHolder.Type.HISTORY) { if ("back".equals(action)) open(player); return; }
+        if ("close".equals(action)) {player.closeInventory();return;}
+        if ("refresh".equals(action)) {open(player);return;}
         if ("markets".equals(action)) {player.performCommand("townymarket global");return;}
         if ("contracts".equals(action)) {if(supplies.access(player))supplies.open(player,0);return;}
         if ("history".equals(action)) { openHistory(player, town); return; }
@@ -164,5 +171,5 @@ public final class TradeMenuManager implements Listener {
     private void fill(Inventory inventory) { Material material = MaterialNameConfig.matchMaterial(plugin.getConfig().getString("gui.filler", "BLACK_STAINED_GLASS_PANE")); ItemStack filler = item(material == null ? Material.BLACK_STAINED_GLASS_PANE : material, " ", List.of()); for (int i = 0; i < inventory.getSize(); i++) inventory.setItem(i, filler); }
     private ItemStack actionItem(String action, Material material, String name, List<String> lore) { return keyed(item(material, name, lore), actionKey, action); }
     private ItemStack keyed(ItemStack stack, NamespacedKey key, String value) { ItemMeta meta = stack.getItemMeta(); meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, value); stack.setItemMeta(meta); return stack; }
-    private ItemStack item(Material material, String name, List<String> lore) { ItemStack stack = new ItemStack(material == null ? Material.PAPER : material); ItemMeta meta = stack.getItemMeta(); meta.setDisplayName(ColorUtil.color(name)); meta.setLore(lore.stream().map(ColorUtil::color).toList()); meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES); stack.setItemMeta(meta); return stack; }
+    private ItemStack item(Material material, String name, List<String> lore) { ItemStack stack = new ItemStack(material == null ? Material.PAPER : material); ItemMeta meta = stack.getItemMeta(); meta.setDisplayName(ru.neverland.core.MenuStyle.nameLegacy(ColorUtil.color(name))); meta.setLore(ru.neverland.core.MenuStyle.loreStrings(lore.stream().map(ColorUtil::color).toList())); meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES); stack.setItemMeta(meta); return stack; }
 }

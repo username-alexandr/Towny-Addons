@@ -54,6 +54,7 @@ public final class EventService implements MintTownyEventsApi {
     private final EventRepository repository;
     private final DevelopmentService development;
     private final MessageService messages;
+    private final FireService fires;
     private final Map<UUID, BossBar> bars = new HashMap<>();
     private final Map<UUID, Long> raidFailureWarnings = new HashMap<>();
     private RaidCatalog raidCatalog;
@@ -78,6 +79,7 @@ public final class EventService implements MintTownyEventsApi {
         this.repository = repository;
         this.development = development;
         this.messages = messages;
+        this.fires = new FireService(plugin, towny);
         this.raidMobKey = new NamespacedKey(plugin, "raid_town");
         this.raidGenerationKey = new NamespacedKey(plugin, "raid_generation");
         this.raidPointsKey = new NamespacedKey(plugin, "raid_points");
@@ -112,6 +114,7 @@ public final class EventService implements MintTownyEventsApi {
 
     public void shutdown() {
         stopTasks();
+        fires.clearVisuals();
         bars.values().forEach(BossBar::removeAll);
         bars.clear();
         repository.save();
@@ -126,6 +129,7 @@ public final class EventService implements MintTownyEventsApi {
 
     public boolean startEvent(Town town, EventDefinition definition) {
         if (town == null || definition == null || repository.active(town.getUUID()) != null) return false;
+        if (definition.mode() == EventMode.FIRE && hasFireDamage(town.getUUID())) return false;
         long now = System.currentTimeMillis();
         int residents = Math.max(1, town.getResidents().size());
         int goal = definition.baseGoal() + definition.goalPerResident() * residents;
@@ -158,6 +162,9 @@ public final class EventService implements MintTownyEventsApi {
         repository.complete(active, success,
                 plugin.getConfig().getInt("runtime.history-limit-per-town", 20), now);
         cleanupRaidMobs(active.townId());
+        fires.finish(active.townId());
+        int repairs = fires.damage(active.townId()).size();
+        if (repairs > 0) for (Player player : onlineResidents(town)) player.sendMessage("§eПосле пожара нужно восстановить блоков: §f" + repairs + "§e. Откройте §f/t events repairs");
         raidFailureWarnings.remove(active.townId());
         raidSpawnAttempts.remove(active.townId());
         BossBar bar = bars.remove(active.townId());
@@ -237,6 +244,7 @@ public final class EventService implements MintTownyEventsApi {
                 resolveInternal(town, active, false);
             } else {
                 updateBossBar(town, definition, active);
+                if (definition.mode() == EventMode.FIRE) fires.tick(town, active, applyEffects, new ArrayList<>(onlineResidents(town)));
                 if (applyEffects) applyGameplay(town, definition, active, now);
             }
         }
@@ -261,9 +269,8 @@ public final class EventService implements MintTownyEventsApi {
                             duration, 0, true, false, true));
                 }
                 case FIRE -> {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, duration,
+                    if (fires.near(player)) player.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, duration,
                             severity >= 0.7 ? 1 : 0, true, false, true));
-                    fireParticles(player);
                 }
                 case FESTIVAL -> {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.LUCK, duration, 0, true, true, true));
@@ -273,12 +280,6 @@ public final class EventService implements MintTownyEventsApi {
                 case DROUGHT -> { }
             }
         }
-    }
-
-    private void fireParticles(Player player) {
-        int count = Math.max(1, plugin.getConfig().getInt("gameplay.fire-particle-count", 12));
-        player.getWorld().spawnParticle(Particle.LARGE_SMOKE, player.getLocation().add(0, 1, 0),
-                count, 5, 1.5, 5, 0.01);
     }
 
     private int maybeRaidWave(Town town, Location anchor, ActiveEvent event, double severity, long now,
@@ -620,8 +621,31 @@ public final class EventService implements MintTownyEventsApi {
     private String raidOwner(Entity entity) { if (entity == null) return null; String value = entity.getPersistentDataContainer().get(raidMobKey, PersistentDataType.STRING); return value != null || legacyRaidMobKey == null ? value : entity.getPersistentDataContainer().get(legacyRaidMobKey, PersistentDataType.STRING); }
     public EventRegistry registry() { return registry; }
     public DevelopmentService development() { return development; }
+    public FireService fires() { return fires; }
+    public boolean fireActive(UUID townId) {
+        EventDefinition definition = definition(active(townId));
+        return definition != null && definition.mode() == EventMode.FIRE;
+    }
+    @Override public boolean requiresRepair(UUID world, int x, int y, int z) {
+        return !fires.repository().writable() || fires.requiresRepair(world, x, y, z);
+    }
+    @Override public boolean hasFireDamage(UUID town) {
+        return !fires.repository().writable() || !fires.damage(town).isEmpty();
+    }
+    public void extinguish(Player player, Location water) {
+        if (!player.hasPermission("mintevents.contribute")) return;
+        Town town = towny.town(player);
+        if (town == null || !fireActive(town.getUUID())) return;
+        int count = fires.extinguish(player, water);
+        if (count > 0) {
+            int points = count * Math.max(1, Math.min(100, plugin.getConfig().getInt("gameplay.fire.extinguish-points", 8)));
+            contribute(town, points);
+            player.sendMessage("§aПотушено очагов: §f" + count + " §7· §a+" + points + " очков защиты");
+        }
+    }
 
     public void reloadRuntime() {
+        fires.reload();
         raidCatalog = new RaidCatalog(plugin);
         development.clearCache();
         start();

@@ -21,7 +21,7 @@ public final class UpkeepMenu implements Listener {
     public void open(Player p,UUID town,int requested,String project){
         if(!access(p,town)){tell(p,"&cНет доступа к обслуживанию этого города.");return;}
         var buildings=service.buildings(town);int pages=Math.max(1,(buildings.size()+35)/36);int page=Math.max(0,Math.min(pages-1,requested));var v=new View(town,page,project);
-        v.inventory=Bukkit.createInventory(v,54,color("&6Обслуживание города"));
+        v.inventory=ru.neverland.core.MenuStyle.inventory(plugin, v,54,color("&6Обслуживание города"));
         if(project!=null){var b=buildings.stream().filter(s->s.key().project().equals(project)).findFirst().orElse(null);if(b==null){tell(p,"Построенное здание не найдено.");return;}detail(p,v,b);}
         else {
             for(int i=page*36;i<Math.min(buildings.size(),(page+1)*36);i++){var b=buildings.get(i);var lore=lore(b);lore.add("Нажмите: расходы и повтор оплаты.");button(v,i%36,icon(b.icon()),(b.active()?"&a":"&c")+b.name(),lore,()->open(p,town,page,b.key().project()));}
@@ -46,7 +46,7 @@ public final class UpkeepMenu implements Listener {
         });
         button(v,45,Material.ARROW,"&aВсе здания",List.of(),()->open(p,v.town,v.page,null));
     }
-    private void button(View v,int slot,Material icon,String name,List<String> lore,Runnable action){var item=new ItemStack(icon);var meta=item.getItemMeta();meta.setDisplayName(color(name));meta.setLore(lore.stream().map(s->color("&7"+s)).toList());item.setItemMeta(meta);v.inventory.setItem(slot,item);if(action!=null)v.actions.put(slot,action);}
+    private void button(View v,int slot,Material icon,String name,List<String> lore,Runnable action){var item=new ItemStack(icon);var meta=item.getItemMeta();meta.setDisplayName(ru.neverland.core.MenuStyle.nameLegacy(color(name)));meta.setLore(ru.neverland.core.MenuStyle.loreStrings(lore.stream().map(s->color("&7"+s)).toList()));item.setItemMeta(meta);v.inventory.setItem(slot,item);if(action!=null)v.actions.put(slot,action);}
     @EventHandler public void click(InventoryClickEvent e){if(!(e.getView().getTopInventory().getHolder() instanceof View v))return;e.setCancelled(true);if(!(e.getWhoClicked() instanceof Player p))return;if(!access(p,v.town)){p.closeInventory();return;}var action=v.actions.get(e.getRawSlot());if(action!=null)Bukkit.getScheduler().runTask(plugin,()->{if(p.isOnline()&&p.getOpenInventory().getTopInventory().getHolder()==v&&access(p,v.town))action.run();});}
     @EventHandler public void drag(InventoryDragEvent e){if(e.getView().getTopInventory().getHolder() instanceof View)e.setCancelled(true);}
 }

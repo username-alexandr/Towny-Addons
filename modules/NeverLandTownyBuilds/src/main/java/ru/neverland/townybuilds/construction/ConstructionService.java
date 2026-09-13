@@ -68,6 +68,7 @@ public final class ConstructionService implements Listener {
     private record Obstruction(Location location, Material material) {}
     private record ObstructionPreview(long expiresAt, List<Obstruction> blocks) {}
     private BukkitTask renderTask;
+    private BukkitTask restorationTask;
 
     public ConstructionService(JavaPlugin plugin, TownyHook towny, DataStore dataStore,
                                MessageService messages, RussianItemNames itemNames,
@@ -83,13 +84,18 @@ public final class ConstructionService implements Listener {
 
     public void start() {
         stop();
-        migrateLegacySites();
-        repairCompletedSites();
+        // Events registers its public repair API after Builds enables. Wait until all plugins are ready.
+        restorationTask = Bukkit.getScheduler().runTask(plugin, () -> {
+            migrateLegacySites();
+            repairCompletedSites();
+        });
         long interval = Math.max(5L, plugin.getConfig().getLong("settings.construction.preview-interval-ticks", 10L));
         renderTask = Bukkit.getScheduler().runTaskTimer(plugin, this::renderMissingBlocks, interval, interval);
     }
 
     public void stop() {
+        if (restorationTask != null) restorationTask.cancel();
+        restorationTask = null;
         if (renderTask != null) renderTask.cancel();
         renderTask = null;
         for (TextDisplay display : guideDisplays.values()) {
@@ -120,6 +126,10 @@ public final class ConstructionService implements Listener {
         if (plan == null) return ConstructionPreparation.failed(ConstructionPreparation.Status.UNKNOWN_BLUEPRINT, project.id());
         TownData data = dataStore.town(town.getUUID());
         ConstructionSite existing = data.constructionSite(project.id());
+        if (existing != null && ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.getUUID())) {
+            return ConstructionPreparation.failed(ConstructionPreparation.Status.OBSTRUCTED,
+                    "Сначала подтвердите ремонт после пожара: /t events repairs. Если список пуст, проверьте доступность Events.");
+        }
         if (existing != null && existing.active()) {
             return new ConstructionPreparation(ConstructionPreparation.Status.ALREADY_ACTIVE, town.getUUID(),
                     existing, plan, List.of());
@@ -173,6 +183,10 @@ public final class ConstructionService implements Listener {
         }
         if(!ru.neverland.integration.SpecializationAccess.allowed(preparation.townId(),preparation.site().projectId()))throw new IllegalStateException(ru.neverland.integration.SpecializationAccess.reason(preparation.site().projectId()));
         TownData data = dataStore.town(preparation.townId());
+        if (data.constructionSite(preparation.site().projectId()) != null
+                && ru.neverland.townybuilds.integration.FireRepairAccess.blocked(preparation.townId())) {
+            throw new IllegalStateException("Сначала завершите ремонт после пожара: /t events repairs");
+        }
         data.setConstructionSite(preparation.site());
         dataStore.markDirty();
         dataStore.save();
@@ -379,6 +393,7 @@ public final class ConstructionService implements Listener {
         int restored = 0;
         boolean changed = false;
         for (TownData town : dataStore.towns().values()) {
+            if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId())) continue;
             for (ConstructionSite site : town.constructionSites().values()) {
                 if (site.architectureVersion() >= ConstructionSite.CURRENT_ARCHITECTURE_VERSION) continue;
                 World world = Bukkit.getWorld(site.worldId());
@@ -444,6 +459,7 @@ public final class ConstructionService implements Listener {
     private void repairCompletedSites() {
         int repaired = 0;
         for (TownData town : dataStore.towns().values()) {
+            if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId())) continue;
             for (ConstructionSite site : town.constructionSites().values()) {
                 if (site.active() || site.completedStage() <= 0) continue;
                 World world = Bukkit.getWorld(site.worldId());

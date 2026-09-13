@@ -9,11 +9,13 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class EventMenuHolder implements InventoryHolder {
-    public enum Type { MAIN, HISTORY }
+    public enum Type { MAIN, HISTORY, REPAIRS }
 
     private final UUID townId;
     private final Type type;
     private final Map<Integer, ContributionRule> rules = new HashMap<>();
+    private final Map<Integer, UUID> repairs = new HashMap<>();
+    private int page;
     private Inventory inventory;
 
     public EventMenuHolder(UUID townId, Type type) {
@@ -24,6 +26,9 @@ public final class EventMenuHolder implements InventoryHolder {
     public UUID townId() { return townId; }
     public Type type() { return type; }
     public Map<Integer, ContributionRule> rules() { return rules; }
+    public Map<Integer, UUID> repairs() { return repairs; }
+    public int page() { return page; }
+    public void page(int value) { page = value; }
     public void inventory(Inventory value) { inventory = value; }
     @Override public Inventory getInventory() { return inventory; }
 }

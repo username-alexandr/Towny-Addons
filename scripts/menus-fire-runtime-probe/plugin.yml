@@ -1,0 +1,6 @@
+name: NeverLandMenusFireRuntimeProbe
+version: '1.0.0'
+main: ru.neverland.runtime.MenusFireRuntimeProbe
+api-version: '26.2'
+depend: [Towny, Vault, Essentials, NeverLandTownyBuilds, NeverLandTownyEvents, NeverLandTownyTrade, NeverLandTownyTreasuryPlus]
+description: Opt-in destructive checks on an explicitly marked disposable loopback server.

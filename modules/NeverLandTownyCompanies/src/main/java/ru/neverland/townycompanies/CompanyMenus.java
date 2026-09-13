@@ -21,9 +21,9 @@ public final class CompanyMenus implements Listener {
         View(UUID player){this.player=player;}public Inventory getInventory(){return inventory;}
     }
     public CompanyMenus(JavaPlugin plugin,CompanyService service,CompanyCommand command){this.plugin=plugin;this.service=service;this.command=command;}
-    private View view(Player p,String title){service.requireUse(p);var v=new View(p.getUniqueId());v.inventory=Bukkit.createInventory(v,54,"§6"+title);return v;}
+    private View view(Player p,String title){service.requireUse(p);var v=new View(p.getUniqueId());v.inventory=ru.neverland.core.MenuStyle.inventory(plugin, v,54,"§6"+title);return v;}
     private void put(View v,int slot,Material icon,String title,List<String> lore,CompanyCommand.Action action){
-        ItemStack item=new ItemStack(icon);var meta=item.getItemMeta();meta.setDisplayName("§e"+title);meta.setLore(lore.stream().map(s->"§7"+s).toList());meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);item.setItemMeta(meta);v.inventory.setItem(slot,item);if(action!=null)v.actions.put(slot,action);
+        ItemStack item=new ItemStack(icon);var meta=item.getItemMeta();meta.setDisplayName(ru.neverland.core.MenuStyle.nameLegacy("§e"+title));meta.setLore(ru.neverland.core.MenuStyle.loreStrings(lore.stream().map(s->"§7"+s).toList()));meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);item.setItemMeta(meta);v.inventory.setItem(slot,item);if(action!=null)v.actions.put(slot,action);
     }
     private void show(Player p,View v){p.openInventory(v.inventory);}
     private void pages(Player p,View v,int page,int size,java.util.function.IntConsumer open){

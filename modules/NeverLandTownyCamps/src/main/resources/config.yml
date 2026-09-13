@@ -111,3 +111,7 @@ settings:
     teleport-start: BLOCK_BEACON_POWER_SELECT
     teleport-complete: ENTITY_ENDERMAN_TELEPORT
     pack: BLOCK_WOOD_BREAK
+
+# Светлый заголовок для тёмного ресурспака; для ванильного светлого окна: "#273247".
+menu-style:
+  title-color: "#F4F7FC"

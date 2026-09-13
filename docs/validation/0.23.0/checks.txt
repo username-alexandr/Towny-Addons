@@ -1,0 +1,162 @@
+all 27 release plugins enabled
+API MarketStorageApi
+API MunicipalStorageApi
+API TownyResourcesApi
+API MintTownyEventsApi
+API TownyUpkeepApi
+API TownyChroniclesApi
+API TownyPopulationApi
+API TownyPowerApi
+API TownyGovernanceApi
+API TownyJobsApi
+API MintTownyTradeApi
+API TownyCampsApi
+API MintTownyContractsApi
+API TownyArchaeologyApi
+API TownyResearchApi
+API CompaniesApi
+API MintTownyEspionageApi
+API TownySpecializationApi
+API BuildingStorageApi
+API NeverLandTownyTaxesApi
+API TownyReputationApi
+API TownArmyApi
+API TownyPoliciesApi
+API MarketApi
+API WarehouseApi
+API TownyDistrictsApi
+API TownyBuildsApi
+API TownyTreasuryApi
+28 public contracts registered
+native actor is town mayor
+command opens menu: builds
+readable inventory: builds
+command opens menu: wonders
+readable inventory: wonders
+command opens menu: army
+readable inventory: army
+command opens menu: museum
+readable inventory: museum
+command opens menu: chronicles
+readable inventory: chronicles
+command opens menu: companies
+readable inventory: companies
+command opens menu: contracts
+readable inventory: contracts
+command opens menu: district
+readable inventory: district
+command opens menu: espionage
+readable inventory: espionage
+command opens menu: events
+readable inventory: events
+command opens menu: expeditions
+readable inventory: expeditions
+command opens menu: governance
+readable inventory: governance
+command opens menu: ideologies
+readable inventory: ideologies
+command opens menu: jobs
+readable inventory: jobs
+command opens menu: logistics
+readable inventory: logistics
+command opens menu: market
+readable inventory: market
+command opens menu: policies
+readable inventory: policies
+command opens menu: population
+readable inventory: population
+command opens menu: power
+readable inventory: power
+command opens menu: reputation
+readable inventory: reputation
+command opens menu: research
+readable inventory: research
+command opens menu: resources
+readable inventory: resources
+command opens menu: specialization
+readable inventory: specialization
+command opens menu: trade
+readable inventory: trade
+command opens menu: treasury
+readable inventory: treasury
+command opens menu: upkeep
+readable inventory: upkeep
+readable inventory: camps
+readable inventory: shop purchases
+empty purchases explain current state
+trade center is a separate bell
+treasury back restores prior addon menu
+direct treasury root closes
+weekly report opens
+report back returns to weeks
+weeks back returns to root
+CSV hidden without dedicated permission
+denied command writes no CSV
+CSV visible with permission
+revoked permission blocks open-menu export
+permitted CSV exported
+logistics sends complete separate commands
+fire event starts
+visual fire preserves wood
+visual hotspot renders on server
+water response contributes protection progress
+fire excludes STONE
+fire excludes CHEST
+fire excludes BARREL
+fire excludes OAK_LOG
+foreign or unclaimed land protected
+wood damage creates a hole
+exact original block persisted
+same location cannot burn twice
+repair confirmation blocked during active fire
+successful event leaves mandatory repairs
+new fire waits for repairs
+Builds reads public repair debt
+Builds automatic repair preserves fire hole
+building upgrade cannot bypass fire repairs
+legacy architecture migration waits for fire repairs
+readable inventory: fire repairs
+repair menu shows required material
+write fault stops block destruction
+write fault leaves block and blocks retries
+unavailable ledger blocks Builds restoration
+ledger recovers without losing debt
+all 27 release plugins enabled
+API TownyPowerApi
+API TownyChroniclesApi
+API TownyResearchApi
+API MarketStorageApi
+API BuildingStorageApi
+API TownyBuildsApi
+API TownyPopulationApi
+API TownyResourcesApi
+API MintTownyEspionageApi
+API MintTownyEventsApi
+API MintTownyTradeApi
+API TownyGovernanceApi
+API MintTownyContractsApi
+API WarehouseApi
+API TownyTreasuryApi
+API CompaniesApi
+API TownyCampsApi
+API TownyPoliciesApi
+API TownyJobsApi
+API TownyReputationApi
+API MunicipalStorageApi
+API TownySpecializationApi
+API TownyUpkeepApi
+API TownArmyApi
+API TownyArchaeologyApi
+API NeverLandTownyTaxesApi
+API MarketApi
+API TownyDistrictsApi
+28 public contracts registered
+town persisted
+hard restart and Builds startup retain hole
+hard restart retains repair journal
+wrong replacement cannot clear debt
+repair permission enforced
+manual material placement confirms repair
+original block orientation restored
+confirmed repair persisted and unblocks Builds
+new fire allowed after repair

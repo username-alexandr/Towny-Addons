@@ -86,7 +86,7 @@ public final class MenuManager implements Listener {
             messages.send(player, "no-town");
             return;
         }
-        Inventory inventory = Bukkit.createInventory(new CategoryHolder(), 27,
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new CategoryHolder(), 27,
                 ColorUtil.component("&#B65CFFКатегории городских построек"));
         decorate(inventory);
         int[] slots = {10, 11, 12, 13, 14, 15, 16, 21, 23};
@@ -117,7 +117,7 @@ public final class MenuManager implements Listener {
         String title = type == ProjectType.BUILDING && category != null
                 ? category.color() + category.displayName() : "&#FFD45AВеликие чудеса света";
         if (pages > 1) title += " &8[&f" + (page + 1) + "&8/&f" + pages + "&8]";
-        Inventory inventory = Bukkit.createInventory(new ProjectListHolder(type, category, page), 54,
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new ProjectListHolder(type, category, page), 54,
                 ColorUtil.component(title));
         decorate(inventory);
         TownData data = dataStore.town(town.getUUID());
@@ -159,7 +159,7 @@ public final class MenuManager implements Listener {
         TownData data = dataStore.town(town.getUUID());
         int current = data.level(project.id());
         ConstructionProgress construction = builds.constructionProgress(town, project);
-        Inventory inventory = Bukkit.createInventory(new DetailsHolder(project.id(), page, category), 27,
+        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new DetailsHolder(project.id(), page, category), 27,
                 ColorUtil.component(project.name()));
         decorate(inventory);
         inventory.setItem(11, projectIcon(project, current, town.getUUID()));
@@ -432,7 +432,7 @@ public final class MenuManager implements Listener {
             icon = new ItemStack(project.icon());
         }
         ItemMeta meta = icon.getItemMeta();
-        meta.displayName(ColorUtil.component(project.name()));
+        meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component(project.name())));
         List<Component> lore = new ArrayList<>();
         if (project.type() == ProjectType.BUILDING) {
             lore.add(ColorUtil.component(project.category().color() + project.category().displayName()));
@@ -454,7 +454,7 @@ public final class MenuManager implements Listener {
         }
         lore.add(Component.empty());
         lore.add(ColorUtil.component(level >= project.maxLevel() ? "&aПолностью развито" : "&#63E6BEНажмите для подробностей"));
-        meta.lore(lore);
+        meta.lore(ru.neverland.core.MenuStyle.loreComponents(lore));
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
         meta.getPersistentDataContainer().set(projectKey, PersistentDataType.STRING, project.id());
         icon.setItemMeta(meta);
@@ -465,8 +465,8 @@ public final class MenuManager implements Listener {
     private ItemStack actionItem(String action, ItemStack base, String name, List<String> lore) {
         ItemStack item = base.clone();
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(ColorUtil.component(name));
-        meta.lore(lore.stream().map(ColorUtil::component).toList());
+        meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component(name)));
+        meta.lore(ru.neverland.core.MenuStyle.loreComponents(lore.stream().map(ColorUtil::component).toList()));
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         meta.getPersistentDataContainer().set(actionKey, PersistentDataType.STRING, action);
         item.setItemMeta(meta);
@@ -476,8 +476,8 @@ public final class MenuManager implements Listener {
     private ItemStack menuItem(Material material, String name, List<String> lore) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(ColorUtil.component(name));
-        meta.lore(lore.stream().map(ColorUtil::component).toList());
+        meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component(name)));
+        meta.lore(ru.neverland.core.MenuStyle.loreComponents(lore.stream().map(ColorUtil::component).toList()));
         item.setItemMeta(meta);
         return item;
     }

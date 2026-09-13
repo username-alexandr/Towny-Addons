@@ -84,3 +84,7 @@ contracts:
   maximum-per-town: 10
   retry-seconds: 300
   process-per-second: 8
+
+# Светлый заголовок для тёмного ресурспака; для ванильного светлого окна: "#273247".
+menu-style:
+  title-color: "#F4F7FC"
