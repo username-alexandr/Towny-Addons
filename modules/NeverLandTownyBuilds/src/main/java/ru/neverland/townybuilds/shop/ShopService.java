@@ -25,6 +25,7 @@ public final class ShopService implements PurchaseSaga.Gateway<ShopOrder> {
     public static long cents(double price){try{long n=BigDecimal.valueOf(price).movePointRight(2).longValueExact();if(n<1||n>100_000_000_000L)throw new ArithmeticException();return n;}catch(RuntimeException ex){throw new IllegalArgumentException("Цена должна быть положительной и содержать не больше двух знаков после запятой");}}
     private boolean allowed(Material material){return plugin.getConfig().getStringList("settings.civic.spawn-shops.allowed-materials").stream().map(ru.neverland.localization.MaterialNameConfig::matchMaterial).anyMatch(m->m==material);}
     public ShopOrder purchase(Player player,UUID seller,Material material,long quotedUnit,boolean stack)throws Exception{
+        if(!ru.neverland.core.CitizensAccess.allows(seller,player.getUniqueId(),"SHOP"))throw new IllegalArgumentException("Ваш статус не даёт доступа к городской лавке");
         thread();if(!player.isOnline()||player.getGameMode()==GameMode.CREATIVE||player.getGameMode()==GameMode.SPECTATOR)throw new IllegalArgumentException("Для покупки нужен режим выживания или приключения");
         if(!checkingOut.add(player.getUniqueId()))throw new IllegalArgumentException("Покупка уже обрабатывается");
         try{if(journal.all().stream().filter(o->!o.finalized()&&o.buyer().equals(player.getUniqueId())).count()>=20||journal.all().stream().filter(o->!o.finalized()).count()>=5000)throw new IllegalArgumentException("Сначала завершите ожидающие покупки");

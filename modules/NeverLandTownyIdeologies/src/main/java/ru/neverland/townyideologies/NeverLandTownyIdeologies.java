@@ -44,6 +44,8 @@ public final class NeverLandTownyIdeologies extends JavaPlugin {
         data.load();
         EconomyService economy = new EconomyService(this, itemsAdder);
         ideologies = new IdeologyService(this, towny, data, registry, economy);
+        Bukkit.getServicesManager().register(ru.neverland.townyideologies.api.TownyIdeologiesApi.class,
+                new ru.neverland.townyideologies.service.IdeologiesApiService(this, data), this, org.bukkit.plugin.ServicePriority.Normal);
         MenuManager menus = new MenuManager(this, towny, registry, ideologies, economy, itemsAdder, messages);
         bonuses = new BonusService(this, towny, data, ideologies, registry);
 
@@ -71,11 +73,12 @@ public final class NeverLandTownyIdeologies extends JavaPlugin {
         long autosave = Math.max(20L, getConfig().getLong("settings.data.autosave-seconds", 60L) * 20L);
         Bukkit.getScheduler().runTaskTimer(this, data::saveIfDirty, autosave, autosave);
         getLogger().info("NeverLandTownyIdeologies " + getPluginMeta().getVersion()
-                + " включён: 6 идеологий, Paper 26.2, Towny и ItemsAdder-ready.");
+                + " включён: " + registry.all().size() + " идеологий, Paper 26.2, Towny и ItemsAdder-ready.");
     }
 
     @Override
     public void onDisable() {
+        Bukkit.getServicesManager().unregisterAll(this);
         if (bonuses != null) bonuses.stop();
         if (data != null) data.save();
         if (placeholders != null) placeholders.unregister();

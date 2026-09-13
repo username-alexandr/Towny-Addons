@@ -1,0 +1,38 @@
+[
+  {
+    "module": "NeverLandTownyElections",
+    "tests": [
+      "ru.neverland.townyelections.ElectionSmoke",
+      "ru.neverland.townyelections.ElectionsRepositorySmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townyelections.api.TownyElectionsApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 8.147
+  },
+  {
+    "module": "NeverLandTownyGovernance",
+    "tests": [
+      "ru.neverland.governance.GovernanceMathSmoke",
+      "ru.neverland.governance.OptionalDependencySmoke",
+      "ru.neverland.governance.ProposalSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.governance.api.TownyGovernanceApi"
+    ],
+    "repository_fault_probe": true,
+    "seconds": 9.939
+  },
+  {
+    "module": "NeverLandTownyIdeologies",
+    "tests": [
+      "ru.neverland.townyideologies.EffectFormatterSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townyideologies.api.TownyIdeologiesApi"
+    ],
+    "repository_fault_probe": true,
+    "seconds": 10.243
+  }
+]

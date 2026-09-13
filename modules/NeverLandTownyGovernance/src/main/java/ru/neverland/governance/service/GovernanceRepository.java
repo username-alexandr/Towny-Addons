@@ -90,6 +90,14 @@ public final class GovernanceRepository {
             UUID id = UUID.fromString(key); TownGovernanceData data = new TownGovernanceData(id, ru.neverland.core.SafeYaml.stringValue(section,"name", key));
             if (section.contains("baseline-tax.amount")) data.baselineTax(ru.neverland.core.SafeYaml.doubleValue(section,"baseline-tax.amount"), ru.neverland.core.SafeYaml.booleanValue(section,"baseline-tax.percentage"));
             data.lastProposalAt(ru.neverland.core.SafeYaml.longValue(section,"last-proposal-at", 0));
+            String receipt = ru.neverland.core.SafeYaml.stringValue(section, "election-receipt", "");
+            if (!receipt.isEmpty()) UUID.fromString(receipt);
+            data.electionReceipt(receipt);
+            if (section.contains("elected-offices")) {
+                Object raw = section.get("elected-offices");
+                if (!(raw instanceof List<?> list) || list.stream().anyMatch(v -> !(v instanceof String))) throw new IllegalArgumentException("elected-offices");
+                data.electedOffices().addAll(section.getStringList("elected-offices"));
+            }
             ConfigurationSection laws = ru.neverland.core.SafeYaml.section(section,"active-laws");
             if (laws != null) for (String law : laws.getKeys(false)) data.activeLaws().put(law,
                     new ActiveLaw(law, ru.neverland.core.SafeYaml.longValue(laws,law + ".enacted-at"), uuid(ru.neverland.core.SafeYaml.stringValue(laws,law + ".enacted-by")), ru.neverland.core.SafeYaml.stringValue(laws,law + ".enacted-by-name", "—")));
@@ -127,6 +135,8 @@ public final class GovernanceRepository {
 
     private void saveTown(YamlConfiguration yaml, TownGovernanceData data) {
         String root = "towns." + data.townId(); yaml.set(root + ".name", data.townName()); yaml.set(root + ".last-proposal-at", data.lastProposalAt());
+        yaml.set(root + ".election-receipt", data.electionReceipt());
+        yaml.set(root + ".elected-offices", new ArrayList<>(data.electedOffices()));
         if (data.baselineTax() != null) { yaml.set(root + ".baseline-tax.amount", data.baselineTax()); yaml.set(root + ".baseline-tax.percentage", data.baselineTaxPercentage()); }
         for (ActiveLaw law : data.activeLaws().values()) {
             String path = root + ".active-laws." + law.lawId(); yaml.set(path + ".enacted-at", law.enactedAt());

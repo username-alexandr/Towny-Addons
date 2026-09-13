@@ -116,3 +116,19 @@ ideologies:
       - "&fВыход товара: &a×{trade_multiplier}"
     bonuses:
       trade-output-multiplier: [1.05, 1.10, 1.15, 1.20, 1.25]
+
+  # Для существующей установки перенесите этот раздел вручную: пользовательский файл не заменяется.
+  monarchy:
+    enabled: true
+    name: "&6Монархия"
+    material: GOLDEN_HELMET
+    slot: 24
+    selection-price: 200
+    upgrade-prices: {2: 50, 3: 500, 4: 5000, 5: 50000}
+    description:
+      - "&fВласть остаётся у действующего правителя."
+      - "&7При включённых авторитарных формах"
+      - "&7Elections не проводит выборы."
+    bonus-description:
+      - "&eВыборы отключены при MONARCHY."
+      - "&7Уровни не дают экономических бонусов."

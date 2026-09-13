@@ -1,0 +1,86 @@
+[
+  {
+    "module": "NeverLandTownyBuilds",
+    "tests": [
+      "ru.neverland.townybuilds.BlockOrientationSmoke",
+      "ru.neverland.townybuilds.BlueprintDump",
+      "ru.neverland.townybuilds.BlueprintGeometrySmoke",
+      "ru.neverland.townybuilds.BlueprintLocalizationSmoke",
+      "ru.neverland.townybuilds.BlueprintSeamSmoke",
+      "ru.neverland.townybuilds.BuildingFootprintsSmoke",
+      "ru.neverland.townybuilds.CivicExpansionSmoke",
+      "ru.neverland.townybuilds.ColorCompatibilitySmoke",
+      "ru.neverland.townybuilds.ConstructionPoliciesSmoke",
+      "ru.neverland.townybuilds.EffectJournalSmoke",
+      "ru.neverland.townybuilds.ExcavationPlannerSmoke",
+      "ru.neverland.townybuilds.ExpansionIntegrationSmoke",
+      "ru.neverland.townybuilds.ImportedModelsSmoke",
+      "ru.neverland.townybuilds.MarketStorageSmoke",
+      "ru.neverland.townybuilds.MaterialLocalizationSmoke",
+      "ru.neverland.townybuilds.MenuStyleSmoke",
+      "ru.neverland.townybuilds.MobilizationSmoke",
+      "ru.neverland.townybuilds.MunicipalStorageSmoke",
+      "ru.neverland.townybuilds.OptionalArchaeologySmoke",
+      "ru.neverland.townybuilds.PowerBlueprintSmoke",
+      "ru.neverland.townybuilds.ProjectIconsSmoke",
+      "ru.neverland.townybuilds.ResourceBalanceSmoke",
+      "ru.neverland.townybuilds.ResourceFundSmoke",
+      "ru.neverland.townybuilds.ResourceTransferSmoke",
+      "ru.neverland.townybuilds.RoofSupportSmoke",
+      "ru.neverland.townybuilds.ShipmentStorageSmoke",
+      "ru.neverland.townybuilds.ShopReliabilitySmoke",
+      "ru.neverland.townybuilds.SpecializationBlueprintSmoke",
+      "ru.neverland.townybuilds.TradeStorageSmoke",
+      "ru.neverland.townybuilds.WonderBlueprintSmoke",
+      "ru.neverland.townybuilds.WonderPreviewRenderer",
+      "ru.neverland.townybuilds.construction.ObstructionValidationSmoke",
+      "ru.neverland.townybuilds.service.DefinitionOverlaySmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townybuilds.api.BuildingStorageApi",
+      "ru.neverland.townybuilds.api.MarketStorageApi",
+      "ru.neverland.townybuilds.api.MunicipalStorageApi",
+      "ru.neverland.townybuilds.api.TownArmyApi",
+      "ru.neverland.townybuilds.api.TownyBuildsApi",
+      "ru.neverland.townybuilds.api.WarehouseApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 24.44
+  },
+  {
+    "module": "NeverLandTownyCitizens",
+    "tests": [
+      "ru.neverland.townycitizens.CitizensSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townycitizens.api.TownyCitizensApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 8.123
+  },
+  {
+    "module": "NeverLandTownyGovernance",
+    "tests": [
+      "ru.neverland.governance.GovernanceMathSmoke",
+      "ru.neverland.governance.OptionalDependencySmoke",
+      "ru.neverland.governance.ProposalSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.governance.api.TownyGovernanceApi"
+    ],
+    "repository_fault_probe": true,
+    "seconds": 9.877
+  },
+  {
+    "module": "NeverLandTownyTaxes",
+    "tests": [
+      "ru.neverland.townytaxes.DomainSmoke",
+      "ru.neverland.townytaxes.MunicipalTaxesSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townytaxes.api.NeverLandTownyTaxesApi"
+    ],
+    "repository_fault_probe": true,
+    "seconds": 12.179
+  }
+]

@@ -15,6 +15,11 @@ public final class TownGovernanceData {
     private Double baselineTax;
     private Boolean baselineTaxPercentage;
     private long lastProposalAt;
+    private String electionReceipt = "";
+    private final java.util.Set<String> electedOffices = new java.util.LinkedHashSet<>();
+    public String electionReceipt() { return electionReceipt; }
+    public void electionReceipt(String value) { electionReceipt = value; }
+    public java.util.Set<String> electedOffices() { return electedOffices; }
 
     public TownGovernanceData(UUID townId, String townName) { this.townId = townId; this.townName = townName; }
     public UUID townId() { return townId; }

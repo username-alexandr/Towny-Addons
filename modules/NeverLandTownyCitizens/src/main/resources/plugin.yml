@@ -1,0 +1,26 @@
+name: NeverLandTownyCitizens
+version: 0.1.0
+main: ru.neverland.townycitizens.NeverLandTownyCitizens
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: Гражданство, временное проживание, городские права и паспортный API.
+depend: [Towny]
+softdepend: [PlaceholderAPI]
+loadbefore: [NeverLandTownyBuilds, NeverLandTownyGovernance, NeverLandTownyTaxes]
+commands:
+  townycitizens:
+    aliases: [nltcitizens, citizenship]
+    description: Гражданство и городской реестр
+    usage: /townycitizens [info|set|list|help|reload]
+permissions:
+  neverlandtownycitizens.use:
+    default: true
+  neverlandtownycitizens.manage:
+    description: Назначение статусов мэром своего города
+    default: true
+  neverlandtownycitizens.admin:
+    description: Управление статусами в любом городе
+    default: op
+  neverlandtownycitizens.bypass:
+    description: Обход ограничений гражданства на строительство и снос; права Towny сохраняются
+    default: op

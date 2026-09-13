@@ -19,6 +19,10 @@ public final class GovernanceApiService implements TownyGovernanceApi {
                 governance.constructionCost(townId), governance.ideologyCost(townId), governance.ideologyExperience(townId));
     }
     @Override public boolean hasLaw(UUID townId, String lawId) { return governance.hasLaw(townId, lawId); }
+    @Override public java.util.Map<String, Integer> officeCatalog() { return governance.officeCatalog(); }
+    @Override public java.util.Map<String, java.util.List<UUID>> officeHolders(UUID town) { return governance.officeHolders(town); }
+    @Override public String electionReceipt(UUID town) { return governance.electionReceipt(town); }
+    @Override public void applyElection(UUID town, UUID election, java.util.Map<String, java.util.List<UUID>> winners) { governance.applyElection(town, election, winners); }
     @Override public double constructionCostMultiplier(UUID townId) { return governance.constructionCost(townId); }
     @Override public double ideologyCostMultiplier(UUID townId) { return governance.ideologyCost(townId); }
     @Override public double ideologyExperienceMultiplier(UUID townId) { return governance.ideologyExperience(townId); }

@@ -1,0 +1,5 @@
+name: NeverLandCitizensRuntimeProbe
+version: 0.24.0
+main: ru.neverland.runtime.CitizensRuntimeProbe
+api-version: '26.2'
+depend: [Towny, NeverLandTownyCitizens, NeverLandTownyBuilds, NeverLandTownyGovernance, NeverLandTownyTaxes, NeverLandPassport, PlaceholderAPI]
