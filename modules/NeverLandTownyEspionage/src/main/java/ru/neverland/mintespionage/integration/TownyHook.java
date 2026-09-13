@@ -29,7 +29,7 @@ public final class TownyHook {
         Resident resident=resident(player);if(resident==null||town==null||!town.equals(resident.getTownOrNull()))return false;
         if(plugin.getConfig().getBoolean("management.mayor",true)&&town.isMayor(resident))return true;
         for(String rank:plugin.getConfig().getStringList("management.allowed-town-ranks"))if(resident.hasTownRank(rank))return true;
-        return false;
+        return ru.neverland.core.CouncilAccess.allows(player, town.getUUID(), "espionage");
     }
     public boolean register(String name,CommandExecutor executor){return TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.TOWN,name,executor);}
     public void unregister(String name){TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,name);}

@@ -115,6 +115,9 @@ public final class GovernanceMenuManager implements Listener {
             lore.add(""); lore.add("&8Назначение: /t governance appoint");
             menu.setItem(slot++, item(icon(office), office.name(), lore));
         }
+        if (org.bukkit.Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyCouncil") && player.hasPermission("neverlandtownycouncil.use"))
+            menu.setItem(46, tagged(Material.WRITABLE_BOOK, "ministers", "", "&eМинистры города",
+                    List.of("&7Экономика • оборона", "&7Строительство • внешняя политика", "", "&fНажмите — назначения мэра.")));
         List<String> members = governance.council(town).stream().map(towny::resident).filter(java.util.Objects::nonNull).map(value -> value.getName()).sorted().toList();
         menu.setItem(40, item(Material.BELL, "&#FFD166Состав совета", members.isEmpty() ? List.of("&7Совет не сформирован") : members.stream().map(name -> "&7• &f" + name).toList()));
         menu.setItem(49, back()); player.openInventory(menu);
@@ -139,6 +142,7 @@ public final class GovernanceMenuManager implements Listener {
         if (action == null) return;
         switch (action) {
             case "main_laws" -> openLaws(player); case "main_votes" -> openVotes(player); case "main_council" -> openCouncil(player);
+            case "ministers" -> org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> player.performCommand("townycouncil"));
             case "main_treasury" -> player.performCommand("townytreasury");
             case "main_policies" -> player.performCommand("townypolicies");
             case "main_history" -> openHistory(player); case "back" -> openMain(player);

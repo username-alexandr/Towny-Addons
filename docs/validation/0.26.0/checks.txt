@@ -1,0 +1,59 @@
+all 30 addons enabled
+Council versioned API registered
+ordinary resident cannot appoint ministers
+another town mayor cannot appoint ministers here
+nonmember cannot be appointed
+mayor cannot occupy a ministry
+temporary resident lacks HOLD_OFFICE
+four appointments committed
+Bukkit permission granted for construction
+Bukkit permission granted for defense
+Bukkit permission granted for economy
+Bukkit permission granted for foreign
+ministries have separate effective permissions
+occupied ministry cannot be silently replaced
+one ministry per resident
+budget permission is restricted to appointed town
+Treasury manager accepts only economy minister in own town
+CSV visible and allowed only with export authority
+Taxes distinguishes tax ministry
+foreign policy has agreements and sanctions only
+Trade uses live foreign ministry authority
+Espionage uses defense ministry authority
+Army manager accepts defense minister
+building catalog fixture exists
+Builds delegates project warehouse resources to construction minister
+Governance proposal rights respect ministry category
+appointed ministers do not replace elected council electorate
+elected councillor remains protected from manual dismissal
+ministers command coexists with Governance council
+Council menu opens with distinct ministry icons
+Council menu blocks item extraction
+command cannot bypass mayor authority
+dismissal removes only Council permission attachment
+external action permission alone cannot forge an appointment
+citizenship revocation blocks actions before attachment refresh
+citizenship refresh revokes Bukkit grant
+eligible honorary resident regains suspended duties
+configuration reload replaces rights of current ministers
+reload removes obsolete rights and preserves external grants
+quit releases attachment
+join restores committed appointment rights
+leaving town revokes appointment and permissions
+rejoining town does not resurrect appointment
+mayor change clears cabinet and grants immediately
+returning old mayor does not resurrect old ministers
+new appointments and audit persisted for restart
+all 30 addons enabled
+Council versioned API registered
+Towny town and mayor survived restart
+all appointments survived restart
+Bukkit and live action grants restored after restart
+town isolation survives restart
+appointment audit survives restart
+elected council remains separate after restart
+save failure locks API and revokes all permission grants
+failed dismissal retains previous committed in-memory record
+file repair alone does not silently unlock registry
+plugin disable removes only Council grants
+disabled provider grants no authority and unregisters API

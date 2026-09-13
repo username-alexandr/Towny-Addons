@@ -31,6 +31,9 @@ public final class TownyHook {
     public Nation nation(Player player) { Town town=town(player); return town==null?null:town.getNationOrNull(); }
     public Collection<Resident> residents() { return TownyAPI.getInstance().getResidents(); }
     public Collection<Town> towns() { return TownyAPI.getInstance().getTowns(); }
+    public boolean isTownManager(Player player, Town town, String action) {
+        return isTownManager(player, town) || town != null && ru.neverland.core.CouncilAccess.allows(player, town.getUUID(), action);
+    }
     public boolean isTownManager(Player player, Town town) {
         Resident resident = resident(player); if (resident == null || town == null || !town.equals(resident.getTownOrNull())) return false;
         if (town.isMayor(resident)) return true;

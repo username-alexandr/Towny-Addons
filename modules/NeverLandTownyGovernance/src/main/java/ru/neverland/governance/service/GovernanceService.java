@@ -141,6 +141,7 @@ public final class GovernanceService {
     public boolean mayPropose(Player player, Town town, LawCategory category) {
         if (!ru.neverland.core.CitizensAccess.allows(town.getUUID(), player.getUniqueId(), "HOLD_OFFICE")) return false;
         if (player.hasPermission("townygovernance.bypass") || towny.isManager(player, town)) return true;
+        if (ru.neverland.core.CouncilAccess.allows(player, town.getUUID(), "law_" + category.name().toLowerCase(java.util.Locale.ROOT))) return true;
         TownGovernanceData data = data(town);
         for (Map.Entry<String, List<OfficeHolder>> entry : data.offices().entrySet()) {
             OfficeDefinition office = definitions.office(entry.getKey()); if (office == null || !office.mayPropose(category)) continue;

@@ -1,0 +1,25 @@
+# По одному министру на направление. Совмещать должности нельзя.
+# При смене мэра назначения прекращаются; новый мэр формирует свой состав.
+# Потеря HOLD_OFFICE временно приостанавливает права; выход из города снимает назначение.
+# Эти списки — Bukkit permissions. Дополнительные права сторонних плагинов
+# могут действовать глобально; добавляйте только необходимые узкие permissions.
+roles:
+  economy:
+    permissions:
+      - neverlandtownycouncil.action.budget
+      - neverlandtownycouncil.action.tax
+      - neverlandtownycouncil.action.export
+      - neverlandtownycouncil.action.law_tax
+  defense:
+    permissions:
+      - neverlandtownycouncil.action.army
+      - neverlandtownycouncil.action.espionage
+  construction:
+    permissions:
+      - neverlandtownycouncil.action.build
+      - neverlandtownycouncil.action.law_construction
+  foreign:
+    permissions:
+      - neverlandtownycouncil.action.agreements
+      - neverlandtownycouncil.action.sanctions
+      - neverlandtownycouncil.action.trade

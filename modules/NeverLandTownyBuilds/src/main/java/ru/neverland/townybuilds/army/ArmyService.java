@@ -85,7 +85,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
     private int level(Town town) { return town == null ? 0 : data.town(town.getUUID()).operationalLevel("army"); }
     private int capacity(Town town) { if(town==null)return 0;int base=(int)Math.floor(level(town) * Math.max(1, Math.min(1000, plugin.getConfig().getInt("army.soldiers-per-level", 10)))
             * ru.neverland.integration.DistrictBonuses.multiplier(town.getUUID(), "army"));return ru.neverland.integration.PolicyEffects.capacity(base,ru.neverland.integration.PoliciesAccess.effect(town.getUUID(),"army")); }
-    private boolean manager(Player player, Town town) { return towny.isMayor(player, town) || player.hasPermission("neverlandtownybuilds.army.mobilize"); }
+    private boolean manager(Player player, Town town) { return towny.isMayor(player, town) || player.hasPermission("neverlandtownybuilds.army.mobilize") || ru.neverland.core.CouncilAccess.allows(player, town.getUUID(), "army"); }
     private boolean sameTown(Resident resident, Town town) { return resident != null && resident.getTownOrNull() != null && resident.getTownOrNull().getUUID().equals(town.getUUID()); }
     @Override public boolean isMobilized(UUID id) {
         UUID townId = roster.get(id);
