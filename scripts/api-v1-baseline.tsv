@@ -738,3 +738,18 @@ ru.neverland.townyupkeep.api.TownyUpkeepApi	record ru.neverland.townyupkeep.mode
 ru.neverland.townyupkeep.api.TownyUpkeepApi	record ru.neverland.townyupkeep.model.Entry$Invoice [id:java.util.UUID, cost:ru.neverland.townyupkeep.model.Cost, period:int, phase:ru.neverland.townyupkeep.model.Entry$Phase]
 ru.neverland.townyupkeep.api.TownyUpkeepApi	record ru.neverland.townyupkeep.model.Entry$Key [town:java.util.UUID, project:java.lang.String]
 ru.neverland.townyupkeep.api.TownyUpkeepApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+# New Crime v1 contract introduced in 0.29.0
+ru.neverland.townycrime.api.TownyCrimeApi	apiVersion():int throws []
+ru.neverland.townycrime.api.TownyCrimeApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townycrime.api.TownyCrimeApi	capability crime
+ru.neverland.townycrime.api.TownyCrimeApi	capability shopIncomeBasisPoints
+ru.neverland.townycrime.api.TownyCrimeApi	capability towns
+ru.neverland.townycrime.api.TownyCrimeApi	crime(java.util.UUID):java.util.Optional<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townycrime.api.TownyCrimeApi	default apiVersion()
+ru.neverland.townycrime.api.TownyCrimeApi	default capabilities()
+ru.neverland.townycrime.api.TownyCrimeApi	default integrationDiagnostics()
+ru.neverland.townycrime.api.TownyCrimeApi	default storageMetrics()
+ru.neverland.townycrime.api.TownyCrimeApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townycrime.api.TownyCrimeApi	shopIncomeBasisPoints(java.util.UUID):int throws []
+ru.neverland.townycrime.api.TownyCrimeApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townycrime.api.TownyCrimeApi	towns():java.util.Collection<java.util.Map<java.lang.String, java.lang.Object>> throws []

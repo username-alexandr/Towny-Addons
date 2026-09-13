@@ -1,4 +1,4 @@
-# NeverLandTownyReputation 0.2.0
+# NeverLandTownyReputation 0.2.1
 
 Три независимых направления репутации: дипломатическое, торговое и военное.
 

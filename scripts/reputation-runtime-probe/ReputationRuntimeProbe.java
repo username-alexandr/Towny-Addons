@@ -26,6 +26,7 @@ import ru.neverland.townycompanies.api.CompaniesApi;
 
 /** Explicitly marked disposable fixture; never included in release archives. */
 public final class ReputationRuntimeProbe extends JavaPlugin {
+    int expected(String key)throws Exception{var p=new java.util.Properties();try(var in=getResource("expected-counts.properties")){p.load(in);}return Integer.parseInt(p.getProperty(key));}
     static UUID id(String text){return UUID.nameUUIDFromBytes(("reputation-028-"+text).getBytes(java.nio.charset.StandardCharsets.UTF_8));}
     static final UUID A=id("A"),B=id("B"),C=id("C"),MA=id("mayorA"),MB=id("mayorB"),MC=id("mayorC"),FROZEN=id("frozen"),LOST=id("lost");
     Path proof;boolean restart;int checks;Town a,b,c;TownyReputationApi api;ReputationService reputation;TradeService trade;SupplyService supply;SupplyRepository supplies;
@@ -41,7 +42,7 @@ public final class ReputationRuntimeProbe extends JavaPlugin {
     @Override public void onEnable(){if(!Boolean.getBoolean("neverland.runtimeProbe")||!Files.isRegularFile(Path.of("ALLOW_DISPOSABLE_RELIABILITY_PROBE"))||!"127.0.0.1".equals(getServer().getIp())){Bukkit.getPluginManager().disablePlugin(this);return;}Bukkit.getScheduler().runTaskLater(this,this::run,100);}
     void run(){try{
         proof=getDataFolder().toPath();Files.createDirectories(proof);restart=Files.exists(proof.resolve("first-passed.txt"));
-        check(Arrays.stream(Bukkit.getPluginManager().getPlugins()).filter(p->p.getName().startsWith("NeverLandTowny")&&p.isEnabled()).count()==31,"all 31 candidate addons enabled");
+        check(Arrays.stream(Bukkit.getPluginManager().getPlugins()).filter(p->p.getName().startsWith("NeverLandTowny")&&p.isEnabled()).count()==expected("addons"),"all expected candidate addons enabled");
         contracts();
         api=Bukkit.getServicesManager().load(TownyReputationApi.class);reputation=field(plugin("NeverLandTownyReputation"),ReputationService.class);
         trade=field(plugin("NeverLandTownyTrade"),TradeService.class);supply=field(plugin("NeverLandTownyTrade"),SupplyService.class);supplies=field(supply,SupplyRepository.class);
@@ -54,7 +55,7 @@ public final class ReputationRuntimeProbe extends JavaPlugin {
     }catch(Throwable ex){getLogger().log(java.util.logging.Level.SEVERE,"REPUTATION_PROBE_FAIL",ex);try{var text=new java.io.StringWriter();ex.printStackTrace(new java.io.PrintWriter(text));Files.writeString(proof.resolve("failed.txt"),text.toString());}catch(Exception ignored){}}
     finally{Bukkit.getScheduler().runTaskLater(this,Bukkit::shutdown,1);}}
     void contracts()throws Exception{
-        try(var in=new java.io.BufferedReader(new java.io.InputStreamReader(Objects.requireNonNull(getResource("contracts.tsv")),java.nio.charset.StandardCharsets.UTF_8))){var rows=in.lines().toList();check(rows.size()==33,"33 public contracts in exact source inventory");
+        try(var in=new java.io.BufferedReader(new java.io.InputStreamReader(Objects.requireNonNull(getResource("contracts.tsv")),java.nio.charset.StandardCharsets.UTF_8))){var rows=in.lines().toList();check(rows.size()==expected("contracts"),"all public contracts in exact source inventory");
             for(String line:rows){String[] row=line.split("\t");var owner=plugin(row[0]);Class<?> type=Class.forName(row[1],true,owner.getClass().getClassLoader());Object provider=Bukkit.getServicesManager().load(type);
                 check(provider!=null&&owner.isEnabled()&&owner.getDescription().getVersion().equals(row[3])&&Integer.valueOf(1).equals(type.getMethod("apiVersion").invoke(provider))&&new HashSet<>(Arrays.asList(row[2].split(","))).equals(type.getMethod("capabilities").invoke(provider)),"provider version/capabilities: "+row[1]);
             }

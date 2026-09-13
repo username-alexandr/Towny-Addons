@@ -28,6 +28,7 @@ sys.path.insert(0, str(repo/'scripts'))
 from api_audit import inventory
 data = inventory(repo, str(args.java_home/'bin/java'))
 versions = yaml.safe_load((repo/'versions.yml').read_text())['addons']
+(classes/'expected-counts.properties').write_text('addons='+str(len(versions))+'\ncontracts='+str(len(data['contracts']))+'\n')
 (classes/'contracts.tsv').write_text(''.join(c['source'].split('/')[1]+'\t'+c['contract']+'\t'+','.join(c['capabilities'])+'\t'+versions[c['source'].split('/')[1]]+'\n' for c in data['contracts']))
 (classes/'consumers.tsv').write_text(''.join(c['plugin']+'\t'+c['contract']+'\t'+','.join(c['capabilities'])+'\n' for c in data['consumers']))
 subprocess.run([str(args.java_home / 'bin/jar'), '--create', '--file', str(server / 'plugins/NeverLandApiRuntimeProbe.jar'),
