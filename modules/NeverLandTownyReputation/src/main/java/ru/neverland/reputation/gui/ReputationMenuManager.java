@@ -18,6 +18,8 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.neverland.reputation.integration.ItemsAdderHook;
 import ru.neverland.reputation.integration.TownyHook;
+import ru.neverland.reputation.model.ReputationAspect;
+import ru.neverland.reputation.service.ReputationProfiles;
 import ru.neverland.reputation.model.RelationKey;
 import ru.neverland.reputation.model.ReputationHistory;
 import ru.neverland.reputation.model.ReputationRecord;
@@ -46,14 +48,56 @@ public final class ReputationMenuManager implements Listener {
 
     public void openMain(Player player) {
         Inventory menu = menu(ReputationMenuHolder.Type.MAIN, null, player.getUniqueId(), 45, config("gui.main-title")); fill(menu);
-        menu.setItem(10, tagged(Material.PLAYER_HEAD, "scope", "PLAYER", "&#74C0FCИгроки", List.of("&7Ваши личные отношения", "&7Связей: &f" + reputation.involving(ReputationScope.PLAYER, player.getUniqueId()).size(), "", "&#FFD166Нажмите, чтобы открыть")));
-        Town town = towny.town(player); menu.setItem(12, tagged(Material.BELL, "scope", "TOWN", "&#63E6BEГорода", List.of(town == null ? "&#FF6B6BВы не состоите в городе" : "&7Город: &f" + town.getName(), "&7Дипломатические отношения", "", "&#FFD166Нажмите, чтобы открыть")));
-        Nation nation = towny.nation(player); menu.setItem(14, tagged(Material.BEACON, "scope", "NATION", "&#C77DFFНации", List.of(nation == null ? "&#FF6B6BУ вас нет нации" : "&7Нация: &f" + nation.getName(), "&7Международная репутация", "", "&#FFD166Нажмите, чтобы открыть")));
-        menu.setItem(16, tagged(Material.EXPERIENCE_BOTTLE, "levels", "", "&#FFD166Уровни доверия", List.of("&7Пороги, бонусы и возможности", "", "&#FFD166Нажмите, чтобы открыть")));
+        menu.setItem(10, tagged(Material.PLAYER_HEAD, "scope", "PLAYER", "&#74C0FCИгроки", List.of("&7Три направления репутации", "&7Связей: &f" + reputation.involving(ReputationScope.PLAYER, player.getUniqueId()).size(), "", "&#FFD166Нажмите, чтобы открыть")));
+        Town town = towny.town(player); menu.setItem(12, tagged(Material.BELL, "scope", "TOWN", "&#63E6BEГорода", List.of(town == null ? "&#FF6B6BВы не состоите в городе" : "&7Город: &f" + town.getName(), "&7Дипломатия • Торговля • Оборона", "", "&#FFD166Нажмите, чтобы открыть")));
+        Nation nation = towny.nation(player); menu.setItem(14, tagged(Material.BEACON, "scope", "NATION", "&#C77DFFНации", List.of(nation == null ? "&#FF6B6BУ вас нет нации" : "&7Нация: &f" + nation.getName(), "&7Три независимых показателя", "", "&#FFD166Нажмите, чтобы открыть")));
+        menu.setItem(16, tagged(Material.EXPERIENCE_BOTTLE, "levels", "", "&#FFD166Уровни отношений", List.of("&7Пороги прежних двусторонних связей", "", "&#FFD166Нажмите, чтобы открыть")));
         menu.setItem(31, item(Material.WRITABLE_BOOK, "&#ADB5BDОтзывы игроков", List.of("&f/rep endorse <игрок>", "&f/rep denounce <игрок>", "", "&7Отзывы ограничены задержкой", "&7и суточным лимитом.")));
         player.openInventory(menu);
     }
 
+    public void openProfile(Player player, ReputationScope scope) {
+        Owner own = owner(player, scope); if (own != null) openProfile(player, scope, own.id(), own.name());
+    }
+    public void openProfile(Player player, ReputationScope scope, UUID id, String name) {
+        if (!reputation.profiles().healthy()) { player.sendMessage(ColorUtil.color("&cРепутация временно недоступна. Обратитесь к администратору.")); return; }
+        var profile = reputation.profiles().get(scope, id);
+        Inventory menu = menu(ReputationMenuHolder.Type.PROFILE, scope, id, 45, "&fРепутация: " + name); fill(menu);
+        int[] slots = {11,13,15}; Material[] icons = {Material.BOOK,Material.GOLD_INGOT,Material.IRON_CHESTPLATE};
+        String[][] descriptions = {{"&fНадёжность в дипломатии", "&7Растёт за договоры, соблюдённые", "&7на протяжении всего срока."},
+            {"&fНадёжность поставок и контрактов", "&7Нарушения повышают пошлины", "&7при запуске новых караванов."},
+            {"&fРезультаты обороны города", "&7Победы и поражения", "&7при набегах на город."}};
+        for (var aspect : ReputationAspect.values()) {
+            var lore = new ArrayList<String>(); lore.add("&7Очки: " + scoreColor(profile.score(aspect)) + signed(profile.score(aspect)) + " &7/ −1000…1000");
+            lore.add(""); lore.addAll(List.of(descriptions[aspect.ordinal()]));
+            if (aspect == ReputationAspect.TRADE) { lore.add(""); lore.add("&7Коэффициент пошлин: &fx" + number(reputation.profiles().fee(profile.trade()))); lore.add("&7Применяется к профилю города."); lore.add("&7Цена товара остаётся прежней."); }
+            lore.add(""); lore.add("&eНажмите: история этого показателя");
+            menu.setItem(slots[aspect.ordinal()], tagged(icons[aspect.ordinal()], "profile-history", aspect.name(), "&f" + aspect.title(), lore));
+        }
+        menu.setItem(29, tagged(Material.WRITABLE_BOOK, "relations", scope.name(), "&bОтношения с другими", List.of("&7Прежние связи и отзывы", "&7сохранены отдельно от профиля.")));
+        menu.setItem(31, item(Material.NAME_TAG, "&f" + name, List.of("&7Профиль: &f" + scopeName(scope), "", "&7При обновлении прежняя оценка", "&7перенесена в дипломатию.", "&7Торговля и оборона начинаются с 0.")));
+        menu.setItem(36, back()); player.openInventory(menu);
+    }
+    private void openProfileHistory(Player player, ReputationScope scope, UUID id, ReputationAspect aspect, int page) {
+        var entries = new ArrayList<>(reputation.profiles().get(scope,id).history().stream().filter(e -> e.aspect() == aspect).toList());
+        java.util.Collections.reverse(entries); int pages = Math.max(1,(entries.size()+27)/28); page = Math.max(0,Math.min(page,pages-1));
+        Inventory menu = menu(ReputationMenuHolder.Type.PROFILE_HISTORY,scope,id,54,"&f" + aspect.title() + " • История"); fill(menu);
+        int slot=10; for(var entry:entries.subList(Math.min(page*28,entries.size()),Math.min((page+1)*28,entries.size()))) {
+            while(isBorder(slot))slot++;
+            menu.setItem(slot++,item(entry.delta()<0?Material.RED_DYE:Material.LIME_DYE,"&f"+ReputationProfiles.reason(entry.rule()),List.of("&7"+DATE.format(Instant.ofEpochMilli(entry.at())),"&7Изменение: "+scoreColor(entry.delta())+signed(entry.delta()),"&7Стало: &f"+entry.score(),"", "&f"+entry.context())));
+        }
+        if(entries.isEmpty())menu.setItem(22,item(Material.PAPER,"&fИстория пока пуста",List.of("&7Здесь появятся результаты событий.")));
+        menu.setItem(45,tagged(Material.ARROW,"profile-back","","&fНазад",List.of("&7К трём показателям репутации")));
+        if(page>0)menu.setItem(48,tagged(Material.ARROW,"profile-page",aspect.name()+":"+(page-1),"&fПредыдущая страница",List.of()));
+        menu.setItem(49,item(Material.PAPER,"&fСтраница "+(page+1)+" / "+pages,List.of()));
+        if(page+1<pages)menu.setItem(50,tagged(Material.ARROW,"profile-page",aspect.name()+":"+(page+1),"&fСледующая страница",List.of()));
+        player.openInventory(menu);
+    }
+    private String subjectName(ReputationScope scope,UUID id) {
+        if(scope==ReputationScope.TOWN){var t=towny.town(id);return t==null?id.toString():t.getName();}
+        if(scope==ReputationScope.NATION){var n=towny.nation(id);return n==null?id.toString():n.getName();}
+        var r=towny.resident(id);return r==null?id.toString():r.getName();
+    }
     public void openRelations(Player player, ReputationScope scope) {
         Owner owner = owner(player, scope); if (owner == null) return;
         String title = switch (scope) { case PLAYER -> config("gui.player-title"); case TOWN -> config("gui.town-title"); case NATION -> config("gui.nation-title"); };
@@ -81,7 +125,7 @@ public final class ReputationMenuManager implements Listener {
 
     public void openLevels(Player player) {
         Inventory menu = menu(ReputationMenuHolder.Type.LEVELS, null, player.getUniqueId(), 45, config("gui.main-title") + " &8— уровни"); fill(menu); int slot = 10;
-        for (ReputationTier tier : reputation.tiers()) { List<String> lore = new ArrayList<>(tier.description()); lore.add(""); lore.add("&7От: &f" + tier.minimumScore() + " очков"); lore.add("&7Скидка торговли: &f" + number(tier.tradeDiscountPercent()) + "%"); lore.add("&7Награды: &fx" + number(tier.rewardMultiplier())); if (!tier.privileges().isEmpty()) { lore.add(""); lore.add("&7Возможности:"); tier.privileges().forEach(value -> lore.add("&#63E6BE• &f" + value)); } menu.setItem(slot++, item(icon(tier), tier.name(), lore)); }
+        for (ReputationTier tier : reputation.tiers()) { List<String> lore = new ArrayList<>(tier.description()); lore.add(""); lore.add("&7От: &f" + tier.minimumScore() + " очков"); lore.add("&7Льгота отношений: &f" + number(tier.tradeDiscountPercent()) + "%"); lore.add("&7Награды: &fx" + number(tier.rewardMultiplier())); if (!tier.privileges().isEmpty()) { lore.add(""); lore.add("&7Возможности:"); tier.privileges().forEach(value -> lore.add("&#63E6BE• &f" + value)); } menu.setItem(slot++, item(icon(tier), tier.name(), lore)); }
         menu.setItem(36, back()); player.openInventory(menu);
     }
 
@@ -96,7 +140,10 @@ public final class ReputationMenuManager implements Listener {
         if (!(event.getWhoClicked() instanceof Player player) || event.getClickedInventory() != event.getView().getTopInventory()) return;
         ItemStack stack = event.getCurrentItem(); if (stack == null || stack.getType().isAir() || !stack.hasItemMeta()) return;
         String action = stack.getItemMeta().getPersistentDataContainer().get(actionKey, PersistentDataType.STRING); String value = stack.getItemMeta().getPersistentDataContainer().get(valueKey, PersistentDataType.STRING); if (action == null) return;
-        switch (action) { case "back" -> openMain(player); case "levels" -> openLevels(player); case "scope" -> { ReputationScope scope = ReputationScope.parse(value); if (scope != null) openRelations(player, scope); } case "history" -> { RelationKey key = decode(value); if (key != null) openHistory(player, key); } default -> { } }
+        switch (action) { case "profile-back" -> openProfile(player,holder.scope(),holder.owner(),subjectName(holder.scope(),holder.owner()));
+            case "profile-history" -> openProfileHistory(player,holder.scope(),holder.owner(),ReputationAspect.valueOf(value),0);
+            case "profile-page" -> { var parts=value.split(":"); openProfileHistory(player,holder.scope(),holder.owner(),ReputationAspect.valueOf(parts[0]),Integer.parseInt(parts[1])); }
+            case "relations" -> openRelations(player,ReputationScope.valueOf(value)); case "back" -> openMain(player); case "levels" -> openLevels(player); case "scope" -> { ReputationScope scope = ReputationScope.parse(value); if (scope != null) openProfile(player, scope); } case "history" -> { RelationKey key = decode(value); if (key != null) openHistory(player, key); } default -> { } }
     }
     @EventHandler public void onDrag(InventoryDragEvent event) { if (event.getInventory().getHolder() instanceof ReputationMenuHolder) event.setCancelled(true); }
 

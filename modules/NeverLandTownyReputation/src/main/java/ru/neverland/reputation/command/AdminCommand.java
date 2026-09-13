@@ -34,10 +34,21 @@ public final class AdminCommand implements TabExecutor {
         switch (args[0].toLowerCase(Locale.ROOT)) {
             case "reload" -> { plugin.reloadPlugin(); messages.send(sender, "reloaded"); }
             case "decay" -> messages.send(sender, "decay-complete", Map.of("count", reputation.runDecayNow()));
+            case "profile" -> profile(sender,args);
             case "change", "set", "reset", "info" -> relation(sender, args);
             default -> messages.send(sender, "usage-admin");
         }
         return true;
+    }
+    private void profile(CommandSender sender,String[] args) {
+        if(args.length!=6 || !List.of("set","add").contains(args[1])){sender.sendMessage("/townyreputation profile <set|add> <player|town|nation> <имя> <diplomatic|trade|military> <очки>");return;}
+        try {
+            var scope=ReputationScope.parse(args[2]);if(scope==null)throw new IllegalArgumentException("Неизвестный профиль");
+            var side=resolve(scope,args[3]);if(side==null)throw new IllegalArgumentException("Цель не найдена");
+            var aspect=ru.neverland.reputation.model.ReputationAspect.parse(args[4]);int value=Integer.parseInt(args[5]);
+            reputation.profiles().administer(scope,side.id(),aspect,value,args[1].equals("set"),sender.getName());
+            sender.sendMessage(ColorUtil.color("&a"+side.name()+" • "+aspect.title()+": &f"+reputation.profiles().get(scope,side.id()).score(aspect)));
+        }catch(RuntimeException ex){sender.sendMessage(ColorUtil.color("&c"+ex.getMessage()));}
     }
     private void relation(CommandSender sender, String[] args) {
         String action = args[0].toLowerCase(Locale.ROOT); int minimumArgs = List.of("reset", "info").contains(action) ? 4 : 5; if (args.length < minimumArgs) { messages.send(sender, "usage-admin"); return; }
@@ -56,7 +67,14 @@ public final class AdminCommand implements TabExecutor {
     private Side resolve(ReputationScope scope, String value) { try { UUID id = UUID.fromString(value); if (scope == ReputationScope.PLAYER) { Resident resident = towny.resident(id); return resident == null ? new Side(id, value) : new Side(id, resident.getName()); } if (scope == ReputationScope.TOWN) { Town town = towny.town(id); return town == null ? new Side(id, value) : new Side(id, town.getName()); } Nation nation = towny.nation(id); return nation == null ? new Side(id, value) : new Side(id, nation.getName()); } catch (IllegalArgumentException ignored) { if (scope == ReputationScope.PLAYER) { Resident resident = towny.resident(value); return resident == null ? null : new Side(resident.getUUID(), resident.getName()); } if (scope == ReputationScope.TOWN) { Town town = towny.town(value); return town == null ? null : new Side(town.getUUID(), town.getName()); } Nation nation = towny.nation(value); return nation == null ? null : new Side(nation.getUUID(), nation.getName()); } }
     private String unknown(ReputationScope scope) { return switch (scope) { case PLAYER -> "unknown-player"; case TOWN -> "unknown-town"; case NATION -> "unknown-nation"; }; }
     private String signed(int value) { return value > 0 ? "+" + value : String.valueOf(value); }
-    @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) { if (args.length == 1) return filter(List.of("reload", "change", "set", "reset", "info", "decay"), args[0]); if (args.length == 2 && List.of("change", "set", "reset", "info").contains(args[0].toLowerCase(Locale.ROOT))) return filter(List.of("player", "town", "nation"), args[1]); if ((args.length == 3 || args.length == 4) && args.length > 1) { ReputationScope scope = ReputationScope.parse(args[1]); return scope == null ? List.of() : filter(names(scope), args[args.length - 1]); } if (args.length == 6) return filter(List.of("admin", "trade", "contract", "expedition", "governance", "quest", "alliance"), args[5]); return List.of(); }
+    @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) { if (!sender.hasPermission("townyreputation.admin")) return List.of();
+        if(args.length>1 && args[0].equalsIgnoreCase("profile")) {
+            if(args.length==2)return filter(List.of("set","add"),args[1]);
+            if(args.length==3)return filter(List.of("player","town","nation"),args[2]);
+            if(args.length==4){var scope=ReputationScope.parse(args[2]);return scope==null?List.of():filter(names(scope),args[3]);}
+            if(args.length==5)return filter(List.of("diplomatic","trade","military"),args[4]);return List.of();
+        }
+        if (args.length == 1) return filter(List.of("profile", "reload", "change", "set", "reset", "info", "decay"), args[0]); if (args.length == 2 && List.of("change", "set", "reset", "info").contains(args[0].toLowerCase(Locale.ROOT))) return filter(List.of("player", "town", "nation"), args[1]); if ((args.length == 3 || args.length == 4) && args.length > 1) { ReputationScope scope = ReputationScope.parse(args[1]); return scope == null ? List.of() : filter(names(scope), args[args.length - 1]); } if (args.length == 6) return filter(List.of("admin", "trade", "contract", "expedition", "governance", "quest", "alliance"), args[5]); return List.of(); }
     private List<String> names(ReputationScope scope) { return switch (scope) { case PLAYER -> towny.residents().stream().map(Resident::getName).toList(); case TOWN -> towny.towns().stream().map(Town::getName).toList(); case NATION -> towny.nations().stream().map(Nation::getName).toList(); }; }
     private List<String> filter(List<String> values, String prefix) { String lower = prefix.toLowerCase(Locale.ROOT); List<String> result = new ArrayList<>(); for (String value : values) if (value.toLowerCase(Locale.ROOT).startsWith(lower)) result.add(value); return result; }
     private record Side(UUID id, String name) { }

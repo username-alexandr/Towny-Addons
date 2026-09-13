@@ -84,3 +84,21 @@ itemsadder:
 # Светлый заголовок для тёмного ресурспака; для ванильного светлого окна: "#273247".
 menu-style:
   title-color: "#F4F7FC"
+
+# Independent profiles; legacy pairwise relations retain their existing settings above.
+profiles:
+  positive-daily-cap: 30
+  trade-fees:
+    maximum-multiplier: 2.0
+    maximum-discount-percent: 15.0
+  rules:
+    player_endorse: 5
+    player_denounce: -3
+    supply_completed: 3
+    supply_cancelled: -20
+    supply_missed: -10
+    municipal_success: 3
+    municipal_failed: -15
+    treaty_honoured: 5
+    raid_victory: 10
+    raid_defeat: -10

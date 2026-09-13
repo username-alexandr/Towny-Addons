@@ -29,7 +29,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public final class TradeService {
     public enum ProposeResult { SUCCESS, SAME_TOWN, MARKET_REQUIRED, ROUTE_LIMIT, DUPLICATE, ROUTE_UNAVAILABLE, SANCTIONED, IMPORT_RESTRICTED }
     public enum AcceptResult { SUCCESS, NOT_FOUND, NOT_BUYER, MARKET_REQUIRED, ROUTE_LIMIT, ROUTE_UNAVAILABLE,
-        NO_MONEY, STOCK_LOW, WAREHOUSE_BUSY, WAREHOUSE_UNAVAILABLE, ECONOMY_ERROR, SAVE_ERROR, SANCTIONED, IMPORT_RESTRICTED, PROCESSING }
+        NO_MONEY, STOCK_LOW, WAREHOUSE_BUSY, WAREHOUSE_UNAVAILABLE, ECONOMY_ERROR, SAVE_ERROR, SANCTIONED, IMPORT_RESTRICTED, PROCESSING, REPUTATION_UNAVAILABLE }
     public enum CancelResult { SUCCESS, NOT_FOUND, NOT_PARTY, WAREHOUSE_BUSY, WAREHOUSE_UNAVAILABLE, PAYMENT_PENDING }
     public record ProposeOutcome(ProposeResult result, TradeOffer offer) {}
     public record AcceptOutcome(AcceptResult result, Caravan caravan, double required) {}
@@ -45,6 +45,9 @@ public final class TradeService {
     private final MessageService messages;
     private final TaxesBridge taxes;
     private BukkitTask task;
+    private Runnable beforeQuote = () -> { };
+    public void beforeQuote(Runnable action) { beforeQuote = java.util.Objects.requireNonNull(action); }
+    public double feeMultiplier(UUID buyer) { beforeQuote.run();return ru.neverland.core.ReputationAccess.tradeFeeMultiplier(buyer); }
 
     public TradeService(JavaPlugin plugin, TownyHook towny, BuildBridge builds, WarehouseBridge warehouse,
                         ExportRegistry registry, TradeRepository repository, RoutePlanner routes,
@@ -91,7 +94,9 @@ public final class TradeService {
         if (!hasRouteSlot(seller) || !hasRouteSlot(buyer)) return new AcceptOutcome(AcceptResult.ROUTE_LIMIT, null, 0);
         RoutePlanner.RoutePlan plan = routes.plan(seller, buyer);
         if (plan == null) return new AcceptOutcome(AcceptResult.ROUTE_UNAVAILABLE, null, 0);
-        Map<UUID, Double> tolls = tolls(definition, plan.transitTowns(), seller, buyer);
+        Map<UUID, Double> tolls;
+        try { tolls = tolls(definition, plan.transitTowns(), seller, buyer); }
+        catch (IllegalStateException ex) { return new AcceptOutcome(AcceptResult.REPUTATION_UNAVAILABLE,null,0); }
         double total = cents(definition.price() + tolls.values().stream().mapToDouble(Double::doubleValue).sum());
         if (!economy.canWithdraw(buyer, total)) return new AcceptOutcome(AcceptResult.NO_MONEY, null, total);
         long now = System.currentTimeMillis(), arrives = now + plan.durationMillis();
@@ -218,11 +223,12 @@ public final class TradeService {
     }
     private Map<UUID, Double> tolls(ExportDefinition definition, List<UUID> towns, Town seller, Town buyer) {
         Map<UUID, Double> result = new LinkedHashMap<>();
+        double reputation = feeMultiplier(buyer.getUUID());
         double preference = taxes.preferenceMultiplier(seller.getUUID(), buyer.getUUID());
         for (UUID townId : towns) {
             double percent = tariff(townId);
             double agreed = ru.neverland.core.DiplomacyAccess.tariffMultiplier(seller.getUUID(), buyer.getUUID(), townId);
-            double amount = cents(TradeMath.tariff(definition.price(), percent) * Math.min(preference, agreed)); if (amount > 0) result.put(townId, amount);
+            double amount = cents(TradeMath.tariff(definition.price(), percent) * Math.min(preference, agreed) * reputation); if (amount > 0) result.put(townId, amount);
         }
         return result;
     }

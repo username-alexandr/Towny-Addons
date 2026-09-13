@@ -19,6 +19,13 @@ import ru.neverland.reputation.model.ReputationRecord;
 import ru.neverland.reputation.model.ReputationScope;
 
 public final class ReputationRepository {
+   private final ru.neverland.core.ReputationOutbox reputation = new ru.neverland.core.ReputationOutbox();
+   public boolean healthy(){return ready && AtomicFiles.writable(file.toPath());}
+   public void outcome(ru.neverland.core.ReputationOutcome outcome){gate();reputation.add(outcome);dirty=true;}
+   public void flushReputation(){reputation.flush(this::healthy,()->{dirty=true;save();});}
+   private boolean profilesInitialized;
+   public boolean profilesInitialized(){gate();return profilesInitialized;}
+   public void profilesInitialized(boolean value){gate();profilesInitialized=value;dirty=true;}
    private boolean ready;
    private final JavaPlugin plugin;
    private final File file;
@@ -54,7 +61,7 @@ public final class ReputationRepository {
       this.feedbackCooldowns.clear();
       this.feedbackDaily.clear();
       YamlConfiguration yaml = SafeYaml.load(this.file.toPath());
-      SafeYaml.keys(yaml, "relations", "processed", "daily-usage", "feedback-cooldowns", "feedback-daily", "last-decay");
+      SafeYaml.keys(yaml, "relations", "processed", "daily-usage", "feedback-cooldowns", "feedback-daily", "last-decay", "reputation-outbox", "profiles-initialized");reputation.load(yaml);profilesInitialized=SafeYaml.booleanValue(yaml,"profiles-initialized",false);
 
       for (Map<?, ?> raw : SafeYaml.maps(yaml, "relations")) {
          try {
@@ -115,7 +122,7 @@ public final class ReputationRepository {
    public synchronized void save() {
       this.gate();
       if (this.dirty || !this.file.exists()) {
-         YamlConfiguration yaml = new YamlConfiguration();
+         YamlConfiguration yaml = new YamlConfiguration();reputation.write(yaml);yaml.set("profiles-initialized",profilesInitialized);
          List<Map<String, Object>> relationList = new ArrayList<>();
 
          for (ReputationRecord record : this.records.values()) {

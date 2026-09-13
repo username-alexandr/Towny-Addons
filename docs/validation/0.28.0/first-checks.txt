@@ -1,0 +1,60 @@
+all 31 candidate addons enabled
+33 public contracts in exact source inventory
+provider version/capabilities: ru.neverland.archaeology.api.TownyArchaeologyApi
+provider version/capabilities: ru.neverland.townybuilds.api.BuildingStorageApi
+provider version/capabilities: ru.neverland.townybuilds.api.MarketStorageApi
+provider version/capabilities: ru.neverland.townybuilds.api.MunicipalStorageApi
+provider version/capabilities: ru.neverland.townybuilds.api.TownArmyApi
+provider version/capabilities: ru.neverland.townybuilds.api.TownyBuildsApi
+provider version/capabilities: ru.neverland.townybuilds.api.WarehouseApi
+provider version/capabilities: ru.neverland.mintcamps.api.TownyCampsApi
+provider version/capabilities: ru.neverland.townychronicles.api.TownyChroniclesApi
+provider version/capabilities: ru.neverland.townycitizens.api.TownyCitizensApi
+provider version/capabilities: ru.neverland.townycompanies.api.CompaniesApi
+provider version/capabilities: ru.neverland.mintcontracts.api.MintTownyContractsApi
+provider version/capabilities: ru.neverland.townycouncil.api.TownyCouncilApi
+provider version/capabilities: ru.neverland.townydiplomacy.api.TownyDiplomacyApi
+provider version/capabilities: ru.neverland.townydistricts.api.TownyDistrictsApi
+provider version/capabilities: ru.neverland.townyelections.api.TownyElectionsApi
+provider version/capabilities: ru.neverland.mintespionage.api.MintTownyEspionageApi
+provider version/capabilities: ru.neverland.mintevents.api.MintTownyEventsApi
+provider version/capabilities: ru.neverland.governance.api.TownyGovernanceApi
+provider version/capabilities: ru.neverland.townyideologies.api.TownyIdeologiesApi
+provider version/capabilities: ru.neverland.townyjobs.api.TownyJobsApi
+provider version/capabilities: ru.neverland.townymarket.MarketApi
+provider version/capabilities: ru.neverland.townypolicies.api.TownyPoliciesApi
+provider version/capabilities: ru.neverland.townypopulation.api.TownyPopulationApi
+provider version/capabilities: ru.neverland.townypower.api.TownyPowerApi
+provider version/capabilities: ru.neverland.reputation.api.TownyReputationApi
+provider version/capabilities: ru.neverland.townyresearch.api.TownyResearchApi
+provider version/capabilities: ru.neverland.townyresources.api.TownyResourcesApi
+provider version/capabilities: ru.neverland.townyspecialization.api.TownySpecializationApi
+provider version/capabilities: ru.neverland.townytaxes.api.NeverLandTownyTaxesApi
+provider version/capabilities: ru.neverland.minttrade.api.MintTownyTradeApi
+provider version/capabilities: ru.neverland.townytreasury.api.TownyTreasuryApi
+provider version/capabilities: ru.neverland.townyupkeep.api.TownyUpkeepApi
+native Reputation v1 service and profile storage healthy
+fresh disposable towns
+new town starts with three neutral tracks
+two actual active supply cancellations penalize actor only
+repeated cancellation does not create another breach
+unsigned rejected proposal has no penalty
+live Trade uses public Reputation fee multiplier
+actual Trade toll formula charges 104 instead of 100
+new quote reflects worsened trade reputation
+persisted caravan retains its signed escrow and tolls
+full active treaty term rewards both diplomatic profiles
+repeated diplomatic maintenance cannot reward twice
+actual raid completion selects military reputation
+already completed raid cannot award again
+assigned municipal contract expiry applies one trade penalty after settlement
+unclaimed optional public task expiry does not penalize town
+diplomatic, military and trade outcomes stay independent
+counterparty gets own diplomacy/defense outcomes only
+durably applied breach remains queued after lost reply
+public receipt API durably accepts independent event
+public receipt API rejects replay
+receipt cannot be reassigned to another town
+profile API rejects worker-thread world access
+installed unavailable provider blocks new quotes
+unavailable provider preserves pending outbox on disk

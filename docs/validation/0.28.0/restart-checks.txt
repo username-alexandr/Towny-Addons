@@ -1,0 +1,45 @@
+all 31 candidate addons enabled
+33 public contracts in exact source inventory
+provider version/capabilities: ru.neverland.archaeology.api.TownyArchaeologyApi
+provider version/capabilities: ru.neverland.townybuilds.api.BuildingStorageApi
+provider version/capabilities: ru.neverland.townybuilds.api.MarketStorageApi
+provider version/capabilities: ru.neverland.townybuilds.api.MunicipalStorageApi
+provider version/capabilities: ru.neverland.townybuilds.api.TownArmyApi
+provider version/capabilities: ru.neverland.townybuilds.api.TownyBuildsApi
+provider version/capabilities: ru.neverland.townybuilds.api.WarehouseApi
+provider version/capabilities: ru.neverland.mintcamps.api.TownyCampsApi
+provider version/capabilities: ru.neverland.townychronicles.api.TownyChroniclesApi
+provider version/capabilities: ru.neverland.townycitizens.api.TownyCitizensApi
+provider version/capabilities: ru.neverland.townycompanies.api.CompaniesApi
+provider version/capabilities: ru.neverland.mintcontracts.api.MintTownyContractsApi
+provider version/capabilities: ru.neverland.townycouncil.api.TownyCouncilApi
+provider version/capabilities: ru.neverland.townydiplomacy.api.TownyDiplomacyApi
+provider version/capabilities: ru.neverland.townydistricts.api.TownyDistrictsApi
+provider version/capabilities: ru.neverland.townyelections.api.TownyElectionsApi
+provider version/capabilities: ru.neverland.mintespionage.api.MintTownyEspionageApi
+provider version/capabilities: ru.neverland.mintevents.api.MintTownyEventsApi
+provider version/capabilities: ru.neverland.governance.api.TownyGovernanceApi
+provider version/capabilities: ru.neverland.townyideologies.api.TownyIdeologiesApi
+provider version/capabilities: ru.neverland.townyjobs.api.TownyJobsApi
+provider version/capabilities: ru.neverland.townymarket.MarketApi
+provider version/capabilities: ru.neverland.townypolicies.api.TownyPoliciesApi
+provider version/capabilities: ru.neverland.townypopulation.api.TownyPopulationApi
+provider version/capabilities: ru.neverland.townypower.api.TownyPowerApi
+provider version/capabilities: ru.neverland.reputation.api.TownyReputationApi
+provider version/capabilities: ru.neverland.townyresearch.api.TownyResearchApi
+provider version/capabilities: ru.neverland.townyresources.api.TownyResourcesApi
+provider version/capabilities: ru.neverland.townyspecialization.api.TownySpecializationApi
+provider version/capabilities: ru.neverland.townytaxes.api.NeverLandTownyTaxesApi
+provider version/capabilities: ru.neverland.minttrade.api.MintTownyTradeApi
+provider version/capabilities: ru.neverland.townytreasury.api.TownyTreasuryApi
+provider version/capabilities: ru.neverland.townyupkeep.api.TownyUpkeepApi
+native Reputation v1 service and profile storage healthy
+trade score survived restart: b
+trade score survived restart: c
+trade score survived restart: a
+all diplomatic and military scores survive restart
+lost-reply outbox acknowledged after native restart
+recovered fee multiplier includes each distinct breach once
+provider receipt identity survives restart
+agreed caravan sums unchanged after server restart
+migration marker persisted beside legacy relationships

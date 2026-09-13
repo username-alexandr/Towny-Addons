@@ -127,6 +127,7 @@ public final class TradeMenuManager implements Listener {
             case SUCCESS -> messages.send(player, "caravan-departed", Map.of("export", ColorUtil.strip(trade.definitionOf(outcome.caravan()).name()),
                     "time", TimeUtil.format(outcome.caravan().arrivesAt() - System.currentTimeMillis())));
             case PROCESSING -> player.sendMessage("Договор сохранён. Караван ожидает резерв товара, платёж или восстановление; состояние видно в списке караванов.");
+            case REPUTATION_UNAVAILABLE -> player.sendMessage(ColorUtil.color("&cРасчёт пошлин временно недоступен. Дождитесь восстановления дипломатии и репутации."));
             case NOT_FOUND -> messages.send(player, "offer-not-found", Map.of("offer", "?"));
             case NOT_BUYER -> messages.send(player, "not-offer-party"); case MARKET_REQUIRED -> messages.send(player, "market-required");
             case ROUTE_LIMIT -> messages.send(player, "route-limit"); case ROUTE_UNAVAILABLE -> messages.send(player, "route-unavailable");
@@ -146,6 +147,9 @@ public final class TradeMenuManager implements Listener {
             Town other = towny.town(incoming ? offer.sellerId() : offer.buyerId());
             List<String> lore = new ArrayList<>(); lore.add("&7Город: &f" + name(other));
             if (definition != null) { lore.add("&7Груз: &f" + definition.amount()); lore.add("&7Цена: &#FFD45A" + trade.economy().format(definition.price())); }
+            try { lore.add("&7Репутация покупателя: &fx" + String.format(java.util.Locale.ROOT,"%.2f",trade.feeMultiplier(offer.buyerId())) + " &7к пошлинам"); }
+            catch(IllegalStateException ex) { lore.add("&cРасчёт репутации пока недоступен"); }
+            lore.add("&7Цена и пошлины фиксируются при запуске.");
             lore.add("&7ID: &f" + offer.shortId()); lore.add("");
             lore.add(incoming ? "&#55FF55ЛКМ — принять" : "&#FFFF55ЛКМ — отменить"); if (incoming) lore.add("&#FF7777ПКМ — отклонить");
             ItemStack stack = item(definition == null ? Material.BARRIER : definition.icon(), definition == null ? offer.exportId() : definition.name(), lore);

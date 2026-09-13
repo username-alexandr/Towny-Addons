@@ -17,6 +17,8 @@ public final class SupplyService {
     public void stop(){if(task!=null)task.cancel();}
     public void reload(){try{repo.load();for(var c:repo.all()){var item=SupplyGateway.decode(c.terms().itemData());if(item==null||item.getType().isAir()||item.getAmount()!=1)throw new IOException("Повреждён образец товара "+c.terms().shortId());}broken=false;errors.clear();}
         catch(Exception ex){broken=true;plugin.getLogger().severe("Регулярные договоры остановлены: "+ex.getMessage());}}
+    public void flushReputation(){if(available())repo.flushReputation();}
+    public void beforeTradeQuote(){writable();flushReputation();if(repo.pendingReputation()>0)throw new IllegalStateException("Ожидается обновление торговой репутации; повторите позже");}
     public boolean available(){return !broken&&repo.writable();}
     private void writable(){if(!Bukkit.isPrimaryThread())throw new IllegalStateException("Требуется основной поток");if(!available())throw new IllegalStateException("Регулярные договоры остановлены после ошибки записи. Обратитесь к администратору");}
     public List<SupplyContract> all(){return repo.all().stream().sorted(Comparator.comparingLong((SupplyContract c)->c.terms().created()).reversed().thenComparing(c->c.terms().id())).toList();}
@@ -48,13 +50,16 @@ public final class SupplyService {
             case "pause" -> c.pause(town,true);
             case "resume" -> c.pause(town,false);
             default -> throw new IllegalArgumentException("Неизвестное действие");};
-        repo.put(next);announce(next,"contract-changed");return next;
+        var outcomes=new ArrayList<ru.neverland.core.ReputationOutcome>();
+        if(c.status()==Status.ACTIVE && next.status()==Status.CANCELLED)
+            outcomes.add(ru.neverland.core.ReputationOutcome.town("supply-cancel:"+c.terms().id(),town,"SUPPLY_CANCELLED",now,"Расторгнут договор "+c.terms().shortId()));
+        repo.put(next,outcomes);flushReputation();announce(next,"contract-changed");return next;
     }
     public void resolve(String id,UUID attempt,String decision)throws IOException {
         writable();var c=SupplyProcessor.resolve(find(id),attempt,decision,System.currentTimeMillis());repo.put(c);
         plugin.getLogger().warning("Сверка договора "+c.terms().id()+", поставка "+attempt+": "+decision);announce(c,"contract-changed");
     }
-    private void tick(){if(!available())return;long now=System.currentTimeMillis();long retry=Math.max(30,Math.min(3600,plugin.getConfig().getInt("contracts.retry-seconds",300)))*1000L;
+    private void tick(){if(!available())return;flushReputation();long now=System.currentTimeMillis();long retry=Math.max(30,Math.min(3600,plugin.getConfig().getInt("contracts.retry-seconds",300)))*1000L;
         var pending=repo.all().stream().filter(SupplyContract::open).toList();
         int budget=Math.max(1,Math.min(50,plugin.getConfig().getInt("contracts.process-per-second",8)));
         for(int i=0;i<Math.min(budget,pending.size());i++){
@@ -63,7 +68,7 @@ public final class SupplyService {
             try {
                 if(before.status()==Status.PROPOSED&&now>=before.terms().expires()){repo.put(before.expire());continue;}
                 if(before.attempt()==null&&!plugin.getConfig().getBoolean("contracts.enabled",true))continue;
-                SupplyProcessor.advance(before.terms().id(),now,retry,repo,gateway);
+                SupplyProcessor.advance(before.terms().id(),now,retry,Math.max(0,Math.min(168,plugin.getConfig().getInt("contracts.reputation-grace-hours",24)))*3_600_000L,repo,gateway);flushReputation();
                 var after=repo.get(before.terms().id());if(after.deliveries()>before.deliveries())announce(after,"contract-delivered");
                 if(after.attempt()!=null&&(after.attempt().phase()==Phase.DEBIT_PENDING||after.attempt().phase()==Phase.CREDIT_PENDING)
                     &&(before.attempt()==null||before.attempt().phase()!=after.attempt().phase()))announce(after,"contract-reconcile");

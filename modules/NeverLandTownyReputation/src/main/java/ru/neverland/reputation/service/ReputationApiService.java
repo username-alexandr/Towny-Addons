@@ -18,6 +18,10 @@ public final class ReputationApiService implements TownyReputationApi {
     @Override public boolean featureUnlocked(String feature, ReputationScope scope, UUID first, UUID second) { return sync(() -> service.featureUnlocked(feature, scope, first, second)); }
     @Override public ReputationChangeResult change(ReputationScope scope, UUID first, String firstName, UUID second, String secondName, int delta, String source, String reason, String uniqueKey, UUID actorId, String actorName) { return sync(() -> service.change(scope, first, firstName, second, secondName, delta, source, reason, uniqueKey, actorId, actorName)); }
     @Override public ReputationChangeResult set(ReputationScope scope, UUID first, String firstName, UUID second, String secondName, int score, String source, String reason, String uniqueKey, UUID actorId, String actorName) { return sync(() -> service.set(scope, first, firstName, second, secondName, score, source, reason, uniqueKey, actorId, actorName)); }
+    @Override public boolean healthy() { ru.neverland.core.ApiServices.primaryThread(); return plugin.isEnabled() && service.profiles().healthy(); }
+    @Override public java.util.Map<String,Object> profile(String scope, UUID subject) { ru.neverland.core.ApiServices.primaryThread(); return service.profiles().snapshot(scope, subject); }
+    @Override public double tradeFeeMultiplier(UUID town) { ru.neverland.core.ApiServices.primaryThread(); return service.profiles().tradeFeeMultiplier(town); }
+    @Override public String recordOutcome(String scope, UUID subject, String rule, String receipt, long at, String context) { ru.neverland.core.ApiServices.primaryThread(); return service.profiles().record(scope, subject, rule, receipt, at, context); }
     private <T> T sync(Callable<T> operation) {
         try { if (Bukkit.isPrimaryThread()) return operation.call(); return Bukkit.getScheduler().callSyncMethod(plugin, operation).get(); }
         catch (Exception exception) { throw new IllegalStateException("NeverLandTownyReputation API operation failed", exception); }

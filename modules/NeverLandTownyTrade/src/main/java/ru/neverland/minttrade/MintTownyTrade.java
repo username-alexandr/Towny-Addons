@@ -46,6 +46,7 @@ public final class MintTownyTrade extends JavaPlugin {
         trade = new TradeService(this, towny, builds, warehouse, registry, repository, routes, economy, messages, taxes);
         var gateway=new ru.neverland.minttrade.contract.SupplyGateway(this,towny,trade,taxes);
         supplies=new ru.neverland.minttrade.contract.SupplyService(this,towny,trade,gateway,messages);
+        trade.beforeQuote(supplies::beforeTradeQuote);
         supplyMenus=new ru.neverland.minttrade.contract.SupplyMenus(this,towny,supplies,messages);
         var supplyCommands=new ru.neverland.minttrade.contract.SupplyCommands(towny,trade,supplies,supplyMenus);
         getServer().getPluginManager().registerEvents(supplyMenus,this);

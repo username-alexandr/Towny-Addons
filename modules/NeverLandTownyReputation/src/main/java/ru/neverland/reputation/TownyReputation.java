@@ -25,6 +25,11 @@ public final class TownyReputation extends JavaPlugin {
         ru.neverland.reputation.util.LegacyDataMigrator.migrate(this, "TownyReputation");
         saveDefaultConfig(); copy("messages.yml"); copy("levels.yml");
         towny = new TownyHook(); itemsAdder = new ItemsAdderHook(); messages = new MessageService(this); registry = new ReputationRegistry(this); repository = new ReputationRepository(this); repository.load(); reputation = new ReputationService(this, registry, repository);
+        var profileStore = new ru.neverland.reputation.service.ProfileRepository(getDataFolder().toPath().resolve("profiles.yml"));
+        if(repository.profilesInitialized() && !java.nio.file.Files.isRegularFile(getDataFolder().toPath().resolve("profiles.yml")))throw new IllegalStateException("Ранее созданный profiles.yml отсутствует; восстановите резервную копию");
+        try { profileStore.load(repository.all()); } catch (java.io.IOException ex) { throw new java.io.UncheckedIOException(ex); }
+        if(!repository.profilesInitialized()){repository.profilesInitialized(true);repository.save();}
+        reputation.profiles(new ru.neverland.reputation.service.ReputationProfiles(profileStore, getConfig()));
         ReputationMenuManager menus = new ReputationMenuManager(this, towny, reputation, itemsAdder, messages); getServer().getPluginManager().registerEvents(menus, this);
         ReputationCommand direct = new ReputationCommand(this, null, towny, reputation, menus, messages); PluginCommand user = getCommand("reputation"); if (user != null) { user.setExecutor(direct); user.setTabCompleter(direct); }
         AdminCommand adminExecutor = new AdminCommand(this, towny, reputation, messages); PluginCommand admin = getCommand("townyreputation"); if (admin != null) { admin.setExecutor(adminExecutor); admin.setTabCompleter(adminExecutor); }
@@ -33,6 +38,6 @@ public final class TownyReputation extends JavaPlugin {
         getLogger().info("NeverLandTownyReputation " + getPluginMeta().getVersion() + " включён: связей " + repository.all().size() + ", уровней " + registry.tiers().size() + ", /t=" + townCommand + ", /n=" + nationCommand + ", PlaceholderAPI=" + placeholders + ".");
     }
     @Override public void onDisable() { if (reputation != null) reputation.shutdown(); if (towny != null) { towny.unregisterTown("reputation"); towny.unregisterNation("reputation"); } getServer().getServicesManager().unregisterAll(this); }
-    public void reloadPlugin() { reloadConfig(); messages.reload(); itemsAdder.reload(); registry.reload(); reputation.start(); }
+    public void reloadPlugin() { reloadConfig(); messages.reload(); itemsAdder.reload(); registry.reload(); reputation.profiles().reload(getConfig()); reputation.start(); }
     private void copy(String name) { if (!new File(getDataFolder(), name).exists()) saveResource(name, false); }
 }

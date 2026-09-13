@@ -4,7 +4,10 @@ import java.io.IOException;
 import static ru.neverland.minttrade.contract.SupplyContract.*;
 /** Persist intent before external side effects. An unknown bank outcome is NEVER retried automatically. */
 public final class SupplyProcessor {
-    public interface Store {SupplyContract get(UUID id);void put(SupplyContract contract)throws IOException;}
+    public interface Store {
+        SupplyContract get(UUID id); void put(SupplyContract contract)throws IOException;
+        default void put(SupplyContract contract,List<ru.neverland.core.ReputationOutcome> outcomes)throws IOException { put(contract); }
+    }
     public interface Gateway {
         String ready(SupplyContract contract); // null means ready; evaluated anew before each unpaid supply
         String reserve(SupplyContract contract)throws Exception;
@@ -15,6 +18,10 @@ public final class SupplyProcessor {
     }
     private SupplyProcessor(){}
     public static void advance(UUID id,long now,long retry,Store store,Gateway gateway)throws Exception {
+        advance(id,now,retry,86_400_000L,store,gateway);
+    }
+    public static void advance(UUID id,long now,long retry,long grace,Store store,Gateway gateway)throws Exception {
+        if(grace<0)throw new IllegalArgumentException("Неверный льготный срок поставки");
         var c=store.get(id);if(c==null||now<c.nextCheck())return;
         if(c.attempt()==null){
             if(!c.enabled()||now<c.nextDue())return;
@@ -26,7 +33,10 @@ public final class SupplyProcessor {
                 String blocked=c.enabled()?gateway.ready(c):"Договор остановлен";
                 if(blocked!=null){store.put(c.attempt(c.attempt().phase(Phase.RETURNING),now,blocked));return;}
                 String status=gateway.reserve(c);
-                if(!status.equals("RESERVED")){if(status.equals("DELIVERED")||status.equals("RETURNED"))throw new IllegalStateException("Квитанция склада противоречит договору");store.put(c.waiting(now+retry,warehouseNote(status)));return;}
+                if(!status.equals("RESERVED")){if(status.equals("DELIVERED")||status.equals("RETURNED"))throw new IllegalStateException("Квитанция склада противоречит договору");var outcomes=new ArrayList<ru.neverland.core.ReputationOutcome>();
+                    if(status.equals("STOCK_LOW") && now>=c.nextDue() && now-c.nextDue()>=grace)
+                        outcomes.add(ru.neverland.core.ReputationOutcome.town("supply-missed:"+c.terms().id()+":"+c.nextDue(),c.terms().seller(),"SUPPLY_MISSED",c.nextDue(),"Просроченная партия договора "+c.terms().shortId()));
+                    store.put(c.waiting(now+retry,warehouseNote(status)),outcomes);return;}
                 c=c.attempt(c.attempt().phase(Phase.DEBIT_PENDING),now,"Результат списания требует сверки");store.put(c);
                 // Deliberately outside generic retry handling: exception leaves DEBIT_PENDING on disk.
                 boolean paid=gateway.debit(c);
@@ -47,7 +57,12 @@ public final class SupplyProcessor {
                 if(status.equals("RETURNED")||status.equals("MISSING"))store.put(c.attempt(c.attempt().phase(Phase.RETURNED),now,c.note()));
                 else {if(status.equals("DELIVERED"))throw new IllegalStateException("Неоплаченный товар уже доставлен");store.put(c.waiting(now+retry,warehouseNote(status)));}
             }
-            case COMPLETE, RETURNED -> {gateway.acknowledge(c);store.put(c.finish(now,retry));}
+            case COMPLETE, RETURNED -> {
+                gateway.acknowledge(c);var outcomes=new ArrayList<ru.neverland.core.ReputationOutcome>();
+                if(c.attempt().phase()==Phase.COMPLETE)for(UUID party:List.of(c.terms().seller(),c.terms().buyer()))
+                    outcomes.add(ru.neverland.core.ReputationOutcome.town("supply-complete:"+c.attempt().id(),party,"SUPPLY_COMPLETED",now,"Выполнена поставка "+c.terms().shortId()));
+                store.put(c.finish(now,retry),outcomes);
+            }
             case DEBIT_PENDING, CREDIT_PENDING -> { /* A restart or ambiguous bank result requires operator reconciliation. */ }
         }
     }

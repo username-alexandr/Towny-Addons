@@ -34,12 +34,13 @@ public final class ReputationCommand implements TabExecutor {
     @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) { messages.send(sender, "players-only"); return true; }
         if (!player.hasPermission("townyreputation.use")) { messages.send(player, "no-permission"); return true; }
-        if (defaultScope != null) { if (args.length == 0) menus.openRelations(player, defaultScope); else show(player, defaultScope, args[0], false); return true; }
+        if (defaultScope != null) { if (args.length == 0) menus.openProfile(player, defaultScope); else show(player, defaultScope, args[0], false); return true; }
         if (args.length == 0) { menus.openMain(player); return true; }
         switch (args[0].toLowerCase(Locale.ROOT)) {
-            case "player", "игрок" -> { if (args.length < 2) menus.openRelations(player, ReputationScope.PLAYER); else show(player, ReputationScope.PLAYER, args[1], false); }
-            case "town", "город" -> { if (args.length < 2) menus.openRelations(player, ReputationScope.TOWN); else show(player, ReputationScope.TOWN, args[1], false); }
-            case "nation", "нация" -> { if (args.length < 2) menus.openRelations(player, ReputationScope.NATION); else show(player, ReputationScope.NATION, args[1], false); }
+            case "profile", "профиль" -> profile(player,args);
+            case "player", "игрок" -> { if (args.length < 2) menus.openProfile(player, ReputationScope.PLAYER); else show(player, ReputationScope.PLAYER, args[1], false); }
+            case "town", "город" -> { if (args.length < 2) menus.openProfile(player, ReputationScope.TOWN); else show(player, ReputationScope.TOWN, args[1], false); }
+            case "nation", "нация" -> { if (args.length < 2) menus.openProfile(player, ReputationScope.NATION); else show(player, ReputationScope.NATION, args[1], false); }
             case "history", "история" -> history(player, args);
             case "top", "топ" -> { ReputationScope scope = args.length < 2 ? ReputationScope.PLAYER : ReputationScope.parse(args[1]); if (scope == null) messages.send(player, "invalid-scope"); else menus.openTop(player, scope); }
             case "levels", "уровни" -> menus.openLevels(player);
@@ -51,6 +52,13 @@ public final class ReputationCommand implements TabExecutor {
         return true;
     }
 
+    private void profile(Player player,String[] args) {
+        ReputationScope scope=args.length>1?ReputationScope.parse(args[1]):ReputationScope.PLAYER;
+        if(scope==null){messages.send(player,"invalid-scope");return;}
+        if(args.length<3){menus.openProfile(player,scope);return;}
+        Side side=resolve(scope,args[2]);if(side==null){messages.send(player,unknown(scope),Map.of("target",args[2]));return;}
+        menus.openProfile(player,scope,side.id(),side.name());
+    }
     private void feedback(Player actor, String[] args, boolean positive) {
         if (!actor.hasPermission("townyreputation.feedback")) { messages.send(actor, "no-permission"); return; }
         if (args.length < 2) { messages.send(actor, "usage-feedback", Map.of("action", positive ? "endorse" : "denounce")); return; }
@@ -72,21 +80,21 @@ public final class ReputationCommand implements TabExecutor {
         if (own.id().equals(target.id())) { messages.send(player, "self-target"); return; } ReputationRecord record = reputation.record(scope, own.id(), target.id());
         if (history) { if (record == null) messages.send(player, "relation-not-found"); else menus.openHistory(player, RelationKey.of(scope, own.id(), target.id())); return; }
         int score = record == null ? 0 : record.score(); ReputationTier tier = reputation.tier(score); String arrow = scope == ReputationScope.PLAYER ? " → " : " ↔ ";
-        player.sendMessage(ColorUtil.color("&#18243A━━━━━━━━ &#63E6BEРепутация &#18243A━━━━━━━━\n&f" + own.name() + "&7" + arrow + "&f" + target.name() + "\n&7Очки: " + color(score) + signed(score) + "\n&7Уровень: " + tier.name() + "\n&7Скидка торговли: &f" + number(tier.tradeDiscountPercent()) + "%\n&7Множитель наград: &fx" + number(tier.rewardMultiplier()) + "\n&7Возможности: &f" + (tier.privileges().isEmpty() ? "нет" : String.join(", ", tier.privileges()))));
+        player.sendMessage(ColorUtil.color("&#18243A━━━━━━━━ &#63E6BEРепутация &#18243A━━━━━━━━\n&f" + own.name() + "&7" + arrow + "&f" + target.name() + "\n&7Очки: " + color(score) + signed(score) + "\n&7Уровень: " + tier.name() + "\n&7Льгота отношений: &f" + number(tier.tradeDiscountPercent()) + "%\n&7Множитель наград: &fx" + number(tier.rewardMultiplier()) + "\n&7Возможности: &f" + (tier.privileges().isEmpty() ? "нет" : String.join(", ", tier.privileges()))));
     }
     private Side own(Player player, ReputationScope scope) { if (scope == ReputationScope.PLAYER) return new Side(player.getUniqueId(), player.getName()); if (scope == ReputationScope.TOWN) { Town town = towny.town(player); if (town == null) { messages.send(player, "no-town"); return null; } return new Side(town.getUUID(), town.getName()); } Nation nation = towny.nation(player); if (nation == null) { messages.send(player, "no-nation"); return null; } return new Side(nation.getUUID(), nation.getName()); }
     private Side resolve(ReputationScope scope, String name) { if (scope == ReputationScope.PLAYER) { Resident resident = towny.resident(name); return resident == null ? null : new Side(resident.getUUID(), resident.getName()); } if (scope == ReputationScope.TOWN) { Town town = towny.town(name); return town == null ? null : new Side(town.getUUID(), town.getName()); } Nation nation = towny.nation(name); return nation == null ? null : new Side(nation.getUUID(), nation.getName()); }
     private String unknown(ReputationScope scope) { return switch (scope) { case PLAYER -> "unknown-player"; case TOWN -> "unknown-town"; case NATION -> "unknown-nation"; }; }
     private void sendChangeFailure(Player player, ru.neverland.reputation.api.ReputationChangeResult result) { if (result == null) { messages.send(player, "change-noop"); return; } switch (result.status()) { case DUPLICATE -> messages.send(player, "change-duplicate"); case RATE_LIMITED -> messages.send(player, "change-rate-limit", Map.of("source", "player_feedback", "delta", result.appliedDelta())); case CANCELLED -> messages.send(player, "change-cancelled"); default -> messages.send(player, "change-noop"); } }
-    private void help(Player player) { player.sendMessage(ColorUtil.color("&#63E6BE/rep &8— &7главное меню\n&f/rep player [игрок] &8— &7личная репутация\n&f/rep town [город] &8— &7отношения городов\n&f/rep nation [нация] &8— &7отношения наций\n&f/rep endorse <игрок> &8— &7положительный отзыв\n&f/rep denounce <игрок> &8— &7отрицательный отзыв\n&f/rep top <player|town|nation>\n&f/rep history <слой> <цель>")); }
+    private void help(Player player) { player.sendMessage(ColorUtil.color("&#63E6BE/rep &8— &7главное меню\n&f/rep profile <player|town|nation> [имя] &8— &7три показателя\n&f/rep player [игрок] &8— &7личная репутация\n&f/rep town [город] &8— &7отношения городов\n&f/rep nation [нация] &8— &7отношения наций\n&f/rep endorse <игрок> &8— &7положительный отзыв\n&f/rep denounce <игрок> &8— &7отрицательный отзыв\n&f/rep top <player|town|nation>\n&f/rep history <слой> <цель>")); }
 
     @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (defaultScope != null) return args.length == 1 ? filter(names(defaultScope), args[0]) : List.of();
-        if (args.length == 1) return filter(List.of("player", "town", "nation", "endorse", "denounce", "top", "history", "levels", "help"), args[0]);
+        if (args.length == 1) return filter(List.of("profile", "player", "town", "nation", "endorse", "denounce", "top", "history", "levels", "help"), args[0]);
         String sub = args[0].toLowerCase(Locale.ROOT); if (args.length == 2 && List.of("player", "endorse", "denounce").contains(sub)) return filter(names(ReputationScope.PLAYER), args[1]);
         if (args.length == 2 && sub.equals("town")) return filter(names(ReputationScope.TOWN), args[1]); if (args.length == 2 && sub.equals("nation")) return filter(names(ReputationScope.NATION), args[1]);
-        if (args.length == 2 && List.of("top", "history").contains(sub)) return filter(List.of("player", "town", "nation"), args[1]);
-        if (args.length == 3 && sub.equals("history")) { ReputationScope scope = ReputationScope.parse(args[1]); return scope == null ? List.of() : filter(names(scope), args[2]); }
+        if (args.length == 2 && List.of("profile", "top", "history").contains(sub)) return filter(List.of("player", "town", "nation"), args[1]);
+        if (args.length == 3 && List.of("profile", "history").contains(sub)) { ReputationScope scope = ReputationScope.parse(args[1]); return scope == null ? List.of() : filter(names(scope), args[2]); }
         return List.of();
     }
     private List<String> names(ReputationScope scope) { return switch (scope) { case PLAYER -> towny.residents().stream().map(Resident::getName).toList(); case TOWN -> towny.towns().stream().map(Town::getName).toList(); case NATION -> towny.nations().stream().map(Nation::getName).toList(); }; }

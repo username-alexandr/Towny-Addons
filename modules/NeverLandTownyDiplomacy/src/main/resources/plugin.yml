@@ -1,11 +1,11 @@
 name: NeverLandTownyDiplomacy
-version: 0.1.1
+version: 0.1.2
 main: ru.neverland.townydiplomacy.NeverLandTownyDiplomacy
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Межгородские договоры, вассалитет, гарантии, эмбарго и санкции.
 depend: [Towny]
-softdepend: [NeverLandTownyCitizens, NeverLandTownyCouncil]
+softdepend: [NeverLandTownyReputation, NeverLandTownyCitizens, NeverLandTownyCouncil]
 loadbefore: [NeverLandTownyTaxes, NeverLandTownyTrade, NeverLandTownyMarket, NeverLandTownyEspionage]
 commands:
   townydiplomacy:

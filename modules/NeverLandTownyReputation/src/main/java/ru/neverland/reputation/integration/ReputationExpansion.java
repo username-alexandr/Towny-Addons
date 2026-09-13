@@ -25,6 +25,12 @@ public final class ReputationExpansion extends PlaceholderExpansion {
     @Override public boolean persist() { return true; }
     @Override public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) {
         if (!(offline instanceof Player player)) return ""; String key = params.toLowerCase(Locale.ROOT);
+        if(key.matches("(player|town|nation)_(diplomatic|trade|military|trade_fee_multiplier)")) {
+            if(!org.bukkit.Bukkit.isPrimaryThread() || !reputation.profiles().healthy())return "";
+            int split=key.indexOf('_');var scope=ReputationScope.parse(key.substring(0,split));var side=own(player,scope);if(side==null)return "";
+            var profile=reputation.profiles().get(scope,side.id());String field=key.substring(split+1);
+            return field.equals("trade_fee_multiplier")?String.format(Locale.ROOT,"%.2f",reputation.profiles().fee(profile.trade())):String.valueOf(profile.score(ru.neverland.reputation.model.ReputationAspect.parse(field)));
+        }
         if (key.equals("player_relations")) return String.valueOf(reputation.involving(ReputationScope.PLAYER, player.getUniqueId()).size());
         if (key.equals("town_relations")) { Town town = towny.town(player); return town == null ? "0" : String.valueOf(reputation.involving(ReputationScope.TOWN, town.getUUID()).size()); }
         if (key.equals("nation_relations")) { Nation nation = towny.nation(player); return nation == null ? "0" : String.valueOf(reputation.involving(ReputationScope.NATION, nation.getUUID()).size()); }
