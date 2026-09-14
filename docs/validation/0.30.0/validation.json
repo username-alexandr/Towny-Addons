@@ -1,0 +1,27 @@
+{
+  "suite": "0.30.0",
+  "addons": 33,
+  "contracts": 35,
+  "executable_tests_discovered": 109,
+  "checker_tests_passed": 7,
+  "changed_module_tests": [
+    "Justice: CaptureRulesSmoke, JusticePaymentsSmoke, JusticeRepositorySmoke",
+    "Council: CouncilRepositorySmoke, CouncilSettingsSmoke"
+  ],
+  "native": {
+    "first": 70,
+    "restart": 47,
+    "jars_identical": true,
+    "platform": "Purpur 26.2-2632, Towny 0.103.2.0, Java 25, EssentialsX 2.22.0, Vault 1.7.3, PAPI 2.12.3",
+    "method": "Disposable loopback server; real bank/jail/Council operations and process restart; proxy command players, explicitly seeded confirmed capture for bank payout"
+  },
+  "limitations": [
+    "No connected Minecraft client or live teleport visual proof",
+    "No resource-pack visual review or TPS load benchmark"
+  ],
+  "fixed_native_compatibility": [
+    "Town.hasJail throws when the first-jail list is null",
+    "Towny PARDONED online teleport path does not unjail offline residents; native nonteleport overload and public event used"
+  ],
+  "scope": "Prepublication local candidate; release assets verified separately after CI publication"
+}

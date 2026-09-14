@@ -1,5 +1,5 @@
 name: NeverLandTownyCouncil
-version: 0.1.4
+version: 0.1.5
 main: ru.neverland.townycouncil.NeverLandTownyCouncil
 api-version: '26.2'
 authors: [Alexander Sokolov]
@@ -50,4 +50,7 @@ permissions:
   neverlandtownycouncil.action.sanctions:
     default: false
   neverlandtownycouncil.action.trade:
+    default: false
+  neverlandtownycouncil.action.justice:
+    description: Судебные дела и тюрьмы своего города
     default: false
