@@ -1,0 +1,70 @@
+all exact-version addons enabled
+all public contracts from source inventory
+provider ABI/capabilities: ru.neverland.archaeology.api.TownyArchaeologyApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.BuildingStorageApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.MarketStorageApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.MunicipalStorageApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.TownArmyApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.TownyBuildsApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.WarehouseApi
+provider ABI/capabilities: ru.neverland.mintcamps.api.TownyCampsApi
+provider ABI/capabilities: ru.neverland.townychronicles.api.TownyChroniclesApi
+provider ABI/capabilities: ru.neverland.townycitizens.api.TownyCitizensApi
+provider ABI/capabilities: ru.neverland.townycompanies.api.CompaniesApi
+provider ABI/capabilities: ru.neverland.mintcontracts.api.MintTownyContractsApi
+provider ABI/capabilities: ru.neverland.townycouncil.api.TownyCouncilApi
+provider ABI/capabilities: ru.neverland.townycrime.api.TownyCrimeApi
+provider ABI/capabilities: ru.neverland.townydiplomacy.api.TownyDiplomacyApi
+provider ABI/capabilities: ru.neverland.townydistricts.api.TownyDistrictsApi
+provider ABI/capabilities: ru.neverland.townyelections.api.TownyElectionsApi
+provider ABI/capabilities: ru.neverland.mintespionage.api.MintTownyEspionageApi
+provider ABI/capabilities: ru.neverland.mintevents.api.MintTownyEventsApi
+provider ABI/capabilities: ru.neverland.governance.api.TownyGovernanceApi
+provider ABI/capabilities: ru.neverland.townyideologies.api.TownyIdeologiesApi
+provider ABI/capabilities: ru.neverland.townyjobs.api.TownyJobsApi
+provider ABI/capabilities: ru.neverland.townyjustice.api.TownyJusticeApi
+provider ABI/capabilities: ru.neverland.townymarket.MarketApi
+provider ABI/capabilities: ru.neverland.townypolicies.api.TownyPoliciesApi
+provider ABI/capabilities: ru.neverland.townypopulation.api.TownyPopulationApi
+provider ABI/capabilities: ru.neverland.townypower.api.TownyPowerApi
+provider ABI/capabilities: ru.neverland.reputation.api.TownyReputationApi
+provider ABI/capabilities: ru.neverland.townyresearch.api.TownyResearchApi
+provider ABI/capabilities: ru.neverland.townyresources.api.TownyResourcesApi
+provider ABI/capabilities: ru.neverland.townyspecialization.api.TownySpecializationApi
+provider ABI/capabilities: ru.neverland.townytaxes.api.NeverLandTownyTaxesApi
+provider ABI/capabilities: ru.neverland.minttrade.api.MintTownyTradeApi
+provider ABI/capabilities: ru.neverland.townytreasury.api.TownyTreasuryApi
+provider ABI/capabilities: ru.neverland.townyupkeep.api.TownyUpkeepApi
+healthy native Justice API and durable repository
+fresh disposable fixture
+real town bank seed
+real resident bank seed
+mayor authority excludes ordinary resident
+ordinary resident cannot issue fines
+fines visible only to debtor or town court
+another player cannot pay/debit someone else's fine
+fine reaches paid after both native bank legs
+exact native resident debit and city fine income
+completed fine cannot be paid again
+Council defense minister receives scoped court authority
+court permission never grants another town authority
+dismissal revokes court authority immediately
+player menu separates personal fines from public wanted list
+court menu available to mayor
+private fine cannot be opened through menu
+Justice creates real municipal Towny jail and safe cell
+recovery does not duplicate Towny jail registration
+ordinary resident cannot create city prison
+native army budget funds bounty before public warrant
+funded wanted query exposes active warrant
+offline target cannot be captured or award bounty
+cancelled warrant refunds city escrow exactly once
+refund is not repeated
+observed Towny receipt resolves lost Treasury reply without duplicate debit
+native jailed flag plus offline player never confirms physical delivery or payout
+persisted confirmed-capture fixture pays real hunter account once
+fixture applies a real debit while journal retains unknown reply
+unknown debit is held for administrative reconciliation
+Justice API rejects worker-thread queries
+API returns immutable case snapshots
+Justice command registered

@@ -1,0 +1,16 @@
+# Все денежные суммы ниже заданы в монетах, до двух знаков после запятой.
+maximum-fine: 10000.00
+maximum-bounty: 100000.00
+fine-due-days: 7
+maximum-jail-hours: 24
+warrant-days: 7
+capture-distance: 4.0
+capture-timeout-seconds: 120
+payment-retry-seconds: 30
+maximum-open-cases-per-town: 200
+maximum-records: 20000
+maximum-prisons-per-town: 10
+# За один розыск награда выдаётся только один раз. Повторный розыск после поимки:
+recapture-cooldown-hours: 24
+menu-style:
+  title-color: '#F4F7FC'

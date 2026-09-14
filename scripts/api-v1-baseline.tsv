@@ -753,3 +753,24 @@ ru.neverland.townycrime.api.TownyCrimeApi	integrationDiagnostics():java.util.Lis
 ru.neverland.townycrime.api.TownyCrimeApi	shopIncomeBasisPoints(java.util.UUID):int throws []
 ru.neverland.townycrime.api.TownyCrimeApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
 ru.neverland.townycrime.api.TownyCrimeApi	towns():java.util.Collection<java.util.Map<java.lang.String, java.lang.Object>> throws []
+# Justice 0.1.0: additive API v1 baseline.
+ru.neverland.townyjustice.api.TownyJusticeApi	apiVersion():int throws []
+ru.neverland.townyjustice.api.TownyJusticeApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townyjustice.api.TownyJusticeApi	capability caseFile
+ru.neverland.townyjustice.api.TownyJusticeApi	capability cases
+ru.neverland.townyjustice.api.TownyJusticeApi	capability fines
+ru.neverland.townyjustice.api.TownyJusticeApi	capability healthy
+ru.neverland.townyjustice.api.TownyJusticeApi	capability prisons
+ru.neverland.townyjustice.api.TownyJusticeApi	capability wanted
+ru.neverland.townyjustice.api.TownyJusticeApi	caseFile(java.util.UUID):java.util.Optional<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyjustice.api.TownyJusticeApi	cases(java.util.UUID):java.util.Collection<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyjustice.api.TownyJusticeApi	default apiVersion()
+ru.neverland.townyjustice.api.TownyJusticeApi	default capabilities()
+ru.neverland.townyjustice.api.TownyJusticeApi	default integrationDiagnostics()
+ru.neverland.townyjustice.api.TownyJusticeApi	default storageMetrics()
+ru.neverland.townyjustice.api.TownyJusticeApi	fines(java.util.UUID):java.util.Collection<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyjustice.api.TownyJusticeApi	healthy():boolean throws []
+ru.neverland.townyjustice.api.TownyJusticeApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyjustice.api.TownyJusticeApi	prisons(java.util.UUID):java.util.Collection<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyjustice.api.TownyJusticeApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyjustice.api.TownyJusticeApi	wanted(java.util.UUID):java.util.Collection<java.util.Map<java.lang.String, java.lang.Object>> throws []

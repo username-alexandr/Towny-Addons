@@ -1,0 +1,24 @@
+name: NeverLandTownyJustice
+version: 0.1.0
+main: ru.neverland.townyjustice.NeverLandTownyJustice
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: Судебные дела, штрафы, розыск, тюрьмы Towny и обеспеченные награды за поимку.
+depend: [Towny]
+softdepend: [NeverLandTownyCouncil, NeverLandTownyTreasuryPlus, PlaceholderAPI]
+commands:
+  townyjustice:
+    aliases: [justice, nltjustice]
+    description: Городской суд и розыск
+    usage: /justice help
+permissions:
+  neverlandtownyjustice.use:
+    default: true
+  neverlandtownyjustice.manage:
+    description: Суд своего города; дополнительно требуется статус мэра или назначение в совет
+    default: true
+  neverlandtownyjustice.capture:
+    description: Поимка по действующему розыску в пределах города-инициатора
+    default: true
+  neverlandtownyjustice.admin:
+    default: op

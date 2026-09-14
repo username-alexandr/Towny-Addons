@@ -14,6 +14,7 @@ roles:
     permissions:
       - neverlandtownycouncil.action.army
       - neverlandtownycouncil.action.espionage
+      - neverlandtownycouncil.action.justice
   construction:
     permissions:
       - neverlandtownycouncil.action.build
