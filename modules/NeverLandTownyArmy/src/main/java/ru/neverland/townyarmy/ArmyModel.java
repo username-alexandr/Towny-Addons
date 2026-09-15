@@ -1,0 +1,42 @@
+package ru.neverland.townyarmy;
+import java.util.*;
+/** Immutable domain records. Resource values are thousandths; no Bukkit state here. */
+public final class ArmyModel {
+    private ArmyModel(){}
+    public static final long STOCK_LIMIT=1_000_000_000_000L;
+    public static final UUID SYSTEM=new UUID(0,0);
+    public static final Set<String> RESOURCES=Set.of("food","water","metal","materials","wood","stone","knowledge","influence");
+    public enum Unit{INFANTRY,CAVALRY,NAVY,AIR;public String id(){return name().toLowerCase(Locale.ROOT);}public static Unit parse(String value){return Unit.valueOf(value.toUpperCase(Locale.ROOT));}}
+    public enum Rank{RECRUIT,PRIVATE,CORPORAL,JUNIOR_SERGEANT,SERGEANT,SENIOR_SERGEANT,LIEUTENANT,CAPTAIN,MAJOR,COLONEL,GENERAL;public String id(){return name().toLowerCase(Locale.ROOT);}public boolean atLeast(Rank rank){return ordinal()>=rank.ordinal();}}
+    public enum Status{APPLICANT,RECRUIT,RESERVE,ACTIVE,DISCHARGED}
+    public enum Phase{PLANNED,APPLIED,DECLINED,CLOSED,CANCELLED}
+    public static String reason(String value){if(value==null||value.strip().length()<5||value.length()>160||value.chars().anyMatch(c->Character.isISOControl(c)||c=='§'||c=='&'))throw new IllegalArgumentException("Причина: 5–160 символов без цветовых кодов");return value.strip();}
+    public static Map<String,Long> stock(Map<String,Long> input){var out=new TreeMap<String,Long>();for(var e:input.entrySet()){if(!RESOURCES.contains(e.getKey())||e.getValue()==null||e.getValue()<0||e.getValue()>STOCK_LIMIT)throw new IllegalArgumentException("Неверный военный запас");if(e.getValue()>0)out.put(e.getKey(),e.getValue());}return Map.copyOf(out);}
+    public static Map<String,Long> add(Map<String,Long> input,Map<String,Long> delta){var out=new HashMap<>(input);delta.forEach((k,v)->out.put(k,Math.addExact(out.getOrDefault(k,0L),v)));return stock(out);}
+    public static boolean covers(Map<String,Long> input,Map<String,Long> cost){return cost.entrySet().stream().allMatch(e->input.getOrDefault(e.getKey(),0L)>=e.getValue());}
+    public static Map<String,Long> subtract(Map<String,Long> input,Map<String,Long> cost){if(!covers(input,cost))throw new IllegalArgumentException("Не хватает военных запасов");var out=new HashMap<>(input);cost.forEach((k,v)->out.put(k,out.getOrDefault(k,0L)-v));return stock(out);}
+    public record Soldier(UUID resident,UUID town,Unit unit,Rank rank,Status status,boolean oath,int training,int equipment,long dutyMillis,long joined,long lastTraining,long lastPromotion,int warnings,long suspendedUntil){
+        public Soldier{Objects.requireNonNull(resident);Objects.requireNonNull(town);Objects.requireNonNull(unit);Objects.requireNonNull(rank);Objects.requireNonNull(status);if(training<0||training>100||equipment<0||equipment>100||dutyMillis<0||dutyMillis>STOCK_LIMIT||joined<0||lastTraining<0||lastPromotion<0||warnings<0||warnings>3||suspendedUntil<0||Set.of(Status.RESERVE,Status.ACTIVE).contains(status)&&(!oath||rank==Rank.RECRUIT)||Set.of(Status.APPLICANT,Status.RECRUIT).contains(status)&&(oath||rank!=Rank.RECRUIT))throw new IllegalArgumentException("Повреждена запись военнослужащего");}
+        public static Soldier applicant(UUID id,UUID town,Unit unit,long now){return new Soldier(id,town,unit,Rank.RECRUIT,Status.APPLICANT,false,0,0,0,now,0,0,0,0);}
+        public Soldier status(Status value){return new Soldier(resident,town,unit,rank,value,oath,training,equipment,dutyMillis,joined,lastTraining,lastPromotion,warnings,suspendedUntil);}
+        public Soldier unit(Unit value){return new Soldier(resident,town,value,rank,status,oath,training,0,dutyMillis,joined,lastTraining,lastPromotion,warnings,suspendedUntil);}
+        public Soldier rank(Rank value,long now){return new Soldier(resident,town,unit,value,status,oath,training,equipment,dutyMillis,joined,lastTraining,now,warnings,suspendedUntil);}
+        public Soldier swear(){return new Soldier(resident,town,unit,Rank.PRIVATE,Status.RESERVE,true,training,equipment,dutyMillis,joined,lastTraining,lastPromotion,warnings,suspendedUntil);}
+        public Soldier equipment(int value){return new Soldier(resident,town,unit,rank,status,oath,training,value,dutyMillis,joined,lastTraining,lastPromotion,warnings,suspendedUntil);}
+        public Soldier duty(long amount){return new Soldier(resident,town,unit,rank,status,oath,training,equipment,Math.addExact(dutyMillis,amount),joined,lastTraining,lastPromotion,warnings,suspendedUntil);}
+        public Soldier trained(int gain,long now){return new Soldier(resident,town,unit,rank,status,oath,Math.min(100,training+gain),equipment,dutyMillis,joined,now,lastPromotion,warnings,suspendedUntil);}
+        public Soldier warning(boolean clear,long now){int count=clear?0:Math.min(3,warnings+1);return new Soldier(resident,town,unit,rank,count==3&&status==Status.ACTIVE?Status.RESERVE:status,oath,training,equipment,dutyMillis,joined,lastTraining,lastPromotion,count,count==3?now+86400000:0);}
+        public boolean serving(){return status!=Status.APPLICANT&&status!=Status.DISCHARGED;}
+    }
+    public record Base(UUID world,double x,double y,double z){public Base{Objects.requireNonNull(world);if(!Double.isFinite(x)||!Double.isFinite(y)||!Double.isFinite(z)||Math.abs(x)>30_000_000||Math.abs(z)>30_000_000||Math.abs(y)>10000)throw new IllegalArgumentException("Неверная точка базы");}}
+    public record City(UUID town,Base base,Map<String,Long> stock,boolean alert,long nextSupply,long suppliedUntil){
+        public City{Objects.requireNonNull(town);stock=ArmyModel.stock(stock);if(nextSupply<0||suppliedUntil<0)throw new IllegalArgumentException("Неверный срок снабжения");}
+        public static City empty(UUID id){return new City(id,null,Map.of(),false,0,0);}public City stock(Map<String,Long> value){return new City(town,base,value,alert,nextSupply,suppliedUntil);}public City base(Base value){return new City(town,value,stock,alert,nextSupply,suppliedUntil);}public City alert(boolean value){return new City(town,base,stock,value,nextSupply,suppliedUntil);}public City supplied(Map<String,Long> value,long next,long until){return new City(town,base,value,alert,next,until);}
+    }
+    public record Transfer(UUID id,UUID town,UUID actor,Map<String,Long> amounts,Phase phase,long created){public Transfer{Objects.requireNonNull(id);Objects.requireNonNull(town);Objects.requireNonNull(actor);Objects.requireNonNull(phase);amounts=stock(amounts);if(amounts.isEmpty()||created<0)throw new IllegalArgumentException("Неверная поставка");}public Transfer phase(Phase value){return new Transfer(id,town,actor,amounts,value,created);}}
+    public record Audit(UUID id,UUID town,UUID actor,UUID subject,String action,String reason,long time){public Audit{Objects.requireNonNull(id);Objects.requireNonNull(town);Objects.requireNonNull(actor);Objects.requireNonNull(subject);reason=ArmyModel.reason(reason);if(action==null||!action.matches("[A-Z_]{2,32}")||time<0)throw new IllegalArgumentException("Повреждён журнал армии");}}
+    public record State(boolean imported,boolean handoff,Map<UUID,UUID> legacy,Map<UUID,Soldier> soldiers,Map<UUID,City> cities,Map<UUID,Transfer> transfers,List<Audit> audit){
+        public State{legacy=Map.copyOf(legacy);soldiers=Map.copyOf(soldiers);cities=Map.copyOf(cities);transfers=Map.copyOf(transfers);audit=List.copyOf(audit);if(handoff&&!imported||!imported&&(!legacy.isEmpty()||!soldiers.isEmpty()||!transfers.isEmpty()))throw new IllegalArgumentException("Неверное состояние переноса армии");for(var e:soldiers.entrySet())if(!e.getKey().equals(e.getValue().resident())||!cities.containsKey(e.getValue().town()))throw new IllegalArgumentException("Военнослужащий без города");for(var e:cities.entrySet())if(!e.getKey().equals(e.getValue().town()))throw new IllegalArgumentException("ID города не совпадает");for(var e:transfers.entrySet())if(!e.getKey().equals(e.getValue().id())||!cities.containsKey(e.getValue().town()))throw new IllegalArgumentException("Поставка без города");if(new HashSet<>(audit.stream().map(Audit::id).toList()).size()!=audit.size())throw new IllegalArgumentException("Повтор ID журнала");var generals=new HashSet<UUID>();for(var soldier:soldiers.values())if(soldier.serving()&&soldier.rank()==Rank.GENERAL&&!generals.add(soldier.town()))throw new IllegalArgumentException("Два генерала одного города");}
+        public static State empty(){return new State(false,false,Map.of(),Map.of(),Map.of(),Map.of(),List.of());}
+    }
+}

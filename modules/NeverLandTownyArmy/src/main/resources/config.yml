@@ -1,0 +1,68 @@
+headquarters-capacity-per-level: 10
+reserve-capacity-multiplier: 3
+maximum-records: 20000
+maximum-audit: 2000
+maximum-supply-transfer: 100000.000
+supply-interval-seconds: 3600
+shortage-equipment-loss: 25
+maximum-defense-bonus: 0.20
+score-for-maximum-defense: 200.0
+base-radius: 32.0
+duty-idle-seconds: 300
+training:
+  seconds: 60
+  cooldown-seconds: 1800
+  gain: 10
+  minimum-movement: 12.0
+  cost: {food: 1.000, water: 1.000, knowledge: 1.000}
+units:
+  infantry:
+    title: Пехота
+    icon: IRON_SWORD
+    capacity-project: barracks
+    per-level: 10
+    requirements: {army: 1, barracks: 1}
+    weight: 1.0
+    kit: {metal: 2.000, materials: 1.000}
+    upkeep: {food: 1.000, water: 1.000}
+  cavalry:
+    title: Конница
+    icon: SADDLE
+    capacity-project: stables
+    per-level: 5
+    requirements: {army: 1, stables: 1}
+    weight: 1.4
+    kit: {metal: 3.000, materials: 2.000}
+    upkeep: {food: 2.000, water: 2.000}
+  navy:
+    title: Флот
+    icon: OAK_BOAT
+    capacity-project: shipyard
+    per-level: 4
+    requirements: {army: 2, shipyard: 1}
+    weight: 1.8
+    kit: {metal: 4.000, wood: 5.000, materials: 3.000}
+    upkeep: {food: 2.000, water: 1.000, materials: 1.000}
+  air:
+    title: Воздушные войска
+    icon: ELYTRA
+    capacity-project: workshop
+    per-level: 2
+    requirements: {army: 3, workshop: 1, observatory: 1}
+    weight: 2.2
+    kit: {metal: 5.000, materials: 5.000, knowledge: 2.000}
+    upkeep: {food: 1.000, water: 1.000, materials: 2.000}
+ranks:
+  recruit: {title: Рекрут, training: 0, duty-minutes: 0}
+  private: {title: Рядовой, training: 0, duty-minutes: 0}
+  corporal: {title: Ефрейтор, training: 10, duty-minutes: 10}
+  junior_sergeant: {title: Младший сержант, training: 20, duty-minutes: 20}
+  sergeant: {title: Сержант, training: 30, duty-minutes: 30}
+  senior_sergeant: {title: Старший сержант, training: 40, duty-minutes: 45}
+  lieutenant: {title: Лейтенант, training: 50, duty-minutes: 60}
+  captain: {title: Капитан, training: 60, duty-minutes: 90}
+  major: {title: Майор, training: 70, duty-minutes: 120}
+  colonel: {title: Полковник, training: 80, duty-minutes: 180}
+  general: {title: Генерал, training: 90, duty-minutes: 240}
+menu-style:
+  title-color: '#F4F7FC'

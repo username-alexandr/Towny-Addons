@@ -1,5 +1,5 @@
 name: NeverLandTownyEspionage
-version: 0.1.12
+version: 0.1.13
 main: ru.neverland.mintespionage.MintTownyEspionage
 api-version: '26.2'
 authors: [Alexander Sokolov]
@@ -7,7 +7,7 @@ website: https://neverland.ru
 description: Разведка, шпионаж, контрразведка и дипломатические сведения проекта NeverLand.
 provides: [MintTownyEspionage]
 depend: [Towny]
-softdepend: [NeverLandTownyBuilds, NeverLandTownyReputation, NeverLandTownyGovernance, PlaceholderAPI, ItemsAdder]
+softdepend: [NeverLandTownyArmy, NeverLandTownyBuilds, NeverLandTownyReputation, NeverLandTownyGovernance, PlaceholderAPI, ItemsAdder]
 commands:
   espionage:
     description: Городская разведка
