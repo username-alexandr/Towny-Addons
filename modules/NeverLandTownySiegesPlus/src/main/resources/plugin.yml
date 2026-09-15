@@ -1,0 +1,21 @@
+name: NeverLandTownySiegesPlus
+version: 0.1.0
+main: ru.neverland.townysieges.NeverLandTownySiegesPlus
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: 'Sieges+: действующие укрепления и ограничения атакующих во время осады.'
+depend: [Towny, NeverLandTownyBuilds]
+softdepend: [SiegeWar, NeverLandTownyArmy, NeverLandTownyDiplomacy]
+commands:
+  townysieges:
+    aliases: [sieges, nltsieges]
+    description: Оборона города и осадные ограничения
+    usage: /sieges help
+permissions:
+  neverlandtownysiegesplus.use:
+    default: true
+  neverlandtownysiegesplus.admin:
+    default: op
+  neverlandtownysiegesplus.bypass:
+    description: Явное исключение из осадных ограничений для персонала
+    default: false

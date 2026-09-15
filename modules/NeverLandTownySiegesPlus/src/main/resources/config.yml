@@ -1,0 +1,23 @@
+# SiegeWar owns wars, sides, battle windows, scores and occupation.
+# SiegeWar 3.6.2 is the tested provider; without it the addon displays defenses only.
+battle-sessions-only: true
+# Horizontal expansion beyond the completed building's actual footprint.
+radius:
+  fortress_wall: 12
+  fortress_gate: 0
+  city_moat: 3
+  watchtower: 32
+  watch_fortress: 24
+  port_fort: 48
+ground-height: 24
+tower-height: 96
+damage:
+  wall-per-level: 0.05
+  tower-per-level: 0.03
+  # Includes optional Army defenseBonus, capped separately at 20%.
+  maximum-reduction: 0.40
+moat:
+  slow-per-level: 0.10
+  maximum-slow: 0.35
+menu-style:
+  title-color: '#F4F7FC'
