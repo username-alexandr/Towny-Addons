@@ -92,6 +92,20 @@ def plugin_load_order_errors(metadata: dict[str, dict]) -> list[str]:
     return errors
 
 
+def release_identity_errors(matrix: dict, version: str, workflow: dict) -> list[str]:
+    """The package tag and its publishing branch must describe the tested matrix."""
+    suite = str(matrix.get("suite", ""))
+    errors = []
+    if not re.fullmatch(r"\d+\.\d+\.\d+", suite) or version.strip() != suite:
+        errors.append("VERSION must match the suite version in versions.yml")
+    # PyYAML's YAML 1.1 loader reads an unquoted GitHub Actions 'on' as True.
+    triggers = workflow.get("on", workflow.get(True, {})) or {}
+    branches = (triggers.get("push", {}) or {}).get("branches", [])
+    if branches != [f"release/v{suite}"]:
+        errors.append(f"publishing workflow must target release/v{suite}")
+    return errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source-only", action="store_true",
@@ -103,7 +117,10 @@ def main() -> int:
     addons: dict[str, object] = matrix["addons"]
     modules_dir = ROOT / "modules"
     plugins_dir = args.plugins_dir
-    errors: list[str] = []
+    errors: list[str] = release_identity_errors(
+        matrix, (ROOT / "VERSION").read_text(),
+        load_yaml(ROOT / ".github/workflows/publish-release.yml"),
+    )
     import xml.etree.ElementTree as ET
     for source in modules_dir.glob('*/src/main/java/**/*.java'):
         if re.search(r'getDeclaredField\s*\(\s*"dataStore"', source.read_text()):
