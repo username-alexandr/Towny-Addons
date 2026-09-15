@@ -1,0 +1,53 @@
+name: NeverLandTownyArmy
+version: 0.1.0
+main: ru.neverland.townyarmy.NeverLandTownyArmy
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: Военная служба, гарнизон, подразделения и снабжение города.
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyResources]
+softdepend: [NeverLandTownyCouncil, NeverLandTownyCitizens, PlaceholderAPI]
+commands:
+  townymilitary:
+    aliases: [army, nltarmy]
+    description: Армия города
+    usage: /army help
+permissions:
+  neverlandtownyarmy.use:
+    default: true
+  neverlandtownyarmy.manage:
+    description: Дополнительно проверяются город, назначение и звание
+    default: true
+  neverlandtownyarmy.admin:
+    default: op
+  neverlandtownyarmy.duty:
+    default: false
+  neverlandtownyarmy.rank.recruit:
+    default: false
+  neverlandtownyarmy.rank.private:
+    default: false
+  neverlandtownyarmy.rank.corporal:
+    default: false
+  neverlandtownyarmy.rank.junior_sergeant:
+    default: false
+  neverlandtownyarmy.rank.sergeant:
+    default: false
+  neverlandtownyarmy.rank.senior_sergeant:
+    default: false
+  neverlandtownyarmy.rank.lieutenant:
+    default: false
+  neverlandtownyarmy.rank.captain:
+    default: false
+  neverlandtownyarmy.rank.major:
+    default: false
+  neverlandtownyarmy.rank.colonel:
+    default: false
+  neverlandtownyarmy.rank.general:
+    default: false
+  neverlandtownyarmy.unit.infantry:
+    default: false
+  neverlandtownyarmy.unit.cavalry:
+    default: false
+  neverlandtownyarmy.unit.navy:
+    default: false
+  neverlandtownyarmy.unit.air:
+    default: false

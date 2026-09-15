@@ -774,3 +774,36 @@ ru.neverland.townyjustice.api.TownyJusticeApi	integrationDiagnostics():java.util
 ru.neverland.townyjustice.api.TownyJusticeApi	prisons(java.util.UUID):java.util.Collection<java.util.Map<java.lang.String, java.lang.Object>> throws []
 ru.neverland.townyjustice.api.TownyJusticeApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
 ru.neverland.townyjustice.api.TownyJusticeApi	wanted(java.util.UUID):java.util.Collection<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyarmy.api.TownyArmyApi	apiVersion():int throws []
+ru.neverland.townyarmy.api.TownyArmyApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townyarmy.api.TownyArmyApi	capability garrison
+ru.neverland.townyarmy.api.TownyArmyApi	capability healthy
+ru.neverland.townyarmy.api.TownyArmyApi	capability history
+ru.neverland.townyarmy.api.TownyArmyApi	capability isMobilized
+ru.neverland.townyarmy.api.TownyArmyApi	capability reserves
+ru.neverland.townyarmy.api.TownyArmyApi	capability roster
+ru.neverland.townyarmy.api.TownyArmyApi	capability serviceRecord
+ru.neverland.townyarmy.api.TownyArmyApi	capability soldiers
+ru.neverland.townyarmy.api.TownyArmyApi	default apiVersion()
+ru.neverland.townyarmy.api.TownyArmyApi	default capabilities()
+ru.neverland.townyarmy.api.TownyArmyApi	default integrationDiagnostics()
+ru.neverland.townyarmy.api.TownyArmyApi	default storageMetrics()
+ru.neverland.townyarmy.api.TownyArmyApi	garrison(java.util.UUID):java.util.Optional<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyarmy.api.TownyArmyApi	healthy():boolean throws []
+ru.neverland.townyarmy.api.TownyArmyApi	history(java.util.UUID):java.util.Collection<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyarmy.api.TownyArmyApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyarmy.api.TownyArmyApi	isMobilized(java.util.UUID):boolean throws []
+ru.neverland.townyarmy.api.TownyArmyApi	reserves(java.util.UUID):java.util.Map<java.lang.String, java.lang.Long> throws []
+ru.neverland.townyarmy.api.TownyArmyApi	roster(java.util.UUID):java.util.Collection<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyarmy.api.TownyArmyApi	serviceRecord(java.util.UUID):java.util.Optional<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyarmy.api.TownyArmyApi	soldiers(java.util.UUID):java.util.Set<java.util.UUID> throws []
+ru.neverland.townyarmy.api.TownyArmyApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.TownArmyApi	capability characterAge
+ru.neverland.townybuilds.api.TownArmyApi	capability completeMigration
+ru.neverland.townybuilds.api.TownArmyApi	capability legacyRoster
+ru.neverland.townybuilds.api.TownArmyApi	characterAge(java.util.UUID):java.util.OptionalInt throws []
+ru.neverland.townybuilds.api.TownArmyApi	completeMigration(java.util.Map<java.util.UUID, java.util.UUID>):boolean throws []
+ru.neverland.townybuilds.api.TownArmyApi	default characterAge(java.util.UUID)
+ru.neverland.townybuilds.api.TownArmyApi	default completeMigration(java.util.Map)
+ru.neverland.townybuilds.api.TownArmyApi	default legacyRoster()
+ru.neverland.townybuilds.api.TownArmyApi	legacyRoster():java.util.Map<java.util.UUID, java.util.UUID> throws []

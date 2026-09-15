@@ -98,7 +98,19 @@ public final class EspionageService {
         List<String> lines=new ArrayList<>();if(target==null){lines.add("&cГород был удалён до завершения операции.");return lines;}
         switch(operation.type().toLowerCase(Locale.ROOT)){
             case "treasury"->{double balance=economy.balance(target);lines.add("&7Баланс казны: &#FFD45A"+economy.format(balance));lines.add("&7Финансовое положение: &f"+wealth(balance));lines.add("&7Население: &f"+target.getResidents().size());}
-            case "military"->{BuildBridge.Defense defense=builds.defense(target.getUUID());lines.add("&7Население/потенциальный гарнизон: &f"+target.getResidents().size());lines.add("&7Уровень Казарм: &f"+defense.levels().getOrDefault("barracks",0));lines.add("&7Контрразведка: &f"+repository.town(target.getUUID()).defenseLevel()+"/"+plugin.getConfig().getInt("counterintelligence.maximum-level",5));lines.add("&7Оборонный штраф агентам: &#FF7777"+Math.round(defenseStrength(target)*100)+"%");lines.add("&7PvP в городе: &f"+(towny.flag(target,"isPVP")?"включён":"выключен"));}
+            case "military"->{
+                lines.add("&7Население города: &f"+target.getResidents().size());
+                try {
+                    BuildBridge.Defense defense=builds.defense(target.getUUID());
+                    var army=ru.neverland.mintespionage.integration.ArmyAccess.garrison(target.getUUID());
+                    if(army.isPresent()) { var g=army.get(); lines.add("&7Действующий гарнизон: &f"+g.get("active")+" / "+g.get("capacity"));lines.add("&7Военный резерв: &f"+g.get("reserve"));lines.add("&7Готовность армии: &f"+String.format(Locale.ROOT,"%.1f%%",g.get("readiness")));lines.add("&7Военная сила: &f"+String.format(Locale.ROOT,"%.2f",g.get("score"))); }
+                    else lines.add("&7Отдельная армия не подключена.");
+                    lines.add("&7Уровень Казарм: &f"+defense.levels().getOrDefault("barracks",0));
+                    lines.add("&7Оборонный штраф агентам: &#FF7777"+Math.round(defenseStrength(target)*100)+"%");
+                } catch(RuntimeException|LinkageError unavailable) { lines.add("&eСведения об армии временно недоступны; остальные результаты сохранены."); }
+                lines.add("&7Контрразведка: &f"+repository.town(target.getUUID()).defenseLevel()+"/"+plugin.getConfig().getInt("counterintelligence.maximum-level",5));
+                lines.add("&7PvP в городе: &f"+(towny.flag(target,"isPVP")?"включён":"выключен"));
+            }
             case "infrastructure"->{for(Map.Entry<String,Integer> entry:builds.knownLevels(target.getUUID()).entrySet())lines.add("&7"+BUILDING_NAMES.getOrDefault(entry.getKey(),entry.getKey())+": &f"+entry.getValue()+" ур.");}
             case "diplomacy"->{lines.add("&7Нация: &f"+towny.nation(target));lines.add("&7Отношение к вашему городу: &f"+towny.relation(attacker,target));List<String> allies=towny.diplomaticNames(target,"getAllies");List<String> enemies=towny.diplomaticNames(target,"getEnemies");lines.add("&7Союзники нации: &f"+(allies.isEmpty()?"нет сведений":String.join(", ",allies)));lines.add("&7Противники нации: &f"+(enemies.isEmpty()?"нет сведений":String.join(", ",enemies)));lines.add("&7Город открыт: &f"+(towny.flag(target,"isOpen")?"да":"нет"));}
             default->{lines.add("&7Мэр: &f"+towny.mayor(target));lines.add("&7Жителей: &f"+target.getResidents().size());lines.add("&7Занято участков: &f"+target.getTownBlocks().size());lines.add("&7Бонусных участков: &f"+target.getBonusBlocks());lines.add("&7Нация: &f"+towny.nation(target));}

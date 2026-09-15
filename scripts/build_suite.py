@@ -46,7 +46,8 @@ def main():
     selected = {name if name in available else 'NeverLandTowny'+name for name in args.modules}
     if selected - available:
         raise RuntimeError('Unknown modules: '+', '.join(sorted(selected-available)))
-    subprocess.run([os.environ.get('PYTHON', 'python3'), str(ROOT/'scripts/test_api_audit.py')], check=True)
+    subprocess.run([os.environ.get('PYTHON', 'python3'), '-m', 'unittest', 'discover',
+                    '-s', str(ROOT/'scripts'), '-p', 'test_*.py'], check=True)
     data = inventory()
     (ROOT/'build').mkdir(exist_ok=True)
     (ROOT/'build/api-source-inventory.json').write_text(json.dumps(data, ensure_ascii=False, indent=2)+'\n')

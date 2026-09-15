@@ -14,8 +14,9 @@ public final class BuildBridge {
     private final JavaPlugin plugin;
     public BuildBridge(JavaPlugin plugin){this.plugin=plugin;}
     public Defense defense(UUID townId){
-        ConfigurationSection section=plugin.getConfig().getConfigurationSection("buildings.defense");if(section==null)return new Defense(0,0,Map.of());
-        Map<String,Integer> levels=new LinkedHashMap<>();double penalty=0,detection=0;
+        double army=ArmyAccess.defense(townId);
+        ConfigurationSection section=plugin.getConfig().getConfigurationSection("buildings.defense");if(section==null)return new Defense(army,army,Map.of());
+        Map<String,Integer> levels=new LinkedHashMap<>();double penalty=army,detection=army;
         for(String project:section.getKeys(false)){
             int level=level(townId,project);levels.put(project,level);penalty+=level*section.getDouble(project+".success-penalty",0);detection+=level*section.getDouble(project+".detection-bonus",0);
         }
