@@ -807,3 +807,19 @@ ru.neverland.townybuilds.api.TownArmyApi	default characterAge(java.util.UUID)
 ru.neverland.townybuilds.api.TownArmyApi	default completeMigration(java.util.Map)
 ru.neverland.townybuilds.api.TownArmyApi	default legacyRoster()
 ru.neverland.townybuilds.api.TownArmyApi	legacyRoster():java.util.Map<java.util.UUID, java.util.UUID> throws []
+ru.neverland.townysieges.api.TownySiegesApi	apiVersion():int throws []
+ru.neverland.townysieges.api.TownySiegesApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townysieges.api.TownySiegesApi	capability defenses
+ru.neverland.townysieges.api.TownySiegesApi	capability healthy
+ru.neverland.townysieges.api.TownySiegesApi	capability restrictions
+ru.neverland.townysieges.api.TownySiegesApi	capability warStatus
+ru.neverland.townysieges.api.TownySiegesApi	default apiVersion()
+ru.neverland.townysieges.api.TownySiegesApi	default capabilities()
+ru.neverland.townysieges.api.TownySiegesApi	default integrationDiagnostics()
+ru.neverland.townysieges.api.TownySiegesApi	default storageMetrics()
+ru.neverland.townysieges.api.TownySiegesApi	defenses(java.util.UUID):java.util.Collection<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townysieges.api.TownySiegesApi	healthy():boolean throws []
+ru.neverland.townysieges.api.TownySiegesApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townysieges.api.TownySiegesApi	restrictions(java.util.UUID,java.util.UUID,double,double,double):java.util.Map<java.lang.String, java.lang.Object> throws []
+ru.neverland.townysieges.api.TownySiegesApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townysieges.api.TownySiegesApi	warStatus():java.util.Map<java.lang.String, java.lang.String> throws []

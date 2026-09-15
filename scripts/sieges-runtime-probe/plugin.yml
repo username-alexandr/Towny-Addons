@@ -1,0 +1,5 @@
+name: NeverLandSiegesRuntimeProbe
+version: 0.1.0
+main: ru.neverland.runtime.SiegesRuntimeProbe
+api-version: '26.2'
+depend: [NeverLandTownySiegesPlus, SiegeWar, NeverLandTownyArmy, NeverLandTownyDiplomacy]
