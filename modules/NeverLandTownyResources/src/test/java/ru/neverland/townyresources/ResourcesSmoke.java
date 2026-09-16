@@ -35,6 +35,12 @@ public final class ResourcesSmoke {
         var producer=profile("producer",stock(Resource.WOOD,3),stock(Resource.WATER,1),10);var config=settings(false,cap,producer);
         var initial=TownState.initial(stock(Resource.WATER,10));var result=ResourceEngine.calculate(initial,built("producer",5,1.15),0,config,100);
         check(result.state().balances().get(Resource.WOOD)==17250,"five levels with district output");check(result.state().balances().get(Resource.WATER)==5000,"district never multiplies costs");check(initial.balances().get(Resource.WATER)==10000,"immutable input");
+        var winter=ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,1,true,true,"",1,.6)),0,config,100);
+        check(winter.state().balances().get(Resource.WOOD)==9000&&winter.state().balances().get(Resource.WATER)==5000,"winter scales output below base with unchanged input");
+        check(winter.capacity().equals(result.capacity()),"season never reduces capacity or confiscates existing resources");
+        var flooded=ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,1,true,true,"",1,1.2*.6)),0,config,100);
+        check(flooded.state().balances().get(Resource.WOOD)==10800,"spring and flood combine exactly once");
+        fails(()->ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,1,true,true,"",1,Double.NaN)),0,config,100),"bad seasonal provider cannot mint output");
         var subsidy=ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,1.15,true,true,"",1.3)),0,config,100);check(subsidy.state().balances().get(Resource.WOOD)==22425&&subsidy.state().balances().get(Resource.WATER)==5000,"policies increase actual output with unchanged input");
         var mobilized=ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,1,true,true,"",.85)),0,config,100);check(mobilized.state().balances().get(Resource.WOOD)==12750&&mobilized.state().balances().get(Resource.WATER)==5000,"mobilization penalty applies below base output without reducing costs");
         var limited=ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,3,true,true,"",2)),0,config,100);check(limited.state().balances().get(Resource.WOOD)==45000&&limited.capacity().equals(result.capacity()),"joint output cap x3 and unchanged storage");

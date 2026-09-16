@@ -1,0 +1,5 @@
+name: NeverLandSeasonsRuntimeProbe
+version: 0.1.0
+main: ru.neverland.runtime.SeasonsRuntimeProbe
+api-version: '26.2'
+depend: [Towny, NeverLandTownySeasons, NeverLandTownyResources, NeverLandTownyEvents, NeverLandTownyBuilds, NeverLandTownyUpkeep, NeverLandTownyPower, NeverLandTownyPopulation]

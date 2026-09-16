@@ -1,0 +1,20 @@
+name: NeverLandTownySeasons
+version: 0.1.0
+main: ru.neverland.townyseasons.NeverLandTownySeasons
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: Сезонный календарь, аграрное производство и риски городских событий.
+depend: [Towny]
+softdepend: [RealisticSeasons]
+commands:
+  townyseasons:
+    aliases: [tseasons, nltseasons]
+    description: Сезонная экономика и календарь
+    usage: /tseasons [menu|status|set|resume|reload|help]
+permissions:
+  neverlandtownyseasons.use:
+    description: Просмотр календаря и сезонных эффектов
+    default: true
+  neverlandtownyseasons.admin:
+    description: Фиксация сезона, диагностика и перезагрузка настроек
+    default: op

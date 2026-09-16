@@ -133,3 +133,28 @@ events:
       EMERALD: {points: 7, name: "Изумруд"}
     success-commands: []
     failure-commands: []
+
+  flood:
+    name: "&#71D8FF&lНаводнение"
+    icon: WATER_BUCKET
+    description: "Паводок мешает росту культур и снижает аграрный выпуск. Доставьте песок, губки и стройматериалы."
+    duration-minutes: 40
+    base-goal: 200
+    goal-per-resident: 35
+    mitigation-cap: 0.80
+    mode: FLOOD
+    bossbar-color: BLUE
+    buildings:
+      aqueduct: 0.10
+      irrigation_station: 0.08
+      great_canal: 0.25
+      town_hall: 0.02
+    ideologies:
+      infrastructure: 0.10
+    contributions:
+      SAND: {points: 2, name: "Песок для укреплений"}
+      GRAVEL: {points: 2, name: "Гравий"}
+      SPONGE: {points: 24, name: "Губка"}
+      OAK_PLANKS: {points: 3, name: "Дубовые доски"}
+    success-commands: []
+    failure-commands: []

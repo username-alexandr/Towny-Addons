@@ -36,6 +36,7 @@ development-sources:
   cache-seconds: 30
 
 gameplay:
+  flood-base-crop-cancel-chance: 0.60
   drought-base-crop-cancel-chance: 0.70
   # Состав 10 волн, очки и модели врагов — в raids.yml.
   raid-wave-interval-seconds: 60
@@ -81,3 +82,10 @@ commands-on-all-placeholders:
 # Светлый заголовок для тёмного ресурспака; для ванильного светлого окна: "#273247".
 menu-style:
   title-color: "#F4F7FC"
+
+# Экономические последствия применяются к будущему выпуску аграрного комплекса.
+# Защита города уменьшает потерю; текущие запасы сохраняются.
+seasonal:
+  include-default-flood: true
+  drought-output-loss: 0.50
+  flood-output-loss: 0.40

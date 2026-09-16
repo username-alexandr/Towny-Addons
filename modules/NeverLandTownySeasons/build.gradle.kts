@@ -1,7 +1,7 @@
 import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 group = "ru.neverland"
-version = "0.1.14"
+version = "0.1.0"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -11,7 +11,6 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:26.2.build.121-stable")
     compileOnly("com.palmergames.bukkit.towny:towny:0.103.2.0")
-    compileOnly("me.clip:placeholderapi:2.12.3")
 }
 java { toolchain.languageVersion.set(JavaLanguageVersion.of(25)) }
 configurations.configureEach {
@@ -23,21 +22,9 @@ for (name in listOf("testCompileClasspath", "testRuntimeClasspath")) {
 tasks {
     compileJava { options.encoding = "UTF-8"; options.release.set(17) }
     compileTestJava { options.encoding = "UTF-8" }
-    jar { archiveBaseName.set("NeverLandTownyResources") }
+    jar { archiveBaseName.set("NeverLandTownySeasons") }
 }
 
-
-sourceSets.main { java.srcDir("../../shared/districts/src/main/java") }
-
-sourceSets.main { java.srcDir("../../shared/upkeep/src/main/java") }
-
-sourceSets.main { java.srcDir("../../shared/research/src/main/java") }
-
-sourceSets.main { java.srcDir("../../shared/specialization/src/main/java") }
-
-sourceSets.main { java.srcDir("../../shared/policies/src/main/java") }
-
-sourceSets.main { java.srcDir("../../shared/jobs/src/main/java") }
 
 sourceSets.main { java.srcDir("../../shared/core/src/main/java") }
 
