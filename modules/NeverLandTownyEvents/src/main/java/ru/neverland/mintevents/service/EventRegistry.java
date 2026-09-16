@@ -33,6 +33,14 @@ public final class EventRegistry {
         definitions.clear();
         MaterialNameConfig.reload(plugin, itemNames);
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "events.yml"));
+        // Existing installations receive the new default only when the entire entry is absent.
+        // Explicit custom or malformed entries are never replaced. Opt out in config.yml.
+        if (!yaml.contains("events.flood") && plugin.getConfig().getBoolean("seasonal.include-default-flood", true)) {
+            try (var input = plugin.getResource("events.yml")) {
+                var defaults = YamlConfiguration.loadConfiguration(new java.io.InputStreamReader(input, java.nio.charset.StandardCharsets.UTF_8));
+                yaml.set("events.flood", defaults.getConfigurationSection("events.flood"));
+            } catch (java.io.IOException e) { throw new IllegalStateException("Не удалось загрузить наводнение", e); }
+        }
         ConfigurationSection root = yaml.getConfigurationSection("events");
         if (root == null) return;
         for (String id : root.getKeys(false)) {

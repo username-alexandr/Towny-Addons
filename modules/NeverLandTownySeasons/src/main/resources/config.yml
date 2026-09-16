@@ -1,0 +1,28 @@
+# CUSTOM: собственные сутки, время простоя сервера учитывается.
+# MINECRAFT: 24000 тиков мира = сутки, /time set и сон не ускоряют календарь.
+# REALISTIC_SEASONS: только чтение сезона из установленного RealisticSeasons.
+calendar:
+  mode: CUSTOM
+  first-season: SPRING
+  days-per-season: 7
+  day-minutes: 60
+# Пустой список = все обычные миры. Ад и Край всегда без сезонов.
+worlds: []
+announce: true
+menu-style:
+  title-color: '#F4F7FC'
+# Выпуск стратегических ресурсов; запасы, вместимость и расходы не меняются.
+# Веса событий относительные: x3 НЕ означает вероятность 300%.
+seasons:
+  spring:
+    production: {agrarian_complex: 1.20}
+    event-weights: {flood: 3.0, drought: 0.25, fire: 0.75}
+  summer:
+    production: {agrarian_complex: 1.10}
+    event-weights: {flood: 0.5, drought: 3.0, fire: 1.5}
+  autumn:
+    production: {agrarian_complex: 1.25}
+    event-weights: {flood: 1.25, drought: 0.5, fire: 0.75}
+  winter:
+    production: {agrarian_complex: 0.60}
+    event-weights: {flood: 0.25, drought: 0.1, fire: 1.0}

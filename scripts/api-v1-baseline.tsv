@@ -823,3 +823,26 @@ ru.neverland.townysieges.api.TownySiegesApi	integrationDiagnostics():java.util.L
 ru.neverland.townysieges.api.TownySiegesApi	restrictions(java.util.UUID,java.util.UUID,double,double,double):java.util.Map<java.lang.String, java.lang.Object> throws []
 ru.neverland.townysieges.api.TownySiegesApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
 ru.neverland.townysieges.api.TownySiegesApi	warStatus():java.util.Map<java.lang.String, java.lang.String> throws []
+
+# Suite 0.33.0: Seasons and additive weather production contract.
+ru.neverland.townyseasons.api.TownySeasonsApi	apiVersion():int throws []
+ru.neverland.townyseasons.api.TownySeasonsApi	calendar(java.util.UUID):java.util.Map<java.lang.String, java.lang.Object> throws []
+ru.neverland.townyseasons.api.TownySeasonsApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townyseasons.api.TownySeasonsApi	capability calendar
+ru.neverland.townyseasons.api.TownySeasonsApi	capability eventWeight
+ru.neverland.townyseasons.api.TownySeasonsApi	capability healthy
+ru.neverland.townyseasons.api.TownySeasonsApi	capability productionMultiplier
+ru.neverland.townyseasons.api.TownySeasonsApi	capability townCalendar
+ru.neverland.townyseasons.api.TownySeasonsApi	default apiVersion()
+ru.neverland.townyseasons.api.TownySeasonsApi	default capabilities()
+ru.neverland.townyseasons.api.TownySeasonsApi	default integrationDiagnostics()
+ru.neverland.townyseasons.api.TownySeasonsApi	default storageMetrics()
+ru.neverland.townyseasons.api.TownySeasonsApi	eventWeight(java.util.UUID,java.lang.String):double throws []
+ru.neverland.townyseasons.api.TownySeasonsApi	healthy():boolean throws []
+ru.neverland.townyseasons.api.TownySeasonsApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyseasons.api.TownySeasonsApi	productionMultiplier(java.util.UUID,java.lang.String):double throws []
+ru.neverland.townyseasons.api.TownySeasonsApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyseasons.api.TownySeasonsApi	townCalendar(java.util.UUID):java.util.Map<java.lang.String, java.lang.Object> throws []
+ru.neverland.mintevents.api.MintTownyEventsApi	capability productionMultiplier
+ru.neverland.mintevents.api.MintTownyEventsApi	default productionMultiplier(java.util.UUID,java.lang.String)
+ru.neverland.mintevents.api.MintTownyEventsApi	productionMultiplier(java.util.UUID,java.lang.String):double throws []

@@ -69,6 +69,7 @@ public final class EventService implements MintTownyEventsApi {
     private BukkitTask randomTask;
     private BukkitTask saveTask;
     private long effectsTick;
+    private long seasonalWarning;
 
     public EventService(JavaPlugin plugin, TownyHook towny, EventRegistry registry,
                         EventRepository repository, DevelopmentService development,
@@ -280,7 +281,7 @@ public final class EventService implements MintTownyEventsApi {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, duration, 0, true, true, true));
                 }
                 case RAID -> { }
-                case DROUGHT -> { }
+                case DROUGHT, FLOOD -> { }
             }
         }
     }
@@ -545,6 +546,17 @@ public final class EventService implements MintTownyEventsApi {
         }
     }
 
+    @Override public double productionMultiplier(UUID townId,String building) {
+        ru.neverland.core.ApiServices.primaryThread();
+        if(townId==null||building==null)throw new IllegalArgumentException("Город и постройка обязательны");
+        if(!building.equals("agrarian_complex"))return 1;
+        ActiveEvent active=repository.active(townId);EventDefinition definition=definition(active);
+        if(active==null||definition==null||active.endsAt()<=System.currentTimeMillis())return 1;
+        return WeatherEconomy.production(definition.mode(),active.protection(),
+                plugin.getConfig().getDouble("seasonal.drought-output-loss",.50),
+                plugin.getConfig().getDouble("seasonal.flood-output-loss",.40));
+    }
+
     private void randomCheck() {
         if (repository.active().size() >= Math.max(1, plugin.getConfig().getInt("scheduler.max-active-events", 3))) return;
         if (ThreadLocalRandom.current().nextDouble() > plugin.getConfig().getDouble("scheduler.chance-per-check", 0.35)) return;
@@ -561,8 +573,15 @@ public final class EventService implements MintTownyEventsApi {
         List<EventDefinition> definitions = new ArrayList<>(registry.all());
         if (eligible.isEmpty() || definitions.isEmpty()) return;
         Collections.shuffle(eligible);
-        Collections.shuffle(definitions);
-        startEvent(eligible.get(0), definitions.get(0));
+        Town selected = eligible.get(0);
+        try {
+            double[] weights = new double[definitions.size()];
+            for (int i=0;i<weights.length;i++) weights[i] = ru.neverland.core.SeasonsAccess.eventWeight(selected.getUUID(), definitions.get(i).mode().name());
+            int choice = WeatherEconomy.choose(weights,ThreadLocalRandom.current().nextDouble());
+            if(choice>=0)startEvent(selected,definitions.get(choice));
+        } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
+            if(now-seasonalWarning>=60000){seasonalWarning=now;plugin.getLogger().warning("Выбор события отложен: календарь недоступен: "+e.getMessage());}
+        }
     }
 
     private void updateBossBar(Town town, EventDefinition definition, ActiveEvent event) {
