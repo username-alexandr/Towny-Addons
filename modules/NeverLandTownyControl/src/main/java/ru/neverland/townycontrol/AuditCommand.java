@@ -14,23 +14,33 @@ import java.util.concurrent.Semaphore;
 public final class AuditCommand implements CommandExecutor,TabCompleter {
     private final JavaPlugin plugin;private final Semaphore jobs=new Semaphore(2);
     public AuditCommand(JavaPlugin plugin){this.plugin=plugin;var c=plugin.getCommand("nltaudit");c.setExecutor(this);c.setTabCompleter(this);}
+    void page(AuditQuery query,int size,java.util.function.BiConsumer<AuditReader.Page,Exception> callback) {
+        if(!jobs.tryAcquire())throw new IllegalStateException("Уже выполняются две проверки журнала; повторите позже");
+        try { plugin.getServer().getScheduler().runTaskAsynchronously(plugin,()->{
+            AuditReader.Page page=null;Exception failure=null;
+            try{page=AuditReader.page(plugin.getDataFolder().toPath().getParent(),query,query.page(),size);}
+            catch(Exception ex){failure=ex;plugin.getLogger().log(java.util.logging.Level.WARNING,"Чтение аудита для меню",ex);}
+            finally{jobs.release();}
+            var result=page;var error=failure;
+            if(plugin.isEnabled())plugin.getServer().getScheduler().runTask(plugin,()->callback.accept(result,error));
+        }); } catch(RuntimeException ex){jobs.release();throw ex;}
+    }
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){
-        if(!sender.hasPermission("neverlandtownycontrol.audit")){sender.sendMessage("§cНет прав на аудит.");return true;}
+        if(!AdminAccess.has(sender,AdminAccess.AUDIT)){sender.sendMessage("§cНет прав на аудит.");return true;}
         try{
             String action=args.length==0?"help":args[0].toLowerCase(Locale.ROOT);
-            if(action.equals("help")){sender.sendMessage("§b/nltaudit search|export [town=город|UUID] [player=ник|UUID] [from=UUID] [to=UUID] [kind=тип] [module=аддон] [outcome=результат] [id=UUID] [since=YYYY-MM-DD] [until=YYYY-MM-DD] [intercity=true] [text=строка] [page=1]");sender.sendMessage("§7/nltaudit status. Даты UTC; направления сделки — движение товара, money — её цена. BANK_LEG и BANK_TRANSFER — отдельные уровни свидетельств, их суммы нельзя складывать.");return true;}
+            if(action.equals("help")){sender.sendMessage("§b/nltaudit search|export [town=город|UUID] [player=ник|UUID] [from=UUID] [to=UUID] [category=категория] [kind=тип] [module=аддон] [outcome=результат] [id=UUID] [since=YYYY-MM-DD] [until=YYYY-MM-DD] [intercity=true] [text=строка] [page=1]");sender.sendMessage("§7/nltaudit status. Даты UTC; направления сделки — движение товара, money — её цена. BANK_LEG и BANK_TRANSFER — отдельные уровни свидетельств, их суммы нельзя складывать.");return true;}
             if(!Set.of("search","export","status").contains(action))throw new IllegalArgumentException("Действия: search, export, status, help");
-            if(action.equals("export")&&!sender.hasPermission("neverlandtownycontrol.audit.export"))throw new IllegalArgumentException("Нет права экспорта аудита");
+            if(action.equals("export")&&!AdminAccess.has(sender,AdminAccess.EXPORT))throw new IllegalArgumentException("Нет права экспорта аудита");
             var parsed=AuditQuery.parse(Arrays.copyOfRange(args,1,args.length));var filters=new LinkedHashMap<>(parsed.filters());
             for(String k:List.of("town","player","from","to"))if(filters.containsKey(k)){String v=filters.get(k);try{filters.put(k,UUID.fromString(v).toString());}catch(IllegalArgumentException ex){if(k.equals("player")){var r=TownyAPI.getInstance().getResident(v);if(r==null)throw new IllegalArgumentException("Игрок не найден; для удалённого используйте UUID");filters.put(k,r.getUUID().toString());}else{var t=TownyAPI.getInstance().getTown(v);if(t==null)throw new IllegalArgumentException("Город не найден; для удалённого используйте UUID");filters.put(k,t.getUUID().toString());}}}
             var query=new AuditQuery(filters,parsed.page());if(!jobs.tryAcquire())throw new IllegalStateException("Уже выполняются две проверки журнала; повторите позже");
             sender.sendMessage("§7Читаю журнал…");
-            plugin.getServer().getScheduler().runTaskAsynchronously(plugin,()->{List<String> reply;try{reply=read(action,query);}catch(Exception ex){reply=List.of("§cАудит не прочитан полностью: "+ex.getMessage()+". Результат не выдан как полный.");plugin.getLogger().log(java.util.logging.Level.WARNING,"Чтение аудита",ex);}finally{jobs.release();}var messages=reply;if(plugin.isEnabled())plugin.getServer().getScheduler().runTask(plugin,()->{if(sender.hasPermission("neverlandtownycontrol.audit")&&(!action.equals("export")||sender.hasPermission("neverlandtownycontrol.audit.export")))messages.forEach(sender::sendMessage);});});
+            plugin.getServer().getScheduler().runTaskAsynchronously(plugin,()->{List<String> reply;try{reply=read(action,query);}catch(Exception ex){reply=List.of("§cАудит не прочитан полностью: "+ex.getMessage()+". Результат не выдан как полный.");plugin.getLogger().log(java.util.logging.Level.WARNING,"Чтение аудита",ex);}finally{jobs.release();}var messages=reply;if(plugin.isEnabled())plugin.getServer().getScheduler().runTask(plugin,()->{if(AdminAccess.has(sender,AdminAccess.AUDIT)&&(!action.equals("export")||AdminAccess.has(sender,AdminAccess.EXPORT)))messages.forEach(sender::sendMessage);});});
         }catch(Exception ex){sender.sendMessage("§c"+ex.getMessage());}return true;
     }
     private List<String> read(String action,AuditQuery query)throws Exception {
-        Path root=plugin.getDataFolder().toPath().getParent();List<Path> dirs;
-        try(var entries=Files.list(root)){dirs=entries.filter(Files::isDirectory).filter(p->p.getFileName().toString().startsWith("NeverLandTowny")).map(p->p.resolve("audit")).filter(Files::isDirectory).sorted().toList();}
+        Path root=plugin.getDataFolder().toPath().getParent();List<Path> dirs=AuditReader.directories(root);
         var order=Comparator.comparingLong(AuditRecord::at).thenComparing(AuditRecord::id);var latest=new PriorityQueue<AuditRecord>(order);long[] count={0},total={0};
         Path temporary=null,export=null;java.io.BufferedWriter writer=null;
         try{
@@ -43,5 +53,5 @@ public final class AuditCommand implements CommandExecutor,TabCompleter {
         }finally{if(writer!=null)writer.close();if(temporary!=null)Files.deleteIfExists(temporary);}
     }
     private static String clean(String value){return value.replaceAll("[\\p{Cntrl}§]"," ").substring(0,Math.min(300,value.replaceAll("[\\p{Cntrl}§]"," ").length()));}
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){if(!sender.hasPermission("neverlandtownycontrol.audit"))return List.of();String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return (args.length<=1?List.of("search","export","status","help"):List.of("town=","player=","from=","to=","kind=","module=","outcome=","id=","since=","until=","intercity=true","text=","page=")).stream().filter(s->s.startsWith(prefix)).filter(s->!s.equals("export")||sender.hasPermission("neverlandtownycontrol.audit.export")).toList();}
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){if(!AdminAccess.has(sender,AdminAccess.AUDIT))return List.of();String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return (args.length<=1?List.of("search","export","status","help"):List.of("town=","player=","from=","to=","category=","kind=","module=","outcome=","id=","since=","until=","intercity=true","text=","page=")).stream().filter(s->s.startsWith(prefix)).filter(s->!s.equals("export")||AdminAccess.has(sender,AdminAccess.EXPORT)).toList();}
 }

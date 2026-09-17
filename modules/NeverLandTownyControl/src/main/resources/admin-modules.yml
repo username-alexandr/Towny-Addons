@@ -58,7 +58,7 @@ modules:
   Events:
     command: townyevents
     permission: mintevents.admin
-    activities: false
+    activities: true
   Expeditions:
     command: townyexpeditions
     permission: mintexpeditions.admin
