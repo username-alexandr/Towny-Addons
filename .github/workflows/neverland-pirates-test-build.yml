@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Java 25
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '25'
@@ -26,11 +26,13 @@ jobs:
         with:
           gradle-version: '9.1.0'
 
-      - name: Unpack NeverLandPirates sources
+      - name: Reconstruct and unpack NeverLandPirates sources
         run: |
           rm -rf .ci-neverlandpirates-work
           mkdir -p .ci-neverlandpirates-work
-          unzip -q ci/NeverLandPirates/source.zip -d .ci-neverlandpirates-work
+          cat ci/NeverLandPirates/source.b64.part* | base64 -d > /tmp/NeverLandPirates-source.zip
+          unzip -t /tmp/NeverLandPirates-source.zip
+          unzip -q /tmp/NeverLandPirates-source.zip -d .ci-neverlandpirates-work
 
       - name: Build plugin
         working-directory: .ci-neverlandpirates-work
