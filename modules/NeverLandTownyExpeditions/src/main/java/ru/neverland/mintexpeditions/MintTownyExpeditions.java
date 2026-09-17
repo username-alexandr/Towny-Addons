@@ -37,6 +37,8 @@ public final class MintTownyExpeditions extends JavaPlugin {
    private TownyHook towny;
 
    public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
       LegacyDataMigrator.migrate(this, "MintTownyExpeditions");
       this.saveDefaultConfig();
       this.copy("messages.yml");
@@ -86,6 +88,8 @@ public final class MintTownyExpeditions extends JavaPlugin {
    }
 
    public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+
       if (this.service != null) {
          this.service.stopTasks();
       }

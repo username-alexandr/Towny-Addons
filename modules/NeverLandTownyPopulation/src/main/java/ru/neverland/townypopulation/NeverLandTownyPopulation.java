@@ -20,6 +20,8 @@ public final class NeverLandTownyPopulation extends JavaPlugin {
     private Runnable unregisterPlaceholder;
     private boolean townCommandRegistered;
     @Override public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         try {
             saveDefaultConfig();
             for(String file : new String[]{"buildings.yml","messages.yml"})
@@ -70,6 +72,8 @@ public final class NeverLandTownyPopulation extends JavaPlugin {
         return result;
     }
     @Override public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+
         if(service!=null) service.stop();
         if(unregisterPlaceholder!=null) unregisterPlaceholder.run();
         if(townCommandRegistered) TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"population");

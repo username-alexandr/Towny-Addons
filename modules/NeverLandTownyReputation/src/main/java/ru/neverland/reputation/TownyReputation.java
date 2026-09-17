@@ -22,6 +22,8 @@ import java.io.File;
 public final class TownyReputation extends JavaPlugin {
     private TownyHook towny; private ItemsAdderHook itemsAdder; private MessageService messages; private ReputationRegistry registry; private ReputationRepository repository; private ReputationService reputation;
     @Override public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         ru.neverland.reputation.util.LegacyDataMigrator.migrate(this, "TownyReputation");
         saveDefaultConfig(); copy("messages.yml"); copy("levels.yml");
         towny = new TownyHook(); itemsAdder = new ItemsAdderHook(); messages = new MessageService(this); registry = new ReputationRegistry(this); repository = new ReputationRepository(this); repository.load(); reputation = new ReputationService(this, registry, repository);
@@ -37,7 +39,9 @@ public final class TownyReputation extends JavaPlugin {
         getServer().getServicesManager().register(TownyReputationApi.class, new ReputationApiService(this, reputation), this, ServicePriority.Normal); boolean placeholders = PlaceholderHook.register(this, towny, reputation); reputation.start();
         getLogger().info("NeverLandTownyReputation " + getPluginMeta().getVersion() + " включён: связей " + repository.all().size() + ", уровней " + registry.tiers().size() + ", /t=" + townCommand + ", /n=" + nationCommand + ", PlaceholderAPI=" + placeholders + ".");
     }
-    @Override public void onDisable() { if (reputation != null) reputation.shutdown(); if (towny != null) { towny.unregisterTown("reputation"); towny.unregisterNation("reputation"); } getServer().getServicesManager().unregisterAll(this); }
+    @Override public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+ if (reputation != null) reputation.shutdown(); if (towny != null) { towny.unregisterTown("reputation"); towny.unregisterNation("reputation"); } getServer().getServicesManager().unregisterAll(this); }
     public void reloadPlugin() { reloadConfig(); messages.reload(); itemsAdder.reload(); registry.reload(); reputation.profiles().reload(getConfig()); reputation.start(); }
     private void copy(String name) { if (!new File(getDataFolder(), name).exists()) saveResource(name, false); }
 }

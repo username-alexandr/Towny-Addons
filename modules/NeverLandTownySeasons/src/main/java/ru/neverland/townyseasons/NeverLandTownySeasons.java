@@ -18,6 +18,8 @@ public final class NeverLandTownySeasons extends JavaPlugin {
     }
     public void reloadSeasons() throws Exception { var next=settings();service.reload(next);reloadConfig(); }
     @Override public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         try {
             saveDefaultConfig();var settings=settings();var repository=new SeasonRepository(getDataFolder().toPath().resolve("calendar.yml"));repository.load(System.currentTimeMillis());
             service=new SeasonService(this,repository,settings);var menu=new SeasonMenu(this,service);var command=new SeasonCommand(this,service,menu);
@@ -30,6 +32,8 @@ public final class NeverLandTownySeasons extends JavaPlugin {
         } catch(Exception|LinkageError e) {getLogger().log(java.util.logging.Level.SEVERE,"Сезоны не загружены",e);getServer().getPluginManager().disablePlugin(this);}
     }
     @Override public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+
         if(task!=null)task.cancel();getServer().getServicesManager().unregisterAll(this);
         if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"seasons");
     }

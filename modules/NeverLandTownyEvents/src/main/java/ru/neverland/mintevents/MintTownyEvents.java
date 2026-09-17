@@ -28,6 +28,8 @@ public final class MintTownyEvents extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         ru.neverland.mintevents.util.LegacyDataMigrator.migrate(this, "MintTownyEvents");
         saveDefaultConfig();
         copyResource("messages.yml");
@@ -62,6 +64,8 @@ public final class MintTownyEvents extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+
         if (events != null) events.shutdown();
         if (towny != null) towny.unregisterTownCommand("events");
         getServer().getServicesManager().unregisterAll(this);

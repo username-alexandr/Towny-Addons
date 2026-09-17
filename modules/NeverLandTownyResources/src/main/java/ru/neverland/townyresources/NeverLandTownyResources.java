@@ -14,7 +14,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 public final class NeverLandTownyResources extends JavaPlugin {
     private ResourcesService service;private boolean townCommand;private Runnable removePlaceholder;
-    @Override public void onEnable(){try{
+    @Override public void onEnable(){
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+try{
         saveDefaultConfig();if(!new File(getDataFolder(),"buildings.yml").exists())saveResource("buildings.yml",false);
         var settings=readSettings();var repository=new ResourcesRepository(getDataFolder().toPath().resolve("resources-data.yml"));repository.load();
         service=new ResourcesService(this,repository,settings);var menu=new ResourcesMenu(this,service);var command=new ResourcesCommand(this,service,menu);var direct=getCommand("townyresources");if(direct==null)throw new IllegalStateException("Нет команды townyresources");direct.setExecutor(command);direct.setTabCompleter(command);
@@ -28,5 +30,7 @@ public final class NeverLandTownyResources extends JavaPlugin {
     }
     private ResourcesSettings readSettings()throws Exception{return ResourcesSettings.load(read("config.yml"),read("buildings.yml"));}
     public boolean reloadResources(){try{service.reload(readSettings());return true;}catch(Exception ex){getLogger().warning("Настройки ресурсов не применены: "+ex.getMessage());return false;}}
-    @Override public void onDisable(){if(service!=null)service.stop();if(removePlaceholder!=null)removePlaceholder.run();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"resources");}
+    @Override public void onDisable(){
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+if(service!=null)service.stop();if(removePlaceholder!=null)removePlaceholder.run();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"resources");}
 }

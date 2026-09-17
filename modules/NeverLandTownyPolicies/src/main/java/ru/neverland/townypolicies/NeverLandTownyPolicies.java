@@ -14,7 +14,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 public final class NeverLandTownyPolicies extends JavaPlugin {
     private PoliciesService service;private boolean townCommand;private PoliciesExpansion expansion;
-    @Override public void onEnable(){try{
+    @Override public void onEnable(){
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+try{
         saveDefaultConfig();if(!new File(getDataFolder(),"policies.yml").exists())saveResource("policies.yml",false);
         var repository=new PoliciesRepository(getDataFolder().toPath().resolve("policies-data.yml"));repository.load();service=new PoliciesService(this,repository,settings());
         var menu=new PoliciesMenu(this,service);var command=new PoliciesCommand(this,service,menu);var direct=getCommand("townypolicies");if(direct==null)throw new IllegalStateException("Нет команды townypolicies");direct.setExecutor(command);direct.setTabCompleter(command);
@@ -26,5 +28,7 @@ public final class NeverLandTownyPolicies extends JavaPlugin {
     private YamlConfiguration read(String name)throws Exception{var y=new YamlConfiguration();y.load(new File(getDataFolder(),name));try(var input=getResource(name)){if(input!=null)y.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(input,StandardCharsets.UTF_8)));}y.options().copyDefaults(true);return y;}
     private PoliciesSettings settings()throws Exception{return PoliciesSettings.load(read("config.yml"),read("policies.yml"));}
     public boolean reloadPolicies(){try{service.reload(settings());return true;}catch(Exception ex){getLogger().warning("Настройки политик не применены: "+ex.getMessage());return false;}}
-    @Override public void onDisable(){if(expansion!=null)expansion.unregister();if(service!=null)service.stop();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"policies");}
+    @Override public void onDisable(){
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+if(expansion!=null)expansion.unregister();if(service!=null)service.stop();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"policies");}
 }

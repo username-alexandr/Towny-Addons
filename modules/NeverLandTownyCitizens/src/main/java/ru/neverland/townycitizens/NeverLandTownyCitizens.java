@@ -11,6 +11,8 @@ public final class NeverLandTownyCitizens extends JavaPlugin {
     private boolean townCommand;
     private Runnable unregisterPlaceholders;
     @Override public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         try {
             saveDefaultConfig(); var repository = new CitizensRepository(getDataFolder().toPath().resolve("citizens.yml")); repository.load();
             service = new CitizensService(repository, readSettings()); var menus = new CitizensMenus(this, service);
@@ -34,6 +36,8 @@ public final class NeverLandTownyCitizens extends JavaPlugin {
     public void reloadSettings() throws Exception { var next = readSettings(); service.settings(next); reloadConfig(); }
     public CitizensService citizens() { return service; }
     @Override public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+
         if (unregisterPlaceholders != null) unregisterPlaceholders.run();
         getServer().getServicesManager().unregisterAll(this);
         if (townCommand) TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN, "citizens");

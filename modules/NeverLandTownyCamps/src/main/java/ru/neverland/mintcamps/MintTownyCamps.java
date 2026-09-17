@@ -48,6 +48,8 @@ public final class MintTownyCamps extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         ru.neverland.mintcamps.util.LegacyDataMigrator.migrate(this, "MintTownyCamps");
         saveDefaultConfig();
         copyResource("messages.yml");
@@ -105,6 +107,8 @@ public final class MintTownyCamps extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+
         Bukkit.getServicesManager().unregisterAll(this);
         stopTasks();
         if (protection != null) protection.stop();

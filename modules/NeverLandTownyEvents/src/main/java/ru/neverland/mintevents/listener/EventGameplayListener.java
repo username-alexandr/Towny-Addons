@@ -31,6 +31,9 @@ public final class EventGameplayListener implements Listener {
         this.events = events;
     }
 
+    @EventHandler(priority = org.bukkit.event.EventPriority.MONITOR)
+    public void newTown(com.palmergames.bukkit.towny.event.NewTownEvent event) { events.townCreated(event.getTown()); }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onWater(org.bukkit.event.player.PlayerBucketEmptyEvent event) {
         if (event.getBucket() != org.bukkit.Material.WATER_BUCKET) return;
@@ -51,7 +54,7 @@ public final class EventGameplayListener implements Listener {
         if (town == null) return;
         ActiveEvent active = events.active(town.getUUID());
         EventDefinition definition = events.definition(active);
-        if (definition == null || active.endsAt() <= System.currentTimeMillis() || (definition.mode() != EventMode.DROUGHT && definition.mode() != EventMode.FLOOD)) return;
+        if (definition == null || active.paused() || active.endsAt() <= System.currentTimeMillis() || (definition.mode() != EventMode.DROUGHT && definition.mode() != EventMode.FLOOD)) return;
         double base = definition.mode() == EventMode.FLOOD
                 ? plugin.getConfig().getDouble("gameplay.flood-base-crop-cancel-chance", 0.60)
                 : plugin.getConfig().getDouble("gameplay.drought-base-crop-cancel-chance", 0.70);

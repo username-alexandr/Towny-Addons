@@ -14,7 +14,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 public final class NeverLandTownyResearch extends JavaPlugin {
     private ResearchService service;private boolean townCommand;private ResearchExpansion expansion;
-    @Override public void onEnable(){try{
+    @Override public void onEnable(){
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+try{
         saveDefaultConfig();if(!new File(getDataFolder(),"technologies.yml").exists())saveResource("technologies.yml",false);
         var repository=new ResearchRepository(getDataFolder().toPath().resolve("research-data.yml"));repository.load();service=new ResearchService(this,repository,settings());
         var menu=new ResearchMenu(this,service);var command=new ResearchCommand(this,service,menu);var direct=getCommand("townyresearch");if(direct==null)throw new IllegalStateException("Нет команды townyresearch");direct.setExecutor(command);direct.setTabCompleter(command);
@@ -26,5 +28,7 @@ public final class NeverLandTownyResearch extends JavaPlugin {
     private YamlConfiguration read(String name)throws Exception{var y=new YamlConfiguration();y.load(new File(getDataFolder(),name));try(var input=getResource(name)){if(input!=null)y.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(input,StandardCharsets.UTF_8)));}y.options().copyDefaults(true);return y;}
     private ResearchSettings settings()throws Exception{return ResearchSettings.load(read("config.yml"),read("technologies.yml"));}
     public boolean reloadResearch(){try{service.reload(settings());return true;}catch(Exception ex){getLogger().warning("Настройки исследований не применены: "+ex.getMessage());return false;}}
-    @Override public void onDisable(){if(expansion!=null)expansion.unregister();if(service!=null)service.stop();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"research");}
+    @Override public void onDisable(){
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+if(expansion!=null)expansion.unregister();if(service!=null)service.stop();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"research");}
 }

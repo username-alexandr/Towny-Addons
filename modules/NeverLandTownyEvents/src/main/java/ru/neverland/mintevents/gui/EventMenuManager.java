@@ -67,10 +67,10 @@ public final class EventMenuManager implements Listener {
         EventDefinition definition = events.definition(active);
         if (active == null || definition == null) {
             inventory.setItem(22, item(Material.CLOCK, "&#AAAAAAСейчас спокойно",
-                    List.of("&7Активных событий в городе нет.", "&7Следите за городскими объявлениями.")));
+                    List.of("&7Активных событий в городе нет.", events.shieldRemainingMillis(town.getUUID()) > 0 ? "&bЩит новичка: " + TimeUtil.format((events.shieldRemainingMillis(town.getUUID())+999)/1000) : "&7Следите за городскими объявлениями.")));
         } else {
             inventory.setItem(4, item(definition.icon(), definition.name(), List.of(
-                    "&7" + definition.description(), "",
+                    "&7" + definition.description(), active.paused() ? "&e⏸ Приостановлено администратором" : "&aСобытие активно", "",
                     active.raid() == null ? "&#FFFFFFПрогресс: &#B65CFF" + active.progress() + "&7/&#FFFFFF" + active.goal()
                             : "&fВолна: &d" + active.raid().wave() + "/10 &7· Врагов: &f" + active.raid().remaining(),
                     active.raid() == null ? "" : "&7Очки защиты: &f" + active.progress() + " &7· Победа после 10 волн",
@@ -224,6 +224,7 @@ public final class EventMenuManager implements Listener {
             open(player);
             return;
         }
+        if(active.paused()) { player.sendMessage("§eСобытие на паузе. Взносы временно закрыты."); return; }
         ContributionService.Result result = contributions.contribute(player, rule, event.isShiftClick(), active);
         if (result.amount() <= 0) {
             messages.send(player, "no-items");

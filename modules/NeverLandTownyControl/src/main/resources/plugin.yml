@@ -1,0 +1,18 @@
+name: NeverLandTownyControl
+version: 0.1.0
+main: ru.neverland.townycontrol.NeverLandTownyControl
+api-version: '26.2'
+authors: [Alexander Sokolov]
+description: Безопасное административное отключение аддонов и восстановление таймеров.
+depend: [Towny]
+loadbefore: [NeverLandTownyArchaeology, NeverLandTownyArmy, NeverLandTownyBuilds, NeverLandTownyCamps, NeverLandTownyChronicles, NeverLandTownyCitizens, NeverLandTownyCompanies, NeverLandTownyContracts, NeverLandTownyCouncil, NeverLandTownyCrime, NeverLandTownyDiplomacy, NeverLandTownyDistricts, NeverLandTownyElections, NeverLandTownyEspionage, NeverLandTownyEvents, NeverLandTownyExpeditions, NeverLandTownyGovernance, NeverLandTownyIdeologies, NeverLandTownyJobs, NeverLandTownyJustice, NeverLandTownyLogistics, NeverLandTownyMarket, NeverLandTownyPolicies, NeverLandTownyPopulation, NeverLandTownyPower, NeverLandTownyReputation, NeverLandTownyResearch, NeverLandTownyResources, NeverLandTownySeasons, NeverLandTownySiegesPlus, NeverLandTownySpecialization, NeverLandTownyStick, NeverLandTownyTaxes, NeverLandTownyTrade, NeverLandTownyTreasuryPlus, NeverLandTownyUpkeep]
+commands:
+  nltmodules:
+    aliases: [townymodules]
+    description: Состояние и безопасное отключение модулей
+    permission: neverlandtownycontrol.admin
+    usage: /nltmodules <list|status|plan|disable|enable> [модуль|all]
+permissions:
+  neverlandtownycontrol.admin:
+    description: Управление модулями всего сервера
+    default: op

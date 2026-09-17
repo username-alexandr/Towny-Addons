@@ -26,6 +26,8 @@ public final class TownyGovernance extends JavaPlugin {
     private GovernanceRepository repository; private GovernanceService governance;
 
     @Override public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         ru.neverland.governance.util.LegacyDataMigrator.migrate(this, "TownyGovernance");
         saveDefaultConfig(); copy("messages.yml"); copy("laws.yml"); copy("offices.yml");
         towny = new TownyHook(this); itemsAdder = new ItemsAdderHook(); messages = new MessageService(this); definitions = new DefinitionRegistry(this);
@@ -44,6 +46,8 @@ public final class TownyGovernance extends JavaPlugin {
     }
 
     @Override public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+
         if (governance != null) governance.shutdown(); if (towny != null) townCommands.keySet().forEach(towny::unregister);
         getServer().getServicesManager().unregisterAll(this);
     }

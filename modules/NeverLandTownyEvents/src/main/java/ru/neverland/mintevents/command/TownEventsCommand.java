@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.Locale;
 
 public final class TownEventsCommand implements CommandExecutor {
-    private static final Set<String> ADMIN_ACTIONS = Set.of("start", "stop", "list", "raidwave", "reload");
+    private static final Set<String> ADMIN_ACTIONS = AdminCommand.ACTIONS;
     private final TownyHook towny;
     private final EventMenuManager menus;
     private final MessageService messages;

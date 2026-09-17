@@ -846,3 +846,9 @@ ru.neverland.townyseasons.api.TownySeasonsApi	townCalendar(java.util.UUID):java.
 ru.neverland.mintevents.api.MintTownyEventsApi	capability productionMultiplier
 ru.neverland.mintevents.api.MintTownyEventsApi	default productionMultiplier(java.util.UUID,java.lang.String)
 ru.neverland.mintevents.api.MintTownyEventsApi	productionMultiplier(java.util.UUID,java.lang.String):double throws []
+ru.neverland.mintevents.api.MintTownyEventsApi	capability paused
+ru.neverland.mintevents.api.MintTownyEventsApi	capability shieldRemainingMillis
+ru.neverland.mintevents.api.MintTownyEventsApi	default paused(java.util.UUID)
+ru.neverland.mintevents.api.MintTownyEventsApi	default shieldRemainingMillis(java.util.UUID)
+ru.neverland.mintevents.api.MintTownyEventsApi	paused(java.util.UUID):boolean throws []
+ru.neverland.mintevents.api.MintTownyEventsApi	shieldRemainingMillis(java.util.UUID):long throws []

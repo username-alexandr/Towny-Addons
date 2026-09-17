@@ -31,6 +31,8 @@ public final class MintTownyContracts extends JavaPlugin {
     private ContractService contracts;
 
     @Override public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         ru.neverland.mintcontracts.util.LegacyDataMigrator.migrate(this, "MintTownyContracts");
         saveDefaultConfig();getConfig().options().copyDefaults(true);saveConfig(); copy("messages.yml"); copy("contracts.yml"); copy("item-names.yml");
         towny = new TownyHook(this); itemsAdder = new ItemsAdderHook(this); messages = new MessageService(this); names = new RussianNames(this);
@@ -55,6 +57,8 @@ public final class MintTownyContracts extends JavaPlugin {
     }
 
     @Override public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+
         if (contracts != null) contracts.shutdown();
         if (towny != null) towny.unregister("contracts");
         getServer().getServicesManager().unregisterAll(this);

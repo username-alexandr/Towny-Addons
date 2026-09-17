@@ -10,6 +10,8 @@ import ru.neverland.townydiplomacy.api.TownyDiplomacyApi;
 public final class NeverLandTownyDiplomacy extends JavaPlugin {
     private DiplomacyService service;private boolean townCommand;private long warningAt;
     @Override public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         var repository=new DiplomacyRepository(getDataFolder().toPath().resolve("diplomacy.yml"));
         var settings=DiplomacySettings.defaults();boolean configured=false;
         try { saveDefaultConfig();settings=readSettings();configured=true; }
@@ -34,6 +36,8 @@ public final class NeverLandTownyDiplomacy extends JavaPlugin {
         for(var resident:t.getResidents()){var player=getServer().getPlayer(resident.getUUID());if(player!=null)DiplomacyCommand.tell(player,text);}
     }
     @Override public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+
         getServer().getScheduler().cancelTasks(this);getServer().getServicesManager().unregisterAll(this);
         if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"diplomacy");
         for(var p:getServer().getOnlinePlayers())if(p.getOpenInventory().getTopInventory().getHolder() instanceof DiplomacyMenus.Holder)p.closeInventory();

@@ -8,6 +8,7 @@ public final class ActiveEvent {
     private final long startedAt;
     private final long endsAt;
     private final int goal;
+    private long pausedAt;
     private int progress;
     private RaidState raid;
     private double protection;
@@ -41,7 +42,15 @@ public final class ActiveEvent {
     }
     public RaidState raid() { return raid; }
     public void raid(RaidState state) { raid = state; }
+    public boolean paused() { return pausedAt > 0; }
+    public long pausedAt() { return pausedAt; }
+    public void pausedAt(long value) { if(value < 0) throw new IllegalArgumentException("Отрицательная дата паузы"); pausedAt = value; }
+    public ActiveEvent reschedule(long deadline, long pause) {
+        if(deadline <= 0 || pause < 0) throw new IllegalArgumentException("Некорректное время события");
+        ActiveEvent copy = new ActiveEvent(townId, eventId, startedAt, deadline, progress, goal, protection, lastRaidWave);
+        copy.raid = raid; copy.pausedAt = pause; return copy;
+    }
     public boolean completed() { return raid == null ? progress >= goal : raid.finished(); }
     public double progressRatio() { return raid == null ? Math.min(1.0, (double) progress / goal) : raid.ratio(); }
-    public long secondsLeft(long now) { return Math.max(0, (endsAt - now + 999) / 1000); }
+    public long secondsLeft(long now) { return Math.max(0, (endsAt - (paused() ? pausedAt : now) + 999) / 1000); }
 }

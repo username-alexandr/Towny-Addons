@@ -1,5 +1,5 @@
 name: NeverLandTownyEvents
-version: 0.3.4
+version: 0.4.0
 main: ru.neverland.mintevents.MintTownyEvents
 api-version: '26.2'
 authors: [Alexander Sokolov]
@@ -11,7 +11,7 @@ softdepend: [NeverLandTownySeasons, NeverLandTownyReputation, ModelEngine, Items
 commands:
   townyevents:
     description: Административное управление городскими событиями
-    usage: /townyevents <start|stop|list|raidwave|reload>
+    usage: /townyevents <start|stop|cancel|restart|pause|resume|extend|shield|success|fail|status|list|raidwave|reload>
     aliases: [mintevents, mevents, neverlandtownyevents, nltevents]
     permission: mintevents.admin
 permissions:

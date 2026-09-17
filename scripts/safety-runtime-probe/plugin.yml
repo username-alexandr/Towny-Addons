@@ -1,0 +1,6 @@
+name: NeverLandSafetyRuntimeProbe
+version: 0.1.0
+main: ru.neverland.runtime.SafetyRuntimeProbe
+api-version: '26.2'
+depend: [Towny]
+softdepend: [NeverLandTownyArchaeology, NeverLandTownyBuilds, NeverLandTownyCamps, NeverLandTownyChronicles, NeverLandTownyContracts, NeverLandTownyEspionage, NeverLandTownyEvents, NeverLandTownyExpeditions, NeverLandTownyGovernance, NeverLandTownyIdeologies, NeverLandTownyReputation, NeverLandTownyStick, NeverLandTownyTaxes, NeverLandTownyTrade, NeverLandTownyPopulation, NeverLandTownyDistricts, NeverLandTownyLogistics, NeverLandTownyResources, NeverLandTownyUpkeep, NeverLandTownyPower, NeverLandTownyResearch, NeverLandTownySpecialization, NeverLandTownyPolicies, NeverLandTownyTreasuryPlus, NeverLandTownyMarket, NeverLandTownyCompanies, NeverLandTownyJobs, NeverLandTownyCitizens, NeverLandTownyElections, NeverLandTownyCouncil, NeverLandTownyDiplomacy, NeverLandTownyCrime, NeverLandTownyJustice, NeverLandTownyArmy, NeverLandTownySiegesPlus, NeverLandTownySeasons, NeverLandTownyControl]

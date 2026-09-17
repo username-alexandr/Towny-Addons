@@ -7,6 +7,8 @@ import ru.neverland.townycompanies.api.CompaniesApi;
 public final class NeverLandTownyCompanies extends JavaPlugin {
     private CompanyService service;private CompanyMenus menus;
     @Override public void onEnable(){
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         saveDefaultConfig();
         try {
             CompanyRepository repo=new CompanyRepository(getDataFolder().toPath().resolve("companies.yml"));repo.load();service=new CompanyService(this,repo);
@@ -21,5 +23,7 @@ public final class NeverLandTownyCompanies extends JavaPlugin {
         }catch(Exception ex){getLogger().severe("Предприятия не запущены: "+ex.getMessage());getServer().getPluginManager().disablePlugin(this);}
     }
     public CompaniesApi companies(){return service;}
-    @Override public void onDisable(){if(menus!=null)menus.close();TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"companies");getServer().getServicesManager().unregisterAll(this);}
+    @Override public void onDisable(){
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+if(menus!=null)menus.close();TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"companies");getServer().getServicesManager().unregisterAll(this);}
 }

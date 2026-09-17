@@ -38,6 +38,8 @@ public final class TownyArchaeology extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         ru.neverland.archaeology.util.LegacyDataMigrator.migrate(this, "TownyArchaeology");
         saveDefaultConfig();
         copy("messages.yml");
@@ -94,6 +96,8 @@ public final class TownyArchaeology extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+
         if (sites != null) sites.stop();
         if (autosave != null) autosave.cancel();
         if (repository != null && repository.writable()) repository.save();

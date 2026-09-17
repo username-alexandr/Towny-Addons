@@ -28,6 +28,7 @@ public final class EventRepository {
     private final Map<UUID, List<HistoryEntry>> history = new LinkedHashMap<>();
     private final Map<UUID, Long> cooldowns = new LinkedHashMap<>();
     private boolean dirty;
+    private final Map<UUID, Long> shields = new LinkedHashMap<>();
 
     public EventRepository(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -38,8 +39,9 @@ public final class EventRepository {
         active.clear();
         history.clear();
         cooldowns.clear();
+        shields.clear();
 
-        YamlConfiguration yaml = ru.neverland.core.SafeYaml.load(file.toPath());ru.neverland.core.SafeYaml.keys(yaml,"active","towns","reputation-outbox");reputation.load(yaml);
+        YamlConfiguration yaml = ru.neverland.core.SafeYaml.load(file.toPath());ru.neverland.core.SafeYaml.keys(yaml,"active","towns","reputation-outbox","shields");reputation.load(yaml);
         ConfigurationSection activeRoot = ru.neverland.core.SafeYaml.section(yaml,"active");
         if (activeRoot != null) {
             for (String raw : activeRoot.getKeys(false)) {
@@ -50,6 +52,7 @@ public final class EventRepository {
                             ru.neverland.core.SafeYaml.longValue(yaml,path + "started-at"), ru.neverland.core.SafeYaml.longValue(yaml,path + "ends-at"),
                             ru.neverland.core.SafeYaml.intValue(yaml,path + "progress"), ru.neverland.core.SafeYaml.intValue(yaml,path + "goal", 1),
                             ru.neverland.core.SafeYaml.doubleValue(yaml,path + "protection"), ru.neverland.core.SafeYaml.longValue(yaml,path + "last-raid-wave")));
+                    active.get(id).pausedAt(ru.neverland.core.SafeYaml.longValue(yaml, path + "paused-at"));
                     if (yaml.isConfigurationSection(path + "raid")) active.get(id).raid(
                             ru.neverland.mintevents.model.RaidState.load(ru.neverland.core.SafeYaml.section(yaml,path + "raid")));
                 } catch (IllegalArgumentException exception) {
@@ -76,6 +79,12 @@ public final class EventRepository {
                 }
             }
         }
+        ConfigurationSection shieldRoot = ru.neverland.core.SafeYaml.section(yaml, "shields");
+        if(shieldRoot != null) for(String id : shieldRoot.getKeys(false)) {
+            long until = ru.neverland.core.SafeYaml.longValue(shieldRoot, id);
+            if(until < 0) throw new IllegalArgumentException("Некорректный щит новичка");
+            shields.put(UUID.fromString(id), until);
+        }
         dirty = false;
     loaded();}
 
@@ -101,6 +110,30 @@ public final class EventRepository {
         dirty = true;
     }
 
+    /** Commit before removing entities or reporting administrative success. */
+    public synchronized void replace(ActiveEvent expected, ActiveEvent replacement, long cancelledAt) {
+        gate();
+        UUID id = expected.townId();
+        if(active.get(id) != expected) throw new IllegalStateException("Событие изменилось");
+        Long oldCooldown = cooldowns.get(id);
+        boolean wasDirty = dirty;
+        if(replacement == null) { active.remove(id); cooldowns.put(id, cancelledAt); }
+        else active.put(id, replacement);
+        dirty = true;
+        try { save(); }
+        catch(RuntimeException e) {
+            active.put(id, expected);
+            if(oldCooldown == null) cooldowns.remove(id); else cooldowns.put(id, oldCooldown);
+            dirty = wasDirty; throw e;
+        }
+    }
+    public synchronized Long shield(UUID town) { gate(); return shields.get(town); }
+    public synchronized void shield(UUID town, long until) {
+        gate(); if(until < 0) throw new IllegalArgumentException("Некорректный щит");
+        Long previous = shields.put(town, until);
+        try { save(); } catch(RuntimeException e) { if(previous == null) shields.remove(town); else shields.put(town, previous); throw e; }
+    }
+
     public synchronized void saveIfDirty() {gate(); if (dirty) save(); }
 
     public synchronized void save() {gate();
@@ -110,6 +143,7 @@ public final class EventRepository {
             yaml.set(path + "event", event.eventId());
             yaml.set(path + "started-at", event.startedAt());
             yaml.set(path + "ends-at", event.endsAt());
+            yaml.set(path + "paused-at", event.pausedAt());
             yaml.set(path + "progress", event.progress());
             yaml.set(path + "goal", event.goal());
             yaml.set(path + "protection", event.protection());
@@ -133,6 +167,7 @@ public final class EventRepository {
             }
             yaml.set("towns." + town.getKey() + ".history", entries);
         }
+        shields.forEach((id, until) -> yaml.set("shields." + id, until));
         try {
             ru.neverland.core.AtomicFiles.write(file.toPath(),yaml::saveToString);
             dirty = false;

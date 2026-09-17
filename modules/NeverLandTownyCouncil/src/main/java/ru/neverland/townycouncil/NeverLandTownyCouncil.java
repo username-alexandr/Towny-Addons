@@ -14,6 +14,8 @@ public final class NeverLandTownyCouncil extends JavaPlugin implements Listener 
     private CouncilService service;
     private boolean townCommand;
     @Override public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         try {
             saveDefaultConfig();
             var repository = new CouncilRepository(getDataFolder().toPath().resolve("council.yml")); repository.load();
@@ -55,6 +57,8 @@ public final class NeverLandTownyCouncil extends JavaPlugin implements Listener 
         guarded(() -> service.remove(a -> a.town().equals(e.getTown().getUUID()), "SYSTEM", "MAYOR_CHANGED"));
     }
     @Override public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+
         getServer().getScheduler().cancelTasks(this);
         if (service != null) service.clearGrants();
         getServer().getServicesManager().unregisterAll(this);

@@ -9,6 +9,8 @@ import ru.neverland.townyelections.api.TownyElectionsApi;
 public final class NeverLandTownyElections extends JavaPlugin {
     private ElectionsService service; private BukkitTask ticker; private boolean townCommand;
     @Override public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         try {
             saveDefaultConfig();var repository=new ElectionsRepository(getDataFolder().toPath().resolve("elections.yml"));repository.load();
             var settings=readSettings();ElectionsService.validateCatalog(settings);service=new ElectionsService(this,repository,settings);service.recover();
@@ -25,7 +27,9 @@ public final class NeverLandTownyElections extends JavaPlugin {
     public void reloadSettings() throws Exception {var next=readSettings();service.settings(next);reloadConfig();schedule();}
     private void schedule(){if(ticker!=null)ticker.cancel();ticker=getServer().getScheduler().runTaskTimer(this,service::tick,20,service.settings().checkTicks());}
     public ElectionsService elections(){return service;}
-    @Override public void onDisable(){if(ticker!=null)ticker.cancel();getServer().getServicesManager().unregisterAll(this);
+    @Override public void onDisable(){
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+if(ticker!=null)ticker.cancel();getServer().getServicesManager().unregisterAll(this);
         if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"elections");
         for(var p:getServer().getOnlinePlayers())if(p.getOpenInventory().getTopInventory().getHolder() instanceof ElectionsMenus.Holder)p.closeInventory();}
 }
