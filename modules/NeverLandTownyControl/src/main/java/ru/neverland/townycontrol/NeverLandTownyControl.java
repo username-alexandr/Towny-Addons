@@ -18,6 +18,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
     private Path stateFile;
     private boolean applying;
     private BankAudit bankAudit;
+    private AdminMenu adminMenu;
     @Override public void onEnable() {
         try(var stream=getResource("module-dependencies.yml")) {
             if(stream==null)throw new IOException("Нет схемы зависимостей");
@@ -32,8 +33,8 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             var blocked=graph.closure(state.requests());
             ModulePauseStore.save(stateFile,ModulePauseStore.request(state,state.requests(),blocked,System.currentTimeMillis()));
             getCommand("nltmodules").setExecutor(this);getCommand("nltmodules").setTabCompleter(this);
-            new AdminRouter(this,graph).register();
-            new AuditCommand(this);bankAudit=new BankAudit(this);
+            var router=new AdminRouter(this,graph);var audit=new AuditCommand(this);
+            adminMenu=new AdminMenu(this,router,audit);router.register(adminMenu);bankAudit=new BankAudit(this);
             getServer().getPluginManager().registerEvents(this,this);
             getLogger().info("Управление модулями: "+graph.modules().size()+"; отключено с зависимостями: "+blocked.size());
         } catch(Exception e) {
@@ -41,9 +42,9 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             getServer().getPluginManager().disablePlugin(this);
         }
     }
-    @Override public void onDisable(){if(bankAudit!=null)bankAudit.stop();}
+    @Override public void onDisable(){if(adminMenu!=null)adminMenu.shutdown();if(bankAudit!=null)bankAudit.stop();}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
-        if(!sender.hasPermission("neverlandtownycontrol.admin")){sender.sendMessage("§cНет прав.");return true;}
+        if(!AdminAccess.admin(sender)){sender.sendMessage("§cНет прав.");return true;}
         try {
             if(graph==null)throw new IllegalStateException("Управление недоступно");
             var state=ModulePauseStore.load(stateFile);
@@ -72,6 +73,9 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
                 if(!blocked.isEmpty())sender.sendMessage("§eОстаются отключёнными: §f"+shortNames(blocked)+" §7(их зависимость ещё выключена)");
             }
             getLogger().warning(sender.getName()+": "+String.join(" ",args)+"; disabled="+shortNames(blocked));
+            AuditTrail.record(this,UUID.randomUUID().toString(),UUID.randomUUID().toString(),"ADMIN_MODULE","COMPLETED",
+                sender instanceof org.bukkit.entity.Player p?AuditTrail.player(p.getUniqueId()):new AuditRecord.Party("CONSOLE","",sender.getName(),""),
+                AuditRecord.Party.unknown(),new AuditRecord.Party("MODULE",args[1],args[1],""),"",0,"",String.join(" ",args)+"; disabled="+shortNames(blocked));
         } catch(Exception e) {sender.sendMessage("§cОперация остановлена: "+e.getMessage());getLogger().log(java.util.logging.Level.WARNING,"Управление модулями",e);}
         return true;
     }
@@ -121,6 +125,8 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
         if(getServer().getPluginManager().isPluginEnabled("NeverLandTownyEvents"))return;
         for(var entity:e.getEntities())for(var key:entity.getPersistentDataContainer().getKeys())if(key.getKey().equals("raid_town")&&Set.of("neverlandtownyevents","minttownyevents").contains(key.getNamespace())){entity.remove();break;}
     }
+    String moduleStatus(String name){try{return describe(name,ModulePauseStore.load(stateFile));}catch(Exception ex){return "§cСостояние не прочитано: "+ex.getMessage();}}
+    List<String> modulePlan(String name){return graph.closure(Set.of(graph.resolve(name))).stream().map(n->n.substring("NeverLandTowny".length())).sorted().toList();}
     private String describe(String name,ModulePauseStore.State state) {
         var p=getServer().getPluginManager().getPlugin(name);var e=state.modules().get(name);
         String status=e!=null&&e.disabled()?"§eОтключён":p!=null&&p.isEnabled()?"§aРаботает":e!=null&&e.pausedAt()>0?"§bЖдёт перезапуска":p==null?"§7Не установлен":"§cНе запущен";
@@ -128,7 +134,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
     }
     private static String shortNames(Set<String> names){return String.join(", ",names.stream().map(n->n.substring("NeverLandTowny".length())).sorted().toList());}
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) {
-        if(!sender.hasPermission("neverlandtownycontrol.admin")||graph==null)return List.of();
+        if(!AdminAccess.admin(sender)||graph==null)return List.of();
         List<String> options=args.length==1?List.of("list","status","plan","disable","enable"):args.length==2?java.util.stream.Stream.concat(java.util.stream.Stream.of("all"),graph.modules().stream().map(n->n.substring("NeverLandTowny".length()))).sorted().toList():List.of();
         String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return options.stream().filter(s->s.toLowerCase(Locale.ROOT).startsWith(prefix)).toList();
     }

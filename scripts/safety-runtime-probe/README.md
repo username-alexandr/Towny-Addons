@@ -1,5 +1,7 @@
 # Disposable native safety probe
 
+The GUI coverage drives real Bukkit inventory events over scheduled ticks: root permission/OP entry, categorized audit reads, record details, shift/hotbar/drag protection, close/revocation races, confirmed restart/cancel, single execution and module dependency preview.
+
 This fixture creates a Towny town and exercises administrator commands, permissions, paused menus, raid identity, cross-addon task pauses, votes, cargo and research identities, the common newcomer shield, a real expired event deadline, durable module shutdown and two subsequent JVM starts. It must never be installed on a player server.
 
 Requirements: loopback `server-ip=127.0.0.1`, `ALLOW_DISPOSABLE_RELIABILITY_PROBE` marker, Java 25, Purpur/Paper 26.2, Towny and dependencies, and exactly the suite JAR names/versions listed in `versions.yml`. Use an ordinary local filesystem for the disposable server, outside a synchronized source workspace. External plugin update checks may be unavailable in a network-limited environment.

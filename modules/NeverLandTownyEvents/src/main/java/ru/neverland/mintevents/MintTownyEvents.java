@@ -54,6 +54,7 @@ public final class MintTownyEvents extends JavaPlugin {
             admin.setExecutor(adminExecutor);
             admin.setTabCompleter(adminExecutor);
         }
+        ru.neverland.core.ActivityAdmin.attach(this,"townyevents","mintevents.admin",events::adminTargets);
 
         getServer().getServicesManager().register(MintTownyEventsApi.class, events, this, ServicePriority.Normal);
         boolean placeholders = PlaceholderHook.register(this, towny, events);
