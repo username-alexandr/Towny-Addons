@@ -59,6 +59,7 @@ public final class ElectionsService implements TownyElectionsApi {
     }
     public void advance(Town town,long now) throws Exception {
         gate();var e=state(town);
+        if(e.adminPausedAt>0)return;
         if(!democratic(town)) {
             if(e.phase==Election.Phase.NOMINATION || e.phase==Election.Phase.VOTING)finish(e,Election.Phase.CANCELLED,"Кампания отменена: форма правления " +form(town),now);
             return;
@@ -83,7 +84,7 @@ public final class ElectionsService implements TownyElectionsApi {
         var old=state(town);if(old.active())throw new IllegalArgumentException("Кампания уже идёт или требует проверки.");
         validateCatalog(settings);if(town.getMayor()==null)throw new IllegalArgumentException("У города нет мэра.");
         var e=new Election(town.getUUID(),Math.addExact(now,settings.interval()));e.phase=Election.Phase.NOMINATION;e.start=now;
-        e.nominationEnd=Math.addExact(now,settings.nomination());e.votingDuration=settings.voting();e.interval=settings.interval();e.quorum=settings.quorum();
+        e.nominationDuration=settings.nomination();e.nominationEnd=Math.addExact(now,settings.nomination());e.votingDuration=settings.voting();e.interval=settings.interval();e.quorum=settings.quorum();
         e.originalMayor=town.getMayor().getUUID();e.seats.putAll(settings.seats());e.history.addAll(old.history);
         town.getResidents().forEach(r->{if(eligible(town,r.getUUID(),"VOTE"))e.electorate.add(r.getUUID());});
         repository.put(e);broadcast(town,"Открыто выдвижение кандидатов. /t elections");
@@ -134,7 +135,7 @@ public final class ElectionsService implements TownyElectionsApi {
         e.winners.clear();finish(e,Election.Phase.CANCELLED,"Закрыто администратором "+actor+". Текущие мэр и должности сохранены.",System.currentTimeMillis());
     }
     private void finish(Election e,Election.Phase phase,String message,long now) throws Exception {
-        e.phase=phase;e.detail=message;if(e.next<=now)e.next=Math.addExact(now,e.interval);
+        e.adminPausedAt=0;e.phase=phase;e.detail=message;if(e.next<=now)e.next=Math.addExact(now,e.interval);
         e.history.add(0,Instant.ofEpochMilli(now)+" | "+e.id+" | "+phase+" | "+message+" "+e.results+" "+e.winners);
         while(e.history.size()>20)e.history.remove(e.history.size()-1);repository.put(e);
     }
@@ -142,7 +143,18 @@ public final class ElectionsService implements TownyElectionsApi {
     @Override public Map<String,String> snapshot(UUID townId) {
         gate();var town=TownyAPI.getInstance().getTown(townId);if(town==null)throw new IllegalArgumentException("Unknown town");
         try {var e=state(town);return Map.of("id",e.id.toString(),"phase",e.phase.name(),"government",form(town),"next",Long.toString(e.next),
-                "nomination_end",Long.toString(e.nominationEnd),"voting_end",Long.toString(e.votingEnd),"detail",e.detail,"results",e.results.toString(),"winners",e.winners.toString());}
+                "nomination_end",Long.toString(e.nominationEnd),"voting_end",Long.toString(e.votingEnd),"detail",e.adminPausedAt>0?"Пауза • "+e.timer().describe(System.currentTimeMillis()):e.detail,"results",e.results.toString(),"winners",e.winners.toString());}
         catch(Exception ex){throw new IllegalStateException(ex);}
     }
+    public List<ru.neverland.core.ActivityAdmin.Target> adminTargets(){
+        gate();return repository.towns().stream().map(repository::get).filter(Election::active).map(value->new ru.neverland.core.ActivityAdmin.Target(value.id.toString(),"Город "+value.town+" / "+value.phase+" / кандидатов "+value.candidates.size(),
+            Set.of(Election.Phase.NOMINATION,Election.Phase.VOTING).contains(value.phase)?ru.neverland.core.ActivityAdmin.TIMED:Set.of("status"),(action,minutes)->{
+                gate();var e=repository.get(value.town);if(e==null||!e.id.equals(value.id))throw new IllegalStateException("Кампания изменилась");
+                if(action.equals("status"))return e.id+" | "+e.phase+" | "+(Set.of(Election.Phase.NOMINATION,Election.Phase.VOTING).contains(e.phase)?e.timer().describe(System.currentTimeMillis()):e.detail);
+                if(!Set.of(Election.Phase.NOMINATION,Election.Phase.VOTING).contains(e.phase))throw new IllegalStateException("Итоги уже применяются; используйте штатный resume/abort с точным UUID");
+                if(action.equals("cancel")){e.adminPausedAt=0;finish(e,Election.Phase.CANCELLED,"Административная отмена без смены власти",System.currentTimeMillis());return "Кампания отменена; мэр и должности сохранены";}
+                e.timer(e.timer().edit(action,minutes,System.currentTimeMillis()));repository.put(e);return e.id+" | "+e.timer().describe(System.currentTimeMillis());
+            })).toList();
+    }
+
 }

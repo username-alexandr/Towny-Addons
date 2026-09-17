@@ -40,7 +40,8 @@ public final class TownyGovernance extends JavaPlugin {
         registerTownCommands(menus);
         TownyGovernanceApi api = new GovernanceApiService(towny, governance);
         getServer().getServicesManager().register(TownyGovernanceApi.class, api, this, ServicePriority.Normal);
-        boolean placeholders = PlaceholderHook.register(this, towny, governance); governance.start();
+        boolean placeholders = PlaceholderHook.register(this, towny, governance); ru.neverland.core.ActivityAdmin.attach(this,"townygovernance","townygovernance.admin",governance::adminTargets);
+governance.start();
         getLogger().info("NeverLandTownyGovernance " + getPluginMeta().getVersion() + " включён: законов " + definitions.laws().size() + ", должностей " + definitions.offices().size()
                 + ", открытых голосований " + repository.open().size() + ", PlaceholderAPI=" + placeholders + ".");
     }

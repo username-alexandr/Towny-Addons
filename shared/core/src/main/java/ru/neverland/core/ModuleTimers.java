@@ -12,13 +12,13 @@ public final class ModuleTimers {
         String module=name.replaceFirst("^NeverLandTowny", "");
         return switch(module) {
             case "Events" -> Map.of("events-data.yml", List.of("active.*.ends-at","active.*.paused-at","active.*.last-raid-wave","towns.*.last-event-at","shields.*"));
-            case "Contracts" -> Map.of("contract-data.yml",List.of("towns.*.active.*.expires-at"));
-            case "Trade" -> Map.of("trade-data.yml",List.of("offers.*.expires-at","caravans.*.departed-at","caravans.*.arrives-at","caravans.*.incident-at"),"contracts-data.yml",List.of("contracts.*.expires","contracts.*.due","contracts.*.check"));
-            case "Expeditions" -> Map.of("data.yml",List.of("active.*.expires"),"return-tickets.yml",List.of("*.expires"));
+            case "Contracts" -> Map.of("contract-data.yml",List.of("towns.*.active.*.expires-at","towns.*.active.*.admin-paused-at"));
+            case "Trade" -> Map.of("trade-data.yml",List.of("offers.*.expires-at","caravans.*.departed-at","caravans.*.arrives-at","caravans.*.incident-at","caravans.*.admin-paused-at"),"contracts-data.yml",List.of("contracts.*.expires","contracts.*.due","contracts.*.check"));
+            case "Expeditions" -> Map.of("data.yml",List.of("active.*.expires","active.*.admin-paused-at"),"return-tickets.yml",List.of("*.expires"));
             case "Camps" -> Map.of("camps.yml",List.of("camps.*.burn-until"));
-            case "Espionage" -> Map.of("data.yml",List.of("operations.*.completes-at","reports.*.*.expires-at"));
-            case "Governance" -> Map.of("data.yml",List.of("proposals.*.ends-at"));
-            case "Elections" -> Map.of("elections.yml",List.of("towns.*.nomination-end","towns.*.voting-end","towns.*.next"));
+            case "Espionage" -> Map.of("data.yml",List.of("operations.*.completes-at","operations.*.admin-paused-at","reports.*.*.expires-at"));
+            case "Governance" -> Map.of("data.yml",List.of("proposals.*.ends-at","proposals.*.admin-paused-at"));
+            case "Elections" -> Map.of("elections.yml",List.of("towns.*.nomination-end","towns.*.voting-end","towns.*.next","towns.*.admin-paused-at"));
             case "Citizens" -> Map.of("citizens.yml",List.of("records.*.expires-at"));
             case "Diplomacy" -> Map.of("diplomacy.yml",List.of("treaties.*.offer-until","treaties.*.activated","treaties.*.expires","treaties.*.notice-until"));
             case "Army" -> Map.of("army-data.yml",List.of("cities.*.next-supply","cities.*.supplied-until"));

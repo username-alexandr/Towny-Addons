@@ -20,6 +20,7 @@ try{
         saveDefaultConfig();if(!new File(getDataFolder(),"technologies.yml").exists())saveResource("technologies.yml",false);
         var repository=new ResearchRepository(getDataFolder().toPath().resolve("research-data.yml"));repository.load();service=new ResearchService(this,repository,settings());
         var menu=new ResearchMenu(this,service);var command=new ResearchCommand(this,service,menu);var direct=getCommand("townyresearch");if(direct==null)throw new IllegalStateException("Нет команды townyresearch");direct.setExecutor(command);direct.setTabCompleter(command);
+        ru.neverland.core.ActivityAdmin.attach(this,"townyresearch","neverlandtownyresearch.admin",service::adminTargets);
         townCommand=TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"research",command);if(!townCommand)getLogger().warning("/t research занят; используйте /townyresearch");
         getServer().getPluginManager().registerEvents(menu,this);getServer().getPluginManager().registerEvents(new ru.neverland.townyresearch.integration.WallProtection(service),this);service.start();getServer().getServicesManager().register(TownyResearchApi.class,service,this,ServicePriority.Normal);
         if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")){expansion=new ResearchExpansion(service,getPluginMeta().getVersion());expansion.register();}

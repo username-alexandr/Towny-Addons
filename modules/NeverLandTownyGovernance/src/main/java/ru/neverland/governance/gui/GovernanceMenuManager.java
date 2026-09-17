@@ -93,7 +93,7 @@ public final class GovernanceMenuManager implements Listener {
             LawDefinition law = governance.law(proposal.lawId()); if (law == null) continue;
             Map<VoteChoice, Integer> counts = proposal.counts(); VoteChoice own = proposal.voteOf(player.getUniqueId());
             List<String> lore = new ArrayList<>(List.of("&7ID: &f" + proposal.shortId(), "&7Действие: &f" + action(proposal.action()),
-                    "&7Автор: &f" + proposal.proposerName(), "&7Осталось: &f" + TimeUtil.format(proposal.endsAt() - System.currentTimeMillis()), "",
+                    "&7Автор: &f" + proposal.proposerName(), "&7Осталось: &f" + (proposal.timer().paused()?"Пауза • ":"")+TimeUtil.format(proposal.timer().remaining(System.currentTimeMillis())), "",
                     "&#63E6BEЗа: &f" + counts.get(VoteChoice.YES), "&#FF6B6BПротив: &f" + counts.get(VoteChoice.NO),
                     "&#FFD166Воздержались: &f" + counts.get(VoteChoice.ABSTAIN), "&7Ваш голос: &f" + (own == null ? "не отдан" : governance.choiceText(own)), "",
                     "&#63E6BEЛКМ — за", "&#FF6B6BПКМ — против", "&#FFD166Shift + ЛКМ — воздержаться"));
@@ -177,6 +177,7 @@ public final class GovernanceMenuManager implements Listener {
         switch (result.result()) {
             case SUCCESS -> { VoteChoice choice = result.proposal().voteOf(player.getUniqueId()); messages.send(player, "vote-recorded", Map.of("id", result.proposal().shortId(), "choice", governance.choiceText(choice))); }
             case NO_TOWN -> messages.send(player, "no-town"); case NO_PERMISSION -> messages.send(player, "no-permission");
+            case PAUSED -> player.sendMessage("§eГолосование приостановлено администратором; ваш голос сохранён.");
             case UNKNOWN_PROPOSAL -> messages.send(player, "unknown-proposal", Map.of("id", "?")); case NOT_ELIGIBLE -> messages.send(player, "not-eligible");
             case CHANGE_DISABLED -> messages.send(player, "vote-change-disabled"); default -> messages.send(player, "no-permission");
         }

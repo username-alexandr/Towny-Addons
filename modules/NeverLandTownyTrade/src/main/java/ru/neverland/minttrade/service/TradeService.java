@@ -163,6 +163,7 @@ public final class TradeService {
             if(c.terminal()){cleanup(c);continue;}
             if(c.settlement().equals("LEGACY_REVIEW"))continue;
             if(c.settlement().equals("ACTIVE")){
+                if(c.timer().paused())continue;
                 if(towny.town(c.buyerId())==null){cancelCaravan(c);continue;}
                 if(!c.incidentHandled()&&now>=c.incidentAt()){
                     c.incidentHandled(true);if(c.shouldDelay()){long delay=Math.max(1,plugin.getConfig().getLong("routes.delay.seconds",300))*1000;c.delay(delay);repository.save();if(plugin.getConfig().getBoolean("announcements.delay",true))announceBoth(c,"caravan-delayed",definition(c),Map.of("time",TimeUtil.format(delay)));}repository.changed();
@@ -270,4 +271,20 @@ public final class TradeService {
     public List<TradeHistory> history(Town town) { return town == null ? List.of() : repository.history(town.getUUID()); }
     public ExportDefinition definition(TradeOffer offer) { return offer == null ? null : registry.get(offer.exportId()); }
     public ExportDefinition definitionOf(Caravan caravan) { return caravan == null ? null : definition(caravan); }
+
+    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() {
+        ru.neverland.core.ApiServices.primaryThread();
+        return repository.caravans().stream().map(c -> new ru.neverland.core.ActivityAdmin.Target(c.id().toString(),c.exportId()+" / "+c.sellerId()+" → "+c.buyerId()+" / "+c.settlement(),
+                c.settlement().equals("ACTIVE") ? ru.neverland.core.ActivityAdmin.TIMED : java.util.Set.of("status"), (action,minutes) -> {
+            ru.neverland.core.ApiServices.primaryThread();
+            if(action.equals("status"))return c.id()+" | "+c.exportId()+" / "+c.sellerId()+" → "+c.buyerId()+" / "+c.settlement()+" | "+c.timer().describe(System.currentTimeMillis());
+            if(!(c.settlement().equals("ACTIVE")))throw new IllegalStateException("Задача уже завершается или ожидает расчёта; используйте штатную сверку");
+            if(action.equals("cancel")){var result=cancelCaravan(c);if(result!=CancelResult.SUCCESS&&result!=CancelResult.WAREHOUSE_BUSY)throw new IllegalStateException("Возврат требует проверки: "+result); return result==CancelResult.WAREHOUSE_BUSY?"Отмена сохранена без провала; возврат груза ожидает доступности склада":"Караван отменён без провала; возврат завершён";}
+            var before=c.timer();long oldDeparture=c.departedAt(),oldIncident=c.incidentAt();
+            try{c.editTimer(action,minutes,System.currentTimeMillis()); repository.changed();if(!repository.save())throw new IllegalStateException("Караван не сохранён");}
+            catch(Exception ex){c.timer(before);c.travelTimes(oldDeparture,oldIncident); throw ex;}
+            return c.id()+" | "+c.timer().describe(System.currentTimeMillis());
+        })).toList();
+    }
+
 }

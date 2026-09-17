@@ -31,7 +31,7 @@ public final class ResearchService implements TownyResearchApi {
             try{buildings=bridge.buildings(id);var stock=bridge.knowledge(id);knowledge=stock.balance();reserve=stock.reserve();paused=stock.paused();if(paused)status="Расчёт ресурсов приостановлен";}catch(Exception ex){paused=true;status="Недоступны здания или запас знаний";warn(ex);}
             var study=repository.get(id).active();boolean ready=!paused&&(study==null||(settings.technologies().containsKey(study.technology())&&settings.technologies().get(study.technology()).enabled()&&ResearchProcessor.ready(study.buildings(),buildings)));
             try{processor.tick(id,seconds,ready,ru.neverland.integration.JobsEffects.research(ru.neverland.integration.SpecializationAccess.bonus(id,"research_speed"),ru.neverland.integration.JobsAccess.townBonus(id,"research_speed")));var stock=bridge.knowledge(id);knowledge=stock.balance();reserve=stock.reserve();}catch(Exception ex){paused=true;status="Операция ожидает восстановления; проверьте консоль";warn(ex);}
-            study=repository.get(id).active();if(study!=null&&!paused){status=switch(study.phase()){case PREPARED->ready?"Ожидает свободных знаний":"Ожидает научных зданий или включения технологии";case RUNNING->ready?"Исследование идёт":"Приостановлено: проверьте здания, питание и содержание";case COMPLETING->"Завершается сохранение технологии";case CANCELLING->"Возвращаются зарезервированные знания";};paused=!ready&&study.phase()!=CityStudy.Phase.CANCELLING;}
+            study=repository.get(id).active();if(study!=null&&!paused){status=switch(study.phase()){case PREPARED->ready?"Ожидает свободных знаний":"Ожидает научных зданий или включения технологии";case PAUSED->"Приостановлено администратором; знания и прогресс сохранены";case RUNNING->ready?"Исследование идёт":"Приостановлено: проверьте здания, питание и содержание";case COMPLETING->"Завершается сохранение технологии";case CANCELLING->"Возвращаются зарезервированные знания";};paused=study.phase()==CityStudy.Phase.PAUSED||!ready&&study.phase()!=CityStudy.Phase.CANCELLING;}
             towns.put(id,new ResearchSnapshot(id,town.getName(),repository.get(id),knowledge,reserve,paused,status,buildings));
         }
         // Deleted cities never start new work. Reconcile their existing reservations before retaining the archive.
@@ -49,4 +49,17 @@ public final class ResearchService implements TownyResearchApi {
     @Override public Optional<ResearchSnapshot> research(UUID town){return Optional.ofNullable(cache.towns().get(town));}
     @Override public Optional<ResearchSnapshot> residentResearch(UUID resident){var current=cache;UUID town=current.residents().get(resident);return Optional.ofNullable(town==null?null:current.towns().get(town));}
     @Override public Collection<ResearchSnapshot> towns(){return cache.towns().values();}
+    public List<ru.neverland.core.ActivityAdmin.Target> adminTargets(){
+        primary();return repository.towns().entrySet().stream().filter(e->e.getValue().active()!=null).map(e->{var s=e.getValue().active();return new ru.neverland.core.ActivityAdmin.Target(s.invoice().toString(),e.getKey()+" / "+name(s.technology())+" / "+s.phase(),
+            Set.of(CityStudy.Phase.PREPARED,CityStudy.Phase.RUNNING,CityStudy.Phase.PAUSED).contains(s.phase())?Set.of("status","pause","resume","cancel"):Set.of("status"),(action,minutes)->{
+                primary();var state=repository.get(e.getKey());var active=state.active();if(active==null||!active.invoice().equals(s.invoice()))throw new IllegalStateException("Исследование изменилось");
+                if(action.equals("status"))return name(active.technology())+" | "+active.phase()+" | осталось "+active.remaining()+" сек.; знания "+active.cost();
+                if(!Set.of(CityStudy.Phase.PREPARED,CityStudy.Phase.RUNNING,CityStudy.Phase.PAUSED).contains(active.phase()))throw new IllegalStateException("Исследование уже рассчитывается");
+                if(action.equals("cancel")){cancel(e.getKey());return "Отмена сохранена; резерв знаний возвращается без штрафа";}
+                if(action.equals("pause")){if(active.phase()==CityStudy.Phase.PAUSED)throw new IllegalArgumentException("Исследование уже на паузе");repository.put(e.getKey(),state.study(active.phase(CityStudy.Phase.PAUSED)));}
+                else {if(active.phase()!=CityStudy.Phase.PAUSED)throw new IllegalArgumentException("Исследование не на паузе");repository.put(e.getKey(),state.study(active.phase(CityStudy.Phase.PREPARED)));}
+                refresh(0);return "Состояние сохранено; прогресс и квитанция резерва прежние";
+            });}).toList();
+    }
+
 }

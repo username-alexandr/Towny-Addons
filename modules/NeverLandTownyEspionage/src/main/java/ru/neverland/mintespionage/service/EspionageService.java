@@ -25,7 +25,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class EspionageService {
-    public enum StartStatus { SUCCESS, NO_TOWN, SELF_TARGET, DIPLOMACY_BLOCKED, LIMIT, DUPLICATE, COOLDOWN, NO_MONEY, ECONOMY_ERROR }
+    public enum StartStatus { SUCCESS, NO_TOWN, SELF_TARGET, NEWCOMER_PROTECTED, PROTECTION_UNAVAILABLE, DIPLOMACY_BLOCKED, LIMIT, DUPLICATE, COOLDOWN, NO_MONEY, ECONOMY_ERROR }
     public record StartOutcome(StartStatus status,SpyOperation operation,long remaining,double required){}
     public enum UpgradeStatus { SUCCESS, MAXIMUM, NO_MONEY, ECONOMY_ERROR }
     public record UpgradeOutcome(UpgradeStatus status,int level,double cost){}
@@ -44,6 +44,10 @@ public final class EspionageService {
     public StartOutcome start(Player actor,Town target,OperationDefinition definition){
         Town attacker=towny.town(actor);if(attacker==null||target==null)return new StartOutcome(StartStatus.NO_TOWN,null,0,0);
         if(attacker.getUUID().equals(target.getUUID()))return new StartOutcome(StartStatus.SELF_TARGET,null,0,0);
+        try {
+            long shield=Math.max(ru.neverland.core.NewcomerProtection.remaining(plugin,attacker.getUUID()),ru.neverland.core.NewcomerProtection.remaining(plugin,target.getUUID()));
+            if(shield>0)return new StartOutcome(StartStatus.NEWCOMER_PROTECTED,null,shield,0);
+        }catch(RuntimeException unavailable){return new StartOutcome(StartStatus.PROTECTION_UNAVAILABLE,null,0,0);}
         if(ru.neverland.core.DiplomacyAccess.hostileBlocked(attacker.getUUID(),target.getUUID()))return new StartOutcome(StartStatus.DIPLOMACY_BLOCKED,null,0,0);
         int active=repository.active(attacker.getUUID()).size();int limit=activeLimit(attacker);
         if(active>=limit)return new StartOutcome(StartStatus.LIMIT,null,0,0);
@@ -77,8 +81,10 @@ public final class EspionageService {
     public int unread(UUID town){int count=0;long now=System.currentTimeMillis();for(IntelReport report:repository.reports(town))if(!report.read()&&!report.expired(now))count++;return count;}
     public void read(IntelReport report){report.markRead();repository.markDirty();}
     public TownSpyData data(Town town){return repository.town(town.getUUID());}public DefinitionRegistry registry(){return registry;}public EspionageRepository repository(){return repository;}public EconomyService economy(){return economy;}
-    private void tick(){long now=System.currentTimeMillis();for(SpyOperation operation:repository.operations())if(operation.status()==OperationStatus.ACTIVE&&operation.completesAt()<=now)complete(operation,null);repository.cleanup(now);repository.saveIfDirty();}
+    private void tick(){long now=System.currentTimeMillis();for(SpyOperation operation:repository.operations())if(operation.status()==OperationStatus.ACTIVE&&!operation.timer().paused()&&operation.completesAt()<=now)complete(operation,null);repository.cleanup(now);repository.saveIfDirty();}
     private void complete(SpyOperation operation,Boolean forceSuccess){
+        try{if(Math.max(ru.neverland.core.NewcomerProtection.remaining(plugin,operation.attackerTownId()),ru.neverland.core.NewcomerProtection.remaining(plugin,operation.targetTownId()))>0){cancel(operation.id());return;}}
+        catch(RuntimeException unavailable){return;}
         if(!ru.neverland.core.DiplomacyAccess.available())return;
         if(ru.neverland.core.DiplomacyAccess.hostileBlocked(operation.attackerTownId(),operation.targetTownId())){
             operation.finish(OperationStatus.CANCELLED,false);repository.markDirty();repository.save();return;
@@ -120,5 +126,21 @@ public final class EspionageService {
     private String wealth(double value){if(value<10000)return "скромное";if(value<50000)return "стабильное";if(value<200000)return "богатое";return "очень богатое";}
     public String operationName(String id){OperationDefinition definition=registry.get(id);return definition==null?id:ColorUtil.strip(definition.name());}
     public long cooldown(Town source,Town target,String type){return Math.max(0,repository.town(source.getUUID()).cooldown(target.getUUID()+"_"+type)-System.currentTimeMillis());}
-    public String summary(SpyOperation operation){return operation.targetName()+" / "+operationName(operation.type())+" / "+TimeUtil.format(operation.completesAt()-System.currentTimeMillis());}
+    public String summary(SpyOperation operation){return operation.targetName()+" / "+operationName(operation.type())+" / "+(operation.timer().paused()?"Пауза • ":"")+TimeUtil.format(operation.timer().remaining(System.currentTimeMillis()));}
+
+    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() {
+        ru.neverland.core.ApiServices.primaryThread();
+        return repository.operations().stream().filter(c->c.status()==OperationStatus.ACTIVE).map(c -> new ru.neverland.core.ActivityAdmin.Target(c.id().toString(),c.attackerName()+" → "+c.targetName()+" / "+c.type(),
+                c.status()==OperationStatus.ACTIVE ? ru.neverland.core.ActivityAdmin.TIMED : java.util.Set.of("status"), (action,minutes) -> {
+            ru.neverland.core.ApiServices.primaryThread();
+            if(action.equals("status"))return c.id()+" | "+c.attackerName()+" → "+c.targetName()+" / "+c.type()+" | "+c.timer().describe(System.currentTimeMillis());
+            if(!(c.status()==OperationStatus.ACTIVE))throw new IllegalStateException("Задача уже завершается или ожидает расчёта; используйте штатную сверку");
+            if(action.equals("cancel")){if(!cancel(c.id()))throw new IllegalStateException("Операция уже завершена"); return "Задача отменена без провала; выполненные действия сохранены";}
+            var before=c.timer();
+            try{c.timer(before.edit(action,minutes,System.currentTimeMillis())); repository.markDirty();repository.save();}
+            catch(Exception ex){c.timer(before); throw ex;}
+            return c.id()+" | "+c.timer().describe(System.currentTimeMillis());
+        })).toList();
+    }
+
 }

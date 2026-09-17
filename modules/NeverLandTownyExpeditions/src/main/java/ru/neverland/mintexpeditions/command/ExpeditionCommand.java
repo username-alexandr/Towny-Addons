@@ -81,8 +81,7 @@ public final class ExpeditionCommand implements CommandExecutor, TabCompleter {
                         + "&#AAAAAA, враги &#FFFFFF"
                         + expedition.kills() + "/" + definition.mobCount()
                         + "&#AAAAAA, осталось &#FFFFFF"
-                        + TimeUtil.format(expedition.expiresAt()
-                        - System.currentTimeMillis())));
+                        + (expedition.timer().paused()?"Пауза • ":"")+TimeUtil.format(expedition.timer().remaining(System.currentTimeMillis()))));
         service.sendTarget(player, expedition);
     }
 

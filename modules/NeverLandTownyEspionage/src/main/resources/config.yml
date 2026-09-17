@@ -59,3 +59,7 @@ scheduler:
 # Светлый заголовок для тёмного ресурспака; для ванильного светлого окна: "#273247".
 menu-style:
   title-color: "#F4F7FC"
+
+# Общий щит Events; без Events — 24 часа с регистрации города.
+newcomer-protection:
+  enabled: true

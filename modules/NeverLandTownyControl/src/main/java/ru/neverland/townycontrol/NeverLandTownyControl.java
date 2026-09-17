@@ -31,6 +31,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             var blocked=graph.closure(state.requests());
             ModulePauseStore.save(stateFile,ModulePauseStore.request(state,state.requests(),blocked,System.currentTimeMillis()));
             getCommand("nltmodules").setExecutor(this);getCommand("nltmodules").setTabCompleter(this);
+            new AdminRouter(this,graph).register();
             getServer().getPluginManager().registerEvents(this,this);
             getLogger().info("Управление модулями: "+graph.modules().size()+"; отключено с зависимостями: "+blocked.size());
         } catch(Exception e) {

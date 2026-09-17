@@ -1,5 +1,5 @@
 name: NeverLandTownyElections
-version: 0.1.4
+version: 0.1.5
 main: ru.neverland.townyelections.NeverLandTownyElections
 api-version: '26.2'
 authors: [Alexander Sokolov]

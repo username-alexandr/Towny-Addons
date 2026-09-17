@@ -14,7 +14,7 @@ public final class Proposal {
     private final UUID proposerId;
     private final String proposerName;
     private final long createdAt;
-    private final long endsAt;
+    private ru.neverland.core.ActivityTimer timer;
     private ProposalStatus status;
     private final Map<UUID, VoteChoice> votes = new LinkedHashMap<>();
 
@@ -22,7 +22,7 @@ public final class Proposal {
                     UUID proposerId, String proposerName, long createdAt, long endsAt, ProposalStatus status) {
         this.id = id; this.townId = townId; this.townName = townName; this.lawId = lawId;
         this.action = action; this.proposerId = proposerId; this.proposerName = proposerName;
-        this.createdAt = createdAt; this.endsAt = endsAt; this.status = status;
+        this.createdAt = createdAt; this.timer=ru.neverland.core.ActivityTimer.running(createdAt,endsAt); this.status = status;
     }
 
     public UUID id() { return id; }
@@ -34,7 +34,7 @@ public final class Proposal {
     public UUID proposerId() { return proposerId; }
     public String proposerName() { return proposerName; }
     public long createdAt() { return createdAt; }
-    public long endsAt() { return endsAt; }
+    public long endsAt() { return timer.deadline(); }
     public ProposalStatus status() { return status; }
     public void status(ProposalStatus status) { this.status = status; }
     public Map<UUID, VoteChoice> votes() { return Map.copyOf(votes); }
@@ -48,4 +48,6 @@ public final class Proposal {
         votes.values().forEach(choice -> result.merge(choice, 1, Integer::sum));
         return result;
     }
+    public ru.neverland.core.ActivityTimer timer(){return timer;}
+    public void timer(ru.neverland.core.ActivityTimer value){timer=java.util.Objects.requireNonNull(value);}
 }

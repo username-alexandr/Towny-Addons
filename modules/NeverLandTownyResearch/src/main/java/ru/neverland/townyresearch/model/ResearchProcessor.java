@@ -22,7 +22,7 @@ public final class ResearchProcessor {
         for(UUID invoice:store.get(town).cleanup()){gateway.forget(invoice);store.put(town,store.get(town).forget(invoice));}
         var state=store.get(town);var s=state.active();if(s==null)return;
         if(s.phase()==CANCELLING){String status=gateway.status(s.invoice());if(status.equals("HELD"))gateway.settle(s.invoice(),false);else if(!Set.of("NONE","RELEASED").contains(status))throw new IllegalStateException("Нельзя вернуть уже использованные знания");store.put(town,state.finish(false));return;}
-        if(!ready)return;
+        if(s.phase()==PAUSED||!ready)return;
         if(s.phase()==PREPARED){String status=gateway.status(s.invoice());if(status.equals("NONE")){if(!gateway.reserve(s.invoice(),town,s.cost()))return;}else if(!status.equals("HELD"))throw new IllegalStateException("Несогласованная квитанция исследования");store.put(town,state.study(s.phase(RUNNING)));return;}
         if(s.phase()==RUNNING){if(!gateway.status(s.invoice()).equals("HELD"))throw new IllegalStateException("Резерв знаний отсутствует");if(seconds==0)return;store.put(town,state.study(s.advance(seconds,speedBonus)));state=store.get(town);s=state.active();}
         if(s.phase()==COMPLETING){String status=gateway.status(s.invoice());if(status.equals("HELD"))gateway.settle(s.invoice(),true);else if(!status.equals("CONSUMED"))throw new IllegalStateException("Нет подтверждения расхода знаний");store.put(town,state.finish(true));}

@@ -88,6 +88,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
    }
 
    public List<String> onTabComplete(CommandSender s, Command c, String l, String[] a) {
+        if(!s.hasPermission("mintexpeditions.admin"))return List.of();
       if (a.length == 1) {
          return List.of("list", "complete", "cancel", "reload", "payments", "resolve");
       } else {

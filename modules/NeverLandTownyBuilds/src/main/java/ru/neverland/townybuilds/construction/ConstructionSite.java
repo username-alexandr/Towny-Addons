@@ -142,4 +142,7 @@ public final class ConstructionSite {
         if (face == BlockFace.EAST || face == BlockFace.SOUTH || face == BlockFace.WEST) return face;
         return BlockFace.NORTH;
     }
+    private boolean adminPaused;
+    public boolean adminPaused(){return adminPaused;}
+    public void adminPaused(boolean value){adminPaused=value;}
 }

@@ -24,7 +24,7 @@ public final class MintTradeExpansion extends PlaceholderExpansion {
             case "active_routes" -> String.valueOf(trade.activeCount(town)); case "route_limit" -> String.valueOf(trade.routeLimit(town));
             case "tariff" -> town == null ? "0" : String.valueOf(trade.tariff(town));
             case "incoming" -> String.valueOf(trade.incoming(town).size()); case "outgoing" -> String.valueOf(trade.outgoing(town).size());
-            case "next_arrival" -> town == null || trade.caravans(town).isEmpty() ? "—" : TimeUtil.format(trade.caravans(town).stream().mapToLong(value -> value.arrivesAt() - System.currentTimeMillis()).min().orElse(0));
+            case "next_arrival" -> town == null || trade.caravans(town).isEmpty() ? "—" : TimeUtil.format(trade.caravans(town).stream().mapToLong(value -> value.timer().remaining(System.currentTimeMillis())).min().orElse(0));
             default -> null;
         };
     }

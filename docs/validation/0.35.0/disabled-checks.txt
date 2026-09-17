@@ -1,0 +1,33 @@
+disabled before repository startup: NeverLandTownyEspionage
+disabled before repository startup: NeverLandTownyChronicles
+disabled before repository startup: NeverLandTownyResearch
+disabled before repository startup: NeverLandTownyCrime
+disabled before repository startup: NeverLandTownyExpeditions
+disabled before repository startup: NeverLandTownySpecialization
+disabled before repository startup: NeverLandTownyArmy
+disabled before repository startup: NeverLandTownyPower
+disabled before repository startup: NeverLandTownyJobs
+disabled before repository startup: NeverLandTownyPopulation
+disabled before repository startup: NeverLandTownyCompanies
+disabled before repository startup: NeverLandTownyMarket
+disabled before repository startup: NeverLandTownyIdeologies
+disabled before repository startup: NeverLandTownyGovernance
+disabled before repository startup: NeverLandTownyPolicies
+disabled before repository startup: NeverLandTownyUpkeep
+disabled before repository startup: NeverLandTownySiegesPlus
+disabled before repository startup: NeverLandTownyBuilds
+disabled before repository startup: NeverLandTownyElections
+disabled before repository startup: NeverLandTownyLogistics
+disabled before repository startup: NeverLandTownyContracts
+disabled before repository startup: NeverLandTownyEvents
+disabled before repository startup: NeverLandTownyJustice
+disabled before repository startup: NeverLandTownyDistricts
+disabled before repository startup: NeverLandTownyTrade
+disabled before repository startup: NeverLandTownyResources
+disabled before repository startup: NeverLandTownyTaxes
+disabled before repository startup: NeverLandTownyTreasuryPlus
+independent module restored on restart
+disabled startup never mutates progress or failure history
+fixture deadline really expired during module downtime
+dormant expedition enemies cannot damage players or animals
+resume scheduled, inactive until next JVM

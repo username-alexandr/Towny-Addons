@@ -42,7 +42,7 @@ public final class ElectionsRepository {
         s.set("governance-before", e.governanceBefore);
         s.set("original-mayor",e.originalMayor == null ? "" : e.originalMayor.toString());
         s.set("start",e.start); s.set("nomination-end",e.nominationEnd); s.set("voting-end",e.votingEnd); s.set("next",e.next);
-        s.set("interval",e.interval); s.set("voting-duration",e.votingDuration); s.set("quorum",e.quorum); s.set("detail",e.detail);
+        s.set("admin-paused-at",e.adminPausedAt);s.set("nomination-duration",e.nominationDuration);s.set("interval",e.interval); s.set("voting-duration",e.votingDuration); s.set("quorum",e.quorum); s.set("detail",e.detail);
         s.set("electorate",e.electorate.stream().map(UUID::toString).toList()); s.createSection("seats",e.seats);
         var candidates = s.createSection("candidates"); e.candidates.forEach((id,r) -> candidates.set(id.toString(),r));
         var votes = s.createSection("ballots"); e.ballots.forEach((race,voters) -> {
@@ -52,11 +52,11 @@ public final class ElectionsRepository {
         s.createSection("results",e.results); s.set("history",e.history);
     }
     private static Election read(ConfigurationSection s) throws IOException {
-        SafeYaml.keys(s,"id","town","phase","governance-before","original-mayor","start","nomination-end","voting-end","next","interval","voting-duration","quorum","detail","electorate","seats","candidates","ballots","winners","results","history");
+        SafeYaml.keys(s,"id","town","phase","governance-before","original-mayor","start","nomination-end","voting-end","next","interval","voting-duration","quorum","detail","electorate","seats","candidates","ballots","winners","results","history","admin-paused-at","nomination-duration");
         var e = new Election(UUID.fromString(string(s,"town")),number(s,"next")); e.id=UUID.fromString(string(s,"id"));
         e.phase=Election.Phase.valueOf(string(s,"phase")); String mayor=string(s,"original-mayor"); e.originalMayor=mayor.isEmpty()?null:UUID.fromString(mayor);
         e.governanceBefore=string(s,"governance-before"); if(!e.governanceBefore.isEmpty())UUID.fromString(e.governanceBefore);
-        e.start=number(s,"start"); e.nominationEnd=number(s,"nomination-end"); e.votingEnd=number(s,"voting-end"); e.interval=number(s,"interval"); e.votingDuration=number(s,"voting-duration");
+        e.adminPausedAt=SafeYaml.longValue(s,"admin-paused-at",0);e.nominationDuration=SafeYaml.longValue(s,"nomination-duration",0);e.start=number(s,"start"); e.nominationEnd=number(s,"nomination-end"); e.votingEnd=number(s,"voting-end"); e.interval=number(s,"interval"); e.votingDuration=number(s,"voting-duration");
         if (!(s.get("quorum") instanceof Number n)) throw new IOException("Invalid quorum"); e.quorum=n.doubleValue(); e.detail=string(s,"detail");
         for (String v : strings(s,"electorate")) if (!e.electorate.add(UUID.fromString(v))) throw new IOException("Duplicate voter");
         var seats = section(s,"seats"); for (String r : seats.getKeys(false)) e.seats.put(r,Math.toIntExact(number(seats,r)));

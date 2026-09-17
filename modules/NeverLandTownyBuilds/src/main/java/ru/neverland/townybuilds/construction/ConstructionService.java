@@ -212,7 +212,7 @@ public final class ConstructionService implements Listener {
             total++;
             if (site.location(world, entry.getKey()).getBlock().getType() == expected.material()) placed++;
         }
-        return new ConstructionProgress(true, site.targetStage(), placed, total, plan.stageName());
+        return new ConstructionProgress(true, site.targetStage(), placed, total, (site.adminPaused()?"Пауза • ":"")+plan.stageName());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -228,6 +228,7 @@ public final class ConstructionService implements Listener {
         if(!ru.neverland.integration.SpecializationAccess.allowed(located.townId(),located.site().projectId())){event.setCancelled(true);messages.send(event.getPlayer(),"specialization-required",Map.of("specialization",ru.neverland.integration.SpecializationAccess.requirement(located.site().projectId())));return;}
         BlueprintBlock expected = located.expected();
         ConstructionSite site = located.site();
+        if(site.adminPaused()){event.setCancelled(true);event.getPlayer().sendMessage("§eСтроительство приостановлено администратором. Прогресс сохранён.");return;}
         if (!site.active() || expected.stage() < site.buildFromStage() || expected.stage() > site.targetStage()
                 || expected.role() == BlockRole.DECORATION) {
             event.setCancelled(true);
@@ -362,6 +363,7 @@ public final class ConstructionService implements Listener {
     }
 
     private void checkCompletion(Player player, Town town, ConstructionSite site) {
+        if(site.adminPaused())return;
         if (!site.active()||!ru.neverland.integration.SpecializationAccess.allowed(town.getUUID(),site.projectId())) return;
         BlueprintPlan plan = planForSite(site, site.targetStage());
         World world = Bukkit.getWorld(site.worldId());
@@ -716,4 +718,14 @@ public final class ConstructionService implements Listener {
 
     private record LocatedBlock(UUID townId, ConstructionSite site, BlueprintBlock expected) { }
     private record PreviewTarget(Location location, BlueprintBlock expected, double distanceSquared) { }
+    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets(){
+        ru.neverland.core.ApiServices.primaryThread();var result=new java.util.ArrayList<ru.neverland.core.ActivityAdmin.Target>();
+        dataStore.towns().forEach((id,town)->town.constructionSites().values().stream().filter(ConstructionSite::active).forEach(site->result.add(new ru.neverland.core.ActivityAdmin.Target(id+"/"+site.projectId(),site.projectId()+" / этап "+site.targetStage(),java.util.Set.of("status","pause","resume"),(action,minutes)->{
+            ru.neverland.core.ApiServices.primaryThread();if(!site.active())throw new IllegalStateException("Строительство уже завершено");
+            if(action.equals("status"))return id+" / "+site.projectId()+" / "+(site.adminPaused()?"Пауза":"Строительство")+"; этап "+site.targetStage();
+            boolean before=site.adminPaused();try{site.adminPaused(action.equals("pause"));dataStore.markDirty();dataStore.save();}catch(Exception ex){site.adminPaused(before);throw ex;}
+            return "Строительство "+(site.adminPaused()?"приостановлено":"продолжено")+"; блоки и оплаченный этап сохранены";
+        }))));return java.util.List.copyOf(result);
+    }
+
 }

@@ -61,7 +61,7 @@ public final class FieldWorkService {
         }
         if(changed)contracts.saveField();
     }
-    private boolean is(ActiveContract c,ContractType type){return c.funded()&&c.settlementStatus()==null&&c.snapshot()!=null&&c.snapshot().type()==type&&c.area()!=null;}
+    private boolean is(ActiveContract c,ContractType type){return !c.timer().paused()&&c.funded()&&c.settlementStatus()==null&&c.snapshot()!=null&&c.snapshot().type()==type&&c.area()!=null;}
     private boolean same(WorkArea a,Block b){return a.world().equals(b.getWorld().getUID())&&a.y()==b.getY()&&a.contains(b.getX(),b.getZ());}
     private void save(){try{contracts.saveField();}catch(Exception ex){plugin.getLogger().severe("Сохранение полевых заданий остановлено: "+ex.getMessage());}}
 }

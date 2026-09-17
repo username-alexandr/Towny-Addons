@@ -214,7 +214,7 @@ public final class ExpeditionService {
 
    public boolean objective(Player player, BlockPos position) {
       ActiveExpedition expedition = this.at(position, player.getWorld());
-      if (expedition == null || !expedition.objectives().contains(position) || expedition.completed().contains(position)) {
+      if (expedition == null || expedition.timer().paused() || !expedition.objectives().contains(position) || expedition.completed().contains(position)) {
          return false;
       } else if (!expedition.participants().contains(player.getUniqueId())) {
          this.messages.send(player, "not-participant");
@@ -233,7 +233,7 @@ public final class ExpeditionService {
 
    public void mobDied(LivingEntity entity) {
       ActiveExpedition expedition = this.sites.expeditionForMob(entity);
-      if (expedition != null && expedition.status() == ExpeditionStatus.ACTIVE) {
+      if (expedition != null && !expedition.timer().paused() && expedition.status() == ExpeditionStatus.ACTIVE) {
          expedition.spawnedMobs().remove(entity.getUniqueId());
          ExpeditionDefinition definition = this.registry.get(expedition.definitionId());
          if (definition != null) {
@@ -323,7 +323,8 @@ public final class ExpeditionService {
             this.repository.reward(batch.id(), batch.owner(), batch.items(), batch.money());
          }
 
-         if (status != ExpeditionStatus.COMPLETED) {
+         if (status == ExpeditionStatus.CANCELLED) this.broadcast(expedition,"admin-cancelled",Map.of());
+         if (status == ExpeditionStatus.FAILED) {
             this.broadcast(expedition, "failed", Map.of("expedition", definition == null ? expedition.definitionId() : ColorUtil.strip(definition.name())));
          }
 
@@ -535,6 +536,7 @@ public final class ExpeditionService {
       this.returnTickets.prune(now);
 
       for (ActiveExpedition expedition : new ArrayList<>(this.repository.active())) {
+         if (expedition.timer().paused()) { this.updateBar(expedition); continue; }
          if (now >= expedition.expiresAt()) {
             this.finish(expedition, ExpeditionStatus.FAILED);
          } else {
@@ -612,7 +614,7 @@ public final class ExpeditionService {
             + "/"
             + definition.mobCount()
             + " • "
-            + TimeUtil.format(expedition.expiresAt() - System.currentTimeMillis());
+            + (expedition.timer().paused()?"Пауза • ":"")+TimeUtil.format(expedition.timer().remaining(System.currentTimeMillis()));
          bar.setTitle(
             ColorUtil.color(
                this.plugin
@@ -644,4 +646,20 @@ public final class ExpeditionService {
       MISSING,
       WORLD_BLOCKED;
    }
+
+    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() {
+        ru.neverland.core.ApiServices.primaryThread();
+        return repository.active().stream().map(c -> new ru.neverland.core.ActivityAdmin.Target(c.id().toString(),c.definitionId()+" / "+c.leaderId(),
+                c.status()==ExpeditionStatus.ACTIVE ? ru.neverland.core.ActivityAdmin.TIMED : java.util.Set.of("status"), (action,minutes) -> {
+            ru.neverland.core.ApiServices.primaryThread();
+            if(action.equals("status"))return c.id()+" | "+c.definitionId()+" / "+c.leaderId()+" | "+c.timer().describe(System.currentTimeMillis());
+            if(!(c.status()==ExpeditionStatus.ACTIVE))throw new IllegalStateException("Задача уже завершается или ожидает расчёта; используйте штатную сверку");
+            if(action.equals("cancel")){finish(c,ExpeditionStatus.CANCELLED); return "Задача отменена без провала; выполненные действия сохранены";}
+            var before=c.timer();
+            try{c.timer(before.edit(action,minutes,System.currentTimeMillis())); repository.save();}
+            catch(Exception ex){c.timer(before); throw ex;}
+            return c.id()+" | "+c.timer().describe(System.currentTimeMillis());
+        })).toList();
+    }
+
 }

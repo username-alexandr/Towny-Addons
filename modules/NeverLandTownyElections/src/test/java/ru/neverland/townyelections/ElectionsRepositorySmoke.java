@@ -11,6 +11,13 @@ public final class ElectionsRepositorySmoke {
         e.vote(ElectionSmoke.id(1),"mayor",List.of(ElectionSmoke.id(1)),220);repo.put(e);
         e.ballots.clear();assert !repo.get(e.town).ballots.isEmpty();
         var restarted=new ElectionsRepository(file);restarted.load();assert restarted.get(e.town).ballots.get("mayor").size()==1;
+        var paused=restarted.get(e.town);paused.timer(paused.timer().edit("pause",0,230));restarted.put(paused);
+        var frozen=new ElectionsRepository(file);frozen.load();var resumed=frozen.get(e.town);
+        assert resumed.timer().remaining(900000)==70;
+        ElectionSmoke.reject(()->resumed.vote(ElectionSmoke.id(1),"mayor",List.of(ElectionSmoke.id(1)),240));
+        resumed.timer(resumed.timer().edit("restart",0,500));assert resumed.adminPausedAt==230&&resumed.ballots.get("mayor").size()==1;
+        resumed.timer(resumed.timer().edit("resume",0,1000));frozen.put(resumed);
+        assert resumed.votingEnd==1000+resumed.votingDuration&&resumed.id.equals(e.id)&&resumed.candidates.size()==1&&resumed.ballots.get("mayor").size()==1;
         var y=new YamlConfiguration();y.load(file.toFile());y.set("towns."+e.town+".ballots.mayor."+ElectionSmoke.id(1),List.of(ElectionSmoke.id(1).toString(),ElectionSmoke.id(1).toString()));
         Files.writeString(dir.resolve("bad.yml"),y.saveToString());var bad=new ElectionsRepository(dir.resolve("bad.yml"));
         try{bad.load();throw new AssertionError("corruption accepted");}catch(IllegalArgumentException expected){}assert !bad.healthy();

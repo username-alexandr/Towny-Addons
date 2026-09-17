@@ -1,0 +1,145 @@
+modules:
+  Archaeology:
+    command: townyarchaeology
+    permission: townyarchaeology.admin
+    activities: false
+  Army:
+    command: townymilitary
+    permission: neverlandtownyarmy.admin
+    activities: false
+  Builds:
+    command: townybuilds
+    permission: neverlandtownybuilds.admin
+    activities: true
+  Camps:
+    command: townycamps
+    permission: mintcamps.admin
+    activities: false
+  Chronicles:
+    command: townychronicles
+    permission: townychronicles.admin
+    activities: false
+  Citizens:
+    command: townycitizens
+    permission: neverlandtownycitizens.admin
+    activities: false
+  Companies:
+    command: townycompanies
+    permission: neverlandtownycompanies.admin
+    activities: false
+  Contracts:
+    command: townycontracts
+    permission: mintcontracts.admin
+    activities: true
+  Council:
+    command: townycouncil
+    permission: neverlandtownycouncil.admin
+    activities: false
+  Crime:
+    command: townycrime
+    permission: neverlandtownycrime.admin
+    activities: false
+  Diplomacy:
+    command: townydiplomacy
+    permission: neverlandtownydiplomacy.admin
+    activities: false
+  Districts:
+    command: townydistricts
+    permission: neverlandtownydistricts.admin
+    activities: false
+  Elections:
+    command: elections
+    permission: townyelections.admin
+    activities: true
+  Espionage:
+    command: townyespionage
+    permission: mintespionage.admin
+    activities: true
+  Events:
+    command: townyevents
+    permission: mintevents.admin
+    activities: false
+  Expeditions:
+    command: townyexpeditions
+    permission: mintexpeditions.admin
+    activities: true
+  Governance:
+    command: townygovernance
+    permission: townygovernance.admin
+    activities: true
+  Ideologies:
+    command: townyideologies
+    permission: neverlandtownyideologies.admin
+    activities: false
+  Jobs:
+    command: townyjobs
+    permission: neverlandtownyjobs.admin
+    activities: false
+  Justice:
+    command: townyjustice
+    permission: neverlandtownyjustice.admin
+    activities: false
+  Logistics:
+    command: townylogistics
+    permission: neverlandtownylogistics.admin
+    activities: true
+  Market:
+    command: townymarket
+    permission: neverlandtownymarket.admin
+    activities: false
+  Policies:
+    command: townypolicies
+    permission: neverlandtownypolicies.admin
+    activities: false
+  Population:
+    command: townypopulation
+    permission: neverlandtownypopulation.admin
+    activities: false
+  Power:
+    command: townypower
+    permission: neverlandtownypower.admin
+    activities: false
+  Reputation:
+    command: townyreputation
+    permission: townyreputation.admin
+    activities: false
+  Research:
+    command: townyresearch
+    permission: neverlandtownyresearch.admin
+    activities: true
+  Resources:
+    command: townyresources
+    permission: neverlandtownyresources.admin
+    activities: false
+  Seasons:
+    command: townyseasons
+    permission: neverlandtownyseasons.admin
+    activities: false
+  SiegesPlus:
+    command: townysieges
+    permission: neverlandtownysiegesplus.admin
+    activities: false
+  Specialization:
+    command: townyspecialization
+    permission: neverlandtownyspecialization.admin
+    activities: false
+  Stick:
+    command: townystick
+    permission: morstownstick.admin
+    activities: false
+  Taxes:
+    command: townytaxes
+    permission: townytaxes.admin
+    activities: false
+  Trade:
+    command: townytrade
+    permission: minttrade.admin
+    activities: true
+  TreasuryPlus:
+    command: townytreasury
+    permission: neverlandtownytreasury.admin
+    activities: false
+  Upkeep:
+    command: townyupkeep
+    permission: neverlandtownyupkeep.admin
+    activities: false

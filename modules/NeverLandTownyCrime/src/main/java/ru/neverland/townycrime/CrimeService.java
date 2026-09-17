@@ -28,7 +28,10 @@ public final class CrimeService implements TownyCrimeApi {
         // Pending reservations are reconciled even if a town was deleted or its Population paused.
         for(var s:List.copyOf(repository.all().values()))if(s.incident()!=null&&s.incident().pending())try{writable();if(TheftProcessor.resume(s.town(),store,bridge))announce(repository.all().get(s.town()));}catch(Exception|LinkageError ex){fault(s.town(),ex,now);}
         for(var town:TownyAPI.getInstance().getTowns())try{
-            writable();UUID id=town.getUUID();var inputs=bridge.inputs(id);var s=state(id);
+            writable();UUID id=town.getUUID();var s=state(id);
+            long shield=ru.neverland.core.NewcomerProtection.remaining(plugin,id);
+            if(shield>0){if(now>=s.nextCycle())repository.put(new CrimeState(id,s.level(),now+settings.cycle(),Math.max(s.nextIncident(),now+shield),s.incident()));faults.remove(id);continue;}
+            var inputs=bridge.inputs(id);
             if(now>=s.nextCycle()){
                 double level=CrimeEngine.advance(s.level(),inputs,settings);var incident=s.incident();long nextIncident=s.nextIncident();
                 if(now>=nextIncident&&(incident==null||!incident.pending()&&now>=incident.until())&&level>=settings.incidentMinimum()&&ThreadLocalRandom.current().nextDouble()<settings.chance()){
@@ -50,11 +53,11 @@ public final class CrimeService implements TownyCrimeApi {
     }
     @Override public Optional<Map<String,Object>> crime(UUID town){ApiServices.primaryThread();Objects.requireNonNull(town);if(TownyAPI.getInstance().getTown(town)==null)return Optional.empty();
         var s=repository.all().get(town);Map<String,Object> result=new LinkedHashMap<>();result.put("town",town);result.put("level",s==null?0.0:s.level());result.put("nextCycle",s==null?0L:s.nextCycle());
-        boolean paused=false;String status="Расчёт работает";CrimeEngine.Inputs inputs=null;
-        try{writable();inputs=bridge.inputs(town);if(s==null)throw new IllegalStateException("Первый расчёт ещё не выполнен");if(faults.containsKey(town))throw new IllegalStateException(faults.get(town));}catch(Exception|LinkageError ex){paused=true;status="Расчёт приостановлен; новые продажи ожидают восстановления";}
+        boolean paused=false;boolean protectedTown=false;String status="Расчёт работает";CrimeEngine.Inputs inputs=null;
+        try{writable();protectedTown=ru.neverland.core.NewcomerProtection.remaining(plugin,town)>0;if(protectedTown)status="Щит новичка: новые происшествия и потери дохода отключены";inputs=bridge.inputs(town);if(s==null)throw new IllegalStateException("Первый расчёт ещё не выполнен");if(faults.containsKey(town))throw new IllegalStateException(faults.get(town));}catch(Exception|LinkageError ex){paused=true;status="Расчёт приостановлен; новые продажи ожидают восстановления";}
         result.put("paused",paused);result.put("status",status);result.put("happiness",inputs==null?0.0:inputs.happiness());result.put("guard",inputs==null?0.0:CrimeEngine.guard(inputs,settings));result.put("workers",inputs==null?0:inputs.workers());result.put("target",inputs==null?0.0:CrimeEngine.target(inputs,settings));
         var i=s==null?null:s.incident();long now=System.currentTimeMillis();boolean extortion=i!=null&&i.kind().equals("EXTORTION")&&i.active(now);
-        result.put("incomeBasisPoints",CrimeEngine.income(s==null?0:s.level(),extortion,settings));result.put("incident",i==null?Map.of():Map.<String,Object>of("id",i.id(),"kind",i.kind(),"resource",i.resource(),"amount",i.amount(),"phase",i.phase(),"until",i.until(),"active",i.active(now)));
+        result.put("newcomerProtected",protectedTown);result.put("incomeBasisPoints",protectedTown?10000:CrimeEngine.income(s==null?0:s.level(),extortion,settings));result.put("incident",i==null?Map.of():Map.<String,Object>of("id",i.id(),"kind",i.kind(),"resource",i.resource(),"amount",i.amount(),"phase",i.phase(),"until",i.until(),"active",i.active(now)));
         return Optional.of(Map.copyOf(result));
     }
     @Override public Collection<Map<String,Object>> towns(){ApiServices.primaryThread();return TownyAPI.getInstance().getTowns().stream().map(t->crime(t.getUUID()).orElseThrow()).toList();}

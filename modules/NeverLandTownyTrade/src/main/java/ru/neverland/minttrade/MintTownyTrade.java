@@ -62,6 +62,7 @@ public final class MintTownyTrade extends JavaPlugin {
         getServer().getServicesManager().register(MintTownyTradeApi.class, api, this, ServicePriority.Normal);
         boolean placeholders = PlaceholderHook.register(this, towny, trade);
         visuals = new VisualCaravanService(this, repository, towny); trade.start(); visuals.start(); supplies.start();
+ru.neverland.core.ActivityAdmin.attach(this,"townytrade","minttrade.admin",trade::adminTargets);
         int campStops = camps.activeStops().size();
         getLogger().info("NeverLandTownyTrade " + getPluginMeta().getVersion() + " включён: экспортов " + registry.all().size() + ", склад="
                 + warehouse.available() + ", лагеря=" + (getServer().getPluginManager().isPluginEnabled("NeverLandTownyCamps") || getServer().getPluginManager().isPluginEnabled("MintTownyCamps"))

@@ -1,5 +1,5 @@
 name: NeverLandTownyControl
-version: 0.1.0
+version: 0.2.0
 main: ru.neverland.townycontrol.NeverLandTownyControl
 api-version: '26.2'
 authors: [Alexander Sokolov]
@@ -12,6 +12,10 @@ commands:
     description: Состояние и безопасное отключение модулей
     permission: neverlandtownycontrol.admin
     usage: /nltmodules <list|status|plan|disable|enable> [модуль|all]
+  nltadmin:
+    description: Единый справочник и управление аддонами
+    permission: neverlandtownycontrol.admin
+    usage: /nltadmin <list|модуль> [действие]
 permissions:
   neverlandtownycontrol.admin:
     description: Управление модулями всего сервера

@@ -60,6 +60,8 @@ public final class ContractRepository {
                             yaml.getLong(path + "expires-at"), yaml.getInt(path + "progress"),
                             yaml.getInt(path + "goal", 1), yaml.getDouble(path + "escrow"), contributions);
                     if (!Double.isFinite(contract.escrow()) || contract.escrow()>1_000_000_000.0 || yaml.getDouble(path+"escrow")<0 || yaml.getInt(path+"goal")<1 || yaml.getInt(path+"progress")<0 || contract.progress()>contract.goal() || contributions.values().stream().anyMatch(n->n<=0) || contributions.values().stream().mapToLong(Integer::longValue).sum()!=contract.progress()) throw new IllegalArgumentException("Некорректные условия или прогресс");
+                    contract.timer(ru.neverland.core.ActivityTimer.read(yaml,path,contract.timer()));
+                    contract.administrativeCancellation(ru.neverland.core.SafeYaml.booleanValue(yaml,path+"admin-cancelled",false));
                     String company=yaml.getString(path+"company", "");
                     if(!company.isEmpty())contract.restoreCompany(UUID.fromString(company));
                     if(yaml.contains(path+"funded")&&!yaml.isBoolean(path+"funded"))throw new IllegalArgumentException("Повреждён статус резерва");contract.funded(yaml.getBoolean(path+"funded",true));
@@ -156,7 +158,7 @@ public final class ContractRepository {
         for (ActiveContract contract : allActive()) {
             String path = "towns." + contract.townId() + ".active." + contract.id() + ".";
             yaml.set(path + "template", contract.templateId()); yaml.set(path + "created-at", contract.createdAt());
-            yaml.set(path + "expires-at", contract.expiresAt()); yaml.set(path + "progress", contract.progress());
+            yaml.set(path + "expires-at", contract.expiresAt()); contract.timer().write(yaml,path);yaml.set(path+"admin-cancelled",contract.administrativeCancellation()); yaml.set(path + "progress", contract.progress());
             yaml.set(path + "goal", contract.goal()); yaml.set(path + "escrow", contract.escrow());
             yaml.set(path+"funded",contract.funded());
             if(contract.snapshot()!=null)ContractCodec.write(yaml.createSection(path+"terms"),contract.snapshot());
