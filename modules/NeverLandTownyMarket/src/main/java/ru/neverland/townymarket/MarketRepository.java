@@ -9,6 +9,8 @@ import static ru.neverland.townymarket.MarketData.*;
 public final class MarketRepository implements MarketPayments.Store {
     private final Path file;private volatile Map<UUID,Listing> listings=Map.of();private volatile Map<UUID,Order> orders=Map.of();private volatile List<Demand> demand=List.of();private boolean writable;
     public MarketRepository(Path file){this.file=file;}
+    private java.util.function.Consumer<Order> audit=o->{};
+    public void audit(java.util.function.Consumer<Order> observer){audit=Objects.requireNonNull(observer);}
     public boolean writable(){return writable;}public Collection<Listing> listings(){return listings.values();}public Collection<Order> orders(){return orders.values();}public List<Demand> demand(){return demand;}
     public Listing listing(UUID id){return listings.get(id);}@Override public Order order(UUID id){return orders.get(id);}
     public void load()throws IOException {
@@ -27,7 +29,7 @@ public final class MarketRepository implements MarketPayments.Store {
     public void put(Order o,long now)throws IOException {
         var os=new LinkedHashMap<>(orders);Order old=os.put(o.id(),o);List<Demand> ds=new ArrayList<>(demand.stream().filter(d->d.at()>now-DAY).toList());
         if(o.phase()==Phase.COMPLETE&&(old==null||old.phase()!=Phase.COMPLETE)&&ds.stream().noneMatch(d->d.order().equals(o.id()))){var l=listings.get(o.lot());ds.add(new Demand(o.id(),l.scopeKey(),l.product(),o.buyer(),now,o.amount()));}
-        ds.sort(Comparator.comparingLong(Demand::at));if(ds.size()>5000)ds=new ArrayList<>(ds.subList(ds.size()-5000,ds.size()));save(listings,os,ds);
+        ds.sort(Comparator.comparingLong(Demand::at));if(ds.size()>5000)ds=new ArrayList<>(ds.subList(ds.size()-5000,ds.size()));save(listings,os,ds);audit.accept(o);
     }
     public void prune()throws IOException {
         var done=orders.values().stream().filter(Order::finalized).sorted(Comparator.comparingLong(Order::created).reversed()).toList();if(done.size()<=2000)return;

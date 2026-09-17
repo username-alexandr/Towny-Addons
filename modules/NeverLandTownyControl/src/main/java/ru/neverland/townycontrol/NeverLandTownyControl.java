@@ -17,6 +17,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
     private ModuleGraph graph;
     private Path stateFile;
     private boolean applying;
+    private BankAudit bankAudit;
     @Override public void onEnable() {
         try(var stream=getResource("module-dependencies.yml")) {
             if(stream==null)throw new IOException("Нет схемы зависимостей");
@@ -32,6 +33,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             ModulePauseStore.save(stateFile,ModulePauseStore.request(state,state.requests(),blocked,System.currentTimeMillis()));
             getCommand("nltmodules").setExecutor(this);getCommand("nltmodules").setTabCompleter(this);
             new AdminRouter(this,graph).register();
+            new AuditCommand(this);bankAudit=new BankAudit(this);
             getServer().getPluginManager().registerEvents(this,this);
             getLogger().info("Управление модулями: "+graph.modules().size()+"; отключено с зависимостями: "+blocked.size());
         } catch(Exception e) {
@@ -39,6 +41,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             getServer().getPluginManager().disablePlugin(this);
         }
     }
+    @Override public void onDisable(){if(bankAudit!=null)bankAudit.stop();}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
         if(!sender.hasPermission("neverlandtownycontrol.admin")){sender.sendMessage("§cНет прав.");return true;}
         try {

@@ -50,27 +50,29 @@ public final class ContractService implements MintTownyContractsApi {
         this.warehouse = warehouse; this.economy = economy; this.messages = messages;
         payments=new MunicipalPayments(new MunicipalPayments.Store(){
             public MunicipalPayment get(UUID id){return repository.payments().get(id);}
-            public void put(MunicipalPayment p)throws Exception{repository.payment(p);repository.saveOrThrow();}
+            public void put(MunicipalPayment p)throws Exception{repository.payment(p);repository.saveOrThrow();auditPayment(p);}
             public void result(MunicipalPayment p,boolean paid)throws Exception{
                 repository.payment(p);
                 if(p.kind()==MunicipalPayment.Kind.RESERVE){ActiveContract c=find(p.town(),p.contract().toString());if(c==null)throw new IllegalStateException("Нет задания для резерва");
                     if(paid)c.funded(true);else repository.addHistory(c,ContractStatus.CANCELLED,0,0,30,System.currentTimeMillis());}
-                repository.changed();repository.saveOrThrow();
+                repository.changed();repository.saveOrThrow();auditPayment(p);
             }
         },new ru.neverland.mintcontracts.integration.MunicipalBank());
         deliveries=new MunicipalDeliveries(new MunicipalDeliveries.Store(){
             public DeliveryIntent get(UUID id){return repository.deliveries().get(id);}
-            public void put(DeliveryIntent d)throws Exception{repository.delivery(d);repository.saveOrThrow();}
+            public void put(DeliveryIntent d)throws Exception{repository.delivery(d);repository.saveOrThrow();auditDelivery(d);}
             public void complete(DeliveryIntent d)throws Exception{
                 ActiveContract c=find(d.town(),d.contract().toString());if(c==null||!c.funded()||c.settlementStatus()!=null||c.goal()-c.progress()<d.amount())throw new IllegalStateException("Поставка не соответствует заданию");
-                if(c.add(d.actor(),d.amount())!=d.amount())throw new IllegalStateException("Поставка не засчитана целиком");repository.delivery(d);repository.changed();repository.saveOrThrow();
+                if(c.add(d.actor(),d.amount())!=d.amount())throw new IllegalStateException("Поставка не засчитана целиком");repository.delivery(d);repository.changed();repository.saveOrThrow();auditDelivery(d);
             }
         },new MunicipalDeliveries.Warehouse(){
             public String deposit(DeliveryIntent d)throws Exception{return warehouse.deposit(d.town(),d.id(),ContractCodec.item(d.sample()),d.amount());}
-            public void acknowledge(DeliveryIntent d)throws Exception{warehouse.acknowledge(d.town(),d.id());}
+            public void acknowledge(DeliveryIntent d)throws Exception{ru.neverland.core.AuditTrail.require(auditDelivery(d));warehouse.acknowledge(d.town(),d.id());}
         });
         fieldWork=new FieldWorkService(plugin,this,towny);
     }
+    private boolean auditPayment(MunicipalPayment p){var city=ru.neverland.core.AuditTrail.town(p.town());var escrow=new ru.neverland.core.AuditRecord.Party("ESCROW",String.valueOf(p.contract()),"Резерв контракта",p.town().toString());return ru.neverland.core.AuditTrail.record(plugin,p.phase().name(),p.id().toString(),"CONTRACT_PAYMENT",p.phase().name(),ru.neverland.core.AuditRecord.Party.system(),p.kind()==MunicipalPayment.Kind.RESERVE?city:escrow,p.kind()==MunicipalPayment.Kind.RESERVE?escrow:p.kind()==MunicipalPayment.Kind.REWARD?ru.neverland.core.AuditTrail.player(p.account()):city,"",0,ru.neverland.core.AuditTrail.cents(p.cents()),"kind="+p.kind()+"; contract="+p.contract());}
+    private boolean auditDelivery(DeliveryIntent d){var actor=ru.neverland.core.AuditTrail.player(d.actor());return ru.neverland.core.AuditTrail.record(plugin,d.phase().name(),d.id().toString(),"CONTRACT_DELIVERY",d.phase().name(),actor,actor,ru.neverland.core.AuditTrail.town(d.town()),ru.neverland.core.AuditTrail.item(ContractCodec.item(d.sample())),d.amount(),"","contract="+d.contract());}
     public void initialize()throws Exception {
         for(ActiveContract c:repository.allActive())if(c.snapshot()==null){ContractDefinition d=registry.get(c.templateId());
             if(d==null)d=fallback(c);c.snapshot(new ContractDefinition(c.templateId(),d.name(),d.type(),d.icon(),d.slot(),d.description(),d.target(),d.deliveryItem(),c.goal(),c.escrow(),Math.max(1,(c.expiresAt()-c.createdAt())/1000)));repository.changed();}

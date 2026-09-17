@@ -13,7 +13,7 @@ import ru.neverland.townycompanies.api.CompaniesApi;
 public final class CompanyService implements CompaniesApi {
     private final JavaPlugin plugin;public final CompanyLedger ledger;public final ContractsBridge contracts=new ContractsBridge();
     private final CompanyRepository repository;private boolean ready;
-    public CompanyService(JavaPlugin plugin,CompanyRepository repository) {this.plugin=plugin;this.repository=repository;ledger=new CompanyLedger(repository,new CompanyBank());}
+    public CompanyService(JavaPlugin plugin,CompanyRepository repository) {this.plugin=plugin;this.repository=repository;ledger=new CompanyLedger(repository,new CompanyBank());repository.audit((a,b)->CompanyAudit.changed(plugin,a,b));CompanyAudit.changed(plugin,CompanyLedger.State.empty(),repository.state());}
     public static Town town(UUID player) {var r=TownyAPI.getInstance().getResident(player);return r==null?null:r.getTownOrNull();}
     public long interval(){return Math.max(1,Math.min(168,plugin.getConfig().getLong("tax.interval-hours",24)))*3_600_000L;}
     public long rate(Kind kind){long n=plugin.getConfig().getLong("tax.cents."+kind.name().toLowerCase(Locale.ROOT),10000);CompanyData.money(n);return n;}

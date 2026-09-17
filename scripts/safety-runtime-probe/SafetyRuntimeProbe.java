@@ -42,7 +42,7 @@ public final class SafetyRuntimeProbe extends JavaPlugin {
     Path eventFile(){return plugin("NeverLandTownyEvents").getDataFolder().toPath().resolve("events-data.yml");}
     Path stateFile(){return ModulePauseStore.file(plugin("NeverLandTownyEvents").getDataFolder().toPath().getParent());}
     void first()throws Exception{
-        adminCoverage();
+        auditCoverage();adminCoverage();
         check(events.shieldRemainingMillis(T)>86_300_000&&events.shieldRemainingMillis(T)<=86_400_000,"new Towny town receives 24h shield from original creation date");
         check(!events.startEvent(town,registry.get("drought")),"hostile event respects newbie shield");
         check(events.startEvent(town,registry.get("festival")),"peaceful festival remains available under shield");events.cancel(town);
@@ -80,6 +80,35 @@ public final class SafetyRuntimeProbe extends JavaPlugin {
         check(!plugin("NeverLandTownyResources").isEnabled(),"dependent production cannot run on missing events API");
         Files.writeString(proof.resolve("disabled-events.yml"),Files.readString(eventFile()));
     }
+    List<AuditRecord> auditRows(String module)throws Exception{var rows=new ArrayList<AuditRecord>();AuditJournal.scan(plugin(module).getDataFolder().toPath().resolve("audit"),rows::add);return rows;}
+    void auditCoverage()throws Exception{
+        var u=TownyUniverse.getInstance();UUID buyerId=id("audit-buyer"),mayorId=id("audit-buyer-mayor");u.newTownInternal("AuditBuyer",buyerId);var buyer=TownyAPI.getInstance().getTown(buyerId);var mayor=u.getDataSource().newResident("AuditBuyerMayor",mayorId);mayor.setTown(buyer);buyer.setMayor(mayor);mayor.save();buyer.save();Bukkit.getPluginManager().callEvent(new com.palmergames.bukkit.towny.event.NewTownEvent(buyer));buyer.getAccount().deposit(1000,"audit fixture funding");
+        long transfers=auditRows("NeverLandTownyControl").stream().filter(r->r.kind().equals("BANK_TRANSFER")).count();double from=buyer.getAccount().getHoldingBalance(),to=town.getAccount().getHoldingBalance();
+        check(buyer.getAccount().payTo(12.34,town.getAccount(),"audit native paired transfer"),"native bank transfer succeeds");
+        var bank=auditRows("NeverLandTownyControl");check(bank.stream().filter(r->r.kind().equals("BANK_TRANSFER")).count()==transfers+1,"one completed paired transfer despite debit/credit events");
+        check(bank.stream().anyMatch(r->r.kind().equals("BANK_TRANSFER")&&r.from().id().equals(buyerId.toString())&&r.to().id().equals(T.toString())&&r.money().equals("12.34")),"native bank audit preserves both UUIDs and amount");
+        check(bank.stream().anyMatch(r->r.kind().equals("BANK_LEG")&&r.details().equals("audit native paired transfer")),"account observer captures actual payment reason");
+        check(Math.abs(buyer.getAccount().getHoldingBalance()-(from-12.34))<.001&&Math.abs(town.getAccount().getHoldingBalance()-(to+12.34))<.001,"audit never changes actual balances");
+        check(!buyer.getAccount().payTo(1000000,town.getAccount(),"audit rejected"),"unfunded native transfer rejected");check(auditRows("NeverLandTownyControl").stream().filter(r->r.kind().equals("BANK_TRANSFER")).count()==transfers+1,"rejected transfer never appears as completed");
+        var builds=(ru.neverland.townybuilds.NeverLandTownyBuilds)plugin("NeverLandTownyBuilds");var data=field(builds,ru.neverland.townybuilds.data.DataStore.class);var storage=builds.storage();ItemStack sample=new ItemStack(Material.DIAMOND);data.town(T).setStorage(new ItemStack[]{new ItemStack(Material.DIAMOND,32)},54);data.saveOrThrow();
+        UUID delivery=id("audit-supply");check(storage.reserveTrade(T,buyerId,delivery,sample,5).equals("RESERVED"),"real intercity resource reservation");check(storage.settleTrade(T,delivery,true).equals("DELIVERED"),"real intercity resource delivery");storage.settleTrade(T,delivery,true);storage.acknowledgeTrade(T,delivery);
+        check(auditRows("NeverLandTownyBuilds").stream().filter(r->r.operation().equals(delivery.toString())&&r.outcome().equals("DELIVERED")).count()==1,"resource replay/acknowledgement produces exactly one audit record");
+        check(ru.neverland.townybuilds.storage.StockMath.count(data.town(buyerId).storage(),sample)==5,"resource audit does not duplicate delivered goods");
+        var market=field(plugin("NeverLandTownyMarket"),ru.neverland.townymarket.MarketService.class);UUID lot=id("audit-market-lot"),orderId=id("audit-market-order");long now=System.currentTimeMillis();String item=Base64.getEncoder().encodeToString(sample.serializeAsBytes());
+        var listing=new ru.neverland.townymarket.MarketData.Listing(lot,T,item,"Алмаз","diamond",ru.neverland.townymarket.MarketData.Scope.GLOBAL,false,250,4,now,ru.neverland.townymarket.MarketData.ListingState.ACTIVE,"");market.repo.put(listing);market.bridge.call("open",new Class<?>[]{UUID.class,UUID.class,ItemStack.class,int.class},T,lot,sample,4);
+        var order=new ru.neverland.townymarket.MarketData.Order(orderId,lot,T,buyerId,mayorId,true,4,250,now,ru.neverland.townymarket.MarketData.Phase.PREPARED,now,"fixture",false);market.repo.put(order);check(market.bridge.reserve(order).equals("HELD")&&market.bridge.debit(order),"market real stock and bank debit");market.repo.put(order.phase(ru.neverland.townymarket.MarketData.Phase.PAID,now,"native paid"));
+        for(int i=0;i<4;i++)ru.neverland.townymarket.MarketPayments.advance(orderId,now+1000,1000,market.repo,market.bridge);
+        check(market.repo.order(orderId).finalized(),"market saga completes with audit callbacks");var deals=auditRows("NeverLandTownyMarket").stream().filter(r->r.operation().equals(orderId.toString())&&r.outcome().equals("COMPLETE")).toList();check(deals.size()==1&&deals.getFirst().actor().id().equals(mayorId.toString())&&deals.getFirst().quantity()==4&&deals.getFirst().money().equals("10.00"),"market audit contains initiator, exact goods and settled price");
+        check(ru.neverland.townybuilds.storage.StockMath.count(data.town(buyerId).storage(),sample)==9,"market physical delivery matches audit");
+        UUID faultDelivery=id("audit-storage-fault");storage.reserveTrade(T,buyerId,faultDelivery,sample,1);Path auditDirectory=builds.getDataFolder().toPath().resolve("audit");Path auditFile=AuditJournal.files(auditDirectory).getFirst(),backup=auditFile.resolveSibling(auditFile.getFileName()+".saved");Files.move(auditFile,backup);Files.createDirectory(auditFile);
+        try{check(storage.settleTrade(T,faultDelivery,true).equals("DELIVERED"),"audit disk fault does not undo a delivered resource");boolean blocked=false;try{storage.acknowledgeTrade(T,faultDelivery);}catch(java.io.IOException expected){blocked=true;}check(blocked&&data.town(T).tradeCargo().containsKey(faultDelivery),"audit failure retains terminal resource receipt for retry");}finally{Files.delete(auditFile);Files.move(backup,auditFile);}
+        storage.acknowledgeTrade(T,faultDelivery);check(!data.town(T).tradeCargo().containsKey(faultDelivery)&&ru.neverland.townybuilds.storage.StockMath.count(data.town(buyerId).storage(),sample)==10,"audit recovery clears receipt without moving resources twice");
+        check(auditRows("NeverLandTownyBuilds").stream().filter(r->r.operation().equals(faultDelivery.toString())).count()==1,"recovered resource evidence appears once");
+        var actor=new Actor(M);var command=Bukkit.getPluginCommand("nltaudit");command.execute(actor.player,"nltaudit",new String[]{"search"});check(command.getTabCompleter().onTabComplete(actor.player,command,"nltaudit",new String[]{""}).isEmpty(),"ordinary player cannot enumerate audit commands");actor.body.remove();
+        var executor=command.getExecutor();var read=executor.getClass().getDeclaredMethod("read",String.class,AuditQuery.class);read.setAccessible(true);var reply=(List<?>)read.invoke(executor,"export",AuditQuery.parse(new String[]{"id="+orderId}));check(reply.getFirst().toString().contains("CSV:"),"administrative CSV export executes");
+        Path exports=plugin("NeverLandTownyControl").getDataFolder().toPath().resolve("audit-exports");try(var files=Files.list(exports)){Path csv=files.filter(f->f.toString().endsWith(".csv")).findFirst().orElseThrow();String contents=Files.readString(csv);check(contents.contains(orderId.toString())&&contents.contains("actor_id")&&contents.contains("DIAMOND"),"CSV includes linked deal and resource evidence");}
+        var journal=new AuditJournal(plugin("NeverLandTownyMarket").getDataFolder().toPath().resolve("audit"));check(!journal.append(deals.getFirst()),"reopened durable audit refuses duplicate terminal deal");Files.writeString(proof.resolve("audit-order.txt"),orderId.toString());
+    }
     void disabled()throws Exception{
         var state=ModulePauseStore.load(stateFile());
         for(var e:state.modules().entrySet())if(e.getValue().disabled())check(!plugin(e.getKey()).isEnabled(),"disabled before repository startup: "+e.getKey());
@@ -94,6 +123,7 @@ public final class SafetyRuntimeProbe extends JavaPlugin {
     }
     void resumed()throws Exception{
         adminResumed();
+        String order=Files.readString(proof.resolve("audit-order.txt"));check(auditRows("NeverLandTownyMarket").stream().filter(r->r.operation().equals(order)&&r.outcome().equals("COMPLETE")).count()==1,"audit survives two JVM restarts without duplicate settlement");
         town=TownyAPI.getInstance().getTown(T);var live=events.active(T);
         check(live!=null&&live.progress()==11&&live.startedAt()==Long.parseLong(Files.readString(proof.resolve("identity.txt"))),"active event and progress survive disable and two JVM restarts");
         check(live.endsAt()>System.currentTimeMillis()&&live.endsAt()-System.currentTimeMillis()<=15000,"expired real deadline restored with remaining playable time");
@@ -126,8 +156,8 @@ public final class SafetyRuntimeProbe extends JavaPlugin {
         check(NewcomerProtection.remaining(plugin("NeverLandTownyEspionage"),T)>86300000,"Espionage shares Events newcomer shield");
         TownyUniverse.getInstance().newTownInternal("SafetyTarget",id("target"));var targetTown=TownyAPI.getInstance().getTown(id("target"));targetTown.save();
         var spyService=field(plugin("NeverLandTownyEspionage"),ru.neverland.mintespionage.service.EspionageService.class);
-        var attempt=spyService.start(actor.player,targetTown,spyService.registry().get("reconnaissance"));
-        check(attempt.status().name().equals("NEWCOMER_PROTECTED")&&town.getAccount().getHoldingBalance()==10000,"protected spy start is rejected before charging the town");
+        double beforeSpy=town.getAccount().getHoldingBalance();var attempt=spyService.start(actor.player,targetTown,spyService.registry().get("reconnaissance"));
+        check(attempt.status().name().equals("NEWCOMER_PROTECTED")&&town.getAccount().getHoldingBalance()==beforeSpy,"protected spy start is rejected before charging the town");
         var crime=field(plugin("NeverLandTownyCrime"),ru.neverland.townycrime.CrimeService.class);var pulse=crime.getClass().getDeclaredMethod("pulse");pulse.setAccessible(true);pulse.invoke(crime);var state=crime.crime(T).orElseThrow();
         check(Boolean.TRUE.equals(state.get("newcomerProtected"))&&Integer.valueOf(10000).equals(state.get("incomeBasisPoints"))&&((Map<?,?>)state.get("incident")).isEmpty(),"protected Crime creates no incident and applies no shop income penalty");
         var spyRepo=field(plugin("NeverLandTownyEspionage"),ru.neverland.mintespionage.service.EspionageRepository.class);
@@ -151,7 +181,7 @@ public final class SafetyRuntimeProbe extends JavaPlugin {
         var logistics=field(plugin("NeverLandTownyLogistics"),ru.neverland.townylogistics.service.LogisticsService.class);
         var route=new ru.neverland.townylogistics.model.Network.Route("fixture","hub","from","to","",64,0,true);var nodes=new HashMap<String,ru.neverland.townylogistics.model.Network.Node>();for(String name:List.of("hub","from","to"))nodes.put(name,new ru.neverland.townylogistics.model.Network.Node(name,"warehouse",ru.neverland.townylogistics.model.Network.Kind.BUILDING,new ru.neverland.townylogistics.model.Position(world.getUID(),cell.getX(),cell.getY(),cell.getZ())));logistics.change(new ru.neverland.townylogistics.model.Network(T,nodes,Set.of(),Map.of("fixture",route)),false);admin("Logistics","pause",T+"/fixture");check(!logistics.network(T).route("fixture").enabled(),"logistics pauses new dispatches without cancelling cargo");
         var elections=field(plugin("NeverLandTownyElections"),ru.neverland.townyelections.ElectionsService.class);elections.start(town,now);var snapshot=elections.snapshot(T);check(snapshot.get("phase").equals("NOMINATION"),"election fixture starts through native service");admin("Elections","pause",snapshot.get("id"));check(elections.snapshot(T).get("detail").contains("Пауза"),"election native pause is exposed by public API");
-        check(town.getAccount().getHoldingBalance()==10000,"administrative time controls never charge Towny money");
+        check(town.getAccount().getHoldingBalance()==beforeSpy,"administrative time controls never charge Towny money");
     }
     void adminResumed()throws Exception {
         var saved=SafeYaml.load(proof.resolve("admin-timers.yml"));

@@ -17,7 +17,7 @@ import ru.neverland.townybuilds.api.TownShopTradeEvent;
 public final class ShopService implements PurchaseSaga.Gateway<ShopOrder> {
     private final JavaPlugin plugin;private final DataStore data;private final ShopJournal journal;private BukkitTask task;
     private final Set<UUID> checkingOut=new HashSet<>();private long warned;
-    public ShopService(JavaPlugin plugin,DataStore data){this.plugin=plugin;this.data=data;journal=new ShopJournal(plugin.getDataFolder().toPath().resolve("shop-orders.yml"));try{journal.load();}catch(java.io.IOException ex){throw new java.io.UncheckedIOException(ex);}}
+    public ShopService(JavaPlugin plugin,DataStore data){this.plugin=plugin;this.data=data;journal=new ShopJournal(plugin.getDataFolder().toPath().resolve("shop-orders.yml"));journal.audit(this::audit);try{journal.load();}catch(java.io.IOException ex){throw new java.io.UncheckedIOException(ex);}}
     public ShopJournal journal(){return journal;}
     public void start(){stop();task=Bukkit.getScheduler().runTaskTimer(plugin,this::pulse,20,20);}
     public void stop(){if(task!=null)task.cancel();task=null;}
@@ -48,7 +48,7 @@ public final class ShopService implements PurchaseSaga.Gateway<ShopOrder> {
         if(!player.isOnline()||player.getGameMode()==GameMode.CREATIVE||player.getGameMode()==GameMode.SPECTATOR)throw new IllegalArgumentException("Выдача доступна в выживании или приключении");
         if(!o.paymentStep().equals("COMPLETE"))return o.title();if(o.finalized())return "CLAIMED";
         String result=MarketTransactions.claim(data.town(o.seller()),access(),o.id(),o.id(),new MarketTransactions.Inventory(){private final ru.neverland.core.PlayerSaveReceipt receipt=ru.neverland.core.PlayerSaveReceipt.before(player);public UUID owner(){return player.getUniqueId();}public ItemStack[] read(){return player.getInventory().getStorageContents();}public void write(ItemStack[] items){player.getInventory().setStorageContents(items);}public void save(){receipt.save(player);}});
-        if(result.equals("CLAIMED"))advance(id);return result;
+        if(result.equals("CLAIMED")){AuditTrail.record(plugin,"claimed",o.id().toString(),"SHOP_DELIVERY","CLAIMED",AuditTrail.player(o.buyer()),AuditTrail.town(o.seller()),AuditTrail.player(o.buyer()),o.material(),o.amount(),"","Выдача оплаченного товара");advance(id);}return result;
     }
     public void advance(UUID id)throws Exception{thread();PurchaseSaga.advance(id,System.currentTimeMillis(),5000,journal,this);}
     private void pulse(){if(!journal.writable()||!data.writable())return;for(var o:journal.all().stream().filter(v->!v.finalized()&&v.check()<=System.currentTimeMillis()&&!Set.of("DEBIT_PENDING","CREDIT_PENDING").contains(v.paymentStep())&&!(v.paymentStep().equals("COMPLETE")&&Set.of("PICKUP","CLAIM_PENDING").contains(receipt(v)))).limit(20).toList())try{advance(o.id());}catch(Exception ex){if(System.currentTimeMillis()-warned>60000){warned=System.currentTimeMillis();plugin.getLogger().log(java.util.logging.Level.WARNING,"Лавка ожидает восстановления операции "+o.id(),ex);}}}
@@ -58,7 +58,8 @@ public final class ShopService implements PurchaseSaga.Gateway<ShopOrder> {
     @Override public String deliver(ShopOrder o)throws Exception{return MarketTransactions.deliver(data.town(o.seller()),access(),o.id(),o.id());}
     @Override public String refund(ShopOrder o)throws Exception{var town=data.town(o.seller());String result=MarketTransactions.refund(town,access(),o.id(),o.id());String closed=MarketTransactions.close(town,access(),o.id());return Set.of("CLOSED","MISSING").contains(closed)?result:closed;}
     @Override public String receipt(ShopOrder o){var stock=data.town(o.seller()).marketStock().get(o.id());var hold=stock==null?null:stock.holds().get(o.id());return hold==null?"MISSING":hold.status();}
-    @Override public void acknowledge(ShopOrder o)throws Exception{var town=data.town(o.seller());MarketTransactions.acknowledge(town,access(),o.id(),o.id());String status=MarketTransactions.close(town,access(),o.id());if(!Set.of("CLOSED","MISSING").contains(status))throw new IllegalStateException(status);MarketTransactions.forget(town,access(),o.id());}
+    private boolean audit(ShopOrder o){return AuditTrail.record(plugin,o.paymentStep(),o.id().toString(),"SHOP_DEAL",o.paymentStep(),AuditTrail.player(o.buyer()),AuditTrail.town(o.seller()),AuditTrail.player(o.buyer()),o.material(),o.amount(),AuditTrail.cents(o.total()),"sellerIncome="+AuditTrail.cents(o.sellerIncome())+"; "+o.note());}
+    @Override public void acknowledge(ShopOrder o)throws Exception{AuditTrail.require(audit(o));var town=data.town(o.seller());MarketTransactions.acknowledge(town,access(),o.id(),o.id());String status=MarketTransactions.close(town,access(),o.id());if(!Set.of("CLOSED","MISSING").contains(status))throw new IllegalStateException(status);MarketTransactions.forget(town,access(),o.id());}
     @Override public boolean debit(ShopOrder o)throws Exception{return payment(o,false);}
     @Override public boolean credit(ShopOrder o)throws Exception{return payment(o,true);}
     private boolean payment(ShopOrder o,boolean incoming)throws Exception{

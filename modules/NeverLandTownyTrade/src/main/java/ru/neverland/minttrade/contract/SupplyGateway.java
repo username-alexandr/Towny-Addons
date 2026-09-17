@@ -40,7 +40,8 @@ public final class SupplyGateway implements SupplyProcessor.Gateway {
     public static ItemStack decode(String data){return ItemStack.deserializeBytes(Base64.getDecoder().decode(data));}
     @Override public String reserve(SupplyContract c)throws Exception {return (String)call("reserveTrade",new Class<?>[]{UUID.class,UUID.class,UUID.class,ItemStack.class,int.class},c.terms().seller(),c.terms().buyer(),c.attempt().id(),decode(c.terms().itemData()),c.terms().amount());}
     @Override public String settle(SupplyContract c,boolean deliver)throws Exception {return (String)call("settleTrade",new Class<?>[]{UUID.class,UUID.class,boolean.class},c.terms().seller(),c.attempt().id(),deliver);}
-    @Override public void acknowledge(SupplyContract c)throws Exception {call("acknowledgeTrade",new Class<?>[]{UUID.class,UUID.class},c.terms().seller(),c.attempt().id());}
+    public boolean audit(SupplyContract c){if(c.attempt()==null)return true;var t=c.terms();return ru.neverland.core.AuditTrail.record(plugin,c.attempt().phase().name(),c.attempt().id().toString(),"SUPPLY_DEAL",c.attempt().phase().name(),ru.neverland.core.AuditRecord.Party.system(),ru.neverland.core.AuditTrail.town(t.seller()),ru.neverland.core.AuditTrail.town(t.buyer()),ru.neverland.core.AuditTrail.item(decode(t.itemData())),t.amount(),ru.neverland.core.AuditTrail.cents(t.cents()),"contract="+t.id()+"; "+c.note());}
+    @Override public void acknowledge(SupplyContract c)throws Exception {ru.neverland.core.AuditTrail.require(audit(c));call("acknowledgeTrade",new Class<?>[]{UUID.class,UUID.class},c.terms().seller(),c.attempt().id());}
     @Override public boolean debit(SupplyContract c)throws Exception {return payment(c,false);}
     @Override public boolean credit(SupplyContract c)throws Exception {return payment(c,true);}
     private boolean payment(SupplyContract c,boolean deposit)throws Exception {
