@@ -1,5 +1,5 @@
 name: NeverLandTownyControl
-version: 0.2.0
+version: 0.3.0
 main: ru.neverland.townycontrol.NeverLandTownyControl
 api-version: '26.2'
 authors: [Alexander Sokolov]
@@ -7,6 +7,11 @@ description: Безопасное административное отключ�
 depend: [Towny]
 loadbefore: [NeverLandTownyArchaeology, NeverLandTownyArmy, NeverLandTownyBuilds, NeverLandTownyCamps, NeverLandTownyChronicles, NeverLandTownyCitizens, NeverLandTownyCompanies, NeverLandTownyContracts, NeverLandTownyCouncil, NeverLandTownyCrime, NeverLandTownyDiplomacy, NeverLandTownyDistricts, NeverLandTownyElections, NeverLandTownyEspionage, NeverLandTownyEvents, NeverLandTownyExpeditions, NeverLandTownyGovernance, NeverLandTownyIdeologies, NeverLandTownyJobs, NeverLandTownyJustice, NeverLandTownyLogistics, NeverLandTownyMarket, NeverLandTownyPolicies, NeverLandTownyPopulation, NeverLandTownyPower, NeverLandTownyReputation, NeverLandTownyResearch, NeverLandTownyResources, NeverLandTownySeasons, NeverLandTownySiegesPlus, NeverLandTownySpecialization, NeverLandTownyStick, NeverLandTownyTaxes, NeverLandTownyTrade, NeverLandTownyTreasuryPlus, NeverLandTownyUpkeep]
 commands:
+  nltaudit:
+    aliases: [townyaudit]
+    description: Административный журнал денежных и ресурсных операций
+    permission: neverlandtownycontrol.audit
+    usage: /nltaudit <search|export|status|help> [фильтры]
   nltmodules:
     aliases: [townymodules]
     description: Состояние и безопасное отключение модулей
@@ -17,6 +22,12 @@ commands:
     permission: neverlandtownycontrol.admin
     usage: /nltadmin <list|модуль> [действие]
 permissions:
+  neverlandtownycontrol.audit:
+    description: Просмотр всех денежных и ресурсных операций
+    default: op
+  neverlandtownycontrol.audit.export:
+    description: Экспорт административного аудита в CSV
+    default: op
   neverlandtownycontrol.admin:
     description: Управление модулями всего сервера
     default: op

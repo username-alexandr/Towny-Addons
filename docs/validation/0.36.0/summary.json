@@ -1,0 +1,12 @@
+{
+  "suite": "0.36.0",
+  "modules": 37,
+  "executable_tests": 122,
+  "native_assertions": {
+    "first": 158,
+    "disabled": 33,
+    "resumed": 63
+  },
+  "baseline": "Purpur 26.2 build 2632; Towny 0.103.2.0; Java 25; SiegeWar 3.6.2",
+  "intentional_fault": "Builds audit monthly file temporarily replaced with a directory; delivery persisted, receipt retained, retry wrote evidence once without redelivery"
+}

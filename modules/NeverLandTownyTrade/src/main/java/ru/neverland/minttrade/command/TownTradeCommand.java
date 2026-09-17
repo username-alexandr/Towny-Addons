@@ -55,7 +55,7 @@ public final class TownTradeCommand implements CommandExecutor {
     }
     private void accept(Player player, Town town, String[] args) {
         if (!manager(player, town)) return; if (args.length < 2) { player.sendMessage(ColorUtil.color("&#FFFFFFИспользование: /t trade accept <ID>")); return; }
-        menus.sendAccept(player, trade.accept(town, trade.offer(args[1])));
+        menus.sendAccept(player, trade.accept(town, trade.offer(args[1]), player.getUniqueId()));
     }
     private void reject(Player player, Town town, String[] args) {
         if (!manager(player, town)) return; if (args.length < 2) { player.sendMessage(ColorUtil.color("&#FFFFFFИспользование: /t trade reject <ID>")); return; }

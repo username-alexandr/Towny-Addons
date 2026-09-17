@@ -115,7 +115,7 @@ public final class TradeMenuManager implements Listener {
         TradeOffer offer = trade.offer(offerId);
         if ("incoming".equals(action)) {
             if (event.isRightClick()) { trade.reject(town, offer); messages.send(player, "proposal-rejected"); }
-            else sendAccept(player, trade.accept(town, offer));
+            else sendAccept(player, trade.accept(town, offer, player.getUniqueId()));
         } else if ("outgoing".equals(action)) {
             trade.cancelOffer(town, offer); messages.send(player, "proposal-cancelled");
         }

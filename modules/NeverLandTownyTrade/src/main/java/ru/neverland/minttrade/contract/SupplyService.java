@@ -26,7 +26,8 @@ public final class SupplyService {
     public SupplyContract find(String prefix){if(prefix==null||prefix.length()<8)return null;var matches=all().stream().filter(c->c.terms().id().toString().startsWith(prefix.toLowerCase(Locale.ROOT))).toList();return matches.size()==1?matches.get(0):null;}
     private SupplyContract require(UUID town,String id){var c=find(id);if(c==null||!c.terms().party(town))throw new IllegalArgumentException("Договор не найден в вашем городе");return c;}
     public int defaultDays(){return Math.max(1,Math.min(30,plugin.getConfig().getInt("contracts.default-days",7)));}
-    public SupplyContract propose(Town seller,Town buyer,ItemStack item,int amount,long cents,int days)throws IOException {
+    public SupplyContract propose(Town seller,Town buyer,ItemStack item,int amount,long cents,int days)throws IOException {return propose(seller,buyer,item,amount,cents,days,null);}
+    public SupplyContract propose(Town seller,Town buyer,ItemStack item,int amount,long cents,int days,UUID actor)throws IOException {
         writable();if(!plugin.getConfig().getBoolean("contracts.enabled",true))throw new IllegalArgumentException("Новые автопоставки отключены администратором");
         if(seller==null||buyer==null||seller.equals(buyer))throw new IllegalArgumentException("Нужен другой существующий город");
         if(!gateway.available())throw new IllegalArgumentException("Обновите NeverLandTownyBuilds до 0.8.7 или новее");
@@ -40,9 +41,10 @@ public final class SupplyService {
         var c=SupplyContract.proposal(new Terms(UUID.randomUUID(),seller.getUUID(),buyer.getUUID(),Base64.getEncoder().encodeToString(sample.serializeAsBytes()),
             ru.neverland.minttrade.util.ColorUtil.strip(trade.registry().itemName(sample)),amount,cents,days,now,expiration));
         String blocked=gateway.termsReady(c);if(blocked!=null)throw new IllegalArgumentException(blocked);
-        repo.prune(1000);repo.put(c);announce(c,"contract-proposed");return c;
+        repo.prune(1000);repo.put(c);auditAgreement(c,actor,"PROPOSED");announce(c,"contract-proposed");return c;
     }
-    public SupplyContract action(UUID town,String id,String action,Terms expected)throws IOException {
+    public SupplyContract action(UUID town,String id,String action,Terms expected)throws IOException {return action(town,id,action,expected,null);}
+    public SupplyContract action(UUID town,String id,String action,Terms expected,UUID actor)throws IOException {
         writable();var c=require(town,id);if(!c.terms().equals(expected))throw new IllegalArgumentException("Условия изменились; заново откройте договор и проверьте их");long now=System.currentTimeMillis();
         var next=switch(action){
             case "accept" -> {if(!plugin.getConfig().getBoolean("contracts.enabled",true)||!gateway.available())throw new IllegalArgumentException("Новые автопоставки отключены или склад недоступен");String blocked=gateway.termsReady(c);if(blocked!=null)throw new IllegalArgumentException(blocked);yield c.accept(town,now);}
@@ -53,8 +55,9 @@ public final class SupplyService {
         var outcomes=new ArrayList<ru.neverland.core.ReputationOutcome>();
         if(c.status()==Status.ACTIVE && next.status()==Status.CANCELLED)
             outcomes.add(ru.neverland.core.ReputationOutcome.town("supply-cancel:"+c.terms().id(),town,"SUPPLY_CANCELLED",now,"Расторгнут договор "+c.terms().shortId()));
-        repo.put(next,outcomes);flushReputation();announce(next,"contract-changed");return next;
+        repo.put(next,outcomes);auditAgreement(next,actor,action.toUpperCase(Locale.ROOT));flushReputation();announce(next,"contract-changed");return next;
     }
+    private void auditAgreement(SupplyContract c,UUID actor,String action){var t=c.terms();ru.neverland.core.AuditTrail.record(plugin,UUID.randomUUID().toString(),t.id().toString(),"SUPPLY_AGREEMENT",action,ru.neverland.core.AuditTrail.player(actor),ru.neverland.core.AuditTrail.town(t.seller()),ru.neverland.core.AuditTrail.town(t.buyer()),ru.neverland.core.AuditTrail.item(SupplyGateway.decode(t.itemData())),t.amount(),ru.neverland.core.AuditTrail.cents(t.cents()),"Условия договора; период дней="+t.days());}
     public void resolve(String id,UUID attempt,String decision)throws IOException {
         writable();var c=SupplyProcessor.resolve(find(id),attempt,decision,System.currentTimeMillis());repo.put(c);
         plugin.getLogger().warning("Сверка договора "+c.terms().id()+", поставка "+attempt+": "+decision);announce(c,"contract-changed");
@@ -68,7 +71,7 @@ public final class SupplyService {
             try {
                 if(before.status()==Status.PROPOSED&&now>=before.terms().expires()){repo.put(before.expire());continue;}
                 if(before.attempt()==null&&!plugin.getConfig().getBoolean("contracts.enabled",true))continue;
-                SupplyProcessor.advance(before.terms().id(),now,retry,Math.max(0,Math.min(168,plugin.getConfig().getInt("contracts.reputation-grace-hours",24)))*3_600_000L,repo,gateway);flushReputation();
+                gateway.audit(before);SupplyProcessor.advance(before.terms().id(),now,retry,Math.max(0,Math.min(168,plugin.getConfig().getInt("contracts.reputation-grace-hours",24)))*3_600_000L,repo,gateway);gateway.audit(repo.get(before.terms().id()));flushReputation();
                 var after=repo.get(before.terms().id());if(after.deliveries()>before.deliveries())announce(after,"contract-delivered");
                 if(after.attempt()!=null&&(after.attempt().phase()==Phase.DEBIT_PENDING||after.attempt().phase()==Phase.CREDIT_PENDING)
                     &&(before.attempt()==null||before.attempt().phase()!=after.attempt().phase()))announce(after,"contract-reconcile");

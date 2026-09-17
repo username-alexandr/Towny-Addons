@@ -16,9 +16,10 @@ import ru.neverland.townybuilds.data.TownData;
 
 public final class WarehouseService implements WarehouseApi {
    private final DataStore data;
+   private final Plugin plugin;
 
    public WarehouseService(Plugin plugin, DataStore data) {
-      this.data = data;
+      this.data = data;this.plugin=plugin;
       Bukkit.getServicesManager().register(WarehouseApi.class, this, plugin, ServicePriority.Normal);
    }
 
@@ -54,6 +55,7 @@ public final class WarehouseService implements WarehouseApi {
          TownData state = this.data.town(town);
          WarehouseMovement old = state.warehouseMovements().get(operation);
          if (old != null) {
+            ru.neverland.core.AuditTrail.require(audit(operation,town,old.sample(),old.amount(),old.incoming()));
             state.removeWarehouseMovement(operation);
 
             try {
@@ -66,6 +68,7 @@ public final class WarehouseService implements WarehouseApi {
       }
    }
 
+   private boolean audit(UUID operation,UUID town,ItemStack sample,int amount,boolean incoming){var city=ru.neverland.core.AuditTrail.town(town);var unknown=ru.neverland.core.AuditRecord.Party.unknown();return ru.neverland.core.AuditTrail.record(plugin,"warehouse:"+town,operation.toString(),"WAREHOUSE_LEG",incoming?"CREDIT":"DEBIT",unknown,incoming?unknown:city,incoming?city:unknown,ru.neverland.core.AuditTrail.item(sample),amount,"","Warehouse API");}
    private Map<String, Object> result(String status, int amount) {
       return Map.of("status", status, "amount", amount);
    }
@@ -121,12 +124,13 @@ public final class WarehouseService implements WarehouseApi {
                   throw var11;
                }
 
+               audit(operation==null?UUID.randomUUID():operation,town,sample,amount,incoming);
                return this.result("SUCCESS", amount);
             }
          } else if (!prior.matches(sample, amount, incoming)) {
             throw new IllegalArgumentException("ID склада занят другими условиями");
          } else {
-            return this.result("SUCCESS", amount);
+            audit(operation,town,sample,amount,incoming);return this.result("SUCCESS", amount);
          }
       }
    }

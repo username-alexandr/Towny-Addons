@@ -18,7 +18,7 @@ public final class BuildingStorageService implements BuildingStorageApi,Listener
     private final JavaPlugin plugin;private final DataStore data;private final DefinitionRegistry definitions;private final TownyHook towny=new TownyHook();
     private final BuildingFootprints footprints=new BuildingFootprints();
     private static final class View implements InventoryHolder {
-        final UUID town;final UUID session=UUID.randomUUID();final String project;Inventory inventory;
+        final UUID town;final UUID session=UUID.randomUUID();final String project;Inventory inventory;ItemStack[] auditBefore=new ItemStack[0];
         View(UUID town,String project){this.town=town;this.project=project;}
         @Override public Inventory getInventory(){return inventory;}
     }
@@ -78,9 +78,10 @@ public final class BuildingStorageService implements BuildingStorageApi,Listener
     @Override public String settleTrade(UUID seller,UUID id,boolean deliver)throws IOException {
         thread();var receipt=data.town(seller).tradeCargo().get(id);
         if(deliver&&receipt!=null&&towny.town(receipt.buyer())==null)return "CITY_MISSING";
-        return TradeStorageTransactions.settle(data.town(seller),tradeAccess(),id,deliver);
+        String result=TradeStorageTransactions.settle(data.town(seller),tradeAccess(),id,deliver);auditTrade(seller,id);return result;
     }
-    @Override public void acknowledgeTrade(UUID seller,UUID id)throws IOException {thread();TradeStorageTransactions.acknowledge(data.town(seller),tradeAccess(),id);}
+    private boolean auditTrade(UUID seller,UUID id){var r=data.town(seller).tradeCargo().get(id);if(r==null||r.status().equals("RESERVED"))return true;return ru.neverland.core.AuditTrail.record(plugin,r.status(),id.toString(),"WAREHOUSE_TRADE",r.status(),ru.neverland.core.AuditRecord.Party.system(),ru.neverland.core.AuditTrail.town(seller),ru.neverland.core.AuditTrail.town(r.status().equals("DELIVERED")?r.buyer():seller),ru.neverland.core.AuditTrail.item(r.sample()),r.amount(),"","Ресурсная квитанция API; buyer="+r.buyer());}
+    @Override public void acknowledgeTrade(UUID seller,UUID id)throws IOException {thread();ru.neverland.core.AuditTrail.require(auditTrade(seller,id));TradeStorageTransactions.acknowledge(data.town(seller),tradeAccess(),id);}
     @Override public void openStorage(Player player,String project){
         thread();var town=towny.town(player);if(town==null){tell(player,"Вы не состоите в городе.");return;}
         if(!ru.neverland.core.CitizensAccess.allows(town.getUUID(),player.getUniqueId(),"STORAGE")){tell(player,"Ваш статус не даёт доступа к муниципальному складу.");return;}
@@ -89,7 +90,7 @@ public final class BuildingStorageService implements BuildingStorageApi,Listener
         View v=new View(town.getUUID(),project);
         if(!data.lockStorage(town.getUUID(),project,v.session)){tell(player,"Склад уже открыт другим игроком. Дождитесь его закрытия.");return;}
         String name=project.equals("warehouse")?"Склад города":def.name();
-        try{v.inventory=ru.neverland.core.MenuStyle.inventory(plugin, v,size(t,project),ru.neverland.townybuilds.util.ColorUtil.component("&2"+name+" &8• Склад"));v.inventory.setContents(read(t,project));player.openInventory(v.inventory);if(player.getOpenInventory().getTopInventory()!=v.inventory)data.unlockStorage(v.town,v.project,v.session);}
+        try{v.inventory=ru.neverland.core.MenuStyle.inventory(plugin, v,size(t,project),ru.neverland.townybuilds.util.ColorUtil.component("&2"+name+" &8• Склад"));v.auditBefore=StockMath.copy(read(t,project));v.inventory.setContents(v.auditBefore);player.openInventory(v.inventory);if(player.getOpenInventory().getTopInventory()!=v.inventory)data.unlockStorage(v.town,v.project,v.session);}
         catch(RuntimeException ex){data.unlockStorage(v.town,v.project,v.session);throw ex;}
     }
     private void tell(Player p,String message){p.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&aNeverLand &8• &fСклады&8] &r"+message));}
@@ -109,5 +110,5 @@ public final class BuildingStorageService implements BuildingStorageApi,Listener
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)public void changed(InventoryClickEvent e){if(e.getView().getTopInventory().getHolder() instanceof View v)mirror(e.getView().getTopInventory(),v);}
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)public void changed(InventoryDragEvent e){if(e.getView().getTopInventory().getHolder() instanceof View v)mirror(e.getView().getTopInventory(),v);}
     @EventHandler public void close(InventoryCloseEvent e){if(!(e.getInventory().getHolder() instanceof View v)||!data.ownsStorage(v.town,v.project,v.session))return;
-        try{write(data.town(v.town),v.project,e.getInventory().getContents());data.save();}finally{data.unlockStorage(v.town,v.project,v.session);}}
+        try{write(data.town(v.town),v.project,e.getInventory().getContents());data.save();ru.neverland.core.AuditTrail.inventory(plugin,v.session.toString(),e.getPlayer().getUniqueId(),v.town,v.project,v.auditBefore,e.getInventory().getContents());}finally{data.unlockStorage(v.town,v.project,v.session);}}
 }

@@ -1,0 +1,158 @@
+all 37 addons enabled
+all API contracts inventoried
+provider ABI/capabilities: ru.neverland.archaeology.api.TownyArchaeologyApi
+provider ABI/capabilities: ru.neverland.townyarmy.api.TownyArmyApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.BuildingStorageApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.MarketStorageApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.MunicipalStorageApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.TownArmyApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.TownyBuildsApi
+provider ABI/capabilities: ru.neverland.townybuilds.api.WarehouseApi
+provider ABI/capabilities: ru.neverland.mintcamps.api.TownyCampsApi
+provider ABI/capabilities: ru.neverland.townychronicles.api.TownyChroniclesApi
+provider ABI/capabilities: ru.neverland.townycitizens.api.TownyCitizensApi
+provider ABI/capabilities: ru.neverland.townycompanies.api.CompaniesApi
+provider ABI/capabilities: ru.neverland.mintcontracts.api.MintTownyContractsApi
+provider ABI/capabilities: ru.neverland.townycouncil.api.TownyCouncilApi
+provider ABI/capabilities: ru.neverland.townycrime.api.TownyCrimeApi
+provider ABI/capabilities: ru.neverland.townydiplomacy.api.TownyDiplomacyApi
+provider ABI/capabilities: ru.neverland.townydistricts.api.TownyDistrictsApi
+provider ABI/capabilities: ru.neverland.townyelections.api.TownyElectionsApi
+provider ABI/capabilities: ru.neverland.mintespionage.api.MintTownyEspionageApi
+provider ABI/capabilities: ru.neverland.mintevents.api.MintTownyEventsApi
+provider ABI/capabilities: ru.neverland.governance.api.TownyGovernanceApi
+provider ABI/capabilities: ru.neverland.townyideologies.api.TownyIdeologiesApi
+provider ABI/capabilities: ru.neverland.townyjobs.api.TownyJobsApi
+provider ABI/capabilities: ru.neverland.townyjustice.api.TownyJusticeApi
+provider ABI/capabilities: ru.neverland.townymarket.MarketApi
+provider ABI/capabilities: ru.neverland.townypolicies.api.TownyPoliciesApi
+provider ABI/capabilities: ru.neverland.townypopulation.api.TownyPopulationApi
+provider ABI/capabilities: ru.neverland.townypower.api.TownyPowerApi
+provider ABI/capabilities: ru.neverland.reputation.api.TownyReputationApi
+provider ABI/capabilities: ru.neverland.townyresearch.api.TownyResearchApi
+provider ABI/capabilities: ru.neverland.townyresources.api.TownyResourcesApi
+provider ABI/capabilities: ru.neverland.townyseasons.api.TownySeasonsApi
+provider ABI/capabilities: ru.neverland.townysieges.api.TownySiegesApi
+provider ABI/capabilities: ru.neverland.townyspecialization.api.TownySpecializationApi
+provider ABI/capabilities: ru.neverland.townytaxes.api.NeverLandTownyTaxesApi
+provider ABI/capabilities: ru.neverland.minttrade.api.MintTownyTradeApi
+provider ABI/capabilities: ru.neverland.townytreasury.api.TownyTreasuryApi
+provider ABI/capabilities: ru.neverland.townyupkeep.api.TownyUpkeepApi
+native bank transfer succeeds
+one completed paired transfer despite debit/credit events
+native bank audit preserves both UUIDs and amount
+account observer captures actual payment reason
+audit never changes actual balances
+unfunded native transfer rejected
+rejected transfer never appears as completed
+real intercity resource reservation
+real intercity resource delivery
+resource replay/acknowledgement produces exactly one audit record
+resource audit does not duplicate delivered goods
+market real stock and bank debit
+market saga completes with audit callbacks
+market audit contains initiator, exact goods and settled price
+market physical delivery matches audit
+audit disk fault does not undo a delivered resource
+audit failure retains terminal resource receipt for retry
+audit recovery clears receipt without moving resources twice
+recovered resource evidence appears once
+ordinary player cannot enumerate audit commands
+administrative CSV export executes
+CSV includes linked deal and resource evidence
+reopened durable audit refuses duplicate terminal deal
+router cannot bypass admin permission
+router completions hidden without permission
+player completions preserved without exposing admin namespace
+Crime shares Events newcomer shield
+Espionage shares Events newcomer shield
+protected spy start is rejected before charging the town
+protected Crime creates no incident and applies no shop income penalty
+Espionage native pause
+Espionage native extension while paused
+Espionage restart keeps paused state and original duration
+Espionage native resume
+Espionage paused again for multi-JVM recovery
+Expeditions native pause
+Expeditions native extension while paused
+Expeditions restart keeps paused state and original duration
+Expeditions native resume
+Expeditions paused again for multi-JVM recovery
+paused expedition enemies are invulnerable
+Governance native pause
+Governance native extension while paused
+Governance restart keeps paused state and original duration
+Governance native resume
+Governance paused again for multi-JVM recovery
+Contracts native pause
+Contracts native extension while paused
+Contracts restart keeps paused state and original duration
+Contracts native resume
+Contracts paused again for multi-JVM recovery
+contract restart preserves contributions and escrow
+Trade native pause
+Trade native extension while paused
+Trade restart keeps paused state and original duration
+Trade native resume
+Trade paused again for multi-JVM recovery
+caravan restart keeps cargo, debit identity and incident receipt
+research native pause preserves invoice and progress
+research refuses unsupported restart
+construction pauses without resetting the paid stage
+logistics pauses new dispatches without cancelling cargo
+election fixture starts through native service
+election native pause is exposed by public API
+administrative time controls never charge Towny money
+new Towny town receives 24h shield from original creation date
+hostile event respects newbie shield
+peaceful festival remains available under shield
+admin normal start also respects shield
+explicit admin force bypasses shield
+ordinary player cannot cancel
+admin completions hidden from players
+ordinary player cannot disable addons
+restart keeps contributions and incident identity
+paused event is neutral through public APIs
+paused event refuses contributions
+native paused menu refuses contribution before inventory access
+admin extension while paused
+resume keeps progress
+default stop never adds a failed history entry
+failure requires explicit administrative command
+legacy explicit success option remains compatible
+admin can remove shield
+admin can restore shield
+raid restart invalidates old bodies without erasing kill progress
+neutral raid cancellation emits no defeat receipt
+independent module can be disabled alone
+enable never attempts unsafe hot plugin reload
+explicit pause root recorded atomically
+dependent stopped: NeverLandTownyIdeologies
+dependent stopped: NeverLandTownyMarket
+dependent stopped: NeverLandTownyCompanies
+dependent stopped: NeverLandTownyPopulation
+dependent stopped: NeverLandTownyJobs
+dependent stopped: NeverLandTownyPower
+dependent stopped: NeverLandTownyArmy
+dependent stopped: NeverLandTownySpecialization
+dependent stopped: NeverLandTownyExpeditions
+dependent stopped: NeverLandTownyCrime
+dependent stopped: NeverLandTownyResearch
+dependent stopped: NeverLandTownyChronicles
+dependent stopped: NeverLandTownyEspionage
+dependent stopped: NeverLandTownyTreasuryPlus
+dependent stopped: NeverLandTownyTaxes
+dependent stopped: NeverLandTownyResources
+dependent stopped: NeverLandTownyTrade
+dependent stopped: NeverLandTownyDistricts
+dependent stopped: NeverLandTownyJustice
+dependent stopped: NeverLandTownyEvents
+dependent stopped: NeverLandTownyContracts
+dependent stopped: NeverLandTownyLogistics
+dependent stopped: NeverLandTownyElections
+dependent stopped: NeverLandTownyBuilds
+dependent stopped: NeverLandTownySiegesPlus
+dependent stopped: NeverLandTownyUpkeep
+dependent stopped: NeverLandTownyPolicies
+dependent stopped: NeverLandTownyGovernance
+dependent production cannot run on missing events API

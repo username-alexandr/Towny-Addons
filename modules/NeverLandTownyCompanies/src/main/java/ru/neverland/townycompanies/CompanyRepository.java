@@ -12,6 +12,8 @@ public final class CompanyRepository implements CompanyLedger.Store {
     private final Path file;
     private CompanyLedger.State state=CompanyLedger.State.empty();
     private boolean writable;
+    private java.util.function.BiConsumer<CompanyLedger.State,CompanyLedger.State> audit=(a,b)->{};
+    public void audit(java.util.function.BiConsumer<CompanyLedger.State,CompanyLedger.State> observer){audit=Objects.requireNonNull(observer);}
     public CompanyRepository(Path file){this.file=file;}
     public CompanyLedger.State state(){return state;}
     public boolean writable(){return writable&&ru.neverland.core.AtomicFiles.writable(file);}
@@ -38,6 +40,7 @@ public final class CompanyRepository implements CompanyLedger.Store {
     }
     public void save(CompanyLedger.State next)throws IOException {
         if(!writable)throw new IOException("Запись компаний остановлена. Проверьте companies.yml и перезапустите сервер");
+        var previous=state;
         try {
             var y=new YamlConfiguration();y.set("schema",1);y.createSection("companies");y.createSection("payments");y.createSection("receipts");
             for(var c:next.companies().values()) {
@@ -49,6 +52,7 @@ public final class CompanyRepository implements CompanyLedger.Store {
             for(var r:next.receipts().values()){var s=y.createSection("receipts."+r.contract());s.set("company",r.company().toString());s.set("town",r.town().toString());s.set("payout",r.payout());s.set("refund",r.refund());}
             atomic(y,file);state=next;
         }catch(IOException|RuntimeException ex){writable=false;throw new IOException("Не удалось сохранить компании; денежные операции остановлены",ex);}
+        audit.accept(previous,next);
     }
     public static void atomic(YamlConfiguration y,Path path)throws IOException {ru.neverland.core.AtomicFiles.write(path,y::saveToString);
     }

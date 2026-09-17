@@ -53,7 +53,7 @@ public final class SupplyMenus implements Listener {
         String label=switch(action){case "accept"->"Принять договор";case "pause"->"Приостановить";case "resume"->"Снять свою паузу";default->"Отменить договор";};
         button(v,29,Material.LIME_CONCRETE,"&aПодтвердить: "+label,List.of("&7Количество и цена указаны за одну поставку.","&7Цена фиксированная, дополнительных сборов нет.","&7Первая поставка через "+c.terms().days()+" дн. после принятия.", action.equals("cancel")&&c.status()==Status.ACTIVE?"&cРасторжение снизит торговую репутацию города.":"&7Нарушения срока поставки ухудшают репутацию."),()->{
             var current=towny.town(p);if(current==null||!current.getUUID().equals(v.town)||!manage(p,current))return;
-            try{supply.action(v.town,id,action,c.terms());detail(p,id,page);}catch(Exception ex){error(p,ex);}
+            try{supply.action(v.town,id,action,c.terms(),p.getUniqueId());detail(p,id,page);}catch(Exception ex){error(p,ex);}
         });
         button(v,33,Material.RED_CONCRETE,"&cНазад",List.of(),()->detail(p,id,page));p.openInventory(v.inventory);
     }

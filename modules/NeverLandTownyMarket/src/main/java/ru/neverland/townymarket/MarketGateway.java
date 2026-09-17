@@ -12,7 +12,8 @@ import ru.neverland.integration.*;
 import static ru.neverland.townymarket.MarketData.*;
 public final class MarketGateway implements MarketPayments.Gateway {
     private final JavaPlugin plugin;private final MarketRepository repo;
-    public MarketGateway(JavaPlugin plugin,MarketRepository repo){this.plugin=plugin;this.repo=repo;}
+    public MarketGateway(JavaPlugin plugin,MarketRepository repo){this.plugin=plugin;this.repo=repo;repo.audit(this::audit);}
+    public boolean audit(Order o){var l=repo.listing(o.lot());if(l==null)return false;return ru.neverland.core.AuditTrail.record(plugin,o.phase().name(),o.id().toString(),"MARKET_DEAL",o.phase().name(),ru.neverland.core.AuditTrail.player(o.actor()),ru.neverland.core.AuditTrail.town(o.seller()),o.city()?ru.neverland.core.AuditTrail.town(o.buyer()):ru.neverland.core.AuditTrail.player(o.buyer()),ru.neverland.core.AuditTrail.item(MarketCatalog.decode(l.item())),o.amount(),ru.neverland.core.AuditTrail.cents(o.total()),"lot="+o.lot()+"; unit="+ru.neverland.core.AuditTrail.cents(o.unit())+"; "+o.note());}
     public Town town(UUID id){return TownyAPI.getInstance().getTown(id);}
     public Town town(Player p){var r=TownyAPI.getInstance().getResident(p);return r==null?null:r.getTownOrNull();}
     public String name(UUID id){var t=town(id);return t==null?"Удалённый город":t.getName();}
@@ -45,7 +46,7 @@ public final class MarketGateway implements MarketPayments.Gateway {
     @Override public String reserve(Order o)throws Exception{return (String)call("reserve",new Class<?>[]{UUID.class,UUID.class,UUID.class,UUID.class,boolean.class,int.class},o.seller(),o.lot(),o.id(),o.buyer(),o.city(),o.amount());}
     @Override public String deliver(Order o)throws Exception{return (String)call("deliver",new Class<?>[]{UUID.class,UUID.class,UUID.class},o.seller(),o.lot(),o.id());}
     @Override public String refund(Order o)throws Exception{return (String)call("refund",new Class<?>[]{UUID.class,UUID.class,UUID.class},o.seller(),o.lot(),o.id());}
-    @Override public void acknowledge(Order o)throws Exception{call("acknowledge",new Class<?>[]{UUID.class,UUID.class,UUID.class},o.seller(),o.lot(),o.id());}
+    @Override public void acknowledge(Order o)throws Exception{ru.neverland.core.AuditTrail.require(audit(o));call("acknowledge",new Class<?>[]{UUID.class,UUID.class,UUID.class},o.seller(),o.lot(),o.id());}
     @Override public String receipt(Order o)throws Exception {var l=repo.listing(o.lot());if(l==null)return "MISSING";Object holds=snapshot(l).get("holds");return holds instanceof Map<?,?> m&&m.get(o.id().toString()) instanceof String value?value:"MISSING";}
     @Override public boolean debit(Order o)throws Exception{return payment(o,false);}@Override public boolean credit(Order o)throws Exception{return payment(o,true);}
     private boolean payment(Order o,boolean incoming)throws Exception{

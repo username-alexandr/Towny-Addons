@@ -83,6 +83,9 @@ public final class TradeService {
     }
 
     public AcceptOutcome accept(Town buyer, TradeOffer offer) {
+        return accept(buyer,offer,null);
+    }
+    public AcceptOutcome accept(Town buyer, TradeOffer offer,UUID actor) {
         if (!repository.writable()) return new AcceptOutcome(AcceptResult.SAVE_ERROR,null,0);
         if (offer == null || repository.findOffer(offer.id().toString())==null) return new AcceptOutcome(AcceptResult.NOT_FOUND, null, 0);
         if (buyer == null || !buyer.getUUID().equals(offer.buyerId())) return new AcceptOutcome(AcceptResult.NOT_BUYER, null, 0);
@@ -106,6 +109,7 @@ public final class TradeService {
                 ThreadLocalRandom.current().nextDouble() < plan.delayChance(), false, CaravanStatus.ACTIVE);
         repository.remove(offer); repository.add(caravan);
         repository.save();
+        audit(caravan,actor);
         try {advance(caravan);}catch(Exception ex){warn(caravan,ex);return new AcceptOutcome(AcceptResult.PROCESSING,caravan,total);}
         if(!caravan.settlement().equals("ACTIVE"))return new AcceptOutcome(AcceptResult.PROCESSING,caravan,total);
         if(plugin.getConfig().getBoolean("announcements.departure",true))announceBoth(caravan,"caravan-town-departed",definition,Map.of());
@@ -184,13 +188,16 @@ public final class TradeService {
         if(!repository.writable())throw new IllegalStateException("Хранилище торговли недоступно");
         if(c.settlement().equals("PREPARED") && taxes.tradeBlocked(c.sellerId(),c.buyerId())
                 && repository.effects().state(c.operation("debit"))==ru.neverland.core.EffectJournal.State.READY){c.settlement("RETURNING");repository.save();}
-        CaravanProcessor.advance(c,new CaravanProcessor.Store(){public void save(){repository.save();}public void finish(Caravan value,CaravanStatus status){finishHistory(value,status);}},new CaravanProcessor.Gateway(){
+        audit(c,null);
+        CaravanProcessor.advance(c,new CaravanProcessor.Store(){public void save(){repository.save();audit(c,null);}public void finish(Caravan value,CaravanStatus status){finishHistory(value,status);}},new CaravanProcessor.Gateway(){
             public boolean reserve(Caravan value)throws Exception{return warehouse.transfer(value.operation("take"),value.sellerId(),value.cargoItem(),value.totalCargo(),false).status()==WarehouseBridge.Status.SUCCESS;}
             public boolean debit(Caravan value)throws Exception{return repository.effects().execute(value.operation("debit"),"Списание каравана "+value.id()+" город "+value.buyerId()+": "+value.escrow(),()->economy.transfer(towny.town(value.buyerId()),value.escrow(),definition(value),"debit",value.operation("debit"),false));}
             public boolean deliver(Caravan value)throws Exception{return warehouse.transfer(value.operation("delivery"),value.buyerId(),value.cargoItem(),value.remainingCargo(),true).status()==WarehouseBridge.Status.SUCCESS;}
             public boolean credit(Caravan value,UUID recipient,double amount,String kind)throws Exception{
                 if(amount<=0)return true;UUID id=value.operation(kind+":"+recipient);
-                return repository.effects().execute(id,creditDescription(value,recipient,amount,kind),()->economy.transfer(towny.town(recipient),amount,definition(value),kind,id,true));
+                boolean paid=repository.effects().execute(id,creditDescription(value,recipient,amount,kind),()->economy.transfer(towny.town(recipient),amount,definition(value),kind,id,true));
+                if(paid)ru.neverland.core.AuditTrail.record(plugin,kind+":"+recipient,value.id().toString(),kind.equals("tariff")?"TRADE_TARIFF":kind.equals("refund")?"TRADE_REFUND":"TRADE_PAYMENT","COMPLETED",ru.neverland.core.AuditRecord.Party.system(),kind.equals("refund")?new ru.neverland.core.AuditRecord.Party("ESCROW",value.id().toString(),"Резерв каравана",value.buyerId().toString()):ru.neverland.core.AuditTrail.town(value.buyerId()),ru.neverland.core.AuditTrail.town(recipient),"",0,ru.neverland.core.AuditTrail.money(amount),"effect="+id);
+                return paid;
             }
             public boolean sourceTaken(Caravan value)throws Exception{return value.legacyFunded()||warehouse.transferred(value.operation("take"),value.sellerId());}
             public boolean funded(Caravan value){return value.legacyFunded()||repository.effects().state(value.operation("debit"))==ru.neverland.core.EffectJournal.State.DONE;}
@@ -201,9 +208,12 @@ public final class TradeService {
         c.settlement(status==CaravanStatus.COMPLETED?"COMPLETE":"CANCELLED");
         repository.addHistory(new TradeHistory(c.id(),c.sellerId(),c.buyerId(),c.exportId(),c.totalCargo(),c.basePrice(),c.tariffs().values().stream().mapToDouble(Double::doubleValue).sum(),System.currentTimeMillis(),status),plugin.getConfig().getInt("trade.history-limit-per-town",30));
         repository.save();
+        audit(c,null);
         if(status==CaravanStatus.COMPLETED&&plugin.getConfig().getBoolean("announcements.arrival",true))announceBoth(c,"caravan-arrived",definition(c),Map.of());
     }
+    private boolean audit(Caravan c,UUID actor){return ru.neverland.core.AuditTrail.record(plugin,c.settlement(),c.id().toString(),"CARAVAN_DEAL",c.settlement(),actor==null?ru.neverland.core.AuditRecord.Party.unknown():ru.neverland.core.AuditTrail.player(actor),ru.neverland.core.AuditTrail.town(c.sellerId()),ru.neverland.core.AuditTrail.town(c.buyerId()),ru.neverland.core.AuditTrail.item(c.cargoItem()),c.totalCargo(),ru.neverland.core.AuditTrail.money(c.basePrice()),"export="+c.exportId()+"; escrow="+c.escrow()+"; tariffs="+new java.util.TreeMap<>(c.tariffs())+"; legacy="+c.legacyFunded());}
     private void cleanup(Caravan c)throws Exception {
+        ru.neverland.core.AuditTrail.require(audit(c,null));
         warehouse.acknowledge(c.operation("take"),c.sellerId());warehouse.acknowledge(c.operation("return"),c.sellerId());warehouse.acknowledge(c.operation("delivery"),c.buyerId());
         repository.remove(c);repository.save();pruneEffects();
     }
