@@ -1,13 +1,7 @@
 package ru.neverland.mintevents.command;
 
 import com.palmergames.bukkit.towny.object.Town;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.bukkit.command.*;
 import ru.neverland.mintevents.MintTownyEvents;
 import ru.neverland.mintevents.integration.TownyHook;
 import ru.neverland.mintevents.model.ActiveEvent;
@@ -15,149 +9,107 @@ import ru.neverland.mintevents.model.EventDefinition;
 import ru.neverland.mintevents.service.EventService;
 import ru.neverland.mintevents.service.MessageService;
 import ru.neverland.mintevents.util.ColorUtil;
+import ru.neverland.mintevents.util.TimeUtil;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
+/** Town names may contain spaces; numeric parameters precede the complete town name. */
 public final class AdminCommand implements CommandExecutor, TabCompleter {
+    public static final Set<String> ACTIONS = Set.of("start", "stop", "cancel", "restart", "pause", "resume", "success", "fail", "extend", "shield", "status", "list", "raidwave", "reload");
     private final MintTownyEvents plugin;
     private final TownyHook towny;
     private final EventService events;
     private final MessageService messages;
-
     public AdminCommand(MintTownyEvents plugin, TownyHook towny, EventService events, MessageService messages) {
-        this.plugin = plugin;
-        this.towny = towny;
-        this.events = events;
-        this.messages = messages;
+        this.plugin=plugin; this.towny=towny; this.events=events; this.messages=messages;
     }
-
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, @NotNull String[] args) {
-        if (!sender.hasPermission("mintevents.admin")) {
-            messages.send(sender, "no-permission");
-            return true;
-        }
-        if (args.length == 0) {
-            messages.list("admin-help").forEach(sender::sendMessage);
-            return true;
-        }
-        String base = sender instanceof Player ? "/t events" : "/townyevents";
-        switch (args[0].toLowerCase(Locale.ROOT)) {
-            case "reload" -> {
-                plugin.reloadPlugin();
-                messages.send(sender, "reload");
+    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if(!sender.hasPermission("mintevents.admin")) { messages.send(sender,"no-permission"); return true; }
+        if(args.length == 0) { help(sender); return true; }
+        String action=args[0].toLowerCase(Locale.ROOT);
+        try {
+            if(action.equals("reload") && args.length==1) { plugin.reloadPlugin(); messages.send(sender,"reload"); return true; }
+            if(action.equals("list") && args.length==1) {
+                sender.sendMessage("§bГородские события:");
+                for(Town town : towny.towns()) if(events.active(town.getUUID()) != null) status(sender,town);
+                return true;
             }
-            case "start" -> start(sender, args, base);
-            case "stop" -> stop(sender, args, base);
-            case "list" -> list(sender);
-            case "raidwave" -> raidWave(sender, args, base);
-            default -> messages.list("admin-help").forEach(sender::sendMessage);
+            if(!ACTIONS.contains(action) || args.length<2) { help(sender); return true; }
+            if(action.equals("start")) {
+                if(args.length<3) { help(sender); return true; }
+                EventDefinition definition=events.registry().get(args[1]);
+                if(definition==null) throw new IllegalArgumentException("Неизвестное событие: "+args[1]);
+                boolean force=args[args.length-1].equalsIgnoreCase("--force");
+                Town town=city(args,2,args.length-(force?1:0));
+                if(!events.startEvent(town,definition,force)) throw new IllegalArgumentException("Запуск отклонён: активное событие, щит новичка или незавершённый ремонт пожара. Статус: /townyevents status "+town.getName());
+                sender.sendMessage("§aСобытие запущено: §f"+ColorUtil.strip(definition.name())+" §7· "+town.getName());
+            } else if(action.equals("extend") || action.equals("shield")) {
+                if(args.length<3) { help(sender); return true; }
+                long amount=Long.parseLong(args[1]); Town town=city(args,2,args.length);
+                if(action.equals("shield")) events.shield(town,amount);
+                else if(!events.extend(town,amount)) throw new IllegalArgumentException("Нет активного события");
+                status(sender,town);
+            } else {
+                int end=args.length;
+                if(action.equals("stop") && end>2 && Set.of("success","fail","cancel").contains(args[end-1].toLowerCase(Locale.ROOT))) action=args[--end].toLowerCase(Locale.ROOT);
+                Town town=city(args,1,end);
+                if(action.equals("status")) { status(sender,town); return true; }
+                if(action.equals("raidwave")) {
+                    int count=events.forceRaidWave(town);
+                    if(count<=0) throw new IllegalArgumentException("Волна недоступна: проверьте тип события, паузу и территорию города");
+                    sender.sendMessage("§aСоздано врагов: "+count);
+                } else {
+                    boolean changed=switch(action) {
+                        case "stop", "cancel" -> events.cancel(town);
+                        case "restart" -> events.restart(town);
+                        case "pause" -> events.pause(town,true);
+                        case "resume" -> events.pause(town,false);
+                        case "success" -> events.resolve(town,true);
+                        case "fail" -> events.resolve(town,false);
+                        default -> false;
+                    };
+                    if(!changed) throw new IllegalArgumentException("Нет подходящего события или оно уже в этом состоянии");
+                    sender.sendMessage("§aВыполнено: §f"+action+" §7· "+town.getName()+
+                        (action.equals("stop")||action.equals("cancel") ? " §eБез поражения и штрафов." : ""));
+                }
+            }
+            plugin.getLogger().info("Администратор "+sender.getName()+": "+String.join(" ",args));
+        } catch(IllegalArgumentException e) { sender.sendMessage("§e"+e.getMessage()); }
+        catch(RuntimeException e) {
+            sender.sendMessage("§cОперация не завершена: проверьте журнал сервера и доступность хранилища.");
+            plugin.getLogger().log(java.util.logging.Level.SEVERE,"Административная команда события",e);
         }
         return true;
     }
-
-    private void start(CommandSender sender, String[] args, String base) {
-        if (args.length < 3) {
-            sender.sendMessage(ColorUtil.color("&#FFFFFFИспользование: " + base + " start <событие> <город>"));
-            return;
-        }
-        EventDefinition definition = events.registry().get(args[1]);
-        if (definition == null) {
-            messages.send(sender, "unknown-event", Map.of("event", args[1]));
-            return;
-        }
-        Town town = towny.town(join(args, 2, args.length));
-        if (town == null) {
-            messages.send(sender, "town-not-found", Map.of("town", join(args, 2, args.length)));
-            return;
-        }
-        if (!events.startEvent(town, definition)) {
-            if (definition.mode() == ru.neverland.mintevents.model.EventMode.FIRE && events.hasFireDamage(town.getUUID())) {
-                sender.sendMessage("§eПожар недоступен: завершите ремонт (/t events repairs) и проверьте журнал fire-damage.yml.");
-                return;
-            }
-            messages.send(sender, "already-active");
-            return;
-        }
-        messages.send(sender, "started", Map.of("event", ColorUtil.strip(definition.name()), "town", town.getName()));
+    private Town city(String[] args,int from,int end) {
+        if(from>=end) throw new IllegalArgumentException("Укажите город");
+        String name=String.join(" ",Arrays.copyOfRange(args,from,end));
+        Town town=towny.town(name); if(town==null) throw new IllegalArgumentException("Город не найден: "+name); return town;
     }
-
-    private void stop(CommandSender sender, String[] args, String base) {
-        if (args.length < 2) {
-            sender.sendMessage(ColorUtil.color("&#FFFFFFИспользование: " + base + " stop <город> [success|fail]"));
-            return;
-        }
-        boolean success = args[args.length - 1].equalsIgnoreCase("success");
-        int end = args[args.length - 1].equalsIgnoreCase("success") || args[args.length - 1].equalsIgnoreCase("fail")
-                ? args.length - 1 : args.length;
-        String townName = join(args, 1, end);
-        Town town = towny.town(townName);
-        if (town == null) {
-            messages.send(sender, "town-not-found", Map.of("town", townName));
-            return;
-        }
-        if (!events.resolve(town, success)) {
-            messages.send(sender, "no-event");
-            return;
-        }
-        messages.send(sender, "stopped", Map.of("town", town.getName()));
+    private void status(CommandSender sender,Town town) {
+        ActiveEvent event=events.active(town.getUUID());
+        sender.sendMessage("§b"+town.getName()+" §7· Щит новичка: §f"+TimeUtil.format((events.shieldRemainingMillis(town.getUUID())+999)/1000));
+        sender.sendMessage(event==null ? "§7Активного события нет." : "§f"+event.eventId()+" §7· "+(event.paused()?"§eПауза":"§aАктивно")+" §7· "+event.progress()+"/"+event.goal()+" · осталось "+TimeUtil.format(event.secondsLeft(System.currentTimeMillis())));
     }
-
-    private void list(CommandSender sender) {
-        sender.sendMessage(ColorUtil.color("&#B65CFF&lАктивные городские события:"));
-        boolean found = false;
-        for (Town town : towny.towns()) {
-            ActiveEvent active = events.active(town.getUUID());
-            EventDefinition definition = events.definition(active);
-            if (active == null || definition == null) continue;
-            found = true;
-            sender.sendMessage(ColorUtil.color("&8- &#FFFFFF" + town.getName() + "&8: " + definition.name()
-                    + " &7(" + active.progress() + "/" + active.goal() + ")"));
-        }
-        if (!found) sender.sendMessage(ColorUtil.color("&7Активных событий нет."));
+    private void help(CommandSender sender) {
+        // Code-owned usage also upgrades servers with an existing messages.yml.
+        sender.sendMessage("§bСобытия — команды администратора (/t events или /townyevents)");
+        sender.sendMessage("§fstart <событие> <город> [--force] §7— запуск; force обходит щит");
+        sender.sendMessage("§fstop / cancel <город> §7— отмена без поражения и штрафов");
+        sender.sendMessage("§frestart <город> §7— новый таймер с сохранением прогресса");
+        sender.sendMessage("§fpause / resume <город> §7— заморозить / продолжить");
+        sender.sendMessage("§fsuccess / fail <город> §7— явно завершить победой / поражением");
+        sender.sendMessage("§fextend <минуты> <город> §7— продлить на 1–10080 минут");
+        sender.sendMessage("§fshield <часы> <город> §7— 0 снять; 1–720 выдать щит");
+        sender.sendMessage("§fstatus <город> §7· §flist §7· §fraidwave <город> §7· §freload");
     }
-
-    private void raidWave(CommandSender sender, String[] args, String base) {
-        if (args.length < 2) {
-            sender.sendMessage(ColorUtil.color("&#FFFFFFИспользование: " + base + " raidwave <город>"));
-            return;
-        }
-        String townName = join(args, 1, args.length);
-        Town town = towny.town(townName);
-        if (town == null) {
-            messages.send(sender, "town-not-found", Map.of("town", townName));
-            return;
-        }
-        int spawned = events.forceRaidWave(town);
-        if (spawned > 0) messages.send(sender, "raid-wave-forced", Map.of("count", spawned));
-        else messages.send(sender, "raid-wave-failed");
-    }
-
-    private String join(String[] args, int start, int end) {
-        return String.join(" ", java.util.Arrays.copyOfRange(args, start, end));
-    }
-
-    @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
-                                                 @NotNull String alias, @NotNull String[] args) {
-        if (args.length == 1) return filter(List.of("start", "stop", "list", "raidwave", "reload"), args[0]);
-        if (args.length == 2 && args[0].equalsIgnoreCase("start"))
-            return filter(events.registry().all().stream().map(EventDefinition::id).toList(), args[1]);
-        if ((args.length == 2 && args[0].equalsIgnoreCase("stop")) ||
-                (args.length == 3 && args[0].equalsIgnoreCase("start")) ||
-                (args.length == 2 && args[0].equalsIgnoreCase("raidwave")))
-            return filter(towny.towns().stream().map(Town::getName).toList(), args[args.length - 1]);
-        if (args[0].equalsIgnoreCase("stop")) return filter(List.of("success", "fail"), args[args.length - 1]);
-        return List.of();
-    }
-
-    private List<String> filter(List<String> values, String prefix) {
-        List<String> result = new ArrayList<>();
-        for (String value : values) if (value.toLowerCase().startsWith(prefix.toLowerCase())) result.add(value);
-        return result;
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) {
+        if(!sender.hasPermission("mintevents.admin") || args.length==0) return List.of();
+        List<String> options=List.of(); String action=args[0].toLowerCase(Locale.ROOT);
+        if(args.length==1) options=ACTIONS.stream().sorted().toList();
+        else if(args.length==2 && action.equals("start")) options=events.registry().all().stream().map(EventDefinition::id).toList();
+        else if(args.length==2 && (action.equals("extend") || action.equals("shield"))) options=action.equals("shield")?List.of("0","24","48"):List.of("15","30","60");
+        else if(args.length==2 && !Set.of("start","reload","list").contains(action) || args.length==3 && Set.of("start","extend","shield").contains(action)) options=towny.towns().stream().map(Town::getName).toList();
+        String prefix=args[args.length-1].toLowerCase(Locale.ROOT);
+        return options.stream().filter(v->v.toLowerCase(Locale.ROOT).startsWith(prefix)).toList();
     }
 }

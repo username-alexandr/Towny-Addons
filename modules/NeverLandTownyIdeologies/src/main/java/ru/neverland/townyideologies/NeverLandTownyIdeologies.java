@@ -32,6 +32,8 @@ public final class NeverLandTownyIdeologies extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         saveDefaultConfig();
         copyResource("messages.yml");
         copyResource("ideologies.yml");
@@ -78,6 +80,8 @@ public final class NeverLandTownyIdeologies extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+
         Bukkit.getServicesManager().unregisterAll(this);
         if (bonuses != null) bonuses.stop();
         if (data != null) data.save();

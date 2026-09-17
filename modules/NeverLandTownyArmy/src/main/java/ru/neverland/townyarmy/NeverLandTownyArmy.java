@@ -21,6 +21,8 @@ public final class NeverLandTownyArmy extends JavaPlugin {
     }
     public void reloadArmy() throws Exception { service.reload(settings()); reloadConfig(); }
     @Override public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         try {
             saveDefaultConfig(); var settings = settings();
             var repository = new ArmyRepository(getDataFolder().toPath().resolve("army-data.yml"), settings.auditLimit()); repository.load();
@@ -39,6 +41,8 @@ public final class NeverLandTownyArmy extends JavaPlugin {
         }
     }
     @Override public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+
         if (task != null) task.cancel(); if (service != null) service.stop();
         if (expansion != null) expansion.unregister(); getServer().getServicesManager().unregisterAll(this);
     }

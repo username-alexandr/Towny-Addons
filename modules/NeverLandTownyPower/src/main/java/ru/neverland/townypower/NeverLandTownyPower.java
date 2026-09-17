@@ -14,7 +14,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 public final class NeverLandTownyPower extends JavaPlugin {
     private PowerService service;private boolean townCommand;private PowerExpansion expansion;
-    @Override public void onEnable(){try{
+    @Override public void onEnable(){
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+try{
         saveDefaultConfig();if(!new File(getDataFolder(),"buildings.yml").exists())saveResource("buildings.yml",false);
         var repository=new PowerRepository(getDataFolder().toPath().resolve("power-data.yml"));repository.load();service=new PowerService(this,repository,settings());
         var menu=new PowerMenu(this,service);var command=new PowerCommand(this,service,menu);var direct=getCommand("townypower");if(direct==null)throw new IllegalStateException("Нет команды townypower");direct.setExecutor(command);direct.setTabCompleter(command);
@@ -26,5 +28,7 @@ public final class NeverLandTownyPower extends JavaPlugin {
     private YamlConfiguration read(String name)throws Exception{var y=new YamlConfiguration();y.load(new File(getDataFolder(),name));try(var input=getResource(name)){if(input!=null)y.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(input,StandardCharsets.UTF_8)));}y.options().copyDefaults(true);return y;}
     private PowerSettings settings()throws Exception{return PowerSettings.load(read("config.yml"),read("buildings.yml"));}
     public boolean reloadPower(){try{service.reload(settings());return true;}catch(Exception ex){getLogger().warning("Настройки энергетики не применены: "+ex.getMessage());return false;}}
-    @Override public void onDisable(){if(expansion!=null)expansion.unregister();if(service!=null)service.stop();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"power");}
+    @Override public void onDisable(){
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+if(expansion!=null)expansion.unregister();if(service!=null)service.stop();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"power");}
 }

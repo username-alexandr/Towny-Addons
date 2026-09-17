@@ -1,0 +1,193 @@
+schema: 1
+modules:
+  NeverLandTownyArchaeology: []
+  NeverLandTownyArmy:
+  - NeverLandTownyBuilds
+  - NeverLandTownyCitizens
+  - NeverLandTownyCouncil
+  - NeverLandTownyResources
+  NeverLandTownyBuilds:
+  - NeverLandTownyArchaeology
+  - NeverLandTownyArmy
+  - NeverLandTownyCitizens
+  - NeverLandTownyCouncil
+  - NeverLandTownyCrime
+  - NeverLandTownyDistricts
+  - NeverLandTownyEvents
+  - NeverLandTownyJobs
+  - NeverLandTownyLogistics
+  - NeverLandTownyMarket
+  - NeverLandTownyPolicies
+  - NeverLandTownyPower
+  - NeverLandTownyResearch
+  - NeverLandTownySpecialization
+  - NeverLandTownyTreasuryPlus
+  - NeverLandTownyUpkeep
+  NeverLandTownyCamps: []
+  NeverLandTownyChronicles:
+  - NeverLandTownyBuilds
+  NeverLandTownyCitizens: []
+  NeverLandTownyCompanies:
+  - NeverLandTownyContracts
+  - NeverLandTownyTreasuryPlus
+  NeverLandTownyContracts:
+  - NeverLandTownyBuilds
+  - NeverLandTownyCompanies
+  - NeverLandTownyReputation
+  - NeverLandTownyTreasuryPlus
+  NeverLandTownyCouncil:
+  - NeverLandTownyCitizens
+  - NeverLandTownyDiplomacy
+  NeverLandTownyCrime:
+  - NeverLandTownyBuilds
+  - NeverLandTownyJobs
+  - NeverLandTownyPopulation
+  - NeverLandTownyResources
+  NeverLandTownyDiplomacy:
+  - NeverLandTownyCitizens
+  - NeverLandTownyCouncil
+  - NeverLandTownyReputation
+  NeverLandTownyDistricts:
+  - NeverLandTownyBuilds
+  - NeverLandTownyPower
+  - NeverLandTownySpecialization
+  - NeverLandTownyUpkeep
+  NeverLandTownyElections:
+  - NeverLandTownyCitizens
+  - NeverLandTownyGovernance
+  - NeverLandTownyIdeologies
+  NeverLandTownyEspionage:
+  - NeverLandTownyArmy
+  - NeverLandTownyBuilds
+  - NeverLandTownyCouncil
+  - NeverLandTownyDiplomacy
+  - NeverLandTownyGovernance
+  - NeverLandTownyReputation
+  - NeverLandTownyTreasuryPlus
+  NeverLandTownyEvents:
+  - NeverLandTownyBuilds
+  - NeverLandTownyIdeologies
+  - NeverLandTownyPower
+  - NeverLandTownyReputation
+  - NeverLandTownySeasons
+  - NeverLandTownySpecialization
+  - NeverLandTownyUpkeep
+  NeverLandTownyExpeditions:
+  - NeverLandTownyBuilds
+  - NeverLandTownyCamps
+  NeverLandTownyGovernance:
+  - NeverLandTownyCitizens
+  - NeverLandTownyCouncil
+  - NeverLandTownyElections
+  - NeverLandTownyPolicies
+  - NeverLandTownyTreasuryPlus
+  NeverLandTownyIdeologies:
+  - NeverLandTownyTreasuryPlus
+  NeverLandTownyJobs:
+  - NeverLandTownyBuilds
+  - NeverLandTownyPower
+  - NeverLandTownySpecialization
+  - NeverLandTownyUpkeep
+  NeverLandTownyJustice:
+  - NeverLandTownyCouncil
+  - NeverLandTownyTreasuryPlus
+  NeverLandTownyLogistics:
+  - NeverLandTownyBuilds
+  - NeverLandTownyPower
+  - NeverLandTownyResearch
+  - NeverLandTownySpecialization
+  - NeverLandTownyUpkeep
+  NeverLandTownyMarket:
+  - NeverLandTownyBuilds
+  - NeverLandTownyDiplomacy
+  - NeverLandTownyPolicies
+  - NeverLandTownyTaxes
+  - NeverLandTownyTrade
+  - NeverLandTownyTreasuryPlus
+  NeverLandTownyPolicies:
+  - NeverLandTownyBuilds
+  - NeverLandTownyGovernance
+  - NeverLandTownyPopulation
+  - NeverLandTownyResources
+  - NeverLandTownyTaxes
+  - NeverLandTownyTrade
+  - NeverLandTownyUpkeep
+  NeverLandTownyPopulation:
+  - NeverLandTownyBuilds
+  - NeverLandTownyDistricts
+  - NeverLandTownyPolicies
+  - NeverLandTownyResearch
+  - NeverLandTownyResources
+  - NeverLandTownySpecialization
+  NeverLandTownyPower:
+  - NeverLandTownyBuilds
+  - NeverLandTownyDistricts
+  - NeverLandTownySpecialization
+  - NeverLandTownyUpkeep
+  NeverLandTownyReputation: []
+  NeverLandTownyResearch:
+  - NeverLandTownyBuilds
+  - NeverLandTownyJobs
+  - NeverLandTownyPower
+  - NeverLandTownyResources
+  - NeverLandTownySpecialization
+  - NeverLandTownyUpkeep
+  NeverLandTownyResources:
+  - NeverLandTownyBuilds
+  - NeverLandTownyDistricts
+  - NeverLandTownyEvents
+  - NeverLandTownyJobs
+  - NeverLandTownyLogistics
+  - NeverLandTownyPolicies
+  - NeverLandTownyPopulation
+  - NeverLandTownyPower
+  - NeverLandTownyResearch
+  - NeverLandTownySeasons
+  - NeverLandTownySpecialization
+  - NeverLandTownyUpkeep
+  NeverLandTownySeasons: []
+  NeverLandTownySiegesPlus:
+  - NeverLandTownyArmy
+  - NeverLandTownyBuilds
+  - NeverLandTownyDiplomacy
+  NeverLandTownySpecialization:
+  - NeverLandTownyBuilds
+  - NeverLandTownyPower
+  - NeverLandTownyUpkeep
+  NeverLandTownyStick: []
+  NeverLandTownyTaxes:
+  - NeverLandTownyCitizens
+  - NeverLandTownyCouncil
+  - NeverLandTownyDiplomacy
+  - NeverLandTownyPolicies
+  NeverLandTownyTrade:
+  - NeverLandTownyBuilds
+  - NeverLandTownyCamps
+  - NeverLandTownyCouncil
+  - NeverLandTownyDiplomacy
+  - NeverLandTownyMarket
+  - NeverLandTownyPolicies
+  - NeverLandTownyReputation
+  - NeverLandTownyResearch
+  - NeverLandTownySpecialization
+  - NeverLandTownyTaxes
+  - NeverLandTownyTreasuryPlus
+  NeverLandTownyTreasuryPlus:
+  - NeverLandTownyBuilds
+  - NeverLandTownyContracts
+  - NeverLandTownyCouncil
+  - NeverLandTownyEspionage
+  - NeverLandTownyGovernance
+  - NeverLandTownyIdeologies
+  - NeverLandTownyPolicies
+  - NeverLandTownyResources
+  - NeverLandTownyTaxes
+  - NeverLandTownyTrade
+  - NeverLandTownyUpkeep
+  NeverLandTownyUpkeep:
+  - NeverLandTownyBuilds
+  - NeverLandTownyPolicies
+  - NeverLandTownyPower
+  - NeverLandTownyResources
+  - NeverLandTownySpecialization
+  - NeverLandTownyTreasuryPlus

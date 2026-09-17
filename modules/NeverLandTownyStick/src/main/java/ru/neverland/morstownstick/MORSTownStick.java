@@ -29,6 +29,8 @@ public final class MORSTownStick extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         ru.neverland.morstownstick.util.LegacyDataMigrator.migrate(this, "MORSTownStick");
         saveDefaultConfig();
 
@@ -79,6 +81,8 @@ public final class MORSTownStick extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+
         if (commandInterceptor != null) commandInterceptor.uninstall();
         if (particles != null) particles.stop();
         if (claims != null) claims.shutdown();

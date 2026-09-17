@@ -35,6 +35,8 @@ public final class MintTownyTrade extends JavaPlugin {
 
 
     @Override public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         ru.neverland.minttrade.util.LegacyDataMigrator.migrate(this, "MintTownyTrade");
         saveDefaultConfig(); copy("messages.yml"); copy("exports.yml");
         towny = new TownyHook(this); itemsAdder = new ItemsAdderHook(); messages = new MessageService(this);
@@ -66,6 +68,8 @@ public final class MintTownyTrade extends JavaPlugin {
                 + ", активных перевалочных пунктов=" + campStops + ", налоги=" + taxes.available() + ", PlaceholderAPI=" + placeholders + ".");
     }
     @Override public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+
         if(supplyMenus!=null)supplyMenus.stop();if(supplies!=null)supplies.stop(); if (visuals != null) visuals.stop(); if (trade != null) trade.shutdown();
         if (towny != null) towny.unregister("trade"); getServer().getServicesManager().unregisterAll(this);
     }

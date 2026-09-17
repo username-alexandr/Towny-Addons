@@ -19,6 +19,7 @@ jobs:
           python-version: '3.13'
       - run: python -m pip install PyYAML
       - run: python scripts/verify_release.py --source-only
+      - run: python scripts/module_control.py
 
   build:
     runs-on: ubuntu-latest

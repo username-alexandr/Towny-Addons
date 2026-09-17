@@ -15,7 +15,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 public final class NeverLandTownyDistricts extends JavaPlugin{
     private DistrictService service;private BorderPreview borders;private boolean registered;
-    @Override public void onEnable(){try{
+    @Override public void onEnable(){
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+try{
         ru.neverland.townydistricts.integration.BuildsBridge.verify();
         saveDefaultConfig();if(!new File(getDataFolder(),"projects.yml").exists())saveResource("projects.yml",false);
         var settings=DistrictSettings.load(read("config.yml"),read("projects.yml"));
@@ -35,5 +37,7 @@ public final class NeverLandTownyDistricts extends JavaPlugin{
         catch(Exception ex){getLogger().warning("Настройки районов не применены: "+ex.getMessage());return false;}}
     private YamlConfiguration read(String name)throws Exception{var y=new YamlConfiguration();y.load(new File(getDataFolder(),name));
         try(var stream=getResource(name)){if(stream!=null)y.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(stream,StandardCharsets.UTF_8)));}y.options().copyDefaults(true);return y;}
-    @Override public void onDisable(){if(service!=null)service.stop();if(borders!=null)borders.stop();if(registered)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"district");getServer().getServicesManager().unregisterAll(this);}
+    @Override public void onDisable(){
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+if(service!=null)service.stop();if(borders!=null)borders.stop();if(registered)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"district");getServer().getServicesManager().unregisterAll(this);}
 }

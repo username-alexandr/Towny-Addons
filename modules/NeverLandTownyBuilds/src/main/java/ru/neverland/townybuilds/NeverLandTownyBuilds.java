@@ -40,6 +40,8 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
+
         saveDefaultConfig();
         copyResource("messages.yml");
         copyResource("projects.yml");
@@ -102,6 +104,8 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
+
         if (effects != null) effects.stop();
         if (construction != null) construction.stop();
         if (civic != null) civic.stop();
