@@ -1,0 +1,54 @@
+name: NeverLandPirates Test Build
+
+on:
+  push:
+    branches:
+      - chatgpt/neverland-pirates-test-build
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up Gradle 9.1.0
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.1.0'
+
+      - name: Unpack NeverLandPirates sources
+        run: |
+          rm -rf .ci-neverlandpirates-work
+          mkdir -p .ci-neverlandpirates-work
+          unzip -q ci/NeverLandPirates/source.zip -d .ci-neverlandpirates-work
+
+      - name: Build plugin
+        working-directory: .ci-neverlandpirates-work
+        run: gradle --no-daemon clean build
+
+      - name: Prepare test jar
+        run: |
+          cp .ci-neverlandpirates-work/build/libs/NeverLandPirates-0.2.0-SNAPSHOT.jar NeverLandPirates-0.2.0-test.jar
+          sha256sum NeverLandPirates-0.2.0-test.jar > NeverLandPirates-0.2.0-test.jar.sha256
+          jar tf NeverLandPirates-0.2.0-test.jar | grep -q 'plugin.yml'
+          jar tf NeverLandPirates-0.2.0-test.jar | grep -q 'ru/neverland/pirates/NeverLandPiratesPlugin.class'
+
+      - name: Upload test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: NeverLandPirates-0.2.0-test
+          path: |
+            NeverLandPirates-0.2.0-test.jar
+            NeverLandPirates-0.2.0-test.jar.sha256
+          if-no-files-found: error
+          retention-days: 7
