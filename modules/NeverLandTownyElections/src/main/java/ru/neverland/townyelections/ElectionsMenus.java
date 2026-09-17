@@ -32,9 +32,9 @@ public final class ElectionsMenus implements Listener {
         var holder=new Holder(p.getUniqueId(),town.getUUID(),e.id,race,page,List.copyOf(entries),Set.copyOf(selected),previous);
         var inv=MenuStyle.inventory(plugin,holder,54,race==null?"Выборы • "+town.getName():name(race));
         for(int i=0;i<54;i++)inv.setItem(i,item(Material.BLACK_STAINED_GLASS_PANE," ",List.of()));
-        inv.setItem(4,item(disabled?Material.GOLDEN_HELMET:Material.WRITABLE_BOOK,disabled?"&6Выборы отключены":"&e"+phase(e.phase),List.of(
+        inv.setItem(4,item(disabled?Material.GOLDEN_HELMET:Material.WRITABLE_BOOK,disabled?"&6Выборы отключены":"&e"+(e.adminPausedAt>0?"Пауза • ":"")+phase(e.phase),List.of(
                 "&7Форма: &f"+switch(form){case "MONARCHY"->"Монархия";case "AUTOCRACY"->"Автократия";default->"Демократия";},
-                "&7Выдвижение до: &f"+time(e.nominationEnd),"&7Голосование до: &f"+time(e.votingEnd),"", "&7Следующая кампания: &f"+(disabled?"после смены формы":time(e.next)),
+                "&7Выдвижение до: &f"+(e.adminPausedAt>0?"пауза":time(e.nominationEnd)),"&7Голосование до: &f"+(e.adminPausedAt>0?"пауза":time(e.votingEnd)),"", "&7Следующая кампания: &f"+(disabled?"после смены формы":time(e.next)),
                 "&7Ваше право голоса: &f"+(ElectionsService.eligible(town,p.getUniqueId(),"VOTE")?"есть":"нет"))));
         for(int i=0;i<CELLS.length && page*CELLS.length+i<entries.size();i++){
             String entry=entries.get(page*CELLS.length+i);

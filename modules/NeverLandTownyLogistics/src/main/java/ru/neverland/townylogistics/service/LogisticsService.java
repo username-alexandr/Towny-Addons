@@ -138,4 +138,19 @@ public final class LogisticsService {
             }catch(IllegalArgumentException ex){routeStatuses.put(key,ex.getMessage());cooldown.put(key,now+10000);}
         }
     }
+    public List<ru.neverland.core.ActivityAdmin.Target> adminTargets() {
+        ru.neverland.core.ApiServices.primaryThread();
+        var result=new ArrayList<ru.neverland.core.ActivityAdmin.Target>();
+        for(var network:networks.values())for(var route:network.routes().values()) {
+            UUID town=network.town();String id=route.id();
+            result.add(new ru.neverland.core.ActivityAdmin.Target(town+"/"+id,"Маршрут "+id,Set.of("status","pause","resume"),(action,minutes)->{
+                if(action.equals("status"))return routeStatus(town,id);
+                var current=network(town);var routes=new HashMap<>(current.routes());boolean enabled=action.equals("resume");
+                if(current.route(id).enabled()==enabled)throw new IllegalArgumentException(enabled?"Маршрут уже работает":"Маршрут уже приостановлен");
+                routes.put(id,current.route(id).enabled(enabled));change(new Network(town,current.nodes(),current.links(),routes),false);
+                return enabled?"Отправка курьеров возобновлена":"Новые отправки приостановлены; текущий груз завершит доставку";
+            }));
+        }
+        return List.copyOf(result);
+    }
 }

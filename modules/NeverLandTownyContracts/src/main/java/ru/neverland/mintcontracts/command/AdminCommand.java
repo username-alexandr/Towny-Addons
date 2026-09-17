@@ -66,7 +66,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         ActiveContract contract = contracts.find(town.getUUID(), args[1]);
         if (contract == null) { messages.send(sender, "contract-not-found", Map.of("contract", args[1])); return; }
         ContractDefinition definition = contracts.definition(contract);
-        if(!contracts.cancel(town, contract)){sender.sendMessage("Заказ ожидает расчёта или поставки; отмена недоступна.");return;}
+        if(!contracts.cancelAdministrative(town, contract)){sender.sendMessage("Заказ ожидает расчёта или поставки; отмена недоступна.");return;}
         messages.send(sender, "cancelled", Map.of("contract", definition == null ? contract.templateId() : ColorUtil.strip(definition.name())));
     }
     private void list(CommandSender sender) {
@@ -91,6 +91,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     private String join(String[] args, int start) { return String.join(" ", Arrays.copyOfRange(args, start, args.length)); }
     @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
                                                            @NotNull String alias, @NotNull String[] args) {
+        if(!sender.hasPermission("mintcontracts.admin"))return List.of();
         if (args.length == 1) return filter(List.of("start", "cancel", "list", "reload", "payments", "deliveries", "resolve", "resolve-delivery"), args[0]);
         if (args.length == 2 && args[0].equalsIgnoreCase("start")) return filter(contracts.registry().all().stream().map(ContractDefinition::id).toList(), args[1]);
         if (args.length == 3 && (args[0].equalsIgnoreCase("start") || args[0].equalsIgnoreCase("cancel")))

@@ -1,0 +1,117 @@
+[
+  {
+    "module": "NeverLandTownyControl",
+    "tests": [
+      "ru.neverland.townycontrol.ActivityAdminSmoke",
+      "ru.neverland.townycontrol.ModuleSafetySmoke"
+    ]
+  },
+  {
+    "module": "NeverLandTownyResearch",
+    "tests": [
+      "ru.neverland.townyresearch.ResearchSmoke"
+    ]
+  },
+  {
+    "module": "NeverLandTownyElections",
+    "tests": [
+      "ru.neverland.townyelections.ElectionSmoke",
+      "ru.neverland.townyelections.ElectionsRepositorySmoke"
+    ]
+  },
+  {
+    "module": "NeverLandTownyContracts",
+    "tests": [
+      "ru.neverland.mintcontracts.CompanyContractsSmoke",
+      "ru.neverland.mintcontracts.ContractMathSmoke",
+      "ru.neverland.mintcontracts.MunicipalContractsSmoke"
+    ]
+  },
+  {
+    "module": "NeverLandTownyExpeditions",
+    "tests": [
+      "ru.neverland.mintexpeditions.LinkageTest",
+      "ru.neverland.mintexpeditions.SiteGeneratorTest",
+      "ru.neverland.mintexpeditions.service.ExpeditionAccessSmoke",
+      "ru.neverland.mintexpeditions.service.MessageServiceSmoke",
+      "ru.neverland.mintexpeditions.service.RewardPersistenceSmoke"
+    ]
+  },
+  {
+    "module": "NeverLandTownyEspionage",
+    "tests": [
+      "ru.neverland.mintespionage.EspionageMathSmoke"
+    ]
+  },
+  {
+    "module": "NeverLandTownyTrade",
+    "tests": [
+      "ru.neverland.minttrade.CaravanReliabilitySmoke",
+      "ru.neverland.minttrade.SupplyContractSmoke",
+      "ru.neverland.minttrade.SupplyReputationSmoke",
+      "ru.neverland.minttrade.TradeMathSmoke"
+    ]
+  },
+  {
+    "module": "NeverLandTownyGovernance",
+    "tests": [
+      "ru.neverland.governance.GovernanceMathSmoke",
+      "ru.neverland.governance.OptionalDependencySmoke",
+      "ru.neverland.governance.ProposalSmoke"
+    ]
+  },
+  {
+    "module": "NeverLandTownyBuilds",
+    "tests": [
+      "ru.neverland.townybuilds.BlockOrientationSmoke",
+      "ru.neverland.townybuilds.BlueprintDump",
+      "ru.neverland.townybuilds.BlueprintGeometrySmoke",
+      "ru.neverland.townybuilds.BlueprintLocalizationSmoke",
+      "ru.neverland.townybuilds.BlueprintSeamSmoke",
+      "ru.neverland.townybuilds.BuildingFootprintsSmoke",
+      "ru.neverland.townybuilds.CivicExpansionSmoke",
+      "ru.neverland.townybuilds.ColorCompatibilitySmoke",
+      "ru.neverland.townybuilds.ConstructionPoliciesSmoke",
+      "ru.neverland.townybuilds.EffectJournalSmoke",
+      "ru.neverland.townybuilds.ExcavationPlannerSmoke",
+      "ru.neverland.townybuilds.ExpansionIntegrationSmoke",
+      "ru.neverland.townybuilds.ImportedModelsSmoke",
+      "ru.neverland.townybuilds.MarketStorageSmoke",
+      "ru.neverland.townybuilds.MaterialLocalizationSmoke",
+      "ru.neverland.townybuilds.MenuStyleSmoke",
+      "ru.neverland.townybuilds.MobilizationSmoke",
+      "ru.neverland.townybuilds.MunicipalStorageSmoke",
+      "ru.neverland.townybuilds.OptionalArchaeologySmoke",
+      "ru.neverland.townybuilds.PowerBlueprintSmoke",
+      "ru.neverland.townybuilds.ProjectIconsSmoke",
+      "ru.neverland.townybuilds.ResourceBalanceSmoke",
+      "ru.neverland.townybuilds.ResourceFundSmoke",
+      "ru.neverland.townybuilds.ResourceTransferSmoke",
+      "ru.neverland.townybuilds.RoofSupportSmoke",
+      "ru.neverland.townybuilds.ShipmentStorageSmoke",
+      "ru.neverland.townybuilds.ShopCrimeSmoke",
+      "ru.neverland.townybuilds.ShopReliabilitySmoke",
+      "ru.neverland.townybuilds.SpecializationBlueprintSmoke",
+      "ru.neverland.townybuilds.TradeStorageSmoke",
+      "ru.neverland.townybuilds.WonderBlueprintSmoke",
+      "ru.neverland.townybuilds.WonderPreviewRenderer",
+      "ru.neverland.townybuilds.construction.ObstructionValidationSmoke",
+      "ru.neverland.townybuilds.service.DefinitionOverlaySmoke"
+    ]
+  },
+  {
+    "module": "NeverLandTownyLogistics",
+    "tests": [
+      "ru.neverland.townylogistics.LogisticsHelpSmoke",
+      "ru.neverland.townylogistics.LogisticsSmoke"
+    ]
+  },
+  {
+    "module": "NeverLandTownyCrime",
+    "tests": [
+      "ru.neverland.townycrime.CrimeEngineSmoke",
+      "ru.neverland.townycrime.CrimeRepositorySmoke",
+      "ru.neverland.townycrime.TheftRecoverySmoke"
+    ]
+  }
+]

@@ -9,7 +9,7 @@ public final class ActiveContract {
     private final UUID townId;
     private final String templateId;
     private final long createdAt;
-    private final long expiresAt;
+    private ru.neverland.core.ActivityTimer timer;
     private final int goal;
     private final double escrow;
     private final Map<UUID, Integer> contributions = new LinkedHashMap<>();
@@ -25,7 +25,7 @@ public final class ActiveContract {
     public ActiveContract(UUID id, UUID townId, String templateId, long createdAt, long expiresAt,
                           int progress, int goal, double escrow, Map<UUID, Integer> contributions) {
         this.id = id; this.townId = townId; this.templateId = templateId; this.createdAt = createdAt;
-        this.expiresAt = expiresAt; this.progress = Math.max(0, progress); this.goal = Math.max(1, goal);
+        this.timer=ru.neverland.core.ActivityTimer.running(createdAt,expiresAt); this.progress = Math.max(0, progress); this.goal = Math.max(1, goal);
         this.escrow = Math.max(0, escrow); this.contributions.putAll(contributions);
     }
     public UUID id() { return id; }
@@ -53,7 +53,7 @@ public final class ActiveContract {
     public UUID townId() { return townId; }
     public String templateId() { return templateId; }
     public long createdAt() { return createdAt; }
-    public long expiresAt() { return expiresAt; }
+    public long expiresAt() { return timer.deadline(); }
     public int progress() { return progress; }
     public int goal() { return goal; }
     public double escrow() { return escrow; }
@@ -69,4 +69,9 @@ public final class ActiveContract {
     public boolean completed() { return progress >= goal; }
     public double ratio() { return Math.min(1, (double) progress / goal); }
     public String shortId() { return id.toString().substring(0, 8); }
+    public ru.neverland.core.ActivityTimer timer(){return timer;}
+    public void timer(ru.neverland.core.ActivityTimer value){timer=java.util.Objects.requireNonNull(value);}
+    private boolean administrativeCancellation;
+    public boolean administrativeCancellation(){return administrativeCancellation;}
+    public void administrativeCancellation(boolean value){administrativeCancellation=value;}
 }

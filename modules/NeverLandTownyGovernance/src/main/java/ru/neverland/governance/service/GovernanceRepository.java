@@ -123,6 +123,7 @@ public final class GovernanceRepository {
             Proposal proposal = new Proposal(id, townId, ru.neverland.core.SafeYaml.stringValue(section,"town", "—"), ru.neverland.core.SafeYaml.stringValue(section,"law", ""),
                     ProposalAction.valueOf(ru.neverland.core.SafeYaml.stringValue(section,"action", "ENACT")), uuid(ru.neverland.core.SafeYaml.stringValue(section,"proposer-uuid")),
                     ru.neverland.core.SafeYaml.stringValue(section,"proposer", "—"), ru.neverland.core.SafeYaml.longValue(section,"created-at"), ru.neverland.core.SafeYaml.longValue(section,"ends-at"), ProposalStatus.OPEN);
+            proposal.timer(ru.neverland.core.ActivityTimer.read(section,"",proposal.timer()));
             Map<UUID, VoteChoice> votes = new LinkedHashMap<>();
             ConfigurationSection voteSection = ru.neverland.core.SafeYaml.section(section,"votes");
             if (voteSection != null) for (String voter : voteSection.getKeys(false)) {
@@ -157,7 +158,7 @@ public final class GovernanceRepository {
     private void saveProposal(YamlConfiguration yaml, Proposal proposal) {
         String root = "proposals." + proposal.id(); yaml.set(root + ".town-uuid", proposal.townId().toString()); yaml.set(root + ".town", proposal.townName());
         yaml.set(root + ".law", proposal.lawId()); yaml.set(root + ".action", proposal.action().name()); yaml.set(root + ".proposer-uuid", text(proposal.proposerId()));
-        yaml.set(root + ".proposer", proposal.proposerName()); yaml.set(root + ".created-at", proposal.createdAt()); yaml.set(root + ".ends-at", proposal.endsAt());
+        yaml.set(root + ".proposer", proposal.proposerName()); yaml.set(root + ".created-at", proposal.createdAt()); yaml.set(root + ".ends-at", proposal.endsAt()); proposal.timer().write(yaml,root+".");
         proposal.votes().forEach((voter, choice) -> yaml.set(root + ".votes." + voter, choice.name()));
     }
 

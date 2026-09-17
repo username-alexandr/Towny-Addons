@@ -90,6 +90,7 @@ public final class ExpeditionRepository {
                   SafeYaml.integer(s, "expires")
                );
 
+               e.timer(ru.neverland.core.ActivityTimer.read(s,"",e.timer()));
                for (Object v : SafeYaml.list(s, "participants")) {
                   e.participants().add(UUID.fromString((String)v));
                }
@@ -260,7 +261,7 @@ public final class ExpeditionRepository {
          y.set(p + "camp", e.campAnchor().key());
          y.set(p + "site", e.siteAnchor().key());
          y.set(p + "started", e.startedAt());
-         y.set(p + "expires", e.expiresAt());
+         y.set(p + "expires", e.expiresAt()); e.timer().write(y,p);
          y.set(p + "status", e.status().name());
          y.set(p + "participants", e.participants().stream().map(UUID::toString).toList());
          y.set(p + "objectives", e.objectives().stream().map(BlockPos::key).toList());

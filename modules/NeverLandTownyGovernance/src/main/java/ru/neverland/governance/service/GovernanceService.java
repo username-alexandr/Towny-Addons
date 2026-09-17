@@ -35,7 +35,7 @@ public final class GovernanceService {
     public enum Result {
         SUCCESS, NO_TOWN, NO_PERMISSION, NOT_COUNCIL, UNKNOWN_LAW, UNKNOWN_OFFICE, UNKNOWN_PROPOSAL,
         ALREADY_ACTIVE, NOT_ACTIVE, DUPLICATE, LIMIT, COOLDOWN, NOT_ELIGIBLE, CHANGE_DISABLED,
-        UNKNOWN_PLAYER, NOT_RESIDENT, OFFICE_FULL, ALREADY_APPOINTED, NOT_APPOINTED, MULTIPLE_OFFICES
+        PAUSED, UNKNOWN_PLAYER, NOT_RESIDENT, OFFICE_FULL, ALREADY_APPOINTED, NOT_APPOINTED, MULTIPLE_OFFICES
     }
     public record ProposalResult(Result result, Proposal proposal, long remainingMillis) { }
     public record VoteResult(Result result, Proposal proposal) { }
@@ -96,6 +96,7 @@ public final class GovernanceService {
         if (!player.hasPermission("townygovernance.vote")) return new VoteResult(Result.NO_PERMISSION, null);
         Proposal proposal = repository.findOpen(town.getUUID(), proposalId);
         if (proposal == null) return new VoteResult(Result.UNKNOWN_PROPOSAL, null);
+        if(proposal.timer().paused())return new VoteResult(Result.PAUSED,proposal);
         if (!electorate(town).contains(player.getUniqueId())) return new VoteResult(Result.NOT_ELIGIBLE, proposal);
         if (proposal.voteOf(player.getUniqueId()) != null && !plugin.getConfig().getBoolean("voting.allow-change", true))
             return new VoteResult(Result.CHANGE_DISABLED, proposal);
@@ -277,7 +278,7 @@ public final class GovernanceService {
 
     private void tick() {
         cleanupOffices(); long now = System.currentTimeMillis();
-        for (Proposal proposal : List.copyOf(repository.open())) if (proposal.endsAt() <= now) resolve(proposal, false);
+        for (Proposal proposal : List.copyOf(repository.open())) if (!proposal.timer().paused() && proposal.endsAt() <= now) resolve(proposal, false);
     }
 
     private void resolve(Proposal proposal, boolean forced) {
@@ -340,4 +341,20 @@ public final class GovernanceService {
     private String actionText(ProposalAction action) { return ColorUtil.strip(messages.raw(action == ProposalAction.ENACT ? "action-enact" : "action-repeal")); }
     public String choiceText(VoteChoice choice) { return ColorUtil.strip(messages.raw(switch (choice) { case YES -> "choice-yes"; case NO -> "choice-no"; case ABSTAIN -> "choice-abstain"; })); }
     private enum Multiplier { CONSTRUCTION, IDEOLOGY_COST, IDEOLOGY_EXPERIENCE }
+
+    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() {
+        ru.neverland.core.ApiServices.primaryThread();
+        return repository.open().stream().map(c -> new ru.neverland.core.ActivityAdmin.Target(c.id().toString(),c.townName()+" / "+c.lawId()+" / голосов "+c.votes().size(),
+                c.status()==ProposalStatus.OPEN ? ru.neverland.core.ActivityAdmin.TIMED : java.util.Set.of("status"), (action,minutes) -> {
+            ru.neverland.core.ApiServices.primaryThread();
+            if(action.equals("status"))return c.id()+" | "+c.townName()+" / "+c.lawId()+" / голосов "+c.votes().size()+" | "+c.timer().describe(System.currentTimeMillis());
+            if(!(c.status()==ProposalStatus.OPEN))throw new IllegalStateException("Задача уже завершается или ожидает расчёта; используйте штатную сверку");
+            if(action.equals("cancel")){c.status(ProposalStatus.CANCELLED);repository.remove(c);repository.save(); return "Задача отменена без провала; выполненные действия сохранены";}
+            var before=c.timer();
+            try{c.timer(before.edit(action,minutes,System.currentTimeMillis())); repository.changed();repository.save();}
+            catch(Exception ex){c.timer(before); throw ex;}
+            return c.id()+" | "+c.timer().describe(System.currentTimeMillis());
+        })).toList();
+    }
+
 }

@@ -76,6 +76,7 @@ public final class MintTownyExpeditions extends JavaPlugin {
 
       AdminCommand admin = new AdminCommand(this);
       this.bind("townyexpeditions", admin, admin);
+ru.neverland.core.ActivityAdmin.attach(this,"townyexpeditions","mintexpeditions.admin",service::adminTargets);
       this.service.startTasks();
       this.getLogger()
          .info(

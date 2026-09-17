@@ -56,6 +56,14 @@ public final class ResearchSmoke {
         var absent=new Fixture();absent.money=0;absent.start();absent.restart().cancel(TOWN);check(absent.refunds==0&&absent.get(TOWN).active()==null,"waiting cancellation has nothing to refund");
         var conflict=new Fixture();conflict.start();conflict.receipts.clear();fails(()->conflict.restart().tick(TOWN,10,true),"missing reserve cannot unlock");check(conflict.get(TOWN).learned().isEmpty(),"conflict fails closed");
         var accelerated=new Fixture();accelerated.start();accelerated.restart().tick(TOWN,5,true,.1);var half=accelerated.get(TOWN).active();check(half.remaining()==5&&half.fraction()==500,"fractional acceleration is durable");accelerated.restart().tick(TOWN,60,false,.5);check(accelerated.get(TOWN).active().equals(half),"pause does not accrue fractional research");accelerated.restart().tick(TOWN,4,true,.1);check(accelerated.get(TOWN).active().remaining()==1&&accelerated.get(TOWN).active().fraction()==900,"fraction preserved across processor restart");accelerated.restart().tick(TOWN,1,true,0);check(accelerated.get(TOWN).learned().get("irrigation")==1&&accelerated.debits==1,"bonus change retains earned progress without free knowledge");
+        var admin=new Fixture();admin.start();admin.restart().tick(TOWN,4,true);
+        var held=admin.get(TOWN).active();admin.put(TOWN,admin.get(TOWN).study(held.phase(PAUSED)));
+        for(int i=0;i<100;i++)admin.restart().tick(TOWN,60,true);check(admin.get(TOWN).active().remaining()==held.remaining()&&admin.debits==1&&admin.consumed==0,"admin pause freezes progress and reservation");
+        persistence(admin.get(TOWN),normal.get(TOWN));
+        admin.put(TOWN,admin.get(TOWN).study(admin.get(TOWN).active().phase(PREPARED)));admin.restart().tick(TOWN,0,true);
+        check(admin.debits==1&&admin.get(TOWN).active().invoice().equals(held.invoice())&&admin.get(TOWN).active().remaining()==held.remaining(),"admin resume reuses held invoice and progress");
+        admin.put(TOWN,admin.get(TOWN).study(admin.get(TOWN).active().phase(PAUSED)));admin.restart().cancel(TOWN);admin.restart().tick(TOWN,0,false);
+        check(admin.refunds==1&&admin.money==1000000&&admin.get(TOWN).active()==null,"paused study cancels with exactly one refund");
         var fractionalStudy=new CityStudy(Map.of(),half,Set.of());persistence(fractionalStudy,normal.get(TOWN));
         persistence(reserved.get(TOWN),normal.get(TOWN));effects();BonusBridgeSmoke.run();
         System.out.println("ResearchSmoke OK: 7 technologies / 21 levels, prerequisites, durable intent/reserve/consume/refund/cleanup, restart, pauses, city isolation and all effect bounds");

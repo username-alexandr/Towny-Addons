@@ -85,6 +85,7 @@ public final class DataStore {
                                     site.getInt("completed-stage"), site.getInt("target-stage"),
                                     site.getInt("build-from-stage", 1), site.getBoolean("active"),
                                     site.getInt("architecture-version", 1)));
+                            sites.get(projectId).adminPaused(ru.neverland.core.SafeYaml.booleanValue(site,"admin-paused",false));
                         } catch (IllegalArgumentException exception) {
                             throw new IOException("Повреждена строительная площадка " + projectId + " города " + townId,exception);
                         }
@@ -183,7 +184,7 @@ public final class DataStore {
                 yaml.set(root + ".facing", site.facing().name());
                 yaml.set(root + ".completed-stage", site.completedStage());
                 yaml.set(root + ".target-stage", site.targetStage());
-                yaml.set(root + ".build-from-stage", site.buildFromStage());
+                yaml.set(root + ".build-from-stage", site.buildFromStage());yaml.set(root+".admin-paused",site.adminPaused());
                 yaml.set(root + ".active", site.active());
                 yaml.set(root + ".architecture-version", site.architectureVersion());
             }

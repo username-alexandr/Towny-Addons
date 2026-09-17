@@ -18,6 +18,7 @@ try{
         saveDefaultConfig();var repository=new LogisticsRepository(getDataFolder().toPath().resolve("logistics-data.yml"));var state=repository.load();
         service=new LogisticsService(this,repository,new BuildsStorage(),settings(),state);var command=new LogisticsCommand(this,service);var menu=new LogisticsMenu(this,service,command);command.menu(menu);
         var direct=getCommand("townylogistics");if(direct==null)throw new IllegalStateException("Команда не объявлена");direct.setExecutor(command);direct.setTabCompleter(command);
+        ru.neverland.core.ActivityAdmin.attach(this,"townylogistics","neverlandtownylogistics.admin",service::adminTargets);
         registered=TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"logistics",command);if(!registered)getLogger().warning("/t logistics занят; используйте /townylogistics.");
         getServer().getPluginManager().registerEvents(menu,this);service.start();getLogger().info("Логистика с NPC-курьерами включена.");
     }catch(Exception|LinkageError ex){getLogger().log(java.util.logging.Level.SEVERE,"Логистика не загрузилась; данные и груз не сброшены",ex);getServer().getPluginManager().disablePlugin(this);}}

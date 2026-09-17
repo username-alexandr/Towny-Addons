@@ -16,6 +16,7 @@ public final class NeverLandTownyElections extends JavaPlugin {
             var settings=readSettings();ElectionsService.validateCatalog(settings);service=new ElectionsService(this,repository,settings);service.recover();
             var menus=new ElectionsMenus(this,service);var command=new ElectionsCommand(this,service,menus);
             getCommand("elections").setExecutor(command);getCommand("elections").setTabCompleter(command);
+            ru.neverland.core.ActivityAdmin.attach(this,"elections","townyelections.admin",service::adminTargets);
             townCommand=TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"elections",command);
             if(!townCommand)getLogger().warning("/t elections занят; используйте /elections.");
             getServer().getPluginManager().registerEvents(menus,this);

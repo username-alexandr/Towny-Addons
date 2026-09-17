@@ -25,9 +25,10 @@ public final class Caravan {
    private final double escrow;
    private final Map<UUID, Double> tariffs;
    private final List<RoutePoint> route;
-   private final long departedAt;
+   private long departedAt;
    private long arrivesAt;
-   private final long incidentAt;
+   private long incidentAt;
+   private long adminPausedAt, adminDuration;
    private final boolean shouldDelay;
    private boolean incidentHandled;
    private CaravanStatus status;
@@ -92,7 +93,7 @@ public final class Caravan {
       this.route = new ArrayList<>(route);
       this.departedAt = departedAt;
       this.arrivesAt = arrivesAt;
-      this.incidentAt = incidentAt;
+      this.incidentAt = incidentAt; this.adminDuration=Math.max(1,arrivesAt-departedAt);
       this.shouldDelay = shouldDelay;
       this.incidentHandled = incidentHandled;
       this.status = status;
@@ -191,10 +192,20 @@ public final class Caravan {
    }
 
    public double progress(long now) {
-      return TradeMath.progress(this.departedAt, this.arrivesAt, now);
+      return TradeMath.progress(this.departedAt, this.arrivesAt, timer().now(now));
    }
 
    public int campStops() {
       return (int)this.route.stream().filter(point -> point.kind() == Kind.CAMP).count();
+   }
+   public ru.neverland.core.ActivityTimer timer(){return new ru.neverland.core.ActivityTimer(arrivesAt,adminPausedAt,adminDuration);}
+   public void timer(ru.neverland.core.ActivityTimer value){arrivesAt=value.deadline();adminPausedAt=value.pausedAt();adminDuration=value.duration();}
+   public void travelTimes(long departed,long incident){departedAt=departed;incidentAt=incident;}
+   public void editTimer(String action,long minutes,long now){
+      var before=timer();var after=before.edit(action,minutes,now);
+      if(action.equals("resume")){long delta=now-before.pausedAt();departedAt=Math.addExact(departedAt,delta);incidentAt=Math.addExact(incidentAt,delta);}
+      // Restart only the travel timer; cargo, payment IDs and the incident receipt remain intact.
+      if(action.equals("restart"))departedAt=after.now(now);
+      timer(after);
    }
 }

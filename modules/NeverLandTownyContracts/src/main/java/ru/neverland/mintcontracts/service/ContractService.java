@@ -159,7 +159,7 @@ public final class ContractService implements MintTownyContractsApi {
             for(var p:repository.payments().values())if(p.phase()==MunicipalPayment.Phase.READY)payments.process(p.id());
             long now=System.currentTimeMillis();
             for(ActiveContract c:repository.allActive()){
-                if(!c.funded()||repository.deliveryBusy(c.id()))continue;
+                if(!c.funded()||repository.deliveryBusy(c.id())||c.timer().paused()&&c.settlementStatus()==null)continue;
                 if(c.settlementStatus()!=null)resolve(c,c.settlementStatus());
                 else if(c.completed()&&definition(c).type()!=ContractType.ROAD)resolve(c,ContractStatus.SUCCESS);
                 else if(now>=c.expiresAt())resolve(c,ContractStatus.EXPIRED);
@@ -190,7 +190,7 @@ public final class ContractService implements MintTownyContractsApi {
     public void completeField(ActiveContract c){if(c.completed())resolve(c,ContractStatus.SUCCESS);}
     public void saveField()throws java.io.IOException{repository.changed();repository.saveOrThrow();}
     private boolean canContribute(ActiveContract c,UUID actor) {
-        if(!Bukkit.isPrimaryThread()||!repository.writable()||c==null||actor==null||!c.funded()||c.settlementStatus()!=null||System.currentTimeMillis()>=c.expiresAt()||repository.find(c.townId(),c.id().toString())!=c)return false;
+        if(!Bukkit.isPrimaryThread()||!repository.writable()||c==null||actor==null||c.timer().paused()||!c.funded()||c.settlementStatus()!=null||System.currentTimeMillis()>=c.expiresAt()||repository.find(c.townId(),c.id().toString())!=c)return false;
         var resident=towny.resident(actor);if(resident==null||resident.getTownOrNull()==null||!resident.getTownOrNull().getUUID().equals(c.townId()))return false;
         return c.companyId()==null||companies.allow("canContribute",actor,c.companyId(),c.townId());
     }
@@ -201,7 +201,7 @@ public final class ContractService implements MintTownyContractsApi {
         }
         if(!companies.settle(c.id(),c.companyId(),c.townId(),c.settlementPayout(),c.settlementRefund()))return;
         long reputationAt=System.currentTimeMillis();
-        repository.outcome(ru.neverland.core.ReputationOutcome.town("municipal:"+c.id(),c.townId(),c.settlementStatus()==ContractStatus.SUCCESS?"MUNICIPAL_SUCCESS":"MUNICIPAL_FAILED",reputationAt,"Контракт компании "+c.shortId()));
+        if(!c.administrativeCancellation())repository.outcome(ru.neverland.core.ReputationOutcome.town("municipal:"+c.id(),c.townId(),c.settlementStatus()==ContractStatus.SUCCESS?"MUNICIPAL_SUCCESS":"MUNICIPAL_FAILED",reputationAt,"Контракт компании "+c.shortId()));
         repository.addHistory(c,c.settlementStatus(),c.settlementPayout()/100.0,c.settlementRefund()/100.0,plugin.getConfig().getInt("contracts.history-limit-per-town",30),System.currentTimeMillis());
         if(!repository.save())return;
         repository.flushReputation();
@@ -226,13 +226,13 @@ public final class ContractService implements MintTownyContractsApi {
     public boolean takeCompanyContract(Player p,UUID company,UUID id) {
         if(!Bukkit.isPrimaryThread()||!repository.writable())return false;
         Town town=towny.town(p);if(town==null)return false;ActiveContract c=find(town.getUUID(),id.toString());
-        if(c==null||!c.funded()||repository.deliveryBusy(c.id())||!c.proofs().isEmpty()||c.companyId()!=null||c.progress()!=0||c.settlementStatus()!=null||System.currentTimeMillis()>=c.expiresAt()||!companies.allow("canTake",p.getUniqueId(),company,town.getUUID()))return false;
+        if(c==null||c.timer().paused()||!c.funded()||repository.deliveryBusy(c.id())||!c.proofs().isEmpty()||c.companyId()!=null||c.progress()!=0||c.settlementStatus()!=null||System.currentTimeMillis()>=c.expiresAt()||!companies.allow("canTake",p.getUniqueId(),company,town.getUUID()))return false;
         c.companyId(company);repository.changed();return repository.save();
     }
     public boolean releaseCompanyContract(Player p,UUID company,UUID id) {
         if(!Bukkit.isPrimaryThread()||!repository.writable())return false;
         Town town=towny.town(p);if(town==null)return false;ActiveContract c=find(town.getUUID(),id.toString());
-        if(c==null||!c.funded()||repository.deliveryBusy(c.id())||!c.proofs().isEmpty()||!company.equals(c.companyId())||c.progress()!=0||c.settlementStatus()!=null||System.currentTimeMillis()>=c.expiresAt()||!companies.allow("canManage",p.getUniqueId(),company,town.getUUID()))return false;
+        if(c==null||c.timer().paused()||!c.funded()||repository.deliveryBusy(c.id())||!c.proofs().isEmpty()||!company.equals(c.companyId())||c.progress()!=0||c.settlementStatus()!=null||System.currentTimeMillis()>=c.expiresAt()||!companies.allow("canManage",p.getUniqueId(),company,town.getUUID()))return false;
         c.companyId(null);repository.changed();return repository.save();
     }
 
@@ -321,4 +321,30 @@ public final class ContractService implements MintTownyContractsApi {
         return false;
     }
     @Override public double pendingReward(UUID residentId) {ru.neverland.core.ApiServices.primaryThread(); return repository.pendingPlayer(residentId); }
+    public boolean cancelAdministrative(Town town,ActiveContract c){
+        ru.neverland.core.ApiServices.primaryThread();
+        if(c==null||town==null||!town.getUUID().equals(c.townId())||!repository.writable()||!c.funded()||repository.deliveryBusy(c.id())||c.settlementStatus()!=null||find(c.townId(),c.id().toString())!=c)return false;
+        c.administrativeCancellation(true);repository.changed();
+        // The cancellation flag and settlement intent are persisted in one repository write.
+        boolean result=cancel(town,c);
+        if(!repository.writable())throw new IllegalStateException("Отмена не сохранена; обработка остановлена");
+        return result;
+    }
+
+
+    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() {
+        ru.neverland.core.ApiServices.primaryThread();
+        return repository.allActive().stream().map(c -> new ru.neverland.core.ActivityAdmin.Target(c.id().toString(),c.templateId()+" / город "+c.townId()+" / прогресс "+c.progress()+"/"+c.goal(),
+                c.funded()&&c.settlementStatus()==null&&!repository.deliveryBusy(c.id()) ? ru.neverland.core.ActivityAdmin.TIMED : java.util.Set.of("status"), (action,minutes) -> {
+            ru.neverland.core.ApiServices.primaryThread();
+            if(action.equals("status"))return c.id()+" | "+c.templateId()+" / город "+c.townId()+" / прогресс "+c.progress()+"/"+c.goal()+" | "+c.timer().describe(System.currentTimeMillis());
+            if(!(c.funded()&&c.settlementStatus()==null&&!repository.deliveryBusy(c.id())))throw new IllegalStateException("Задача уже завершается или ожидает расчёта; используйте штатную сверку");
+            if(action.equals("cancel")){if(!cancelAdministrative(towny.town(c.townId()),c))throw new IllegalStateException("Отмена недоступна: ожидается расчёт"); return "Задача отменена без провала; выполненные действия сохранены";}
+            var before=c.timer();
+            try{c.timer(before.edit(action,minutes,System.currentTimeMillis())); repository.changed();repository.saveOrThrow();}
+            catch(Exception ex){c.timer(before); throw ex;}
+            return c.id()+" | "+c.timer().describe(System.currentTimeMillis());
+        })).toList();
+    }
+
 }

@@ -77,6 +77,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     }
     private String name(Town town) { return town == null ? "Удалённый город" : town.getName(); }
     @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        if(!sender.hasPermission("minttrade.admin"))return List.of();
         if (args.length == 1) return filter(List.of("list", "complete", "cancel", "reload", "contracts", "contract", "resolve", "payments", "resolve-payment", "legacy"), args[0]);
         if (args.length == 2 && (args[0].equalsIgnoreCase("complete") || args[0].equalsIgnoreCase("cancel"))) return filter(trade.repository().caravans().stream().map(Caravan::shortId).toList(), args[1]);
         if(args.length==2&&(args[0].equalsIgnoreCase("contract")||args[0].equalsIgnoreCase("resolve")))return filter(plugin.supplies().all().stream().filter(ru.neverland.minttrade.contract.SupplyContract::open).map(c->c.terms().shortId()).toList(),args[1]);

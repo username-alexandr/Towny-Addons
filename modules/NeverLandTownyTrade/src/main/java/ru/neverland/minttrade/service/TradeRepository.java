@@ -180,7 +180,7 @@ public final class TradeRepository {
                         CaravanStatus.valueOf(SafeYaml.stringValue(root, path + "status", "ACTIVE"))
                      )
                   );
-               Caravan c = this.caravans.get(id);
+               Caravan c = this.caravans.get(id); c.timer(ru.neverland.core.ActivityTimer.read(root,path,c.timer()));
                c.settlement(root.contains(path + "settlement") ? SafeYaml.stringValue(root, path + "settlement") : "LEGACY_REVIEW");
                c.legacyFunded(SafeYaml.booleanValue(root, path + "legacy-funded", !root.contains(path + "settlement")));
                if (c.remainingCargo() < 0
@@ -377,7 +377,7 @@ public final class TradeRepository {
          value.tariffs().forEach((town, amount) -> yaml.set(path + "tariffs." + town, amount));
          yaml.set(path + "route", value.route().stream().map(this::map).toList());
          yaml.set(path + "departed-at", value.departedAt());
-         yaml.set(path + "arrives-at", value.arrivesAt());
+         yaml.set(path + "arrives-at", value.arrivesAt()); value.timer().write(yaml,path);
          yaml.set(path + "incident-at", value.incidentAt());
          yaml.set(path + "should-delay", value.shouldDelay());
          yaml.set(path + "incident-handled", value.incidentHandled());

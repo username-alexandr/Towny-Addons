@@ -69,7 +69,7 @@ public final class EspionageMenuManager implements Listener {
     }
     public void openActive(Player player){
         Town town=towny.town(player);if(town==null){messages.send(player,"no-town");return;}EspionageMenuHolder holder=new EspionageMenuHolder(town.getUUID(),null,EspionageMenuHolder.Type.ACTIVE);Inventory inventory=create(holder,45,title("gui.active-title","Активные операции",null));fill(inventory);int slot=0;
-        for(SpyOperation operation:service.repository().active(town.getUUID())){OperationDefinition definition=service.registry().get(operation.type());inventory.setItem(slot++,item(definition==null?Material.CLOCK:definition.icon(),definition==null?operation.type():definition.name(),List.of("&7Цель: &f"+operation.targetName(),"&7Осталось: &f"+TimeUtil.format(operation.completesAt()-System.currentTimeMillis()),"&7Шанс успеха: &#55FF55"+Math.round(operation.successChance()*100)+"%","&7ID: &8"+operation.shortId())));if(slot>=36)break;}
+        for(SpyOperation operation:service.repository().active(town.getUUID())){OperationDefinition definition=service.registry().get(operation.type());inventory.setItem(slot++,item(definition==null?Material.CLOCK:definition.icon(),definition==null?operation.type():definition.name(),List.of("&7Цель: &f"+operation.targetName(),"&7Осталось: &f"+(operation.timer().paused()?"Пауза • ":"")+TimeUtil.format(operation.timer().remaining(System.currentTimeMillis())),"&7Шанс успеха: &#55FF55"+Math.round(operation.successChance()*100)+"%","&7ID: &8"+operation.shortId())));if(slot>=36)break;}
         inventory.setItem(40,action("back",Material.ARROW,"&fНазад",List.of()));player.openInventory(inventory);
     }
     @EventHandler public void onClick(InventoryClickEvent event){
@@ -83,6 +83,8 @@ public final class EspionageMenuManager implements Listener {
     public void sendStart(Player player,EspionageService.StartOutcome outcome,OperationDefinition definition,Town target){
         switch(outcome.status()){
             case SUCCESS->messages.send(player,"operation-started",Map.of("operation",ColorUtil.strip(definition.name()),"target",target.getName(),"time",TimeUtil.format(outcome.remaining())));
+            case NEWCOMER_PROTECTED->player.sendMessage("§bОперация недоступна, пока у одного из городов действует щит новичка: "+TimeUtil.format(outcome.remaining()));
+            case PROTECTION_UNAVAILABLE->player.sendMessage("§eРеестр защиты новичков недоступен. Средства не списаны.");
             case DIPLOMACY_BLOCKED->player.sendMessage(ru.neverland.mintespionage.util.ColorUtil.color("&cОперация запрещена дипломатическим договором или реестр дипломатии недоступен."));case SELF_TARGET->messages.send(player,"self-target");case LIMIT->messages.send(player,"operation-limit",Map.of("active",service.repository().active(towny.town(player).getUUID()).size(),"limit",service.activeLimit(towny.town(player))));
             case DUPLICATE->messages.send(player,"operation-duplicate");case COOLDOWN->messages.send(player,"operation-cooldown",Map.of("time",TimeUtil.format(outcome.remaining())));
             case NO_MONEY->messages.send(player,"not-enough-treasury",Map.of("amount",service.economy().format(outcome.required())));case ECONOMY_ERROR->messages.send(player,"economy-error");case NO_TOWN->messages.send(player,"no-town");

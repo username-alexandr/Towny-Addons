@@ -20,3 +20,7 @@ incidents:
   resources: [wood, stone, metal, materials]
 menu-style:
   title-color: '#F4F7FC'
+
+# Общий щит Events; без Events — 24 часа с регистрации города.
+newcomer-protection:
+  enabled: true

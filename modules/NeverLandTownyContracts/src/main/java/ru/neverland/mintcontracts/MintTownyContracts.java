@@ -51,6 +51,7 @@ public final class MintTownyContracts extends JavaPlugin {
         }
         getServer().getServicesManager().register(MintTownyContractsApi.class, contracts, this, ServicePriority.Normal);
         boolean placeholders = PlaceholderHook.register(this, towny, contracts);
+ru.neverland.core.ActivityAdmin.attach(this,"townycontracts","mintcontracts.admin",contracts::adminTargets);
         contracts.start();
         getLogger().info("NeverLandTownyContracts 0.3.0 включён: шаблонов " + registry.all().size()
                 + ", склад=" + warehouse.available() + ", PlaceholderAPI=" + placeholders + ".");

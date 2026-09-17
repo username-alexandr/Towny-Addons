@@ -92,6 +92,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
 
         effects = new EffectService(this, towny, dataStore, definitions);
         effects.start();
+        ru.neverland.core.ActivityAdmin.attach(this,"townybuilds","neverlandtownybuilds.admin",construction::adminTargets);
         construction.start();
         civic.start();
         if(production==null)production=new ru.neverland.townybuilds.storage.ProductionService(this,dataStore,storage);

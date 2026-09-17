@@ -158,4 +158,17 @@ public final class ExpeditionListener implements Listener {
             }
         }
     }
+    private boolean pausedMob(org.bukkit.entity.Entity entity){
+        if(entity instanceof org.bukkit.entity.Projectile p && p.getShooter() instanceof org.bukkit.entity.Entity owner)entity=owner;
+        var expedition=service.expeditionForMob(entity);return expedition!=null&&expedition.timer().paused();
+    }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
+    public void pausedDamage(org.bukkit.event.entity.EntityDamageEvent event){
+        if(pausedMob(event.getEntity()) || event instanceof org.bukkit.event.entity.EntityDamageByEntityEvent hit && pausedMob(hit.getDamager()))event.setCancelled(true);
+    }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
+    public void pausedTarget(org.bukkit.event.entity.EntityTargetLivingEntityEvent event){if(pausedMob(event.getEntity()))event.setCancelled(true);}
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
+    public void pausedExplosion(org.bukkit.event.entity.EntityExplodeEvent event){if(pausedMob(event.getEntity()))event.setCancelled(true);}
+
 }

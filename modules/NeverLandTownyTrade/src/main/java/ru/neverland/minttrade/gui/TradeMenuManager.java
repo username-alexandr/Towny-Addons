@@ -166,11 +166,11 @@ public final class TradeMenuManager implements Listener {
         return item(definition.icon(), definition.name(), List.of("&7Маршрут: &f" + name(from) + " &7→ &f" + name(to),
                 "&7Статус: " + caravanState(caravan),
                 "&7Прогресс: &#63E6BE" + Math.round(caravan.progress(System.currentTimeMillis()) * 100) + "%",
-                "&7До прибытия: &#65B8FF" + TimeUtil.format(caravan.arrivesAt() - System.currentTimeMillis()),
+                "&7До прибытия: &#65B8FF" + TimeUtil.format(caravan.timer().remaining(System.currentTimeMillis())),
                 "&7Перевалочных лагерей: &f" + caravan.campStops(), "&7Пошлины: &#FFD45A" + trade.economy().format(caravan.escrow() - caravan.basePrice()),
                 "&7ID: &f" + caravan.shortId()));
     }
-    private String caravanState(Caravan c){return switch(c.settlement()){case "ACTIVE"->"В пути";case "PREPARED"->"Подготовка / платёж";case "DELIVERING"->"Ожидает склад";case "PAYING"->"Ожидает расчёт";case "RETURNING"->"Ожидает возврат";case "LEGACY_REVIEW"->"Требует сверки администратора";default->"Завершён";};}
+    private String caravanState(Caravan c){if(c.settlement().equals("ACTIVE")&&c.timer().paused())return "Пауза администратора";return switch(c.settlement()){case "ACTIVE"->"В пути";case "PREPARED"->"Подготовка / платёж";case "DELIVERING"->"Ожидает склад";case "PAYING"->"Ожидает расчёт";case "RETURNING"->"Ожидает возврат";case "LEGACY_REVIEW"->"Требует сверки администратора";default->"Завершён";};}
     private String name(Town town) { return town == null ? "Удалённый город" : town.getName(); }
     private void fill(Inventory inventory) { Material material = MaterialNameConfig.matchMaterial(plugin.getConfig().getString("gui.filler", "BLACK_STAINED_GLASS_PANE")); ItemStack filler = item(material == null ? Material.BLACK_STAINED_GLASS_PANE : material, " ", List.of()); for (int i = 0; i < inventory.getSize(); i++) inventory.setItem(i, filler); }
     private ItemStack actionItem(String action, Material material, String name, List<String> lore) { return keyed(item(material, name, lore), actionKey, action); }

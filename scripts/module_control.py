@@ -27,6 +27,15 @@ def dependencies():
 def validate():
     if not TARGET.exists() or yaml.safe_load(TARGET.read_text())!={'schema':1,'modules':dependencies()}:
         raise RuntimeError('Stale module safety graph: run python scripts/module_control.py --write')
+    catalog=yaml.safe_load((TARGET.parent/'admin-modules.yml').read_text())['modules']
+    expected=dependencies()
+    if {'NeverLandTowny'+name for name in catalog}!=set(expected):raise RuntimeError('Incomplete admin catalog')
+    for short,entry in catalog.items():
+        meta=yaml.safe_load((ROOT/'modules'/('NeverLandTowny'+short)/'src/main/resources/plugin.yml').read_text())
+        if entry['command'] not in meta['commands'] or entry['permission'] not in meta['permissions']:raise RuntimeError('Invalid admin entry: '+short)
+        if entry['activities']:
+            source='\n'.join(p.read_text() for p in (ROOT/'modules'/('NeverLandTowny'+short)/'src/main/java').rglob('*.java'))
+            if 'ActivityAdmin.attach' not in source:raise RuntimeError('Missing activity adapter: '+short)
     for name in dependencies():
         p=ROOT/'modules'/name/'src/main/java'
         enabled=[f for f in p.rglob('*.java') if re.search(r'void\s+onEnable\s*\(',f.read_text())]

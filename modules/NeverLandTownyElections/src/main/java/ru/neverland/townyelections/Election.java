@@ -7,7 +7,7 @@ public final class Election {
     public enum Phase { WAITING, NOMINATION, VOTING, APPLYING, REVIEW, COMPLETE, CANCELLED }
     UUID id, town, originalMayor;
     Phase phase = Phase.WAITING;
-    long start, nominationEnd, votingEnd, next, interval, votingDuration;
+    long start, nominationEnd, votingEnd, next, interval, votingDuration, adminPausedAt, nominationDuration;
     double quorum;
     String detail = "";
     String governanceBefore = "";
@@ -21,24 +21,24 @@ public final class Election {
     public Election(UUID town, long next) { this.id = UUID.randomUUID(); this.town = town; this.next = next; }
     public Election copy() {
         var e = new Election(town, next); e.id=id; e.originalMayor=originalMayor; e.phase=phase;
-        e.start=start; e.nominationEnd=nominationEnd; e.votingEnd=votingEnd; e.interval=interval; e.votingDuration=votingDuration; e.quorum=quorum; e.detail=detail; e.governanceBefore=governanceBefore;
+        e.adminPausedAt=adminPausedAt;e.nominationDuration=nominationDuration;e.start=start; e.nominationEnd=nominationEnd; e.votingEnd=votingEnd; e.interval=interval; e.votingDuration=votingDuration; e.quorum=quorum; e.detail=detail; e.governanceBefore=governanceBefore;
         e.electorate.addAll(electorate); e.seats.putAll(seats); e.candidates.putAll(candidates);
         ballots.forEach((r, votes) -> { var map = new LinkedHashMap<UUID,List<UUID>>(); votes.forEach((v, choices) -> map.put(v, List.copyOf(choices))); e.ballots.put(r, map); });
         winners.forEach((r, list) -> e.winners.put(r, List.copyOf(list))); e.results.putAll(results); e.history.addAll(history); return e;
     }
     public boolean active() { return phase == Phase.NOMINATION || phase == Phase.VOTING || phase == Phase.APPLYING || phase == Phase.REVIEW; }
     public void nominate(UUID resident, String race, long now) {
-        if (phase != Phase.NOMINATION || now >= nominationEnd) throw new IllegalArgumentException("Приём кандидатов закрыт.");
+        if (adminPausedAt>0 || phase != Phase.NOMINATION || now >= nominationEnd) throw new IllegalArgumentException("Приём кандидатов закрыт.");
         if (!seats.containsKey(race)) throw new IllegalArgumentException("Неизвестная должность.");
         if (candidates.containsKey(resident)) throw new IllegalArgumentException("Можно выдвинуться только на одну должность. Сначала withdraw.");
         candidates.put(resident, race);
     }
     public void withdraw(UUID resident, long now) {
-        if (phase != Phase.NOMINATION || now >= nominationEnd) throw new IllegalArgumentException("Снятие кандидатуры уже закрыто.");
+        if (adminPausedAt>0 || phase != Phase.NOMINATION || now >= nominationEnd) throw new IllegalArgumentException("Снятие кандидатуры уже закрыто.");
         if (candidates.remove(resident) == null) throw new IllegalArgumentException("Вы не выдвигались.");
     }
     public void vote(UUID voter, String race, List<UUID> choices, long now) {
-        if (phase != Phase.VOTING || now >= votingEnd) throw new IllegalArgumentException("Голосование закрыто.");
+        if (adminPausedAt>0 || phase != Phase.VOTING || now >= votingEnd) throw new IllegalArgumentException("Голосование закрыто.");
         if (!electorate.contains(voter)) throw new IllegalArgumentException("Вы не вошли в список избирателей на старте кампании.");
         if (!seats.containsKey(race) || choices.isEmpty() || choices.size() > seats.get(race) || new HashSet<>(choices).size() != choices.size()) throw new IllegalArgumentException("Неверное число выбранных кандидатов.");
         for (UUID candidate : choices) if (!race.equals(candidates.get(candidate))) throw new IllegalArgumentException("Кандидат не участвует в этих выборах.");
@@ -71,6 +71,7 @@ public final class Election {
     }
     void validate() {
         Objects.requireNonNull(id); Objects.requireNonNull(town); Objects.requireNonNull(phase);
+        if(adminPausedAt<0||nominationDuration<0||adminPausedAt>0&&(!java.util.Set.of(Phase.NOMINATION,Phase.VOTING).contains(phase)||adminPausedAt>timer().deadline()))throw new IllegalArgumentException("Invalid campaign pause");
         if (next < 0 || start < 0 || nominationEnd < 0 || votingEnd < 0 || !Double.isFinite(quorum) || quorum < 0 || quorum > 1) throw new IllegalArgumentException("Invalid election time/quorum");
         if (phase != Phase.WAITING && (originalMayor == null || start <= 0 || nominationEnd <= start || votingDuration <= 0 || interval <= 0 || seats.isEmpty())) throw new IllegalArgumentException("Incomplete campaign");
         if (phase == Phase.VOTING && votingEnd <= nominationEnd) throw new IllegalArgumentException("Invalid voting deadline");
@@ -85,4 +86,7 @@ public final class Election {
                 || ids.stream().anyMatch(id -> !r.equals(candidates.get(id)) || !selected.add(id))) throw new IllegalArgumentException("Invalid saved winners"); });
         if (!Set.of(Phase.APPLYING, Phase.REVIEW, Phase.COMPLETE).contains(phase) && !winners.isEmpty()) throw new IllegalArgumentException("Premature winners");
     }
+    public ru.neverland.core.ActivityTimer timer(){return new ru.neverland.core.ActivityTimer(phase==Phase.NOMINATION?nominationEnd:votingEnd,adminPausedAt,phase==Phase.NOMINATION?Math.max(1,nominationDuration>0?nominationDuration:nominationEnd-start):Math.max(1,votingDuration));}
+    public void timer(ru.neverland.core.ActivityTimer timer){if(phase==Phase.NOMINATION)nominationEnd=timer.deadline();else votingEnd=timer.deadline();adminPausedAt=timer.pausedAt();}
+
 }
