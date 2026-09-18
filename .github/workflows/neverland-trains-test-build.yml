@@ -34,11 +34,11 @@ jobs:
           jar tf "$JAR" | grep -q '^plugin.yml$'
           jar tf "$JAR" | grep -q 'ru/neverland/trains/NeverLandTrainsPlugin.class'
           mkdir -p /tmp/trains-artifact
-          cp "$JAR" /tmp/trains-artifact/NeverLandTrains-0.1.0-test.jar
-          sha256sum /tmp/trains-artifact/NeverLandTrains-0.1.0-test.jar > /tmp/trains-artifact/NeverLandTrains-0.1.0-test.jar.sha256
+          cp "$JAR" /tmp/trains-artifact/NeverLandTrains-0.1.1-test.jar
+          sha256sum /tmp/trains-artifact/NeverLandTrains-0.1.1-test.jar > /tmp/trains-artifact/NeverLandTrains-0.1.1-test.jar.sha256
       - name: Upload test build
         uses: actions/upload-artifact@v4
         with:
-          name: NeverLandTrains-0.1.0-test
+          name: NeverLandTrains-0.1.1-test
           path: /tmp/trains-artifact/*
           retention-days: 7
