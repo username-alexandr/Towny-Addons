@@ -34,23 +34,26 @@ jobs:
           unzip -t /tmp/NeverLandPirates-source.zip
           unzip -q /tmp/NeverLandPirates-source.zip -d .ci-neverlandpirates-work
 
+      - name: Disable named entity death console spam
+        run: python3 ci/NeverLandPirates/apply_console_suppression.py .ci-neverlandpirates-work
+
       - name: Build plugin
         working-directory: .ci-neverlandpirates-work
         run: gradle --no-daemon clean build
 
       - name: Prepare test jar
         run: |
-          cp .ci-neverlandpirates-work/build/libs/NeverLandPirates-0.2.0-SNAPSHOT.jar NeverLandPirates-0.2.0-test.jar
-          sha256sum NeverLandPirates-0.2.0-test.jar > NeverLandPirates-0.2.0-test.jar.sha256
-          jar tf NeverLandPirates-0.2.0-test.jar | grep -q 'plugin.yml'
-          jar tf NeverLandPirates-0.2.0-test.jar | grep -q 'ru/neverland/pirates/NeverLandPiratesPlugin.class'
+          cp .ci-neverlandpirates-work/build/libs/NeverLandPirates-0.2.1-SNAPSHOT.jar NeverLandPirates-0.2.1-test.jar
+          sha256sum NeverLandPirates-0.2.1-test.jar > NeverLandPirates-0.2.1-test.jar.sha256
+          jar tf NeverLandPirates-0.2.1-test.jar | grep -q 'plugin.yml'
+          jar tf NeverLandPirates-0.2.1-test.jar | grep -q 'ru/neverland/pirates/NeverLandPiratesPlugin.class'
 
       - name: Upload test build
         uses: actions/upload-artifact@v4
         with:
-          name: NeverLandPirates-0.2.0-test
+          name: NeverLandPirates-0.2.1-test
           path: |
-            NeverLandPirates-0.2.0-test.jar
-            NeverLandPirates-0.2.0-test.jar.sha256
+            NeverLandPirates-0.2.1-test.jar
+            NeverLandPirates-0.2.1-test.jar.sha256
           if-no-files-found: error
           retention-days: 7
