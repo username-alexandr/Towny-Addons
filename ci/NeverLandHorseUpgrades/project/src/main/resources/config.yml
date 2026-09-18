@@ -1,0 +1,20 @@
+horse-armor:
+  max-total-reduction: 0.80
+  protection-per-level: 0.04
+  fire-protection-per-level: 0.08
+  blast-protection-per-level: 0.08
+  projectile-protection-per-level: 0.08
+  feather-falling-per-level: 0.12
+  thorns-damage-per-level: 0.75
+  respiration-air-bonus-ticks-per-level: 200
+  depth-strider-water-speed-per-level: 0.08
+
+villager-transport:
+  selection-timeout-seconds: 30
+  max-selection-distance: 8.0
+  require-adult-villager: true
+  require-adult-horse: true
+  require-saddled-horse: false
+
+messages:
+  prefix: "<gold>[NeverLandHorse]</gold> "

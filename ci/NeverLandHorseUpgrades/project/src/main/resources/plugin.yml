@@ -1,0 +1,19 @@
+name: NeverLandHorseUpgrades
+version: 0.1.0-test
+main: ru.neverland.horseupgrades.NeverLandHorseUpgradesPlugin
+api-version: '1.21'
+folia-supported: true
+author: Alexander Sokolov
+
+commands:
+  nlhorse:
+    description: NeverLandHorseUpgrades testing/admin command
+    usage: /nlhorse <status|give|reload>
+
+permissions:
+  neverlandhorse.admin:
+    default: op
+  neverlandhorse.transport:
+    default: true
+  neverlandhorse.enchant:
+    default: true
