@@ -1,0 +1,17 @@
+name: NeverLandMelons
+version: 0.1.0-test
+main: ru.neverland.melons.NeverLandMelonsPlugin
+api-version: '1.21'
+folia-supported: true
+author: Alexander Sokolov
+
+commands:
+  nlmelon:
+    description: NeverLandMelons administration/testing
+    usage: /nlmelon <status|give|fixstems|reload>
+
+permissions:
+  neverlandmelons.admin:
+    default: op
+  neverlandmelons.use:
+    default: true

@@ -1,0 +1,19 @@
+melon:
+  bites: 7
+  food-per-bite: 2
+  saturation-per-bite: 0.4
+
+golden-slice:
+  heal-health-points: 2.0
+  cooldown-ticks: 8
+
+golden-melon:
+  bites: 7
+  food-per-bite: 2
+  saturation-per-bite: 0.6
+  regeneration-ticks: 80
+  regeneration-amplifier: 0
+  recipe-enabled: true
+
+stem-fix:
+  enabled: true
