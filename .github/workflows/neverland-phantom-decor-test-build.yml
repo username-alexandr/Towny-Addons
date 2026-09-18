@@ -42,11 +42,11 @@ jobs:
           jar tf "$JAR" | grep -q '^plugin.yml$'
           jar tf "$JAR" | grep -q 'ru/neverland/phantomdecor/NeverLandPhantomDecorPlugin.class'
           mkdir -p /tmp/phantomdecor-artifact
-          cp "$JAR" /tmp/phantomdecor-artifact/NeverLandPhantomDecor-0.1.0-test.jar
-          sha256sum /tmp/phantomdecor-artifact/NeverLandPhantomDecor-0.1.0-test.jar > /tmp/phantomdecor-artifact/NeverLandPhantomDecor-0.1.0-test.jar.sha256
+          cp "$JAR" /tmp/phantomdecor-artifact/NeverLandPhantomDecor-0.1.1-test.jar
+          sha256sum /tmp/phantomdecor-artifact/NeverLandPhantomDecor-0.1.1-test.jar > /tmp/phantomdecor-artifact/NeverLandPhantomDecor-0.1.1-test.jar.sha256
       - name: Upload test build
         uses: actions/upload-artifact@v4
         with:
-          name: NeverLandPhantomDecor-0.1.0-test
+          name: NeverLandPhantomDecor-0.1.1-test
           path: /tmp/phantomdecor-artifact/*
           retention-days: 7
