@@ -9,12 +9,35 @@ horse-armor:
   respiration-air-bonus-ticks-per-level: 200
   depth-strider-water-speed-per-level: 0.08
 
+special-upgrades:
+  speed:
+    scalar-per-level: 0.08
+  jump:
+    scalar-per-level: 0.10
+  stability:
+    resistance-per-level: 0.15
+  dash:
+    base-force: 0.60
+    force-per-level: 0.12
+    base-stamina-cost: 35.0
+    cooldown-ticks: 60
+  endurance:
+    base-max-stamina: 100.0
+    max-stamina-per-level: 20.0
+    base-regen-per-second: 12.0
+    regen-per-level: 3.0
+    cost-reduction-per-level: 0.12
+
 villager-transport:
   selection-timeout-seconds: 30
   max-selection-distance: 8.0
   require-adult-villager: true
   require-adult-horse: true
   require-saddled-horse: false
+  rear-seat:
+    offset-back: 0.85
+    offset-up: 0.72
+    sync-period-ticks: 1
 
 messages:
   prefix: "<gold>[NeverLandHorse]</gold> "
