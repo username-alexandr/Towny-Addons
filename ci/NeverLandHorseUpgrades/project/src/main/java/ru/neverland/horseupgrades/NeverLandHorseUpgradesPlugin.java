@@ -29,6 +29,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.HorseInventory;
@@ -330,6 +331,13 @@ final class HorseUpgradeListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         selectedVillagers.remove(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler
+    public void onHorseMove(VehicleMoveEvent event) {
+        if (!(event.getVehicle() instanceof Horse horse)) return;
+        if (!horse.isInWater()) return;
+        rescanDepthStrider(horse);
     }
 
     void startDepthStriderTask(Horse horse) {
