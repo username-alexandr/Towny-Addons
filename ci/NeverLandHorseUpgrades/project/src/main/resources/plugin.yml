@@ -1,5 +1,5 @@
 name: NeverLandHorseUpgrades
-version: 0.1.0-test
+version: 0.2.0-test
 main: ru.neverland.horseupgrades.NeverLandHorseUpgradesPlugin
 api-version: '1.21'
 folia-supported: true
@@ -8,7 +8,7 @@ author: Alexander Sokolov
 commands:
   nlhorse:
     description: NeverLandHorseUpgrades testing/admin command
-    usage: /nlhorse <status|give|reload>
+    usage: /nlhorse <status|give|book|reload>
 
 permissions:
   neverlandhorse.admin:
