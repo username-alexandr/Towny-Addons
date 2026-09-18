@@ -28,9 +28,8 @@ jobs:
         run: |
           rm -rf .ci-glow-work
           mkdir -p .ci-glow-work
-          base64 -d ci/NeverLandGlowCosmetics/source.b64 > /tmp/NeverLandGlowCosmetics-source.zip
-          unzip -t /tmp/NeverLandGlowCosmetics-source.zip
-          unzip -q /tmp/NeverLandGlowCosmetics-source.zip -d .ci-glow-work
+          base64 -d ci/NeverLandGlowCosmetics/source.tar.b64 > /tmp/NeverLandGlowCosmetics-source.tar.gz
+          tar -xzf /tmp/NeverLandGlowCosmetics-source.tar.gz -C .ci-glow-work
       - name: Build plugin
         working-directory: .ci-glow-work/NeverLandGlowCosmetics
         run: gradle --no-daemon clean build
@@ -42,11 +41,11 @@ jobs:
           jar tf "$JAR" | grep -q '^plugin.yml$'
           jar tf "$JAR" | grep -q 'ru/neverland/glowcosmetics/NeverLandGlowCosmeticsPlugin.class'
           mkdir -p /tmp/glow-artifact
-          cp "$JAR" /tmp/glow-artifact/NeverLandGlowCosmetics-0.1.0-test.jar
-          sha256sum /tmp/glow-artifact/NeverLandGlowCosmetics-0.1.0-test.jar > /tmp/glow-artifact/NeverLandGlowCosmetics-0.1.0-test.jar.sha256
+          cp "$JAR" /tmp/glow-artifact/NeverLandGlowCosmetics-0.2.0-test.jar
+          sha256sum /tmp/glow-artifact/NeverLandGlowCosmetics-0.2.0-test.jar > /tmp/glow-artifact/NeverLandGlowCosmetics-0.2.0-test.jar.sha256
       - name: Upload test build
         uses: actions/upload-artifact@v4
         with:
-          name: NeverLandGlowCosmetics-0.1.0-test
+          name: NeverLandGlowCosmetics-0.2.0-test
           path: /tmp/glow-artifact/*
           retention-days: 7
