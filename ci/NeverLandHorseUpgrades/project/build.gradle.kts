@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "ru.neverland"
-version = "0.2.0-test"
+version = "0.2.1-test"
 
 repositories {
     mavenCentral()
