@@ -1,0 +1,52 @@
+name: NeverLandPhantomDecor Test Build
+
+on:
+  push:
+    branches:
+      - chatgpt/neverland-phantom-decor-test-build
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Set up Gradle 9.1.0
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.1.0'
+      - name: Reconstruct sources
+        shell: bash
+        run: |
+          rm -rf .ci-phantomdecor-work
+          mkdir -p .ci-phantomdecor-work
+          base64 -d ci/NeverLandPhantomDecor/source.b64 > /tmp/NeverLandPhantomDecor-source.zip
+          unzip -t /tmp/NeverLandPhantomDecor-source.zip
+          unzip -q /tmp/NeverLandPhantomDecor-source.zip -d .ci-phantomdecor-work
+      - name: Build plugin
+        working-directory: .ci-phantomdecor-work/NeverLandPhantomDecor
+        run: gradle --no-daemon clean build
+      - name: Validate jar
+        shell: bash
+        run: |
+          JAR=$(find .ci-phantomdecor-work/NeverLandPhantomDecor/build/libs -maxdepth 1 -name '*.jar' ! -name '*sources*' | head -n1)
+          test -n "$JAR"
+          jar tf "$JAR" | grep -q '^plugin.yml$'
+          jar tf "$JAR" | grep -q 'ru/neverland/phantomdecor/NeverLandPhantomDecorPlugin.class'
+          mkdir -p /tmp/phantomdecor-artifact
+          cp "$JAR" /tmp/phantomdecor-artifact/NeverLandPhantomDecor-0.1.0-test.jar
+          sha256sum /tmp/phantomdecor-artifact/NeverLandPhantomDecor-0.1.0-test.jar > /tmp/phantomdecor-artifact/NeverLandPhantomDecor-0.1.0-test.jar.sha256
+      - name: Upload test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: NeverLandPhantomDecor-0.1.0-test
+          path: /tmp/phantomdecor-artifact/*
+          retention-days: 7
