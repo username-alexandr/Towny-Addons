@@ -30,6 +30,7 @@ jobs:
           mkdir -p .ci-archer-work
           base64 -d ci/NeverLandArcherTable/source.tar.b64 > /tmp/NeverLandArcherTable-source.tar.gz
           tar -xzf /tmp/NeverLandArcherTable-source.tar.gz -C .ci-archer-work
+          sed -i 's/import org.bukkit.PotionType;/import org.bukkit.potion.PotionType;/' .ci-archer-work/NeverLandArcherTable/src/main/java/ru/neverland/archertable/ArcherMenuService.java
       - name: Build plugin
         working-directory: .ci-archer-work/NeverLandArcherTable
         run: gradle --no-daemon clean build
