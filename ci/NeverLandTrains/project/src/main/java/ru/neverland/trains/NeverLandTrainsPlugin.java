@@ -94,7 +94,7 @@ public final class NeverLandTrainsPlugin extends JavaPlugin {
             }
         }
 
-        getLogger().info("NeverLandTrains 0.1.0-test enabled for Purpur 26.2.");
+        getLogger().info("NeverLandTrains 0.1.1-test enabled for Purpur 26.2.");
     }
 
     @Override
@@ -931,7 +931,7 @@ final class TrainListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onCartInteract(PlayerInteractEntityEvent event) {
         if (event.getHand() != EquipmentSlot.HAND) return;
         if (!(event.getRightClicked() instanceof Minecart cart)) return;
@@ -940,7 +940,7 @@ final class TrainListener implements Listener {
         ItemStack hand = player.getInventory().getItemInMainHand();
         Material type = hand.getType();
 
-        if (type == Material.IRON_CHAIN && player.hasPermission("neverlandtrains.couple")) {
+        if (isLead(type) && player.hasPermission("neverlandtrains.couple")) {
             event.setCancelled(true);
 
             UUID selected = couplingSelection.get(player.getUniqueId());
@@ -948,7 +948,7 @@ final class TrainListener implements Listener {
                 couplingSelection.put(player.getUniqueId(), cart.getUniqueId());
                 trains.ensureTrain(cart);
                 player.sendActionBar(Component.text(
-                        "Первая вагонетка выбрана. Нажмите цепью по второй.",
+                        "Первая вагонетка выбрана. Нажмите поводком по второй.",
                         NamedTextColor.YELLOW
                 ));
                 return;
@@ -991,6 +991,13 @@ final class TrainListener implements Listener {
         } else {
             trains.ensureTrain(cart);
         }
+    }
+
+    private boolean isLead(Material material) {
+        Material lead = Material.matchMaterial("LEAD");
+        if (lead != null && material == lead) return true;
+        Material leash = Material.matchMaterial("LEASH");
+        return leash != null && material == leash;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
