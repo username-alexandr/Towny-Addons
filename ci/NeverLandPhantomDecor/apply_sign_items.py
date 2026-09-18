@@ -260,7 +260,7 @@ helpers = r'''    private void placeSignItem(Player player, Interaction interact
         });
         display.setPersistent(true);
 
-        if (player.getGameMode() != GameMode.CREATIVE) consumeOne(hand);
+        consumeOne(hand);
         message(player, "messages.sign-item-placed");
     }
 
