@@ -23,7 +23,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.1.0'
-      - name: Reconstruct sources
+      - name: Reconstruct 0.1.2 base
         shell: bash
         run: |
           rm -rf .ci-phantomdecor-work
@@ -31,6 +31,8 @@ jobs:
           base64 -d ci/NeverLandPhantomDecor/source.b64 > /tmp/NeverLandPhantomDecor-source.zip
           unzip -t /tmp/NeverLandPhantomDecor-source.zip
           unzip -q /tmp/NeverLandPhantomDecor-source.zip -d .ci-phantomdecor-work
+      - name: Apply sign item changes
+        run: python3 ci/NeverLandPhantomDecor/apply_sign_items.py .ci-phantomdecor-work/NeverLandPhantomDecor
       - name: Build plugin
         working-directory: .ci-phantomdecor-work/NeverLandPhantomDecor
         run: gradle --no-daemon clean build
