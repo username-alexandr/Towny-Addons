@@ -1,0 +1,51 @@
+name: NeverLandArcherTable Test Build
+
+on:
+  push:
+    branches:
+      - chatgpt/neverland-archer-table-test-build
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Set up Gradle 9.1.0
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.1.0'
+      - name: Reconstruct sources
+        shell: bash
+        run: |
+          rm -rf .ci-archer-work
+          mkdir -p .ci-archer-work
+          base64 -d ci/NeverLandArcherTable/source.tar.b64 > /tmp/NeverLandArcherTable-source.tar.gz
+          tar -xzf /tmp/NeverLandArcherTable-source.tar.gz -C .ci-archer-work
+      - name: Build plugin
+        working-directory: .ci-archer-work/NeverLandArcherTable
+        run: gradle --no-daemon clean build
+      - name: Validate jar
+        shell: bash
+        run: |
+          JAR=$(find .ci-archer-work/NeverLandArcherTable/build/libs -maxdepth 1 -name '*.jar' ! -name '*sources*' | head -n1)
+          test -n "$JAR"
+          jar tf "$JAR" | grep -q '^plugin.yml$'
+          jar tf "$JAR" | grep -q 'ru/neverland/archertable/NeverLandArcherTablePlugin.class'
+          mkdir -p /tmp/archer-artifact
+          cp "$JAR" /tmp/archer-artifact/NeverLandArcherTable-0.1.0-test.jar
+          sha256sum /tmp/archer-artifact/NeverLandArcherTable-0.1.0-test.jar > /tmp/archer-artifact/NeverLandArcherTable-0.1.0-test.jar.sha256
+      - name: Upload test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: NeverLandArcherTable-0.1.0-test
+          path: /tmp/archer-artifact/*
+          retention-days: 7
