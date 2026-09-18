@@ -1,0 +1,21 @@
+name: NeverLandTrains
+version: 0.1.0-test
+main: ru.neverland.trains.NeverLandTrainsPlugin
+api-version: '1.21'
+folia-supported: true
+author: Alexander Sokolov
+
+commands:
+  nltrains:
+    description: NeverLandTrains administration and diagnostics
+    usage: /nltrains <status|train|rail|reload>
+
+permissions:
+  neverlandtrains.admin:
+    default: op
+  neverlandtrains.use:
+    default: true
+  neverlandtrains.couple:
+    default: true
+  neverlandtrains.rail:
+    default: true

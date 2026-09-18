@@ -1,0 +1,34 @@
+train:
+  max-carts: 8
+  spacing-blocks: 1.30
+  max-manual-speed-bps: 48.0
+  max-powered-speed-bps: 64.0
+  acceleration-bps-per-second: 10.0
+  braking-bps-per-second: 18.0
+  target-change-bps-per-second: 14.0
+  follower-catchup: 0.055
+  follower-max-correction: 0.11
+  hud-every-ticks: 10
+
+copper-rails:
+  default-speed-bps: 16.0
+  speed-cycle-bps:
+    - 8.0
+    - 16.0
+    - 24.0
+    - 32.0
+    - 40.0
+    - 48.0
+  station-stop-ticks: 60
+
+locomotive:
+  max-fuel-ticks: 72000
+  fuels:
+    COAL: 3600
+    CHARCOAL: 3600
+    COAL_BLOCK: 32400
+    DRIED_KELP_BLOCK: 7200
+    BLAZE_ROD: 2400
+
+messages:
+  prefix: "<gold>[NeverLandTrains]</gold> "

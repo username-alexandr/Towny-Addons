@@ -1,0 +1,44 @@
+name: NeverLandTrains Test Build
+
+on:
+  push:
+    branches:
+      - chatgpt/neverland-trains-test-build
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Set up Gradle 9.1.0
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.1.0'
+      - name: Build plugin
+        working-directory: ci/NeverLandTrains/project
+        run: gradle --no-daemon clean build
+      - name: Validate jar
+        shell: bash
+        run: |
+          JAR=$(find ci/NeverLandTrains/project/build/libs -maxdepth 1 -name '*.jar' ! -name '*sources*' | head -n1)
+          test -n "$JAR"
+          jar tf "$JAR" | grep -q '^plugin.yml$'
+          jar tf "$JAR" | grep -q 'ru/neverland/trains/NeverLandTrainsPlugin.class'
+          mkdir -p /tmp/trains-artifact
+          cp "$JAR" /tmp/trains-artifact/NeverLandTrains-0.1.0-test.jar
+          sha256sum /tmp/trains-artifact/NeverLandTrains-0.1.0-test.jar > /tmp/trains-artifact/NeverLandTrains-0.1.0-test.jar.sha256
+      - name: Upload test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: NeverLandTrains-0.1.0-test
+          path: /tmp/trains-artifact/*
+          retention-days: 7
