@@ -81,7 +81,7 @@ public final class NeverLandHorseUpgradesPlugin extends JavaPlugin {
             getCommand("nlhorse").setTabCompleter(command);
         }
 
-        getLogger().info("NeverLandHorseUpgrades 0.2.0-test enabled.");
+        getLogger().info("NeverLandHorseUpgrades 0.2.1-test enabled.");
     }
 
     @Override
@@ -270,8 +270,12 @@ final class HorseUpgradeListener implements Listener {
         return book;
     }
 
-    ItemStack createFullyUpgradedTestArmor() {
-        ItemStack armor = new ItemStack(Material.DIAMOND_HORSE_ARMOR);
+    ItemStack createFullyUpgradedTestArmor(Material armorMaterial) {
+        if (!isHorseArmorMaterial(armorMaterial)) {
+            throw new IllegalArgumentException("Not a horse armor material: " + armorMaterial);
+        }
+
+        ItemStack armor = new ItemStack(armorMaterial);
         ItemMeta meta = armor.getItemMeta();
 
         meta.addEnchant(Enchantment.PROTECTION, 4, true);
@@ -911,8 +915,13 @@ final class HorseUpgradeListener implements Listener {
     }
 
     private boolean isHorseArmor(ItemStack item) {
-        if (item == null || item.getType().isAir()) return false;
-        return item.getType().name().endsWith("_HORSE_ARMOR");
+        return item != null && isHorseArmorMaterial(item.getType());
+    }
+
+    static boolean isHorseArmorMaterial(Material material) {
+        return material != null
+                && material.isItem()
+                && material.name().endsWith("_HORSE_ARMOR");
     }
 
     private boolean isFire(EntityDamageEvent.DamageCause cause) {
@@ -970,7 +979,7 @@ final class HorseCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0 || args[0].equalsIgnoreCase("status")) {
             sender.sendMessage(Component.text(
-                    "NeverLandHorseUpgrades 0.2.0-test • Purpur 26.2",
+                    "NeverLandHorseUpgrades 0.2.1-test • Purpur 26.2",
                     NamedTextColor.GOLD
             ));
             return true;
@@ -993,12 +1002,34 @@ final class HorseCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
-            Player target = resolveTarget(sender, args.length >= 2 ? args[1] : null);
+            if (args.length < 2) {
+                sender.sendMessage(Component.text(
+                        "/nlhorse give <тип_брони> [игрок]",
+                        NamedTextColor.YELLOW
+                ));
+                sender.sendMessage(Component.text(
+                        "Доступно: " + String.join(", ", horseArmorNames()),
+                        NamedTextColor.GRAY
+                ));
+                return true;
+            }
+
+            Material armorMaterial = parseHorseArmor(args[1]);
+            if (armorMaterial == null) {
+                sender.sendMessage(Component.text(
+                        "Неизвестный тип конской брони. Доступно: " + String.join(", ", horseArmorNames()),
+                        NamedTextColor.RED
+                ));
+                return true;
+            }
+
+            Player target = resolveTarget(sender, args.length >= 3 ? args[2] : null);
             if (target == null) return true;
 
-            giveOrDrop(target, listener.createFullyUpgradedTestArmor());
+            giveOrDrop(target, listener.createFullyUpgradedTestArmor(armorMaterial));
             sender.sendMessage(Component.text(
-                    "Выдана тестовая конская броня со всеми улучшениями III.",
+                    "Выдана " + friendlyArmorName(armorMaterial)
+                            + " со всеми специальными улучшениями III.",
                     NamedTextColor.GREEN
             ));
             return true;
@@ -1076,6 +1107,14 @@ final class HorseCommand implements CommandExecutor, TabCompleter {
             return filter(List.of("status", "give", "book", "reload"), args[0]);
         }
 
+        if (args.length == 2 && args[0].equalsIgnoreCase("give")) {
+            return filter(horseArmorNames(), args[1]);
+        }
+
+        if (args.length == 3 && args[0].equalsIgnoreCase("give")) {
+            return filter(onlinePlayerNames(), args[2]);
+        }
+
         if (args.length == 2 && args[0].equalsIgnoreCase("book")) {
             return filter(List.of("speed", "jump", "dash", "endurance", "stability"), args[1]);
         }
@@ -1084,14 +1123,53 @@ final class HorseCommand implements CommandExecutor, TabCompleter {
             return filter(List.of("1", "2", "3"), args[2]);
         }
 
-        if ((args.length == 2 && args[0].equalsIgnoreCase("give"))
-                || (args.length == 4 && args[0].equalsIgnoreCase("book"))) {
-            List<String> names = new ArrayList<>();
-            for (Player player : Bukkit.getOnlinePlayers()) names.add(player.getName());
-            return filter(names, args[args.length - 1]);
+        if (args.length == 4 && args[0].equalsIgnoreCase("book")) {
+            return filter(onlinePlayerNames(), args[3]);
         }
 
         return Collections.emptyList();
+    }
+
+    private List<String> horseArmorNames() {
+        List<String> names = new ArrayList<>();
+        for (Material material : Material.values()) {
+            if (!HorseUpgradeListener.isHorseArmorMaterial(material)) continue;
+            names.add(shortArmorName(material));
+        }
+        names.sort(String::compareTo);
+        return names;
+    }
+
+    private Material parseHorseArmor(String raw) {
+        if (raw == null || raw.isBlank()) return null;
+
+        String normalized = raw.trim().toUpperCase(Locale.ROOT)
+                .replace('-', '_')
+                .replace(' ', '_');
+
+        if (normalized.equals("GOLD")) normalized = "GOLDEN";
+        if (!normalized.endsWith("_HORSE_ARMOR")) {
+            normalized += "_HORSE_ARMOR";
+        }
+
+        Material material = Material.matchMaterial(normalized);
+        return HorseUpgradeListener.isHorseArmorMaterial(material) ? material : null;
+    }
+
+    private String shortArmorName(Material material) {
+        return material.name()
+                .replace("_HORSE_ARMOR", "")
+                .toLowerCase(Locale.ROOT);
+    }
+
+    private String friendlyArmorName(Material material) {
+        return shortArmorName(material).replace('_', ' ') + " horse armor";
+    }
+
+    private List<String> onlinePlayerNames() {
+        List<String> names = new ArrayList<>();
+        for (Player player : Bukkit.getOnlinePlayers()) names.add(player.getName());
+        return names;
     }
 
     private List<String> filter(List<String> values, String input) {
