@@ -1,5 +1,5 @@
 name: NeverLandHorseUpgrades
-version: 0.2.0-test
+version: 0.2.1-test
 main: ru.neverland.horseupgrades.NeverLandHorseUpgradesPlugin
 api-version: '1.21'
 folia-supported: true
