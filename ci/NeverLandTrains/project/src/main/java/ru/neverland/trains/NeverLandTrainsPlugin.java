@@ -940,7 +940,7 @@ final class TrainListener implements Listener {
         ItemStack hand = player.getInventory().getItemInMainHand();
         Material type = hand.getType();
 
-        if (type == Material.CHAIN && player.hasPermission("neverlandtrains.couple")) {
+        if (type == Material.IRON_CHAIN && player.hasPermission("neverlandtrains.couple")) {
             event.setCancelled(true);
 
             UUID selected = couplingSelection.get(player.getUniqueId());
