@@ -34,11 +34,11 @@ jobs:
           jar tf "$JAR" | grep -q '^plugin.yml$'
           jar tf "$JAR" | grep -q 'ru/neverland/horseupgrades/NeverLandHorseUpgradesPlugin.class'
           mkdir -p /tmp/horse-artifact
-          cp "$JAR" /tmp/horse-artifact/NeverLandHorseUpgrades-0.2.0-test.jar
-          sha256sum /tmp/horse-artifact/NeverLandHorseUpgrades-0.2.0-test.jar > /tmp/horse-artifact/NeverLandHorseUpgrades-0.2.0-test.jar.sha256
+          cp "$JAR" /tmp/horse-artifact/NeverLandHorseUpgrades-0.2.1-test.jar
+          sha256sum /tmp/horse-artifact/NeverLandHorseUpgrades-0.2.1-test.jar > /tmp/horse-artifact/NeverLandHorseUpgrades-0.2.1-test.jar.sha256
       - name: Upload test build
         uses: actions/upload-artifact@v4
         with:
-          name: NeverLandHorseUpgrades-0.2.0-test
+          name: NeverLandHorseUpgrades-0.2.1-test
           path: /tmp/horse-artifact/*
           retention-days: 7
