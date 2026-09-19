@@ -1,0 +1,4 @@
+simulation:
+  interval-seconds: 5
+  # При устаревшем расчёте ресурсов отсчёт замрёт без потери прогресса.
+  resource-max-age-seconds: 180

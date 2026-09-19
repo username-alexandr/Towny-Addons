@@ -476,11 +476,11 @@ def main() -> int:
     for node in research_graph: visit_research(node, set())
     policies = load_yaml(modules_dir / "NeverLandTownyPolicies/src/main/resources/policies.yml").get("policies", {})
     policy_config = load_yaml(modules_dir / "NeverLandTownyPolicies/src/main/resources/config.yml")
-    if set(policies) != {"taxes", "tariffs", "mobilization", "farmers", "imports", "industry"}:
-        errors.append("Policies must configure six economic categories")
+    if set(policies) != {"taxes", "tariffs", "mobilization", "farmers", "imports", "industry", "sanitation"}:
+        errors.append("Policies must configure seven city policy categories")
     if policy_config.get("selection", {}).get("change-cooldown-hours") != 24:
         errors.append("Default policies cooldown must be 24 hours per category")
-    if len({g.get("icon") for g in policies.values()}) != 6:
+    if len({g.get("icon") for g in policies.values()}) != len(policies):
         errors.append("Each policy group needs a distinct icon")
     effect_modules = {"tax": "Taxes", "tariff": "Trade", "trade_time": "Trade", "army": "Builds", "production": "Resources", "upkeep": "Upkeep", "happiness": "Population"}
     for group, profile in policies.items():
@@ -500,6 +500,19 @@ def main() -> int:
                     errors.append(f"Policy references unknown buildings: {group}/{mode}/{field}")
     if set(policies.get("imports", {}).get("options", {})) != {"open", "nation", "closed"}:
         errors.append("Import modes must be open, same nation and closed")
+    quests = load_yaml(modules_dir / "NeverLandTownyQuests/src/main/resources/quests.yml").get("projects", {})
+    unlocks = {p.get("unlock") for p in quests.values()}
+    if set(quests) != {"sanitation", "public_health"} or unlocks != {"sanitation_reform", "public_health"}:
+        errors.append("Quests must include both city infrastructure chains and distinct reform unlocks")
+    for quest, project in quests.items():
+        if set(project.get("requires", [])) - set(quests):
+            errors.append(f"Unknown prerequisite project: {quest}")
+        for stage in project.get("stages", {}).values():
+            if stage.get("type") == "BUILDING" and stage.get("building") not in configured_ids:
+                errors.append(f"Unknown quest building: {quest}/{stage.get('building')}")
+    for option in policies.get("sanitation", {}).get("options", {}).values():
+        if option.get("requires-unlock") and (option["requires-unlock"] not in unlocks or "NeverLandTownyQuests" not in option.get("requires", [])):
+            errors.append("Sanitation policies need a real city project unlock and its provider")
     jobs = load_yaml(modules_dir / "NeverLandTownyJobs/src/main/resources/config.yml")
     job_profiles = jobs.get("profiles", {})
     if set(job_profiles) != {"blacksmith", "farmer", "engineer", "guard", "merchant", "researcher", "alchemist"}:

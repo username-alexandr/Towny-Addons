@@ -57,7 +57,7 @@ final class AdminMenu implements Listener {
         button(s,15,Material.CLOCK,"Перезапуск задач",List.of("Новый таймер активной задачи","Прогресс и квитанции сохраняются"),()->activityModules(player,"restart"));
         button(s,29,Material.REPEATER,"Пауза и время",List.of("Приостановить, продолжить или продлить"),()->time(player));
         button(s,31,Material.LEVER,"Управление модулями",List.of("Состояние и безопасное отключение","Предпросмотр зависимых аддонов"),()->modules(player,1,false));
-        button(s,33,Material.COMPASS,"Справочник аддонов",List.of("Все 36 игровых аддонов","Штатные команды и доступные задачи"),()->modules(player,1,true));show(player,s);
+        button(s,33,Material.COMPASS,"Справочник аддонов",List.of("Игровых аддонов: "+router.entries().size(),"Штатные команды и доступные задачи"),()->modules(player,1,true));show(player,s);
     }
     private void time(Player player){var s=screen(player,"Задачи • Пауза и время");int slot=10;for(String action:List.of("pause","resume","extend","status")){String a=action;button(s,slot++,actionIcon(a),actionName(a),List.of("Выбрать аддон и активную задачу"),()->activityModules(player,a));}back(s,()->home(player));show(player,s);}
     private void activityModules(Player player,String action)throws Exception {

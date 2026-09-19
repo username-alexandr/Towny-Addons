@@ -1,0 +1,47 @@
+# Начатые проекты сохраняют снимок своих условий. Порядок этапов имеет значение.
+# Поддерживаются BUILDING (работающее здание) и WATER_DISTRICTS (районы с водой).
+projects:
+  sanitation:
+    name: Вода и санитария
+    icon: WATER_BUCKET
+    requires: []
+    unlock: sanitation_reform
+    reward: 'Открывает санитарную реформу в /t policies: +5 счастья, +10% содержания санитарных зданий.'
+    stages:
+      aqueduct:
+        name: Построить действующий акведук
+        type: BUILDING
+        building: aqueduct
+        target: 1
+      water:
+        name: Обеспечить водой пять районов
+        type: WATER_DISTRICTS
+        target: 5
+        hold-seconds: 300
+      baths:
+        name: Открыть городские бани
+        type: BUILDING
+        building: baths
+        target: 1
+  public_health:
+    name: Городское здравоохранение
+    icon: GOLDEN_APPLE
+    requires: [sanitation]
+    unlock: public_health
+    reward: 'Открывает общественное здравоохранение в /t policies: +8 счастья, +20% содержания санитарных зданий.'
+    stages:
+      sewer:
+        name: Построить канализацию
+        type: BUILDING
+        building: sewer
+        target: 1
+      infirmary:
+        name: Открыть городскую лечебницу
+        type: BUILDING
+        building: infirmary
+        target: 1
+      water:
+        name: Поддерживать воду в пяти районах
+        type: WATER_DISTRICTS
+        target: 5
+        hold-seconds: 600

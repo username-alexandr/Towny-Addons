@@ -110,6 +110,7 @@ modules:
   - NeverLandTownyBuilds
   - NeverLandTownyGovernance
   - NeverLandTownyPopulation
+  - NeverLandTownyQuests
   - NeverLandTownyResources
   - NeverLandTownyTaxes
   - NeverLandTownyTrade
@@ -126,6 +127,10 @@ modules:
   - NeverLandTownyDistricts
   - NeverLandTownySpecialization
   - NeverLandTownyUpkeep
+  NeverLandTownyQuests:
+  - NeverLandTownyBuilds
+  - NeverLandTownyDistricts
+  - NeverLandTownyResources
   NeverLandTownyReputation: []
   NeverLandTownyResearch:
   - NeverLandTownyBuilds
