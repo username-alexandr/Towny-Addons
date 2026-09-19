@@ -1,5 +1,5 @@
 name: NeverLandTownySiegesPlus
-version: 0.1.4
+version: 0.1.5
 main: ru.neverland.townysieges.NeverLandTownySiegesPlus
 api-version: '26.2'
 authors: [Alexander Sokolov]

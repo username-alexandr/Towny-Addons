@@ -1,0 +1,34 @@
+Quests, Policies and Control load together
+new city has no unlocked reform
+mayor cannot select unearned reform
+follow-up requires completed sanitation
+native project menu opens for resident
+quest menu prevents inventory extraction
+real Builds contract completes aqueduct stage
+real API records supply five connected Towny districts
+four districts cannot satisfy five
+unclaimed disconnected district is excluded
+real resource shortage prevents supply
+paused resource provider freezes observation
+stale resource cycle freezes observation
+inactive aqueduct supplies no districts
+paused project earns no time
+first resumed observation has no offline credit
+scheduled observations complete water hold online
+water alone does not unlock reform before baths
+native cancellation retains completed city stages
+final native stage durably unlocks sanitation
+repeat completion performs no duplicate state write
+finished chain cannot be replayed
+native completed project enables matched policy bonus and upkeep
+other town receives no unlock
+second chain starts only after first and advances sequentially
+native restart retains pause and completed stages
+common administrative menu discovers only unfinished city project
+disabled Quests removes policy benefit and cost together
+module enable waits for a clean JVM restart
+Quests, Policies and Control load together
+completed unlock survives a new JVM
+new JVM preserves paused chain without downtime credit
+persisted policy resumes after Quests provider returns
+public API exposes both persisted city projects

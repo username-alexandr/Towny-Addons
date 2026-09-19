@@ -1,4 +1,39 @@
 policies:
+  sanitation:
+    name: Санитария и здоровье
+    icon: WATER_BUCKET
+    default: ordinary
+    enabled: true
+    options:
+      ordinary:
+        name: Обычный режим
+        icon: GLASS_BOTTLE
+        advantages: ['Без дополнительной нагрузки на содержание.']
+        disadvantages: ['Нет бонуса санитарной реформы.']
+        effects: {}
+        requires: []
+        production-projects: []
+        upkeep-projects: []
+      sanitary:
+        name: Санитарная реформа
+        icon: POTION
+        advantages: ['Счастье населения +5 пунктов.']
+        disadvantages: ['Содержание бань, канализации, насосной и лечебницы +10%.']
+        effects: {happiness: 5, upkeep: 0.10}
+        requires: [NeverLandTownyQuests, NeverLandTownyPopulation, NeverLandTownyUpkeep]
+        requires-unlock: sanitation_reform
+        production-projects: []
+        upkeep-projects: [baths, sewer, pumping_station, infirmary]
+      public_health:
+        name: Общественное здравоохранение
+        icon: GOLDEN_APPLE
+        advantages: ['Счастье населения +8 пунктов.']
+        disadvantages: ['Содержание бань, канализации, насосной и лечебницы +20%.']
+        effects: {happiness: 8, upkeep: 0.20}
+        requires: [NeverLandTownyQuests, NeverLandTownyPopulation, NeverLandTownyUpkeep]
+        requires-unlock: public_health
+        production-projects: []
+        upkeep-projects: [baths, sewer, pumping_station, infirmary]
   taxes:
     name: Налоговая ставка
     icon: GOLD_INGOT

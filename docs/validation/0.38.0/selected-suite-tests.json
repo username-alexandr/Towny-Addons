@@ -1,0 +1,36 @@
+[
+  {
+    "module": "NeverLandTownyControl",
+    "tests": [
+      "ru.neverland.townycontrol.ActivityAdminSmoke",
+      "ru.neverland.townycontrol.AdminMenuSmoke",
+      "ru.neverland.townycontrol.AuditSmoke",
+      "ru.neverland.townycontrol.ModuleSafetySmoke"
+    ],
+    "api_contracts": [],
+    "repository_fault_probe": false,
+    "seconds": 61.576
+  },
+  {
+    "module": "NeverLandTownyPolicies",
+    "tests": [
+      "ru.neverland.townypolicies.PoliciesSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townypolicies.api.TownyPoliciesApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 22.09
+  },
+  {
+    "module": "NeverLandTownyQuests",
+    "tests": [
+      "ru.neverland.townyquests.QuestSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townyquests.api.TownyQuestsApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 7.347
+  }
+]

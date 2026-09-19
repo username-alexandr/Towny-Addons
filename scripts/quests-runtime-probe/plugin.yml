@@ -1,0 +1,5 @@
+name: NeverLandQuestsRuntimeProbe
+version: 0.38.0
+main: ru.neverland.runtime.QuestsRuntimeProbe
+api-version: '26.2'
+depend: [Towny, NeverLandTownyQuests, NeverLandTownyPolicies, NeverLandTownyControl, NeverLandTownyBuilds, NeverLandTownyDistricts, NeverLandTownyResources]

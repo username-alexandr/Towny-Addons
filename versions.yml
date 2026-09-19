@@ -1,44 +1,45 @@
-suite: 0.37.0
+suite: 0.38.0
 platform:
   server: Paper/Purpur 26.2
   towny: 0.103.2.0
   runtime_java: 25
   bytecode_java: 17
 addons:
-  NeverLandTownyArchaeology: 0.1.16
-  NeverLandTownyBuilds: 0.8.23
-  NeverLandTownyCamps: 0.1.17
-  NeverLandTownyChronicles: 0.1.14
-  NeverLandTownyContracts: 0.3.10
-  NeverLandTownyEspionage: 0.1.17
-  NeverLandTownyEvents: 0.4.3
-  NeverLandTownyExpeditions: 0.1.20
-  NeverLandTownyGovernance: 0.1.18
-  NeverLandTownyIdeologies: 0.1.15
-  NeverLandTownyReputation: 0.2.5
-  NeverLandTownyStick: 0.1.16
-  NeverLandTownyTaxes: 0.1.15
-  NeverLandTownyTrade: 0.2.13
-  NeverLandTownyPopulation: 0.1.17
-  NeverLandTownyDistricts: 0.1.13
-  NeverLandTownyLogistics: 0.1.14
-  NeverLandTownyResources: 0.1.18
-  NeverLandTownyUpkeep: 0.1.14
-  NeverLandTownyPower: 0.1.11
-  NeverLandTownyResearch: 0.1.12
-  NeverLandTownySpecialization: 0.1.10
-  NeverLandTownyPolicies: 0.1.10
-  NeverLandTownyTreasuryPlus: 0.1.12
-  NeverLandTownyMarket: 0.1.11
-  NeverLandTownyCompanies: 0.1.10
-  NeverLandTownyJobs: 0.1.10
-  NeverLandTownyCitizens: 0.1.7
-  NeverLandTownyElections: 0.1.7
-  NeverLandTownyCouncil: 0.1.9
-  NeverLandTownyDiplomacy: 0.1.7
-  NeverLandTownyCrime: 0.1.4
-  NeverLandTownyJustice: 0.1.4
-  NeverLandTownyArmy: 0.1.4
-  NeverLandTownySiegesPlus: 0.1.4
-  NeverLandTownySeasons: 0.1.4
-  NeverLandTownyControl: 0.4.0
+  NeverLandTownyArchaeology: 0.1.17
+  NeverLandTownyBuilds: 0.8.24
+  NeverLandTownyCamps: 0.1.18
+  NeverLandTownyChronicles: 0.1.15
+  NeverLandTownyContracts: 0.3.11
+  NeverLandTownyEspionage: 0.1.18
+  NeverLandTownyEvents: 0.4.4
+  NeverLandTownyExpeditions: 0.1.21
+  NeverLandTownyGovernance: 0.1.19
+  NeverLandTownyIdeologies: 0.1.16
+  NeverLandTownyReputation: 0.2.6
+  NeverLandTownyStick: 0.1.17
+  NeverLandTownyTaxes: 0.1.16
+  NeverLandTownyTrade: 0.2.14
+  NeverLandTownyPopulation: 0.1.18
+  NeverLandTownyDistricts: 0.1.14
+  NeverLandTownyLogistics: 0.1.15
+  NeverLandTownyResources: 0.1.19
+  NeverLandTownyUpkeep: 0.1.15
+  NeverLandTownyPower: 0.1.12
+  NeverLandTownyResearch: 0.1.13
+  NeverLandTownySpecialization: 0.1.11
+  NeverLandTownyPolicies: 0.1.11
+  NeverLandTownyTreasuryPlus: 0.1.13
+  NeverLandTownyMarket: 0.1.12
+  NeverLandTownyCompanies: 0.1.11
+  NeverLandTownyJobs: 0.1.11
+  NeverLandTownyCitizens: 0.1.8
+  NeverLandTownyElections: 0.1.8
+  NeverLandTownyCouncil: 0.1.10
+  NeverLandTownyDiplomacy: 0.1.8
+  NeverLandTownyCrime: 0.1.5
+  NeverLandTownyJustice: 0.1.5
+  NeverLandTownyArmy: 0.1.5
+  NeverLandTownySiegesPlus: 0.1.5
+  NeverLandTownySeasons: 0.1.5
+  NeverLandTownyControl: 0.4.1
+  NeverLandTownyQuests: 0.1.0

@@ -29,7 +29,7 @@ public final class ModuleTimers {
             case "Justice" -> Map.of("justice-data.yml",List.of("cases.*.due","cases.*.capture-started"));
             case "Seasons" -> Map.of("calendar.yml",List.of("epoch"));
             // These use online ticks, explicit journal recovery, or historical timestamps only.
-            case "Archaeology","Builds","Chronicles","Council","Districts","Ideologies","Jobs","Logistics","Market","Policies","Population","Power","Research","Resources","SiegesPlus","Specialization","Stick","TreasuryPlus","Upkeep" -> Map.of();
+            case "Quests","Archaeology","Builds","Chronicles","Council","Districts","Ideologies","Jobs","Logistics","Market","Policies","Population","Power","Research","Resources","SiegesPlus","Specialization","Stick","TreasuryPlus","Upkeep" -> Map.of();
             default -> throw new IllegalArgumentException("Нет проверенной схемы таймеров: "+name);
         };
     }

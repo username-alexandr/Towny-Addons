@@ -3,7 +3,7 @@ import java.math.*;
 import java.util.*;
 /** Pure, bounded arithmetic shared by all policy consumers. */
 public final class PolicyEffects {
-    public static final Set<String> GROUPS=Set.of("taxes","tariffs","mobilization","farmers","imports","industry");
+    public static final Set<String> GROUPS=Set.of("taxes","tariffs","mobilization","farmers","imports","industry","sanitation");
     public static final Set<String> EFFECTS=Set.of("tax","tariff","trade_time","army","production","upkeep","happiness");
     private PolicyEffects(){}
     public static double bound(double value,double min,double max,double fallback){return Double.isFinite(value)?Math.max(min,Math.min(max,value)):fallback;}

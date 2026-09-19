@@ -852,3 +852,15 @@ ru.neverland.mintevents.api.MintTownyEventsApi	default paused(java.util.UUID)
 ru.neverland.mintevents.api.MintTownyEventsApi	default shieldRemainingMillis(java.util.UUID)
 ru.neverland.mintevents.api.MintTownyEventsApi	paused(java.util.UUID):boolean throws []
 ru.neverland.mintevents.api.MintTownyEventsApi	shieldRemainingMillis(java.util.UUID):long throws []
+ru.neverland.townyquests.api.TownyQuestsApi	apiVersion():int throws []
+ru.neverland.townyquests.api.TownyQuestsApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townyquests.api.TownyQuestsApi	capability quests
+ru.neverland.townyquests.api.TownyQuestsApi	capability unlocked
+ru.neverland.townyquests.api.TownyQuestsApi	default apiVersion()
+ru.neverland.townyquests.api.TownyQuestsApi	default capabilities()
+ru.neverland.townyquests.api.TownyQuestsApi	default integrationDiagnostics()
+ru.neverland.townyquests.api.TownyQuestsApi	default storageMetrics()
+ru.neverland.townyquests.api.TownyQuestsApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyquests.api.TownyQuestsApi	quests(java.util.UUID):java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyquests.api.TownyQuestsApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyquests.api.TownyQuestsApi	unlocked(java.util.UUID,java.lang.String):boolean throws []
