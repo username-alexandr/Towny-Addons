@@ -1,5 +1,5 @@
 name: NeverLandTownyControl
-version: 0.3.0
+version: 0.4.0
 main: ru.neverland.townycontrol.NeverLandTownyControl
 api-version: '26.2'
 authors: [Alexander Sokolov]
@@ -10,17 +10,14 @@ commands:
   nltaudit:
     aliases: [townyaudit]
     description: Административный журнал денежных и ресурсных операций
-    permission: neverlandtownycontrol.audit
     usage: /nltaudit <search|export|status|help> [фильтры]
   nltmodules:
     aliases: [townymodules]
     description: Состояние и безопасное отключение модулей
-    permission: neverlandtownycontrol.admin
     usage: /nltmodules <list|status|plan|disable|enable> [модуль|all]
   nltadmin:
-    description: Единый справочник и управление аддонами
-    permission: neverlandtownycontrol.admin
-    usage: /nltadmin <list|модуль> [действие]
+    description: Графическое меню администратора и управление аддонами
+    usage: /nltadmin [menu|logs|list|модуль] [действие]
 permissions:
   neverlandtownycontrol.audit:
     description: Просмотр всех денежных и ресурсных операций
@@ -29,5 +26,45 @@ permissions:
     description: Экспорт административного аудита в CSV
     default: op
   neverlandtownycontrol.admin:
-    description: Управление модулями всего сервера
+    description: Полный доступ к меню, аддонам и журналам администрации
     default: op
+    children:
+      mintcamps.admin: true
+      mintcontracts.admin: true
+      mintespionage.admin: true
+      mintevents.admin: true
+      mintexpeditions.admin: true
+      minttrade.admin: true
+      morstownstick.admin: true
+      neverlandtownyarmy.admin: true
+      neverlandtownybuilds.admin: true
+      neverlandtownycitizens.admin: true
+      neverlandtownycompanies.admin: true
+      neverlandtownycontrol.audit: true
+      neverlandtownycontrol.audit.export: true
+      neverlandtownycouncil.admin: true
+      neverlandtownycrime.admin: true
+      neverlandtownydiplomacy.admin: true
+      neverlandtownydistricts.admin: true
+      neverlandtownyideologies.admin: true
+      neverlandtownyjobs.admin: true
+      neverlandtownyjustice.admin: true
+      neverlandtownylogistics.admin: true
+      neverlandtownymarket.admin: true
+      neverlandtownypolicies.admin: true
+      neverlandtownypopulation.admin: true
+      neverlandtownypower.admin: true
+      neverlandtownyresearch.admin: true
+      neverlandtownyresources.admin: true
+      neverlandtownyseasons.admin: true
+      neverlandtownysiegesplus.admin: true
+      neverlandtownyspecialization.admin: true
+      neverlandtownytreasury.admin: true
+      neverlandtownyupkeep.admin: true
+      townyarchaeology.admin: true
+      townychronicles.admin: true
+      townyelections.admin: true
+      townyelections.use: true
+      townygovernance.admin: true
+      townyreputation.admin: true
+      townytaxes.admin: true

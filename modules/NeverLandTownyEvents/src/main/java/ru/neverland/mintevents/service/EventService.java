@@ -179,6 +179,24 @@ public final class EventService implements MintTownyEventsApi {
         repository.shield(town.getUUID(), hours == 0 ? 0 : System.currentTimeMillis() + hours * 3_600_000L);
     }
     @Override public boolean paused(UUID townId) { ru.neverland.core.ApiServices.primaryThread(); ActiveEvent event = active(townId); return event != null && event.paused(); }
+    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() {
+        ru.neverland.core.ApiServices.primaryThread();
+        var targets=new java.util.ArrayList<ru.neverland.core.ActivityAdmin.Target>();
+        for(Town town:towny.towns()) {
+            ActiveEvent event=active(town.getUUID());if(event==null)continue;
+            String id=town.getUUID()+"/"+event.startedAt()+"/"+event.eventId();
+            var actions=new java.util.HashSet<>(java.util.Set.of("status","cancel","restart","extend",event.paused()?"resume":"pause"));
+            targets.add(new ru.neverland.core.ActivityAdmin.Target(id,town.getName()+" / "+event.eventId()+" / "+(event.paused()?"пауза":"активно"),actions,(action,minutes)->{
+                ActiveEvent current=active(town.getUUID());
+                if(current==null||current.startedAt()!=event.startedAt()||!current.eventId().equals(event.eventId()))throw new IllegalArgumentException("Событие уже заменено");
+                if(action.equals("status"))return town.getName()+" / "+current.eventId()+" / "+current.progress()+"/"+current.goal()+" / осталось "+current.secondsLeft(System.currentTimeMillis())+" сек."+(current.paused()?" / пауза":"");
+                boolean changed=switch(action){case "cancel"->cancel(town);case "restart"->restart(town);case "extend"->extend(town,minutes);case "pause"->pause(town,true);case "resume"->pause(town,false);default->false;};
+                if(!changed)throw new IllegalArgumentException("Действие уже недоступно; обновите меню");
+                return town.getName()+": "+action+(action.equals("cancel")?" — без поражения и штрафов":"");
+            }));
+        }
+        return java.util.List.copyOf(targets);
+    }
     public boolean cancel(Town town) {
         ActiveEvent event = town == null ? null : active(town.getUUID()); if(event == null) return false;
         repository.replace(event, null, System.currentTimeMillis());

@@ -28,9 +28,9 @@ public final class SafetyRuntimeProbe extends JavaPlugin {
         }else{
             check(Arrays.stream(Bukkit.getPluginManager().getPlugins()).filter(p->p.getName().startsWith("NeverLandTowny")&&p.isEnabled()).count()==expected("addons"),"all 37 addons enabled");contracts();
             events=field(plugin("NeverLandTownyEvents"),EventService.class);repository=field(plugin("NeverLandTownyEvents"),EventRepository.class);registry=field(plugin("NeverLandTownyEvents"),EventRegistry.class);
-            if(phase.equals("first")){setup();first();}else resumed();
+            if(phase.equals("first")){setup();auditCoverage();adminCoverage();menuCoverage(()->{first();finish();});return;}else resumed();
         }
-        TownyUniverse.getInstance().getDataSource().saveAll();world.save();Files.writeString(proof.resolve(phase+"-passed.txt"),"PASS "+checks+" assertions\n");Bukkit.getScheduler().runTask(this,Bukkit::shutdown);
+        finish();
     }catch(Throwable e){getLogger().log(java.util.logging.Level.SEVERE,"SAFETY PROBE FAILED",e);try{Files.createDirectories(getDataFolder().toPath());Files.writeString(getDataFolder().toPath().resolve("failed.txt"),e.toString());}catch(Exception ignored){}Bukkit.shutdown();}}
     void setup()throws Exception{
         var u=TownyUniverse.getInstance();u.newTownInternal("SafetyAudit",T);town=TownyAPI.getInstance().getTown(T);var resident=u.getDataSource().newResident("SafetyMayor",M);resident.setTown(town);town.setMayor(resident);resident.save();
@@ -42,7 +42,6 @@ public final class SafetyRuntimeProbe extends JavaPlugin {
     Path eventFile(){return plugin("NeverLandTownyEvents").getDataFolder().toPath().resolve("events-data.yml");}
     Path stateFile(){return ModulePauseStore.file(plugin("NeverLandTownyEvents").getDataFolder().toPath().getParent());}
     void first()throws Exception{
-        auditCoverage();adminCoverage();
         check(events.shieldRemainingMillis(T)>86_300_000&&events.shieldRemainingMillis(T)<=86_400_000,"new Towny town receives 24h shield from original creation date");
         check(!events.startEvent(town,registry.get("drought")),"hostile event respects newbie shield");
         check(events.startEvent(town,registry.get("festival")),"peaceful festival remains available under shield");events.cancel(town);
@@ -79,6 +78,59 @@ public final class SafetyRuntimeProbe extends JavaPlugin {
         for(var e:state.modules().entrySet())if(e.getValue().disabled())check(!plugin(e.getKey()).isEnabled(),"dependent stopped: "+e.getKey());
         check(!plugin("NeverLandTownyResources").isEnabled(),"dependent production cannot run on missing events API");
         Files.writeString(proof.resolve("disabled-events.yml"),Files.readString(eventFile()));
+    }
+    void finish()throws Exception{TownyUniverse.getInstance().getDataSource().saveAll();world.save();Files.writeString(proof.resolve(phase+"-passed.txt"),"PASS "+checks+" assertions\n");Bukkit.getScheduler().runTask(this,Bukkit::shutdown);}
+    @FunctionalInterface interface Work{void run()throws Exception;}
+    @FunctionalInterface interface MenuStep{boolean run()throws Exception;}
+    void menuFailure(Throwable failure){getLogger().log(java.util.logging.Level.SEVERE,"ADMIN MENU PROBE FAILED",failure);try{Files.writeString(proof.resolve("failed.txt"),failure.toString());}catch(Exception ignored){}Bukkit.shutdown();}
+    void menuSteps(Deque<MenuStep> steps,Work after,int waits){try{
+        if(steps.isEmpty()){after.run();return;}
+        if(steps.peek().run()){steps.remove();waits=0;}else if(++waits>200)throw new AssertionError("async menu callback did not arrive");
+        int nextWait=waits;Bukkit.getScheduler().runTaskLater(this,()->menuSteps(steps,after,nextWait),2);
+    }catch(Throwable failure){menuFailure(failure);}}
+    void menuClick(Actor actor,int slot,ClickType type)throws Exception{var event=new InventoryClickEvent(actor.view,InventoryType.SlotType.CONTAINER,slot,type,InventoryAction.PICKUP_ALL);Bukkit.getPluginManager().callEvent(event);check(event.isCancelled(),"admin inventory click cancelled: "+type+" slot "+slot);}
+    String itemName(Actor actor,int slot){var item=actor.top.getItem(slot);return item==null?"":net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(item.getItemMeta().displayName());}
+    int menuSlot(Actor actor,String name){for(int i=0;i<actor.top.getSize();i++)if(itemName(actor,i).equals(name))return i;throw new AssertionError("Missing menu button: "+name);}
+    boolean adminInventory(Actor actor){return actor.top.getHolder()!=null&&actor.top.getHolder().getClass().getName().equals("ru.neverland.townycontrol.AdminMenu$Screen");}
+    void menuCoverage(Work after)throws Exception{
+        var actor=new Actor(M);var op=new Actor(id("audit-buyer-mayor"));var command=Bukkit.getPluginCommand("nltadmin");var steps=new ArrayDeque<MenuStep>();
+        command.execute(actor.player,"nltadmin",new String[0]);check(!adminInventory(actor),"menu denied without permission and without OP");
+        var attachment=actor.permissions.addAttachment(this,"neverlandtownycontrol.admin",true);
+        check(actor.player.hasPermission("neverlandtownycontrol.audit")&&actor.player.hasPermission("mintevents.admin")&&actor.player.hasPermission("neverlandtownyresearch.admin"),"one root permission grants audit and native provider rights");
+        op.op=true;op.permissions.addAttachment(this,"neverlandtownycontrol.admin",false);op.permissions.recalculatePermissions();command.execute(op.player,"nltadmin",new String[0]);check(adminInventory(op),"OP opens menu even with explicitly negated root node");op.player.closeInventory();
+        command.execute(actor.player,"nltadmin",new String[0]);check(adminInventory(actor)&&itemName(actor,11).equals("Журналы операций")&&itemName(actor,13).equals("Отмена без провала"),"permission-only player opens categorized GUI");
+        Inventory home=actor.top;menuClick(actor,11,ClickType.SHIFT_LEFT);menuClick(actor,11,ClickType.NUMBER_KEY);menuClick(actor,11,ClickType.DOUBLE_CLICK);menuClick(actor,60,ClickType.LEFT);
+        var drag=new InventoryDragEvent(actor.view,new ItemStack(Material.STONE),new ItemStack(Material.STONE),false,Map.of(11,new ItemStack(Material.STONE)));Bukkit.getPluginManager().callEvent(drag);check(drag.isCancelled(),"admin inventory drag always cancelled");
+        steps.add(()->{check(actor.top==home,"shift hotbar double and bottom inventory clicks never activate admin buttons");menuClick(actor,11,ClickType.LEFT);return true;});
+        steps.add(()->{check(menuSlot(actor,"Денежные переводы")>=0&&menuSlot(actor,"Действия администрации")>=0,"audit categories are separate readable buttons");menuClick(actor,menuSlot(actor,"Денежные переводы"),ClickType.LEFT);return true;});
+        steps.add(()->{if(itemName(actor,22).equals("Читаю журнал…"))return false;check(itemName(actor,0).equals("Перевод между счетами"),"async audit GUI shows real Towny bank transfer");menuClick(actor,0,ClickType.LEFT);return true;});
+        steps.add(()->{check(itemName(actor,19).equals("Отправитель")&&itemName(actor,21).equals("Получатель")&&itemName(actor,23).equals("Инициатор"),"audit record separates parties and operation receipt");actor.permissions.removeAttachment(attachment);menuClick(actor,40,ClickType.LEFT);check(!adminInventory(actor),"revoked root permission closes existing audit GUI before record action");return true;});
+        var grant=new org.bukkit.permissions.PermissionAttachment[]{attachment};
+        steps.add(()->{grant[0]=actor.permissions.addAttachment(this,"neverlandtownycontrol.admin",true);command.execute(actor.player,"nltadmin",new String[0]);menuClick(actor,11,ClickType.LEFT);actor.player.closeInventory();return true;});
+        steps.add(()->{check(!adminInventory(actor),"queued navigation cannot reopen a closed inventory");command.execute(actor.player,"nltadmin",new String[]{"logs"});menuClick(actor,menuSlot(actor,"Рынок и магазины"),ClickType.LEFT);return true;});
+        steps.add(()->{actor.player.closeInventory();return true;});
+        steps.add(()->{check(!adminInventory(actor),"async audit reply cannot reopen a closed inventory");command("start","drought",town.getName(),"--force");events.contribute(town,4);command.execute(actor.player,"nltadmin",new String[0]);menuClick(actor,15,ClickType.LEFT);return true;});
+        steps.add(()->{menuClick(actor,menuSlot(actor,"Events"),ClickType.LEFT);return true;});
+        steps.add(()->{check(itemName(actor,0).contains(town.getName()),"Events live task appears through public menu protocol");menuClick(actor,0,ClickType.LEFT);return true;});
+        steps.add(()->{menuClick(actor,menuSlot(actor,"Перезапуск таймера"),ClickType.LEFT);return true;});
+        steps.add(()->{check(itemName(actor,20).equals("Подтвердить"),"restart requires explicit target confirmation");menuClick(actor,20,ClickType.LEFT);menuClick(actor,20,ClickType.LEFT);return true;});
+        steps.add(()->{check(!adminInventory(actor)&&events.active(T).progress()==4,"confirmed GUI restart preserves player contributions");long count=auditRows("NeverLandTownyEvents").stream().filter(r->r.kind().equals("ADMIN_ACTIVITY")&&r.details().startsWith("restart ")).count();check(count==1,"double confirm produces one restart and one admin audit entry");command.execute(actor.player,"nltadmin",new String[0]);menuClick(actor,13,ClickType.LEFT);return true;});
+        steps.add(()->{menuClick(actor,menuSlot(actor,"Events"),ClickType.LEFT);return true;});
+        steps.add(()->{menuClick(actor,0,ClickType.LEFT);return true;});
+        steps.add(()->{menuClick(actor,menuSlot(actor,"Отмена без провала"),ClickType.LEFT);return true;});
+        steps.add(()->{menuClick(actor,20,ClickType.LEFT);actor.permissions.removeAttachment(grant[0]);return true;});
+        steps.add(()->{check(events.active(T)!=null&&!adminInventory(actor),"permission revocation after click prevents queued cancellation");grant[0]=actor.permissions.addAttachment(this,"neverlandtownycontrol.admin",true);command.execute(actor.player,"nltadmin",new String[0]);menuClick(actor,13,ClickType.LEFT);return true;});
+        steps.add(()->{menuClick(actor,menuSlot(actor,"Events"),ClickType.LEFT);return true;});
+        steps.add(()->{menuClick(actor,0,ClickType.LEFT);return true;});
+        steps.add(()->{menuClick(actor,menuSlot(actor,"Отмена без провала"),ClickType.LEFT);return true;});
+        int history=events.history(T).size();
+        steps.add(()->{menuClick(actor,20,ClickType.LEFT);return true;});
+        steps.add(()->{check(events.active(T)==null&&events.history(T).size()==history,"GUI cancellation is neutral and adds no failed history entry");command.execute(actor.player,"nltadmin",new String[0]);menuClick(actor,31,ClickType.LEFT);return true;});
+        steps.add(()->{menuClick(actor,menuSlot(actor,"Events"),ClickType.LEFT);return true;});
+        steps.add(()->{menuClick(actor,menuSlot(actor,"Отключить модуль"),ClickType.LEFT);return true;});
+        steps.add(()->{String lore=actor.top.getItem(4).getItemMeta().lore().toString();check(lore.contains("Resources")&&plugin("NeverLandTownyEvents").isEnabled(),"module confirmation previews affected dependency closure before stopping anything");menuClick(actor,24,ClickType.LEFT);return true;});
+        steps.add(()->{check(plugin("NeverLandTownyEvents").isEnabled(),"return from module confirmation leaves addon running");actor.player.closeInventory();actor.body.remove();op.body.remove();return true;});
+        menuSteps(steps,after,0);
     }
     List<AuditRecord> auditRows(String module)throws Exception{var rows=new ArrayList<AuditRecord>();AuditJournal.scan(plugin(module).getDataFolder().toPath().resolve("audit"),rows::add);return rows;}
     void auditCoverage()throws Exception{
@@ -202,15 +254,15 @@ public final class SafetyRuntimeProbe extends JavaPlugin {
     }
     void contracts()throws Exception{try(var reader=new java.io.BufferedReader(new java.io.InputStreamReader(getResource("contracts.tsv"),java.nio.charset.StandardCharsets.UTF_8))){var rows=reader.lines().toList();check(rows.size()==expected("contracts"),"all API contracts inventoried");for(String line:rows){String[] row=line.split("\t");var p=plugin(row[0]);Class<?> type=Class.forName(row[1],true,p.getClass().getClassLoader());Object provider=Bukkit.getServicesManager().load(type);check(provider!=null&&p.isEnabled()&&p.getDescription().getVersion().equals(row[3])&&Integer.valueOf(1).equals(type.getMethod("apiVersion").invoke(provider))&&new HashSet<>(Arrays.asList(row[2].split(","))).equals(type.getMethod("capabilities").invoke(provider)),"provider ABI/capabilities: "+row[1]);}}}
     private final class Actor {
-        Location location=cell.clone(); boolean flying; final org.bukkit.entity.Pig body=world.spawn(cell,org.bukkit.entity.Pig.class); final Player player; PermissibleBase permissions; Inventory top=Bukkit.createInventory(null,9,Component.text("Fixture")); final Inventory bottom=Bukkit.createInventory(null,36);
+        Location location=cell.clone(); boolean flying,op; final org.bukkit.entity.Pig body=world.spawn(cell,org.bukkit.entity.Pig.class); final Player player; PermissibleBase permissions; Inventory top=Bukkit.createInventory(null,9,Component.text("Fixture")); final Inventory bottom=Bukkit.createInventory(null,36);
         InventoryView view; final List<String> messages=new ArrayList<>();
         Actor(UUID id) {
             player=(Player)Proxy.newProxyInstance(Player.class.getClassLoader(),new Class<?>[]{Player.class},(proxy,m,a)->switch(m.getName()) {
                 case "getPassengers"->List.of();case "getUniqueId"->id;case "getName"->TownyAPI.getInstance().getResident(id).getName();case "getServer"->Bukkit.getServer();case "getWorld"->world;case "getLocation"->location;case "getAttribute"->body.getAttribute((org.bukkit.attribute.Attribute)a[0]);case "isGliding"->flying;case "setGliding"->{flying=(Boolean)a[0];yield null;}case "isRiptiding"->false;
-                case "isOnline"->true;case "isDead","isInsideVehicle"->false;case "getGameMode"->GameMode.SURVIVAL;case "isOp"->false;
+                case "isOnline"->true;case "isDead","isInsideVehicle"->false;case "getGameMode"->GameMode.SURVIVAL;case "isOp"->op;
                 case "hasPermission","isPermissionSet","addAttachment","removeAttachment","recalculatePermissions","getEffectivePermissions"->m.invoke(permissions,a);
                 case "sendMessage"->{messages.add(String.valueOf(a[a.length-1]));yield null;}
-                case "getOpenInventory"->view;case "openInventory"->{top=(Inventory)a[0];yield view;}case "closeInventory"->{top=Bukkit.createInventory(null,9);yield null;}
+                case "getOpenInventory"->view;case "openInventory"->{Bukkit.getPluginManager().callEvent(new InventoryCloseEvent(view));top=(Inventory)a[0];yield view;}case "closeInventory"->{Bukkit.getPluginManager().callEvent(new InventoryCloseEvent(view));top=Bukkit.createInventory(null,9);yield null;}
                 case "hashCode"->id.hashCode();case "equals"->proxy==a[0];case "toString"->"Seasons actor "+id;default->null;
             });
             permissions=new PermissibleBase(player);

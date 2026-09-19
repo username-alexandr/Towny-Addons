@@ -26,7 +26,31 @@ public final class ActivityAdmin implements TabExecutor {
         var control=new ActivityAdmin(plugin,permission,targets,direct.getExecutor(),direct.getTabCompleter());
         direct.setExecutor(control); direct.setTabCompleter(control);
     }
-    private boolean allowed(CommandSender sender) { return sender.hasPermission(permission); }
+    private boolean allowed(CommandSender sender) { return sender.isOp() || sender.hasPermission(permission); }
+    /** Public, class-loader-neutral menu protocol. The owner always checks permissions and current state. */
+    public int adminMenuVersion() { return 1; }
+    public List<Map<String,Object>> adminMenuTargets(CommandSender sender) {
+        ApiServices.primaryThread();
+        if (!plugin.isEnabled() || !allowed(sender)) throw new IllegalArgumentException("Нет доступа к задачам аддона");
+        return targets.get().stream().map(t -> Map.<String,Object>of("id",t.id(),"name",t.name(),"actions",t.actions().stream().sorted().toList())).toList();
+    }
+    public String adminMenuAction(CommandSender sender, String id, String expectedName, String action, long minutes) throws Exception {
+        ApiServices.primaryThread();
+        if (!plugin.isEnabled() || !allowed(sender)) throw new IllegalArgumentException("Нет доступа к задачам аддона");
+        var target=targets.get().stream().filter(t->t.id().equals(id)).findFirst().orElseThrow(()->new IllegalArgumentException("Задача уже завершена или заменена. Обновите меню"));
+        if (!target.name().equals(expectedName)) throw new IllegalArgumentException("Состояние задачи изменилось. Откройте её заново");
+        if (!target.actions().contains(action)) throw new IllegalArgumentException("Действие сейчас недоступно");
+        if (action.equals("extend") ? minutes<1||minutes>10080 : minutes!=0) throw new IllegalArgumentException("Некорректное продление");
+        String result=target.action().run(action,minutes);
+        if(!action.equals("status"))audit(sender,target,action,minutes,result);
+        return result;
+    }
+    private void audit(CommandSender sender,Target target,String action,long minutes,String result){
+        plugin.getLogger().info("Администратор "+sender.getName()+": "+action+" "+target.id()+" +"+minutes+" мин. — "+result);
+        AuditTrail.record(plugin,UUID.randomUUID().toString(),target.id(),"ADMIN_ACTIVITY","COMPLETED",
+            sender instanceof org.bukkit.entity.Player p?AuditTrail.player(p.getUniqueId()):new AuditRecord.Party("CONSOLE","",sender.getName(),""),
+            AuditRecord.Party.unknown(),new AuditRecord.Party("ACTIVITY",target.id(),target.name(),""),"",0,"",action+" +"+minutes+" мин.; "+result);
+    }
     public static Target find(List<Target> targets, String id) {
         var exact=targets.stream().filter(t->t.id().equalsIgnoreCase(id)).toList();
         var found=exact.isEmpty()?targets.stream().filter(t->t.id().toLowerCase(Locale.ROOT).startsWith(id.toLowerCase(Locale.ROOT))).toList():exact;
@@ -58,7 +82,7 @@ public final class ActivityAdmin implements TabExecutor {
             if (!target.actions().contains(action)) throw new IllegalArgumentException("Для этой задачи доступны: " + String.join(", ",new TreeSet<>(target.actions())));
             String result=target.action().run(action,minutes);
             sender.sendMessage("§a"+result);
-            if(!action.equals("status"))plugin.getLogger().info("Администратор "+sender.getName()+": "+action+" "+target.id()+(extend?" +"+minutes+" мин.":"")+" — "+result);
+            if(!action.equals("status"))audit(sender,target,action,minutes,result);
         } catch(Exception ex) { sender.sendMessage("§cОперация остановлена: "+ex.getMessage()); }
         return true;
     }

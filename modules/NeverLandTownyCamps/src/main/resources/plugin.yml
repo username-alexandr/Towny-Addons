@@ -1,5 +1,5 @@
 name: NeverLandTownyCamps
-version: 0.1.16
+version: 0.1.17
 main: ru.neverland.mintcamps.MintTownyCamps
 api-version: '26.2'
 authors: [Alexander Sokolov]
