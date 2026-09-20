@@ -1,0 +1,119 @@
+# Загрязнение 0–100. Цикл учитывает только работу сервера.
+# Нагрузка за каждый завершённый действующий уровень здания.
+# Недоступные данные/пауза: загрязнение сохранено, штрафы отключены.
+# Сельскохозяйственный коэффициент применяется только к выпуску FOOD.
+cycle-seconds: 300
+natural-recovery: 0.2
+penalties:
+  threshold: 40.0
+  maximum-happiness: 20.0
+  maximum-agriculture: 0.4
+agriculture:
+- agrarian_complex
+- apiary
+- irrigation_station
+- seed_vault
+- botanical
+- hanging_gardens
+- world_tree
+buildings:
+  forge:
+    name: Кузница
+    icon: ANVIL
+    emission: 0.12
+    cleaning: 0.0
+  miners_guild:
+    name: Шахтёрская гильдия
+    icon: DIAMOND_PICKAXE
+    emission: 0.18
+    cleaning: 0.0
+  shipyard:
+    name: Верфь
+    icon: OAK_BOAT
+    emission: 0.18
+    cleaning: 0.0
+  workshop:
+    name: Мастерская
+    icon: SMITHING_TABLE
+    emission: 0.1
+    cleaning: 0.0
+  sawmill:
+    name: Лесопилка
+    icon: IRON_AXE
+    emission: 0.12
+    cleaning: 0.0
+  quarry:
+    name: Каменоломня
+    icon: STONE_PICKAXE
+    emission: 0.15
+    cleaning: 0.0
+  foundry:
+    name: Литейная
+    icon: BLAST_FURNACE
+    emission: 0.3
+    cleaning: 0.0
+  alchemy:
+    name: Алхимическая лаборатория
+    icon: BREWING_STAND
+    emission: 0.15
+    cleaning: 0.0
+  printing_house:
+    name: Типография
+    icon: LECTERN
+    emission: 0.05
+    cleaning: 0.0
+  mint:
+    name: Монетный двор
+    icon: GOLD_INGOT
+    emission: 0.1
+    cleaning: 0.0
+  generator:
+    name: Генератор
+    icon: BLAST_FURNACE
+    emission: 0.3
+    cleaning: 0.0
+  power_station:
+    name: Электростанция
+    icon: REDSTONE_BLOCK
+    emission: 0.4
+    cleaning: 0.0
+  industrial_works:
+    name: Индустриальный комбинат
+    icon: HEAVY_CORE
+    emission: 0.6
+    cleaning: 0.0
+  park:
+    name: Парк
+    icon: OAK_SAPLING
+    emission: 0.0
+    cleaning: 0.3
+  forestry:
+    name: Лесничество
+    icon: OAK_SAPLING
+    emission: 0.0
+    cleaning: 0.35
+  botanical:
+    name: Ботанический сад
+    icon: FLOWERING_AZALEA
+    emission: 0.0
+    cleaning: 0.25
+  sewer:
+    name: Канализация
+    icon: CAULDRON
+    emission: 0.0
+    cleaning: 0.15
+  recycling_yard:
+    name: Перерабатывающий двор
+    icon: CRAFTER
+    emission: 0.0
+    cleaning: 0.3
+  hanging_gardens:
+    name: Висячие Сады
+    icon: FLOWERING_AZALEA
+    emission: 0.0
+    cleaning: 0.5
+  world_tree:
+    name: Мировое древо
+    icon: FLOWERING_AZALEA_LEAVES
+    emission: 0.0
+    cleaning: 0.7

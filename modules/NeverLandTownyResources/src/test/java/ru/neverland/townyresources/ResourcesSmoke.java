@@ -41,6 +41,17 @@ public final class ResourcesSmoke {
         var flooded=ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,1,true,true,"",1,1.2*.6)),0,config,100);
         check(flooded.state().balances().get(Resource.WOOD)==10800,"spring and flood combine exactly once");
         fails(()->ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,1,true,true,"",1,Double.NaN)),0,config,100),"bad seasonal provider cannot mint output");
+        var farm=profile("farm",stock(Resource.FOOD,10,Resource.INFLUENCE,2),stock(Resource.WATER,1),10);
+        var farming=settings(false,cap,farm);var farmInitial=TownState.initial(stock(Resource.FOOD,20,Resource.WATER,10));
+        var dirtyFarm=ResourceEngine.calculate(farmInitial,Map.of("farm",new ResourceEngine.Building(1,1,true,true,"",1,1,.6)),0,farming,100);
+        check(dirtyFarm.state().balances().get(Resource.FOOD)==26000,"ecology reduces new agricultural food, preserving stored food");
+        check(dirtyFarm.state().balances().get(Resource.INFLUENCE)==2000&&dirtyFarm.state().balances().get(Resource.WATER)==9000,"ecology leaves non-food output and inputs unchanged");
+        var winterFarm=ResourceEngine.calculate(farmInitial,Map.of("farm",new ResourceEngine.Building(1,1,true,true,"",1,.5,.6)),0,farming,100);
+        check(winterFarm.state().balances().get(Resource.FOOD)==23000,"season and ecology multiply once each");
+        check(dirtyFarm.capacity().equals(winterFarm.capacity())&&dirtyFarm.activity().get("farm").status().contains("экология"),"capacity unaffected and ecological cause visible");
+        var restoredFarm=ResourceEngine.calculate(farmInitial,Map.of("farm",new ResourceEngine.Building(1,1,true,true,"",1,1,1)),0,farming,100);
+        check(restoredFarm.state().balances().get(Resource.FOOD)==30000,"neutral ecology restores full production");
+        fails(()->ResourceEngine.calculate(farmInitial,Map.of("farm",new ResourceEngine.Building(1,1,true,true,"",1,1,Double.NaN)),0,farming,100),"invalid ecological provider cannot affect ledger");
         var subsidy=ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,1.15,true,true,"",1.3)),0,config,100);check(subsidy.state().balances().get(Resource.WOOD)==22425&&subsidy.state().balances().get(Resource.WATER)==5000,"policies increase actual output with unchanged input");
         var mobilized=ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,1,true,true,"",.85)),0,config,100);check(mobilized.state().balances().get(Resource.WOOD)==12750&&mobilized.state().balances().get(Resource.WATER)==5000,"mobilization penalty applies below base output without reducing costs");
         var limited=ResourceEngine.calculate(initial,Map.of("producer",new ResourceEngine.Building(5,3,true,true,"",2)),0,config,100);check(limited.state().balances().get(Resource.WOOD)==45000&&limited.capacity().equals(result.capacity()),"joint output cap x3 and unchanged storage");

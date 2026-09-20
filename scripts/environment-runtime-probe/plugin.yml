@@ -1,0 +1,5 @@
+name: NeverLandEnvironmentRuntimeProbe
+version: 1.0
+main: ru.neverland.runtime.EnvironmentRuntimeProbe
+api-version: "26.2"
+depend: [Towny, NeverLandTownyEnvironment, NeverLandTownyResources, NeverLandTownyPopulation, NeverLandTownyBuilds, NeverLandTownyUpkeep, NeverLandTownyPower, NeverLandTownySpecialization, NeverLandTownyControl]

@@ -74,6 +74,8 @@ public final class PopulationService implements TownyPopulationApi {
             capacity=capacity.plus(new Capacity(0,0,0,0,ru.neverland.integration.PoliciesAccess.effect(id,"happiness")));
             try { capacity=capacity.plus(new Capacity(0,0,0,0,ru.neverland.core.AchievementBonuses.happiness(id))); }
             catch(ReflectiveOperationException | RuntimeException | LinkageError ex) { paused=true;warn("Достижения города недоступны: "+ex.getMessage()); }
+            try {capacity=capacity.plus(new Capacity(0,0,0,0,ru.neverland.core.EnvironmentAccess.happiness(id)));}
+            catch(ReflectiveOperationException|RuntimeException|LinkageError ex){paused=true;warn("Экология города недоступна: "+ex.getMessage());}
             double medicine=levels.getOrDefault("infirmary",0)>0?ru.neverland.integration.ResearchBonuses.bonus(id,"medicine"):0;
             if (paused || now < state.lastCycle()) state = state.rebase(now);
             if (!paused && advance && now-state.lastCycle() >= settings.intervalMillis())

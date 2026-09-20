@@ -1,0 +1,47 @@
+[
+  {
+    "module": "NeverLandTownyControl",
+    "tests": [
+      "ru.neverland.townycontrol.ActivityAdminSmoke",
+      "ru.neverland.townycontrol.AdminMenuSmoke",
+      "ru.neverland.townycontrol.AuditSmoke",
+      "ru.neverland.townycontrol.ModuleSafetySmoke"
+    ],
+    "api_contracts": [],
+    "repository_fault_probe": false,
+    "seconds": 12.646
+  },
+  {
+    "module": "NeverLandTownyEnvironment",
+    "tests": [
+      "ru.neverland.townyenvironment.EnvironmentSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townyenvironment.api.TownyEnvironmentApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 6.767
+  },
+  {
+    "module": "NeverLandTownyPopulation",
+    "tests": [
+      "ru.neverland.townypopulation.PopulationSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townypopulation.api.TownyPopulationApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 11.95
+  },
+  {
+    "module": "NeverLandTownyResources",
+    "tests": [
+      "ru.neverland.townyresources.ResourcesSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townyresources.api.TownyResourcesApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 13.326
+  }
+]

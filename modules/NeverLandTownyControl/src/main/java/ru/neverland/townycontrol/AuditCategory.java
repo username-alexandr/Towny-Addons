@@ -14,6 +14,7 @@ enum AuditCategory implements Predicate<AuditRecord> {
     COMPANIES("Компании","IRON_INGOT",Set.of("COMPANY_PAYMENT","COMPANY_CONTRACT")),
     CONTRACTS("Контракты","WRITABLE_BOOK",Set.of("CONTRACT_PAYMENT","CONTRACT_DELIVERY")),
     TAXES("Налоги","SUNFLOWER",Set.of("TAX_TRANSFER")),
+    ENVIRONMENT("Экология города","OAK_SAPLING",Set.of("CITY_ENVIRONMENT")),
     ACHIEVEMENTS("Достижения и награды","NETHER_STAR",Set.of("CITY_ACHIEVEMENT","ACHIEVEMENT_REWARD")),
     QUESTS("Городские проекты","KNOWLEDGE_BOOK",Set.of("CITY_PROJECT")),
     ADMIN("Действия администрации","COMMAND_BLOCK",Set.of("ADMIN_ACTIVITY","ADMIN_MODULE")),
@@ -27,6 +28,6 @@ enum AuditCategory implements Predicate<AuditRecord> {
         case "MARKET_DEAL"->"Сделка рынка";case "SHOP_DEAL"->"Сделка магазина";case "MARKET_DELIVERY"->"Выдача рынка";case "SHOP_DELIVERY"->"Выдача магазина";
         case "WAREHOUSE_TRADE"->"Обмен со складом";case "WAREHOUSE_LEG"->"Изменение склада";case "STORAGE_PLAYER"->"Игрок и хранилище";
         case "COMPANY_PAYMENT"->"Оплата компании";case "COMPANY_CONTRACT"->"Контракт компании";case "CONTRACT_PAYMENT"->"Оплата контракта";case "CONTRACT_DELIVERY"->"Выдача контракта";case "TAX_TRANSFER"->"Перечисление налога";
-        case "CITY_ACHIEVEMENT"->"Достижение города";case "ACHIEVEMENT_REWARD"->"Оформление награды";case "CITY_PROJECT"->"Этап городского проекта";case "ADMIN_ACTIVITY"->"Управление задачей";case "ADMIN_MODULE"->"Управление модулем";default->kind;};}
+        case "CITY_ENVIRONMENT"->"Изменение уровня загрязнения";case "CITY_ACHIEVEMENT"->"Достижение города";case "ACHIEVEMENT_REWARD"->"Оформление награды";case "CITY_PROJECT"->"Этап городского проекта";case "ADMIN_ACTIVITY"->"Управление задачей";case "ADMIN_MODULE"->"Управление модулем";default->kind;};}
     static String outcome(String value){return switch(value){case "COMPLETED","COMPLETE","SUCCESS","DONE"->"Выполнено";case "OBSERVED"->"Зафиксирована команда";case "CREDIT"->"Зачисление";case "DEBIT"->"Списание";case "CANCELLED"->"Отменено";case "REFUNDED","RETURNED"->"Возвращено";case "DELIVERED"->"Доставлено";case "REJECTED"->"Отклонено";case "UNCONFIRMED"->"Не подтверждено";case "PREPARED"->"Подготовлено";case "PAID"->"Оплачено";case "FAILED","FAILURE"->"Ошибка";default->value;};}
 }

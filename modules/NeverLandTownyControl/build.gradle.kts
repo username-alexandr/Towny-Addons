@@ -1,7 +1,7 @@
 import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 group = "ru.neverland"
-version = "0.4.2"
+version = "0.4.3"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")

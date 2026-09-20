@@ -1,0 +1,24 @@
+name: NeverLandTownyEnvironment
+version: 0.1.0
+main: ru.neverland.townyenvironment.NeverLandTownyEnvironment
+api-version: '26.2'
+authors:
+- Alexander Sokolov
+description: 'Экология города: промышленность, зелёные зоны, довольство и сельское
+  хозяйство.'
+depend:
+- Towny
+softdepend:
+- NeverLandTownyBuilds
+commands:
+  townyenvironment:
+    aliases:
+    - nltenvironment
+    - cityenvironment
+    description: Экология города
+    usage: /townyenvironment [menu|sources|cleaning|reload|admin]
+permissions:
+  neverlandtownyenvironment.use:
+    default: true
+  neverlandtownyenvironment.admin:
+    default: op
