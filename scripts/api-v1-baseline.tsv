@@ -880,3 +880,6 @@ ru.neverland.townyachievements.api.TownyAchievementsApi	integrationDiagnostics()
 ru.neverland.townyachievements.api.TownyAchievementsApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
 ru.neverland.townyachievements.api.TownyAchievementsApi	title(java.util.UUID):java.lang.String throws []
 ru.neverland.townyachievements.api.TownyAchievementsApi	unlocked(java.util.UUID,java.lang.String):boolean throws []
+ru.neverland.mintevents.api.MintTownyEventsApi	capability raidVictories
+ru.neverland.mintevents.api.MintTownyEventsApi	default raidVictories(java.util.UUID)
+ru.neverland.mintevents.api.MintTownyEventsApi	raidVictories(java.util.UUID):long throws []
