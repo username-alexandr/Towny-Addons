@@ -883,3 +883,17 @@ ru.neverland.townyachievements.api.TownyAchievementsApi	unlocked(java.util.UUID,
 ru.neverland.mintevents.api.MintTownyEventsApi	capability raidVictories
 ru.neverland.mintevents.api.MintTownyEventsApi	default raidVictories(java.util.UUID)
 ru.neverland.mintevents.api.MintTownyEventsApi	raidVictories(java.util.UUID):long throws []
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	agricultureMultiplier(java.util.UUID,java.lang.String):double throws []
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	apiVersion():int throws []
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	capability agricultureMultiplier
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	capability environment
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	capability happiness
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	default apiVersion()
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	default capabilities()
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	default integrationDiagnostics()
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	default storageMetrics()
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	environment(java.util.UUID):java.util.Map<java.lang.String, java.lang.Object> throws []
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	happiness(java.util.UUID):double throws []
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []

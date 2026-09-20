@@ -151,3 +151,7 @@ modules:
     command: townyachievements
     permission: neverlandtownyachievements.admin
     activities: true
+  Environment:
+    command: townyenvironment
+    permission: neverlandtownyenvironment.admin
+    activities: true

@@ -1,11 +1,11 @@
 name: NeverLandTownyControl
-version: 0.4.2
+version: 0.4.3
 main: ru.neverland.townycontrol.NeverLandTownyControl
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Безопасное административное отключение аддонов и восстановление таймеров.
 depend: [Towny]
-loadbefore: [NeverLandTownyAchievements, NeverLandTownyQuests, NeverLandTownyArchaeology, NeverLandTownyArmy, NeverLandTownyBuilds, NeverLandTownyCamps, NeverLandTownyChronicles, NeverLandTownyCitizens, NeverLandTownyCompanies, NeverLandTownyContracts, NeverLandTownyCouncil, NeverLandTownyCrime, NeverLandTownyDiplomacy, NeverLandTownyDistricts, NeverLandTownyElections, NeverLandTownyEspionage, NeverLandTownyEvents, NeverLandTownyExpeditions, NeverLandTownyGovernance, NeverLandTownyIdeologies, NeverLandTownyJobs, NeverLandTownyJustice, NeverLandTownyLogistics, NeverLandTownyMarket, NeverLandTownyPolicies, NeverLandTownyPopulation, NeverLandTownyPower, NeverLandTownyReputation, NeverLandTownyResearch, NeverLandTownyResources, NeverLandTownySeasons, NeverLandTownySiegesPlus, NeverLandTownySpecialization, NeverLandTownyStick, NeverLandTownyTaxes, NeverLandTownyTrade, NeverLandTownyTreasuryPlus, NeverLandTownyUpkeep]
+loadbefore: [NeverLandTownyEnvironment, NeverLandTownyAchievements, NeverLandTownyQuests, NeverLandTownyArchaeology, NeverLandTownyArmy, NeverLandTownyBuilds, NeverLandTownyCamps, NeverLandTownyChronicles, NeverLandTownyCitizens, NeverLandTownyCompanies, NeverLandTownyContracts, NeverLandTownyCouncil, NeverLandTownyCrime, NeverLandTownyDiplomacy, NeverLandTownyDistricts, NeverLandTownyElections, NeverLandTownyEspionage, NeverLandTownyEvents, NeverLandTownyExpeditions, NeverLandTownyGovernance, NeverLandTownyIdeologies, NeverLandTownyJobs, NeverLandTownyJustice, NeverLandTownyLogistics, NeverLandTownyMarket, NeverLandTownyPolicies, NeverLandTownyPopulation, NeverLandTownyPower, NeverLandTownyReputation, NeverLandTownyResearch, NeverLandTownyResources, NeverLandTownySeasons, NeverLandTownySiegesPlus, NeverLandTownySpecialization, NeverLandTownyStick, NeverLandTownyTaxes, NeverLandTownyTrade, NeverLandTownyTreasuryPlus, NeverLandTownyUpkeep]
 commands:
   nltaudit:
     aliases: [townyaudit]
@@ -29,6 +29,7 @@ permissions:
     description: Полный доступ к меню, аддонам и журналам администрации
     default: op
     children:
+      neverlandtownyenvironment.admin: true
       neverlandtownyachievements.admin: true
       mintcamps.admin: true
       mintcontracts.admin: true

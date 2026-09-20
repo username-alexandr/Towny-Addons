@@ -1,0 +1,6 @@
+schema: 1
+towns:
+  4f434c33-45ff-3745-9f48-3b924a726cf9:
+    pollution: 72.6
+    cycles: 2
+    paused: true
