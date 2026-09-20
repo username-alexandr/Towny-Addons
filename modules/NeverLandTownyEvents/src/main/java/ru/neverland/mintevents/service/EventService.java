@@ -92,6 +92,8 @@ public final class EventService implements MintTownyEventsApi {
 
     public void start() {
         stopTasks();
+        repository.initializeRaidVictories(registry.all().stream().filter(d -> d.mode() == EventMode.RAID)
+                .map(EventDefinition::id).collect(java.util.stream.Collectors.toSet()));
         for (ActiveEvent event : repository.active().values()) {
             EventDefinition definition = definition(event);
             if (definition != null && definition.mode() == EventMode.RAID && event.raid() == null) {
@@ -726,6 +728,8 @@ public final class EventService implements MintTownyEventsApi {
 
     public ActiveEvent active(UUID townId) { return repository.active(townId); }
     public EventDefinition definition(ActiveEvent event) { return event == null ? null : registry.get(event.eventId()); }
+    @Override public long raidVictories(UUID townId) { ru.neverland.core.ApiServices.primaryThread(); return repository.raidVictories(townId); }
+
     public List<HistoryEntry> history(UUID townId) { return repository.history(townId); }
     public NamespacedKey raidMobKey() { return raidMobKey; }
     public boolean isRaidMob(Entity entity) { return raidOwner(entity) != null; }

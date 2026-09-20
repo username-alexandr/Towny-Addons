@@ -4,9 +4,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface MintTownyEventsApi extends ru.neverland.core.ApiContract {
-    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("activeEvent", "addProgress", "protection", "requiresRepair", "hasFireDamage", "productionMultiplier", "paused", "shieldRemainingMillis"); }
+    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("raidVictories", "activeEvent", "addProgress", "protection", "requiresRepair", "hasFireDamage", "productionMultiplier", "paused", "shieldRemainingMillis"); }
     default boolean paused(UUID townId) { return false; }
     default long shieldRemainingMillis(UUID townId) { return 0; }
+    /** Durable count of completed raid victories. Forced resolutions do not increment it. */
+    default long raidVictories(UUID townId) { throw new UnsupportedOperationException("raidVictories"); }
     Optional<EventSnapshot> activeEvent(UUID townId);
     boolean addProgress(UUID townId, int points, String source);
     double protection(UUID townId);

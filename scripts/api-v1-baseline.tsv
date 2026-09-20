@@ -864,3 +864,19 @@ ru.neverland.townyquests.api.TownyQuestsApi	integrationDiagnostics():java.util.L
 ru.neverland.townyquests.api.TownyQuestsApi	quests(java.util.UUID):java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
 ru.neverland.townyquests.api.TownyQuestsApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
 ru.neverland.townyquests.api.TownyQuestsApi	unlocked(java.util.UUID,java.lang.String):boolean throws []
+ru.neverland.townyachievements.api.TownyAchievementsApi	achievements(java.util.UUID):java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyachievements.api.TownyAchievementsApi	apiVersion():int throws []
+ru.neverland.townyachievements.api.TownyAchievementsApi	bonus(java.util.UUID,java.lang.String):double throws []
+ru.neverland.townyachievements.api.TownyAchievementsApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townyachievements.api.TownyAchievementsApi	capability achievements
+ru.neverland.townyachievements.api.TownyAchievementsApi	capability bonus
+ru.neverland.townyachievements.api.TownyAchievementsApi	capability title
+ru.neverland.townyachievements.api.TownyAchievementsApi	capability unlocked
+ru.neverland.townyachievements.api.TownyAchievementsApi	default apiVersion()
+ru.neverland.townyachievements.api.TownyAchievementsApi	default capabilities()
+ru.neverland.townyachievements.api.TownyAchievementsApi	default integrationDiagnostics()
+ru.neverland.townyachievements.api.TownyAchievementsApi	default storageMetrics()
+ru.neverland.townyachievements.api.TownyAchievementsApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyachievements.api.TownyAchievementsApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyachievements.api.TownyAchievementsApi	title(java.util.UUID):java.lang.String throws []
+ru.neverland.townyachievements.api.TownyAchievementsApi	unlocked(java.util.UUID,java.lang.String):boolean throws []

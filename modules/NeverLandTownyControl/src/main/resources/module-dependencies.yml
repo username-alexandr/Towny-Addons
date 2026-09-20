@@ -1,5 +1,9 @@
 schema: 1
 modules:
+  NeverLandTownyAchievements:
+  - NeverLandTownyBuilds
+  - NeverLandTownyEvents
+  - NeverLandTownyPopulation
   NeverLandTownyArchaeology: []
   NeverLandTownyArmy:
   - NeverLandTownyBuilds
@@ -116,6 +120,7 @@ modules:
   - NeverLandTownyTrade
   - NeverLandTownyUpkeep
   NeverLandTownyPopulation:
+  - NeverLandTownyAchievements
   - NeverLandTownyBuilds
   - NeverLandTownyDistricts
   - NeverLandTownyPolicies

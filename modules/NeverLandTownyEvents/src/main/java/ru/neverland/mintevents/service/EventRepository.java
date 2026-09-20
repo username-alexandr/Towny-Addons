@@ -27,6 +27,7 @@ public final class EventRepository {
     private final Map<UUID, ActiveEvent> active = new LinkedHashMap<>();
     private final Map<UUID, List<HistoryEntry>> history = new LinkedHashMap<>();
     private final Map<UUID, Long> cooldowns = new LinkedHashMap<>();
+    private final Map<UUID, Long> raidVictories = new LinkedHashMap<>();
     private boolean dirty;
     private final Map<UUID, Long> shields = new LinkedHashMap<>();
 
@@ -38,6 +39,7 @@ public final class EventRepository {
     public synchronized void load() {ready=false;
         active.clear();
         history.clear();
+        raidVictories.clear();
         cooldowns.clear();
         shields.clear();
 
@@ -74,6 +76,12 @@ public final class EventRepository {
                                 (int) number(map.get("goal")), Boolean.parseBoolean(text(map.get("success")))));
                     }
                     history.put(id, entries);
+                    String wins = "towns." + raw + ".raid-victories";
+                    if (yaml.contains(wins)) {
+                        long value = ru.neverland.core.SafeYaml.integer(yaml, wins);
+                        if (value < 0) throw new IllegalArgumentException("Отрицательный счётчик побед");
+                        raidVictories.put(id, value);
+                    }
                 } catch (IllegalArgumentException exception) {
                     throw new IllegalArgumentException("Повреждены сохранённые данные: EventRepository");
                 }
@@ -102,6 +110,8 @@ public final class EventRepository {
     public synchronized void complete(ActiveEvent event, boolean success, int limit, long now) {gate();
         if(active.get(event.townId())!=event)throw new IllegalArgumentException("Событие уже завершено или заменено");
         if(event.raid()!=null)reputation.add(ru.neverland.core.ReputationOutcome.town("raid:"+event.eventId()+":"+event.startedAt(),event.townId(),success?"RAID_VICTORY":"RAID_DEFEAT",now,"Набег на город"));
+        if (event.raid() != null && success && event.completed())
+            raidVictories.put(event.townId(), Math.addExact(raidVictories.getOrDefault(event.townId(), 0L), 1));
         active.remove(event.townId());
         cooldowns.put(event.townId(), now);
         List<HistoryEntry> entries = history.computeIfAbsent(event.townId(), key -> new ArrayList<>());
@@ -109,6 +119,18 @@ public final class EventRepository {
         while (entries.size() > Math.max(1, limit)) entries.remove(entries.size() - 1);
         dirty = true;
     }
+
+    /** Import only identifiable wins still present in the legacy bounded history, once. */
+    public synchronized void initializeRaidVictories(java.util.Set<String> raidIds) {
+        gate(); boolean changed = false;
+        for (var city : history.entrySet()) if (!raidVictories.containsKey(city.getKey())) {
+            long count = city.getValue().stream().filter(h -> h.success() && raidIds.contains(h.eventId()))
+                    .map(h -> h.eventId() + ":" + h.startedAt()).distinct().count();
+            raidVictories.put(city.getKey(), count); changed = true;
+        }
+        if (changed) save();
+    }
+    public synchronized long raidVictories(UUID town) { gate(); return raidVictories.getOrDefault(town, 0L); }
 
     /** Commit before removing entities or reporting administrative success. */
     public synchronized void replace(ActiveEvent expected, ActiveEvent replacement, long cancelledAt) {
@@ -167,6 +189,7 @@ public final class EventRepository {
             }
             yaml.set("towns." + town.getKey() + ".history", entries);
         }
+        raidVictories.forEach((id, wins) -> yaml.set("towns." + id + ".raid-victories", wins));
         shields.forEach((id, until) -> yaml.set("shields." + id, until));
         try {
             ru.neverland.core.AtomicFiles.write(file.toPath(),yaml::saveToString);

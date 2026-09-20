@@ -147,3 +147,7 @@ modules:
     command: townyquests
     permission: neverlandtownyquests.admin
     activities: true
+  Achievements:
+    command: townyachievements
+    permission: neverlandtownyachievements.admin
+    activities: true

@@ -1,5 +1,5 @@
 name: NeverLandTownyDiplomacy
-version: 0.1.8
+version: 0.1.9
 main: ru.neverland.townydiplomacy.NeverLandTownyDiplomacy
 api-version: '26.2'
 authors: [Alexander Sokolov]
