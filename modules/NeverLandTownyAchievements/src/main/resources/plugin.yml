@@ -1,0 +1,28 @@
+name: NeverLandTownyAchievements
+version: 0.1.0
+main: ru.neverland.townyachievements.NeverLandTownyAchievements
+api-version: '26.2'
+authors:
+- Alexander Sokolov
+description: Общие достижения города, титулы, косметика, памятные знамёна и бонусы.
+depend:
+- Towny
+softdepend:
+- NeverLandTownyBuilds
+- NeverLandTownyPopulation
+- NeverLandTownyEvents
+- PlaceholderAPI
+commands:
+  townyachievements:
+    aliases:
+    - nltachievements
+    - cityachievements
+    description: Достижения и награды города
+    usage: /townyachievements [menu|rewards|info|title|cosmetic|banner|reload|admin]
+permissions:
+  neverlandtownyachievements.use:
+    default: true
+  neverlandtownyachievements.manage:
+    default: false
+  neverlandtownyachievements.admin:
+    default: op

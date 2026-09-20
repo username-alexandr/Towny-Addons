@@ -1,0 +1,161 @@
+# Условия и награды закрепляются за городом при первой проверке.
+# Изменения существующего ID применяются только к новым городам; для новой цели используйте новый ID.
+achievements:
+  first_million:
+    name: Первый миллион
+    description: Накопите миллион монет в городской казне.
+    icon: GOLD_INGOT
+    kind: BALANCE
+    target: 1000000
+    reward:
+      title: Город миллионеров
+      cosmetic: spark
+      banner: wealth
+      happiness: 0
+  population_1000:
+    name: Население 1000
+    description: Развивайте город до 1000 жителей Population.
+    icon: BELL
+    kind: POPULATION
+    target: 1000
+    reward:
+      title: Город тысячи огней
+      cosmetic: celebration
+      banner: city
+      happiness: 0
+  raid_veterans:
+    name: 10 побед в рейдах
+    description: Отразите 10 набегов на город до победного конца.
+    icon: IRON_SWORD
+    kind: RAID_VICTORIES
+    target: 10
+    reward:
+      title: Непокорённый город
+      cosmetic: guard
+      banner: guard
+      happiness: 0
+  all_buildings_v:
+    name: Все здания V уровня
+    description: Доведите все 90 стандартных зданий до уровня V.
+    icon: DIAMOND_PICKAXE
+    kind: ALL_BUILDINGS
+    target: 90
+    projects:
+    - town_hall
+    - forge
+    - barracks
+    - market
+    - miners_guild
+    - temple
+    - great_library
+    - agrarian_complex
+    - infirmary
+    - fire_station
+    - tavern_inn
+    - city_bank
+    - embassy
+    - museum
+    - shipyard
+    - university
+    - courthouse
+    - aqueduct
+    - workshop
+    - watch_fortress
+    - hunting_lodge
+    - fishing_harbor
+    - post_station
+    - observatory
+    - prison
+    - sawmill
+    - quarry
+    - foundry
+    - mill
+    - bakery
+    - apiary
+    - warehouse
+    - caravanserai
+    - auction
+    - merchant_guild
+    - cargo_terminal
+    - water_tower
+    - sewer
+    - baths
+    - roads
+    - bridge_service
+    - reservoir
+    - guard
+    - arsenal
+    - armory
+    - watchtower
+    - fortress_gate
+    - counterintel
+    - alchemy
+    - archive
+    - cartography
+    - research
+    - botanical
+    - theater
+    - square
+    - arena
+    - gallery
+    - park
+    - guild_house
+    - memorial
+    - shelter
+    - cathedral
+    - printing_house
+    - forestry
+    - customs
+    - trade_port
+    - mint
+    - stables
+    - fortress_wall
+    - city_moat
+    - archery_range
+    - port_fort
+    - census_bureau
+    - insurance_chamber
+    - pumping_station
+    - irrigation_station
+    - recycling_yard
+    - dam
+    - army
+    - residential_quarter
+    - water_wheel
+    - generator
+    - power_station
+    - trade_exchange
+    - citadel
+    - seed_vault
+    - industrial_works
+    - academy_of_sciences
+    - admiralty
+    - pilgrimage_center
+    reward:
+      title: Великие зодчие
+      cosmetic: architect
+      banner: architect
+      happiness: 0
+  first_wonder:
+    name: Первое чудо света
+    description: Завершите строительство первого городского чуда.
+    icon: BEACON
+    kind: FIRST_WONDER
+    target: 1
+    projects:
+    - sun_pyramid
+    - great_colosseum
+    - alexandria_lighthouse
+    - hanging_gardens
+    - archmage_spire
+    - rhodes_colossus
+    - world_tree
+    - celestial_orrery
+    - terracotta_army
+    - crystal_palace
+    - great_canal
+    reward:
+      title: Город чудес
+      cosmetic: wonder
+      banner: wonder
+      happiness: 2

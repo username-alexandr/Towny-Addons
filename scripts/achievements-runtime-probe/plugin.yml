@@ -1,0 +1,5 @@
+name: NeverLandAchievementsRuntimeProbe
+version: 1.0
+main: ru.neverland.runtime.AchievementsRuntimeProbe
+api-version: "26.2"
+depend: [Towny, NeverLandTownyAchievements, NeverLandTownyPopulation, NeverLandTownyBuilds, NeverLandTownyEvents, NeverLandTownyControl]

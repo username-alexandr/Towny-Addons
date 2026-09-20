@@ -1,0 +1,55 @@
+[
+  {
+    "module": "NeverLandTownyAchievements",
+    "tests": [
+      "ru.neverland.townyachievements.AchievementsSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townyachievements.api.TownyAchievementsApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 36.35
+  },
+  {
+    "module": "NeverLandTownyControl",
+    "tests": [
+      "ru.neverland.townycontrol.ActivityAdminSmoke",
+      "ru.neverland.townycontrol.AdminMenuSmoke",
+      "ru.neverland.townycontrol.AuditSmoke",
+      "ru.neverland.townycontrol.ModuleSafetySmoke"
+    ],
+    "api_contracts": [],
+    "repository_fault_probe": false,
+    "seconds": 13.649
+  },
+  {
+    "module": "NeverLandTownyEvents",
+    "tests": [
+      "ru.neverland.mintevents.EventMathSmoke",
+      "ru.neverland.mintevents.EventPauseSmoke",
+      "ru.neverland.mintevents.FireDamageSmoke",
+      "ru.neverland.mintevents.LinkageSmoke",
+      "ru.neverland.mintevents.RaidKillAndMessagesSmoke",
+      "ru.neverland.mintevents.RaidSpawnPlannerSmoke",
+      "ru.neverland.mintevents.RaidVictoriesSmoke",
+      "ru.neverland.mintevents.RaidWavesSmoke",
+      "ru.neverland.mintevents.WeatherEconomySmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.mintevents.api.MintTownyEventsApi"
+    ],
+    "repository_fault_probe": true,
+    "seconds": 15.531
+  },
+  {
+    "module": "NeverLandTownyPopulation",
+    "tests": [
+      "ru.neverland.townypopulation.PopulationSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townypopulation.api.TownyPopulationApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 12.129
+  }
+]

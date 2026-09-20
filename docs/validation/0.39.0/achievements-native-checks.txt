@@ -1,0 +1,34 @@
+Achievements, Population and Control load together
+below thresholds cannot unlock
+unavailable Towny economy cannot invent a balance
+paused population cannot unlock
+admin pause stops new unlocks
+population unlock at 1000
+ordinary resident cannot change city title
+mayor selects earned title
+resident may select unlocked personal cosmetic
+mayor cannot select unearned title
+raid provider count unlocks at ten
+89 of 90 buildings cannot satisfy full catalogue
+all ninety level V buildings unlock
+first real wonder observation unlocks happiness
+real Population consumes earned achievement happiness
+native achievements menu opens
+native achievement inventory blocks extraction
+banner stack cannot be exchanged incorrectly
+one blank banner becomes one native decorated reward
+decorated banner cannot be mistaken for a new blank
+falling metrics and repeated admin checks cannot erase or duplicate earned state
+former resident cannot use city rewards
+admin log menu includes dedicated achievements category
+root admin permission reaches achievement activity protocol
+admin pause preserves earned bonus
+disable retains population data
+unavailable installed reward provider blocks dependent calculations
+Achievements, Population and Control load together
+Towny city survives another JVM
+administrator pause persists after restart
+four earned achievements restored without provider replay
+title and happiness persist after restart
+unrelated city UUID inherits no reward
+public bonus bridge restored
