@@ -1,0 +1,112 @@
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS 40 addon artifacts loaded
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyControl enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyCitizens enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyCouncil enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyBuilds enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyDistricts enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyReputation enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownySeasons enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyIdeologies enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyPopulation enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyEvents enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyDiplomacy enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyResources enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyTaxes enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyCamps enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyGovernance enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyArmy enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyQuests enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyUpkeep enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyTrade enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyContracts enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyEspionage enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyPolicies enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyTreasuryPlus enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyArchaeology enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyStick enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyExpeditions enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyChronicles enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyPower enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyJobs enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyEnvironment enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownySiegesPlus enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyJustice enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownySpecialization enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyLogistics enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyElections enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyCompanies enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyAchievements enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyCrime enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyMarket enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyResearch enabled
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyControl shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyCitizens shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyCouncil shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyBuilds shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyDistricts shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyReputation shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownySeasons shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyIdeologies shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyPopulation shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyEvents shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyDiplomacy shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyResources shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyTaxes shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyCamps shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyGovernance shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyArmy shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyQuests shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyUpkeep shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyTrade shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyContracts shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyEspionage shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyPolicies shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyTreasuryPlus shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyArchaeology shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyStick shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyExpeditions shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyChronicles shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyPower shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyJobs shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyEnvironment shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownySiegesPlus shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyJustice shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownySpecialization shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyLogistics shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyElections shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyCompanies shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyAchievements shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyCrime shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyMarket shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS NeverLandTownyResearch shares ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS global owner
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS world save from global scheduler
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS reward runs on global scheduler
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS region 0 owns location
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS region 0 is not global
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS region 0 holds ledger
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS region 0 block mutation
+[18:02:31] [Folia Region Scheduler Thread #0/INFO]: [NeverLandValidationProbe] PASS region 1 owns location
+[18:02:31] [Folia Region Scheduler Thread #0/INFO]: [NeverLandValidationProbe] PASS region 1 is not global
+[18:02:31] [Folia Region Scheduler Thread #0/INFO]: [NeverLandValidationProbe] PASS region 1 holds ledger
+[18:02:31] [Folia Region Scheduler Thread #0/INFO]: [NeverLandValidationProbe] PASS region 1 block mutation
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS entity 0 owner
+[18:02:31] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS entity 0 holds ledger
+[18:02:31] [Folia Region Scheduler Thread #0/INFO]: [NeverLandValidationProbe] PASS entity 1 owner
+[18:02:31] [Folia Region Scheduler Thread #0/INFO]: [NeverLandValidationProbe] PASS entity 1 holds ledger
+[18:02:32] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS teleported entity 0 owner
+[18:02:32] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS teleported entity 0 destination
+[18:02:32] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS loaded entity index 0
+[18:02:32] [Folia Region Scheduler Thread #0/INFO]: [NeverLandValidationProbe] PASS frozen addon task suppressed
+[18:02:32] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS retired callback 0
+[18:02:32] [Folia Region Scheduler Thread #0/INFO]: [NeverLandValidationProbe] PASS teleported entity 1 owner
+[18:02:32] [Folia Region Scheduler Thread #0/INFO]: [NeverLandValidationProbe] PASS teleported entity 1 destination
+[18:02:32] [Folia Region Scheduler Thread #0/INFO]: [NeverLandValidationProbe] PASS loaded entity index 1
+[18:02:32] [Folia Region Scheduler Thread #0/INFO]: [NeverLandValidationProbe] PASS retired callback 1
+[18:02:54] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS admin module disable completes
+[18:02:54] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS enable waits for restart
+[18:02:54] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS reward command is issued once
+[18:02:54] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS durable reward outcome
+[18:02:54] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS both region chains completed
+[18:02:54] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] PASS region worker observed
+[18:02:54] [Folia Region Scheduler Thread #1/INFO]: [NeverLandValidationProbe] FOLIA_PROBE_COMPLETE passed=111 failed=0  
