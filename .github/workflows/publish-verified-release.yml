@@ -1,0 +1,68 @@
+name: Publish verified Folia release
+
+on:
+  push:
+    branches: [publish/v0.41.0]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-verified-v0.41.0
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify original archives and prepare assets
+        run: python3 scripts/prepare_verified_release.py release-assets/0.41.0 "$RUNNER_TEMP/verified-release"
+      - name: Publish separate GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          manifest=release-assets/0.41.0/manifest.json
+          tag=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["tag"])' "$manifest")
+          source_commit=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["source_commit"])' "$manifest")
+          work_dir="$RUNNER_TEMP/verified-release"
+
+          python3 - "$manifest" <<'PY'
+          import hashlib, json, pathlib, sys
+          manifest = pathlib.Path(sys.argv[1])
+          expected = json.loads(manifest.read_text())['source_bundle_sha256']
+          assert hashlib.sha256((manifest.parent / 'source.bundle').read_bytes()).hexdigest() == expected
+          PY
+          git fetch release-assets/0.41.0/source.bundle refs/heads/folia-release-source
+          test "$(git rev-parse FETCH_HEAD)" = "$source_commit"
+          if git show-ref --verify --quiet "refs/tags/$tag"; then
+            test "$(git rev-parse "$tag^{commit}")" = "$source_commit"
+          else
+            git push origin "$source_commit:refs/tags/$tag"
+          fi
+
+          if gh release view "$tag" --json isDraft > "$RUNNER_TEMP/release-state.json" 2>/dev/null; then
+            python3 -c 'import json,sys; assert json.load(open(sys.argv[1]))["isDraft"], "Release already published; refusing replacement"' "$RUNNER_TEMP/release-state.json"
+            gh release upload "$tag" "$work_dir"/* --clobber
+          else
+            gh release create "$tag" "$work_dir"/* \
+              --draft --verify-tag \
+              --title 'NeverLand Towny Suite 0.41.0 — Folia' \
+              --notes-file release-assets/0.41.0/RELEASE_NOTES_RU.md
+          fi
+
+          gh release view "$tag" --json assets > "$RUNNER_TEMP/release-assets.json"
+          python3 - "$work_dir" "$RUNNER_TEMP/release-assets.json" <<'PY'
+          import json, pathlib, sys
+          local = {p.name: p.stat().st_size for p in pathlib.Path(sys.argv[1]).iterdir() if p.is_file()}
+          remote = {a['name']: a['size'] for a in json.load(open(sys.argv[2]))['assets']}
+          assert local == remote, 'Uploaded release assets differ from the verified payload'
+          print(f'Verified {len(local)} uploaded assets')
+          PY
+          gh release edit "$tag" --draft=false --latest \
+            --title 'NeverLand Towny Suite 0.41.0 — Folia' \
+            --notes-file release-assets/0.41.0/RELEASE_NOTES_RU.md

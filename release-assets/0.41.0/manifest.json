@@ -1,0 +1,23 @@
+{
+  "version": "0.41.0",
+  "tag": "v0.41.0",
+  "source_commit": "bae3990f30a802a3548ed32c5e335cdb946933ce",
+  "archives": [
+    {
+      "name": "NeverLandTownySuite-0.41.0-full.zip",
+      "size": 11961510,
+      "sha256": "1c760d58b6673bee48774d42313f846c4b2dcfdd26e53668b87e307848079483"
+    },
+    {
+      "name": "NeverLandTownySuite-0.41.0-plugins.zip",
+      "size": 9072673,
+      "sha256": "dbd0bd68eef709d69699829ea631a9cc87215d1c1f99f1d909b400ad0fc64486"
+    },
+    {
+      "name": "NeverLandTownySuite-0.41.0-sources.zip",
+      "size": 2698786,
+      "sha256": "8c7fcec93f35a1b3adf303768462cce54ad65bd7e9cac26d49f8d78712504b16"
+    }
+  ],
+  "source_bundle_sha256": "a823110297e3660f1f8acd9796135c500a10d19f204ce543658fe2c1008b094e"
+}
