@@ -51,7 +51,7 @@ public final class TownCommandInterceptor implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+                             @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick"))return true;
         if (isStickCommand(args)) {
             return stickCommand.onCommand(sender, command, label + " stick", stickArguments(args));
         }

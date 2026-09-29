@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
 """Run a prepared disposable Folia directory; keep stdin open and stop cleanly on completion."""
-import os,subprocess,time,sys
+import os,subprocess,time,sys,yaml
 from pathlib import Path
 server=Path(sys.argv[1]).resolve();java=os.environ.get('JAVA','java')
+# Explicit opt-out is required before any native server process is started.
+for relative,fields in [('plugins/bStats/config.yml',['enabled']),('plugins/PlaceholderAPI/config.yml',['check_updates','cloud_enabled']),('plugins/Vault/config.yml',['update-check'])]:
+ data=yaml.safe_load((server/relative).read_text())
+ if any(data.get(key) is not False for key in fields):raise SystemExit('Disable telemetry/update checks: '+relative)
+properties=(server/'plugins/faststats/config.properties').read_text().splitlines()
+if 'enabled=false' not in properties:raise SystemExit('Disable FastStats before testing')
+print('Telemetry preflight: bStats and FastStats disabled; PlaceholderAPI cloud and updates disabled',flush=True)
 log=server/'native-console.log';result=server/'plugins/NeverLandValidationProbe/result.txt'
 result.unlink(missing_ok=True)
 (result.parent/'command-outbox.yml').unlink(missing_ok=True)

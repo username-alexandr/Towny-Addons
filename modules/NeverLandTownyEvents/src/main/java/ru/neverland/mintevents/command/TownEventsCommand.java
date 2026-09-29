@@ -30,7 +30,7 @@ public final class TownEventsCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+                             @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEvents"))return true;
         if (args.length > 0 && ADMIN_ACTIONS.contains(args[0].toLowerCase(Locale.ROOT))) {
             if (!sender.hasPermission("mintevents.admin")) {
                 messages.send(sender, "no-permission");

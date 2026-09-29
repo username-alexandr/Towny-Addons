@@ -26,7 +26,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+                             @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds"))return true;
         if (!sender.hasPermission("neverlandtownybuilds.admin")) {
             messages.send(sender, "no-permission");
             return true;

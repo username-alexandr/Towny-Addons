@@ -31,8 +31,8 @@ def main():
         raise SystemExit(f'Release JARs differ from versions.yml: missing={sorted(expected-set(jars))}, extra={sorted(set(jars)-expected)}')
     prefix = f'NeverLandTownySuite-{version}'
     archive(args.output/f'{prefix}-sources.zip', source)
-    archive(args.output/f'{prefix}-plugins.zip', jars+['dist/plugins/README.md'])
-    archive(args.output/f'{prefix}-full.zip', source+assets+jars+['dist/plugins/README.md'])
+    archive(args.output/f'{prefix}-plugins.zip', jars+['dist/plugins/README.md','dist/plugins/SHA256SUMS.txt','dist/plugins/VALIDATION.txt'])
+    archive(args.output/f'{prefix}-full.zip', source+assets+jars+['dist/plugins/README.md','dist/plugins/SHA256SUMS.txt','dist/plugins/VALIDATION.txt'])
     for path in sorted(args.output.glob(prefix+'-*.zip')):
         print(path.name, path.stat().st_size)
 

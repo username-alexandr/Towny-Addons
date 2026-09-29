@@ -29,7 +29,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         this.plugin = plugin; this.towny = towny; this.contracts = contracts; this.messages = messages;
     }
     @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                                       @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+                                       @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyContracts"))return true;
         if (!sender.hasPermission("mintcontracts.admin")) { messages.send(sender, "no-permission"); return true; }
         if (args.length == 0) { messages.list("admin-help").forEach(sender::sendMessage); return true; }
         switch (args[0].toLowerCase()) {
