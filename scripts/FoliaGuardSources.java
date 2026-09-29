@@ -15,7 +15,7 @@ public final class FoliaGuardSources {
         var paths=new ArrayList<Path>();
         for(String directory:List.of("modules","shared"))try(var stream=Files.walk(root.resolve(directory))){
             stream.filter(p->p.toString().contains("/src/main/java/")&&p.toString().endsWith(".java"))
-                .filter(p->!Set.of("SuiteState.java","SuiteScheduler.java","SuiteRunnable.java","WorldTasks.java").contains(p.getFileName().toString())).forEach(paths::add);
+                .filter(p->!Set.of("SuiteState.java","SuiteScheduler.java","SuiteRunnable.java","WorldTasks.java","AuditQuery.java","AuditCategory.java","AuditRecord.java","AuditJournal.java","AuditTrail.java","PaymentEvidence.java","Money.java","EconomyListener.java").contains(p.getFileName().toString())).forEach(paths::add);
         }
         var compiler=ToolProvider.getSystemJavaCompiler();
         try(var manager=compiler.getStandardFileManager(null,null,null)) {
@@ -28,7 +28,7 @@ public final class FoliaGuardSources {
                         var body=method.getBody();
                         boolean entry=method.getModifiers().getFlags().contains(Modifier.PUBLIC)||method.getModifiers().getFlags().contains(Modifier.PROTECTED)
                             ||method.getModifiers().getAnnotations().stream().anyMatch(a->a.getAnnotationType().toString().endsWith("EventHandler"));
-                        if(body!=null&&method.getReturnType()!=null&&entry) {
+                        if(body!=null&&method.getReturnType()!=null&&entry&&!Set.of("withdrew","deposited","observeTransaction").contains(method.getName().toString())&&!(path.getFileName().toString().equals("BankAudit.java")&&Set.of("transfer","bankCommand").contains(method.getName().toString()))) {
                             int start=(int)positions.getStartPosition(unit,body),end=(int)positions.getEndPosition(unit,body);
                             if(!source.substring(start,Math.min(end,start+90)).contains("synchronized (ru.neverland.core.SuiteState.lock())")) {
                                 edits.add(new Edit(start+1," synchronized (ru.neverland.core.SuiteState.lock()) {"));

@@ -39,7 +39,7 @@ public final class EventGameplayListener implements Listener {
         if (event.getBucket() != org.bukkit.Material.WATER_BUCKET) return;
         var block = event.getBlock();
         var player = event.getPlayer();
-        ru.neverland.core.SuiteScheduler.get().runTask(plugin, () -> {
+        ru.neverland.core.SuiteScheduler.region(plugin, block.getLocation(), () -> {
             if (!player.isOnline() || !block.getWorld().isChunkLoaded(block.getX() >> 4, block.getZ() >> 4)) return;
             if (block.getType() == org.bukkit.Material.WATER
                     || block.getBlockData() instanceof org.bukkit.block.data.Waterlogged data && data.isWaterlogged()) {

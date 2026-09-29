@@ -180,6 +180,9 @@ def main() -> int:
         if source_version not in {version, "${version}"}:
             errors.append(f"{name}: source plugin version is {source_meta.get('version')!r}, expected {version}")
 
+        if source_meta.get("folia-supported") is not True:
+            errors.append(f"{name}: folia-supported must be true")
+
         declared = project_version(module)
         if declared != version:
             errors.append(f"{name}: build version is {declared!r}, expected {version}")
@@ -197,6 +200,8 @@ def main() -> int:
                 jar_meta = yaml.safe_load(archive.read("plugin.yml").decode("utf-8"))
                 if jar_meta.get("name") != name or str(jar_meta.get("version")) != version:
                     errors.append(f"{jar.name}: plugin.yml identity/version mismatch")
+                if jar_meta.get("folia-supported") is not True or "ru/neverland/core/SuiteScheduler.class" not in archive.namelist():
+                    errors.append(f"{jar.name}: Folia scheduler or descriptor is missing")
                 if name in {"NeverLandTowny" + suffix for suffix in ("Builds", "Upkeep", "Trade", "Contracts", "Ideologies", "Espionage", "TreasuryPlus", "Companies")}:
                     if "ru/neverland/integration/TreasuryAccess.class" not in archive.namelist():
                         errors.append(f"{jar.name}: missing treasury integration")
@@ -273,6 +278,8 @@ def main() -> int:
                     for helper in ("ResearchBonuses", "ResearchEffects"):
                         if f"ru/neverland/integration/{helper}.class" not in archive.namelist():
                             errors.append(f"{jar.name}: missing research integration {helper}")
+                if jar_meta.get("folia-supported") is not True or "ru/neverland/core/SuiteScheduler.class" not in archive.namelist():
+                    errors.append(f"{jar.name}: Folia scheduler or descriptor is missing")
                 if name in {"NeverLandTowny" + suffix for suffix in ("Builds", "Resources", "Population", "Districts", "Logistics", "Upkeep", "Power", "Research", "Trade", "Events", "Specialization")}:
                     for helper in ("SpecializationRules", "SpecializationAccess"):
                         if f"ru/neverland/integration/{helper}.class" not in archive.namelist():

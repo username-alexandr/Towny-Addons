@@ -9,5 +9,5 @@ import ru.neverland.townytaxes.service.FiscalService;
 
 public final class EconomyListener implements Listener {
     private final FiscalService service; public EconomyListener(FiscalService service){this.service=service;}
-    @EventHandler(priority=EventPriority.MONITOR) public void onTransaction(TownyTransactionEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyTaxes")){ru.neverland.core.ModuleGate.stopEvent(event);return;}Transaction tx=event.getTransaction();if(tx!=null&&tx.hasReceiverAccount())service.onTransaction(tx);} }
+    @EventHandler(priority=EventPriority.MONITOR) public void onTransaction(TownyTransactionEvent event){ if(ru.neverland.core.SuiteState.frozen("NeverLandTownyTaxes")){ru.neverland.core.ModuleGate.stopEvent(event);return;}Transaction tx=event.getTransaction();if(tx!=null&&tx.hasReceiverAccount())service.observeTransaction(tx); }
 }

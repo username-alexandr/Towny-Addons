@@ -1,0 +1,10 @@
+name: NeverLandValidationProbe
+version: 0.41.0
+main: ru.neverland.validation.FoliaProbe
+api-version: '26.2'
+folia-supported: true
+load: POSTWORLD
+softdepend: [NeverLandTownyControl, NeverLandTownyQuests, NeverLandTownyEnvironment, NeverLandTownyEvents, NeverLandTownyBuilds, NeverLandTownyExpeditions, NeverLandTownySiegesPlus, NeverLandTownyArmy, NeverLandTownyJustice]
+commands:
+  nltprobeaward:
+    description: Disposable validation reward

@@ -60,7 +60,7 @@ def main():
         'NeverLandTownyTaxes': ('ru.neverland.townytaxes.data.CivicRepository','data.yml','policies'),
         'NeverLandTownyEspionage': ('ru.neverland.mintespionage.service.EspionageRepository','data.yml','towns'),
     }
-    probe_classes = ROOT/'build/api-contract-probe'
+    probe_classes = ROOT/'build'/args.report.stem/'api-contract-probe'
     probe_classes.mkdir(parents=True, exist_ok=True)
     javac = str(Path(os.environ['JAVA_HOME'])/'bin/javac') if os.environ.get('JAVA_HOME') else 'javac'
     subprocess.run([javac, '--release', '17', '-d', str(probe_classes), str(ROOT/'scripts/ApiContractProbe.java')], check=True)

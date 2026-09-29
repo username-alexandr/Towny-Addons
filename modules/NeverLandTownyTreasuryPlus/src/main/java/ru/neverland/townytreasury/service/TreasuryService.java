@@ -41,8 +41,8 @@ public final class TreasuryService implements TownyTreasuryApi {
     public void reload(TreasurySettings value)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {primary();var previous=settings;flush();settings=value;offers.clear();fault=false;try{scan();initialized=true;}catch(Exception ex){settings=previous;fault=true;throw ex;}} }
     private void attach(Town town)throws Exception{UUID id=town.getUUID();Account account=town.getAccount();var old=watched.get(id);if(old!=null&&old.account()==account)return;if(old!=null)old.account().removeObserver(old.observer());
         var observer=new AccountObserver(){
-            public void withdrew(Account source,double amount,String reason){ synchronized (ru.neverland.core.SuiteState.lock()) {capture(source,amount,reason,false);} }
-            public void deposited(Account source,double amount,String reason){ synchronized (ru.neverland.core.SuiteState.lock()) {capture(source,amount,reason,true);} }
+            public void withdrew(Account source,double amount,String reason){ capture(source,amount,reason,false); }
+            public void deposited(Account source,double amount,String reason){ capture(source,amount,reason,true); }
             private void capture(Account source,double amount,String reason,boolean deposit){
                 // Closed economy sends a second notification for the server bank to these observers.
                 if(source!=account)return;try{long cents=Money.cents(amount);if(cents<=0)return;String text=reason==null?"":reason;UUID operation=null;var match=TAG.matcher(text);if(match.matches())try{operation=UUID.fromString(match.group(1));}catch(IllegalArgumentException ignored){}

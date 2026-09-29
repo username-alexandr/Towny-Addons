@@ -52,8 +52,8 @@ public final class SupplyGateway implements SupplyProcessor.Gateway {
             private void record(Account source,double amount,String reason,boolean incoming){
                 if(source==account&&incoming==deposit&&reason!=null&&reason.contains(token)&&Math.abs(amount-value)<0.000001)observed[0]=true;
             }
-            public void withdrew(Account source,double amount,String reason){ synchronized (ru.neverland.core.SuiteState.lock()) {record(source,amount,reason,false);} }
-            public void deposited(Account source,double amount,String reason){ synchronized (ru.neverland.core.SuiteState.lock()) {record(source,amount,reason,true);} }
+            public void withdrew(Account source,double amount,String reason){ record(source,amount,reason,false); }
+            public void deposited(Account source,double amount,String reason){ record(source,amount,reason,true); }
         };
         synchronized(account){
             account.addObserver(observer);

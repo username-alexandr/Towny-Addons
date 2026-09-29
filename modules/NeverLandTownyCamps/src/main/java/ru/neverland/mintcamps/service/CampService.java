@@ -233,7 +233,7 @@ public final class CampService {
 
     public boolean pack(Camp camp, Player receiver, boolean expired) { synchronized (ru.neverland.core.SuiteState.lock()) {
         try {
-            if (!ru.neverland.core.WorldTasks.ownsBox(camp.anchorLocation(),16) || repository.stashBusy(camp.ownerId())) return false;
+            if ((!expired&&receiver!=null&&!ru.neverland.core.SuiteScheduler.owns(receiver)) || !ru.neverland.core.WorldTasks.ownsBox(camp.anchorLocation(),16) || repository.stashBusy(camp.ownerId())) return false;
             if (repository.get(camp.ownerId()).orElse(null) != camp) return false;
             List<ItemStack> savedItems = new ArrayList<>(camp.nonEmptyStash());
             savedItems.addAll(structures.drainPlacedContainers(camp));

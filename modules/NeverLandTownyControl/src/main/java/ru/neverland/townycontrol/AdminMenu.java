@@ -57,7 +57,37 @@ final class AdminMenu implements Listener {
         button(s,15,Material.CLOCK,"Перезапуск задач",List.of("Новый таймер активной задачи","Прогресс и квитанции сохраняются"),()->activityModules(player,"restart"));
         button(s,29,Material.REPEATER,"Пауза и время",List.of("Приостановить, продолжить или продлить"),()->time(player));
         button(s,31,Material.LEVER,"Управление модулями",List.of("Состояние и безопасное отключение","Предпросмотр зависимых аддонов"),()->modules(player,1,false));
+        button(s,40,Material.COMMAND_BLOCK,"Команды наград",List.of("Очередь выдачи и спорные результаты","Сверка перед повторным выполнением"),()->rewardCommands(player,1));
         button(s,33,Material.COMPASS,"Справочник аддонов",List.of("Игровых аддонов: "+router.entries().size(),"Штатные команды и доступные задачи"),()->modules(player,1,true));show(player,s);
+    }
+    private record RewardCommand(org.bukkit.plugin.Plugin addon,ru.neverland.core.CommandOutbox.Entry entry){}
+    private void rewardCommands(Player player,int page)throws Exception {
+        var all=new ArrayList<RewardCommand>();
+        for(var addon:Bukkit.getPluginManager().getPlugins())if(addon.getName().startsWith("NeverLandTowny"))
+            for(var entry:ru.neverland.core.CommandOutbox.entries(addon))if(!entry.state().equals("DONE"))all.add(new RewardCommand(addon,entry));
+        var s=screen(player,"Награды • Команды");int slot=0;
+        for(var value:all.stream().skip((page-1L)*PAGE_SIZE).limit(PAGE_SIZE).toList())button(s,slot++,Material.COMMAND_BLOCK,value.addon().getName().replace("NeverLandTowny",""),List.of(value.entry().state(),clean(value.entry().command()),value.entry().id()),()->rewardReview(player,value,page));
+        if(all.isEmpty())button(s,22,Material.LIME_DYE,"Очередь пуста",List.of("Нет команд, ожидающих выполнения или сверки"),null);
+        pagination(s,page,all.size(),n->attempt(player,()->rewardCommands(player,n)));back(s,()->home(player));show(player,s);
+    }
+    private void rewardReview(Player player,RewardCommand selected,int page)throws Exception {
+        var entry=ru.neverland.core.CommandOutbox.entries(selected.addon()).stream().filter(e->e.id().equals(selected.entry().id())).findFirst().orElseThrow();
+        var s=screen(player,"Команда • Сверка результата");
+        button(s,4,Material.COMMAND_BLOCK,entry.state(),List.of(clean(entry.command()),entry.id(),"Проверьте результат у провайдера награды"),null);
+        if(entry.state().equals("REVIEW")){
+            button(s,20,Material.LIME_DYE,"Награда уже выдана",List.of("Закрыть запись без повторения команды"),()->rewardConfirm(player,selected,"done",page));
+            button(s,24,Material.REDSTONE,"Повторить команду",List.of("Только если награда точно не выдана","Повтор может выдать награду ещё раз"),()->rewardConfirm(player,selected,"retry",page));
+        }
+        back(s,()->rewardCommands(player,page));show(player,s);
+    }
+    private void rewardConfirm(Player player,RewardCommand selected,String decision,int page){
+        var s=screen(player,"Команда • Подтверждение");
+        button(s,22,Material.EMERALD_BLOCK,decision.equals("done")?"Закрыть после сверки":"Выполнить повторно",List.of(clean(selected.entry().command()),"Подтвердите выбранное действие"),()->{
+            if(!AdminAccess.admin(player))throw new IllegalArgumentException("Право администратора отозвано");
+            ru.neverland.core.CommandOutbox.resolve(selected.addon(),selected.entry().id(),decision);
+            ru.neverland.core.AuditTrail.record(plugin,"command-review",java.util.UUID.randomUUID().toString(),"ADMIN_COMMAND","COMPLETED",ru.neverland.core.AuditTrail.player(player.getUniqueId()),ru.neverland.core.AuditRecord.Party.unknown(),ru.neverland.core.AuditRecord.Party.unknown(),"",0,"",selected.addon().getName()+" "+selected.entry().id()+" "+decision);
+            rewardCommands(player,page);
+        });back(s,()->rewardReview(player,selected,page));show(player,s);
     }
     private void time(Player player){var s=screen(player,"Задачи • Пауза и время");int slot=10;for(String action:List.of("pause","resume","extend","status")){String a=action;button(s,slot++,actionIcon(a),actionName(a),List.of("Выбрать аддон и активную задачу"),()->activityModules(player,a));}back(s,()->home(player));show(player,s);}
     private void activityModules(Player player,String action)throws Exception {

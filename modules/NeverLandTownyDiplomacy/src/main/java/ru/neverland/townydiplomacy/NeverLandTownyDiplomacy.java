@@ -40,6 +40,6 @@ public final class NeverLandTownyDiplomacy extends JavaPlugin {
 
         ru.neverland.core.SuiteScheduler.get().cancelTasks(this);getServer().getServicesManager().unregisterAll(this);
         if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"diplomacy");
-        for(var p:getServer().getOnlinePlayers())if(p.getOpenInventory().getTopInventory().getHolder() instanceof DiplomacyMenus.Holder)p.closeInventory();
+        ru.neverland.core.SuiteScheduler.cleanupPlayers(this,p->{if(p.getOpenInventory().getTopInventory().getHolder() instanceof DiplomacyMenus.Holder)p.closeInventory();});
     } }
 }

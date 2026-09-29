@@ -38,14 +38,14 @@ public final class TownyHook {
             final PaymentEvidence evidence = new PaymentEvidence(account, true, token, BigDecimal.valueOf(amount).movePointRight(2).longValueExact());
             var observer = new AccountObserver() {
                @Override
-               public void withdrew(Account source, double value, String reason) { synchronized (ru.neverland.core.SuiteState.lock()) {
+               public void withdrew(Account source, double value, String reason) { 
                   evidence.observe(source, false, value, reason);
-               } }
+                }
 
                @Override
-               public void deposited(Account source, double value, String reason) { synchronized (ru.neverland.core.SuiteState.lock()) {
+               public void deposited(Account source, double value, String reason) { 
                   evidence.observe(source, true, value, reason);
-               } }
+                }
             };
             synchronized (account) {
                account.addObserver(observer);

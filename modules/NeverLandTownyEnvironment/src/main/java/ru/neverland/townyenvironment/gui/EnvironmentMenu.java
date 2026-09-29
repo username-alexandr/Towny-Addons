@@ -9,8 +9,8 @@ import org.bukkit.inventory.*;
 import ru.neverland.townyenvironment.service.EnvironmentService;
 
 public final class EnvironmentMenu implements Listener {
-    private final EnvironmentService service;
-    public EnvironmentMenu(EnvironmentService service) { this.service = service; }
+    private final EnvironmentService service;private final org.bukkit.plugin.Plugin plugin;
+    public EnvironmentMenu(org.bukkit.plugin.Plugin plugin,EnvironmentService service) { this.service = service;this.plugin=plugin; }
     private static final class View implements InventoryHolder {
         final UUID player, town; final Map<Integer, Runnable> buttons = new HashMap<>(); Inventory inventory;
         View(UUID player, UUID town) { this.player = player; this.town = town; }
@@ -61,5 +61,5 @@ public final class EnvironmentMenu implements Listener {
         var action = view.buttons.get(event.getRawSlot()); if (action != null) try { action.run(); } catch (Exception ex) { player.sendMessage("§c" + ex.getMessage()); }
     } }
     @EventHandler public void drag(InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEnvironment")){ru.neverland.core.ModuleGate.stopEvent(event);return;} if (event.getView().getTopInventory().getHolder() instanceof View) event.setCancelled(true); } }
-    public void close() { synchronized (ru.neverland.core.SuiteState.lock()) { ru.neverland.core.SuiteScheduler.players(plugin, player -> {if (player.getOpenInventory().getTopInventory().getHolder() instanceof View) player.closeInventory();}); } }
+    public void close() { synchronized (ru.neverland.core.SuiteState.lock()) { ru.neverland.core.SuiteScheduler.cleanupPlayers(plugin, player -> {if (player.getOpenInventory().getTopInventory().getHolder() instanceof View) player.closeInventory();}); } }
 }

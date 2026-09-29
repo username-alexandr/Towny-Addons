@@ -77,7 +77,7 @@ public final class SupplyMenus implements Listener {
         if(!(e.getView().getTopInventory().getHolder() instanceof View v))return;e.setCancelled(true);
         if(!(e.getWhoClicked() instanceof Player p)||e.getRawSlot()<0||e.getRawSlot()>=v.inventory.getSize())return;
         Runnable action=v.actions.get(e.getRawSlot());if(action==null)return;
-        ru.neverland.core.SuiteScheduler.get().runTask(plugin,()->{var town=towny.town(p);if(!p.isOnline()||p.getOpenInventory().getTopInventory()!=v.inventory)return;
+        ru.neverland.core.SuiteScheduler.entity(plugin,p,()->{var town=towny.town(p);if(!p.isOnline()||p.getOpenInventory().getTopInventory()!=v.inventory)return;
             if(town==null||!town.getUUID().equals(v.town)||!access(p)){p.closeInventory();return;}try{action.run();}catch(Exception ex){error(p,ex);}});
     } }
     @EventHandler public void drag(InventoryDragEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyTrade")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(e.getView().getTopInventory().getHolder() instanceof View)e.setCancelled(true);} }

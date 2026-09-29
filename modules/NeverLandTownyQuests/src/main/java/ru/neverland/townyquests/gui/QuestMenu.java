@@ -10,8 +10,8 @@ import ru.neverland.townyquests.model.*;
 import ru.neverland.townyquests.service.QuestService;
 
 public final class QuestMenu implements Listener {
-    private final QuestService service;
-    public QuestMenu(QuestService service) { this.service = service; }
+    private final QuestService service;private final org.bukkit.plugin.Plugin plugin;
+    public QuestMenu(org.bukkit.plugin.Plugin plugin,QuestService service) { this.service = service;this.plugin=plugin; }
     private static final class View implements InventoryHolder {
         final UUID player, town; final Map<Integer, Runnable> buttons = new HashMap<>(); Inventory inventory;
         View(UUID player, UUID town) { this.player = player; this.town = town; }
@@ -86,5 +86,5 @@ public final class QuestMenu implements Listener {
         if (action != null) try { action.run(); } catch (Exception ex) { player.sendMessage("§c" + ex.getMessage()); }
     } }
     @EventHandler public void drag(InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyQuests")){ru.neverland.core.ModuleGate.stopEvent(event);return;} if (event.getView().getTopInventory().getHolder() instanceof View) event.setCancelled(true); } }
-    public void close() { synchronized (ru.neverland.core.SuiteState.lock()) { for (var p : Bukkit.getOnlinePlayers()) if (p.getOpenInventory().getTopInventory().getHolder() instanceof View) p.closeInventory(); } }
+    public void close() { synchronized (ru.neverland.core.SuiteState.lock()) { ru.neverland.core.SuiteScheduler.cleanupPlayers(plugin,p->{if(p.getOpenInventory().getTopInventory().getHolder() instanceof View)p.closeInventory();}); } }
 }

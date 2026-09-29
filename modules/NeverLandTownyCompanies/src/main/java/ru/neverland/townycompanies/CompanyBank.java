@@ -16,8 +16,8 @@ public final class CompanyBank implements CompanyLedger.Bank {
         Account account=city?town.getAccount():resident.getAccount();boolean incoming=p.purpose()!=Purpose.DEPOSIT;
         String token="[companies:"+p.id()+"]";var evidence=new PaymentEvidence(account,incoming,token,p.amount());
         var observer=new AccountObserver(){
-            public void withdrew(Account source,double amount,String reason){ synchronized (ru.neverland.core.SuiteState.lock()) {evidence.observe(source,false,amount,reason);} }
-            public void deposited(Account source,double amount,String reason){ synchronized (ru.neverland.core.SuiteState.lock()) {evidence.observe(source,true,amount,reason);} }
+            public void withdrew(Account source,double amount,String reason){ evidence.observe(source,false,amount,reason); }
+            public void deposited(Account source,double amount,String reason){ evidence.observe(source,true,amount,reason); }
         };
         synchronized(account) {
             account.addObserver(observer);

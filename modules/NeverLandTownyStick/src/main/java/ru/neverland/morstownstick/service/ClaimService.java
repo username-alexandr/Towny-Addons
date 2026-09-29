@@ -200,6 +200,7 @@ public final class ClaimService {
     }
 
     private void scheduleNext(ClaimJob job) {
+        Player player=org.bukkit.Bukkit.getPlayer(job.playerId);if(player==null){jobs.remove(job.playerId,job);return;}
         long delay = Math.max(1L, plugin.getConfig().getLong("claim.delay-ticks", 1L));
         ru.neverland.core.SuiteScheduler.entityLater(plugin, player, () -> processNext(job), () -> jobs.remove(job.playerId), delay);
     }

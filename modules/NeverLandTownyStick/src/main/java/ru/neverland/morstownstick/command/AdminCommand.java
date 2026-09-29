@@ -47,6 +47,7 @@ public final class AdminCommand implements CommandExecutor {
             messages.send(sender, "player-not-found", Map.of("player", playerName));
             return;
         }
+        if(!ru.neverland.core.SuiteScheduler.owns(target)){ru.neverland.core.SuiteScheduler.player(plugin,target,p->give(sender,playerName));return;}
         if (sticks.has(target)) {
             messages.send(sender, "stick-already-have-other", Map.of("player", target.getName()));
             return;

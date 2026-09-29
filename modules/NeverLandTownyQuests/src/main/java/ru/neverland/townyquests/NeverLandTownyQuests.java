@@ -20,7 +20,7 @@ public final class NeverLandTownyQuests extends JavaPlugin {
         try {
             saveDefaultConfig(); if (!new File(getDataFolder(), "quests.yml").exists()) saveResource("quests.yml", false);
             var repository = new QuestRepository(getDataFolder().toPath().resolve("quests-data.yml")); repository.load();
-            service = new QuestService(this, repository, settings()); menu = new QuestMenu(service);
+            service = new QuestService(this, repository, settings()); menu = new QuestMenu(this,service);
             var command = new QuestCommand(this, service, menu); var direct = java.util.Objects.requireNonNull(getCommand("townyquests"));
             direct.setExecutor(command); direct.setTabCompleter(command);
             ru.neverland.core.ActivityAdmin.attach(this, "townyquests", "neverlandtownyquests.admin", service::adminTargets);

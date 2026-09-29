@@ -32,5 +32,5 @@ public final class NeverLandTownyElections extends JavaPlugin {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 if(ticker!=null)ticker.cancel();getServer().getServicesManager().unregisterAll(this);
         if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"elections");
-        for(var p:getServer().getOnlinePlayers())if(p.getOpenInventory().getTopInventory().getHolder() instanceof ElectionsMenus.Holder)p.closeInventory();} }
+        ru.neverland.core.SuiteScheduler.cleanupPlayers(this,p->{if(p.getOpenInventory().getTopInventory().getHolder() instanceof ElectionsMenus.Holder)p.closeInventory();});} }
 }

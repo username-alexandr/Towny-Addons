@@ -307,6 +307,17 @@ public final class SiteService {
         Location center=expedition.siteLocation();if(center==null)return;
         if(!ru.neverland.core.SuiteScheduler.owns(center)) {ru.neverland.core.SuiteScheduler.region(plugin,center,()->guard(expedition,definition));return;}
         if(repository.get(expedition.id())!=expedition || expedition.status()!=ExpeditionStatus.ACTIVE)return;
+        // Reconcile loaded arena bodies before calculating missing mobs, including restored saves.
+        int radius=(int)Math.ceil(Math.max(24,plugin.getConfig().getDouble("combat.mob-containment-radius",15)+4));
+        if(!ru.neverland.core.WorldTasks.ownsBox(center,radius))return;
+        World world=center.getWorld();var present=new HashSet<UUID>();
+        for(int x=(center.getBlockX()-radius)>>4;x<=(center.getBlockX()+radius)>>4;x++)for(int z=(center.getBlockZ()-radius)>>4;z<=(center.getBlockZ()+radius)>>4;z++){
+            if(!world.isChunkLoaded(x,z))return;
+            for(Entity entity:world.getChunkAt(x,z).getEntities())if(expedition.id().equals(expeditionMob(entity))&&entity.isValid()&&!entity.isDead())present.add(entity.getUniqueId());
+        }
+        expedition.spawnedMobs().addAll(present);
+        expedition.spawnedMobs().removeIf(id->!present.contains(id)&&ru.neverland.core.WorldTasks.find(id)==null);
+
         for(UUID id:List.copyOf(expedition.spawnedMobs())) {
             Entity entity=ru.neverland.core.WorldTasks.find(id);
             if(entity!=null)ru.neverland.core.SuiteScheduler.entity(plugin,entity,()->{

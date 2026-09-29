@@ -107,7 +107,7 @@ public final class BonusService implements Listener {
         if (ideology == null) return;
         int cooldown = Math.max(0, registry.levelInt("infrastructure", "placement-cooldown-ticks", ideology.level(), 0));
         ItemStack used = event.getItemInHand();
-        ru.neverland.core.SuiteScheduler.get().runTask(plugin, () -> {
+        ru.neverland.core.SuiteScheduler.entity(plugin,event.getPlayer(), () -> {
             if (event.getPlayer().isOnline()) event.getPlayer().setCooldown(used.getType(), cooldown);
         });
     } }
@@ -119,7 +119,7 @@ public final class BonusService implements Listener {
         TownIdeology ideology = ideologies.get(player).orElse(null);
         if (ideology == null) return;
         double multiplier = registry.levelDouble("infrastructure", "minecart-multiplier", ideology.level(), 1.0D);
-        ru.neverland.core.SuiteScheduler.get().runTask(plugin, () -> {
+        ru.neverland.core.SuiteScheduler.entity(plugin,minecart, () -> {
             if (player.isInsideVehicle() && player.getVehicle() == minecart) {
                 minecart.setMaxSpeed(VANILLA_MINECART_SPEED * Math.max(1.0D, multiplier));
             }
@@ -129,7 +129,7 @@ public final class BonusService implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onMinecartExit(VehicleExitEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getVehicle() instanceof Minecart minecart)) return;
-        ru.neverland.core.SuiteScheduler.get().runTask(plugin, () -> {
+        ru.neverland.core.SuiteScheduler.entity(plugin,minecart, () -> {
             boolean infrastructurePassenger = minecart.getPassengers().stream()
                     .filter(Player.class::isInstance).map(Player.class::cast)
                     .anyMatch(player -> ideologies.active(player, "infrastructure", true));
@@ -164,7 +164,7 @@ public final class BonusService implements Listener {
         if (ThreadLocalRandom.current().nextDouble() < expected - bonus) bonus++;
         if (bonus <= 0) return;
         int amount = bonus;
-        ru.neverland.core.SuiteScheduler.get().runTask(plugin, () -> giveTradeBonus(player, result, amount));
+        ru.neverland.core.SuiteScheduler.entity(plugin,player, () -> giveTradeBonus(player, result, amount));
     } }
 
     @EventHandler

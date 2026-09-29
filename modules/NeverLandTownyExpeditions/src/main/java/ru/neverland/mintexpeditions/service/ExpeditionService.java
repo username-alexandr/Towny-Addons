@@ -234,7 +234,7 @@ public final class ExpeditionService {
    public void mobDied(LivingEntity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
       ActiveExpedition expedition = this.sites.expeditionForMob(entity);
       if (expedition != null && !expedition.timer().paused() && expedition.status() == ExpeditionStatus.ACTIVE) {
-         expedition.spawnedMobs().remove(entity.getUniqueId());
+         if(!expedition.spawnedMobs().remove(entity.getUniqueId()))return;
          ExpeditionDefinition definition = this.registry.get(expedition.definitionId());
          if (definition != null) {
             Player killer = entity.getKiller();

@@ -103,6 +103,7 @@ public final class ExpeditionRepository {
                   e.completed().add(BlockPos.parse((String)v));
                }
 
+               for(Object mob:SafeYaml.list(s,"spawned-mobs"))e.spawnedMobs().add(UUID.fromString((String)mob));
                long kills = SafeYaml.integer(s, "kills");
                if (kills < 0L) {
                   throw new IllegalArgumentException("Отрицательные убийства");
@@ -267,6 +268,7 @@ public final class ExpeditionRepository {
          y.set(p + "objectives", e.objectives().stream().map(BlockPos::key).toList());
          y.set(p + "completed", e.completed().stream().map(BlockPos::key).toList());
          y.set(p + "kills", e.kills());
+         y.set(p + "spawned-mobs",e.spawnedMobs().stream().map(UUID::toString).toList());
          List<Map<String, Object>> snapshots = new ArrayList<>();
          e.snapshots().forEach((pos, s) -> {
             Map<String, Object> m = new LinkedHashMap<>();

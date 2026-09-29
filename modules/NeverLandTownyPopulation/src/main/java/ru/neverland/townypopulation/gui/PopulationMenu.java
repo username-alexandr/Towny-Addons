@@ -99,7 +99,7 @@ public final class PopulationMenu implements Listener {
         if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot()<0 || event.getRawSlot()>=54) return;
         if (!player.hasPermission("neverlandtownypopulation.use") || !canView(player,view.town)) { player.closeInventory(); return; }
         int slot=event.getRawSlot();
-        ru.neverland.core.SuiteScheduler.get().runTask(plugin, () -> {
+        ru.neverland.core.SuiteScheduler.entity(plugin,player, () -> {
             if (!player.isOnline() || player.getOpenInventory().getTopInventory().getHolder()!=view) return;
             if(slot==49) open(player,view.town,view.buildings,view.page);
             else if(!view.buildings && slot==45) open(player,view.town,true,0);

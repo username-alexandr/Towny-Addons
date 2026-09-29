@@ -81,6 +81,7 @@ public final class AdminCommand implements TabExecutor {
             messages.send(sender, "unknown-player", Map.of("player", args[1]));
             return;
         }
+        if(!ru.neverland.core.SuiteScheduler.owns(player)){ru.neverland.core.SuiteScheduler.player(plugin,player,p->give(sender,args,usageMessage));return;}
         ArtifactDefinition definition = registry.artifact(args[2]);
         if (definition == null) {
             messages.send(sender, "unknown-artifact", Map.of("artifact", args[2]));

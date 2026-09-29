@@ -18,7 +18,7 @@ public final class NeverLandTownyEnvironment extends JavaPlugin {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
         try {
             saveDefaultConfig(); var repository = new EnvironmentRepository(getDataFolder().toPath().resolve("environment-data.yml")); repository.load();
-            service = new EnvironmentService(this, repository, settings()); menu = new EnvironmentMenu(service);
+            service = new EnvironmentService(this, repository, settings()); menu = new EnvironmentMenu(this,service);
             var command = new EnvironmentCommand(this, menu); var direct = java.util.Objects.requireNonNull(getCommand("townyenvironment"));
             direct.setExecutor(command); direct.setTabCompleter(command);
             ru.neverland.core.ActivityAdmin.attach(this, "townyenvironment", "neverlandtownyenvironment.admin", service::adminTargets);

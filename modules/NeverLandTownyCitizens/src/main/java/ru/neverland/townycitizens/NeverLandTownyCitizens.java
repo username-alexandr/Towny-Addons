@@ -41,7 +41,7 @@ public final class NeverLandTownyCitizens extends JavaPlugin {
         if (unregisterPlaceholders != null) unregisterPlaceholders.run();
         getServer().getServicesManager().unregisterAll(this);
         if (townCommand) TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN, "citizens");
-        for (var p : getServer().getOnlinePlayers()) if (p.getOpenInventory().getTopInventory().getHolder() != null
-                && p.getOpenInventory().getTopInventory().getHolder().getClass().getName().startsWith("ru.neverland.townycitizens.")) p.closeInventory();
+        ru.neverland.core.SuiteScheduler.cleanupPlayers(this,p->{if (p.getOpenInventory().getTopInventory().getHolder() != null
+                && p.getOpenInventory().getTopInventory().getHolder().getClass().getName().startsWith("ru.neverland.townycitizens.")) p.closeInventory();});
     } }
 }

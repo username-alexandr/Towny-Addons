@@ -63,6 +63,6 @@ public final class NeverLandTownyCouncil extends JavaPlugin implements Listener 
         if (service != null) service.clearGrants();
         getServer().getServicesManager().unregisterAll(this);
         if (townCommand) TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN, "ministers");
-        for (var p : getServer().getOnlinePlayers()) if (p.getOpenInventory().getTopInventory().getHolder() instanceof CouncilMenus.Holder) p.closeInventory();
+        ru.neverland.core.SuiteScheduler.cleanupPlayers(this,p->{if(p.getOpenInventory().getTopInventory().getHolder() instanceof CouncilMenus.Holder)p.closeInventory();});
     } }
 }

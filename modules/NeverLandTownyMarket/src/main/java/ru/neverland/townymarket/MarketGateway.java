@@ -52,7 +52,7 @@ public final class MarketGateway implements MarketPayments.Gateway {
     private boolean payment(Order o,boolean incoming)throws Exception{
         Town city=incoming?town(o.seller()):o.city()?town(o.buyer()):null;var resident=incoming||o.city()?null:TownyAPI.getInstance().getResident(o.buyer());
         if(city==null&&resident==null)return false;Account account=city==null?resident.getAccount():city.getAccount();String token="[market:"+o.id()+"]";var evidence=new PaymentEvidence(account,incoming,token,o.total());
-        var observer=new AccountObserver(){public void withdrew(Account source,double amount,String reason){ synchronized (ru.neverland.core.SuiteState.lock()) {evidence.observe(source,false,amount,reason);} }public void deposited(Account source,double amount,String reason){ synchronized (ru.neverland.core.SuiteState.lock()) {evidence.observe(source,true,amount,reason);} }};
+        var observer=new AccountObserver(){public void withdrew(Account source,double amount,String reason){ evidence.observe(source,false,amount,reason); }public void deposited(Account source,double amount,String reason){ evidence.observe(source,true,amount,reason); }};
         synchronized(account){account.addObserver(observer);try{String reason=token+" Покупка на рынке";double amount=o.total()/100.0;boolean result;
             try{result=incoming?TreasuryAccess.deposit(city,"infrastructure",o.city()?"trade":"shop",false,amount,reason):o.city()?TreasuryAccess.withdraw(city,"infrastructure","trade",amount,reason):account.withdraw(amount,reason);}
             catch(RuntimeException ex){if(evidence.observed())return true;throw ex;}return evidence.result(result);

@@ -86,5 +86,5 @@ public final class AchievementMenu implements Listener {
         var action = v.buttons.get(e.getRawSlot()); if (action != null) try { action.run(); } catch (Exception ex) { p.sendMessage("§c" + ex.getMessage()); }
     } }
     @EventHandler public void drag(InventoryDragEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyAchievements")){ru.neverland.core.ModuleGate.stopEvent(e);return;} if (e.getView().getTopInventory().getHolder() instanceof View) e.setCancelled(true); } }
-    public void close() { synchronized (ru.neverland.core.SuiteState.lock()) { for (var p : Bukkit.getOnlinePlayers()) if (p.getOpenInventory().getTopInventory().getHolder() instanceof View) p.closeInventory(); } }
+    public void close() { synchronized (ru.neverland.core.SuiteState.lock()) { ru.neverland.core.SuiteScheduler.cleanupPlayers(plugin,p->{if(p.getOpenInventory().getTopInventory().getHolder() instanceof View)p.closeInventory();}); } }
 }

@@ -30,6 +30,9 @@ public final class WorldTasks implements Listener {
     @EventHandler public void load(EntitiesLoadEvent event) { for(Entity entity:event.getEntities()) ENTITIES.put(entity.getUniqueId(),entity); }
     @EventHandler public void unload(EntitiesUnloadEvent event) { for(Entity entity:event.getEntities()) ENTITIES.remove(entity.getUniqueId(),entity); }
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void spawn(EntitySpawnEvent event) { Entity entity=event.getEntity();ENTITIES.put(entity.getUniqueId(),entity); }
+    @EventHandler public void removed(org.bukkit.event.entity.EntityRemoveEvent event) {
+        Entity entity=event.getEntity();ENTITIES.remove(entity.getUniqueId(),entity);POSITIONS.remove(entity.getUniqueId());
+    }
     public static Entity find(UUID id) { return id==null?null:ENTITIES.get(id); }
     /** Position snapshots can be read globally; interaction still requires entity ownership. */
     public static Location position(Entity entity) {
