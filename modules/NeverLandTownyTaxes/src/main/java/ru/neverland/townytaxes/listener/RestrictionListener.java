@@ -11,5 +11,5 @@ import ru.neverland.townytaxes.service.MessageService;
 public final class RestrictionListener implements Listener {
     private final TownyHook towny;private final FiscalService service;private final MessageService messages;
     public RestrictionListener(TownyHook towny,FiscalService service,MessageService messages){this.towny=towny;this.service=service;this.messages=messages;}
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void onCommand(PlayerCommandPreprocessEvent event){if(event.getPlayer().hasPermission("townytaxes.bypass"))return;if(service.commandBlocked(towny.resident(event.getPlayer()),event.getMessage())){event.setCancelled(true);messages.send(event.getPlayer(),"sanction-command-blocked");}}
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void onCommand(PlayerCommandPreprocessEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyTaxes")){ru.neverland.core.ModuleGate.stopEvent(event);return;}if(event.getPlayer().hasPermission("townytaxes.bypass"))return;if(service.commandBlocked(towny.resident(event.getPlayer()),event.getMessage())){event.setCancelled(true);messages.send(event.getPlayer(),"sanction-command-blocked");}} }
 }

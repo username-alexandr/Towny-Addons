@@ -8,15 +8,15 @@ public final class ItemCodec {
     private ItemCodec() {
     }
 
-    public static String encode(ItemStack[] contents) throws IOException {
+    public static String encode(ItemStack[] contents) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         try {
             return Base64.getEncoder().encodeToString(ItemStack.serializeItemsAsBytes(contents));
         } catch (RuntimeException exception) {
             throw new IOException("Не удалось сериализовать предметы", exception);
         }
-    }
+    } }
 
-    public static ItemStack[] decode(String encoded, int fallbackSize) throws IOException, ClassNotFoundException {
+    public static ItemStack[] decode(String encoded, int fallbackSize) throws IOException, ClassNotFoundException { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (encoded == null || encoded.isBlank()) {
             return new ItemStack[fallbackSize];
         }
@@ -25,21 +25,21 @@ public final class ItemCodec {
         } catch (RuntimeException exception) {
             throw new IOException("Не удалось десериализовать предметы", exception);
         }
-    }
+    } }
 
-    public static String encodeSingle(ItemStack item) throws IOException {
+    public static String encodeSingle(ItemStack item) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         try {
             return Base64.getEncoder().encodeToString(item.serializeAsBytes());
         } catch (RuntimeException exception) {
             throw new IOException("Не удалось сериализовать предмет", exception);
         }
-    }
+    } }
 
-    public static ItemStack decodeSingle(String encoded) throws IOException, ClassNotFoundException {
+    public static ItemStack decodeSingle(String encoded) throws IOException, ClassNotFoundException { synchronized (ru.neverland.core.SuiteState.lock()) {
         try {
             return ItemStack.deserializeBytes(Base64.getDecoder().decode(encoded));
         } catch (RuntimeException exception) {
             throw new IOException("Не удалось десериализовать предмет", exception);
         }
-    }
+    } }
 }

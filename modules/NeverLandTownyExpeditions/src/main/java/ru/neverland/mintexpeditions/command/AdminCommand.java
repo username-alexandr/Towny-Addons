@@ -20,7 +20,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
       this.plugin = p;
    }
 
-   public boolean onCommand(CommandSender s, Command c, String l, String[] args) {
+   public boolean onCommand(CommandSender s, Command c, String l, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){return true;}
       if (!s.hasPermission("mintexpeditions.admin")) {
          this.plugin.messages().send(s, "no-permission");
          return true;
@@ -85,14 +85,14 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
 
          return true;
       }
-   }
+   } }
 
-   public List<String> onTabComplete(CommandSender s, Command c, String l, String[] a) {
+   public List<String> onTabComplete(CommandSender s, Command c, String l, String[] a) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!s.hasPermission("mintexpeditions.admin"))return List.of();
       if (a.length == 1) {
          return List.of("list", "complete", "cancel", "reload", "payments", "resolve");
       } else {
          return a.length == 2 ? this.plugin.service().repository().active().stream().map(e -> e.id().toString()).toList() : List.of();
       }
-   }
+   } }
 }

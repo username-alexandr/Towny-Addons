@@ -27,7 +27,7 @@ public final class FuelService {
         reload();
     }
 
-    public void reload() {
+    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
         entries.clear();
         for (Map<?, ?> map : plugin.getConfig().getMapList("settings.fuel.entries")) {
             Material material = material(map.get("material"));
@@ -38,9 +38,9 @@ public final class FuelService {
                 entries.add(new FuelEntry(material, tag, seconds, returned));
             }
         }
-    }
+    } }
 
-    public Result addFromMainHand(Player player, Camp camp) {
+    public Result addFromMainHand(Player player, Camp camp) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ItemStack held = player.getInventory().getItemInMainHand();
         if (held.getType().isAir() || held.getAmount() <= 0) return result(Status.EMPTY_HAND, camp, 0, 0);
         FuelEntry entry = entries.stream().filter(value -> value.matches(held.getType())).findFirst().orElse(null);
@@ -69,19 +69,19 @@ public final class FuelService {
             }
         }
         return result(Status.ADDED, camp, consumed, added);
-    }
+    } }
 
-    public boolean isFuel(ItemStack item) {
+    public boolean isFuel(ItemStack item) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return item != null && !item.getType().isAir() && entries.stream().anyMatch(value -> value.matches(item.getType()));
-    }
+    } }
 
-    public long burnCapMillis(int level) {
+    public long burnCapMillis(int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return Math.max(1, plugin.getConfig().getLong("settings.lifetime.burn-cap-seconds." + level, 86400L)) * 1000L;
-    }
+    } }
 
-    public long maximumLifeMillis() {
+    public long maximumLifeMillis() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return Math.max(1, plugin.getConfig().getLong("settings.lifetime.maximum-seconds", 259200L)) * 1000L;
-    }
+    } }
 
     private Result result(Status status, Camp camp, int items, long added) {
         return new Result(status, items, added, camp.remainingBurnMillis(System.currentTimeMillis()));

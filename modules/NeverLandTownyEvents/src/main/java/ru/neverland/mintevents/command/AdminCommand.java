@@ -22,7 +22,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     public AdminCommand(MintTownyEvents plugin, TownyHook towny, EventService events, MessageService messages) {
         this.plugin=plugin; this.towny=towny; this.events=events; this.messages=messages;
     }
-    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEvents")){return true;}
         if(!sender.hasPermission("mintevents.admin")) { messages.send(sender,"no-permission"); return true; }
         if(args.length == 0) { help(sender); return true; }
         String action=args[0].toLowerCase(Locale.ROOT);
@@ -79,7 +79,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             plugin.getLogger().log(java.util.logging.Level.SEVERE,"Административная команда события",e);
         }
         return true;
-    }
+    } }
     private Town city(String[] args,int from,int end) {
         if(from>=end) throw new IllegalArgumentException("Укажите город");
         String name=String.join(" ",Arrays.copyOfRange(args,from,end));
@@ -102,7 +102,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§fshield <часы> <город> §7— 0 снять; 1–720 выдать щит");
         sender.sendMessage("§fstatus <город> §7· §flist §7· §fraidwave <город> §7· §freload");
     }
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) {
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!sender.hasPermission("mintevents.admin") || args.length==0) return List.of();
         List<String> options=List.of(); String action=args[0].toLowerCase(Locale.ROOT);
         if(args.length==1) options=ACTIONS.stream().sorted().toList();
@@ -111,5 +111,5 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         else if(args.length==2 && !Set.of("start","reload","list").contains(action) || args.length==3 && Set.of("start","extend","shield").contains(action)) options=towny.towns().stream().map(Town::getName).toList();
         String prefix=args[args.length-1].toLowerCase(Locale.ROOT);
         return options.stream().filter(v->v.toLowerCase(Locale.ROOT).startsWith(prefix)).toList();
-    }
+    } }
 }

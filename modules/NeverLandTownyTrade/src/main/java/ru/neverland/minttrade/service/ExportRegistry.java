@@ -21,7 +21,7 @@ public final class ExportRegistry {
     private final ItemsAdderHook itemsAdder;
     private final Map<String, ExportDefinition> exports = new LinkedHashMap<>();
     public ExportRegistry(JavaPlugin plugin, ItemsAdderHook itemsAdder) { this.plugin = plugin; this.itemsAdder = itemsAdder; reload(); }
-    public void reload() {
+    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
         exports.clear();
         MaterialNameConfig.reload(plugin, itemNames);
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "exports.yml"));
@@ -42,18 +42,18 @@ public final class ExportRegistry {
                     yaml.getInt(path + "slot", 28), yaml.getStringList(path + "description"), key,
                     item, Math.max(1, yaml.getInt(path + "amount", 64)), Math.max(0, yaml.getDouble(path + "price", 100))));
         }
-    }
-    public String itemName(ItemStack item) {
+    } }
+    public String itemName(ItemStack item) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (item == null || item.getType().isAir()) return "Пусто";
         String custom = MaterialNameConfig.customName(item.getItemMeta());
         return custom == null ? itemNames.name(item.getType().name()) : custom;
-    }
-    public ItemStack parseItem(String key) {
+    } }
+    public ItemStack parseItem(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ItemStack custom = itemsAdder.item(key);
         if (custom != null) { custom.setAmount(1); return custom; }
         Material material = MaterialNameConfig.matchMaterial(key);
         return material == null || !material.isItem() || material.isAir() ? null : new ItemStack(material);
-    }
-    public ExportDefinition get(String id) { return id == null ? null : exports.get(id.toLowerCase(Locale.ROOT)); }
-    public Collection<ExportDefinition> all() { return exports.values(); }
+    } }
+    public ExportDefinition get(String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return id == null ? null : exports.get(id.toLowerCase(Locale.ROOT)); } }
+    public Collection<ExportDefinition> all() { synchronized (ru.neverland.core.SuiteState.lock()) { return exports.values(); } }
 }

@@ -17,21 +17,21 @@ public final class TownGovernanceData {
     private long lastProposalAt;
     private String electionReceipt = "";
     private final java.util.Set<String> electedOffices = new java.util.LinkedHashSet<>();
-    public String electionReceipt() { return electionReceipt; }
-    public void electionReceipt(String value) { electionReceipt = value; }
-    public java.util.Set<String> electedOffices() { return electedOffices; }
+    public String electionReceipt() { synchronized (ru.neverland.core.SuiteState.lock()) { return electionReceipt; } }
+    public void electionReceipt(String value) { synchronized (ru.neverland.core.SuiteState.lock()) { electionReceipt = value; } }
+    public java.util.Set<String> electedOffices() { synchronized (ru.neverland.core.SuiteState.lock()) { return electedOffices; } }
 
     public TownGovernanceData(UUID townId, String townName) { this.townId = townId; this.townName = townName; }
-    public UUID townId() { return townId; }
-    public String townName() { return townName; }
-    public void townName(String townName) { this.townName = townName; }
-    public Map<String, ActiveLaw> activeLaws() { return activeLaws; }
-    public Map<String, List<OfficeHolder>> offices() { return offices; }
-    public List<HistoryEntry> history() { return history; }
-    public Double baselineTax() { return baselineTax; }
-    public Boolean baselineTaxPercentage() { return baselineTaxPercentage; }
-    public void baselineTax(Double amount, Boolean percentage) { baselineTax = amount; baselineTaxPercentage = percentage; }
-    public void clearBaselineTax() { baselineTax = null; baselineTaxPercentage = null; }
-    public long lastProposalAt() { return lastProposalAt; }
-    public void lastProposalAt(long value) { lastProposalAt = value; }
+    public UUID townId() { synchronized (ru.neverland.core.SuiteState.lock()) { return townId; } }
+    public String townName() { synchronized (ru.neverland.core.SuiteState.lock()) { return townName; } }
+    public void townName(String townName) { synchronized (ru.neverland.core.SuiteState.lock()) { this.townName = townName; } }
+    public Map<String, ActiveLaw> activeLaws() { synchronized (ru.neverland.core.SuiteState.lock()) { return activeLaws; } }
+    public Map<String, List<OfficeHolder>> offices() { synchronized (ru.neverland.core.SuiteState.lock()) { return offices; } }
+    public List<HistoryEntry> history() { synchronized (ru.neverland.core.SuiteState.lock()) { return history; } }
+    public Double baselineTax() { synchronized (ru.neverland.core.SuiteState.lock()) { return baselineTax; } }
+    public Boolean baselineTaxPercentage() { synchronized (ru.neverland.core.SuiteState.lock()) { return baselineTaxPercentage; } }
+    public void baselineTax(Double amount, Boolean percentage) { synchronized (ru.neverland.core.SuiteState.lock()) { baselineTax = amount; baselineTaxPercentage = percentage; } }
+    public void clearBaselineTax() { synchronized (ru.neverland.core.SuiteState.lock()) { baselineTax = null; baselineTaxPercentage = null; } }
+    public long lastProposalAt() { synchronized (ru.neverland.core.SuiteState.lock()) { return lastProposalAt; } }
+    public void lastProposalAt(long value) { synchronized (ru.neverland.core.SuiteState.lock()) { lastProposalAt = value; } }
 }

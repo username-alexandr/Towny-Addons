@@ -8,10 +8,10 @@ public record CivicLine(UUID worldId, int x1, int y1, int z1, int x2, int y2, in
         if (worldId == null) throw new IllegalArgumentException("Не указан мир линии");
     }
 
-    public int length() {
+    public int length() { synchronized (ru.neverland.core.SuiteState.lock()) {
         int dx = x2 - x1;
         int dy = y2 - y1;
         int dz = z2 - z1;
         return (int) Math.ceil(Math.sqrt((double) dx * dx + (double) dy * dy + (double) dz * dz)) + 1;
-    }
+    } }
 }

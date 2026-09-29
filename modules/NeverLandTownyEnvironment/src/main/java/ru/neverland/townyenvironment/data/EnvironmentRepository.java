@@ -11,9 +11,9 @@ import ru.neverland.townyenvironment.model.EnvironmentState;
 public final class EnvironmentRepository {
     private final Path file; private boolean ready; private Map<UUID, EnvironmentState> towns = Map.of();
     public EnvironmentRepository(Path file) { this.file = file; }
-    public Map<UUID, EnvironmentState> towns() { return towns; }
-    public EnvironmentState get(UUID town) { return towns.getOrDefault(town, EnvironmentState.clean()); }
-    public void load() throws Exception {
+    public Map<UUID, EnvironmentState> towns() { synchronized (ru.neverland.core.SuiteState.lock()) { return towns; } }
+    public EnvironmentState get(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { return towns.getOrDefault(town, EnvironmentState.clean()); } }
+    public void load() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
         ready = false;
         if (!Files.exists(file)) { towns = Map.of(); AtomicFiles.loaded(file); ready = true; return; }
         var y = new YamlConfiguration(); y.load(file.toFile());
@@ -25,15 +25,15 @@ public final class EnvironmentRepository {
             next.put(UUID.fromString(raw), new EnvironmentState(SafeYaml.doubleValue(row, "pollution"), SafeYaml.integer(row, "cycles"), SafeYaml.booleanValue(row, "paused")));
         }
         towns = Map.copyOf(next); AtomicFiles.loaded(file); ready = true;
-    }
-    public void put(UUID town, EnvironmentState state) throws IOException {
+    } }
+    public void put(UUID town, EnvironmentState state) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         var next = new HashMap<>(towns); next.put(Objects.requireNonNull(town), state); replace(next);
-    }
-    public void replace(Map<UUID, EnvironmentState> next) throws IOException {
+    } }
+    public void replace(Map<UUID, EnvironmentState> next) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ready || !AtomicFiles.writable(file)) throw new IOException("Хранилище экологии заблокировано");
         next = Map.copyOf(next); if (next.equals(towns)) return;
         var y = new YamlConfiguration(); y.set("schema", 1); var root = y.createSection("towns");
         next.forEach((id, state) -> { var s = root.createSection(id.toString()); s.set("pollution", state.pollution()); s.set("cycles", state.cycles()); s.set("paused", state.paused()); });
         AtomicFiles.write(file, y::saveToString); towns = next;
-    }
+    } }
 }

@@ -54,11 +54,11 @@ public enum ProjectCategory {
         this.color = color;
     }
 
-    public String displayName() { return displayName; }
-    public Material icon() { return icon; }
-    public String color() { return color; }
+    public String displayName() { synchronized (ru.neverland.core.SuiteState.lock()) { return displayName; } }
+    public Material icon() { synchronized (ru.neverland.core.SuiteState.lock()) { return icon; } }
+    public String color() { synchronized (ru.neverland.core.SuiteState.lock()) { return color; } }
 
-    public static ProjectCategory parse(String raw, String projectId) {
+    public static ProjectCategory parse(String raw, String projectId) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (raw != null && !raw.isBlank()) {
             try { return valueOf(raw.toUpperCase(Locale.ROOT)); }
             catch (IllegalArgumentException ignored) { }
@@ -72,5 +72,5 @@ public enum ProjectCategory {
         if (SCIENCE_IDS.contains(projectId)) return SCIENCE;
         if (CULTURE_IDS.contains(projectId)) return CULTURE;
         return OTHER;
-    }
+    } }
 }

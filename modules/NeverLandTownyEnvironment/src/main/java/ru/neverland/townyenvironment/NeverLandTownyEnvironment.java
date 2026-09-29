@@ -14,7 +14,7 @@ import ru.neverland.townyenvironment.command.EnvironmentCommand;
 
 public final class NeverLandTownyEnvironment extends JavaPlugin {
     private EnvironmentService service; private EnvironmentMenu menu; private boolean townCommand;
-    @Override public void onEnable() {
+    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
         try {
             saveDefaultConfig(); var repository = new EnvironmentRepository(getDataFolder().toPath().resolve("environment-data.yml")); repository.load();
@@ -30,14 +30,14 @@ public final class NeverLandTownyEnvironment extends JavaPlugin {
             getLogger().log(java.util.logging.Level.SEVERE, "Экология остановлена; сохранённые данные не перезаписаны", ex);
             getServer().getPluginManager().disablePlugin(this);
         }
-    }
+    } }
     private EnvironmentSettings settings() throws Exception {
         var yaml = new YamlConfiguration(); yaml.load(new File(getDataFolder(), "config.yml")); return EnvironmentSettings.load(yaml);
     }
-    public void reloadEnvironment() throws Exception { var next = settings(); service.reload(next); menu.close(); }
-    @Override public void onDisable() {
+    public void reloadEnvironment() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) { var next = settings(); service.reload(next); menu.close(); } }
+    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
         if (service != null) service.stop(); if (menu != null) menu.close(); getServer().getServicesManager().unregisterAll(this);
         if (townCommand) TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN, "environment");
-    }
+    } }
 }

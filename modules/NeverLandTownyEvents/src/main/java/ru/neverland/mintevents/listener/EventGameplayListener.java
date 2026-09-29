@@ -32,24 +32,24 @@ public final class EventGameplayListener implements Listener {
     }
 
     @EventHandler(priority = org.bukkit.event.EventPriority.MONITOR)
-    public void newTown(com.palmergames.bukkit.towny.event.NewTownEvent event) { events.townCreated(event.getTown()); }
+    public void newTown(com.palmergames.bukkit.towny.event.NewTownEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) { events.townCreated(event.getTown()); } }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onWater(org.bukkit.event.player.PlayerBucketEmptyEvent event) {
+    public void onWater(org.bukkit.event.player.PlayerBucketEmptyEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (event.getBucket() != org.bukkit.Material.WATER_BUCKET) return;
         var block = event.getBlock();
         var player = event.getPlayer();
-        org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
+        ru.neverland.core.SuiteScheduler.get().runTask(plugin, () -> {
             if (!player.isOnline() || !block.getWorld().isChunkLoaded(block.getX() >> 4, block.getZ() >> 4)) return;
             if (block.getType() == org.bukkit.Material.WATER
                     || block.getBlockData() instanceof org.bukkit.block.data.Waterlogged data && data.isWaterlogged()) {
                 events.extinguish(player, block.getLocation());
             }
         });
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onGrow(BlockGrowEvent event) {
+    public void onGrow(BlockGrowEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEvents")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         Town town = towny.townAt(event.getBlock().getLocation());
         if (town == null) return;
         ActiveEvent active = events.active(town.getUUID());
@@ -60,48 +60,48 @@ public final class EventGameplayListener implements Listener {
                 : plugin.getConfig().getDouble("gameplay.drought-base-crop-cancel-chance", 0.70);
         double chance = Math.max(0, Math.min(1, base * (1.0 - active.protection())));
         if (ThreadLocalRandom.current().nextDouble() < chance) event.setCancelled(true);
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onRaidProjectile(org.bukkit.event.entity.EntityDamageByEntityEvent event) {
+    public void onRaidProjectile(org.bukkit.event.entity.EntityDamageByEntityEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (event.getDamager() instanceof org.bukkit.entity.Projectile projectile
                 && projectile.getShooter() instanceof Entity shooter && isRaidMob(shooter)) {
             event.setDamage(event.getDamage() * events.raidRangedMultiplier(shooter));
         }
-    }
+    } }
 
     @EventHandler
-    public void onEntitiesLoad(org.bukkit.event.world.EntitiesLoadEvent event) {
+    public void onEntitiesLoad(org.bukkit.event.world.EntitiesLoadEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
         for (Entity entity : event.getEntities()) events.validateLoadedRaidEntity(entity);
-    }
+    } }
 
     @EventHandler(ignoreCancelled = true)
-    public void onRaidGrief(EntityChangeBlockEvent event) {
+    public void onRaidGrief(EntityChangeBlockEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEvents")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (isRaidMob(event.getEntity())) event.setCancelled(true);
-    }
+    } }
 
     @EventHandler(ignoreCancelled = true)
-    public void onRaidExplosion(EntityExplodeEvent event) {
+    public void onRaidExplosion(EntityExplodeEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEvents")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (isRaidMob(event.getEntity())) event.blockList().clear();
-    }
+    } }
 
     @EventHandler
-    public void onRaidDeath(EntityDeathEvent event) {
+    public void onRaidDeath(EntityDeathEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEvents")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!isRaidMob(event.getEntity())) return;
         event.getDrops().clear();
         event.setDroppedExp(0);
         events.creditRaidKill(event.getEntity());
-    }
+    } }
 
     @EventHandler(ignoreCancelled = true)
-    public void onTownySpawnRemoval(MobSpawnRemovalEvent event) {
+    public void onTownySpawnRemoval(MobSpawnRemovalEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEvents")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (isRaidMob(event.getEntityOrNull())) event.setCancelled(true);
-    }
+    } }
 
     @EventHandler(ignoreCancelled = true)
-    public void onTownyMobRemoval(MobRemovalEvent event) {
+    public void onTownyMobRemoval(MobRemovalEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEvents")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (isRaidMob(event.getEntity())) event.setCancelled(true);
-    }
+    } }
 
     private boolean isRaidMob(Entity entity) {
         return entity != null && events.isRaidMob(entity);

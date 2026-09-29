@@ -21,15 +21,15 @@ public final class EconomyService {
       this.plugin = plugin;
    }
 
-   public boolean canWithdraw(Town town, double amount) {
+   public boolean canWithdraw(Town town, double amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
       try {
          return town != null && TreasuryAccess.canSpend(town, "infrastructure", amount);
       } catch (RuntimeException var5) {
          return false;
       }
-   }
+   } }
 
-   public boolean withdraw(Town town, double amount, ExportDefinition definition) {
+   public boolean withdraw(Town town, double amount, ExportDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
       if (amount <= 0.0) {
          return true;
       } else {
@@ -39,9 +39,9 @@ public final class EconomyService {
             return false;
          }
       }
-   }
+   } }
 
-   public boolean deposit(Town town, double amount, ExportDefinition definition, String path) {
+   public boolean deposit(Town town, double amount, ExportDefinition definition, String path) { synchronized (ru.neverland.core.SuiteState.lock()) {
       if (amount <= 0.0) {
          return true;
       } else {
@@ -59,21 +59,21 @@ public final class EconomyService {
             return false;
          }
       }
-   }
+   } }
 
-   public double balance(Town town) {
+   public double balance(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
       try {
          return town == null ? 0.0 : town.getAccount().getHoldingBalance();
       } catch (RuntimeException var3) {
          return 0.0;
       }
-   }
+   } }
 
-   public String format(double amount) {
+   public String format(double amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.format.format(amount);
-   }
+   } }
 
-   public boolean transfer(Town town, double amount, ExportDefinition definition, String kind, UUID operation, boolean incoming) {
+   public boolean transfer(Town town, double amount, ExportDefinition definition, String kind, UUID operation, boolean incoming) { synchronized (ru.neverland.core.SuiteState.lock()) {
       if (amount <= 0.0) {
          return true;
       } else if (town == null) {
@@ -84,14 +84,14 @@ public final class EconomyService {
          final PaymentEvidence evidence = new PaymentEvidence(account, incoming, token, BigDecimal.valueOf(amount).movePointRight(2).longValueExact());
          var observer = new AccountObserver() {
             @Override
-            public void withdrew(Account source, double value, String reason) {
+            public void withdrew(Account source, double value, String reason) { synchronized (ru.neverland.core.SuiteState.lock()) {
                evidence.observe(source, false, value, reason);
-            }
+            } }
 
             @Override
-            public void deposited(Account source, double value, String reason) {
+            public void deposited(Account source, double value, String reason) { synchronized (ru.neverland.core.SuiteState.lock()) {
                evidence.observe(source, true, value, reason);
-            }
+            } }
          };
          synchronized (account) {
             account.addObserver(observer);
@@ -127,7 +127,7 @@ public final class EconomyService {
             return var15;
          }
       }
-   }
+   } }
 
    private String reason(String path, ExportDefinition definition) {
       return ColorUtil.strip(

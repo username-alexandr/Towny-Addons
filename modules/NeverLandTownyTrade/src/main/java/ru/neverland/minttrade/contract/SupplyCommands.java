@@ -8,7 +8,7 @@ import ru.neverland.minttrade.util.ColorUtil;
 public final class SupplyCommands {
     private final TownyHook towny;private final TradeService trade;private final SupplyService service;private final SupplyMenus menus;
     public SupplyCommands(TownyHook towny,TradeService trade,SupplyService service,SupplyMenus menus){this.towny=towny;this.trade=trade;this.service=service;this.menus=menus;}
-    public void execute(Player p,Town town,String[] args){
+    public void execute(Player p,Town town,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!menus.access(p))return;
         try{
             if(args.length==0||args[0].equalsIgnoreCase("list")){menus.open(p,args.length>1?Math.max(0,Integer.parseInt(args[1])-1):0);return;}
@@ -29,6 +29,6 @@ public final class SupplyCommands {
             }
         }catch(NumberFormatException ex){menus.error(p,new IllegalArgumentException("Количество, период и номер страницы должны быть целыми числами"));}
         catch(Exception ex){menus.error(p,ex);}
-    }
+    } }
     private void help(Player p){p.sendMessage(ColorUtil.color("&e/t trade contracts [list <страница>]\n&f/t trade contract propose <город> <предмет|hand> <кол-во> <цена> [дни]\n&f/t trade contract show <ID>\n&f/t trade contract <accept|pause|resume|cancel> <ID>\n&7Пример: /t trade contract propose Москва IRON_INGOT 500 2000 7\n&7ItemsAdder: itemsadder:namespace:item; hand — точная копия предмета в руке."));}
 }

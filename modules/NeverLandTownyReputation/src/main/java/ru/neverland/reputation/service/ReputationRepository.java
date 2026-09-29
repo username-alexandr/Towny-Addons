@@ -20,12 +20,12 @@ import ru.neverland.reputation.model.ReputationScope;
 
 public final class ReputationRepository {
    private final ru.neverland.core.ReputationOutbox reputation = new ru.neverland.core.ReputationOutbox();
-   public boolean healthy(){return ready && AtomicFiles.writable(file.toPath());}
-   public void outcome(ru.neverland.core.ReputationOutcome outcome){gate();reputation.add(outcome);dirty=true;}
-   public void flushReputation(){reputation.flush(this::healthy,()->{dirty=true;save();});}
+   public boolean healthy(){ synchronized (ru.neverland.core.SuiteState.lock()) {return ready && AtomicFiles.writable(file.toPath());} }
+   public void outcome(ru.neverland.core.ReputationOutcome outcome){ synchronized (ru.neverland.core.SuiteState.lock()) {gate();reputation.add(outcome);dirty=true;} }
+   public void flushReputation(){ synchronized (ru.neverland.core.SuiteState.lock()) {reputation.flush(this::healthy,()->{dirty=true;save();});} }
    private boolean profilesInitialized;
-   public boolean profilesInitialized(){gate();return profilesInitialized;}
-   public void profilesInitialized(boolean value){gate();profilesInitialized=value;dirty=true;}
+   public boolean profilesInitialized(){ synchronized (ru.neverland.core.SuiteState.lock()) {gate();return profilesInitialized;} }
+   public void profilesInitialized(boolean value){ synchronized (ru.neverland.core.SuiteState.lock()) {gate();profilesInitialized=value;dirty=true;} }
    private boolean ready;
    private final JavaPlugin plugin;
    private final File file;
@@ -53,7 +53,7 @@ public final class ReputationRepository {
       this.file = new File(plugin.getDataFolder(), "data.yml");
    }
 
-   public void load() {
+   public void load() { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.ready = false;
       this.records.clear();
       this.processed.clear();
@@ -117,9 +117,9 @@ public final class ReputationRepository {
       this.lastDecay = SafeYaml.stringValue(yaml, "last-decay", "");
       this.dirty = false;
       this.loaded();
-   }
+   } }
 
-   public synchronized void save() {
+   public void save() { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       if (this.dirty || !this.file.exists()) {
          YamlConfiguration yaml = new YamlConfiguration();reputation.write(yaml);yaml.set("profiles-initialized",profilesInitialized);
@@ -167,26 +167,26 @@ public final class ReputationRepository {
             throw new UncheckedIOException(var10);
          }
       }
-   }
+   } }
 
-   public ReputationRecord get(RelationKey key) {
+   public ReputationRecord get(RelationKey key) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       return this.records.get(key);
-   }
+   } }
 
-   public ReputationRecord getOrCreate(RelationKey key, String firstName, String secondName) {
+   public ReputationRecord getOrCreate(RelationKey key, String firstName, String secondName) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       ReputationRecord result = this.records.computeIfAbsent(key, value -> new ReputationRecord(value, firstName, secondName));
       result.names(firstName, secondName);
       return result;
-   }
+   } }
 
-   public List<ReputationRecord> all() {
+   public List<ReputationRecord> all() { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       return List.copyOf(this.records.values());
-   }
+   } }
 
-   public List<ReputationRecord> involving(ReputationScope scope, UUID id) {
+   public List<ReputationRecord> involving(ReputationScope scope, UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       return this.records
          .values()
@@ -194,76 +194,76 @@ public final class ReputationRepository {
          .filter(record -> record.key().scope() == scope && record.key().involves(id))
          .sorted(Comparator.<ReputationRecord>comparingInt(record -> record.score()).reversed())
          .toList();
-   }
+   } }
 
-   public boolean processed(String key) {
+   public boolean processed(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       return key != null && !key.isBlank() && this.processed.containsKey(key);
-   }
+   } }
 
-   public void markProcessed(String key, long now) {
+   public void markProcessed(String key, long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       if (key != null && !key.isBlank()) {
          this.processed.put(key, now);
          this.dirty = true;
       }
-   }
+   } }
 
-   public int dailyUsage(String key) {
+   public int dailyUsage(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       return this.dailyUsage.getOrDefault(key, 0);
-   }
+   } }
 
-   public void dailyUsage(String key, int value) {
+   public void dailyUsage(String key, int value) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       this.dailyUsage.put(key, value);
       this.dirty = true;
-   }
+   } }
 
-   public long feedbackCooldown(String key) {
+   public long feedbackCooldown(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       return this.feedbackCooldowns.getOrDefault(key, 0L);
-   }
+   } }
 
-   public void feedbackCooldown(String key, long value) {
+   public void feedbackCooldown(String key, long value) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       this.feedbackCooldowns.put(key, value);
       this.dirty = true;
-   }
+   } }
 
-   public int feedbackDaily(String key) {
+   public int feedbackDaily(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       return this.feedbackDaily.getOrDefault(key, 0);
-   }
+   } }
 
-   public void feedbackDaily(String key, int value) {
+   public void feedbackDaily(String key, int value) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       this.feedbackDaily.put(key, value);
       this.dirty = true;
-   }
+   } }
 
-   public String lastDecay() {
+   public String lastDecay() { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       return this.lastDecay;
-   }
+   } }
 
-   public void lastDecay(String value) {
+   public void lastDecay(String value) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       this.lastDecay = value;
       this.dirty = true;
-   }
+   } }
 
-   public void dirty() {
+   public void dirty() { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       this.dirty = true;
-   }
+   } }
 
-   public boolean dirtyState() {
+   public boolean dirtyState() { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       return this.dirty;
-   }
+   } }
 
-   public void cleanup(long processedCutoff, int processedLimit, String currentDay) {
+   public void cleanup(long processedCutoff, int processedLimit, String currentDay) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       this.processed.entrySet().removeIf(entry -> entry.getValue() < processedCutoff);
 
@@ -274,7 +274,7 @@ public final class ReputationRepository {
       this.dailyUsage.keySet().removeIf(key -> !key.startsWith(currentDay + "|"));
       this.feedbackDaily.keySet().removeIf(key -> !key.startsWith(currentDay + "|"));
       this.dirty = true;
-   }
+   } }
 
    private List<Map<String, Object>> longList(Map<String, Long> source, String valueName) {
       List<Map<String, Object>> result = new ArrayList<>();

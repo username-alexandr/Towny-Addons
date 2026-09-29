@@ -16,16 +16,16 @@ public final class ReputationChangeEvent extends Event implements Cancellable {
     public ReputationChangeEvent(ReputationScope scope, UUID first, UUID second, int oldScore, int requestedScore, String source, String reason) {
         this.scope = scope; this.first = first; this.second = second; this.oldScore = oldScore; this.requestedScore = requestedScore; this.source = source; this.reason = reason;
     }
-    public ReputationScope scope() { return scope; }
-    public UUID first() { return first; }
-    public UUID second() { return second; }
-    public int oldScore() { return oldScore; }
-    public int requestedScore() { return requestedScore; }
-    public int requestedDelta() { return requestedScore - oldScore; }
-    public String source() { return source; }
-    public String reason() { return reason; }
-    @Override public boolean isCancelled() { return cancelled; }
-    @Override public void setCancelled(boolean cancelled) { this.cancelled = cancelled; }
-    @Override public @NotNull HandlerList getHandlers() { return HANDLERS; }
-    public static HandlerList getHandlerList() { return HANDLERS; }
+    public ReputationScope scope() { synchronized (ru.neverland.core.SuiteState.lock()) { return scope; } }
+    public UUID first() { synchronized (ru.neverland.core.SuiteState.lock()) { return first; } }
+    public UUID second() { synchronized (ru.neverland.core.SuiteState.lock()) { return second; } }
+    public int oldScore() { synchronized (ru.neverland.core.SuiteState.lock()) { return oldScore; } }
+    public int requestedScore() { synchronized (ru.neverland.core.SuiteState.lock()) { return requestedScore; } }
+    public int requestedDelta() { synchronized (ru.neverland.core.SuiteState.lock()) { return requestedScore - oldScore; } }
+    public String source() { synchronized (ru.neverland.core.SuiteState.lock()) { return source; } }
+    public String reason() { synchronized (ru.neverland.core.SuiteState.lock()) { return reason; } }
+    @Override public boolean isCancelled() { synchronized (ru.neverland.core.SuiteState.lock()) { return cancelled; } }
+    @Override public void setCancelled(boolean cancelled) { synchronized (ru.neverland.core.SuiteState.lock()) { this.cancelled = cancelled; } }
+    @Override public @NotNull HandlerList getHandlers() { synchronized (ru.neverland.core.SuiteState.lock()) { return HANDLERS; } }
+    public static HandlerList getHandlerList() { synchronized (ru.neverland.core.SuiteState.lock()) { return HANDLERS; } }
 }

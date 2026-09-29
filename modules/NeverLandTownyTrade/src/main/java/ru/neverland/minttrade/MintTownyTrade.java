@@ -31,10 +31,10 @@ public final class MintTownyTrade extends JavaPlugin {
     private VisualCaravanService visuals;
     private ru.neverland.minttrade.contract.SupplyService supplies;
     private ru.neverland.minttrade.contract.SupplyMenus supplyMenus;
-    public ru.neverland.minttrade.contract.SupplyService supplies(){return supplies;}
+    public ru.neverland.minttrade.contract.SupplyService supplies(){ synchronized (ru.neverland.core.SuiteState.lock()) {return supplies;} }
 
 
-    @Override public void onEnable() {
+    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         ru.neverland.minttrade.util.LegacyDataMigrator.migrate(this, "MintTownyTrade");
@@ -67,15 +67,15 @@ ru.neverland.core.ActivityAdmin.attach(this,"townytrade","minttrade.admin",trade
         getLogger().info("NeverLandTownyTrade " + getPluginMeta().getVersion() + " включён: экспортов " + registry.all().size() + ", склад="
                 + warehouse.available() + ", лагеря=" + (getServer().getPluginManager().isPluginEnabled("NeverLandTownyCamps") || getServer().getPluginManager().isPluginEnabled("MintTownyCamps"))
                 + ", активных перевалочных пунктов=" + campStops + ", налоги=" + taxes.available() + ", PlaceholderAPI=" + placeholders + ".");
-    }
-    @Override public void onDisable() {
+    } }
+    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if(supplyMenus!=null)supplyMenus.stop();if(supplies!=null)supplies.stop(); if (visuals != null) visuals.stop(); if (trade != null) trade.shutdown();
         if (towny != null) towny.unregister("trade"); getServer().getServicesManager().unregisterAll(this);
-    }
-    public void reloadPlugin() {
+    } }
+    public void reloadPlugin() { synchronized (ru.neverland.core.SuiteState.lock()) {
         reloadConfig(); messages.reload(); itemsAdder.reload(); registry.reload(); trade.start(); visuals.start(); supplies.reload();
-    }
+    } }
     private void copy(String name) { if (!new File(getDataFolder(), name).exists()) saveResource(name, false); }
 }

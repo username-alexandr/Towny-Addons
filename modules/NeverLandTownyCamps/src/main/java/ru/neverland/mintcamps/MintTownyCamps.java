@@ -47,7 +47,7 @@ public final class MintTownyCamps extends JavaPlugin {
     private MintCampsExpansion expansion;
 
     @Override
-    public void onEnable() {
+    public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         ru.neverland.mintcamps.util.LegacyDataMigrator.migrate(this, "MintTownyCamps");
@@ -103,10 +103,10 @@ public final class MintTownyCamps extends JavaPlugin {
         holograms.start();
         protection.start();
         getLogger().info("NeverLandTownyCamps 0.1.6 включён: процедурные лагеря готовы.");
-    }
+    } }
 
     @Override
-    public void onDisable() {
+    public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         Bukkit.getServicesManager().unregisterAll(this);
@@ -116,9 +116,9 @@ public final class MintTownyCamps extends JavaPlugin {
         if (teleports != null) teleports.cancelAll();
         if (repository != null && repository.writable()) repository.save();
         if (expansion != null) expansion.unregister();
-    }
+    } }
 
-    public void reloadAll() {
+    public void reloadAll() { synchronized (ru.neverland.core.SuiteState.lock()) {
         reloadConfig();
         messages.reload();
         styles.reload();
@@ -130,14 +130,14 @@ public final class MintTownyCamps extends JavaPlugin {
         startTasks();
         holograms.start();
         protection.start();
-    }
+    } }
 
     private void startTasks() {
         stopTasks();
         long autosave = Math.max(20L, getConfig().getLong("settings.data.autosave-seconds", 60L) * 20L);
-        autosaveTask = Bukkit.getScheduler().runTaskTimer(this, repository::saveIfDirty, autosave, autosave);
+        autosaveTask = ru.neverland.core.SuiteScheduler.get().runTaskTimer(this, repository::saveIfDirty, autosave, autosave);
         long expiry = Math.max(20L, getConfig().getLong("settings.data.expiry-check-seconds", 20L) * 20L);
-        expiryTask = Bukkit.getScheduler().runTaskTimer(this, this::expireCamps, expiry, expiry);
+        expiryTask = ru.neverland.core.SuiteScheduler.get().runTaskTimer(this, this::expireCamps, expiry, expiry);
     }
 
     private void stopTasks() {
@@ -152,7 +152,7 @@ public final class MintTownyCamps extends JavaPlugin {
         for (Camp camp : new ArrayList<>(repository.all())) {
             if (camp.burnUntil() > now && camp.remainingLifeMillis(now, fuel.maximumLifeMillis()) > 0) continue;
             Player owner = Bukkit.getPlayer(camp.ownerId());
-            camps.pack(camp, owner, true);
+            if(camp.anchorLocation()!=null) ru.neverland.core.SuiteScheduler.region(this,camp.anchorLocation(),()->camps.pack(camp,owner,true));
         }
     }
 
@@ -171,7 +171,7 @@ public final class MintTownyCamps extends JavaPlugin {
      * Стабильная точка интеграции для аддонов NeverLand.
      * Репозиторий остаётся владельцем живых объектов лагерей; вызывающий плагин не должен их кэшировать.
      */
-    public CampRepository repository() {
+    public CampRepository repository() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return repository;
-    }
+    } }
 }

@@ -20,20 +20,20 @@ public record Treaty(UUID id, TreatyType type, UUID first, UUID second, UUID fir
                 || phase==Phase.ACTIVE && noticeUntil!=0 || phase==Phase.TERMINATING && (noticeUntil<activated || noticeUntil>expires))
             throw new IllegalArgumentException("Повреждены сроки договора");
     }
-    public boolean party(UUID town) { return first.equals(town)||second.equals(town); }
-    public boolean pair(UUID a,UUID b) { return first.equals(a)&&second.equals(b)||first.equals(b)&&second.equals(a); }
-    public UUID other(UUID town) { if(!party(town))throw new IllegalArgumentException("Город не является стороной");return first.equals(town)?second:first; }
-    public boolean active(long now) { return (phase==Phase.ACTIVE || phase==Phase.TERMINATING) && now<expires && (phase!=Phase.TERMINATING || now<noticeUntil); }
-    public boolean pending(long now) { return phase==Phase.PENDING && now<offerUntil; }
-    public boolean open(long now) { return active(now)||pending(now); }
-    public Treaty accept(long now) {
+    public boolean party(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { return first.equals(town)||second.equals(town); } }
+    public boolean pair(UUID a,UUID b) { synchronized (ru.neverland.core.SuiteState.lock()) { return first.equals(a)&&second.equals(b)||first.equals(b)&&second.equals(a); } }
+    public UUID other(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { if(!party(town))throw new IllegalArgumentException("Город не является стороной");return first.equals(town)?second:first; } }
+    public boolean active(long now) { synchronized (ru.neverland.core.SuiteState.lock()) { return (phase==Phase.ACTIVE || phase==Phase.TERMINATING) && now<expires && (phase!=Phase.TERMINATING || now<noticeUntil); } }
+    public boolean pending(long now) { synchronized (ru.neverland.core.SuiteState.lock()) { return phase==Phase.PENDING && now<offerUntil; } }
+    public boolean open(long now) { synchronized (ru.neverland.core.SuiteState.lock()) { return active(now)||pending(now); } }
+    public Treaty accept(long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!pending(now))throw new IllegalArgumentException("Предложение уже обработано или истекло");
         return copy(Phase.ACTIVE,now,Math.addExact(now,duration),0);
-    }
-    public Treaty terminate(long now,long notice) {
+    } }
+    public Treaty terminate(long now,long notice) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!active(now) || phase==Phase.TERMINATING)throw new IllegalArgumentException("Договор уже завершён или расторгается");
         return type.bilateral() && notice>0 ? copy(Phase.TERMINATING,activated,expires,Math.min(expires,Math.addExact(now,notice))) : end();
-    }
-    public Treaty end() { return copy(Phase.ENDED,activated,expires,noticeUntil); }
+    } }
+    public Treaty end() { synchronized (ru.neverland.core.SuiteState.lock()) { return copy(Phase.ENDED,activated,expires,noticeUntil); } }
     private Treaty copy(Phase next,long start,long until,long end) { return new Treaty(id,type,first,second,firstMayor,secondMayor,actor,reason,next,created,offerUntil,duration,start,until,end,noticePeriod,discountBasisPoints,sanction); }
 }

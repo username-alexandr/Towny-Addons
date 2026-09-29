@@ -12,9 +12,9 @@ public final class UpkeepCommand implements CommandExecutor,TabCompleter {
     public UpkeepCommand(NeverLandTownyUpkeep plugin,UpkeepService service,UpkeepMenu menu){this.plugin=plugin;this.service=service;this.menu=menu;}
     private void count(String[] a,int n,String usage){if(a.length!=n)throw new IllegalArgumentException(usage);}
     private UUID townId(String name){try{return UUID.fromString(name);}catch(IllegalArgumentException ex){Town t=TownyAPI.getInstance().getTown(name);if(t==null)throw new IllegalArgumentException("Город не найден");return t.getUUID();}}
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyUpkeep")){return true;}
         try{execute(sender,args);}catch(Exception ex){Ui.tell(sender,"&c"+(ex.getMessage()==null?"Операция не завершена; проверьте консоль":ex.getMessage()));if(!(ex instanceof IllegalArgumentException||ex instanceof IllegalStateException))plugin.getLogger().log(java.util.logging.Level.WARNING,"Ошибка команды обслуживания",ex);}return true;
-    }
+    } }
     private void execute(CommandSender sender,String[] args)throws Exception{
         String action=args.length==0?"menu":args[0].toLowerCase(Locale.ROOT);
         if(Set.of("reload","pending","resolve","town").contains(action)){
@@ -37,10 +37,10 @@ public final class UpkeepCommand implements CommandExecutor,TabCompleter {
             default->throw new IllegalArgumentException("Справка: /t upkeep help");
         }
     }
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){List<String> values=new ArrayList<>();boolean admin=sender.hasPermission("neverlandtownyupkeep.admin");
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {List<String> values=new ArrayList<>();boolean admin=sender.hasPermission("neverlandtownyupkeep.admin");
         if(args.length==1){if(sender.hasPermission("neverlandtownyupkeep.use"))values.addAll(List.of("menu","info","pay","help"));if(admin)values.addAll(List.of("reload","pending","resolve","town"));}
         else if(args.length==2&&Set.of("info","pay").contains(args[0])&&sender instanceof Player p){var town=service.town(p);if(town!=null)for(var b:service.buildings(town.getUUID()))values.add(b.key().project());}
         else if(args.length==2&&admin&&Set.of("resolve","town").contains(args[0]))for(var t:TownyAPI.getInstance().getTowns())values.add(t.getName());
         else if(args.length==5&&admin&&args[0].equals("resolve"))values.addAll(List.of("paid","unpaid"));
-        String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return values.stream().filter(s->s.toLowerCase(Locale.ROOT).startsWith(prefix)).sorted().toList();}
+        String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return values.stream().filter(s->s.toLowerCase(Locale.ROOT).startsWith(prefix)).sorted().toList();} }
 }

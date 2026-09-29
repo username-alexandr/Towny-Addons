@@ -7,7 +7,7 @@ public final class ResourceTransfer {
     private ResourceTransfer() {
     }
 
-    public static int count(ItemStack[] contents, ItemStack required) {
+    public static int count(ItemStack[] contents, ItemStack required) { synchronized (ru.neverland.core.SuiteState.lock()) {
         int amount = 0;
         for (ItemStack item : contents) {
             if (ResourceMatcher.matches(item, required)) {
@@ -15,12 +15,12 @@ public final class ResourceTransfer {
             }
         }
         return amount;
-    }
+    } }
 
     /**
      * @return количество, которое не удалось удалить
      */
-    public static int remove(ItemStack[] contents, ItemStack required, int amount) {
+    public static int remove(ItemStack[] contents, ItemStack required, int amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
         int remaining = amount;
         for (int index = 0; index < contents.length && remaining > 0; index++) {
             ItemStack item = contents[index];
@@ -34,5 +34,5 @@ public final class ResourceTransfer {
             }
         }
         return remaining;
-    }
+    } }
 }

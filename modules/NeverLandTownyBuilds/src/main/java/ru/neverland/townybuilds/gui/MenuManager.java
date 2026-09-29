@@ -75,10 +75,10 @@ public final class MenuManager implements Listener {
         actionKey = new NamespacedKey(plugin, "action");
     }
 
-    public void openProjects(Player player, ProjectType type) {
+    public void openProjects(Player player, ProjectType type) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (type == ProjectType.BUILDING) openCategories(player);
         else openProjects(player, type, null, 0);
-    }
+    } }
 
     private void openCategories(Player player) {
         Town town = towny.town(player);
@@ -145,10 +145,10 @@ public final class MenuManager implements Listener {
         player.openInventory(inventory);
     }
 
-    public void openDetails(Player player, ProjectDefinition project) {
+    public void openDetails(Player player, ProjectDefinition project) { synchronized (ru.neverland.core.SuiteState.lock()) {
         openDetails(player, project, pageFor(project),
                 project.type() == ProjectType.BUILDING ? project.category() : null);
-    }
+    } }
 
     private void openDetails(Player player, ProjectDefinition project, int page, ProjectCategory category) {
         Town town = towny.town(player);
@@ -244,12 +244,12 @@ public final class MenuManager implements Listener {
         player.openInventory(inventory);
     }
 
-    public void openStorage(Player player) {
+    public void openStorage(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ((ru.neverland.townybuilds.NeverLandTownyBuilds)plugin).storage().openStorage(player,"warehouse");
-    }
+    } }
 
     @EventHandler
-    public void onClick(InventoryClickEvent event) {
+    public void onClick(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         InventoryHolder holder = event.getView().getTopInventory().getHolder(false);
         if (!(event.getWhoClicked() instanceof Player player)) {
             return;
@@ -322,7 +322,7 @@ public final class MenuManager implements Listener {
                 // может восстановить снимок события: прогресс фонда изменится, а предметы вернутся игроку.
                 boolean cityStorage = event.isShiftClick();
                 player.closeInventory();
-                plugin.getServer().getScheduler().runTask(plugin,
+                ru.neverland.core.SuiteScheduler.entity(plugin, player,
                         () -> handleContribution(player, project, cityStorage, details.page()));
             }
             return;
@@ -347,27 +347,27 @@ public final class MenuManager implements Listener {
                 messages.send(player, "storage-withdraw-denied");
             }
         }
-    }
+    } }
 
     @EventHandler
-    public void onDrag(InventoryDragEvent event) {
+    public void onDrag(InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         InventoryHolder holder = event.getView().getTopInventory().getHolder(false);
         if (!(holder instanceof StorageHolder storage) || storage.mayor()) {
             return;
         }
         // Drag в верхнюю часть только добавляет предметы. Drag, затрагивающий лишь нижний инвентарь, тоже безопасен.
         // Забрать предмет посредством InventoryDragEvent невозможно, поэтому событие не блокируется.
-    }
+    } }
 
     @EventHandler
-    public void onClose(InventoryCloseEvent event) {
+    public void onClose(InventoryCloseEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
         InventoryHolder holder = event.getInventory().getHolder(false);
         if (holder instanceof StorageHolder storage) {
             TownData data = dataStore.town(storage.townId());
             data.setStorage(event.getInventory().getContents(), plugin.getConfig().getInt("settings.storage.size", 54));
             dataStore.markDirty();
         }
-    }
+    } }
 
     private void handleUpgrade(Player player, ProjectDefinition project, int page, ProjectCategory category) {
         UpgradeResult result = builds.upgrade(player, project);

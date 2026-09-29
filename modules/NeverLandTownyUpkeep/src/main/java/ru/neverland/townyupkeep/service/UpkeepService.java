@@ -19,12 +19,12 @@ public final class UpkeepService implements TownyUpkeepApi,PaymentProcessor.Stor
     private Map<Key,Cost> quotes=Map.of(),baseQuotes=Map.of();private Map<Key,Integer> levels=Map.of();
     private volatile Map<Key,UpkeepSnapshot> views=Map.of();
     public UpkeepService(JavaPlugin plugin,UpkeepRepository repo,UpkeepSettings settings){this.plugin=plugin;this.repo=repo;this.settings=settings;clock=repo.clock();payments=new PaymentProcessor(this,city);}
-    public UpkeepSettings settings(){return settings;}public boolean fault(){return fault;}
-    public void start()throws Exception{city.verify();scan();task=Bukkit.getScheduler().runTaskTimer(plugin,this::pulse,20,20);}
-    public void stop(){if(task!=null)task.cancel();if(!fault)try{repo.save(clock,repo.entries());}catch(Exception ex){plugin.getLogger().severe("Не сохранены часы обслуживания: "+ex.getMessage());}}
-    public void reload(UpkeepSettings next)throws Exception{
+    public UpkeepSettings settings(){ synchronized (ru.neverland.core.SuiteState.lock()) {return settings;} }public boolean fault(){ synchronized (ru.neverland.core.SuiteState.lock()) {return fault;} }
+    public void start()throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {city.verify();scan();task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::pulse,20,20);} }
+    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(task!=null)task.cancel();if(!fault)try{repo.save(clock,repo.entries());}catch(Exception ex){plugin.getLogger().severe("Не сохранены часы обслуживания: "+ex.getMessage());}} }
+    public void reload(UpkeepSettings next)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {
         city.verify();var previous=settings;settings=next;try{scan();fault=false;publish();}catch(Exception ex){settings=previous;throw ex;}
-    }
+    } }
     private void scan()throws Exception{
         Map<Key,Cost> nextQuotes=new HashMap<>(),nextBase=new HashMap<>();Map<Key,Integer> nextLevels=new HashMap<>();var entries=new HashMap<>(repo.entries());
         for(Town town:List.copyOf(TownyAPI.getInstance().getTowns())){
@@ -51,20 +51,20 @@ public final class UpkeepService implements TownyUpkeepApi,PaymentProcessor.Stor
         boolean active=!fault&&e.invoice()==null&&(!p.enabled()||(e.active()&&e.due()>clock));
         String status=fault?"Ошибка обслуживания — обратитесь к администратору":e.invoice()!=null&&e.invoice().phase()==Phase.MONEY_PENDING?"Списание требует сверки администратора":!p.enabled()?"Обслуживание отключено в настройках":active?e.reason():e.invoice()!=null?"Оплата ещё не завершена":e.active()?"Ожидает оплаты":e.reason();
         next.put(key,new UpkeepSnapshot(key,p.name(),p.icon(),row.getValue(),p.priority(),active,status,Math.max(0,e.due()-clock),quotes.get(key),e.invoice()));}views=Map.copyOf(next);}
-    @Override public Entry get(Key key){return repo.entries().get(key);}
-    @Override public void put(Key key,Entry value)throws Exception{var next=new HashMap<>(repo.entries());next.put(key,value);repo.save(clock,next);publish();}
-    public void retry(UUID town,String project)throws Exception{
+    @Override public Entry get(Key key){ synchronized (ru.neverland.core.SuiteState.lock()) {return repo.entries().get(key);} }
+    @Override public void put(Key key,Entry value)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {var next=new HashMap<>(repo.entries());next.put(key,value);repo.save(clock,next);publish();} }
+    public void retry(UUID town,String project)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {
         thread();var key=new Key(town,project);var view=views.get(key);if(view==null)throw new IllegalArgumentException("Построенное здание не найдено");var e=get(key);
         if(e.invoice()!=null)throw new IllegalArgumentException("Предыдущий счёт ещё обрабатывается; при необходимости обратитесь к администратору");
         if(view.active())throw new IllegalArgumentException("Здание уже активно; следующий период ещё не наступил");put(key,new Entry(false,clock,"Поставлено в очередь оплаты",null));
-    }
-    public void resolve(UUID town,String project,UUID invoice,boolean paid)throws Exception{
+    } }
+    public void resolve(UUID town,String project,UUID invoice,boolean paid)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {
         thread();Key key=new Key(town,project);var e=get(key);if(e==null||e.invoice()==null||!e.invoice().id().equals(invoice))throw new IllegalArgumentException("ID счёта не совпадает");payments.resolve(key,paid);payments.process(key,clock,settings.retry());
-    }
-    private void thread(){if(!Bukkit.isPrimaryThread())throw new IllegalStateException("Нужен основной поток сервера");if(fault)throw new IllegalStateException("Сначала исправьте причину ошибки и выполните reload");}
-    public List<Map.Entry<Key,Entry>> pending(){return repo.entries().entrySet().stream().filter(e->e.getValue().invoice()!=null).toList();}
-    public Town town(Player p){var r=TownyAPI.getInstance().getResident(p);return r==null?null:r.getTownOrNull();}
-    public boolean manager(Player p,Town t){var r=TownyAPI.getInstance().getResident(p);return r!=null&&t.equals(r.getTownOrNull())&&(t.isMayor(r)||r.hasTownRank("assistant")||p.hasPermission("neverlandtownyupkeep.manage"));}
-    @Override public boolean active(UUID town,String project){if(town==null||project==null)return false;var v=views.get(new Key(town,project));return v!=null?v.active():!fault&&!settings.profiles().containsKey(project);}
-    @Override public List<UpkeepSnapshot> buildings(UUID town){return views.values().stream().filter(v->v.key().town().equals(town)).sorted(Comparator.comparingInt(UpkeepSnapshot::priority).thenComparing(v->v.key().project())).toList();}
+    } }
+    private void thread(){if(!ru.neverland.core.SuiteState.held())throw new IllegalStateException("Нужен основной поток сервера");if(fault)throw new IllegalStateException("Сначала исправьте причину ошибки и выполните reload");}
+    public List<Map.Entry<Key,Entry>> pending(){ synchronized (ru.neverland.core.SuiteState.lock()) {return repo.entries().entrySet().stream().filter(e->e.getValue().invoice()!=null).toList();} }
+    public Town town(Player p){ synchronized (ru.neverland.core.SuiteState.lock()) {var r=TownyAPI.getInstance().getResident(p);return r==null?null:r.getTownOrNull();} }
+    public boolean manager(Player p,Town t){ synchronized (ru.neverland.core.SuiteState.lock()) {var r=TownyAPI.getInstance().getResident(p);return r!=null&&t.equals(r.getTownOrNull())&&(t.isMayor(r)||r.hasTownRank("assistant")||p.hasPermission("neverlandtownyupkeep.manage"));} }
+    @Override public boolean active(UUID town,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {if(town==null||project==null)return false;var v=views.get(new Key(town,project));return v!=null?v.active():!fault&&!settings.profiles().containsKey(project);} }
+    @Override public List<UpkeepSnapshot> buildings(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return views.values().stream().filter(v->v.key().town().equals(town)).sorted(Comparator.comparingInt(UpkeepSnapshot::priority).thenComparing(v->v.key().project())).toList();} }
 }

@@ -10,7 +10,7 @@ public final class ResourceBudget {
     private ResourceBudget() {}
 
     public static List<Cost> balance(BuildingBlueprintGenerator generator, String project, int level,
-                                     boolean wonder, List<Cost> original) {
+                                     boolean wonder, List<Cost> original) { synchronized (ru.neverland.core.SuiteState.lock()) {
         int stage = Math.min(level, generator.maximumStage(project));
         var plan = generator.generate(project, stage);
         if (plan == null || original.isEmpty()) return original;
@@ -18,9 +18,9 @@ public final class ResourceBudget {
         double budget = Math.max(32, blocks) * (wonder ? 1.35 : 1.15)
                 * (1 + 0.25 * Math.max(0, level - stage));
         return scale(original, budget);
-    }
+    } }
 
-    public static List<Cost> scale(List<Cost> original, double budget) {
+    public static List<Cost> scale(List<Cost> original, double budget) { synchronized (ru.neverland.core.SuiteState.lock()) {
         double previous = original.stream().mapToDouble(c -> (double) c.amount() * weight(c.material())).sum();
         if (previous <= 0) return original;
         List<Cost> result = new ArrayList<>();
@@ -32,9 +32,9 @@ public final class ResourceBudget {
             result.add(new Cost(cost.material(), amount));
         }
         return List.copyOf(result);
-    }
+    } }
 
-    public static int weight(String material) {
+    public static int weight(String material) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return switch (material) {
             case "NETHER_STAR", "CONDUIT" -> 1024;
             case "NETHERITE_BLOCK" -> 2304;
@@ -51,5 +51,5 @@ public final class ResourceBudget {
             case "IRON_INGOT", "QUARTZ_BLOCK", "SMOOTH_QUARTZ", "QUARTZ_BRICKS" -> 3;
             default -> 1;
         };
-    }
+    } }
 }

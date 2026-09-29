@@ -30,7 +30,7 @@ public final class MintTownyContracts extends JavaPlugin {
     private ContractRepository repository;
     private ContractService contracts;
 
-    @Override public void onEnable() {
+    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         ru.neverland.mintcontracts.util.LegacyDataMigrator.migrate(this, "MintTownyContracts");
@@ -55,20 +55,20 @@ ru.neverland.core.ActivityAdmin.attach(this,"townycontracts","mintcontracts.admi
         contracts.start();
         getLogger().info("NeverLandTownyContracts 0.3.0 включён: шаблонов " + registry.all().size()
                 + ", склад=" + warehouse.available() + ", PlaceholderAPI=" + placeholders + ".");
-    }
+    } }
 
-    @Override public void onDisable() {
+    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (contracts != null) contracts.shutdown();
         if (towny != null) towny.unregister("contracts");
         getServer().getServicesManager().unregisterAll(this);
-    }
+    } }
 
-    public ContractService companyContracts() { return contracts; }
+    public ContractService companyContracts() { synchronized (ru.neverland.core.SuiteState.lock()) { return contracts; } }
 
-    public void reloadPlugin() {
+    public void reloadPlugin() { synchronized (ru.neverland.core.SuiteState.lock()) {
         reloadConfig(); messages.reload(); itemsAdder.reload(); names.reload(); registry.reload(); contracts.reloadRuntime();
-    }
+    } }
     private void copy(String name) { if (!new File(getDataFolder(), name).exists()) saveResource(name, false); }
 }

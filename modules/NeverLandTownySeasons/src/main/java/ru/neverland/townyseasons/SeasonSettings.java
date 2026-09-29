@@ -11,7 +11,7 @@ public record SeasonSettings(Mode mode, int days, long dayMillis, Season first,
         public Effects { production = Map.copyOf(production); events = Map.copyOf(events); }
     }
     public SeasonSettings { worlds = Set.copyOf(worlds); effects = Map.copyOf(effects); }
-    public static SeasonSettings load(ConfigurationSection y) {
+    public static SeasonSettings load(ConfigurationSection y) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Mode mode = Mode.valueOf(SafeYaml.stringValue(y,"calendar.mode").toUpperCase(Locale.ROOT));
         int days = SafeYaml.intValue(y,"calendar.days-per-season");
         long minutes = SafeYaml.longValue(y,"calendar.day-minutes");
@@ -25,7 +25,7 @@ public record SeasonSettings(Mode mode, int days, long dayMillis, Season first,
         }
         return new SeasonSettings(mode,days,minutes*60000,Season.parse(SafeYaml.stringValue(y,"calendar.first-season")),
                 new HashSet<>(SafeYaml.strings(y,"worlds")),SafeYaml.booleanValue(y,"announce"),effects);
-    }
+    } }
     private static Map<String,Double> numbers(ConfigurationSection y,String key,double min,double max) {
         var section=SafeYaml.section(y,key);var out=new HashMap<String,Double>();
         if(section!=null)for(String id:section.getKeys(false)) {

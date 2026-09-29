@@ -31,18 +31,18 @@ public final class EffectService {
         this.definitions = definitions;
     }
 
-    public void start() {
+    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
         stop();
         long period = Math.max(20L, plugin.getConfig().getLong("settings.effects.refresh-ticks", 200L));
-        task = Bukkit.getScheduler().runTaskTimer(plugin, this::refresh, 20L, period);
-    }
+        task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::refresh, 20L, period);
+    } }
 
-    public void stop() {
+    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (task != null) {
             task.cancel();
             task = null;
         }
-    }
+    } }
 
     private void refresh() {
         int duration = Math.max(40, plugin.getConfig().getInt("settings.effects.duration-ticks", 400));
@@ -51,15 +51,15 @@ public final class EffectService {
         boolean icon = plugin.getConfig().getBoolean("settings.effects.icon", true);
         boolean townOnly = plugin.getConfig().getString("settings.effects.scope", "GLOBAL")
                 .toUpperCase(Locale.ROOT).equals("TOWN");
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        ru.neverland.core.SuiteScheduler.players(plugin, player -> {{
             Town town = towny.town(player);
             if (town == null) {
-                continue;
+                return;
             }
             if (townOnly) {
                 Town currentTown = towny.townAt(player.getLocation());
                 if (!town.equals(currentTown)) {
-                    continue;
+                    return;
                 }
             }
             TownData data = dataStore.town(town.getUUID());
@@ -68,7 +68,7 @@ public final class EffectService {
                 int amplifier = Math.max(0, effect.getValue() - 1);
                 player.addPotionEffect(new PotionEffect(effect.getKey(), duration, amplifier, ambient, particles, icon));
             }
-        }
+        }});
     }
 
     private Map<PotionEffectType, Integer> collectEffects(TownData data) {

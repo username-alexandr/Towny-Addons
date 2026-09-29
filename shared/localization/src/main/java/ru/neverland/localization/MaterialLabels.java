@@ -13,44 +13,44 @@ public final class MaterialLabels {
     private static final Map<String, String> BUILTIN = loadBuiltin();
     private final Map<String, String> names = new HashMap<>(BUILTIN);
 
-    public static String canonicalKey(String key) {
+    public static String canonicalKey(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (key == null) return "";
         String normalized = key.trim().toUpperCase(Locale.ROOT);
         if (normalized.startsWith("MINECRAFT:")) normalized = normalized.substring(10);
         normalized = normalized.replace(' ', '_');
         return normalized.equals("CHAIN") ? "IRON_CHAIN" : normalized;
-    }
+    } }
 
-    public static boolean automaticLabel(String key, String label) {
+    public static boolean automaticLabel(String key, String label) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (label == null || label.isBlank()) return true;
         String plain = label.replaceAll("(?i)[&§]#[0-9a-f]{6}|[&§][0-9a-fk-orx]", "").trim();
         return canonicalKey(plain).equals(canonicalKey(key));
-    }
+    } }
 
-    public static String canonicalBlockData(String data) {
+    public static String canonicalBlockData(String data) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (data == null) return null;
         return data.replaceFirst("^(?:minecraft:)?chain(?=\\[|$)", "minecraft:iron_chain");
-    }
+    } }
 
-    public void reset() { names.clear(); names.putAll(BUILTIN); }
+    public void reset() { synchronized (ru.neverland.core.SuiteState.lock()) { names.clear(); names.putAll(BUILTIN); } }
 
-    public void override(String key, String label) {
+    public void override(String key, String label) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String normalized = canonicalKey(key);
         if (label == null || label.isBlank()) return;
         // Old generated English fallbacks must not hide the bundled Russian translation.
         if (names.containsKey(normalized) && automaticLabel(key, label)) return;
         names.put(normalized, label);
-    }
+    } }
 
-    public String name(String key) {
+    public String name(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return names.getOrDefault(canonicalKey(key), "Неизвестный материал");
-    }
+    } }
 
-    public String configuredName(String key, String label) {
+    public String configuredName(String key, String label) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return automaticLabel(key, label) ? name(key) : label;
-    }
+    } }
 
-    public static boolean hasBuiltin(String key) { return BUILTIN.containsKey(canonicalKey(key)); }
+    public static boolean hasBuiltin(String key) { synchronized (ru.neverland.core.SuiteState.lock()) { return BUILTIN.containsKey(canonicalKey(key)); } }
 
     private static Map<String, String> loadBuiltin() {
         Properties properties = new Properties();

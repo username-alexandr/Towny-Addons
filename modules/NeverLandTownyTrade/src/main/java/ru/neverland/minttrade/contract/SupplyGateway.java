@@ -14,21 +14,21 @@ import ru.neverland.integration.TreasuryAccess;
 public final class SupplyGateway implements SupplyProcessor.Gateway {
     private final JavaPlugin plugin;private final TownyHook towny;private final TradeService trade;private final TaxesBridge taxes;
     public SupplyGateway(JavaPlugin plugin,TownyHook towny,TradeService trade,TaxesBridge taxes){this.plugin=plugin;this.towny=towny;this.trade=trade;this.taxes=taxes;}
-    public boolean available(){try{access();return true;}catch(Exception ex){return false;}}
+    public boolean available(){ synchronized (ru.neverland.core.SuiteState.lock()) {try{access();return true;}catch(Exception ex){return false;}} }
     private ru.neverland.core.ApiServices.Connection access(){return ru.neverland.core.ApiServices.require(plugin.getConfig().getString("warehouse.plugin","NeverLandTownyBuilds"),"ru.neverland.townybuilds.api.BuildingStorageApi","reserveTrade","settleTrade","acknowledgeTrade");}
     private Object call(String method,Class<?>[] signature,Object... args)throws Exception {
         try{return access().invoke(method,signature,args);}
         catch(InvocationTargetException ex){if(ex.getCause() instanceof Exception e)throw e;throw new IllegalStateException(ex.getCause());}
     }
-    public String termsReady(SupplyContract c){
+    public String termsReady(SupplyContract c){ synchronized (ru.neverland.core.SuiteState.lock()) {
         Town seller=towny.town(c.terms().seller()),buyer=towny.town(c.terms().buyer());
         if(seller==null||buyer==null)return "Один из городов удалён";
         if(!available())return "Для автопоставок нужен NeverLandTownyBuilds 0.8.7 или новее";
         if(trade.marketLevel(seller)<1||trade.marketLevel(buyer)<1)return "В обоих городах нужен действующий рынок";
         if(!TradeService.importsAllowed(buyer,seller))return "Импорт ограничен политикой покупателя";
         return taxes.supplyRestriction(seller.getUUID(),buyer.getUUID());
-    }
-    @Override public String ready(SupplyContract c){
+    } }
+    @Override public String ready(SupplyContract c){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!plugin.getConfig().getBoolean("contracts.enabled",true))return "Автопоставки отключены администратором";
         String blocked=termsReady(c);if(blocked!=null)return blocked;
         Town buyer=towny.town(c.terms().buyer());
@@ -36,14 +36,14 @@ public final class SupplyGateway implements SupplyProcessor.Gateway {
         try{if(!TreasuryAccess.canSpend(buyer,"infrastructure",c.terms().cents()/100.0))return "Не хватает денег в казне или бюджете инфраструктуры";}
         catch(RuntimeException ex){return "Бюджет инфраструктуры недоступен";}
         return null;
-    }
-    public static ItemStack decode(String data){return ItemStack.deserializeBytes(Base64.getDecoder().decode(data));}
-    @Override public String reserve(SupplyContract c)throws Exception {return (String)call("reserveTrade",new Class<?>[]{UUID.class,UUID.class,UUID.class,ItemStack.class,int.class},c.terms().seller(),c.terms().buyer(),c.attempt().id(),decode(c.terms().itemData()),c.terms().amount());}
-    @Override public String settle(SupplyContract c,boolean deliver)throws Exception {return (String)call("settleTrade",new Class<?>[]{UUID.class,UUID.class,boolean.class},c.terms().seller(),c.attempt().id(),deliver);}
-    public boolean audit(SupplyContract c){if(c.attempt()==null)return true;var t=c.terms();return ru.neverland.core.AuditTrail.record(plugin,c.attempt().phase().name(),c.attempt().id().toString(),"SUPPLY_DEAL",c.attempt().phase().name(),ru.neverland.core.AuditRecord.Party.system(),ru.neverland.core.AuditTrail.town(t.seller()),ru.neverland.core.AuditTrail.town(t.buyer()),ru.neverland.core.AuditTrail.item(decode(t.itemData())),t.amount(),ru.neverland.core.AuditTrail.cents(t.cents()),"contract="+t.id()+"; "+c.note());}
-    @Override public void acknowledge(SupplyContract c)throws Exception {ru.neverland.core.AuditTrail.require(audit(c));call("acknowledgeTrade",new Class<?>[]{UUID.class,UUID.class},c.terms().seller(),c.attempt().id());}
-    @Override public boolean debit(SupplyContract c)throws Exception {return payment(c,false);}
-    @Override public boolean credit(SupplyContract c)throws Exception {return payment(c,true);}
+    } }
+    public static ItemStack decode(String data){ synchronized (ru.neverland.core.SuiteState.lock()) {return ItemStack.deserializeBytes(Base64.getDecoder().decode(data));} }
+    @Override public String reserve(SupplyContract c)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {return (String)call("reserveTrade",new Class<?>[]{UUID.class,UUID.class,UUID.class,ItemStack.class,int.class},c.terms().seller(),c.terms().buyer(),c.attempt().id(),decode(c.terms().itemData()),c.terms().amount());} }
+    @Override public String settle(SupplyContract c,boolean deliver)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {return (String)call("settleTrade",new Class<?>[]{UUID.class,UUID.class,boolean.class},c.terms().seller(),c.attempt().id(),deliver);} }
+    public boolean audit(SupplyContract c){ synchronized (ru.neverland.core.SuiteState.lock()) {if(c.attempt()==null)return true;var t=c.terms();return ru.neverland.core.AuditTrail.record(plugin,c.attempt().phase().name(),c.attempt().id().toString(),"SUPPLY_DEAL",c.attempt().phase().name(),ru.neverland.core.AuditRecord.Party.system(),ru.neverland.core.AuditTrail.town(t.seller()),ru.neverland.core.AuditTrail.town(t.buyer()),ru.neverland.core.AuditTrail.item(decode(t.itemData())),t.amount(),ru.neverland.core.AuditTrail.cents(t.cents()),"contract="+t.id()+"; "+c.note());} }
+    @Override public void acknowledge(SupplyContract c)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.AuditTrail.require(audit(c));call("acknowledgeTrade",new Class<?>[]{UUID.class,UUID.class},c.terms().seller(),c.attempt().id());} }
+    @Override public boolean debit(SupplyContract c)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {return payment(c,false);} }
+    @Override public boolean credit(SupplyContract c)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {return payment(c,true);} }
     private boolean payment(SupplyContract c,boolean deposit)throws Exception {
         Town town=towny.town(deposit?c.terms().seller():c.terms().buyer());if(town==null)return false;
         Account account=town.getAccount();String token="[supply:"+c.attempt().id()+"]";
@@ -52,8 +52,8 @@ public final class SupplyGateway implements SupplyProcessor.Gateway {
             private void record(Account source,double amount,String reason,boolean incoming){
                 if(source==account&&incoming==deposit&&reason!=null&&reason.contains(token)&&Math.abs(amount-value)<0.000001)observed[0]=true;
             }
-            public void withdrew(Account source,double amount,String reason){record(source,amount,reason,false);}
-            public void deposited(Account source,double amount,String reason){record(source,amount,reason,true);}
+            public void withdrew(Account source,double amount,String reason){ synchronized (ru.neverland.core.SuiteState.lock()) {record(source,amount,reason,false);} }
+            public void deposited(Account source,double amount,String reason){ synchronized (ru.neverland.core.SuiteState.lock()) {record(source,amount,reason,true);} }
         };
         synchronized(account){
             account.addObserver(observer);

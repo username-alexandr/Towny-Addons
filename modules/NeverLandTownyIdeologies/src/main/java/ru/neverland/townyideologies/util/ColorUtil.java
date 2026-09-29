@@ -17,15 +17,15 @@ public final class ColorUtil {
     private ColorUtil() {
     }
 
-    public static String color(String input) {
+    public static String color(String input) { synchronized (ru.neverland.core.SuiteState.lock()) {
         char[] characters = expandHex(input == null ? "" : input).toCharArray();
         for (int index = 0; index < characters.length - 1; index++) {
             if (characters[index] == '&' && VALID_CODES.indexOf(characters[index + 1]) >= 0) characters[index] = '§';
         }
         return new String(characters);
-    }
+    } }
 
-    public static Component component(String input) {
+    public static Component component(String input) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String value = color(input);
         Component result = Component.empty();
         StringBuilder text = new StringBuilder();
@@ -80,11 +80,11 @@ public final class ColorUtil {
             }
         }
         return append(result, text, color, obfuscated, bold, strikethrough, underlined, italic);
-    }
+    } }
 
-    public static String strip(String input) {
+    public static String strip(String input) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return FORMATTING.matcher(expandHex(input == null ? "" : input)).replaceAll("");
-    }
+    } }
 
     private static String expandHex(String input) {
         Matcher matcher = HEX.matcher(input);
@@ -113,12 +113,12 @@ public final class ColorUtil {
         return result.append(part);
     }
 
-    public static String strip(Component component) {
+    public static String strip(Component component) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (component == null) return "";
         StringBuilder result = new StringBuilder();
         appendPlain(component, result);
         return result.toString();
-    }
+    } }
 
     private static void appendPlain(Component component, StringBuilder result) {
         if (component instanceof TextComponent text) result.append(text.content());

@@ -62,20 +62,20 @@ public final class BonusService implements Listener {
         this.healthKey = new NamespacedKey(plugin, "health_bonus");
     }
 
-    public void start() {
+    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
         stopTask();
         long refresh = Math.max(20L, plugin.getConfig().getLong("settings.effects.refresh-ticks", 40L));
-        task = Bukkit.getScheduler().runTaskTimer(plugin, this::refreshPlayers, 1L, refresh);
-    }
+        task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::refreshPlayers, 1L, refresh);
+    } }
 
-    public void stop() {
+    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) {
         stopTask();
-        for (Player player : Bukkit.getOnlinePlayers()) removeHealthBonus(player);
+        ru.neverland.core.SuiteScheduler.players(plugin, player -> {removeHealthBonus(player);});
         combatUntil.clear();
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onGrow(BlockGrowEvent event) {
+    public void onGrow(BlockGrowEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         Town town = towny.townAt(event.getBlock().getLocation());
         TownIdeology ideology = current(town, "agriculture");
         if (ideology == null) return;
@@ -89,56 +89,56 @@ public final class BonusService implements Listener {
             ageable.setAge(Math.min(ageable.getMaximumAge(), ageable.getAge() + extra));
             event.getNewState().setBlockData(ageable);
         }
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onSmelt(FurnaceStartSmeltEvent event) {
+    public void onSmelt(FurnaceStartSmeltEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         Town town = towny.townAt(event.getBlock().getLocation());
         TownIdeology ideology = current(town, "industry");
         if (ideology == null) return;
         double multiplier = registry.levelDouble("industry", "smelt-multiplier", ideology.level(), 1.0D);
         if (multiplier > 1.0D) event.setTotalCookTime(Math.max(1, (int) Math.ceil(event.getTotalCookTime() / multiplier)));
-    }
+    } }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlace(BlockPlaceEvent event) {
+    public void onPlace(BlockPlaceEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!ideologies.active(event.getPlayer(), "infrastructure", true)) return;
         TownIdeology ideology = ideologies.get(event.getPlayer()).orElse(null);
         if (ideology == null) return;
         int cooldown = Math.max(0, registry.levelInt("infrastructure", "placement-cooldown-ticks", ideology.level(), 0));
         ItemStack used = event.getItemInHand();
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        ru.neverland.core.SuiteScheduler.get().runTask(plugin, () -> {
             if (event.getPlayer().isOnline()) event.getPlayer().setCooldown(used.getType(), cooldown);
         });
-    }
+    } }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onMinecartEnter(VehicleEnterEvent event) {
+    public void onMinecartEnter(VehicleEnterEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getVehicle() instanceof Minecart minecart) || !(event.getEntered() instanceof Player player)) return;
         if (!ideologies.active(player, "infrastructure", true)) return;
         TownIdeology ideology = ideologies.get(player).orElse(null);
         if (ideology == null) return;
         double multiplier = registry.levelDouble("infrastructure", "minecart-multiplier", ideology.level(), 1.0D);
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        ru.neverland.core.SuiteScheduler.get().runTask(plugin, () -> {
             if (player.isInsideVehicle() && player.getVehicle() == minecart) {
                 minecart.setMaxSpeed(VANILLA_MINECART_SPEED * Math.max(1.0D, multiplier));
             }
         });
-    }
+    } }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onMinecartExit(VehicleExitEvent event) {
+    public void onMinecartExit(VehicleExitEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getVehicle() instanceof Minecart minecart)) return;
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        ru.neverland.core.SuiteScheduler.get().runTask(plugin, () -> {
             boolean infrastructurePassenger = minecart.getPassengers().stream()
                     .filter(Player.class::isInstance).map(Player.class::cast)
                     .anyMatch(player -> ideologies.active(player, "infrastructure", true));
             if (!infrastructurePassenger && minecart.isValid()) minecart.setMaxSpeed(VANILLA_MINECART_SPEED);
         });
-    }
+    } }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onCombat(EntityDamageByEntityEvent event) {
+    public void onCombat(EntityDamageByEntityEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         long seconds = Math.max(1L, plugin.getConfig().getLong("settings.effects.defense-combat-seconds", 15L));
         long until = System.currentTimeMillis() + seconds * 1000L;
         if (event.getEntity() instanceof Player victim && ideologies.active(victim, "defense", true)) {
@@ -148,10 +148,10 @@ public final class BonusService implements Listener {
         if (attacker != null && ideologies.active(attacker, "defense", true)) {
             combatUntil.put(attacker.getUniqueId(), until);
         }
-    }
+    } }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onTrade(PlayerTradeEvent event) {
+    public void onTrade(PlayerTradeEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         Player player = event.getPlayer();
         if (!ideologies.active(player, "trade", true)) return;
         TownIdeology ideology = ideologies.get(player).orElse(null);
@@ -164,27 +164,27 @@ public final class BonusService implements Listener {
         if (ThreadLocalRandom.current().nextDouble() < expected - bonus) bonus++;
         if (bonus <= 0) return;
         int amount = bonus;
-        Bukkit.getScheduler().runTask(plugin, () -> giveTradeBonus(player, result, amount));
-    }
+        ru.neverland.core.SuiteScheduler.get().runTask(plugin, () -> giveTradeBonus(player, result, amount));
+    } }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
+    public void onQuit(PlayerQuitEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
         combatUntil.remove(event.getPlayer().getUniqueId());
         removeHealthBonus(event.getPlayer());
-    }
+    } }
 
     private void refreshPlayers() {
         long now = System.currentTimeMillis();
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        ru.neverland.core.SuiteScheduler.players(plugin, player -> {{
             refreshHealth(player);
             Long until = combatUntil.get(player.getUniqueId());
             if (until == null || until < now || !ideologies.active(player, "defense", true)) {
                 if (until != null && until < now) combatUntil.remove(player.getUniqueId());
-                continue;
+                return;
             }
             TownIdeology ideology = ideologies.get(player).orElse(null);
             if (ideology != null) applyDefense(player, ideology.level());
-        }
+        }});
     }
 
     private void refreshHealth(Player player) {

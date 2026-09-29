@@ -45,7 +45,7 @@ public final class TownyClaimAdapter {
     }
 
     @SuppressWarnings("unchecked")
-    public List<WorldCoord> validateAndCharge(Player player, Town town, List<WorldCoord> requested) throws TownyException {
+    public List<WorldCoord> validateAndCharge(Player player, Town town, List<WorldCoord> requested) throws TownyException { synchronized (ru.neverland.core.SuiteState.lock()) {
         invoke(catchRuined, player);
         invoke(catchBankrupt, town);
         List<WorldCoord> accepted = (List<WorldCoord>) invoke(vetSelection, player, town, new ArrayList<>(requested));
@@ -53,22 +53,22 @@ public final class TownyClaimAdapter {
         invoke(firePreClaim, player, town, false, accepted);
         invoke(vetPayment, player, town, false, accepted);
         return new ArrayList<>(accepted);
-    }
+    } }
 
-    public boolean canAfford(Town town, int count) throws TownyException {
+    public boolean canAfford(Town town, int count) throws TownyException { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!TownyEconomyHandler.isActive()) return true;
         if (town.getAccount() == null) return false;
         double cost = count == 1 ? town.getTownBlockCost() : town.getTownBlockCostN(count);
         return town.getAccount().canPayFromHoldings(cost);
-    }
+    } }
 
-    public void claimAsync(Player player, Town town, List<WorldCoord> accepted, Consumer<List<WorldCoord>> callback) {
+    public void claimAsync(Player player, Town town, List<WorldCoord> accepted, Consumer<List<WorldCoord>> callback) { synchronized (ru.neverland.core.SuiteState.lock()) {
         List<WorldCoord> mutable = new ArrayList<>(accepted);
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        ru.neverland.core.SuiteScheduler.get().runTaskAsynchronously(plugin, () -> {
             new TownClaim(Towny.getPlugin(), player, town, mutable, false, true, false).run();
-            Bukkit.getScheduler().runTask(plugin, () -> callback.accept(List.copyOf(mutable)));
+            ru.neverland.core.SuiteScheduler.entity(plugin, player, () -> callback.accept(List.copyOf(mutable)));
         });
-    }
+    } }
 
     private static Method method(String name, Class<?>... parameters) throws ReflectiveOperationException {
         Method method = TownCommand.class.getDeclaredMethod(name, parameters);

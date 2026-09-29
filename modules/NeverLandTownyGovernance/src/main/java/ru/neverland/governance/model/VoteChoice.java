@@ -5,7 +5,7 @@ import java.util.Locale;
 public enum VoteChoice {
     YES, NO, ABSTAIN;
 
-    public static VoteChoice parse(String value) {
+    public static VoteChoice parse(String value) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (value == null) return null;
         return switch (value.toLowerCase(Locale.ROOT)) {
             case "yes", "for", "за", "y" -> YES;
@@ -13,5 +13,5 @@ public enum VoteChoice {
             case "abstain", "skip", "воздерживаюсь", "воздержался", "a" -> ABSTAIN;
             default -> null;
         };
-    }
+    } }
 }

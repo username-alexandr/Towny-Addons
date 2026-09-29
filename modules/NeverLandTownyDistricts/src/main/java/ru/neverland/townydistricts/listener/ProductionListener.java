@@ -13,7 +13,7 @@ public final class ProductionListener implements Listener {
     private final DistrictService service;
     public ProductionListener(DistrictService service){this.service=service;}
     @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
-    public void smelt(FurnaceSmeltEvent event){
+    public void smelt(FurnaceSmeltEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDistricts")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if(!service.settings().furnaces()||event.getResult().hasItemMeta()||event.getSource().hasItemMeta())return;
         var block=event.getBlock();var d=service.districtAt(block.getWorld().getUID(),block.getX(),block.getZ()).orElse(null);
         if(d==null||d.type()!=DistrictType.INDUSTRIAL)return;
@@ -24,14 +24,14 @@ public final class ProductionListener implements Listener {
         int space=result.getMaxStackSize()-(existing==null||existing.getType().isAir()?0:existing.getAmount());
         int amount=DistrictRules.output(result.getAmount(),service.districtMultiplier(d),ThreadLocalRandom.current().nextDouble(),space);
         if(amount!=result.getAmount()){result.setAmount(amount);event.setResult(result);}
-    }
+    } }
     @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
-    public void grow(BlockGrowEvent event){
+    public void grow(BlockGrowEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDistricts")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if(!service.settings().crops()||!(event.getNewState().getBlockData() instanceof Ageable crop)||crop.getAge()>=crop.getMaximumAge())return;
         var block=event.getBlock();var d=service.districtAt(block.getWorld().getUID(),block.getX(),block.getZ()).orElse(null);
         if(d==null||d.type()!=DistrictType.AGRICULTURAL)return;
         var town=TownyAPI.getInstance().getTown(block.getLocation());if(town==null||!town.getUUID().equals(d.town()))return;
         double chance=Math.min(1,service.districtMultiplier(d)-1);
         if(ThreadLocalRandom.current().nextDouble()<chance){crop.setAge(crop.getAge()+1);event.getNewState().setBlockData(crop);}
-    }
+    } }
 }

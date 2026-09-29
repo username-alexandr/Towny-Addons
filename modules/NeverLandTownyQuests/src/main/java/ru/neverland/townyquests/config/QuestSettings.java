@@ -20,22 +20,22 @@ public record QuestSettings(int interval, int resourceMaxAge, Map<String, Projec
         projects.get(id).requires().forEach(child -> visit(child, projects, path, done));
         path.remove(id); done.add(id);
     }
-    public static int integer(Object raw) {
+    public static int integer(Object raw) { synchronized (ru.neverland.core.SuiteState.lock()) {
         try { return new BigDecimal(String.valueOf(raw)).intValueExact(); }
         catch (Exception ex) { throw new IllegalArgumentException("Нужно целое число: " + raw); }
-    }
-    public static List<String> strings(Object raw) {
+    } }
+    public static List<String> strings(Object raw) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!(raw instanceof List<?> list)) throw new IllegalArgumentException("Нужен список");
         var result = new ArrayList<String>();
         for (var value : list) { if (!(value instanceof String s)) throw new IllegalArgumentException("Нужна строка"); result.add(s); }
         return List.copyOf(result);
-    }
-    public static ConfigurationSection section(ConfigurationSection parent, String key) {
+    } }
+    public static ConfigurationSection section(ConfigurationSection parent, String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
         var s = parent.getConfigurationSection(key);
         if (s == null) throw new IllegalArgumentException("Нет раздела " + key);
         return s;
-    }
-    public static Project project(String id, ConfigurationSection s) {
+    } }
+    public static Project project(String id, ConfigurationSection s) { synchronized (ru.neverland.core.SuiteState.lock()) {
         var stages = new ArrayList<Project.Stage>(); var root = section(s, "stages");
         for (String key : root.getKeys(false)) {
             var stage = section(root, key);
@@ -44,19 +44,19 @@ public record QuestSettings(int interval, int resourceMaxAge, Map<String, Projec
         }
         return new Project(id, s.getString("name"), s.getString("icon"), strings(s.get("requires")),
                 s.getString("unlock"), s.getString("reward"), stages);
-    }
-    public static QuestSettings load(ConfigurationSection config, ConfigurationSection quests) {
+    } }
+    public static QuestSettings load(ConfigurationSection config, ConfigurationSection quests) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Map<String, Project> projects = new LinkedHashMap<>(); var root = section(quests, "projects");
         for (String id : root.getKeys(false)) projects.put(id, project(id, section(root, id)));
         return new QuestSettings(integer(config.get("simulation.interval-seconds", 5)),
                 integer(config.get("simulation.resource-max-age-seconds", 180)), projects);
-    }
-    public static void writeProject(ConfigurationSection s, Project p) {
+    } }
+    public static void writeProject(ConfigurationSection s, Project p) { synchronized (ru.neverland.core.SuiteState.lock()) {
         s.set("name", p.name()); s.set("icon", p.icon()); s.set("requires", p.requires());
         s.set("unlock", p.unlock()); s.set("reward", p.reward()); var stages = s.createSection("stages");
         for (var stage : p.stages()) {
             var v = stages.createSection(stage.id()); v.set("name", stage.name()); v.set("type", stage.kind().name());
             v.set("building", stage.building()); v.set("target", stage.target()); v.set("hold-seconds", stage.holdSeconds());
         }
-    }
+    } }
 }

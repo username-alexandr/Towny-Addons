@@ -32,7 +32,7 @@ public final class StickCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){return true;}
         if (!(sender instanceof Player player)) {
             messages.send(sender, "players-only");
             return true;
@@ -46,7 +46,7 @@ public final class StickCommand implements CommandExecutor {
             case "help", "?" -> help(player);
             default -> help(player);
         };
-    }
+    } }
 
     private boolean claim(Player player) {
         claims.start(player);

@@ -13,11 +13,11 @@ import java.util.*;
 public final class DistrictMenu implements Listener {
     private static final class View implements InventoryHolder{
         final UUID town;final Map<Integer,String[]> actions=new HashMap<>();Inventory inventory;
-        View(UUID town){this.town=town;}public Inventory getInventory(){return inventory;}
+        View(UUID town){this.town=town;}public Inventory getInventory(){ synchronized (ru.neverland.core.SuiteState.lock()) {return inventory;} }
     }
     private final Plugin plugin;private final DistrictService service;private final DistrictCommand command;
     public DistrictMenu(Plugin plugin,DistrictService service,DistrictCommand command){this.plugin=plugin;this.service=service;this.command=command;}
-    public void open(Player player,UUID townId,String districtId,int requestedPage){
+    public void open(Player player,UUID townId,String districtId,int requestedPage){ synchronized (ru.neverland.core.SuiteState.lock()) {
         var town=service.town(player);if(town==null||!town.getUUID().equals(townId)||!player.hasPermission("neverlandtownydistricts.use"))return;
         View v=new View(townId);v.inventory=ru.neverland.core.MenuStyle.inventory(plugin, v,54,color("&2"+(districtId==null?"Районы города":"Район: "+service.require(townId,districtId).name())));
         boolean manager=service.manager(player,town);
@@ -63,20 +63,20 @@ public final class DistrictMenu implements Listener {
             if(page+1<pages)button(v,53,Material.ARROW,"&aДалее",new String[]{"info",districtId,String.valueOf(page+1)});
         }
         player.openInventory(v.inventory);
-    }
+    } }
     private static String percent(double n){return String.format(Locale.ROOT,"+%.0f%%",(n-1)*100);}
     private Material material(String name){Material m=Material.matchMaterial(name);return m==null||!m.isItem()?Material.BRICKS:m;}
     private void button(View v,int slot,Material material,String title,String[] action,String... lore){v.inventory.setItem(slot,item(material,title,lore));v.actions.put(slot,action);}
     private ItemStack item(Material material,String title,String... lore){var item=new ItemStack(material);var meta=item.getItemMeta();meta.setDisplayName(ru.neverland.core.MenuStyle.nameLegacy(color(title)));meta.setLore(ru.neverland.core.MenuStyle.loreStrings(Arrays.stream(lore).map(s->color("&7"+s)).toList()));item.setItemMeta(meta);return item;}
     private static String color(String text){return ChatColor.translateAlternateColorCodes('&',text);}
-    @EventHandler public void click(InventoryClickEvent event){
+    @EventHandler public void click(InventoryClickEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDistricts")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if(!(event.getView().getTopInventory().getHolder() instanceof View view))return;event.setCancelled(true);
         if(!(event.getWhoClicked() instanceof Player player)||event.getRawSlot()<0||event.getRawSlot()>=54)return;
         var action=view.actions.get(event.getRawSlot());if(action==null)return;
-        Bukkit.getScheduler().runTask(plugin,()->{if(!player.isOnline()||player.getOpenInventory().getTopInventory().getHolder()!=view)return;
+        ru.neverland.core.SuiteScheduler.entity(plugin, player,()->{if(!player.isOnline()||player.getOpenInventory().getTopInventory().getHolder()!=view)return;
             var town=service.town(player);if(town==null||!town.getUUID().equals(view.town)){player.closeInventory();return;}
             command.onCommand(player,null,"townydistricts",action);
         });
-    }
-    @EventHandler public void drag(InventoryDragEvent event){if(event.getView().getTopInventory().getHolder() instanceof View)event.setCancelled(true);}
+    } }
+    @EventHandler public void drag(InventoryDragEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDistricts")){ru.neverland.core.ModuleGate.stopEvent(event);return;}if(event.getView().getTopInventory().getHolder() instanceof View)event.setCancelled(true);} }
 }

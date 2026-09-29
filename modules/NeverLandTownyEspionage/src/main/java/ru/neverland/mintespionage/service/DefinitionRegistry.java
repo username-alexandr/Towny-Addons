@@ -16,7 +16,7 @@ import java.util.Map;
 public final class DefinitionRegistry {
     private final JavaPlugin plugin; private final Map<String,OperationDefinition> definitions=new LinkedHashMap<>();
     public DefinitionRegistry(JavaPlugin plugin){this.plugin=plugin;reload();}
-    public void reload(){
+    public void reload(){ synchronized (ru.neverland.core.SuiteState.lock()) {
         definitions.clear();YamlConfiguration yaml=YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(),"operations.yml"));
         ConfigurationSection root=yaml.getConfigurationSection("operations");if(root==null){plugin.getLogger().severe("operations.yml не содержит раздел operations.");return;}
         for(String rawId:root.getKeys(false)){
@@ -29,8 +29,8 @@ public final class DefinitionRegistry {
                     clamp(section.getDouble("success-chance",.7)),clamp(section.getDouble("detection-chance",.2)));
             definitions.put(id,definition);
         }
-    }
-    public OperationDefinition get(String id){return id==null?null:definitions.get(id.toLowerCase(Locale.ROOT));}
-    public Collection<OperationDefinition> all(){return List.copyOf(definitions.values());}
+    } }
+    public OperationDefinition get(String id){ synchronized (ru.neverland.core.SuiteState.lock()) {return id==null?null:definitions.get(id.toLowerCase(Locale.ROOT));} }
+    public Collection<OperationDefinition> all(){ synchronized (ru.neverland.core.SuiteState.lock()) {return List.copyOf(definitions.values());} }
     private double clamp(double value){return Math.max(0,Math.min(1,value));}
 }

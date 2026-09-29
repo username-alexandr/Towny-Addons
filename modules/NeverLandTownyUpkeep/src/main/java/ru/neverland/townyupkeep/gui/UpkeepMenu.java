@@ -14,11 +14,11 @@ public final class UpkeepMenu implements Listener {
     private static final class View implements InventoryHolder {
         final UUID town;final int page;final String project;final Map<Integer,Runnable> actions=new HashMap<>();Inventory inventory;
         View(UUID town,int page,String project){this.town=town;this.page=page;this.project=project;}
-        @Override public Inventory getInventory(){return inventory;}
+        @Override public Inventory getInventory(){ synchronized (ru.neverland.core.SuiteState.lock()) {return inventory;} }
     }
     public UpkeepMenu(org.bukkit.plugin.Plugin plugin,UpkeepService service){this.plugin=plugin;this.service=service;}
     private boolean access(Player p,UUID town){var t=service.town(p);return p.hasPermission("neverlandtownyupkeep.admin")||(p.hasPermission("neverlandtownyupkeep.use")&&t!=null&&t.getUUID().equals(town));}
-    public void open(Player p,UUID town,int requested,String project){
+    public void open(Player p,UUID town,int requested,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!access(p,town)){tell(p,"&cНет доступа к обслуживанию этого города.");return;}
         var buildings=service.buildings(town);int pages=Math.max(1,(buildings.size()+35)/36);int page=Math.max(0,Math.min(pages-1,requested));var v=new View(town,page,project);
         v.inventory=ru.neverland.core.MenuStyle.inventory(plugin, v,54,color("&6Обслуживание города"));
@@ -35,7 +35,7 @@ public final class UpkeepMenu implements Listener {
         }
         button(v,49,Material.CLOCK,"&aОбновить",List.of("Страница "+(page+1)+" / "+pages),()->open(p,town,page,project));
         button(v,48,Material.CHEST,"&eРесурсы города",List.of("Открыть стратегические запасы."),()->p.performCommand("townyresources"));if(Bukkit.getPluginManager().getPlugin("NeverLandTownyPower")!=null)button(v,50,Material.REDSTONE,"&eЭнергоснабжение",List.of("Для работы зданию может требоваться питание."),()->p.performCommand("townypower"));p.openInventory(v.inventory);
-    }
+    } }
     private List<String> lore(UpkeepSnapshot b){var lines=new ArrayList<String>();lines.add(b.active()?"&aОБСЛУЖИВАЕТСЯ":"&cБЕЗ ОБСЛУЖИВАНИЯ");lines.add(b.status());lines.add("Завершённый уровень: "+b.level());lines.add("До оплаты / повтора: "+b.seconds()+" сек. работы сервера");lines.add("Оценка следующего периода:");lines.addAll(cost(b.cost()));return lines;}
     private void detail(Player p,View v,UpkeepSnapshot b){
         button(v,13,icon(b.icon()),"&e"+b.name(),lore(b),null);
@@ -47,6 +47,6 @@ public final class UpkeepMenu implements Listener {
         button(v,45,Material.ARROW,"&aВсе здания",List.of(),()->open(p,v.town,v.page,null));
     }
     private void button(View v,int slot,Material icon,String name,List<String> lore,Runnable action){var item=new ItemStack(icon);var meta=item.getItemMeta();meta.setDisplayName(ru.neverland.core.MenuStyle.nameLegacy(color(name)));meta.setLore(ru.neverland.core.MenuStyle.loreStrings(lore.stream().map(s->color("&7"+s)).toList()));item.setItemMeta(meta);v.inventory.setItem(slot,item);if(action!=null)v.actions.put(slot,action);}
-    @EventHandler public void click(InventoryClickEvent e){if(!(e.getView().getTopInventory().getHolder() instanceof View v))return;e.setCancelled(true);if(!(e.getWhoClicked() instanceof Player p))return;if(!access(p,v.town)){p.closeInventory();return;}var action=v.actions.get(e.getRawSlot());if(action!=null)Bukkit.getScheduler().runTask(plugin,()->{if(p.isOnline()&&p.getOpenInventory().getTopInventory().getHolder()==v&&access(p,v.town))action.run();});}
-    @EventHandler public void drag(InventoryDragEvent e){if(e.getView().getTopInventory().getHolder() instanceof View)e.setCancelled(true);}
+    @EventHandler public void click(InventoryClickEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyUpkeep")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(!(e.getView().getTopInventory().getHolder() instanceof View v))return;e.setCancelled(true);if(!(e.getWhoClicked() instanceof Player p))return;if(!access(p,v.town)){p.closeInventory();return;}var action=v.actions.get(e.getRawSlot());if(action!=null)ru.neverland.core.SuiteScheduler.entity(plugin, p,()->{if(p.isOnline()&&p.getOpenInventory().getTopInventory().getHolder()==v&&access(p,v.town))action.run();});} }
+    @EventHandler public void drag(InventoryDragEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyUpkeep")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(e.getView().getTopInventory().getHolder() instanceof View)e.setCancelled(true);} }
 }

@@ -6,7 +6,7 @@ import java.util.*;
 public final class WaterCoverage {
     private WaterCoverage() {}
     public record Cell(UUID world, int x, int z) { public Cell { Objects.requireNonNull(world); } }
-    public static Set<String> supplied(Set<Cell> owned, Set<Cell> aqueduct, Map<String, Set<Cell>> districts) {
+    public static Set<String> supplied(Set<Cell> owned, Set<Cell> aqueduct, Map<String, Set<Cell>> districts) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (aqueduct.isEmpty() || !owned.containsAll(aqueduct)) return Set.of();
         Set<Cell> reached = new HashSet<>(aqueduct);
         var pending = new ArrayDeque<>(aqueduct);
@@ -19,5 +19,5 @@ public final class WaterCoverage {
         Set<String> result = new TreeSet<>();
         districts.forEach((id, cells) -> { if (!cells.isEmpty() && reached.containsAll(cells)) result.add(id); });
         return Set.copyOf(result);
-    }
+    } }
 }

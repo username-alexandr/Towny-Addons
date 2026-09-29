@@ -10,7 +10,7 @@ public final class SiegeCommand implements TabExecutor {
     private final NeverLandTownySiegesPlus plugin;private final SiegeService service;private final SiegeMenu menu;
     public SiegeCommand(NeverLandTownySiegesPlus plugin,SiegeService service,SiegeMenu menu){this.plugin=plugin;this.service=service;this.menu=menu;}
     static void tell(CommandSender p,String text){p.sendMessage(MenuStyle.decode("&6[Осады] &f"+text));}
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){return true;}
         try{
             if(!sender.hasPermission("neverlandtownysiegesplus.use"))throw new IllegalArgumentException("Недостаточно прав");
             String action=args.length==0?"menu":args[0].toLowerCase(Locale.ROOT);
@@ -22,11 +22,11 @@ public final class SiegeCommand implements TabExecutor {
             }
         }catch(Exception|LinkageError e){tell(sender,"&c"+e.getMessage());}
         return true;
-    }
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){
+    } }
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!sender.hasPermission("neverlandtownysiegesplus.use"))return List.of();
         var out=new ArrayList<String>();if(args.length==1){out.addAll(List.of("menu","help"));if(sender.hasPermission("neverlandtownysiegesplus.admin"))out.addAll(List.of("status","reload"));}
         if(args.length==2&&args[0].equalsIgnoreCase("menu"))TownyAPI.getInstance().getTowns().forEach(t->out.add(t.getName()));
         String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return out.stream().filter(s->s.toLowerCase(Locale.ROOT).startsWith(prefix)).sorted().limit(60).toList();
-    }
+    } }
 }

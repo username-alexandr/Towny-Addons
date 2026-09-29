@@ -7,7 +7,7 @@ import com.palmergames.bukkit.towny.TownyAPI;
 public final class ElectionsCommand implements TabExecutor {
     private final NeverLandTownyElections plugin;private final ElectionsService service;private final ElectionsMenus menus;
     public ElectionsCommand(NeverLandTownyElections plugin,ElectionsService service,ElectionsMenus menus){this.plugin=plugin;this.service=service;this.menus=menus;}
-    public static void help(CommandSender s){
+    public static void help(CommandSender s){ synchronized (ru.neverland.core.SuiteState.lock()) {
         s.sendMessage("§6Выборы города §8• §f/t elections");
         s.sendMessage("§e/t elections candidate <должность> §7— выдвинуть себя");
         s.sendMessage("§e/t elections withdraw §7— снять кандидатуру до голосования");
@@ -18,8 +18,8 @@ public final class ElectionsCommand implements TabExecutor {
             s.sendMessage("§c/elections resume <город> <UUID кампании> §7— применить сохранённые итоги после проверки");
             s.sendMessage("§c/elections abort <город> <UUID кампании> §7— закрыть кампанию, сохранив текущую власть");
         }
-    }
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){
+    } }
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyElections")){return true;}
         try {
             if(!sender.hasPermission("townyelections.use"))throw new IllegalArgumentException("Нет разрешения townyelections.use.");
             String action=args.length==0?"menu":args[0].toLowerCase(Locale.ROOT);
@@ -59,13 +59,13 @@ public final class ElectionsCommand implements TabExecutor {
             }
         }catch(Exception ex){sender.sendMessage("§cВыборы: "+(ex.getMessage()==null?ex.getClass().getSimpleName():ex.getMessage()));}
         return true;
-    }
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String label,String[] args){
+    } }
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
         var values=new ArrayList<String>();
         if(args.length==1){values.addAll(List.of("menu","candidate","withdraw","vote","results","history","help"));if(sender.hasPermission("townyelections.admin"))values.addAll(List.of("start","resume","abort","reload"));}
         else if(args.length==2 && Set.of("candidate","vote").contains(args[0]))values.addAll(service.settings().seats().keySet());
         else if(args.length==2 && sender.hasPermission("townyelections.admin") && Set.of("start","resume","abort").contains(args[0]))TownyAPI.getInstance().getTowns().forEach(t->values.add(t.getName()));
         else if(args.length==3 && args[0].equals("vote") && sender instanceof Player p)try{var town=ElectionsService.requireTown(p);service.state(town).candidates.forEach((id,r)->{if(r.equals(args[1]))values.add(ElectionsMenus.residentName(id));});}catch(Exception ignored){}
         String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return values.stream().filter(s->s.toLowerCase(Locale.ROOT).startsWith(prefix)).sorted().toList();
-    }
+    } }
 }

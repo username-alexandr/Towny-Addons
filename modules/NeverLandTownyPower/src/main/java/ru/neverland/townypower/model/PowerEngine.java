@@ -18,9 +18,9 @@ public final class PowerEngine {
     public record Allocation(String project,int level,int priority,boolean powered,long generation,long demand,long supplied,Status status) {}
     public record Grid(long generation,long demand,long supplied,Map<String,Allocation> buildings) {
         public Grid{buildings=Collections.unmodifiableMap(new LinkedHashMap<>(buildings));if(generation<0||demand<0||supplied<0||supplied>generation||supplied>demand)throw new IllegalArgumentException("Нарушен баланс мощности");}
-        public long spare(){return generation-supplied;}public long deficit(){return demand-supplied;}
+        public long spare(){ synchronized (ru.neverland.core.SuiteState.lock()) {return generation-supplied;} }public long deficit(){ synchronized (ru.neverland.core.SuiteState.lock()) {return demand-supplied;} }
     }
-    public static Grid calculate(Map<String,PowerProfile> profiles,Map<String,Building> buildings,TownPowerState town){
+    public static Grid calculate(Map<String,PowerProfile> profiles,Map<String,Building> buildings,TownPowerState town){ synchronized (ru.neverland.core.SuiteState.lock()) {
         List<PowerProfile> ordered=new ArrayList<>(profiles.values());ordered.sort(Comparator.comparingInt((PowerProfile p)->town.priorities().getOrDefault(p.id(),p.priority())).thenComparing(PowerProfile::id));
         Map<String,Allocation> result=new LinkedHashMap<>();long generation=0,demand=0,used=0;
         for(var p:ordered){var b=buildings.get(p.id());int level=b==null?0:b.level(),priority=town.priorities().getOrDefault(p.id(),p.priority());
@@ -38,5 +38,5 @@ public final class PowerEngine {
             if(a.demand()<=generation-used){used=Math.addExact(used,a.demand());result.put(p.id(),new Allocation(a.project(),a.level(),a.priority(),true,0,a.demand(),a.demand(),Status.SUPPLIED));}
         }
         return new Grid(generation,demand,used,result);
-    }
+    } }
 }

@@ -22,7 +22,7 @@ public final class DevelopmentService {
         this.plugin = plugin;
     }
 
-    public double protection(UUID townId, EventDefinition definition) {
+    public double protection(UUID townId, EventDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
         double result = 0;
         for (Map.Entry<String, Double> entry : definition.buildingModifiers().entrySet()) {
             result += buildingLevel(townId, entry.getKey()) * entry.getValue();
@@ -31,19 +31,19 @@ public final class DevelopmentService {
             result += ideologyLevel(townId, entry.getKey()) * entry.getValue();
         }
         return Math.min(definition.mitigationCap(), Math.max(0, result));
-    }
+    } }
 
-    public Map<String, Integer> buildingLevels(UUID townId, EventDefinition definition) {
+    public Map<String, Integer> buildingLevels(UUID townId, EventDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Map<String, Integer> result = new HashMap<>();
         for (String id : definition.buildingModifiers().keySet()) result.put(id, buildingLevel(townId, id));
         return result;
-    }
+    } }
 
-    public Map<String, Integer> ideologyLevels(UUID townId, EventDefinition definition) {
+    public Map<String, Integer> ideologyLevels(UUID townId, EventDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Map<String, Integer> result = new HashMap<>();
         for (String id : definition.ideologyModifiers().keySet()) result.put(id, ideologyLevel(townId, id));
         return result;
-    }
+    } }
 
     private int buildingLevel(UUID townId, String id) {
         if(!ru.neverland.integration.BuildingOperations.active(townId,id))return 0;
@@ -106,7 +106,7 @@ public final class DevelopmentService {
         return null;
     }
 
-    public void clearCache() { cache.clear(); }
+    public void clearCache() { synchronized (ru.neverland.core.SuiteState.lock()) { cache.clear(); } }
 
     private interface LevelCall { int level(); }
     private record CachedYaml(YamlConfiguration yaml, long modified, long loadedAt) {}

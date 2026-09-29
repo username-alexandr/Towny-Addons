@@ -13,7 +13,7 @@ public final class BorderGeometry {
     private BorderGeometry() { }
 
     /** Builds only the outside perimeter: shared edges between adjacent cells are omitted. */
-    public static List<BorderEdge> outsideEdges(Collection<CellKey> cells, int cellSize) {
+    public static List<BorderEdge> outsideEdges(Collection<CellKey> cells, int cellSize) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Set<CellKey> occupied = new HashSet<>(cells);
         List<BorderEdge> edges = new ArrayList<>();
         for (CellKey cell : cells) {
@@ -31,10 +31,10 @@ public final class BorderGeometry {
                 edges.add(new BorderEdge(cell.world(), maxX, minZ, maxX, maxZ));
         }
         return List.copyOf(edges);
-    }
+    } }
 
     /** Selected cells are outlined one by one so the player can see every selected TownBlock. */
-    public static List<BorderEdge> individualEdges(Collection<CellKey> cells, int cellSize) {
+    public static List<BorderEdge> individualEdges(Collection<CellKey> cells, int cellSize) { synchronized (ru.neverland.core.SuiteState.lock()) {
         List<BorderEdge> edges = new ArrayList<>(cells.size() * 4);
         for (CellKey cell : cells) {
             int minX = cell.minBlockX(cellSize);
@@ -47,5 +47,5 @@ public final class BorderGeometry {
             edges.add(new BorderEdge(cell.world(), maxX, minZ, maxX, maxZ));
         }
         return List.copyOf(edges);
-    }
+    } }
 }

@@ -48,96 +48,96 @@ public final class CampProtectionListener implements Listener {
         this.messages = messages;
     }
 
-    public void start() {
+    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
         stop();
-        barrierTask = Bukkit.getScheduler().runTaskTimer(plugin, this::purgeHostiles, 20L, 20L);
-    }
+        barrierTask = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::purgeHostiles, 20L, 20L);
+    } }
 
-    public void stop() {
+    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (barrierTask != null) barrierTask.cancel();
         barrierTask = null;
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onBreak(BlockBreakEvent event) {
+    public void onBreak(BlockBreakEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (protect(event.getBlock(), event.getPlayer())) event.setCancelled(true);
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPlace(BlockPlaceEvent event) {
+    public void onPlace(BlockPlaceEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (protect(event.getBlock(), event.getPlayer())) event.setCancelled(true);
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onEmpty(PlayerBucketEmptyEvent event) {
+    public void onEmpty(PlayerBucketEmptyEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (protect(event.getBlock(), event.getPlayer())) event.setCancelled(true);
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onFill(PlayerBucketFillEvent event) {
+    public void onFill(PlayerBucketFillEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (protect(event.getBlock(), event.getPlayer())) event.setCancelled(true);
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onEntityExplode(EntityExplodeEvent event) {
+    public void onEntityExplode(EntityExplodeEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!enabled("prevent-explosions")) return;
         event.blockList().removeIf(block -> repository.findAt(block.getLocation()).isPresent());
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onBlockExplode(BlockExplodeEvent event) {
+    public void onBlockExplode(BlockExplodeEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!enabled("prevent-explosions")) return;
         event.blockList().removeIf(block -> repository.findAt(block.getLocation()).isPresent());
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onIgnite(BlockIgniteEvent event) {
+    public void onIgnite(BlockIgniteEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (enabled("prevent-fire") && repository.findAt(event.getBlock().getLocation()).isPresent()) event.setCancelled(true);
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onBurn(BlockBurnEvent event) {
+    public void onBurn(BlockBurnEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (enabled("prevent-fire") && repository.findAt(event.getBlock().getLocation()).isPresent()) event.setCancelled(true);
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onSpread(BlockSpreadEvent event) {
+    public void onSpread(BlockSpreadEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (enabled("prevent-fire") && repository.findAt(event.getBlock().getLocation()).isPresent()) event.setCancelled(true);
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onFlow(BlockFromToEvent event) {
+    public void onFlow(BlockFromToEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (enabled("prevent-block-changes") && repository.findAt(event.getToBlock().getLocation()).isPresent()) event.setCancelled(true);
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPiston(BlockPistonExtendEvent event) {
+    public void onPiston(BlockPistonExtendEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!enabled("prevent-block-changes")) return;
         for (Block block : event.getBlocks()) if (repository.findAt(block.getLocation()).isPresent()
                 || repository.findAt(block.getRelative(event.getDirection()).getLocation()).isPresent()) {
             event.setCancelled(true);
             return;
         }
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onPiston(BlockPistonRetractEvent event) {
+    public void onPiston(BlockPistonRetractEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!enabled("prevent-block-changes")) return;
         for (Block block : event.getBlocks()) if (repository.findAt(block.getLocation()).isPresent()) {
             event.setCancelled(true);
             return;
         }
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onTarget(EntityTargetLivingEntityEvent event) {
+    public void onTarget(EntityTargetLivingEntityEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getTarget() instanceof Player player) || !hostile(event.getEntity())) return;
         Camp camp = repository.findAt(player.getLocation()).orElse(null);
         if (activeBarrier(camp) && repository.findAt(event.getEntity().getLocation()).orElse(null) != camp) event.setCancelled(true);
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onDamage(EntityDamageByEntityEvent event) {
+    public void onDamage(EntityDamageByEntityEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getEntity() instanceof Player player)) return;
         Entity attacker = event.getDamager();
         if (attacker instanceof Projectile projectile) {
@@ -147,7 +147,7 @@ public final class CampProtectionListener implements Listener {
         if (!hostile(attacker)) return;
         Camp camp = repository.findAt(player.getLocation()).orElse(null);
         if (activeBarrier(camp) && repository.findAt(attacker.getLocation()).orElse(null) != camp) event.setCancelled(true);
-    }
+    } }
 
     private boolean protect(Block block, Player player) {
         if (!enabled("prevent-block-changes") || player.hasPermission("mintcamps.bypass.protection")) return false;
@@ -157,27 +157,13 @@ public final class CampProtectionListener implements Listener {
     }
 
     private void purgeHostiles() {
-        if (!plugin.getConfig().getBoolean("settings.protection.enabled", true)) return;
-        long now = System.currentTimeMillis();
-        for (Camp camp : repository.all()) {
-            if (!camp.mobsDisabled() || camp.burnUntil() <= now) continue;
-            Location center = camp.anchorLocation();
-            if (center == null || !center.getWorld().isChunkLoaded(center.getBlockX() >> 4, center.getBlockZ() >> 4)) continue;
-            int radius = plugin.getConfig().getInt("settings.levels." + camp.level() + ".radius", 6);
-            Iterator<Entity> iterator = center.getWorld().getNearbyEntities(center, radius, radius + 8, radius).iterator();
-            while (iterator.hasNext()) {
-                Entity entity = iterator.next();
-                if (!(entity instanceof LivingEntity living) || !hostile(living)) continue;
-                if (plugin.getConfig().getBoolean("settings.protection.holy-fire-particles", true)) {
-                    living.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, living.getLocation().add(0, 1, 0), 18, .35, .55, .35, .025);
-                }
-                if (plugin.getConfig().getBoolean("settings.protection.holy-fire-sound", true)) {
-                    living.getWorld().playSound(living.getLocation(), Sound.ENTITY_BLAZE_HURT, .65F, 1.45F);
-                }
-                if (plugin.getConfig().getBoolean("settings.protection.instant-kill-hostile-mobs", true)) living.remove();
-                else living.damage(plugin.getConfig().getDouble("settings.protection.hostile-mob-damage", 1000D));
-            }
-        }
+        if (!plugin.getConfig().getBoolean("settings.protection.enabled",true)) return;
+        ru.neverland.core.WorldTasks.eachEntity(plugin,entity->{
+            if(!(entity instanceof LivingEntity living)||!hostile(living))return;
+            Camp camp=repository.findAt(living.getLocation()).orElse(null);if(!activeBarrier(camp))return;
+            if(plugin.getConfig().getBoolean("settings.protection.holy-fire-particles",true))living.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME,living.getLocation().add(0,1,0),18,.35,.55,.35,.025);
+            if(plugin.getConfig().getBoolean("settings.protection.instant-kill-hostile-mobs",true))living.remove();else living.damage(plugin.getConfig().getDouble("settings.protection.hostile-mob-damage",1000D));
+        });
     }
 
     private boolean activeBarrier(Camp camp) {

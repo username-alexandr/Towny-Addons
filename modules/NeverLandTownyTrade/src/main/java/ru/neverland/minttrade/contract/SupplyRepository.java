@@ -10,17 +10,17 @@ import static ru.neverland.minttrade.contract.SupplyContract.*;
 public final class SupplyRepository implements SupplyProcessor.Store {
     private final Path path;private volatile Map<UUID,SupplyContract> contracts=Map.of();private boolean writable;
     private final ru.neverland.core.ReputationOutbox reputation = new ru.neverland.core.ReputationOutbox();
-    public int pendingReputation(){return reputation.size();}
-    public void flushReputation(){reputation.flush(this::writable,()->{try{save(contracts);}catch(IOException ex){throw new java.io.UncheckedIOException(ex);}});}
-    @Override public void put(SupplyContract contract,List<ru.neverland.core.ReputationOutcome> outcomes)throws IOException {
+    public int pendingReputation(){ synchronized (ru.neverland.core.SuiteState.lock()) {return reputation.size();} }
+    public void flushReputation(){ synchronized (ru.neverland.core.SuiteState.lock()) {reputation.flush(this::writable,()->{try{save(contracts);}catch(IOException ex){throw new java.io.UncheckedIOException(ex);}});} }
+    @Override public void put(SupplyContract contract,List<ru.neverland.core.ReputationOutcome> outcomes)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!writable())throw new IOException("Журнал договоров остановлен");
         outcomes.forEach(reputation::add);put(contract);
-    }
+    } }
     public SupplyRepository(Path path){this.path=path;}
-    public boolean writable(){return writable&&ru.neverland.core.AtomicFiles.writable(path);}
-    public Collection<SupplyContract> all(){return contracts.values();}
-    @Override public SupplyContract get(UUID id){return contracts.get(id);}
-    public void load()throws IOException {
+    public boolean writable(){ synchronized (ru.neverland.core.SuiteState.lock()) {return writable&&ru.neverland.core.AtomicFiles.writable(path);} }
+    public Collection<SupplyContract> all(){ synchronized (ru.neverland.core.SuiteState.lock()) {return contracts.values();} }
+    @Override public SupplyContract get(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {return contracts.get(id);} }
+    public void load()throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         writable=false;reputation.load(new YamlConfiguration());Map<UUID,SupplyContract> next=new LinkedHashMap<>();
         if(Files.exists(path))try {
             var yaml=new YamlConfiguration();yaml.load(path.toFile());
@@ -30,14 +30,14 @@ public final class SupplyRepository implements SupplyProcessor.Store {
             for(String id:root.getKeys(false)){var c=read(UUID.fromString(id),root.getConfigurationSection(id));next.put(c.terms().id(),c);}
         }catch(Exception ex){throw new IOException("contracts-data.yml повреждён; автопоставки остановлены",ex);}
         contracts=Collections.unmodifiableMap(next);ru.neverland.core.AtomicFiles.loaded(path);writable=true;
-    }
-    @Override public void put(SupplyContract contract)throws IOException {
+    } }
+    @Override public void put(SupplyContract contract)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         var next=new LinkedHashMap<>(contracts);next.put(contract.terms().id(),contract);save(next);
-    }
-    public void prune(int closedLimit)throws IOException {
+    } }
+    public void prune(int closedLimit)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         var closed=contracts.values().stream().filter(c->!c.open()).sorted(Comparator.comparingLong((SupplyContract c)->c.terms().created()).reversed()).toList();
         if(closed.size()<=closedLimit)return;var next=new LinkedHashMap<>(contracts);closed.subList(closedLimit,closed.size()).forEach(c->next.remove(c.terms().id()));save(next);
-    }
+    } }
     private void save(Map<UUID,SupplyContract> next)throws IOException {
         if(!writable)throw new IOException("Журнал договоров остановлен после ошибки; исправьте файл и выполните reload");
         try {
@@ -46,12 +46,12 @@ public final class SupplyRepository implements SupplyProcessor.Store {
             reputation.write(yaml);atomic(yaml,path);contracts=Collections.unmodifiableMap(new LinkedHashMap<>(next));
         }catch(IOException|RuntimeException ex){writable=false;throw new IOException("Не удалось сохранить договоры; выполнение остановлено",ex);}
     }
-    public static void atomic(YamlConfiguration yaml,Path path)throws IOException {ru.neverland.core.AtomicFiles.write(path,yaml::saveToString);
-    }
+    public static void atomic(YamlConfiguration yaml,Path path)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.AtomicFiles.write(path,yaml::saveToString);
+    } }
     private static String string(ConfigurationSection s,String key)throws IOException {if(!s.isString(key))throw new IOException("Нет строки "+key);return s.getString(key);}
     private static long number(ConfigurationSection s,String key)throws IOException {Object n=s.get(key);if(!(n instanceof Number v)||v.doubleValue()!=v.longValue())throw new IOException("Нет целого числа "+key);return v.longValue();}
     private static int integer(ConfigurationSection s,String key)throws IOException{return Math.toIntExact(number(s,key));}
-    public static SupplyContract read(UUID id,ConfigurationSection s)throws IOException {
+    public static SupplyContract read(UUID id,ConfigurationSection s)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(s==null)throw new IOException("Нет записи договора");
         var terms=new Terms(id,UUID.fromString(string(s,"seller")),UUID.fromString(string(s,"buyer")),string(s,"item-data"),string(s,"item-name"),integer(s,"amount"),number(s,"cents"),integer(s,"days"),number(s,"created"),number(s,"expires"));
         if(!s.isList("paused")||!s.isList("history"))throw new IOException("Нет истории/паузы договора");
@@ -59,11 +59,11 @@ public final class SupplyRepository implements SupplyProcessor.Store {
         List<Receipt> history=new ArrayList<>();for(Object o:s.getList("history")){if(!(o instanceof Map<?,?> row)||!(row.get("at") instanceof Number n))throw new IOException("Повреждена квитанция");history.add(new Receipt(UUID.fromString((String)row.get("id")),n.longValue()));}
         Attempt attempt=null;if(s.contains("attempt")){var a=s.getConfigurationSection("attempt");if(a==null)throw new IOException("Повреждена попытка");attempt=new Attempt(UUID.fromString(string(a,"id")),Phase.valueOf(string(a,"phase")),number(a,"started"));}
         return new SupplyContract(terms,Status.valueOf(string(s,"status")),paused,number(s,"due"),number(s,"check"),number(s,"deliveries"),history,string(s,"note"),attempt);
-    }
-    public static void write(ConfigurationSection s,SupplyContract c){
+    } }
+    public static void write(ConfigurationSection s,SupplyContract c){ synchronized (ru.neverland.core.SuiteState.lock()) {
         var t=c.terms();s.set("seller",t.seller().toString());s.set("buyer",t.buyer().toString());s.set("item-data",t.itemData());s.set("item-name",t.itemName());s.set("amount",t.amount());s.set("cents",t.cents());s.set("days",t.days());s.set("created",t.created());s.set("expires",t.expires());
         s.set("status",c.status().name());s.set("paused",c.pausedBy().stream().map(UUID::toString).sorted().toList());s.set("due",c.nextDue());s.set("check",c.nextCheck());s.set("deliveries",c.deliveries());s.set("note",c.note());
         s.set("history",c.history().stream().map(r->Map.of("id",r.id().toString(),"at",r.at())).toList());
         if(c.attempt()!=null){s.set("attempt.id",c.attempt().id().toString());s.set("attempt.phase",c.attempt().phase().name());s.set("attempt.started",c.attempt().started());}
-    }
+    } }
 }

@@ -16,7 +16,7 @@ public final class BfsPlanner {
 
     private BfsPlanner() { }
 
-    public static Plan plan(Collection<CellKey> selectedCells, Collection<CellKey> townCells) {
+    public static Plan plan(Collection<CellKey> selectedCells, Collection<CellKey> townCells) { synchronized (ru.neverland.core.SuiteState.lock()) {
         LinkedHashSet<CellKey> selected = new LinkedHashSet<>(selectedCells);
         Set<CellKey> town = new HashSet<>(townCells);
         Set<CellKey> visited = new HashSet<>();
@@ -37,5 +37,5 @@ public final class BfsPlanner {
 
         List<CellKey> unreachable = selected.stream().filter(cell -> !visited.contains(cell)).toList();
         return new Plan(List.copyOf(ordered), unreachable);
-    }
+    } }
 }

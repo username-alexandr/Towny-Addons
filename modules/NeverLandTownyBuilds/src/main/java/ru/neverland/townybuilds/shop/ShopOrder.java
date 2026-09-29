@@ -9,9 +9,9 @@ public record ShopOrder(UUID id,UUID seller,UUID buyer,String material,int amoun
     public ShopOrder {
         if(sellerIncome<1||sellerIncome>unit*amount||id==null||seller==null||buyer==null||material==null||!material.matches("[A-Z0-9_]+")||amount<1||amount>64||unit<1||unit>100_000_000_000L/amount||created<0||check<0||!STEPS.contains(paymentStep)||note==null||finalized&&!Set.of("COMPLETE","CANCELLED").contains(paymentStep))throw new IllegalArgumentException("Повреждена покупка городской лавки");
     }
-    public boolean city(){return false;}
-    public long total(){return unit*amount;}
-    public ShopOrder paymentStep(String phase,long at,String reason){return new ShopOrder(id,seller,buyer,material,amount,unit,created,phase,at,reason,false,sellerIncome);}
-    public ShopOrder finish(){return new ShopOrder(id,seller,buyer,material,amount,unit,created,paymentStep,check,note,true,sellerIncome);}
-    public String title(){return switch(paymentStep){case "PREPARED"->"Подготовка покупки";case "DEBIT_PENDING"->"Списание требует сверки";case "PAID","DELIVERED"->"Покупка обрабатывается";case "CREDIT_PENDING"->"Зачисление требует сверки";case "RETURNING"->"Возвращается резерв товара";case "COMPLETE"->finalized?"Покупка получена":"Можно забрать покупку";default->"Покупка отменена";};}
+    public boolean city(){ synchronized (ru.neverland.core.SuiteState.lock()) {return false;} }
+    public long total(){ synchronized (ru.neverland.core.SuiteState.lock()) {return unit*amount;} }
+    public ShopOrder paymentStep(String phase,long at,String reason){ synchronized (ru.neverland.core.SuiteState.lock()) {return new ShopOrder(id,seller,buyer,material,amount,unit,created,phase,at,reason,false,sellerIncome);} }
+    public ShopOrder finish(){ synchronized (ru.neverland.core.SuiteState.lock()) {return new ShopOrder(id,seller,buyer,material,amount,unit,created,paymentStep,check,note,true,sellerIncome);} }
+    public String title(){ synchronized (ru.neverland.core.SuiteState.lock()) {return switch(paymentStep){case "PREPARED"->"Подготовка покупки";case "DEBIT_PENDING"->"Списание требует сверки";case "PAID","DELIVERED"->"Покупка обрабатывается";case "CREDIT_PENDING"->"Зачисление требует сверки";case "RETURNING"->"Возвращается резерв товара";case "COMPLETE"->finalized?"Покупка получена":"Можно забрать покупку";default->"Покупка отменена";};} }
 }

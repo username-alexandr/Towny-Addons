@@ -4,7 +4,7 @@ import java.util.function.BooleanSupplier;
 public final class BudgetDebit {
     public interface Journal {CityLedger get();void put(CityLedger value)throws Exception;void flush()throws Exception;void fault(Exception error);}
     private BudgetDebit(){}
-    public static boolean execute(Journal journal,CityLedger.Pending pending,BooleanSupplier bank,BooleanSupplier observed){
+    public static boolean execute(Journal journal,CityLedger.Pending pending,BooleanSupplier bank,BooleanSupplier observed){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!LedgerEngine.canSpend(journal.get(),pending.category(),pending.amount()))return false;
         try{journal.put(LedgerEngine.prepare(journal.get(),pending));}catch(Exception ex){journal.fault(ex);return false;}
         boolean returned=false;RuntimeException failure=null;
@@ -13,5 +13,5 @@ public final class BudgetDebit {
         if(observed.getAsBoolean())return true;
         if(returned||failure!=null)throw new IllegalStateException("Результат списания не подтверждён: нужна сверка счёта "+pending.id(),failure);
         return false;
-    }
+    } }
 }

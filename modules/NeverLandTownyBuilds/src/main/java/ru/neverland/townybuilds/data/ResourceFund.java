@@ -19,11 +19,11 @@ public final class ResourceFund {
         this.targetLevel = targetLevel;
     }
 
-    public int targetLevel() {
+    public int targetLevel() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return targetLevel;
-    }
+    } }
 
-    public int count(ItemStack template) {
+    public int count(ItemStack template) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (template == null) return 0;
         template = ru.neverland.townybuilds.service.ConstructionSupply.migrate(template);
         for (Entry entry : entries) {
@@ -32,9 +32,9 @@ public final class ResourceFund {
             }
         }
         return 0;
-    }
+    } }
 
-    public void add(ItemStack template, int amount) {
+    public void add(ItemStack template, int amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (template == null || amount <= 0) return;
         template = ru.neverland.townybuilds.service.ConstructionSupply.migrate(template);
         for (Entry entry : entries) {
@@ -46,17 +46,17 @@ public final class ResourceFund {
         ItemStack stored = template.clone();
         stored.setAmount(1);
         entries.add(new Entry(stored, amount));
-    }
+    } }
 
-    public List<Snapshot> entries() {
+    public List<Snapshot> entries() { synchronized (ru.neverland.core.SuiteState.lock()) {
         List<Snapshot> result = new ArrayList<>(entries.size());
         for (Entry entry : entries) {
             result.add(new Snapshot(entry.template.clone(), entry.amount));
         }
         return List.copyOf(result);
-    }
+    } }
 
-    public List<Snapshot> surplus(List<ItemStack> requirements) {
+    public List<Snapshot> surplus(List<ItemStack> requirements) { synchronized (ru.neverland.core.SuiteState.lock()) {
         List<Snapshot> result = new ArrayList<>();
         for (Entry entry : entries) {
             int needed = requirements.stream().filter(r -> ResourceMatcher.matches(entry.template, r))
@@ -64,7 +64,7 @@ public final class ResourceFund {
             if (entry.amount > needed) result.add(new Snapshot(entry.template, entry.amount - needed));
         }
         return List.copyOf(result);
-    }
+    } }
 
     private static final class Entry {
         private final ItemStack template;
@@ -82,8 +82,8 @@ public final class ResourceFund {
         }
 
         @Override
-        public ItemStack template() {
+        public ItemStack template() { synchronized (ru.neverland.core.SuiteState.lock()) {
             return template.clone();
-        }
+        } }
     }
 }

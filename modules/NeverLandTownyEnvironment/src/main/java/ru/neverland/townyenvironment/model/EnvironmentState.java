@@ -6,6 +6,6 @@ public record EnvironmentState(double pollution, long cycles, boolean paused) {
         if (!Double.isFinite(pollution) || pollution < 0 || pollution > 100 || cycles < 0)
             throw new IllegalArgumentException("Некорректное состояние экологии");
     }
-    public static EnvironmentState clean() { return new EnvironmentState(0, 0, false); }
-    public EnvironmentState paused(boolean value) { return new EnvironmentState(pollution, cycles, value); }
+    public static EnvironmentState clean() { synchronized (ru.neverland.core.SuiteState.lock()) { return new EnvironmentState(0, 0, false); } }
+    public EnvironmentState paused(boolean value) { synchronized (ru.neverland.core.SuiteState.lock()) { return new EnvironmentState(pollution, cycles, value); } }
 }

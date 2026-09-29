@@ -36,7 +36,7 @@ public final class MintTownyExpeditions extends JavaPlugin {
    private ExpeditionService service;
    private TownyHook towny;
 
-   public void onEnable() {
+   public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
       LegacyDataMigrator.migrate(this, "MintTownyExpeditions");
@@ -86,9 +86,9 @@ ru.neverland.core.ActivityAdmin.attach(this,"townyexpeditions","mintexpeditions.
                + this.registry.all().size()
                + " экспедиций, команды /t expeditions готовы."
          );
-   }
+   } }
 
-   public void onDisable() {
+   public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
       if (this.service != null) {
@@ -104,16 +104,16 @@ ru.neverland.core.ActivityAdmin.attach(this,"townyexpeditions","mintexpeditions.
             this.towny.unregister(name);
          }
       }
-   }
+   } }
 
-   public void reloadAll() {
+   public void reloadAll() { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.reloadConfig();
       this.messages.reload();
       this.itemsAdder.reload();
       this.itemNames.reload();
       this.registry.reload();
       this.service.startTasks();
-   }
+   } }
 
    private void copy(String name) {
       if (!new File(this.getDataFolder(), name).exists()) {
@@ -131,11 +131,11 @@ ru.neverland.core.ActivityAdmin.attach(this,"townyexpeditions","mintexpeditions.
       }
    }
 
-   public MessageService messages() {
+   public MessageService messages() { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.messages;
-   }
+   } }
 
-   public ExpeditionService service() {
+   public ExpeditionService service() { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.service;
-   }
+   } }
 }

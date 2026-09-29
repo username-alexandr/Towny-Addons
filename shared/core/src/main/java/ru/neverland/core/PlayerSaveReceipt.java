@@ -25,8 +25,8 @@ public final class PlayerSaveReceipt {
       this.before = before;
    }
 
-   public static PlayerSaveReceipt before(Player player) {
-      if (!Bukkit.isPrimaryThread()) {
+   public static PlayerSaveReceipt before(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+      if (!ru.neverland.core.SuiteState.held()) {
          throw new IllegalStateException("Сохранение игрока требует основного потока");
       } else {
          Path root = ((World)Bukkit.getWorlds().get(0)).getWorldFolder().toPath();
@@ -44,10 +44,10 @@ public final class PlayerSaveReceipt {
             throw new UncheckedIOException("Нельзя проверить исходные данные игрока", var6);
          }
       }
-   }
+   } }
 
-   public void save(Player player) {
-      if (!Bukkit.isPrimaryThread()) {
+   public void save(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+      if (!ru.neverland.core.SuiteState.held()) {
          throw new IllegalStateException("Сохранение игрока требует основного потока");
       } else {
          player.saveData();
@@ -68,7 +68,7 @@ public final class PlayerSaveReceipt {
             throw new UncheckedIOException("Выдача/приём предметов требует сверки: сохранение игрока не подтверждено", var9);
          }
       }
-   }
+   } }
 
    private static byte[] digest(Path file) throws IOException {
       try {

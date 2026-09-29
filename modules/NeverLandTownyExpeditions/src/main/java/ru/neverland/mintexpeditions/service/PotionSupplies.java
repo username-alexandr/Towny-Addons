@@ -10,7 +10,7 @@ import org.bukkit.potion.PotionType;
 public final class PotionSupplies {
     private PotionSupplies() {}
 
-    public static List<String> migrate(String expedition, List<String> costs) {
+    public static List<String> migrate(String expedition, List<String> costs) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!expedition.equals("royal_galleon") && !expedition.equals("drowned_temple")) return costs;
         if (costs.stream().noneMatch(s -> s.matches("(?i)POTION(?::[0-9]+)?"))) return costs;
         List<String> result = new ArrayList<>();
@@ -20,9 +20,9 @@ public final class PotionSupplies {
         result.add("POTION:WATER_BREATHING:2");
         result.add("POTION:NIGHT_VISION:2");
         return result;
-    }
+    } }
 
-    public static ItemStack create(String key) {
+    public static ItemStack create(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String[] parts = key.split(":");
         if (parts.length != 2 || !parts[0].equalsIgnoreCase("POTION")) return null;
         PotionType type = PotionType.valueOf(parts[1].toUpperCase(java.util.Locale.ROOT));
@@ -31,9 +31,9 @@ public final class PotionSupplies {
         meta.setBasePotionType(type);
         item.setItemMeta(meta);
         return item;
-    }
+    } }
 
-    public static String name(PotionType type) {
+    public static String name(PotionType type) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (type == null) return null;
         return switch (type) {
             case WATER_BREATHING -> "Зелье подводного дыхания (3:00)";
@@ -42,5 +42,5 @@ public final class PotionSupplies {
             case LONG_NIGHT_VISION -> "Зелье ночного зрения (8:00)";
             default -> null;
         };
-    }
+    } }
 }

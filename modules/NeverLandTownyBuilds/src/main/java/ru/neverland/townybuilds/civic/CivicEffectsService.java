@@ -59,34 +59,34 @@ public final class CivicEffectsService implements TownyBuildsApi {
     private final DataStore dataStore;private final TownyHook towny;private final JavaPlugin plugin;
     private final ru.neverland.townybuilds.construction.BuildingFootprints footprints=new ru.neverland.townybuilds.construction.BuildingFootprints();
     public CivicEffectsService(JavaPlugin plugin,TownyHook towny,DataStore dataStore){this.plugin=plugin;this.towny=towny;this.dataStore=dataStore;}
-    @Override public java.util.Set<String> supportedProjects(){return new ru.neverland.townybuilds.construction.BuildingBlueprintGenerator().supportedProjects();}
+    @Override public java.util.Set<String> supportedProjects(){ synchronized (ru.neverland.core.SuiteState.lock()) {return new ru.neverland.townybuilds.construction.BuildingBlueprintGenerator().supportedProjects();} }
     @Override
-    public int projectLevel(UUID townId, String projectId) {ru.neverland.core.ApiServices.primaryThread();
+    public int projectLevel(UUID townId, String projectId) { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();
         return townId == null || projectId == null ? 0 : dataStore.town(townId).level(projectId.toLowerCase(Locale.ROOT));
-    }
+    } }
 
     @Override
-    public int operationalLevel(UUID townId,String projectId){ru.neverland.core.ApiServices.primaryThread();return townId==null||projectId==null?0:dataStore.town(townId).operationalLevel(projectId.toLowerCase(Locale.ROOT));}
+    public int operationalLevel(UUID townId,String projectId){ synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();return townId==null||projectId==null?0:dataStore.town(townId).operationalLevel(projectId.toLowerCase(Locale.ROOT));} }
 
     @Override
-    public Map<String,ru.neverland.townybuilds.api.BuildingFootprint> buildingFootprints(UUID townId) {ru.neverland.core.ApiServices.primaryThread();
+    public Map<String,ru.neverland.townybuilds.api.BuildingFootprint> buildingFootprints(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();
         if(townId==null || towny.town(townId)==null)return Map.of();
         TownData data=dataStore.town(townId);
         Map<String,ru.neverland.townybuilds.api.BuildingFootprint> result=new HashMap<>();
         data.constructionSites().forEach((id,site)->footprints.footprint(site,data.level(id)).ifPresent(value->result.put(id,value)));
         return Map.copyOf(result);
-    }
+    } }
 
-    @Override public Map<String,ru.neverland.townybuilds.api.BuildingWorkplace> workplaces(UUID townId){ru.neverland.core.ApiServices.primaryThread();
+    @Override public Map<String,ru.neverland.townybuilds.api.BuildingWorkplace> workplaces(UUID townId){ synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();
         Map<String,ru.neverland.townybuilds.api.BuildingWorkplace> result=new HashMap<>();if(townId==null||towny.town(townId)==null)return Map.of();var data=dataStore.town(townId);
         buildingFootprints(townId).forEach((id,area)->{var site=data.constructionSites().get(id);if(site!=null)result.put(id,new ru.neverland.townybuilds.api.BuildingWorkplace(area.worldId(),area.minX(),area.minZ(),area.maxX(),area.maxZ(),site.originY(),area.completedLevel()));});return Map.copyOf(result);
-    }
+    } }
     private double benefitLevel(TownData data,String project) {
         return data.operationalLevel(project)*ru.neverland.integration.JobsAccess.multiplier(data.townId(),project,ru.neverland.integration.DistrictBonuses.multiplier(data.townId(),project));
     }
 
     @Override
-    public double benefit(UUID townId, CivicBenefit benefit) {ru.neverland.core.ApiServices.primaryThread();
+    public double benefit(UUID townId, CivicBenefit benefit) { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();
         if (townId == null || benefit == null) return 0;
         TownData data = dataStore.town(townId);
         double value = switch (benefit) {
@@ -115,22 +115,22 @@ public final class CivicEffectsService implements TownyBuildsApi {
                     + 0.35 * benefitLevel(data, "great_canal");
         };
         return Math.max(0, Math.min(1, value));
-    }
+    } }
 
     @Override
-    public boolean waterNetworkActive(UUID townId) {ru.neverland.core.ApiServices.primaryThread();
+    public boolean waterNetworkActive(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();
         if (townId == null) return false;
         TownData data = dataStore.town(townId);
         return data.operationalLevel("water_tower") > 0 && data.operationalLevel("reservoir") > 0 && data.operationalLevel("pumping_station") > 0;
-    }
+    } }
 
     @Override
-    public double insuranceReserve(UUID townId) {ru.neverland.core.ApiServices.primaryThread();
+    public double insuranceReserve(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();
         return townId == null ? 0 : dataStore.town(townId).insuranceReserve();
-    }
+    } }
 
     @Override
-    public double consumeInsurance(UUID townId, double requestedAmount) {ru.neverland.core.ApiServices.primaryThread();
+    public double consumeInsurance(UUID townId, double requestedAmount) { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();
         if (townId == null || !Double.isFinite(requestedAmount) || requestedAmount <= 0) return 0;
         TownData data = dataStore.town(townId);
         double allowed = requestedAmount * benefit(townId, CivicBenefit.INSURANCE_COVERAGE);
@@ -141,18 +141,18 @@ public final class CivicEffectsService implements TownyBuildsApi {
             try{dataStore.saveOrThrow();}catch(java.io.IOException ex){data.setInsuranceReserve(previous);throw new java.io.UncheckedIOException(ex);}
         }
         return paid;
-    }
+    } }
 
     @Override
-    public Optional<CivicArea> area(UUID townId, String projectId) {ru.neverland.core.ApiServices.primaryThread();
+    public Optional<CivicArea> area(UUID townId, String projectId) { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();
         if (townId == null || projectId == null) return Optional.empty();
         return Optional.ofNullable(dataStore.town(townId).civicArea(projectId.toLowerCase(Locale.ROOT)));
-    }
+    } }
 
     @Override
-    public Optional<CivicLine> line(UUID townId, String projectId) {ru.neverland.core.ApiServices.primaryThread();
+    public Optional<CivicLine> line(UUID townId, String projectId) { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();
         if (townId == null || projectId == null) return Optional.empty();
         return Optional.ofNullable(dataStore.town(townId).civicLine(projectId.toLowerCase(Locale.ROOT)));
-    }
+    } }
 
 }

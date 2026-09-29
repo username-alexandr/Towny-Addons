@@ -56,7 +56,7 @@ public final class EditorManager implements Listener {
         effectKey = new NamespacedKey(plugin, "editor_effect");
     }
 
-    public void openIndex(Player player) {
+    public void openIndex(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new EditorIndexHolder(), 54,
                 ColorUtil.component("&#B65CFFРедактор городских проектов"));
         fill(inventory);
@@ -75,9 +75,9 @@ public final class EditorManager implements Listener {
         inventory.setItem(51, action(Material.END_CRYSTAL, "create_wonder", "&#FFD45AСоздать чудо",
                 List.of("&7Введите ID в чат и настройте проект.")));
         player.openInventory(inventory);
-    }
+    } }
 
-    public void openProject(Player player, ProjectDefinition project, int levelNumber) {
+    public void openProject(Player player, ProjectDefinition project, int levelNumber) { synchronized (ru.neverland.core.SuiteState.lock()) {
         int level = Math.max(1, Math.min(project.maxLevel(), levelNumber));
         Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new ProjectEditorHolder(project.id(), level), 54,
                 ColorUtil.component("&#B65CFFРедактор: " + project.name()));
@@ -110,7 +110,7 @@ public final class EditorManager implements Listener {
                 level < project.maxLevel() ? "&fСледующий уровень" : "&#63E6BEДобавить уровень",
                 List.of("&7Поддерживается до 5 уровней.")));
         player.openInventory(inventory);
-    }
+    } }
 
     private void openResources(Player player, ProjectDefinition project, int level) {
         Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new ResourceEditorHolder(project.id(), level), 54,
@@ -155,7 +155,7 @@ public final class EditorManager implements Listener {
     }
 
     @EventHandler
-    public void onClick(InventoryClickEvent event) {
+    public void onClick(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getWhoClicked() instanceof Player player)) return;
         Inventory top = event.getView().getTopInventory();
         InventoryHolder holder = top.getHolder(false);
@@ -286,36 +286,36 @@ public final class EditorManager implements Listener {
             persist(project);
             openEffects(player, project, effects.level());
         }
-    }
+    } }
 
     @EventHandler
-    public void onDrag(InventoryDragEvent event) {
+    public void onDrag(InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (event.getView().getTopInventory().getHolder(false) instanceof ResourceEditorHolder) {
             event.setCancelled(true);
         }
-    }
+    } }
 
     @EventHandler
-    public void onClose(InventoryCloseEvent event) {
+    public void onClose(InventoryCloseEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (event.getInventory().getHolder(false) instanceof ResourceEditorHolder) {
             resourceSave.remove(event.getPlayer().getUniqueId());
         }
-    }
+    } }
 
     @EventHandler
-    public void onChat(AsyncChatEvent event) {
+    public void onChat(AsyncChatEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         InputRequest request = requests.remove(event.getPlayer().getUniqueId());
         if (request == null) return;
         event.setCancelled(true);
         String input = ColorUtil.plain(event.message()).trim();
-        Bukkit.getScheduler().runTask(plugin, () -> applyInput(event.getPlayer(), request, input));
-    }
+        ru.neverland.core.SuiteScheduler.entity(plugin, event.getPlayer(), () -> applyInput(event.getPlayer(), request, input));
+    } }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
+    public void onQuit(PlayerQuitEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
         requests.remove(event.getPlayer().getUniqueId());
         resourceSave.remove(event.getPlayer().getUniqueId());
-    }
+    } }
 
     private void applyInput(Player player, InputRequest request, String input) {
         if (input.equalsIgnoreCase("отмена") || input.equalsIgnoreCase("cancel")) {
@@ -437,11 +437,11 @@ public final class EditorManager implements Listener {
 
     private void scheduleRequestTimeout(Player player, InputRequest request) {
         long timeout = Math.max(10L, plugin.getConfig().getLong("settings.editor.chat-input-timeout-seconds", 60L)) * 20L;
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        ru.neverland.core.SuiteScheduler.entityLater(plugin, player, () -> {
             if (requests.remove(player.getUniqueId(), request) && player.isOnline()) {
                 player.sendMessage(ColorUtil.component("&cВремя ввода истекло. Откройте редактор повторно."));
             }
-        }, timeout);
+        }, () -> requests.remove(player.getUniqueId(), request), timeout);
     }
 
     private ItemStack icon(ProjectDefinition project) {

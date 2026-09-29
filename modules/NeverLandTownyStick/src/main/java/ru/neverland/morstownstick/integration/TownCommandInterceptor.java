@@ -33,25 +33,25 @@ public final class TownCommandInterceptor implements CommandExecutor {
         this.stickCommand = stickCommand;
     }
 
-    public boolean install() {
+    public boolean install() { synchronized (ru.neverland.core.SuiteState.lock()) {
         PluginCommand command = plugin.getServer().getPluginCommand("town");
         if (command == null || command.getExecutor() == null) return false;
         this.townCommand = command;
         this.originalExecutor = command.getExecutor();
         command.setExecutor(this);
         return true;
-    }
+    } }
 
-    public void uninstall() {
+    public void uninstall() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (townCommand != null && townCommand.getExecutor() == this && originalExecutor != null)
             townCommand.setExecutor(originalExecutor);
         townCommand = null;
         originalExecutor = null;
-    }
+    } }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, @NotNull String[] args) {
+                             @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (isStickCommand(args)) {
             return stickCommand.onCommand(sender, command, label + " stick", stickArguments(args));
         }
@@ -61,17 +61,17 @@ public final class TownCommandInterceptor implements CommandExecutor {
             return true;
         }
         return originalExecutor != null && originalExecutor.onCommand(sender, command, label, args);
-    }
+    } }
 
-    public static boolean isPlainClaim(String[] args) {
+    public static boolean isPlainClaim(String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return args.length == 1 && args[0].equalsIgnoreCase("claim");
-    }
+    } }
 
-    public static boolean isStickCommand(String[] args) {
+    public static boolean isStickCommand(String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return args.length >= 1 && args[0].equalsIgnoreCase("stick");
-    }
+    } }
 
-    public static String[] stickArguments(String[] args) {
+    public static String[] stickArguments(String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return args.length <= 1 ? new String[0] : Arrays.copyOfRange(args, 1, args.length);
-    }
+    } }
 }

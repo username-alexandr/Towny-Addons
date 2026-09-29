@@ -6,7 +6,7 @@ public final class MarketPayments {
     public interface Store extends ru.neverland.core.PurchaseSaga.Store<Order> {}
     public interface Gateway extends ru.neverland.core.PurchaseSaga.Gateway<Order> {}
     private MarketPayments() {}
-    public static void advance(UUID id,long now,long retry,Store store,Gateway gateway)throws Exception {ru.neverland.core.PurchaseSaga.advance(id,now,retry,store,gateway);}
-    public static Order resolve(Order order,String decision,long now) {return ru.neverland.core.PurchaseSaga.resolve(order,decision,now);}
-    public static String stockNote(String status) {return ru.neverland.core.PurchaseSaga.stockNote(status);}
+    public static void advance(UUID id,long now,long retry,Store store,Gateway gateway)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.PurchaseSaga.advance(id,now,retry,store,gateway);} }
+    public static Order resolve(Order order,String decision,long now) { synchronized (ru.neverland.core.SuiteState.lock()) {return ru.neverland.core.PurchaseSaga.resolve(order,decision,now);} }
+    public static String stockNote(String status) { synchronized (ru.neverland.core.SuiteState.lock()) {return ru.neverland.core.PurchaseSaga.stockNote(status);} }
 }

@@ -9,5 +9,5 @@ public record District(UUID town,String id,String name,DistrictType type,Set<Cel
         if(cells.isEmpty()||cells.size()>4096)throw new IllegalArgumentException("Некорректная площадь района");
         if(cells.stream().map(Cell::world).distinct().count()!=1)throw new IllegalArgumentException("Район не может занимать несколько миров");
     }
-    public District withCells(Set<Cell> value){return new District(town,id,name,type,value);}
+    public District withCells(Set<Cell> value){ synchronized (ru.neverland.core.SuiteState.lock()) {return new District(town,id,name,type,value);} }
 }

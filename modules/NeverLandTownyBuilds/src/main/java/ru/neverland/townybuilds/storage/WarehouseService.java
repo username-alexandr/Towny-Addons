@@ -24,32 +24,32 @@ public final class WarehouseService implements WarehouseApi {
    }
 
    @Override
-   public Map<String, Object> take(UUID town, ItemStack sample, int amount) throws IOException {
+   public Map<String, Object> take(UUID town, ItemStack sample, int amount) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.change(null, town, sample, amount, false);
-   }
+   } }
 
    @Override
-   public Map<String, Object> deposit(UUID town, ItemStack sample, int amount) throws IOException {
+   public Map<String, Object> deposit(UUID town, ItemStack sample, int amount) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.change(null, town, sample, amount, true);
-   }
+   } }
 
    @Override
-   public Map<String, Object> transfer(UUID operation, UUID town, ItemStack sample, int amount, boolean incoming) throws IOException {
+   public Map<String, Object> transfer(UUID operation, UUID town, ItemStack sample, int amount, boolean incoming) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.change(Objects.requireNonNull(operation), town, sample, amount, incoming);
-   }
+   } }
 
    @Override
-   public boolean transferred(UUID operation, UUID town) {
-      if (!Bukkit.isPrimaryThread()) {
+   public boolean transferred(UUID operation, UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+      if (!ru.neverland.core.SuiteState.held()) {
          throw new IllegalStateException("Нужен основной поток");
       } else {
          return this.data.town(town).warehouseMovements().containsKey(operation);
       }
-   }
+   } }
 
    @Override
-   public void acknowledgeMovement(UUID operation, UUID town) throws IOException {
-      if (!Bukkit.isPrimaryThread()) {
+   public void acknowledgeMovement(UUID operation, UUID town) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+      if (!ru.neverland.core.SuiteState.held()) {
          throw new IllegalStateException("Нужен основной поток");
       } else {
          TownData state = this.data.town(town);
@@ -66,7 +66,7 @@ public final class WarehouseService implements WarehouseApi {
             }
          }
       }
-   }
+   } }
 
    private boolean audit(UUID operation,UUID town,ItemStack sample,int amount,boolean incoming){var city=ru.neverland.core.AuditTrail.town(town);var unknown=ru.neverland.core.AuditRecord.Party.unknown();return ru.neverland.core.AuditTrail.record(plugin,"warehouse:"+town,operation.toString(),"WAREHOUSE_LEG",incoming?"CREDIT":"DEBIT",unknown,incoming?unknown:city,incoming?city:unknown,ru.neverland.core.AuditTrail.item(sample),amount,"","Warehouse API");}
    private Map<String, Object> result(String status, int amount) {
@@ -74,7 +74,7 @@ public final class WarehouseService implements WarehouseApi {
    }
 
    private Map<String, Object> change(UUID operation, UUID town, ItemStack sample, int amount, boolean incoming) throws IOException {
-      if (!Bukkit.isPrimaryThread()) {
+      if (!ru.neverland.core.SuiteState.held()) {
          throw new IllegalStateException("Склад требует основного потока");
       } else if (sample == null || sample.getType().isAir() || amount < 1 || amount > 1000000) {
          throw new IllegalArgumentException("Неверный груз");

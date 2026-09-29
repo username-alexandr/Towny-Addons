@@ -10,7 +10,7 @@ public final class NeverLandTownyCitizens extends JavaPlugin {
     private CitizensService service;
     private boolean townCommand;
     private Runnable unregisterPlaceholders;
-    @Override public void onEnable() {
+    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         try {
@@ -29,13 +29,13 @@ public final class NeverLandTownyCitizens extends JavaPlugin {
             getLogger().log(java.util.logging.Level.SEVERE, "Гражданство не загружено; исходный реестр сохранён", ex);
             getServer().getPluginManager().disablePlugin(this);
         }
-    }
+    } }
     private CitizensSettings readSettings() throws Exception {
         var yaml = new YamlConfiguration(); yaml.load(getDataFolder().toPath().resolve("config.yml").toFile()); return CitizensSettings.load(yaml);
     }
-    public void reloadSettings() throws Exception { var next = readSettings(); service.settings(next); reloadConfig(); }
-    public CitizensService citizens() { return service; }
-    @Override public void onDisable() {
+    public void reloadSettings() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) { var next = readSettings(); service.settings(next); reloadConfig(); } }
+    public CitizensService citizens() { synchronized (ru.neverland.core.SuiteState.lock()) { return service; } }
+    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (unregisterPlaceholders != null) unregisterPlaceholders.run();
@@ -43,5 +43,5 @@ public final class NeverLandTownyCitizens extends JavaPlugin {
         if (townCommand) TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN, "citizens");
         for (var p : getServer().getOnlinePlayers()) if (p.getOpenInventory().getTopInventory().getHolder() != null
                 && p.getOpenInventory().getTopInventory().getHolder().getClass().getName().startsWith("ru.neverland.townycitizens.")) p.closeInventory();
-    }
+    } }
 }

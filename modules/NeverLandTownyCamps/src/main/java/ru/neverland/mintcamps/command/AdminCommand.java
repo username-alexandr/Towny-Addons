@@ -34,7 +34,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){return true;}
         if (!sender.hasPermission("mintcamps.admin")) {
             messages.send(sender, "no-permission");
             return true;
@@ -67,10 +67,10 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             default -> messages.send(sender, "admin.usage");
         }
         return true;
-    }
+    } }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (args.length == 1) return List.of("edit", "reload", "info", "pack").stream()
                 .filter(value -> value.startsWith(args[0].toLowerCase(Locale.ROOT))).toList();
         if (args.length == 2 && (args[0].equalsIgnoreCase("info") || args[0].equalsIgnoreCase("pack"))) {
@@ -78,5 +78,5 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             return repository.all().stream().map(Camp::ownerName).filter(value -> value.toLowerCase(Locale.ROOT).startsWith(needle)).toList();
         }
         return List.of();
-    }
+    } }
 }

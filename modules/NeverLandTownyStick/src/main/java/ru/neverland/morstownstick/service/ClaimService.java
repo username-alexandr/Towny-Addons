@@ -42,11 +42,11 @@ public final class ClaimService {
         this.borders = borders;
     }
 
-    public boolean isBusy(UUID playerId) {
+    public boolean isBusy(UUID playerId) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return jobs.containsKey(playerId);
-    }
+    } }
 
-    public void start(Player player) {
+    public void start(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         UUID playerId = player.getUniqueId();
         if (!plugin.getConfig().getBoolean("claim.enabled", true)) {
             messages.send(player, "claim-disabled");
@@ -99,17 +99,17 @@ public final class ClaimService {
         jobs.put(playerId, job);
         messages.send(player, "claim-start", Map.of("count", job.remaining.size()));
         processNext(job);
-    }
+    } }
 
-    public void playerQuit(UUID playerId) {
+    public void playerQuit(UUID playerId) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ClaimJob job = jobs.remove(playerId);
         if (job != null) job.cancelled = true;
-    }
+    } }
 
-    public void shutdown() {
+    public void shutdown() { synchronized (ru.neverland.core.SuiteState.lock()) {
         for (ClaimJob job : jobs.values()) job.cancelled = true;
         jobs.clear();
-    }
+    } }
 
     private void processNext(ClaimJob job) {
         if (job.cancelled || jobs.get(job.playerId) != job) return;
@@ -201,7 +201,7 @@ public final class ClaimService {
 
     private void scheduleNext(ClaimJob job) {
         long delay = Math.max(1L, plugin.getConfig().getLong("claim.delay-ticks", 1L));
-        Bukkit.getScheduler().runTaskLater(plugin, () -> processNext(job), delay);
+        ru.neverland.core.SuiteScheduler.entityLater(plugin, player, () -> processNext(job), () -> jobs.remove(job.playerId), delay);
     }
 
     private void failRemaining(Player player, ClaimJob job, String reasonPath, String detail) {

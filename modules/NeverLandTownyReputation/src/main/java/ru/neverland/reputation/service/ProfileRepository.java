@@ -16,9 +16,9 @@ public final class ProfileRepository {
     private volatile State state = State.empty();
     private boolean ready;
     public ProfileRepository(Path path) { this.path = path; }
-    public boolean healthy() { return ready && AtomicFiles.writable(path); }
-    public State state() { return state; }
-    public void load(Collection<ReputationRecord> legacy) throws IOException {
+    public boolean healthy() { synchronized (ru.neverland.core.SuiteState.lock()) { return ready && AtomicFiles.writable(path); } }
+    public State state() { synchronized (ru.neverland.core.SuiteState.lock()) { return state; } }
+    public void load(Collection<ReputationRecord> legacy) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         ready = false;
         try {
             State next;
@@ -51,7 +51,7 @@ public final class ProfileRepository {
             AtomicFiles.loaded(path); ready = true;
             if (migrate) commit(next); else state = next;
         } catch (Exception ex) { ready = false; throw new IOException("profiles.yml повреждён; изменения репутации и новые комиссии остановлены", ex); }
-    }
+    } }
     static State migrate(Collection<ReputationRecord> legacy) {
         var totals = new HashMap<Subject, long[]>();
         for (var relation : legacy) {
@@ -64,7 +64,7 @@ public final class ProfileRepository {
         totals.forEach((subject,total) -> profiles.put(subject, new Profile((int)Math.max(MIN, Math.min(MAX, Math.round((double)total[0] / total[1]))), 0, 0, List.of())));
         return new State(profiles, Map.of(), Map.of());
     }
-    public void commit(State next) throws IOException {
+    public void commit(State next) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!healthy()) throw new IOException("Хранилище профилей остановлено");
         try {
             var y = new YamlConfiguration(); y.set("schema",1);
@@ -73,6 +73,6 @@ public final class ProfileRepository {
             y.set("daily",new TreeMap<>(next.daily()).entrySet().stream().map(e -> Map.of("key",e.getKey(),"used",e.getValue())).toList());
             AtomicFiles.write(path,y::saveToString); state = next;
         } catch (IOException | RuntimeException ex) { ready = false; throw new IOException("Профили не сохранены; дальнейшие изменения остановлены",ex); }
-    }
+    } }
     private static ConfigurationSection section(Map<?,?> row) { var s = new MemoryConfiguration(); row.forEach((k,v) -> { if (!(k instanceof String key)) throw new IllegalArgumentException("Неверный ключ YAML"); s.set(key,v); }); return s; }
 }

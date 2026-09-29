@@ -20,8 +20,8 @@ public final class FireDamageRepository {
     private Map<UUID,FireDamage> records=Map.of();
     private boolean loaded;
     public FireDamageRepository(Path file){this.file=file;}
-    public boolean writable(){return loaded&&AtomicFiles.writable(file);}
-    public void load() throws IOException {
+    public boolean writable(){ synchronized (ru.neverland.core.SuiteState.lock()) {return loaded&&AtomicFiles.writable(file);} }
+    public void load() throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         loaded=false;Map<UUID,FireDamage> next=new LinkedHashMap<>();
         try {
             if(Files.exists(file)){
@@ -38,20 +38,20 @@ public final class FireDamageRepository {
             }
         }catch(Exception error){throw new IOException("Нельзя загрузить fire-damage.yml; изменения остановлены",error);}
         records=Map.copyOf(next);AtomicFiles.loaded(file);loaded=true;
-    }
-    public List<FireDamage> town(UUID town){return records.values().stream().filter(d->d.town().equals(town)).sorted(java.util.Comparator.comparing(d->d.id().toString())).toList();}
-    public FireDamage get(UUID id){return records.get(id);}
-    public boolean pending(UUID world,int x,int y,int z){return records.containsKey(FireDamage.id(world,x,y,z));}
-    public boolean prepare(FireDamage damage) throws IOException {
+    } }
+    public List<FireDamage> town(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return records.values().stream().filter(d->d.town().equals(town)).sorted(java.util.Comparator.comparing(d->d.id().toString())).toList();} }
+    public FireDamage get(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {return records.get(id);} }
+    public boolean pending(UUID world,int x,int y,int z){ synchronized (ru.neverland.core.SuiteState.lock()) {return records.containsKey(FireDamage.id(world,x,y,z));} }
+    public boolean prepare(FireDamage damage) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         requireWritable();FireDamage old=records.get(damage.id());
         if(old!=null){if(!old.equals(damage))throw new IllegalArgumentException("Место уже ожидает ремонта");return false;}
         if(!FireMaterials.combustible(damage.material()))throw new IllegalArgumentException("Материал не поддерживает пожар");
         Map<UUID,FireDamage> next=new LinkedHashMap<>(records);next.put(damage.id(),damage);save(next);return true;
-    }
+    } }
     /** Caller has verified placed materials and saved the affected worlds first. */
-    public void confirm(Set<UUID> repaired) throws IOException {
+    public void confirm(Set<UUID> repaired) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         requireWritable();Map<UUID,FireDamage> next=new LinkedHashMap<>(records);repaired.forEach(next::remove);if(next.size()!=records.size())save(next);
-    }
+    } }
     private void requireWritable() throws IOException{if(!writable())throw new IOException("Журнал ремонта заблокирован после ошибки записи");}
     private void save(Map<UUID,FireDamage> next) throws IOException {
         requireWritable();AtomicFiles.write(file,()->{

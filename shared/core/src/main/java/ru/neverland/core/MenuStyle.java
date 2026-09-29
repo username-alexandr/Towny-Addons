@@ -26,14 +26,14 @@ public final class MenuStyle {
     private static final Pattern ACTION = Pattern.compile("(?iu)^(?:[←→›•]\\s*)?(?:лкм|пкм|shift|нажмите|клик|/|назад|закрыть|подтвердить|вернуться).*");
     private MenuStyle() { }
 
-    public static Inventory previousMenu(Player player) {
+    public static Inventory previousMenu(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Inventory previous = player.getOpenInventory().getTopInventory();
         InventoryHolder holder = previous.getHolder();
         if (holder == null || !holder.getClass().getName().startsWith("ru.neverland.")
                 || holder.getClass().getName().contains(".storage.")) return null;
         return previous;
-    }
-    public static void returnTo(Player player, Inventory previous) {
+    } }
+    public static void returnTo(Player player, Inventory previous) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (previous != null && previous.getHolder() != null) {
             try {
                 if (JavaPlugin.getProvidingPlugin(previous.getHolder().getClass()).isEnabled()) {
@@ -43,29 +43,29 @@ public final class MenuStyle {
             } catch (IllegalArgumentException | IllegalStateException ignored) { }
         }
         player.closeInventory();
-    }
+    } }
 
-    public static Inventory inventory(Plugin plugin, InventoryHolder holder, int size, String title) {
+    public static Inventory inventory(Plugin plugin, InventoryHolder holder, int size, String title) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return inventory(plugin, holder, size, decode(title));
-    }
-    public static Inventory inventory(Plugin plugin, InventoryHolder holder, int size, Component title) {
+    } }
+    public static Inventory inventory(Plugin plugin, InventoryHolder holder, int size, Component title) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String color = plugin instanceof JavaPlugin java ? java.getConfig().getString("menu-style.title-color", "#F4F7FC") : "#F4F7FC";
         return Bukkit.createInventory(holder, size, title(title, color));
-    }
-    public static Component title(Component input, String configuredColor) {
+    } }
+    public static Component title(Component input, String configuredColor) { synchronized (ru.neverland.core.SuiteState.lock()) {
         TextColor color = TextColor.fromHexString(configuredColor == null ? "" : configuredColor);
         if (color == null) color = TextColor.color(0xF4F7FC);
         return Component.text(plain(input).replace('\n', ' ').strip(), color).decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, false);
-    }
-    public static String nameLegacy(String name) { return LEGACY.serialize(nameComponent(decode(name))); }
-    public static Component nameComponent(Component name) {
+    } }
+    public static String nameLegacy(String name) { synchronized (ru.neverland.core.SuiteState.lock()) { return LEGACY.serialize(nameComponent(decode(name))); } }
+    public static Component nameComponent(Component name) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (plain(name).isBlank()) return Component.text(" ");
         return readable(name).colorIfAbsent(TextColor.color(0xF4F7FC)).decorate(TextDecoration.BOLD);
-    }
-    public static List<String> loreStrings(List<String> lines) {
+    } }
+    public static List<String> loreStrings(List<String> lines) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return loreComponents(lines == null ? List.of() : lines.stream().map(MenuStyle::decode).toList()).stream().map(LEGACY::serialize).toList();
-    }
-    public static List<Component> loreComponents(List<? extends Component> lines) {
+    } }
+    public static List<Component> loreComponents(List<? extends Component> lines) { synchronized (ru.neverland.core.SuiteState.lock()) {
         List<Component> result = new ArrayList<>();
         boolean previousAction = false;
         for (Component original : lines == null ? List.<Component>of() : lines) {
@@ -82,15 +82,15 @@ public final class MenuStyle {
         }
         while (!result.isEmpty() && plain(result.get(result.size()-1)).isBlank()) result.remove(result.size()-1);
         return List.copyOf(result);
-    }
+    } }
     private static void blank(List<Component> lines) {
         if (!lines.isEmpty() && !plain(lines.get(lines.size()-1)).isBlank()) lines.add(Component.empty());
     }
-    public static Component decode(String input) {
+    public static Component decode(String input) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String text = input == null ? "" : input;
         // Both already translated section codes and configuration ampersand/hex codes occur in the suite.
         return LEGACY.deserialize(LEGACY.serialize(AMPERSAND.deserialize(text.replace('§', '&'))));
-    }
+    } }
     private static String plain(Component input) { return PlainTextComponentSerializer.plainText().serialize(input == null ? Component.empty() : input); }
     private static boolean onlyText(Component input) { return input instanceof TextComponent && input.font() == null && input.children().stream().allMatch(MenuStyle::onlyText); }
     private static Component readable(Component input) {

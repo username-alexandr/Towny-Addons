@@ -8,7 +8,7 @@ import ru.neverland.townyelections.api.TownyElectionsApi;
 
 public final class NeverLandTownyElections extends JavaPlugin {
     private ElectionsService service; private BukkitTask ticker; private boolean townCommand;
-    @Override public void onEnable() {
+    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         try {
@@ -23,14 +23,14 @@ public final class NeverLandTownyElections extends JavaPlugin {
             getServer().getServicesManager().register(TownyElectionsApi.class,service,this,ServicePriority.Normal);
             schedule();getLogger().info("Выборы мэра, совета и должностей включены. /t elections");
         } catch(Exception | LinkageError ex){getLogger().log(java.util.logging.Level.SEVERE,"Elections не загружен; журнал оставлен для восстановления",ex);getServer().getPluginManager().disablePlugin(this);}
-    }
+    } }
     private ElectionsSettings readSettings() throws Exception {var y=new YamlConfiguration();y.load(getDataFolder().toPath().resolve("config.yml").toFile());return ElectionsSettings.load(y);}
-    public void reloadSettings() throws Exception {var next=readSettings();service.settings(next);reloadConfig();schedule();}
-    private void schedule(){if(ticker!=null)ticker.cancel();ticker=getServer().getScheduler().runTaskTimer(this,service::tick,20,service.settings().checkTicks());}
-    public ElectionsService elections(){return service;}
-    @Override public void onDisable(){
+    public void reloadSettings() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {var next=readSettings();service.settings(next);reloadConfig();schedule();} }
+    private void schedule(){if(ticker!=null)ticker.cancel();ticker=ru.neverland.core.SuiteScheduler.get().runTaskTimer(this,service::tick,20,service.settings().checkTicks());}
+    public ElectionsService elections(){ synchronized (ru.neverland.core.SuiteState.lock()) {return service;} }
+    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 if(ticker!=null)ticker.cancel();getServer().getServicesManager().unregisterAll(this);
         if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"elections");
-        for(var p:getServer().getOnlinePlayers())if(p.getOpenInventory().getTopInventory().getHolder() instanceof ElectionsMenus.Holder)p.closeInventory();}
+        for(var p:getServer().getOnlinePlayers())if(p.getOpenInventory().getTopInventory().getHolder() instanceof ElectionsMenus.Holder)p.closeInventory();} }
 }

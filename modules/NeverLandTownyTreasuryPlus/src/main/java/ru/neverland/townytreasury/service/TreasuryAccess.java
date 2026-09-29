@@ -6,11 +6,11 @@ import org.bukkit.command.CommandSender;
 public final class TreasuryAccess {
     public static final String EXPORT = "neverlandtownytreasury.export";
     private TreasuryAccess() { }
-    public static boolean canExport(CommandSender sender) {
+    public static boolean canExport(CommandSender sender) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (sender.hasPermission(EXPORT)) return true;
         if (!(sender instanceof org.bukkit.entity.Player player)) return false;
         var resident = com.palmergames.bukkit.towny.TownyAPI.getInstance().getResident(player);
         var town = resident == null ? null : resident.getTownOrNull();
         return town != null && ru.neverland.core.CouncilAccess.allows(player, town.getUUID(), "export");
-    }
+    } }
 }

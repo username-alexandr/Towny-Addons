@@ -18,12 +18,12 @@ public final class PopulationMenu implements Listener {
         final UUID town; final boolean buildings; final int page;
         Inventory inventory;
         View(UUID town, boolean buildings, int page) { this.town=town; this.buildings=buildings; this.page=page; }
-        @Override public Inventory getInventory() { return inventory; }
+        @Override public Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { return inventory; } }
     }
     public PopulationMenu(org.bukkit.plugin.Plugin plugin, PopulationService service, Messages messages) {
         this.plugin=plugin; this.service=service; this.messages=messages;
     }
-    public void open(Player player, UUID townId, boolean buildings, int requestedPage) {
+    public void open(Player player, UUID townId, boolean buildings, int requestedPage) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!player.hasPermission("neverlandtownypopulation.use")) { messages.send(player,"no-permission"); return; }
         service.refreshView();
         var s=service.population(townId).orElse(null);
@@ -35,7 +35,7 @@ public final class PopulationMenu implements Listener {
         if (buildings) sources(view,s,pages); else overview(view,s);
         view.inventory.setItem(49,item(Material.SUNFLOWER,"&aОбновить", "Нажмите, чтобы обновить показатели."));
         player.openInventory(view.inventory);
-    }
+    } }
     private boolean canView(Player player, UUID town) {
         if (player.hasPermission("neverlandtownypopulation.admin")) return true;
         var resident=com.palmergames.bukkit.towny.TownyAPI.getInstance().getResident(player);
@@ -93,13 +93,13 @@ public final class PopulationMenu implements Listener {
         meta.setLore(ru.neverland.core.MenuStyle.loreStrings(Arrays.stream(lore).map(line->Messages.color("&7"+line)).toList())); item.setItemMeta(meta); return item;
     }
     private static String signed(double n) { return (n>0?"+":"")+number(n); }
-    @EventHandler public void click(InventoryClickEvent event) {
+    @EventHandler public void click(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyPopulation")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getView().getTopInventory().getHolder() instanceof View view)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot()<0 || event.getRawSlot()>=54) return;
         if (!player.hasPermission("neverlandtownypopulation.use") || !canView(player,view.town)) { player.closeInventory(); return; }
         int slot=event.getRawSlot();
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        ru.neverland.core.SuiteScheduler.get().runTask(plugin, () -> {
             if (!player.isOnline() || player.getOpenInventory().getTopInventory().getHolder()!=view) return;
             if(slot==49) open(player,view.town,view.buildings,view.page);
             else if(!view.buildings && slot==45) open(player,view.town,true,0);
@@ -107,8 +107,8 @@ public final class PopulationMenu implements Listener {
             else if(view.buildings && slot==45) open(player,view.town,true,view.page-1);
             else if(view.buildings && slot==53) open(player,view.town,true,view.page+1);
         });
-    }
-    @EventHandler public void drag(InventoryDragEvent event) {
+    } }
+    @EventHandler public void drag(InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyPopulation")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if(event.getView().getTopInventory().getHolder() instanceof View) event.setCancelled(true);
-    }
+    } }
 }

@@ -20,7 +20,7 @@ public final class CampsBridge {
     private final TownyHook towny;
     private boolean warned;
     public CampsBridge(JavaPlugin plugin, TownyHook towny) { this.plugin = plugin; this.towny = towny; }
-    public List<CampStop> activeStops() {
+    public List<CampStop> activeStops() { synchronized (ru.neverland.core.SuiteState.lock()) {
         Plugin source = resolveCampPlugin();
         if (source == null) return List.of();
         try {
@@ -52,7 +52,7 @@ public final class CampsBridge {
             if (!warned) { warned = true; plugin.getLogger().warning("Лагеря недоступны как перевалочные пункты: " + exception.getMessage()); }
             return List.of();
         }
-    }
+    } }
 
     private Plugin resolveCampPlugin() {
         for (String name : List.of(plugin.getConfig().getString("camps.plugin", "NeverLandTownyCamps"),

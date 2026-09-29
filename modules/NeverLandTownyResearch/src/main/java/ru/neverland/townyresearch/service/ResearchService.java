@@ -17,14 +17,14 @@ public final class ResearchService implements TownyResearchApi {
     private record Cache(Map<UUID,ResearchSnapshot> towns,Map<UUID,UUID> residents){Cache{towns=Map.copyOf(towns);residents=Map.copyOf(residents);}}
     private volatile Cache cache=new Cache(Map.of(),Map.of());
     public ResearchService(Plugin plugin,ResearchRepository repository,ResearchSettings settings){this.plugin=plugin;this.repository=repository;this.settings=settings;processor=new ResearchProcessor(repository,bridge);}
-    public ResearchSettings settings(){return settings;}
-    private void primary(){if(!Bukkit.isPrimaryThread())throw new IllegalStateException("Нужен основной поток сервера");}
-    public void start()throws Exception{primary();bridge.verify();refresh(0);schedule();}
-    private void schedule(){task=Bukkit.getScheduler().runTaskTimer(plugin,()->refresh(settings.interval()),20L*settings.interval(),20L*settings.interval());}
-    public void reload(ResearchSettings next){primary();settings=next;if(task!=null)task.cancel();refresh(0);schedule();}
-    public void stop(){if(task!=null)task.cancel();cache=new Cache(Map.of(),Map.of());}
+    public ResearchSettings settings(){ synchronized (ru.neverland.core.SuiteState.lock()) {return settings;} }
+    private void primary(){if(!ru.neverland.core.SuiteState.held())throw new IllegalStateException("Нужен основной поток сервера");}
+    public void start()throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {primary();bridge.verify();refresh(0);schedule();} }
+    private void schedule(){task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,()->refresh(settings.interval()),20L*settings.interval(),20L*settings.interval());}
+    public void reload(ResearchSettings next){ synchronized (ru.neverland.core.SuiteState.lock()) {primary();settings=next;if(task!=null)task.cancel();refresh(0);schedule();} }
+    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(task!=null)task.cancel();cache=new Cache(Map.of(),Map.of());} }
     private void warn(Exception ex){long now=System.currentTimeMillis();if(now-warned>=60000){warned=now;plugin.getLogger().log(java.util.logging.Level.WARNING,"Исследование приостановлено; журнал и знания сохранены",ex);}}
-    public void refresh(int seconds){primary();Map<UUID,ResearchSnapshot> towns=new HashMap<>();Map<UUID,UUID> residents=new HashMap<>();
+    public void refresh(int seconds){ synchronized (ru.neverland.core.SuiteState.lock()) {primary();Map<UUID,ResearchSnapshot> towns=new HashMap<>();Map<UUID,UUID> residents=new HashMap<>();
         try{for(Town town:List.copyOf(TownyAPI.getInstance().getTowns())){
             UUID id=town.getUUID();for(var resident:town.getResidents())residents.put(resident.getUUID(),id);
             Map<String,Integer> buildings=Map.of();long knowledge=0,reserve=0;boolean paused=false;String status="Нет текущего исследования";
@@ -38,18 +38,18 @@ public final class ResearchService implements TownyResearchApi {
         for(UUID id:repository.towns().keySet())if(!towns.containsKey(id)){var state=repository.get(id);try{if(state.active()!=null&&state.active().phase()!=CityStudy.Phase.COMPLETING&&state.active().phase()!=CityStudy.Phase.CANCELLING)processor.cancel(id);else processor.tick(id,0,true);}catch(Exception ex){warn(ex);}}
         cache=new Cache(towns,residents);
         }catch(Exception ex){cache=new Cache(Map.of(),Map.of());warn(ex);}
-    }
-    public Town town(Player player){var resident=TownyAPI.getInstance().getResident(player);return resident==null?null:resident.getTownOrNull();}
-    public boolean manager(Player p,Town town){var resident=TownyAPI.getInstance().getResident(p);return resident!=null&&town.equals(resident.getTownOrNull())&&(town.isMayor(resident)||resident.hasTownRank("assistant")||p.hasPermission("neverlandtownyresearch.manage"));}
-    public void begin(UUID town,String id)throws Exception{primary();var technology=settings.technologies().get(id);if(technology==null)throw new IllegalArgumentException("Неизвестная технология");if(TownyAPI.getInstance().getTown(town)==null)throw new IllegalArgumentException("Город не найден");try{processor.begin(town,technology,bridge.buildings(town));}finally{refresh(0);}}
-    public void cancel(UUID town)throws Exception{primary();try{processor.cancel(town);}finally{refresh(0);}}
-    @Override public String name(String id){var t=settings.technologies().get(id);return t==null?"Исследование":t.name();}
-    @Override public int level(UUID town,String id){var snapshot=cache.towns().get(town);return snapshot==null?0:snapshot.state().learned().getOrDefault(id,0);}
-    @Override public double bonus(UUID town,String id){var technology=settings.technologies().get(id);int level=level(town,id);return technology==null||!technology.enabled()||level<=0?0:technology.levels().get(Math.min(level,technology.levels().size())-1).bonus();}
-    @Override public Optional<ResearchSnapshot> research(UUID town){return Optional.ofNullable(cache.towns().get(town));}
-    @Override public Optional<ResearchSnapshot> residentResearch(UUID resident){var current=cache;UUID town=current.residents().get(resident);return Optional.ofNullable(town==null?null:current.towns().get(town));}
-    @Override public Collection<ResearchSnapshot> towns(){return cache.towns().values();}
-    public List<ru.neverland.core.ActivityAdmin.Target> adminTargets(){
+    } }
+    public Town town(Player player){ synchronized (ru.neverland.core.SuiteState.lock()) {var resident=TownyAPI.getInstance().getResident(player);return resident==null?null:resident.getTownOrNull();} }
+    public boolean manager(Player p,Town town){ synchronized (ru.neverland.core.SuiteState.lock()) {var resident=TownyAPI.getInstance().getResident(p);return resident!=null&&town.equals(resident.getTownOrNull())&&(town.isMayor(resident)||resident.hasTownRank("assistant")||p.hasPermission("neverlandtownyresearch.manage"));} }
+    public void begin(UUID town,String id)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {primary();var technology=settings.technologies().get(id);if(technology==null)throw new IllegalArgumentException("Неизвестная технология");if(TownyAPI.getInstance().getTown(town)==null)throw new IllegalArgumentException("Город не найден");try{processor.begin(town,technology,bridge.buildings(town));}finally{refresh(0);}} }
+    public void cancel(UUID town)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {primary();try{processor.cancel(town);}finally{refresh(0);}} }
+    @Override public String name(String id){ synchronized (ru.neverland.core.SuiteState.lock()) {var t=settings.technologies().get(id);return t==null?"Исследование":t.name();} }
+    @Override public int level(UUID town,String id){ synchronized (ru.neverland.core.SuiteState.lock()) {var snapshot=cache.towns().get(town);return snapshot==null?0:snapshot.state().learned().getOrDefault(id,0);} }
+    @Override public double bonus(UUID town,String id){ synchronized (ru.neverland.core.SuiteState.lock()) {var technology=settings.technologies().get(id);int level=level(town,id);return technology==null||!technology.enabled()||level<=0?0:technology.levels().get(Math.min(level,technology.levels().size())-1).bonus();} }
+    @Override public Optional<ResearchSnapshot> research(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return Optional.ofNullable(cache.towns().get(town));} }
+    @Override public Optional<ResearchSnapshot> residentResearch(UUID resident){ synchronized (ru.neverland.core.SuiteState.lock()) {var current=cache;UUID town=current.residents().get(resident);return Optional.ofNullable(town==null?null:current.towns().get(town));} }
+    @Override public Collection<ResearchSnapshot> towns(){ synchronized (ru.neverland.core.SuiteState.lock()) {return cache.towns().values();} }
+    public List<ru.neverland.core.ActivityAdmin.Target> adminTargets(){ synchronized (ru.neverland.core.SuiteState.lock()) {
         primary();return repository.towns().entrySet().stream().filter(e->e.getValue().active()!=null).map(e->{var s=e.getValue().active();return new ru.neverland.core.ActivityAdmin.Target(s.invoice().toString(),e.getKey()+" / "+name(s.technology())+" / "+s.phase(),
             Set.of(CityStudy.Phase.PREPARED,CityStudy.Phase.RUNNING,CityStudy.Phase.PAUSED).contains(s.phase())?Set.of("status","pause","resume","cancel"):Set.of("status"),(action,minutes)->{
                 primary();var state=repository.get(e.getKey());var active=state.active();if(active==null||!active.invoice().equals(s.invoice()))throw new IllegalStateException("Исследование изменилось");
@@ -60,6 +60,6 @@ public final class ResearchService implements TownyResearchApi {
                 else {if(active.phase()!=CityStudy.Phase.PAUSED)throw new IllegalArgumentException("Исследование не на паузе");repository.put(e.getKey(),state.study(active.phase(CityStudy.Phase.PREPARED)));}
                 refresh(0);return "Состояние сохранено; прогресс и квитанция резерва прежние";
             });}).toList();
-    }
+    } }
 
 }

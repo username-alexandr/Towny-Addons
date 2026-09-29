@@ -13,21 +13,21 @@ public final class SupplyService {
     private final JavaPlugin plugin;private final TownyHook towny;private final TradeService trade;private final SupplyRepository repo;private final SupplyGateway gateway;private final MessageService messages;
     private final Map<UUID,Long> errors=new HashMap<>();private BukkitTask task;private boolean broken;private int cursor;
     public SupplyService(JavaPlugin plugin,TownyHook towny,TradeService trade,SupplyGateway gateway,MessageService messages){this.plugin=plugin;this.towny=towny;this.trade=trade;this.gateway=gateway;this.messages=messages;repo=new SupplyRepository(plugin.getDataFolder().toPath().resolve("contracts-data.yml"));}
-    public void start(){reload();task=Bukkit.getScheduler().runTaskTimer(plugin,this::tick,40,20);}
-    public void stop(){if(task!=null)task.cancel();}
-    public void reload(){try{repo.load();for(var c:repo.all()){var item=SupplyGateway.decode(c.terms().itemData());if(item==null||item.getType().isAir()||item.getAmount()!=1)throw new IOException("Повреждён образец товара "+c.terms().shortId());}broken=false;errors.clear();}
-        catch(Exception ex){broken=true;plugin.getLogger().severe("Регулярные договоры остановлены: "+ex.getMessage());}}
-    public void flushReputation(){if(available())repo.flushReputation();}
-    public void beforeTradeQuote(){writable();flushReputation();if(repo.pendingReputation()>0)throw new IllegalStateException("Ожидается обновление торговой репутации; повторите позже");}
-    public boolean available(){return !broken&&repo.writable();}
-    private void writable(){if(!Bukkit.isPrimaryThread())throw new IllegalStateException("Требуется основной поток");if(!available())throw new IllegalStateException("Регулярные договоры остановлены после ошибки записи. Обратитесь к администратору");}
-    public List<SupplyContract> all(){return repo.all().stream().sorted(Comparator.comparingLong((SupplyContract c)->c.terms().created()).reversed().thenComparing(c->c.terms().id())).toList();}
-    public List<SupplyContract> town(UUID id){return all().stream().filter(c->c.terms().party(id)).sorted(Comparator.comparing((SupplyContract c)->!c.open())).toList();}
-    public SupplyContract find(String prefix){if(prefix==null||prefix.length()<8)return null;var matches=all().stream().filter(c->c.terms().id().toString().startsWith(prefix.toLowerCase(Locale.ROOT))).toList();return matches.size()==1?matches.get(0):null;}
+    public void start(){ synchronized (ru.neverland.core.SuiteState.lock()) {reload();task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::tick,40,20);} }
+    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(task!=null)task.cancel();} }
+    public void reload(){ synchronized (ru.neverland.core.SuiteState.lock()) {try{repo.load();for(var c:repo.all()){var item=SupplyGateway.decode(c.terms().itemData());if(item==null||item.getType().isAir()||item.getAmount()!=1)throw new IOException("Повреждён образец товара "+c.terms().shortId());}broken=false;errors.clear();}
+        catch(Exception ex){broken=true;plugin.getLogger().severe("Регулярные договоры остановлены: "+ex.getMessage());}} }
+    public void flushReputation(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(available())repo.flushReputation();} }
+    public void beforeTradeQuote(){ synchronized (ru.neverland.core.SuiteState.lock()) {writable();flushReputation();if(repo.pendingReputation()>0)throw new IllegalStateException("Ожидается обновление торговой репутации; повторите позже");} }
+    public boolean available(){ synchronized (ru.neverland.core.SuiteState.lock()) {return !broken&&repo.writable();} }
+    private void writable(){if(!ru.neverland.core.SuiteState.held())throw new IllegalStateException("Требуется основной поток");if(!available())throw new IllegalStateException("Регулярные договоры остановлены после ошибки записи. Обратитесь к администратору");}
+    public List<SupplyContract> all(){ synchronized (ru.neverland.core.SuiteState.lock()) {return repo.all().stream().sorted(Comparator.comparingLong((SupplyContract c)->c.terms().created()).reversed().thenComparing(c->c.terms().id())).toList();} }
+    public List<SupplyContract> town(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {return all().stream().filter(c->c.terms().party(id)).sorted(Comparator.comparing((SupplyContract c)->!c.open())).toList();} }
+    public SupplyContract find(String prefix){ synchronized (ru.neverland.core.SuiteState.lock()) {if(prefix==null||prefix.length()<8)return null;var matches=all().stream().filter(c->c.terms().id().toString().startsWith(prefix.toLowerCase(Locale.ROOT))).toList();return matches.size()==1?matches.get(0):null;} }
     private SupplyContract require(UUID town,String id){var c=find(id);if(c==null||!c.terms().party(town))throw new IllegalArgumentException("Договор не найден в вашем городе");return c;}
-    public int defaultDays(){return Math.max(1,Math.min(30,plugin.getConfig().getInt("contracts.default-days",7)));}
-    public SupplyContract propose(Town seller,Town buyer,ItemStack item,int amount,long cents,int days)throws IOException {return propose(seller,buyer,item,amount,cents,days,null);}
-    public SupplyContract propose(Town seller,Town buyer,ItemStack item,int amount,long cents,int days,UUID actor)throws IOException {
+    public int defaultDays(){ synchronized (ru.neverland.core.SuiteState.lock()) {return Math.max(1,Math.min(30,plugin.getConfig().getInt("contracts.default-days",7)));} }
+    public SupplyContract propose(Town seller,Town buyer,ItemStack item,int amount,long cents,int days)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {return propose(seller,buyer,item,amount,cents,days,null);} }
+    public SupplyContract propose(Town seller,Town buyer,ItemStack item,int amount,long cents,int days,UUID actor)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         writable();if(!plugin.getConfig().getBoolean("contracts.enabled",true))throw new IllegalArgumentException("Новые автопоставки отключены администратором");
         if(seller==null||buyer==null||seller.equals(buyer))throw new IllegalArgumentException("Нужен другой существующий город");
         if(!gateway.available())throw new IllegalArgumentException("Обновите NeverLandTownyBuilds до 0.8.7 или новее");
@@ -42,9 +42,9 @@ public final class SupplyService {
             ru.neverland.minttrade.util.ColorUtil.strip(trade.registry().itemName(sample)),amount,cents,days,now,expiration));
         String blocked=gateway.termsReady(c);if(blocked!=null)throw new IllegalArgumentException(blocked);
         repo.prune(1000);repo.put(c);auditAgreement(c,actor,"PROPOSED");announce(c,"contract-proposed");return c;
-    }
-    public SupplyContract action(UUID town,String id,String action,Terms expected)throws IOException {return action(town,id,action,expected,null);}
-    public SupplyContract action(UUID town,String id,String action,Terms expected,UUID actor)throws IOException {
+    } }
+    public SupplyContract action(UUID town,String id,String action,Terms expected)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {return action(town,id,action,expected,null);} }
+    public SupplyContract action(UUID town,String id,String action,Terms expected,UUID actor)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         writable();var c=require(town,id);if(!c.terms().equals(expected))throw new IllegalArgumentException("Условия изменились; заново откройте договор и проверьте их");long now=System.currentTimeMillis();
         var next=switch(action){
             case "accept" -> {if(!plugin.getConfig().getBoolean("contracts.enabled",true)||!gateway.available())throw new IllegalArgumentException("Новые автопоставки отключены или склад недоступен");String blocked=gateway.termsReady(c);if(blocked!=null)throw new IllegalArgumentException(blocked);yield c.accept(town,now);}
@@ -56,12 +56,12 @@ public final class SupplyService {
         if(c.status()==Status.ACTIVE && next.status()==Status.CANCELLED)
             outcomes.add(ru.neverland.core.ReputationOutcome.town("supply-cancel:"+c.terms().id(),town,"SUPPLY_CANCELLED",now,"Расторгнут договор "+c.terms().shortId()));
         repo.put(next,outcomes);auditAgreement(next,actor,action.toUpperCase(Locale.ROOT));flushReputation();announce(next,"contract-changed");return next;
-    }
+    } }
     private void auditAgreement(SupplyContract c,UUID actor,String action){var t=c.terms();ru.neverland.core.AuditTrail.record(plugin,UUID.randomUUID().toString(),t.id().toString(),"SUPPLY_AGREEMENT",action,ru.neverland.core.AuditTrail.player(actor),ru.neverland.core.AuditTrail.town(t.seller()),ru.neverland.core.AuditTrail.town(t.buyer()),ru.neverland.core.AuditTrail.item(SupplyGateway.decode(t.itemData())),t.amount(),ru.neverland.core.AuditTrail.cents(t.cents()),"Условия договора; период дней="+t.days());}
-    public void resolve(String id,UUID attempt,String decision)throws IOException {
+    public void resolve(String id,UUID attempt,String decision)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         writable();var c=SupplyProcessor.resolve(find(id),attempt,decision,System.currentTimeMillis());repo.put(c);
         plugin.getLogger().warning("Сверка договора "+c.terms().id()+", поставка "+attempt+": "+decision);announce(c,"contract-changed");
-    }
+    } }
     private void tick(){if(!available())return;flushReputation();long now=System.currentTimeMillis();long retry=Math.max(30,Math.min(3600,plugin.getConfig().getInt("contracts.retry-seconds",300)))*1000L;
         var pending=repo.all().stream().filter(SupplyContract::open).toList();
         int budget=Math.max(1,Math.min(50,plugin.getConfig().getInt("contracts.process-per-second",8)));
@@ -81,5 +81,5 @@ public final class SupplyService {
             }
         }
     }
-    private void announce(SupplyContract c,String key){for(var player:Bukkit.getOnlinePlayers()){var t=towny.town(player);if(t!=null&&c.terms().party(t.getUUID())&&towny.isManager(player,t))messages.send(player,key,Map.of("id",c.terms().shortId(),"item",c.terms().itemName(),"amount",c.terms().amount(),"price",SupplyContract.money(c.terms().cents()),"days",c.terms().days()));}}
+    private void announce(SupplyContract c,String key){ru.neverland.core.SuiteScheduler.players(plugin, player -> {{var t=towny.town(player);if(t!=null&&c.terms().party(t.getUUID())&&towny.isManager(player,t))messages.send(player,key,Map.of("id",c.terms().shortId(),"item",c.terms().itemName(),"amount",c.terms().amount(),"price",SupplyContract.money(c.terms().cents()),"days",c.terms().days()));}});}
 }

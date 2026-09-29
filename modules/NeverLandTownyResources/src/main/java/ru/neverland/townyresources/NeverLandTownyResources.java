@@ -14,7 +14,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 public final class NeverLandTownyResources extends JavaPlugin {
     private ResourcesService service;private boolean townCommand;private Runnable removePlaceholder;
-    @Override public void onEnable(){
+    @Override public void onEnable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 try{
         saveDefaultConfig();if(!new File(getDataFolder(),"buildings.yml").exists())saveResource("buildings.yml",false);
@@ -24,13 +24,13 @@ try{
         getServer().getPluginManager().registerEvents(menu,this);service.start();getServer().getServicesManager().register(TownyResourcesApi.class,service,this,ServicePriority.Normal);
         if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI"))try{var expansion=new ResourcesExpansion(service,getPluginMeta().getVersion());if(expansion.register())removePlaceholder=expansion::unregister;}catch(LinkageError ex){getLogger().warning("PlaceholderAPI несовместим: "+ex.getMessage());}
         getLogger().info("Городские ресурсы включены: восемь запасов, "+settings.buildings().size()+" профилей.");
-    }catch(Exception|LinkageError ex){getLogger().log(java.util.logging.Level.SEVERE,"Городские ресурсы не загружены; данные сохранены без перезаписи",ex);getServer().getPluginManager().disablePlugin(this);}}
+    }catch(Exception|LinkageError ex){getLogger().log(java.util.logging.Level.SEVERE,"Городские ресурсы не загружены; данные сохранены без перезаписи",ex);getServer().getPluginManager().disablePlugin(this);}} }
     private YamlConfiguration read(String name)throws Exception{
         var yaml=new YamlConfiguration();yaml.load(new File(getDataFolder(),name));try(var input=getResource(name)){if(input!=null)yaml.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(input,StandardCharsets.UTF_8)));}yaml.options().copyDefaults(true);return yaml;
     }
     private ResourcesSettings readSettings()throws Exception{return ResourcesSettings.load(read("config.yml"),read("buildings.yml"));}
-    public boolean reloadResources(){try{service.reload(readSettings());return true;}catch(Exception ex){getLogger().warning("Настройки ресурсов не применены: "+ex.getMessage());return false;}}
-    @Override public void onDisable(){
+    public boolean reloadResources(){ synchronized (ru.neverland.core.SuiteState.lock()) {try{service.reload(readSettings());return true;}catch(Exception ex){getLogger().warning("Настройки ресурсов не применены: "+ex.getMessage());return false;}} }
+    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
-if(service!=null)service.stop();if(removePlaceholder!=null)removePlaceholder.run();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"resources");}
+if(service!=null)service.stop();if(removePlaceholder!=null)removePlaceholder.run();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"resources");} }
 }

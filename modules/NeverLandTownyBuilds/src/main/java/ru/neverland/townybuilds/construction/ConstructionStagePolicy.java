@@ -5,7 +5,7 @@ public final class ConstructionStagePolicy {
     private ConstructionStagePolicy() {
     }
 
-    public static boolean requiresConstruction(int maximumPhysicalStage, int targetLevel) {
+    public static boolean requiresConstruction(int maximumPhysicalStage, int targetLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return maximumPhysicalStage > 0 && targetLevel > 0 && targetLevel <= maximumPhysicalStage;
-    }
+    } }
 }

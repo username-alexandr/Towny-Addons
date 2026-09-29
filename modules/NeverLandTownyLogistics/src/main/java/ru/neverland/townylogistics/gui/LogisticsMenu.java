@@ -12,12 +12,12 @@ import ru.neverland.localization.MaterialLabels;
 import java.util.*;
 import java.io.IOException;
 public final class LogisticsMenu implements Listener {
-    private static final class View implements InventoryHolder {final UUID town;final Map<Integer,String[]> actions=new HashMap<>();Inventory inventory;View(UUID town){this.town=town;}public Inventory getInventory(){return inventory;}}
+    private static final class View implements InventoryHolder {final UUID town;final Map<Integer,String[]> actions=new HashMap<>();Inventory inventory;View(UUID town){this.town=town;}public Inventory getInventory(){ synchronized (ru.neverland.core.SuiteState.lock()) {return inventory;} }}
     private final JavaPlugin plugin;private final LogisticsService service;private final LogisticsCommand command;private final MaterialLabels labels=new MaterialLabels();
     public LogisticsMenu(JavaPlugin plugin,LogisticsService service,LogisticsCommand command){this.plugin=plugin;this.service=service;this.command=command;}
     private String label(ItemStack item){if(item==null)return "Все предметы";if(item.hasItemMeta()&&item.getItemMeta().hasDisplayName())return item.getItemMeta().getDisplayName();return labels.name(item.getType().name());}
     private String name(Map<String,BuildsStorage.Depot> depots,String project){var d=depots.get(project);return d==null?"Недоступное здание ("+project+")":d.name();}
-    public void open(Player player,String mode,String id,int requested)throws IOException{
+    public void open(Player player,String mode,String id,int requested)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {
         var town=service.town(player);if(town==null||!player.hasPermission("neverlandtownylogistics.use"))return;UUID uuid=town.getUUID();var network=service.network(uuid);var depots=service.depots(uuid);boolean manager=service.manager(player,town);
         View v=new View(uuid);v.inventory=ru.neverland.core.MenuStyle.inventory(plugin, v,54,color("&2Логистика города"));List<Runnable> cards=new ArrayList<>();
         if(mode.equals("info")){
@@ -42,11 +42,11 @@ public final class LogisticsMenu implements Listener {
         }
         put(v,45,Material.MINECART,"&fМаршруты",new String[]{"routes"});put(v,46,Material.CHEST,"&fСклады зданий",new String[]{"depots"});put(v,47,Material.COMPASS,"&fУзлы",new String[]{"nodes"});put(v,48,Material.LEATHER_BOOTS,"&fКурьеры",new String[]{"couriers"});put(v,49,Material.BARREL,"&fГрузы в пути",new String[]{"cargo"});put(v,50,Material.GLOWSTONE_DUST,"&fПоказать сеть",new String[]{"map"});put(v,53,Material.BOOK,"&fКак создать маршрут",new String[]{"help"});
         player.openInventory(v.inventory);
-    }
+    } }
     private Material material(String id){Material value=Material.matchMaterial(id);return value!=null&&value.isItem()?value:Material.BRICKS;}
     private void put(View v,int slot,Material material,String title,String[] action,String... lore){var item=new ItemStack(material);var meta=item.getItemMeta();meta.setDisplayName(ru.neverland.core.MenuStyle.nameLegacy(color(title)));meta.setLore(ru.neverland.core.MenuStyle.loreStrings(Arrays.stream(lore).map(s->color("&7"+s)).toList()));item.setItemMeta(meta);v.inventory.setItem(slot,item);if(action!=null)v.actions.put(slot,action);}
     private static String color(String text){return ChatColor.translateAlternateColorCodes('&',text);}
-    @EventHandler public void click(InventoryClickEvent event){if(!(event.getView().getTopInventory().getHolder() instanceof View v))return;event.setCancelled(true);if(!(event.getWhoClicked() instanceof Player p)||event.getRawSlot()<0||event.getRawSlot()>=54)return;
-        var action=v.actions.get(event.getRawSlot());if(action==null)return;Bukkit.getScheduler().runTask(plugin,()->{if(!p.isOnline()||p.getOpenInventory().getTopInventory().getHolder()!=v)return;var t=service.town(p);if(t==null||!t.getUUID().equals(v.town)){p.closeInventory();return;}command.onCommand(p,null,"townylogistics",action);});}
-    @EventHandler public void drag(InventoryDragEvent event){if(event.getView().getTopInventory().getHolder() instanceof View)event.setCancelled(true);}
+    @EventHandler public void click(InventoryClickEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(event);return;}if(!(event.getView().getTopInventory().getHolder() instanceof View v))return;event.setCancelled(true);if(!(event.getWhoClicked() instanceof Player p)||event.getRawSlot()<0||event.getRawSlot()>=54)return;
+        var action=v.actions.get(event.getRawSlot());if(action==null)return;ru.neverland.core.SuiteScheduler.get().runTask(plugin,()->{if(!p.isOnline()||p.getOpenInventory().getTopInventory().getHolder()!=v)return;var t=service.town(p);if(t==null||!t.getUUID().equals(v.town)){p.closeInventory();return;}command.onCommand(p,null,"townylogistics",action);});} }
+    @EventHandler public void drag(InventoryDragEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(event);return;}if(event.getView().getTopInventory().getHolder() instanceof View)event.setCancelled(true);} }
 }

@@ -43,26 +43,26 @@ public final class BuildingBlueprintGenerator {
             "Основание", "Расширение", "Городской корпус", "Вертикальный акцент", "Монументальное завершение"
     };
 
-    public Set<String> supportedProjects() {
+    public Set<String> supportedProjects() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return SUPPORTED;
-    }
+    } }
 
-    public Set<String> supportedBuildings() {
+    public Set<String> supportedBuildings() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return BUILDINGS;
-    }
+    } }
 
-    public Set<String> supportedWonders() {
+    public Set<String> supportedWonders() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return WONDERS;
-    }
+    } }
 
-    public int maximumStage(String rawProjectId) {
+    public int maximumStage(String rawProjectId) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String projectId = rawProjectId == null ? "" : rawProjectId.toLowerCase(Locale.ROOT);
         return WONDERS.contains(projectId) ? 1 : BUILDINGS.contains(projectId) ? 5 : 0;
-    }
+    } }
 
-    public BlueprintPlan generate(String rawProjectId, int rawLevel) {
+    public BlueprintPlan generate(String rawProjectId, int rawLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return generateCurrent(rawProjectId, rawLevel, ConstructionSite.CURRENT_ARCHITECTURE_VERSION);
-    }
+    } }
 
     private BlueprintPlan generateCurrent(String rawProjectId, int rawLevel, int architectureVersion) {
         String projectId = rawProjectId == null ? "" : rawProjectId.toLowerCase(Locale.ROOT);
@@ -107,7 +107,7 @@ public final class BuildingBlueprintGenerator {
     }
 
     /** План первой ванильной архитектуры 0.3.0–0.3.1 нужен для безопасного обновления площадок. */
-    public BlueprintPlan generateArchitecture2(String rawProjectId, int rawLevel) {
+    public BlueprintPlan generateArchitecture2(String rawProjectId, int rawLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String projectId = rawProjectId == null ? "" : rawProjectId.toLowerCase(Locale.ROOT);
         int level = Math.max(1, Math.min(5, rawLevel));
         if (!CORE_BUILDINGS.contains(projectId)) return null;
@@ -124,10 +124,10 @@ public final class BuildingBlueprintGenerator {
             default -> throw new IllegalStateException("Неизвестный чертёж " + projectId);
         }
         return new BlueprintPlan(projectId, level, stageName(projectId, level), builder.blocks);
-    }
+    } }
 
     /** План архитектуры 0.3.2 нужен для безопасного обновления существующих площадок. */
-    public BlueprintPlan generateArchitecture3(String rawProjectId, int rawLevel) {
+    public BlueprintPlan generateArchitecture3(String rawProjectId, int rawLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String projectId = rawProjectId == null ? "" : rawProjectId.toLowerCase(Locale.ROOT);
         int level = Math.max(1, Math.min(5, rawLevel));
         if (!CORE_BUILDINGS.contains(projectId)) return null;
@@ -144,9 +144,9 @@ public final class BuildingBlueprintGenerator {
             default -> throw new IllegalStateException("Неизвестный чертёж " + projectId);
         }
         return new BlueprintPlan(projectId, level, stageName(projectId, level), builder.blocks);
-    }
+    } }
 
-    public BlueprintPlan generateForArchitecture(String projectId, int level, int architectureVersion) {
+    public BlueprintPlan generateForArchitecture(String projectId, int level, int architectureVersion) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String normalized = projectId == null ? "" : projectId.toLowerCase(Locale.ROOT);
         if (WONDERS.contains(normalized)) return generateCurrent(normalized, level, architectureVersion);
         if (IMPORTED_BUILDINGS.contains(normalized)) return architectureVersion < 6
@@ -162,10 +162,10 @@ public final class BuildingBlueprintGenerator {
         if (architectureVersion == 2) return generateArchitecture2(projectId, level);
         if (architectureVersion == 3) return generateArchitecture3(projectId, level);
         return generateCurrent(projectId, level, architectureVersion);
-    }
+    } }
 
     /** План архитектуры 0.2.x используется только для безопасного обновления существующих площадок. */
-    public BlueprintPlan generateLegacy(String rawProjectId, int rawLevel) {
+    public BlueprintPlan generateLegacy(String rawProjectId, int rawLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String projectId = rawProjectId == null ? "" : rawProjectId.toLowerCase(Locale.ROOT);
         int level = Math.max(1, Math.min(5, rawLevel));
         if (!CORE_BUILDINGS.contains(projectId)) return null;
@@ -182,9 +182,9 @@ public final class BuildingBlueprintGenerator {
             default -> throw new IllegalStateException("Неизвестный старый чертёж " + projectId);
         }
         return new BlueprintPlan(projectId, level, stageName(projectId, level), builder.blocks);
-    }
+    } }
 
-    public String stageName(String projectId, int level) {
+    public String stageName(String projectId, int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(projectId!=null&&SpecializationBlueprintGenerator.PROJECTS.contains(projectId.toLowerCase(Locale.ROOT)))return SPECIALIZATION_GENERATOR.stageName(level);
         if(projectId!=null&&PowerBlueprintGenerator.PROJECTS.contains(projectId.toLowerCase(Locale.ROOT)))return POWER_GENERATOR.stageName(level);
         if (projectId != null && EXPANSION_BUILDINGS.contains(projectId.toLowerCase(Locale.ROOT))) {
@@ -219,7 +219,7 @@ public final class BuildingBlueprintGenerator {
             default -> GENERIC_STAGES;
         };
         return stages[Math.max(1, Math.min(stages.length, level)) - 1];
-    }
+    } }
 
     private static Set<String> union(Set<String> first, Set<String> second) {
         Set<String> combined = new LinkedHashSet<>(first);

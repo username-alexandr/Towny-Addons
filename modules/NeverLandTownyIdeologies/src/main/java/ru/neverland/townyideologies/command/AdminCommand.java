@@ -39,7 +39,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, @NotNull String[] args) {
+                             @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!sender.hasPermission("neverlandtownyideologies.admin")) {
             messages.send(sender, "no-permission");
             return true;
@@ -106,11 +106,11 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         }
         messages.send(sender, "admin-usage");
         return true;
-    }
+    } }
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
-                                                 @NotNull String label, @NotNull String[] args) {
+                                                 @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (args.length == 1) return filter(List.of("reload", "info", "set", "reset"), args[0]);
         if (args.length == 2 && !args[0].equalsIgnoreCase("reload")) {
             return filter(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[1]);
@@ -120,7 +120,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 4 && args[0].equalsIgnoreCase("set")) return filter(List.of("1", "2", "3", "4", "5"), args[3]);
         return List.of();
-    }
+    } }
 
     private boolean notFound(CommandSender sender) {
         messages.send(sender, "player-not-found");

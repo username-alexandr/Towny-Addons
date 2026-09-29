@@ -23,11 +23,11 @@ public final class DefinitionRegistry {
     private final Map<String, LawDefinition> laws = new LinkedHashMap<>();
     private final Map<String, OfficeDefinition> offices = new LinkedHashMap<>();
     public DefinitionRegistry(JavaPlugin plugin) { this.plugin = plugin; reload(); }
-    public void reload() { loadLaws(); loadOffices(); }
-    public LawDefinition law(String id) { return id == null ? null : laws.get(id.toLowerCase(Locale.ROOT)); }
-    public OfficeDefinition office(String id) { return id == null ? null : offices.get(id.toLowerCase(Locale.ROOT)); }
-    public Collection<LawDefinition> laws() { return Collections.unmodifiableCollection(laws.values()); }
-    public Collection<OfficeDefinition> offices() { return Collections.unmodifiableCollection(offices.values()); }
+    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) { loadLaws(); loadOffices(); } }
+    public LawDefinition law(String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return id == null ? null : laws.get(id.toLowerCase(Locale.ROOT)); } }
+    public OfficeDefinition office(String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return id == null ? null : offices.get(id.toLowerCase(Locale.ROOT)); } }
+    public Collection<LawDefinition> laws() { synchronized (ru.neverland.core.SuiteState.lock()) { return Collections.unmodifiableCollection(laws.values()); } }
+    public Collection<OfficeDefinition> offices() { synchronized (ru.neverland.core.SuiteState.lock()) { return Collections.unmodifiableCollection(offices.values()); } }
 
     private void loadLaws() {
         laws.clear();

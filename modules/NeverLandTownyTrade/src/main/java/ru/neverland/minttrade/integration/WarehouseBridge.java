@@ -14,19 +14,19 @@ public final class WarehouseBridge {
       return ApiServices.connect("NeverLandTownyBuilds", "ru.neverland.townybuilds.api.WarehouseApi", 1, "transfer", "transferred", "acknowledgeMovement");
    }
 
-   public boolean available() {
+   public boolean available() { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.api().ready();
-   }
+   } }
 
-   public WarehouseBridge.Result take(UUID town, ItemStack sample, int amount) {
+   public WarehouseBridge.Result take(UUID town, ItemStack sample, int amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.change("take", town, sample, amount);
-   }
+   } }
 
-   public WarehouseBridge.Result deposit(UUID town, ItemStack sample, int amount) {
+   public WarehouseBridge.Result deposit(UUID town, ItemStack sample, int amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.change("deposit", town, sample, amount);
-   }
+   } }
 
-   public WarehouseBridge.Result transfer(UUID operation, UUID town, ItemStack sample, int amount, boolean incoming) throws Exception {
+   public WarehouseBridge.Result transfer(UUID operation, UUID town, ItemStack sample, int amount, boolean incoming) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
       ApiServices.Connection c = this.api();
       if (!c.ready()) {
          return new WarehouseBridge.Result(WarehouseBridge.Status.UNAVAILABLE, 0);
@@ -36,25 +36,25 @@ public final class WarehouseBridge {
          );
          return new WarehouseBridge.Result(WarehouseBridge.Status.valueOf((String)r.get("status")), ((Number)r.get("amount")).intValue());
       }
-   }
+   } }
 
-   public boolean transferred(UUID operation, UUID town) throws Exception {
+   public boolean transferred(UUID operation, UUID town) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
       ApiServices.Connection c = this.api();
       if (!c.ready()) {
          throw new IllegalStateException("Склад недоступен");
       } else {
          return Boolean.TRUE.equals(c.invoke("transferred", new Class[]{UUID.class, UUID.class}, operation, town));
       }
-   }
+   } }
 
-   public void acknowledge(UUID operation, UUID town) throws Exception {
+   public void acknowledge(UUID operation, UUID town) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
       ApiServices.Connection c = this.api();
       if (!c.ready()) {
          throw new IllegalStateException("Склад недоступен");
       } else {
          c.invoke("acknowledgeMovement", new Class[]{UUID.class, UUID.class}, operation, town);
       }
-   }
+   } }
 
    private WarehouseBridge.Result change(String method, UUID town, ItemStack sample, int amount) {
       ApiServices.Connection connection = this.api();

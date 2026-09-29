@@ -11,15 +11,15 @@ import com.palmergames.bukkit.towny.TownyAPI;
 import ru.neverland.core.MenuStyle;
 
 public final class ElectionsMenus implements Listener {
-    public record Holder(UUID viewer,UUID town,UUID election,String race,int page,List<String> entries,Set<UUID> selected,Inventory back) implements InventoryHolder {public Inventory getInventory(){return null;}}
+    public record Holder(UUID viewer,UUID town,UUID election,String race,int page,List<String> entries,Set<UUID> selected,Inventory back) implements InventoryHolder {public Inventory getInventory(){ synchronized (ru.neverland.core.SuiteState.lock()) {return null;} }}
     private static final int[] CELLS={10,11,12,13,14,15,16,19,20,21,22,23,24,25,28,29,30,31,32,33,34,37,38,39,40,41,42,43};
     private final NeverLandTownyElections plugin;private final ElectionsService service;
     public ElectionsMenus(NeverLandTownyElections plugin,ElectionsService service){this.plugin=plugin;this.service=service;}
-    public String name(String race){return service.settings().names().getOrDefault(race,race);}
-    public static String residentName(UUID id){var r=TownyAPI.getInstance().getResident(id);return r==null?id.toString():r.getName();}
-    public static String phase(Election.Phase p){return switch(p){case WAITING->"Ожидание";case NOMINATION->"Приём кандидатов";case VOTING->"Голосование";case APPLYING->"Применение итогов";case REVIEW->"Проверка администратором";case COMPLETE->"Завершено";case CANCELLED->"Отменено";};}
+    public String name(String race){ synchronized (ru.neverland.core.SuiteState.lock()) {return service.settings().names().getOrDefault(race,race);} }
+    public static String residentName(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {var r=TownyAPI.getInstance().getResident(id);return r==null?id.toString():r.getName();} }
+    public static String phase(Election.Phase p){ synchronized (ru.neverland.core.SuiteState.lock()) {return switch(p){case WAITING->"Ожидание";case NOMINATION->"Приём кандидатов";case VOTING->"Голосование";case APPLYING->"Применение итогов";case REVIEW->"Проверка администратором";case COMPLETE->"Завершено";case CANCELLED->"Отменено";};} }
     private static String time(long n){return n==0?"—":DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm 'UTC'").withZone(ZoneOffset.UTC).format(Instant.ofEpochMilli(n));}
-    public void open(Player p,String race,int requestedPage,Set<UUID> selection,Inventory previous) throws Exception {
+    public void open(Player p,String race,int requestedPage,Set<UUID> selection,Inventory previous) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!p.hasPermission("townyelections.use"))throw new IllegalArgumentException("Нет доступа к меню выборов.");
         var town=ElectionsService.requireTown(p);var e=service.state(town);String form=service.form(town);
         boolean disabled=service.settings().authoritarian()&&!form.equals("DEMOCRACY");
@@ -52,12 +52,12 @@ public final class ElectionsMenus implements Listener {
         else inv.setItem(49,item(Material.BOOK,"&eПомощь и результаты",List.of("&7Нажмите для списка команд.","&7Итоги: /t elections results")));
         inv.setItem(53,item(Material.CLOCK,"&fОбновить",List.of("&7Заново загрузить состояние кампании.")));
         p.openInventory(inv);
-    }
+    } }
     private static ItemStack item(Material m,String title,List<String> lore){var i=new ItemStack(m);var meta=i.getItemMeta();meta.setDisplayName(MenuStyle.nameLegacy(title));meta.setLore(MenuStyle.loreStrings(lore));i.setItemMeta(meta);return i;}
-    @EventHandler public void click(InventoryClickEvent event){
+    @EventHandler public void click(InventoryClickEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyElections")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if(!(event.getView().getTopInventory().getHolder() instanceof Holder h))return;event.setCancelled(true);
         if(!(event.getWhoClicked() instanceof Player p)||!p.getUniqueId().equals(h.viewer())||event.getRawSlot()<0||event.getRawSlot()>=54)return;
-        int slot=event.getRawSlot();Bukkit.getScheduler().runTask(plugin,()->{
+        int slot=event.getRawSlot();ru.neverland.core.SuiteScheduler.entity(plugin, p,()->{
             try{
                 var town=ElectionsService.requireTown(p);if(!town.getUUID().equals(h.town()))throw new IllegalArgumentException("Вы сменили город. Откройте меню заново.");
                 if(!p.hasPermission("townyelections.use"))throw new IllegalArgumentException("Доступ отозван.");
@@ -81,6 +81,6 @@ public final class ElectionsMenus implements Listener {
                 }
             }catch(Exception ex){p.sendMessage("§cВыборы: "+ex.getMessage());}
         });
-    }
-    @EventHandler public void drag(InventoryDragEvent event){if(event.getView().getTopInventory().getHolder() instanceof Holder)event.setCancelled(true);}
+    } }
+    @EventHandler public void drag(InventoryDragEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyElections")){ru.neverland.core.ModuleGate.stopEvent(event);return;}if(event.getView().getTopInventory().getHolder() instanceof Holder)event.setCancelled(true);} }
 }

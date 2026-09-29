@@ -44,7 +44,7 @@ public final class EffectFormatter {
     private EffectFormatter() {
     }
 
-    public static String format(String specification, Function<String, String> configuredName) {
+    public static String format(String specification, Function<String, String> configuredName) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String value = specification == null ? "" : specification.trim();
         int amplifier = 0;
         int separator = value.lastIndexOf(':');
@@ -63,7 +63,7 @@ public final class EffectFormatter {
         String name = configured == null || configured.isBlank()
                 ? DEFAULT_NAMES.getOrDefault(key, humanize(key)) : configured;
         return name + " " + roman(amplifier + 1);
-    }
+    } }
 
     private static String humanize(String key) {
         String value = key.replace('_', ' ').trim();

@@ -8,8 +8,8 @@ public final class ModuleLifecycle {
     private static final java.util.Set<JavaPlugin> started = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
     private ModuleLifecycle() {}
     /** Skip cleanup for a plugin whose enable body was deliberately never entered. */
-    public static boolean end(JavaPlugin plugin) { return started.remove(plugin); }
-    public static boolean begin(JavaPlugin plugin) {
+    public static boolean end(JavaPlugin plugin) { synchronized (ru.neverland.core.SuiteState.lock()) { SuiteScheduler.get().cancelTasks(plugin);return started.remove(plugin); } }
+    public static boolean begin(JavaPlugin plugin) { synchronized (ru.neverland.core.SuiteState.lock()) {
         try {
             Path folder=plugin.getDataFolder().toPath();Path control=ModulePauseStore.file(folder.getParent());
             var entry=ModulePauseStore.load(control).modules().get(plugin.getName());
@@ -22,11 +22,13 @@ public final class ModuleLifecycle {
                 ModulePauseStore.resumed(control,plugin.getName(),entry.pausedAt());
                 plugin.getLogger().info("Таймеры восстановлены после административной паузы без учёта времени отключения.");
             }
+            SuiteState.thaw(plugin.getName());
+            WorldTasks.initialize(plugin);
             started.add(plugin);
             return true;
         } catch(Exception e) {
             plugin.getLogger().log(java.util.logging.Level.SEVERE,"Запуск остановлен: не удалось безопасно восстановить модуль",e);
             plugin.getServer().getPluginManager().disablePlugin(plugin);return false;
         }
-    }
+    } }
 }

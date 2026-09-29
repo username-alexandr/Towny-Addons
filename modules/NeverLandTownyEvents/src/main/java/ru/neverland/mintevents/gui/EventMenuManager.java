@@ -52,7 +52,7 @@ public final class EventMenuManager implements Listener {
         this.messages = messages;
     }
 
-    public void open(Player player) {
+    public void open(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = towny.town(player);
         if (town == null) {
             messages.send(player, "no-town");
@@ -104,9 +104,9 @@ public final class EventMenuManager implements Listener {
                 "&7После завершения события восстановите утраченные блоки.",
                 "&7Проверить места: &f/t events repairs")));
         player.openInventory(inventory);
-    }
+    } }
 
-    public void openRepairs(Player player, Town town) { openRepairs(player, town, 0); }
+    public void openRepairs(Player player, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) { openRepairs(player, town, 0); } }
 
     private void openRepairs(Player player, Town town, int requestedPage) {
         List<ru.neverland.mintevents.model.FireDamage> damage = events.fires().damage(town.getUUID());
@@ -140,7 +140,7 @@ public final class EventMenuManager implements Listener {
         player.openInventory(inventory);
     }
 
-    public void confirmRepairs(Player player, Town town) {
+    public void confirmRepairs(Player player, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         try {
             int count = events.fires().confirmRepairs(player, events.fireActive(town.getUUID()));
             player.sendMessage(count > 0 ? "§aПодтверждено мест ремонта: §f" + count
@@ -151,14 +151,14 @@ public final class EventMenuManager implements Listener {
             player.sendMessage("§cНе удалось сохранить ремонт. Установленные блоки остались на месте; сообщите администратору.");
             plugin.getLogger().log(java.util.logging.Level.SEVERE, "Не удалось подтвердить ремонт после пожара", error);
         }
-    }
+    } }
 
     @EventHandler
-    public void onDrag(org.bukkit.event.inventory.InventoryDragEvent event) {
+    public void onDrag(org.bukkit.event.inventory.InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (event.getView().getTopInventory().getHolder() instanceof EventMenuHolder) event.setCancelled(true);
-    }
+    } }
 
-    public void openHistory(Player player, Town town) {
+    public void openHistory(Player player, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         EventMenuHolder holder = new EventMenuHolder(town.getUUID(), EventMenuHolder.Type.HISTORY);
         Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, holder, 54,
                 ColorUtil.color(plugin.getConfig().getString("gui.history-title", "История событий")));
@@ -178,10 +178,10 @@ public final class EventMenuManager implements Listener {
         }
         inventory.setItem(49, item(Material.ARROW, "&#FFFFFFНазад", List.of("&7Вернуться к событию.")));
         player.openInventory(inventory);
-    }
+    } }
 
     @EventHandler
-    public void onClick(InventoryClickEvent event) {
+    public void onClick(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEvents")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getInventory().getHolder() instanceof EventMenuHolder holder)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player)) return;
@@ -235,7 +235,7 @@ public final class EventMenuManager implements Listener {
         messages.send(player, "contributed", Map.of("amount", result.amount(), "item", rule.name(), "points", result.points()));
         if (completesGoal) messages.send(player, "goal-complete");
         open(player);
-    }
+    } }
 
     private ItemStack protectionItem(Town town, EventDefinition definition, ActiveEvent active) {
         List<String> lore = new ArrayList<>();

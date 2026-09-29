@@ -41,7 +41,7 @@ public final class HologramService implements Listener {
         this.legacyOwnerKey = NamespacedKey.fromString("minttownycamps:camp_owner");
     }
 
-    public void start() {
+    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
         stopTask();
         cleanupLoadedHolograms();
         if (!plugin.getConfig().getBoolean("settings.hologram.enabled", true)) {
@@ -50,50 +50,48 @@ public final class HologramService implements Listener {
             return;
         }
         long ticks = Math.max(10L, plugin.getConfig().getLong("settings.hologram.update-ticks", 20L));
-        task = Bukkit.getScheduler().runTaskTimer(plugin, this::updateAll, 1L, ticks);
-    }
+        task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::updateAll, 1L, ticks);
+    } }
 
-    public void updateAll() {
-        for (Camp camp : repository.all()) {
-            camps.updateCampfire(camp);
-            TextDisplay display = resolve(camp);
-            if (display == null) display = spawn(camp);
-            if (display != null) update(display, camp);
-        }
-    }
+    public void updateAll() { synchronized (ru.neverland.core.SuiteState.lock()) {
+        for(Camp camp:repository.all())if(camp.anchorLocation()!=null)ru.neverland.core.SuiteScheduler.region(plugin,camp.anchorLocation(),()->{
+            if(repository.get(camp.ownerId()).orElse(null)!=camp || !ru.neverland.core.WorldTasks.ownsBox(camp.anchorLocation(),6))return;
+            camps.updateCampfire(camp);TextDisplay display=resolve(camp);if(display==null)display=spawn(camp);if(display!=null)update(display,camp);
+        });
+    }}
 
-    public void remove(Camp camp) {
+    public void remove(Camp camp) { synchronized (ru.neverland.core.SuiteState.lock()) {
         UUID hologramId = camp.hologramId();
         if (hologramId != null) {
-            Entity entity = Bukkit.getEntity(hologramId);
-            if (entity != null) entity.remove();
+            Entity entity = ru.neverland.core.WorldTasks.find(hologramId);
+ru.neverland.core.WorldTasks.remove(plugin,entity);
         }
         World world = camp.world().orElse(null);
         Location anchor = camp.anchorLocation();
         if (world != null && anchor != null
-                && world.isChunkLoaded(anchor.getBlockX() >> 4, anchor.getBlockZ() >> 4)) {
+                && ru.neverland.core.SuiteScheduler.owns(anchor) && world.isChunkLoaded(anchor.getBlockX() >> 4, anchor.getBlockZ() >> 4)) {
             removeOwnedDisplays(world.getChunkAt(anchor), camp.ownerId());
         }
         camp.hologramId(null);
         repository.markDirty();
-    }
+    } }
 
-    public void stop(boolean removeDisplays) {
+    public void stop(boolean removeDisplays) { synchronized (ru.neverland.core.SuiteState.lock()) {
         stopTask();
         if (removeDisplays) for (Camp camp : repository.all()) remove(camp);
-    }
+    } }
 
     @EventHandler
-    public void onChunkLoad(ChunkLoadEvent event) {
+    public void onChunkLoad(ChunkLoadEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (plugin.getConfig().getBoolean("settings.hologram.enabled", true)) reconcileChunk(event.getChunk());
         else removePluginDisplays(event.getChunk());
         repository.saveIfDirty();
-    }
+    } }
 
     private TextDisplay resolve(Camp camp) {
         if (camp.hologramId() != null) {
-            Entity entity = Bukkit.getEntity(camp.hologramId());
-            if (entity instanceof TextDisplay text && entity.isValid() && belongsTo(text, camp)) return text;
+            Entity entity = ru.neverland.core.WorldTasks.find(camp.hologramId());
+            if (entity instanceof TextDisplay text && ru.neverland.core.SuiteScheduler.owns(entity) && entity.isValid() && belongsTo(text, camp)) return text;
             camp.hologramId(null);
             repository.markDirty();
         }
@@ -110,12 +108,7 @@ public final class HologramService implements Listener {
         return null;
     }
 
-    private void cleanupLoadedHolograms() {
-        for (World world : Bukkit.getWorlds()) {
-            for (Chunk chunk : world.getLoadedChunks()) reconcileChunk(chunk);
-        }
-        repository.saveIfDirty();
-    }
+    private void cleanupLoadedHolograms() {ru.neverland.core.WorldTasks.eachChunk(plugin,this::reconcileChunk);}
 
     private void reconcileChunk(Chunk chunk) {
         for (Entity entity : chunk.getEntities()) {
@@ -134,8 +127,8 @@ public final class HologramService implements Listener {
                 display.remove();
                 continue;
             }
-            Entity tracked = camp.hologramId() == null ? null : Bukkit.getEntity(camp.hologramId());
-            if (tracked instanceof TextDisplay current && current.isValid() && !current.getUniqueId().equals(display.getUniqueId())) {
+            Entity tracked = camp.hologramId() == null ? null : ru.neverland.core.WorldTasks.find(camp.hologramId());
+            if (tracked instanceof TextDisplay current && ru.neverland.core.SuiteScheduler.owns(current) && current.isValid() && !current.getUniqueId().equals(display.getUniqueId())) {
                 display.remove();
                 continue;
             }

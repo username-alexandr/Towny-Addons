@@ -28,7 +28,7 @@ public final class MORSTownStick extends JavaPlugin {
     private TownCommandInterceptor commandInterceptor;
 
     @Override
-    public void onEnable() {
+    public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         ru.neverland.morstownstick.util.LegacyDataMigrator.migrate(this, "MORSTownStick");
@@ -71,16 +71,16 @@ public final class MORSTownStick extends JavaPlugin {
         manager.registerEvents(new TownBorderListener(borders), this);
         particles.start();
         getLogger().info("NeverLandTownyStick 0.1.6 включён: список выделения, BFS-захват и защита палки активны.");
-    }
+    } }
 
-    public void reloadPlugin() {
+    public void reloadPlugin() { synchronized (ru.neverland.core.SuiteState.lock()) {
         reloadConfig();
         borders.clear();
         particles.start();
-    }
+    } }
 
     @Override
-    public void onDisable() {
+    public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (commandInterceptor != null) commandInterceptor.uninstall();
@@ -88,5 +88,5 @@ public final class MORSTownStick extends JavaPlugin {
         if (claims != null) claims.shutdown();
         if (selections != null) selections.clearAll();
         if (towny != null) towny.unregisterStickCommand();
-    }
+    } }
 }

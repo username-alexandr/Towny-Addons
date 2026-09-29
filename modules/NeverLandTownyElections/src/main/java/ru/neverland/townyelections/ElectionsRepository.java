@@ -13,10 +13,10 @@ public final class ElectionsRepository {
     private Map<UUID,Election> towns = Map.of();
     private boolean ready;
     public ElectionsRepository(Path file) { this.file = file; }
-    public boolean healthy() { return ready && AtomicFiles.writable(file); }
-    public Election get(UUID town) { var e = towns.get(town); return e == null ? null : e.copy(); }
-    public Set<UUID> towns() { return Set.copyOf(towns.keySet()); }
-    public void load() throws Exception {
+    public boolean healthy() { synchronized (ru.neverland.core.SuiteState.lock()) { return ready && AtomicFiles.writable(file); } }
+    public Election get(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { var e = towns.get(town); return e == null ? null : e.copy(); } }
+    public Set<UUID> towns() { synchronized (ru.neverland.core.SuiteState.lock()) { return Set.copyOf(towns.keySet()); } }
+    public void load() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
         ready = false; var next = new LinkedHashMap<UUID,Election>();
         if (Files.exists(file)) {
             var y = new YamlConfiguration(); y.load(file.toFile()); SafeYaml.keys(y,"schema","towns");
@@ -28,15 +28,15 @@ public final class ElectionsRepository {
             }
         }
         towns = Map.copyOf(next); AtomicFiles.loaded(file); ready = true;
-    }
-    public void put(Election election) throws IOException {
+    } }
+    public void put(Election election) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!healthy()) throw new IOException("Журнал выборов заблокирован после ошибки записи; нужен перезапуск после восстановления.");
         election.validate(); var next = new LinkedHashMap<>(towns); next.put(election.town, election.copy());
         var y = new YamlConfiguration(); y.set("schema",1); var root = y.createSection("towns");
         next.forEach((id,e) -> write(root.createSection(id.toString()),e));
         try { AtomicFiles.write(file, y::saveToString); towns = Map.copyOf(next); }
         catch (IOException ex) { ready = false; throw ex; }
-    }
+    } }
     private static void write(ConfigurationSection s, Election e) {
         s.set("id",e.id.toString()); s.set("town",e.town.toString()); s.set("phase",e.phase.name());
         s.set("governance-before", e.governanceBefore);

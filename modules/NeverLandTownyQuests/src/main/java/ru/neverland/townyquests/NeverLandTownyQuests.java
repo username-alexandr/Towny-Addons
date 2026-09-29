@@ -15,7 +15,7 @@ import ru.neverland.townyquests.service.QuestService;
 
 public final class NeverLandTownyQuests extends JavaPlugin {
     private QuestService service; private QuestMenu menu; private boolean townCommand;
-    @Override public void onEnable() {
+    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
         try {
             saveDefaultConfig(); if (!new File(getDataFolder(), "quests.yml").exists()) saveResource("quests.yml", false);
@@ -32,7 +32,7 @@ public final class NeverLandTownyQuests extends JavaPlugin {
             getLogger().log(java.util.logging.Level.SEVERE, "Городские проекты приостановлены. Сохранённые данные не перезаписаны.", ex);
             getServer().getPluginManager().disablePlugin(this);
         }
-    }
+    } }
     private YamlConfiguration read(String name, boolean defaults) throws Exception {
         var y = new YamlConfiguration(); y.load(new File(getDataFolder(), name));
         if (defaults) try (var input = getResource(name)) {
@@ -42,11 +42,11 @@ public final class NeverLandTownyQuests extends JavaPlugin {
         return y;
     }
     private QuestSettings settings() throws Exception { return QuestSettings.load(read("config.yml", true), read("quests.yml", false)); }
-    public void reloadQuests() throws Exception { var next = settings(); service.reload(next); menu.close(); }
-    @Override public void onDisable() {
+    public void reloadQuests() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) { var next = settings(); service.reload(next); menu.close(); } }
+    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
         if (service != null) service.stop(); if (menu != null) menu.close();
         getServer().getServicesManager().unregisterAll(this);
         if (townCommand) TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN, "quests");
-    }
+    } }
 }

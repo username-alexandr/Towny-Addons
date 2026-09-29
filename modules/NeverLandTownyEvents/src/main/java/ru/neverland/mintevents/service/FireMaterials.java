@@ -9,7 +9,7 @@ public final class FireMaterials {
     private static final Set<String> SHAPES=Set.of("PLANKS","STAIRS","SLAB","FENCE","FENCE_GATE","TRAPDOOR","PRESSURE_PLATE","BUTTON","LOG","WOOD");
     private static final Set<String> COLORS=Set.of("WHITE","ORANGE","MAGENTA","LIGHT_BLUE","YELLOW","LIME","PINK","GRAY","LIGHT_GRAY","CYAN","PURPLE","BLUE","BROWN","GREEN","RED","BLACK");
     private FireMaterials() { }
-    public static boolean combustible(String material) {
+    public static boolean combustible(String material) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(material==null)return false;
         String name=material.toUpperCase(Locale.ROOT);
         if(name.equals("BOOKSHELF")||name.equals("CRAFTING_TABLE")||name.equals("LADDER")||name.equals("BAMBOO_MOSAIC")||name.equals("BAMBOO_MOSAIC_STAIRS")||name.equals("BAMBOO_MOSAIC_SLAB"))return true;
@@ -21,8 +21,8 @@ public final class FireMaterials {
         if(name.equals("BAMBOO_LOG")||name.equals("BAMBOO_WOOD"))return false;
         for(String wood:WOOD)if(name.startsWith(wood+"_")&&SHAPES.contains(name.substring(wood.length()+1)))return true;
         return false;
-    }
-    public static boolean structuralMarker(String name) {
+    } }
+    public static boolean structuralMarker(String name) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return combustible(name)&&!name.endsWith("_LOG")&&!name.endsWith("_WOOD");
-    }
+    } }
 }

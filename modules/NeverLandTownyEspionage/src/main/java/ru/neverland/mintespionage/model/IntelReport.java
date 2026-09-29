@@ -11,8 +11,8 @@ public final class IntelReport {
         this.id=id; this.ownerTownId=ownerTownId; this.targetTownId=targetTownId; this.targetName=targetName; this.type=type;
         this.createdAt=createdAt; this.expiresAt=expiresAt; this.lines=List.copyOf(lines); this.read=read;
     }
-    public UUID id(){return id;} public UUID ownerTownId(){return ownerTownId;} public UUID targetTownId(){return targetTownId;}
-    public String targetName(){return targetName;} public String type(){return type;} public long createdAt(){return createdAt;}
-    public long expiresAt(){return expiresAt;} public List<String> lines(){return lines;} public boolean read(){return read;}
-    public void markRead(){read=true;} public boolean expired(long now){return expiresAt>0 && expiresAt<=now;}
+    public UUID id(){ synchronized (ru.neverland.core.SuiteState.lock()) {return id;} } public UUID ownerTownId(){ synchronized (ru.neverland.core.SuiteState.lock()) {return ownerTownId;} } public UUID targetTownId(){ synchronized (ru.neverland.core.SuiteState.lock()) {return targetTownId;} }
+    public String targetName(){ synchronized (ru.neverland.core.SuiteState.lock()) {return targetName;} } public String type(){ synchronized (ru.neverland.core.SuiteState.lock()) {return type;} } public long createdAt(){ synchronized (ru.neverland.core.SuiteState.lock()) {return createdAt;} }
+    public long expiresAt(){ synchronized (ru.neverland.core.SuiteState.lock()) {return expiresAt;} } public List<String> lines(){ synchronized (ru.neverland.core.SuiteState.lock()) {return lines;} } public boolean read(){ synchronized (ru.neverland.core.SuiteState.lock()) {return read;} }
+    public void markRead(){ synchronized (ru.neverland.core.SuiteState.lock()) {read=true;} } public boolean expired(long now){ synchronized (ru.neverland.core.SuiteState.lock()) {return expiresAt>0 && expiresAt<=now;} }
 }

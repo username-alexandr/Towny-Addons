@@ -13,11 +13,11 @@ public final class ResourcesCommand implements CommandExecutor,TabCompleter {
     private final NeverLandTownyResources plugin;private final ResourcesService service;private final ResourcesMenu menu;
     public ResourcesCommand(NeverLandTownyResources plugin,ResourcesService service,ResourcesMenu menu){this.plugin=plugin;this.service=service;this.menu=menu;}
     private static void count(String[] args,int count,String usage){if(args.length!=count)throw new IllegalArgumentException(usage);}
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyResources")){return true;}
         try{execute(sender,args);}catch(IOException ex){plugin.getLogger().warning("Операция ресурсов не сохранена: "+ex.getMessage());Ui.tell(sender,"&cОшибка записи данных; проверьте консоль.");}
         catch(NumberFormatException ex){Ui.tell(sender,"&cОжидается целое число.");}
         catch(IllegalArgumentException|IllegalStateException|ArithmeticException ex){Ui.tell(sender,"&c"+(ex.getMessage()==null?"Проверьте аргументы команды":ex.getMessage()));}return true;
-    }
+    } }
     private Town findTown(String text){Town town;try{town=TownyAPI.getInstance().getTown(UUID.fromString(text));}catch(IllegalArgumentException ex){town=TownyAPI.getInstance().getTown(text);}if(town==null)throw new IllegalArgumentException("Город не найден");return town;}
     private void execute(CommandSender sender,String[] args)throws IOException{
         String action=args.length==0?"menu":args[0].toLowerCase(Locale.ROOT);
@@ -42,12 +42,12 @@ public final class ResourcesCommand implements CommandExecutor,TabCompleter {
         }
         Ui.tell(player,"&aНастройки города сохранены.");menu.open(player,id,"menu",null,0);
     }
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
         List<String> options=new ArrayList<>();boolean admin=sender.hasPermission("neverlandtownyresources.admin");
         if(args.length==1){if(admin)options.addAll(List.of("reload","set","add","take","town"));if(sender.hasPermission("neverlandtownyresources.use"))options.addAll(List.of("menu","buildings","info","help","pause","resume","priority","keep"));}
         else if(args.length==2&&Set.of("info","pause","resume","priority").contains(args[0]))options.addAll(service.settings().buildings().keySet());
         else if((args.length==2&&args[0].equals("keep"))||(args.length==3&&admin&&Set.of("set","add","take").contains(args[0])))for(var r:Resource.values())options.add(r.id());
         else if(args.length==2&&admin&&Set.of("set","add","take","town").contains(args[0]))for(var town:TownyAPI.getInstance().getTowns())options.add(town.getName());
         String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return options.stream().filter(s->s.toLowerCase(Locale.ROOT).startsWith(prefix)).sorted().toList();
-    }
+    } }
 }

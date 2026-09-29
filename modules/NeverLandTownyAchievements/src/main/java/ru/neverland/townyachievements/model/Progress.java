@@ -6,13 +6,13 @@ public record Progress(Achievement definition, long best, long earnedAt) {
                 || (earnedAt > 0) != (best == definition.target()))
             throw new IllegalArgumentException("Повреждён прогресс достижения");
     }
-    public static Progress begin(Achievement definition) { return new Progress(definition, 0, 0); }
-    public boolean earned() { return earnedAt > 0; }
+    public static Progress begin(Achievement definition) { synchronized (ru.neverland.core.SuiteState.lock()) { return new Progress(definition, 0, 0); } }
+    public boolean earned() { synchronized (ru.neverland.core.SuiteState.lock()) { return earnedAt > 0; } }
     /** One observation is a simultaneous city state, never a union of buildings across time. */
-    public Progress observe(long value, long now) {
+    public Progress observe(long value, long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (value < 0 || now < 1) throw new IllegalArgumentException("Некорректное наблюдение");
         if (earned()) return this;
         long next = Math.max(best, Math.min(definition.target(), value));
         return new Progress(definition, next, next == definition.target() ? now : 0);
-    }
+    } }
 }

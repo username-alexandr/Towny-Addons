@@ -24,13 +24,13 @@ public final class MintEventsExpansion extends PlaceholderExpansion {
         this.events = events;
     }
 
-    @Override public @NotNull String getIdentifier() { return "mintevents"; }
-    @Override public @NotNull String getAuthor() { return "Alexander Sokolov"; }
-    @Override public @NotNull String getVersion() { return plugin.getPluginMeta().getVersion(); }
-    @Override public boolean persist() { return true; }
+    @Override public @NotNull String getIdentifier() { synchronized (ru.neverland.core.SuiteState.lock()) { return "mintevents"; } }
+    @Override public @NotNull String getAuthor() { synchronized (ru.neverland.core.SuiteState.lock()) { return "Alexander Sokolov"; } }
+    @Override public @NotNull String getVersion() { synchronized (ru.neverland.core.SuiteState.lock()) { return plugin.getPluginMeta().getVersion(); } }
+    @Override public boolean persist() { synchronized (ru.neverland.core.SuiteState.lock()) { return true; } }
 
     @Override
-    public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) {
+    public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!(offline instanceof Player player)) return "";
         Town town = towny.town(player);
         if (town == null) return defaultValue(params);
@@ -52,7 +52,7 @@ public final class MintEventsExpansion extends PlaceholderExpansion {
             case "protection" -> String.valueOf(Math.round(snapshot.protection() * 100));
             default -> null;
         };
-    }
+    } }
 
     private String defaultValue(String params) {
         return switch (params.toLowerCase()) {

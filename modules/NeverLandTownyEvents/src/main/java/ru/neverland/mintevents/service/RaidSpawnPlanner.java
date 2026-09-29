@@ -12,7 +12,7 @@ public final class RaidSpawnPlanner {
     public record Column(int x, int z) { }
 
     public static List<Integer> verticalCandidates(int highestY, int minHeight, int maxHeight,
-                                                   int scanDown, int scanUp) {
+                                                   int scanDown, int scanUp) { synchronized (ru.neverland.core.SuiteState.lock()) {
         int base = highestY + 1;
         int down = Math.max(1, scanDown);
         int up = Math.max(1, scanUp);
@@ -25,9 +25,9 @@ public final class RaidSpawnPlanner {
             distance++;
         }
         return result;
-    }
+    } }
 
-    public static List<Column> blockProbes(int minX, int maxX, int minZ, int maxZ) {
+    public static List<Column> blockProbes(int minX, int maxX, int minZ, int maxZ) { synchronized (ru.neverland.core.SuiteState.lock()) {
         int lowX = Math.min(minX, maxX);
         int highX = Math.max(minX, maxX);
         int lowZ = Math.min(minZ, maxZ);
@@ -49,7 +49,7 @@ public final class RaidSpawnPlanner {
         result.add(new Column(quarterX, centerZ));
         result.add(new Column(threeQuarterX, centerZ));
         return List.copyOf(result);
-    }
+    } }
 
     private static void addY(List<Integer> result, int y, int minHeight, int maxHeight) {
         if (y > minHeight && y + 1 < maxHeight && !result.contains(y)) result.add(y);

@@ -7,9 +7,9 @@ import ru.neverland.townydistricts.model.*;
 import java.util.*;
 public final class BorderPreview {
     private final DistrictService service;private final Map<UUID,Long> players=new HashMap<>();private final BukkitTask task;
-    public BorderPreview(Plugin plugin,DistrictService service){this.service=service;task=Bukkit.getScheduler().runTaskTimer(plugin,this::render,20,20);}
-    public void show(Player player){players.put(player.getUniqueId(),System.currentTimeMillis()+30000);render();}
-    public void stop(){players.clear();task.cancel();}
+    public BorderPreview(Plugin plugin,DistrictService service){this.service=service;task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::render,20,20);}
+    public void show(Player player){ synchronized (ru.neverland.core.SuiteState.lock()) {players.put(player.getUniqueId(),System.currentTimeMillis()+30000);render();} }
+    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {players.clear();task.cancel();} }
     private void render(){long now=System.currentTimeMillis();for(var entry:new ArrayList<>(players.entrySet())){
         Player p=Bukkit.getPlayer(entry.getKey());if(p==null||entry.getValue()<now||!p.hasPermission("neverlandtownydistricts.use")){players.remove(entry.getKey());continue;}
         var town=service.town(p);if(town==null)continue;int count=0,size=service.cellSize();var location=p.getLocation();

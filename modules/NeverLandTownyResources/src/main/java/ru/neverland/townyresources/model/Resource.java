@@ -6,9 +6,9 @@ public enum Resource {
     KNOWLEDGE("Знания", "BOOK"), INFLUENCE("Влияние", "NETHER_STAR");
     public final String title, icon;
     Resource(String title, String icon) { this.title=title; this.icon=icon; }
-    public String id() { return name().toLowerCase(Locale.ROOT); }
-    public static Resource parse(String text) {
+    public String id() { synchronized (ru.neverland.core.SuiteState.lock()) { return name().toLowerCase(Locale.ROOT); } }
+    public static Resource parse(String text) { synchronized (ru.neverland.core.SuiteState.lock()) {
         for (var r:values()) if(r.id().equalsIgnoreCase(text)||r.title.equalsIgnoreCase(text)) return r;
         throw new IllegalArgumentException("Неизвестный стратегический ресурс: "+text);
-    }
+    } }
 }

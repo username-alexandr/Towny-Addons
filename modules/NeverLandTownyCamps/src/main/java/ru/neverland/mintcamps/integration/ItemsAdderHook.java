@@ -17,7 +17,7 @@ public final class ItemsAdderHook {
         reload();
     }
 
-    public void reload() {
+    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
         available = false;
         if (!plugin.getConfig().getBoolean("settings.itemsadder.enabled", true)
                 || Bukkit.getPluginManager().getPlugin("ItemsAdder") == null) return;
@@ -30,9 +30,9 @@ public final class ItemsAdderHook {
         } catch (ReflectiveOperationException exception) {
             plugin.getLogger().warning("ItemsAdder найден, но API недоступен: " + exception.getMessage());
         }
-    }
+    } }
 
-    public ItemStack item(String id, int amount) {
+    public ItemStack item(String id, int amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!available || id == null || id.isBlank()) return null;
         try {
             Object custom = getInstance.invoke(null, id);
@@ -44,5 +44,5 @@ public final class ItemsAdderHook {
             plugin.getLogger().warning("Не удалось получить предмет ItemsAdder " + id + ": " + exception.getMessage());
             return null;
         }
-    }
+    } }
 }

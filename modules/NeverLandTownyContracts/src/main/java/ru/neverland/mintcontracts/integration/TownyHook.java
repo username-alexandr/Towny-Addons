@@ -14,22 +14,22 @@ import java.util.List;
 public final class TownyHook {
     private final JavaPlugin plugin;
     public TownyHook(JavaPlugin plugin) { this.plugin = plugin; }
-    public Resident resident(Player player) { return TownyAPI.getInstance().getResident(player); }
-    public Resident resident(java.util.UUID id) { return TownyAPI.getInstance().getResident(id); }
-    public Town town(Player player) { Resident resident = resident(player); return resident == null ? null : resident.getTownOrNull(); }
-    public Town town(String name) { return TownyAPI.getInstance().getTown(name); }
-    public Town town(java.util.UUID id) { return TownyAPI.getInstance().getTown(id); }
-    public Collection<Town> towns() { return TownyAPI.getInstance().getTowns(); }
-    public boolean isManager(Player player, Town town) {
+    public Resident resident(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getResident(player); } }
+    public Resident resident(java.util.UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getResident(id); } }
+    public Town town(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) { Resident resident = resident(player); return resident == null ? null : resident.getTownOrNull(); } }
+    public Town town(String name) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getTown(name); } }
+    public Town town(java.util.UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getTown(id); } }
+    public Collection<Town> towns() { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getTowns(); } }
+    public boolean isManager(Player player, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Resident resident = resident(player);
         if (resident == null || town == null || !town.equals(resident.getTownOrNull())) return false;
         if (plugin.getConfig().getBoolean("management.mayor", true) && town.isMayor(resident)) return true;
         List<String> ranks = plugin.getConfig().getStringList("management.allowed-town-ranks");
         for (String rank : ranks) if (resident.hasTownRank(rank)) return true;
         return false;
-    }
-    public boolean register(String name, CommandExecutor executor) {
+    } }
+    public boolean register(String name, CommandExecutor executor) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.TOWN, name, executor);
-    }
-    public void unregister(String name) { TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN, name); }
+    } }
+    public void unregister(String name) { synchronized (ru.neverland.core.SuiteState.lock()) { TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN, name); } }
 }

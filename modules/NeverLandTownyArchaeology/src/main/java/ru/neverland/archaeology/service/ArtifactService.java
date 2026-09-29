@@ -37,11 +37,11 @@ public final class ArtifactService implements Listener {
         artifactKey = new NamespacedKey(plugin, "artifact_id"); serialKey = new NamespacedKey(plugin, "artifact_serial"); signatureKey = new NamespacedKey(plugin, "artifact_signature"); batchSizeKey = new NamespacedKey(plugin, "artifact_batch_size");
         legacyArtifactKey = NamespacedKey.fromString("townyarchaeology:artifact_id"); legacySerialKey = NamespacedKey.fromString("townyarchaeology:artifact_serial"); legacySignatureKey = NamespacedKey.fromString("townyarchaeology:artifact_signature"); legacyBatchSizeKey = NamespacedKey.fromString("townyarchaeology:artifact_batch_size"); secret = loadSecret();
     }
-    public ItemStack create(String artifactId) {
+    public ItemStack create(String artifactId) { synchronized (ru.neverland.core.SuiteState.lock()) {
         List<ItemStack> batch = createBatch(artifactId, 1);
         return batch.isEmpty() ? null : batch.get(0);
-    }
-    public List<ItemStack> createBatch(String artifactId, int amount) {
+    } }
+    public List<ItemStack> createBatch(String artifactId, int amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ArtifactDefinition definition = registry.artifact(artifactId);
         if (definition == null || amount < 1) return List.of();
         int batchSize = amount;
@@ -57,7 +57,7 @@ public final class ArtifactService implements Listener {
             remaining -= stack.getAmount();
         }
         return List.copyOf(result);
-    }
+    } }
     private ItemStack createPrototype(ArtifactDefinition definition, UUID serial, int batchSize) {
         ItemStack stack = plugin.getConfig().getBoolean("itemsadder.enabled", true) ? itemsAdder.item(definition.itemsAdderIcon()) : null;
         if (stack == null) stack = new ItemStack(definition.material());
@@ -84,7 +84,7 @@ public final class ArtifactService implements Listener {
         stack.setItemMeta(meta);
         return stack;
     }
-    public ArtifactIdentity identity(ItemStack stack) {
+    public ArtifactIdentity identity(ItemStack stack) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (stack == null || stack.getType().isAir() || !stack.hasItemMeta()) return null; ItemMeta meta = stack.getItemMeta(); String id = value(meta, artifactKey, legacyArtifactKey); String serialRaw = value(meta, serialKey, legacySerialKey); String storedSignature = value(meta, signatureKey, legacySignatureKey); if (id == null || serialRaw == null || storedSignature == null) return null;
         try {
             UUID serial = UUID.fromString(serialRaw);
@@ -97,12 +97,12 @@ public final class ArtifactService implements Listener {
         } catch (IllegalArgumentException exception) {
             return new ArtifactIdentity(id, new UUID(0, 0), 1, false);
         }
-    }
-    public boolean authentic(ItemStack stack) { ArtifactIdentity identity = identity(stack); return identity != null && identity.valid(); }
+    } }
+    public boolean authentic(ItemStack stack) { synchronized (ru.neverland.core.SuiteState.lock()) { ArtifactIdentity identity = identity(stack); return identity != null && identity.valid(); } }
     private String value(ItemMeta meta, NamespacedKey current, NamespacedKey legacy) { String value = meta.getPersistentDataContainer().get(current, PersistentDataType.STRING); return value != null || legacy == null ? value : meta.getPersistentDataContainer().get(legacy, PersistentDataType.STRING); }
     private Integer integerValue(ItemMeta meta, NamespacedKey current, NamespacedKey legacy) { Integer value = meta.getPersistentDataContainer().get(current, PersistentDataType.INTEGER); return value != null || legacy == null ? value : meta.getPersistentDataContainer().get(legacy, PersistentDataType.INTEGER); }
-    public String displayName(String artifactId) { ArtifactDefinition definition = registry.artifact(artifactId); return definition == null ? artifactId : definition.name(); }
-    @EventHandler public void onPickup(EntityPickupItemEvent event) { if (!(event.getEntity() instanceof Player player)) return; ArtifactIdentity identity = identity(event.getItem().getItemStack()); if (identity == null || !identity.valid()) return; PlayerJournal journal = repository.journal(player.getUniqueId(), player.getName()); String serial = identity.serial().toString(); if (journal.serials().contains(serial)) return; boolean first = journal.discover(identity.artifactId(), serial); repository.dirty(); plugin.getServer().getPluginManager().callEvent(new ArtifactDiscoverEvent(player, identity.artifactId(), first)); if (first) { ArtifactDefinition definition = registry.artifact(identity.artifactId()); messages.send(player, "artifact-found", Map.of("artifact", definition.name(), "rarity", registry.rarity(definition.rarity()).name())); } }
+    public String displayName(String artifactId) { synchronized (ru.neverland.core.SuiteState.lock()) { ArtifactDefinition definition = registry.artifact(artifactId); return definition == null ? artifactId : definition.name(); } }
+    @EventHandler public void onPickup(EntityPickupItemEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyArchaeology")){ru.neverland.core.ModuleGate.stopEvent(event);return;} if (!(event.getEntity() instanceof Player player)) return; ArtifactIdentity identity = identity(event.getItem().getItemStack()); if (identity == null || !identity.valid()) return; PlayerJournal journal = repository.journal(player.getUniqueId(), player.getName()); String serial = identity.serial().toString(); if (journal.serials().contains(serial)) return; boolean first = journal.discover(identity.artifactId(), serial); repository.dirty(); plugin.getServer().getPluginManager().callEvent(new ArtifactDiscoverEvent(player, identity.artifactId(), first)); if (first) { ArtifactDefinition definition = registry.artifact(identity.artifactId()); messages.send(player, "artifact-found", Map.of("artifact", definition.name(), "rarity", registry.rarity(definition.rarity()).name())); } } }
     private String signature(String id, UUID serial, int batchSize) { return CryptoUtil.sign(secret, id + "|" + serial + "|" + batchSize); }
     private String legacySignature(String id, UUID serial) { return CryptoUtil.sign(secret, id + "|" + serial); }
     private String loadSecret() { File file = new File(plugin.getDataFolder(), "secret.key"); try { if (file.exists()) { String value = Files.readString(file.toPath(), StandardCharsets.UTF_8).trim(); if (!value.isBlank()) return value; } String generated = CryptoUtil.secret(); Files.writeString(file.toPath(), generated, StandardCharsets.UTF_8); return generated; } catch (IOException exception) { throw new IllegalStateException("Не удалось создать ключ подписи артефактов", exception); } }

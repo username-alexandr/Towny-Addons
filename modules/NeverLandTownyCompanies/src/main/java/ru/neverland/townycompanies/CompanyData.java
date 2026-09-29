@@ -13,12 +13,12 @@ public final class CompanyData {
         FARM("Ферма", "WHEAT"), TRANSPORT("Транспортная компания", "CHEST_MINECART");
         public final String label, icon;
         Kind(String label, String icon) { this.label=label; this.icon=icon; }
-        public static Kind parse(String text) {
+        public static Kind parse(String text) { synchronized (ru.neverland.core.SuiteState.lock()) {
             return switch(text.toLowerCase(Locale.ROOT)) {
                 case "магазин" -> SHOP; case "шахта" -> MINE; case "ферма" -> FARM;
                 case "транспорт" -> TRANSPORT; default -> valueOf(text.toUpperCase(Locale.ROOT));
             };
-        }
+        } }
     }
     public enum Role { OWNER("Владелец"), MANAGER("Управляющий"), WORKER("Участник");
         public final String label; Role(String label) { this.label=label; }
@@ -39,27 +39,27 @@ public final class CompanyData {
                     || (closed && (balance!=0 || debt!=0))) throw new IllegalArgumentException("Некорректное состояние компании");
             if(successor!=null && (!members.containsKey(successor) || successor.equals(owner))) throw new IllegalArgumentException("Получатель компании не является участником");
         }
-        public boolean manages(UUID player) { return !closed && (members.get(player)==Role.OWNER || members.get(player)==Role.MANAGER); }
-        public Company funds(long balance,long debt,long nextTax) { return new Company(id,town,name,kind,owner,members,invitations,successor,successorUntil,balance,debt,nextTax,revision+1,closed); }
-        public Company team(UUID owner, Map<UUID,Role> members, Map<UUID,Long> invitations, UUID successor,long until) {
+        public boolean manages(UUID player) { synchronized (ru.neverland.core.SuiteState.lock()) { return !closed && (members.get(player)==Role.OWNER || members.get(player)==Role.MANAGER); } }
+        public Company funds(long balance,long debt,long nextTax) { synchronized (ru.neverland.core.SuiteState.lock()) { return new Company(id,town,name,kind,owner,members,invitations,successor,successorUntil,balance,debt,nextTax,revision+1,closed); } }
+        public Company team(UUID owner, Map<UUID,Role> members, Map<UUID,Long> invitations, UUID successor,long until) { synchronized (ru.neverland.core.SuiteState.lock()) {
             return new Company(id,town,name,kind,owner,members,invitations,successor,until,balance,debt,nextTax,revision+1,closed);
-        }
-        public Company close() { return new Company(id,town,name,kind,owner,members,Map.of(),null,0,balance,debt,nextTax,revision+1,true); }
+        } }
+        public Company close() { synchronized (ru.neverland.core.SuiteState.lock()) { return new Company(id,town,name,kind,owner,members,Map.of(),null,0,balance,debt,nextTax,revision+1,true); } }
     }
     public record Payment(UUID id, UUID company, UUID account, Purpose purpose, long amount, Phase phase, long created) {
         public Payment { Objects.requireNonNull(id);Objects.requireNonNull(company);Objects.requireNonNull(account);Objects.requireNonNull(purpose);Objects.requireNonNull(phase);money(amount);if(amount==0||created<0)throw new IllegalArgumentException("Некорректный платёж"); }
-        public Payment phase(Phase phase) { return new Payment(id,company,account,purpose,amount,phase,created); }
+        public Payment phase(Phase phase) { synchronized (ru.neverland.core.SuiteState.lock()) { return new Payment(id,company,account,purpose,amount,phase,created); } }
     }
     public record Receipt(UUID contract, UUID company, UUID town, long payout, long refund) {
         public Receipt { Objects.requireNonNull(contract);Objects.requireNonNull(company);Objects.requireNonNull(town);money(payout);money(refund);money(Math.addExact(payout,refund)); }
     }
-    public static void money(long n) { if(n<0||n>MAX)throw new IllegalArgumentException("Сумма должна быть от 0 до 1 000 000 000 монет"); }
-    public static long cents(String text) { long n=new BigDecimal(text.replace(',','.')).movePointRight(2).longValueExact();money(n);if(n==0)throw new IllegalArgumentException("Укажите положительную сумму, не более двух знаков после запятой");return n; }
-    public static String format(long cents) { return BigDecimal.valueOf(cents,2).toPlainString(); }
-    public static String cleanName(String value) {
+    public static void money(long n) { synchronized (ru.neverland.core.SuiteState.lock()) { if(n<0||n>MAX)throw new IllegalArgumentException("Сумма должна быть от 0 до 1 000 000 000 монет"); } }
+    public static long cents(String text) { synchronized (ru.neverland.core.SuiteState.lock()) { long n=new BigDecimal(text.replace(',','.')).movePointRight(2).longValueExact();money(n);if(n==0)throw new IllegalArgumentException("Укажите положительную сумму, не более двух знаков после запятой");return n; } }
+    public static String format(long cents) { synchronized (ru.neverland.core.SuiteState.lock()) { return BigDecimal.valueOf(cents,2).toPlainString(); } }
+    public static String cleanName(String value) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String s=Normalizer.normalize(Objects.requireNonNull(value),Normalizer.Form.NFKC).strip().replaceAll(" +"," ");
         if(!s.matches("[\\p{L}\\p{N}][\\p{L}\\p{N} _-]{2,31}"))throw new IllegalArgumentException("Название: 3–32 буквы, цифры, пробелы, _ или -");
         return s;
-    }
-    public static String nameKey(String name) { return cleanName(name).toLowerCase(Locale.ROOT); }
+    } }
+    public static String nameKey(String name) { synchronized (ru.neverland.core.SuiteState.lock()) { return cleanName(name).toLowerCase(Locale.ROOT); } }
 }

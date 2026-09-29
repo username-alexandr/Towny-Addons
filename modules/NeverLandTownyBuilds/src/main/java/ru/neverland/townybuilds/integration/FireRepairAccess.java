@@ -6,7 +6,7 @@ import ru.neverland.core.ApiServices;
 /** Optional public Events API; an unavailable installed provider must never erase repair debts. */
 public final class FireRepairAccess {
     private FireRepairAccess() { }
-    public static boolean blocked(UUID town) {
+    public static boolean blocked(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         var api = ApiServices.connect("NeverLandTownyEvents", "ru.neverland.mintevents.api.MintTownyEventsApi", 1, "hasFireDamage");
         if (api.state() == ApiServices.State.NOT_INSTALLED) return false;
         if (!api.ready()) return true;
@@ -15,5 +15,5 @@ public final class FireRepairAccess {
         } catch (ReflectiveOperationException | RuntimeException | LinkageError error) {
             return true;
         }
-    }
+    } }
 }

@@ -6,14 +6,14 @@ import ru.neverland.integration.SpecializationRules;
 import java.util.*;
 
 public final class CityBridge {
-    public Map<String,Integer> levels(UUID town)throws ReflectiveOperationException {
+    public Map<String,Integer> levels(UUID town)throws ReflectiveOperationException { synchronized (ru.neverland.core.SuiteState.lock()) {
         Map<?,?> values=(Map<?,?>)ru.neverland.core.ApiServices.call("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","buildingFootprints",new Class<?>[]{UUID.class},town);Map<String,Integer> result=new HashMap<>();
         for(var entry:values.entrySet()){
             Object b=entry.getValue();String id=entry.getKey().toString();int completed=integer(b,"completedLevel");
             if((id.equals("town_hall")||SpecializationRules.PROJECTS.containsKey(id))&&owned(town,b))result.put(id,Math.max(0,Math.min(5,completed)));
         }
         return Map.copyOf(result);
-    }
+    } }
     private static int integer(Object value,String method)throws ReflectiveOperationException{return ((Number)value.getClass().getMethod(method).invoke(value)).intValue();}
     private boolean owned(UUID town,Object b)throws ReflectiveOperationException{
         UUID worldId=(UUID)b.getClass().getMethod("worldId").invoke(b);World w=Bukkit.getWorld(worldId);if(w==null)return false;

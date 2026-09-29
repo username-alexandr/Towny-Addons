@@ -21,10 +21,10 @@ public final class CouncilRepository {
     private List<Audit> history = List.of();
     private boolean writable;
     public CouncilRepository(Path file) { this.file = file; }
-    public boolean writable() { return writable && AtomicFiles.writable(file); }
-    public Map<String, Appointment> all() { return records; }
-    public List<Audit> history() { return history; }
-    public void load() throws Exception {
+    public boolean writable() { synchronized (ru.neverland.core.SuiteState.lock()) { return writable && AtomicFiles.writable(file); } }
+    public Map<String, Appointment> all() { synchronized (ru.neverland.core.SuiteState.lock()) { return records; } }
+    public List<Audit> history() { synchronized (ru.neverland.core.SuiteState.lock()) { return history; } }
+    public void load() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
         writable = false;
         var next = new LinkedHashMap<String, Appointment>(); var audit = new ArrayList<Audit>();
         if (Files.exists(file)) {
@@ -45,8 +45,8 @@ public final class CouncilRepository {
             if (audit.size() > 500) throw new IOException("Слишком большой журнал совета");
         }
         validate(next); records = Map.copyOf(next); history = List.copyOf(audit); AtomicFiles.loaded(file); writable = true;
-    }
-    public void commit(Map<String, Appointment> next, List<Audit> additions) throws IOException {
+    } }
+    public void commit(Map<String, Appointment> next, List<Audit> additions) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!writable()) throw new IOException("Реестр совета остановлен после ошибки; нужен перезапуск после восстановления файла");
         validate(next);
         var audit = new ArrayList<>(history); audit.addAll(additions);
@@ -63,7 +63,7 @@ public final class CouncilRepository {
         }
         try { AtomicFiles.write(file, y::saveToString); records = Map.copyOf(next); history = List.copyOf(audit); }
         catch (IOException ex) { writable = false; throw ex; }
-    }
+    } }
     private static void validate(Map<String, Appointment> records) {
         var holders = new HashSet<String>();
         records.forEach((key, a) -> {

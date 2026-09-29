@@ -10,7 +10,7 @@ import ru.neverland.townyachievements.service.*;
 public final class AchievementCommand implements TabExecutor {
     private final NeverLandTownyAchievements plugin; private final AchievementService service; private final AchievementMenu menu;
     public AchievementCommand(NeverLandTownyAchievements plugin, AchievementService service, AchievementMenu menu) { this.plugin = plugin; this.service = service; this.menu = menu; }
-    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyAchievements")){return true;}
         try {
             if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
                 if (!sender.isOp() && !sender.hasPermission("neverlandtownyachievements.admin")) throw new IllegalArgumentException("Нет прав администратора");
@@ -29,9 +29,9 @@ public final class AchievementCommand implements TabExecutor {
             } else help(sender);
         } catch (Exception ex) { sender.sendMessage("§c" + ex.getMessage()); }
         return true;
-    }
+    } }
     private void help(CommandSender sender) { sender.sendMessage("§e/t achievements [menu|rewards|info <ID>|title <ID|none>|cosmetic <ID|none>|banner <ID>]"); }
-    @Override public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+    @Override public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (args.length == 0 || !sender.isOp() && !sender.hasPermission("neverlandtownyachievements.use")) return List.of();
         var values = new ArrayList<String>();
         if (args.length == 1) {
@@ -43,5 +43,5 @@ public final class AchievementCommand implements TabExecutor {
             if (args[0].equals("title") || args[0].equals("cosmetic")) values.add("none");
         }
         return values.stream().filter(s -> s.startsWith(args[args.length - 1].toLowerCase(Locale.ROOT))).toList();
-    }
+    } }
 }

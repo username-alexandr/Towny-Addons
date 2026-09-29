@@ -6,14 +6,14 @@ import ru.neverland.townyresources.model.ResourceEngine.Building;
 import java.util.*;
 
 public final class CityBridge {
-    public Map<String,Building> buildings(UUID town)throws ReflectiveOperationException {
+    public Map<String,Building> buildings(UUID town)throws ReflectiveOperationException { synchronized (ru.neverland.core.SuiteState.lock()) {
         Map<?,?> values=(Map<?,?>)ru.neverland.core.ApiServices.call("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","buildingFootprints",new Class<?>[]{UUID.class},town);Map<String,Building> result=new HashMap<>();
         for(var entry:values.entrySet()){
             Object b=entry.getValue();String id=entry.getKey().toString();int completed=integer(b,"completedLevel");
             result.put(id,new Building(Math.max(0,Math.min(5,completed)),ru.neverland.integration.JobsAccess.multiplier(town,id,ru.neverland.integration.SpecializationAccess.production(town,id,ru.neverland.integration.ResearchBonuses.production(town,id,ru.neverland.integration.DistrictBonuses.multiplier(town,id)))),owned(town,b),ru.neverland.integration.BuildingOperations.active(town,id),ru.neverland.integration.BuildingOperations.inactiveReason(town,id),ru.neverland.integration.PoliciesAccess.production(town,id),ru.neverland.core.SeasonsAccess.production(town,id)*ru.neverland.core.SeasonsAccess.eventProduction(town,id),ru.neverland.core.EnvironmentAccess.agriculture(town,id)));
         }
         return Map.copyOf(result);
-    }
+    } }
     private static int integer(Object value,String method)throws ReflectiveOperationException{return ((Number)value.getClass().getMethod(method).invoke(value)).intValue();}
     private boolean owned(UUID town,Object b)throws ReflectiveOperationException{
         UUID worldId=(UUID)b.getClass().getMethod("worldId").invoke(b);World w=Bukkit.getWorld(worldId);if(w==null)return false;
@@ -23,10 +23,10 @@ public final class CityBridge {
         for(int x=minX;x<=maxX;x++)for(int z=minZ;z<=maxZ;z++){var owner=TownyAPI.getInstance().getTown(new Location(w,(double)x*size,w.getMinHeight(),(double)z*size));if(owner==null||!town.equals(owner.getUUID()))return false;}
         return true; // Towny's territory metadata does not load Minecraft chunks.
     }
-    public int population(Town town)throws ReflectiveOperationException{
+    public int population(Town town)throws ReflectiveOperationException{ synchronized (ru.neverland.core.SuiteState.lock()) {
         var api=ru.neverland.core.ApiServices.connect("NeverLandTownyPopulation","ru.neverland.townypopulation.api.TownyPopulationApi",1,"population");
         if(api.state()==ru.neverland.core.ApiServices.State.NOT_INSTALLED)return town.getResidents().size();
         var value=(Optional<?>)api.invoke("population",new Class<?>[]{UUID.class},town.getUUID());if(value.isEmpty())throw new IllegalStateException("Ожидается перепись населения");
         return integer(value.get(),"population");
-    }
+    } }
 }

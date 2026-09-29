@@ -5,7 +5,7 @@ public final class TheftProcessor {
     public interface Store{CrimeState get(UUID town);void put(CrimeState state)throws Exception;}
     public interface Resources{String status(UUID id)throws Exception;boolean reserve(UUID id,UUID town,Map<String,Long> amounts)throws Exception;void consume(UUID id)throws Exception;void forget(UUID id)throws Exception;}
     private TheftProcessor(){}
-    public static boolean resume(UUID town,Store store,Resources resources)throws Exception{
+    public static boolean resume(UUID town,Store store,Resources resources)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {
         var state=store.get(town);var i=state.incident();if(i==null||!i.pending())return false;
         if(i.phase().equals("PLANNED")){
             if(i.kind().equals("EXTORTION")){store.put(state.incident(i.phase("APPLIED")));return true;}
@@ -21,5 +21,5 @@ public final class TheftProcessor {
         }
         if(i.kind().equals("BURGLARY"))resources.forget(i.id());
         store.put(state.incident(i.phase(i.phase().equals("APPLIED")?"CLOSED":"CANCELLED")));return false;
-    }
+    } }
 }

@@ -31,7 +31,7 @@ public final class TownGovernanceCommand implements TabExecutor {
         this.defaultView = defaultView; this.towny = towny; this.governance = governance; this.menus = menus; this.messages = messages;
     }
 
-    @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyGovernance")){return true;}
         if (!(sender instanceof Player player)) { messages.send(sender, "players-only"); return true; }
         if (!player.hasPermission("townygovernance.use")) { messages.send(player, "no-permission"); return true; }
         if (args.length == 0) { open(player, defaultView); return true; }
@@ -52,7 +52,7 @@ public final class TownGovernanceCommand implements TabExecutor {
             default -> help(player);
         }
         return true;
-    }
+    } }
 
     private void open(Player player, DefaultView view) {
         switch (view) { case LAWS -> menus.openLaws(player); case VOTES -> menus.openVotes(player); case COUNCIL -> menus.openCouncil(player); case HISTORY -> menus.openHistory(player); default -> menus.openMain(player); }
@@ -98,7 +98,7 @@ public final class TownGovernanceCommand implements TabExecutor {
         player.sendMessage(ColorUtil.color("&#63E6BE/t governance &8— &7главное меню\n&#FFFFFF/t laws &8— &7законы\n&#FFFFFF/t vote &8— &7голосования\n&#FFFFFF/t council &8— &7совет и должности\n&#FFFFFF/t governance propose <закон>\n&#FFFFFF/t governance repeal <закон>\n&#FFFFFF/t governance vote <ID> <yes|no|abstain>\n&#FFFFFF/t governance appoint <должность> <игрок>\n&#FFFFFF/t governance dismiss <должность> <игрок>"));
     }
 
-    @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (args.length == 1) return filter(List.of("laws", "votes", "council", "history", "propose", "repeal", "vote", "appoint", "dismiss", "help"), args[0]);
         if (args.length == 2 && (args[0].equalsIgnoreCase("propose") || args[0].equalsIgnoreCase("repeal"))) return filter(governance.laws().stream().map(value -> value.id()).toList(), args[1]);
         if (args.length == 2 && args[0].equalsIgnoreCase("vote")) { Town town = sender instanceof Player player ? towny.town(player) : null; return town == null ? List.of() : filter(governance.open(town).stream().map(value -> value.shortId()).toList(), args[1]); }
@@ -108,6 +108,6 @@ public final class TownGovernanceCommand implements TabExecutor {
             Town town = sender instanceof Player player ? towny.town(player) : null; return town == null ? List.of() : filter(town.getResidents().stream().map(value -> value.getName()).toList(), args[2]);
         }
         return List.of();
-    }
+    } }
     private List<String> filter(List<String> values, String prefix) { String lower = prefix.toLowerCase(Locale.ROOT); List<String> result = new ArrayList<>(); for (String value : values) if (value.toLowerCase(Locale.ROOT).startsWith(lower)) result.add(value); return result; }
 }

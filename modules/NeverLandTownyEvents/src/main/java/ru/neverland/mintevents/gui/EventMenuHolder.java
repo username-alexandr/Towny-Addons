@@ -23,12 +23,12 @@ public final class EventMenuHolder implements InventoryHolder {
         this.type = type;
     }
 
-    public UUID townId() { return townId; }
-    public Type type() { return type; }
-    public Map<Integer, ContributionRule> rules() { return rules; }
-    public Map<Integer, UUID> repairs() { return repairs; }
-    public int page() { return page; }
-    public void page(int value) { page = value; }
-    public void inventory(Inventory value) { inventory = value; }
-    @Override public Inventory getInventory() { return inventory; }
+    public UUID townId() { synchronized (ru.neverland.core.SuiteState.lock()) { return townId; } }
+    public Type type() { synchronized (ru.neverland.core.SuiteState.lock()) { return type; } }
+    public Map<Integer, ContributionRule> rules() { synchronized (ru.neverland.core.SuiteState.lock()) { return rules; } }
+    public Map<Integer, UUID> repairs() { synchronized (ru.neverland.core.SuiteState.lock()) { return repairs; } }
+    public int page() { synchronized (ru.neverland.core.SuiteState.lock()) { return page; } }
+    public void page(int value) { synchronized (ru.neverland.core.SuiteState.lock()) { page = value; } }
+    public void inventory(Inventory value) { synchronized (ru.neverland.core.SuiteState.lock()) { inventory = value; } }
+    @Override public Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { return inventory; } }
 }

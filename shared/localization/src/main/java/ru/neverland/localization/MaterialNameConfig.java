@@ -14,11 +14,11 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 public final class MaterialNameConfig {
     private MaterialNameConfig() {}
 
-    public static Material matchMaterial(String name) {
+    public static Material matchMaterial(String name) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return Material.matchMaterial(MaterialLabels.canonicalKey(name));
-    }
+    } }
 
-    public static String customName(ItemMeta meta) {
+    public static String customName(ItemMeta meta) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (meta == null) return null;
         if (meta.hasCustomName() && meta.customName() != null) {
             return PlainTextComponentSerializer.plainText().serialize(meta.customName());
@@ -27,9 +27,9 @@ public final class MaterialNameConfig {
             return PlainTextComponentSerializer.plainText().serialize(meta.displayName());
         }
         return null;
-    }
+    } }
 
-    public static void reload(JavaPlugin plugin, MaterialLabels names) {
+    public static void reload(JavaPlugin plugin, MaterialLabels names) { synchronized (ru.neverland.core.SuiteState.lock()) {
         names.reset();
         try (var stream = plugin.getResource("item-names.yml")) {
             if (stream != null) apply(names, YamlConfiguration.loadConfiguration(
@@ -39,9 +39,9 @@ public final class MaterialNameConfig {
         }
         File file = new File(plugin.getDataFolder(), "item-names.yml");
         if (file.exists()) apply(names, YamlConfiguration.loadConfiguration(file));
-    }
+    } }
 
-    public static void apply(MaterialLabels names, ConfigurationSection yaml) {
+    public static void apply(MaterialLabels names, ConfigurationSection yaml) { synchronized (ru.neverland.core.SuiteState.lock()) {
         for (String key : yaml.getKeys(false)) {
             String name = yaml.getString(key);
             if (MaterialLabels.canonicalKey(key).equals("DEEPSLATE_TILES")
@@ -52,5 +52,5 @@ public final class MaterialNameConfig {
             if ("CHAIN".equalsIgnoreCase(key) && "Цепь".equals(name)) name = "Железная цепь";
             names.override(key, name);
         }
-    }
+    } }
 }

@@ -6,5 +6,5 @@ public record PopulationState(int population, double remainder, int lastChange, 
                 || Math.abs(remainder) >= 1 || lastCycle < 0)
             throw new IllegalArgumentException("Повреждённая запись населения");
     }
-    public PopulationState rebase(long now) { return new PopulationState(population, remainder, lastChange, now); }
+    public PopulationState rebase(long now) { synchronized (ru.neverland.core.SuiteState.lock()) { return new PopulationState(population, remainder, lastChange, now); } }
 }

@@ -14,21 +14,21 @@ public final class DistrictCommand implements CommandExecutor,TabCompleter,org.b
     private final NeverLandTownyDistricts plugin;private final DistrictService service;private final BorderPreview borders;
     private final Map<UUID,Selection> selections=new HashMap<>();private DistrictMenu menu;
     public DistrictCommand(NeverLandTownyDistricts plugin,DistrictService service,BorderPreview borders){this.plugin=plugin;this.service=service;this.borders=borders;}
-    @org.bukkit.event.EventHandler public void quit(org.bukkit.event.player.PlayerQuitEvent event){selections.remove(event.getPlayer().getUniqueId());}
-    public void menu(DistrictMenu menu){this.menu=menu;}
-    public String selection(Player player){var s=selections.get(player.getUniqueId());return s==null?"Текущий участок":s.second()==null?"Первая точка задана; укажите pos2":"Прямоугольник между pos1 и pos2";}
+    @org.bukkit.event.EventHandler public void quit(org.bukkit.event.player.PlayerQuitEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {selections.remove(event.getPlayer().getUniqueId());} }
+    public void menu(DistrictMenu menu){ synchronized (ru.neverland.core.SuiteState.lock()) {this.menu=menu;} }
+    public String selection(Player player){ synchronized (ru.neverland.core.SuiteState.lock()) {var s=selections.get(player.getUniqueId());return s==null?"Текущий участок":s.second()==null?"Первая точка задана; укажите pos2":"Прямоугольник между pos1 и pos2";} }
     private Set<Cell> selected(Player player,UUID town){var s=selections.get(player.getUniqueId());
         if(s==null)return Set.of(service.cell(player));
         if(!s.town().equals(town))throw new IllegalArgumentException("Город изменился: сбросьте выделение /t district clear");
         if(s.second()==null)throw new IllegalArgumentException("Задайте вторую точку /t district pos2 или сбросьте выделение");
         return Cell.rectangle(s.first(),s.second(),service.settings().maxSelection());
     }
-    public static void tell(CommandSender sender,String text){sender.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&aNeverLand &8• &fРайоны&8] &r"+text));}
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){
+    public static void tell(CommandSender sender,String text){ synchronized (ru.neverland.core.SuiteState.lock()) {sender.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&aNeverLand &8• &fРайоны&8] &r"+text));} }
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDistricts")){return true;}
         try{execute(sender,args);}catch(IllegalArgumentException|IllegalStateException ex){tell(sender,"&c"+ex.getMessage());}
         catch(IOException ex){plugin.getLogger().warning("Ошибка сохранения районов: "+ex.getMessage());tell(sender,"&cНе удалось сохранить изменение. Проверьте консоль.");}
         return true;
-    }
+    } }
     private void execute(CommandSender sender,String[] args)throws IOException{
         String action=args.length==0?"menu":args[0].toLowerCase(Locale.ROOT);
         if(action.equals("reload")){
@@ -69,12 +69,12 @@ public final class DistrictCommand implements CommandExecutor,TabCompleter,org.b
         }
         tell(player,"&aРайон обновлён.");menu.open(player,townId,old.id(),0);
     }
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!(sender instanceof Player player)||!player.hasPermission("neverlandtownydistricts.use"))return List.of();
         var town=service.town(player);if(town==null)return List.of();List<String> options=new ArrayList<>();
         if(args.length==1){options.addAll(List.of("list","info","map","help"));if(service.manager(player,town))options.addAll(List.of("create","claim","unclaim","delete","rename","pos1","pos2","clear"));if(player.hasPermission("neverlandtownydistricts.admin"))options.add("reload");}
         else if(args.length==2&&Set.of("info","claim","unclaim","delete","rename").contains(args[0]))service.list(town.getUUID()).forEach(d->options.add(d.id()));
         else if(args.length==3&&args[0].equals("create"))for(var type:DistrictType.values())options.add(type.id());
         String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return options.stream().filter(s->s.toLowerCase(Locale.ROOT).startsWith(prefix)).sorted().toList();
-    }
+    } }
 }

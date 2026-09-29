@@ -11,8 +11,8 @@ import static ru.neverland.townydiplomacy.Treaty.*;
 public final class DiplomacyCommand implements TabExecutor {
     private final NeverLandTownyDiplomacy plugin;private final DiplomacyService service;private final DiplomacyMenus menus;
     public DiplomacyCommand(NeverLandTownyDiplomacy plugin,DiplomacyService service,DiplomacyMenus menus) { this.plugin=plugin;this.service=service;this.menus=menus; }
-    public static void tell(CommandSender sender,String text) { sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&',"&aNeverLand &f• Дипломатия &7» &f"+text)); }
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] original) {
+    public static void tell(CommandSender sender,String text) { synchronized (ru.neverland.core.SuiteState.lock()) { sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&',"&aNeverLand &f• Дипломатия &7» &f"+text)); } }
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] original) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDiplomacy")){return true;}
         if(!sender.hasPermission("neverlandtownydiplomacy.use")){tell(sender,"&cНет права на просмотр дипломатии");return true;}
         try {
             String[] args=original;Town own=sender instanceof Player p?service.ownTown(p.getUniqueId()):null;
@@ -74,14 +74,14 @@ public final class DiplomacyCommand implements TabExecutor {
         } catch(IllegalArgumentException ex) { tell(sender,"&c"+(ex instanceof NumberFormatException?"Дни и страница должны быть целыми числами":ex.getMessage())); }
         catch(Exception ex) { tell(sender,"&cДействие не выполнено; реестр требует проверки администратором");plugin.failure("Операция дипломатии не выполнена",ex); }
         return true;
-    }
+    } }
     private void requireView(CommandSender sender,Town town) { if(!service.manages(sender,town,TreatyType.ALLIANCE))throw new IllegalArgumentException("Журнал доступен руководству своего города"); }
     private int days(String[] args,int at) { return args.length>at?Integer.parseInt(args[at]):service.settings().defaultDays(); }
     private String reason(String[] args,int at) { return args.length>at?String.join(" ",Arrays.copyOfRange(args,at,args.length)):"Решение городской администрации"; }
     private void announce(CommandSender sender,Treaty t,String message) {
         tell(sender,"&a"+message+" • &f"+t.id());plugin.announce(t,"&e"+t.type().title()+" &7• &f"+DiplomacyMenus.name(t.first())+" ↔ "+DiplomacyMenus.name(t.second())+" &7• "+DiplomacyMenus.phase(t)+". /diplomacy");
     }
-    public static void help(CommandSender sender) {
+    public static void help(CommandSender sender) { synchronized (ru.neverland.core.SuiteState.lock()) {
         tell(sender,"&e/diplomacy &7— ваши договоры; &e/diplomacy list <город>");
         tell(sender,"&e/diplomacy offer <тип> <город> [дни] [причина]");
         tell(sender,"&7Типы: &falliance, trade, nonaggression, vassalage, guarantee");
@@ -91,8 +91,8 @@ public final class DiplomacyCommand implements TabExecutor {
         tell(sender,"&e/diplomacy sanctions <город> <trade|diplomatic|all> [дни]");
         tell(sender,"&e/diplomacy history|incidents [страница] &7— для руководства.");
         if(sender.hasPermission("neverlandtownydiplomacy.admin")){tell(sender,"&e/diplomacy as <город> <команда> ...");tell(sender,"&e/diplomacy reload &7— новые настройки.");}
-    }
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) {
+    } }
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!sender.hasPermission("neverlandtownydiplomacy.use")||args.length==0)return List.of();
         var own=sender instanceof Player p?service.ownTown(p.getUniqueId()):null;boolean manager=sender.hasPermission("neverlandtownydiplomacy.admin")||service.manages(sender,own,TreatyType.ALLIANCE);
         var values=new ArrayList<String>();String action=args[0].toLowerCase(Locale.ROOT);
@@ -102,5 +102,5 @@ public final class DiplomacyCommand implements TabExecutor {
         else if(args.length==2&&Set.of("accept","reject","end").contains(action)&&manager&&own!=null){var id=own.getUUID();service.repository().all().values().stream().filter(t->t.party(id)&&t.open(System.currentTimeMillis())).forEach(t->values.add(t.id().toString()));}
         else if(args.length==2&&Set.of("menu","list","embargo","sanctions","as").contains(action)||args.length==3&&action.equals("offer"))TownyAPI.getInstance().getTowns().forEach(t->values.add(t.getName()));
         String prefix=args[args.length-1].toLowerCase(Locale.ROOT);return values.stream().filter(v->v.toLowerCase(Locale.ROOT).startsWith(prefix)).sorted().limit(100).toList();
-    }
+    } }
 }

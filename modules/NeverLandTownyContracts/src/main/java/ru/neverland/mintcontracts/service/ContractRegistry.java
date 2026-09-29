@@ -22,7 +22,7 @@ public final class ContractRegistry {
     private final ItemsAdderHook itemsAdder;
     private final Map<String, ContractDefinition> templates = new LinkedHashMap<>();
     public ContractRegistry(JavaPlugin plugin, ItemsAdderHook itemsAdder) { this.plugin = plugin; this.itemsAdder = itemsAdder; reload(); }
-    public void reload() {
+    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
         templates.clear();
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "contracts.yml"));
         ConfigurationSection root = yaml.getConfigurationSection("templates");
@@ -51,13 +51,13 @@ public final class ContractRegistry {
                 plugin.getLogger().warning("Шаблон " + id + " пропущен: " + exception.getMessage());
             }
         }
-    }
-    public ItemStack targetItem(String target) {
+    } }
+    public ItemStack targetItem(String target) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (target.toLowerCase(Locale.ROOT).startsWith("itemsadder:"))
             return itemsAdder.item(target.substring("itemsadder:".length()));
         Material material = MaterialNameConfig.matchMaterial(target);
         return material == null ? null : new ItemStack(material);
-    }
-    public ContractDefinition get(String id) { return id == null ? null : templates.get(id.toLowerCase(Locale.ROOT)); }
-    public Collection<ContractDefinition> all() { return List.copyOf(templates.values()); }
+    } }
+    public ContractDefinition get(String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return id == null ? null : templates.get(id.toLowerCase(Locale.ROOT)); } }
+    public Collection<ContractDefinition> all() { synchronized (ru.neverland.core.SuiteState.lock()) { return List.copyOf(templates.values()); } }
 }

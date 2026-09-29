@@ -15,17 +15,17 @@ import org.bukkit.entity.Player;
 import ru.neverland.core.PaymentEvidence;
 
 public final class TownyHook {
-   public UUID townId(Player player) {
+   public UUID townId(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
       Resident resident = TownyAPI.getInstance().getResident(player);
       Town town = resident == null ? null : resident.getTownOrNull();
       return town == null ? null : town.getUUID();
-   }
+   } }
 
-   public boolean wilderness(Location location) {
+   public boolean wilderness(Location location) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return TownyAPI.getInstance().getTown(location) == null;
-   }
+   } }
 
-   public boolean reward(Player player, double amount, UUID operation) {
+   public boolean reward(Player player, double amount, UUID operation) { synchronized (ru.neverland.core.SuiteState.lock()) {
       if (amount <= 0.0) {
          return true;
       } else {
@@ -38,14 +38,14 @@ public final class TownyHook {
             final PaymentEvidence evidence = new PaymentEvidence(account, true, token, BigDecimal.valueOf(amount).movePointRight(2).longValueExact());
             var observer = new AccountObserver() {
                @Override
-               public void withdrew(Account source, double value, String reason) {
+               public void withdrew(Account source, double value, String reason) { synchronized (ru.neverland.core.SuiteState.lock()) {
                   evidence.observe(source, false, value, reason);
-               }
+               } }
 
                @Override
-               public void deposited(Account source, double value, String reason) {
+               public void deposited(Account source, double value, String reason) { synchronized (ru.neverland.core.SuiteState.lock()) {
                   evidence.observe(source, true, value, reason);
-               }
+               } }
             };
             synchronized (account) {
                account.addObserver(observer);
@@ -67,13 +67,13 @@ public final class TownyHook {
             }
          }
       }
-   }
+   } }
 
-   public boolean register(String name, CommandExecutor executor) {
+   public boolean register(String name, CommandExecutor executor) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return TownyCommandAddonAPI.addSubCommand(CommandType.TOWN, name, executor);
-   }
+   } }
 
-   public void unregister(String name) {
+   public void unregister(String name) { synchronized (ru.neverland.core.SuiteState.lock()) {
       TownyCommandAddonAPI.removeSubCommand(CommandType.TOWN, name);
-   }
+   } }
 }

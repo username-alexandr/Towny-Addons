@@ -26,27 +26,27 @@ public final class LevelDefinition {
         this.commands = List.copyOf(commands);
     }
 
-    public int level() {
+    public int level() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return level;
-    }
+    } }
 
-    public double money() {
+    public double money() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return money;
-    }
+    } }
 
-    public int bonusBlocks() {
+    public int bonusBlocks() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return bonusBlocks;
-    }
+    } }
 
-    public List<ItemStack> resources() {
+    public List<ItemStack> resources() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return resources.stream().map(ItemStack::clone).toList();
-    }
+    } }
 
-    public Map<PotionEffectType, Integer> effects() {
+    public Map<PotionEffectType, Integer> effects() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return effects;
-    }
+    } }
 
-    public List<String> commands() {
+    public List<String> commands() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return commands;
-    }
+    } }
 }

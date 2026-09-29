@@ -13,7 +13,7 @@ import java.util.*;
 /** A repeatable decorative pattern licence; exchanges one blank banner for one decorated banner. */
 public final class BannerRewards {
     private BannerRewards() { }
-    public static void apply(Plugin plugin, AchievementService service, Player player, String id) {
+    public static void apply(Plugin plugin, AchievementService service, Player player, String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
         var progress = service.reward(player, id); String style = progress.definition().reward().banner();
         if (style.isEmpty()) throw new IllegalArgumentException("У достижения нет знамени");
         ItemStack held = player.getInventory().getItemInMainHand();
@@ -38,5 +38,5 @@ public final class BannerRewards {
         AuditTrail.record(plugin, "banner", UUID.randomUUID().toString(), "ACHIEVEMENT_REWARD", "COMPLETED", AuditTrail.player(player.getUniqueId()),
                 AuditTrail.town(town.getUUID()), AuditTrail.player(player.getUniqueId()), id, 1, "", "Нанесён памятный узор на белое знамя");
         player.sendMessage("§aГородской узор нанесён на знамя.");
-    }
+    } }
 }

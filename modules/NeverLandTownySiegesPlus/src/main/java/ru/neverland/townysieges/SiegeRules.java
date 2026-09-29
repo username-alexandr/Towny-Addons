@@ -16,24 +16,24 @@ public final class SiegeRules {
         public Point { Objects.requireNonNull(world); if (!Double.isFinite(x) || !Double.isFinite(y) || !Double.isFinite(z)) throw new IllegalArgumentException("Неверные координаты"); }
     }
     public record Line(double x1,double z1,double x2,double z2,double width) {
-        public boolean near(Point p) {
+        public boolean near(Point p) { synchronized (ru.neverland.core.SuiteState.lock()) {
             double dx=x2-x1,dz=z2-z1,length=dx*dx+dz*dz;
             double t=length==0?0:Math.max(0,Math.min(1,((p.x-x1)*dx+(p.z-z1)*dz)/length));
             double x=p.x-x1-t*dx,z=p.z-z1-t*dz;return x*x+z*z<=width*width;
-        }
+        } }
     }
     public record Zone(UUID world, double x1, double y1, double z1, double x2, double y2, double z2,Line line) {
         public Zone(UUID world,double x1,double y1,double z1,double x2,double y2,double z2){this(world,x1,y1,z1,x2,y2,z2,null);}
-        public static Zone along(UUID world,double x1,double y1,double z1,double x2,double y2,double z2,double width,double height){
+        public static Zone along(UUID world,double x1,double y1,double z1,double x2,double y2,double z2,double width,double height){ synchronized (ru.neverland.core.SuiteState.lock()) {
             return new Zone(world,Math.min(x1,x2)-width,Math.min(y1,y2)-8,Math.min(z1,z2)-width,Math.max(x1,x2)+width,Math.max(y1,y2)+height,Math.max(z1,z2)+width,new Line(x1,z1,x2,z2,width));
-        }
+        } }
         public Zone {
             Objects.requireNonNull(world);
             if (!Double.isFinite(x1+y1+z1+x2+y2+z2) || x1>x2 || y1>y2 || z1>z2) throw new IllegalArgumentException("Неверная зона обороны");
         }
-        public boolean contains(Point p) { return world.equals(p.world) && p.x>=x1 && p.x<=x2 && p.y>=y1 && p.y<=y2 && p.z>=z1 && p.z<=z2 && (line==null||line.near(p)); }
+        public boolean contains(Point p) { synchronized (ru.neverland.core.SuiteState.lock()) { return world.equals(p.world) && p.x>=x1 && p.x<=x2 && p.y>=y1 && p.y<=y2 && p.z>=z1 && p.z<=z2 && (line==null||line.near(p)); } }
         /** Swept segment test prevents jumping over a thin gate between movement packets. Exit is always possible. */
-        public boolean enters(Point from, Point to) {
+        public boolean enters(Point from, Point to) { synchronized (ru.neverland.core.SuiteState.lock()) {
             if (!world.equals(to.world) || contains(from)) return false;
             if (!world.equals(from.world)) return contains(to);
             double low=0, high=1;
@@ -46,10 +46,10 @@ public final class SiegeRules {
                 if (low>high) return false;
             }
             return high>=0 && low<=1;
-        }
+        } }
     }
-    public static double reduction(int wall, int tower, double army, double wallRate, double towerRate, double cap) {
+    public static double reduction(int wall, int tower, double army, double wallRate, double towerRate, double cap) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return Math.min(cap, Math.max(0,wall)*wallRate + Math.max(0,tower)*towerRate + (Double.isFinite(army)?Math.max(0,Math.min(.2,army)):0));
-    }
-    public static double moat(int level, double perLevel, double cap) { return Math.min(cap,Math.max(0,level)*perLevel); }
+    } }
+    public static double moat(int level, double perLevel, double cap) { synchronized (ru.neverland.core.SuiteState.lock()) { return Math.min(cap,Math.max(0,level)*perLevel); } }
 }

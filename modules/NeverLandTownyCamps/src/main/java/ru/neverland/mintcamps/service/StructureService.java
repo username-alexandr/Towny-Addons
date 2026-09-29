@@ -45,13 +45,13 @@ public final class StructureService {
         this.generator = generator;
     }
 
-    public List<Placement> placements(Camp camp, StyleDefinitionProvider styles, int level) {
+    public List<Placement> placements(Camp camp, StyleDefinitionProvider styles, int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return generator.generate(level, styles.style(camp.styleId()));
-    }
+    } }
 
-    public Validation validate(Camp camp, List<Placement> placements, boolean allowCurrentBlocks) {
+    public Validation validate(Camp camp, List<Placement> placements, boolean allowCurrentBlocks) { synchronized (ru.neverland.core.SuiteState.lock()) {
         World world = camp.world().orElse(null);
-        if (world == null) return Validation.WORLD_MISSING;
+        if (world == null || !ru.neverland.core.WorldTasks.ownsBox(camp.anchorLocation(),16)) return Validation.WORLD_MISSING;
         Set<BlockPos> current = allowCurrentBlocks ? new HashSet<>(camp.placedBlocks()) : Set.of();
         for (Placement placement : placements) {
             BlockPos worldPos = DirectionUtil.rotate(camp.anchor(), camp.facing(), placement.relative());
@@ -65,9 +65,10 @@ public final class StructureService {
             }
         }
         return Validation.OK;
-    }
+    } }
 
-    public void capture(Camp camp, List<Placement> placements) {
+    public void capture(Camp camp, List<Placement> placements) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        ru.neverland.core.WorldTasks.requireBox(camp.anchorLocation(),16);
         World world = camp.world().orElseThrow();
         for (Placement placement : placements) {
             BlockPos position = DirectionUtil.rotate(camp.anchor(), camp.facing(), placement.relative());
@@ -79,17 +80,17 @@ public final class StructureService {
             }
             camp.snapshots().put(position, new BlockSnapshot(block.getType(), block.getBlockData().getAsString(), inventory));
         }
-    }
+    } }
 
-    public void apply(Camp camp, List<Placement> placements) {
+    public void apply(Camp camp, List<Placement> placements) { synchronized (ru.neverland.core.SuiteState.lock()) {
         camp.placedBlocks().clear();
         for (Placement placement : placements) {
             applyPlacement(camp, placement);
         }
         camp.stashBlock(DirectionUtil.rotate(camp.anchor(), camp.facing(), generator.stashRelative(camp.level())));
-    }
+    } }
 
-    public boolean migrateRaisedCommonBlocks(Camp camp, List<Placement> correctedCommon) {
+    public boolean migrateRaisedCommonBlocks(Camp camp, List<Placement> correctedCommon) { synchronized (ru.neverland.core.SuiteState.lock()) {
         World world = camp.world().orElse(null);
         if (world == null || correctedCommon.isEmpty()) return false;
         BlockPos raisedFire = DirectionUtil.rotate(camp.anchor(), camp.facing(), new BlockPos(0, 1, 0));
@@ -108,14 +109,15 @@ public final class StructureService {
         camp.placedBlocks().removeAll(raisedPositions);
         for (Placement placement : correctedCommon) applyPlacement(camp, placement);
         return true;
-    }
+    } }
 
-    public void restoreCurrent(Camp camp) {
+    public void restoreCurrent(Camp camp) { synchronized (ru.neverland.core.SuiteState.lock()) {
         restorePositions(camp, camp.placedBlocks());
         camp.placedBlocks().clear();
-    }
+    } }
 
-    public List<ItemStack> drainPlacedContainers(Camp camp) {
+    public List<ItemStack> drainPlacedContainers(Camp camp) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        ru.neverland.core.WorldTasks.requireBox(camp.anchorLocation(),16);
         World world = camp.world().orElseThrow();
         List<ItemStack> items = new ArrayList<>();
         for (BlockPos position : camp.placedBlocks()) {
@@ -128,14 +130,15 @@ public final class StructureService {
             container.update(true, false);
         }
         return items;
-    }
+    } }
 
-    public void restoreAll(Camp camp) {
+    public void restoreAll(Camp camp) { synchronized (ru.neverland.core.SuiteState.lock()) {
         restorePositions(camp, camp.snapshots().keySet());
         camp.placedBlocks().clear();
-    }
+    } }
 
     private void restorePositions(Camp camp, Iterable<BlockPos> positions) {
+        ru.neverland.core.WorldTasks.requireBox(camp.anchorLocation(),16);
         World world = camp.world().orElseThrow();
         List<BlockPos> ordered = new ArrayList<>();
         positions.forEach(ordered::add);
@@ -198,6 +201,7 @@ public final class StructureService {
     }
 
     private void applyPlacement(Camp camp, Placement placement) {
+        ru.neverland.core.WorldTasks.requireBox(camp.anchorLocation(),16);
         World world = camp.world().orElseThrow();
         BlockPos position = DirectionUtil.rotate(camp.anchor(), camp.facing(), placement.relative());
         Block block = world.getBlockAt(position.x(), position.y(), position.z());
@@ -218,7 +222,7 @@ public final class StructureService {
         return type.isSolid() || isReplaceable(type);
     }
 
-    public boolean isReplaceable(Material type) {
+    public boolean isReplaceable(Material type) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return type.isAir() || switch (type) {
             case SHORT_GRASS, TALL_GRASS, FERN, LARGE_FERN, DEAD_BUSH, VINE, GLOW_LICHEN,
                  SNOW, FIRE, SOUL_FIRE, SEAGRASS, TALL_SEAGRASS, KELP, KELP_PLANT,
@@ -227,7 +231,7 @@ public final class StructureService {
                  WITHER_ROSE, SUNFLOWER, LILAC, ROSE_BUSH, PEONY, TORCHFLOWER, PITCHER_PLANT -> true;
             default -> false;
         };
-    }
+    } }
 
     @FunctionalInterface
     public interface StyleDefinitionProvider {

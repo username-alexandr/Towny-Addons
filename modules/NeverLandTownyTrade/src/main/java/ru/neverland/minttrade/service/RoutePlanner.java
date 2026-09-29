@@ -27,7 +27,7 @@ public final class RoutePlanner {
     public RoutePlanner(JavaPlugin plugin, TownyHook towny, BuildBridge builds, CampsBridge camps) {
         this.plugin = plugin; this.towny = towny; this.builds = builds; this.camps = camps;
     }
-    public RoutePlan plan(Town seller, Town buyer) {
+    public RoutePlan plan(Town seller, Town buyer) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Location from = seller == null ? null : seller.getSpawnOrNull(), to = buyer == null ? null : buyer.getSpawnOrNull();
         if (from == null || to == null || from.getWorld() == null || !from.getWorld().equals(to.getWorld())) return null;
         RoutePoint start = townPoint(from, seller), end = townPoint(to, buyer);
@@ -72,7 +72,7 @@ public final class RoutePlanner {
         chance = ru.neverland.integration.ResearchEffects.delay(chance-specializationDelay,plugin.getConfig().getDouble("routes.delay.minimum-chance",0.02),navigation);
         return new RoutePlan(List.copyOf(points), transit(points, seller.getUUID(), buyer.getUUID()), distance,
                 Math.max(1000, Math.round(minutes * 60_000)), chance);
-    }
+    } }
     private List<UUID> transit(List<RoutePoint> points, UUID seller, UUID buyer) {
         Set<UUID> result = new LinkedHashSet<>();
         double spacing = Math.max(8, plugin.getConfig().getDouble("tariffs.route-sample-spacing", 32));

@@ -17,7 +17,7 @@ public final class ColorUtil {
     private ColorUtil() {
     }
 
-    public static Component component(String input) {
+    public static Component component(String input) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String value = legacy(input);
         Component result = Component.empty();
         StringBuilder text = new StringBuilder();
@@ -81,9 +81,9 @@ public final class ColorUtil {
             }
         }
         return append(result, text, color, obfuscated, bold, strikethrough, underlined, italic);
-    }
+    } }
 
-    public static String legacy(String input) {
+    public static String legacy(String input) { synchronized (ru.neverland.core.SuiteState.lock()) {
         char[] characters = expandHex(input == null ? "" : input).toCharArray();
         for (int index = 0; index < characters.length - 1; index++) {
             if (characters[index] == '&' && VALID_CODES.indexOf(characters[index + 1]) >= 0) {
@@ -91,20 +91,20 @@ public final class ColorUtil {
             }
         }
         return new String(characters);
-    }
+    } }
 
-    public static String plain(String input) {
+    public static String plain(String input) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return FORMATTING.matcher(expandHex(input == null ? "" : input)).replaceAll("");
-    }
+    } }
 
-    public static String plain(Component component) {
+    public static String plain(Component component) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (component == null) return "";
         StringBuilder result = new StringBuilder();
         appendPlain(component, result);
         return result.toString();
-    }
+    } }
 
-    public static String expandHex(String input) {
+    public static String expandHex(String input) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Matcher matcher = HEX.matcher(input == null ? "" : input);
         StringBuffer result = new StringBuffer();
         while (matcher.find()) {
@@ -114,7 +114,7 @@ public final class ColorUtil {
         }
         matcher.appendTail(result);
         return result.toString();
-    }
+    } }
 
     private static Component append(Component result, StringBuilder text, TextColor color,
                                     boolean obfuscated, boolean bold, boolean strikethrough,

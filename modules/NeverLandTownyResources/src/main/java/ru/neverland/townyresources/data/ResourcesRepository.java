@@ -15,14 +15,14 @@ public final class ResourcesRepository {
     private Map<UUID,Reservation> reservations=Map.of();
     private boolean writable;
     private Map<UUID,Map<String,Map<String,Long>>> production=Map.of();
-    public Map<String,Map<String,Long>> productionWeeks(UUID town){return production.getOrDefault(town,Map.of());}
-    public Map<UUID,Reservation> reservations(){return reservations;}
+    public Map<String,Map<String,Long>> productionWeeks(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return production.getOrDefault(town,Map.of());} }
+    public Map<UUID,Reservation> reservations(){ synchronized (ru.neverland.core.SuiteState.lock()) {return reservations;} }
     public ResourcesRepository(Path file) { this.file=file; }
-    public Map<UUID,TownState> states() { return states; }
-    public Map<Resource,Long> held(UUID town){
+    public Map<UUID,TownState> states() { synchronized (ru.neverland.core.SuiteState.lock()) { return states; } }
+    public Map<Resource,Long> held(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {
         var out=Amounts.mutable(Map.of());for(var v:reservations.values())if(v.town().equals(town)&&v.status()==Reservation.Status.HELD)for(var r:Resource.values())out.put(r,Math.addExact(out.get(r),v.amounts().get(r)));return Amounts.copy(out);
-    }
-    public void load() throws Exception {
+    } }
+    public void load() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
         writable=false;
         if(!Files.exists(file)){states=Map.of();ru.neverland.core.AtomicFiles.loaded(file);writable=true;return;}
         var y=new YamlConfiguration();y.load(file.toFile());
@@ -46,7 +46,7 @@ public final class ResourcesRepository {
         Map<UUID,Map<String,Map<String,Long>>> history=new HashMap<>();
         if(schema==3){var root=y.getConfigurationSection("production");if(root==null)throw new IOException("Отсутствует история производства");for(String id:root.getKeys(false)){var section=root.getConfigurationSection(id);if(section==null)throw new IOException("Неверная история города");Map<String,Map<String,Long>> weeks=new HashMap<>();for(String week:section.getKeys(false)){var row=section.getConfigurationSection(week);if(row==null)throw new IOException("Неверная неделя");var values=new HashMap<String,Long>();for(String key:row.getKeys(false))values.put(key,number(row,key));weeks.put(week,values);}history.put(UUID.fromString(id),weeks);}}
         history=ProductionHistory.copy(history);validateHeadroom(next,held);states=Map.copyOf(next);reservations=Map.copyOf(held);production=history;ru.neverland.core.AtomicFiles.loaded(file);writable=true;
-    }
+    } }
     private static long number(ConfigurationSection p,String key)throws IOException{
         try{return new java.math.BigDecimal(String.valueOf(p.get(key))).longValueExact();}catch(Exception ex){throw new IOException("Некорректное целое число: "+key,ex);}
     }
@@ -57,8 +57,8 @@ public final class ResourcesRepository {
         var section=p.getConfigurationSection(key);if(section==null||section.getKeys(false).size()!=8)throw new IOException("Неполный список ресурсов: "+key);
         Map<Resource,Long> result=new EnumMap<>(Resource.class);for(var r:Resource.values())result.put(r,number(section,r.id()));return key.equals("income")||key.equals("expense")?Amounts.flows(result):Amounts.copy(result);
     }
-    public void replace(Map<UUID,TownState> next)throws IOException { replace(next,false); }
-    public void replaceCycle(Map<UUID,TownState> next)throws IOException { replace(next,true); }
+    public void replace(Map<UUID,TownState> next)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) { replace(next,false); } }
+    public void replaceCycle(Map<UUID,TownState> next)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) { replace(next,true); } }
     private void replace(Map<UUID,TownState> next,boolean cycle)throws IOException {
         if(!writable||!ru.neverland.core.AtomicFiles.writable(file))throw new IOException("Запись запрещена до успешной загрузки базы");
         var copy=new HashMap<>(next);
@@ -66,15 +66,15 @@ public final class ResourcesRepository {
         write(copy,reservations,cycle);
     }
     /** Balance and receipt are one atomic file replacement. Retries do not debit twice. */
-    public boolean reserve(UUID id,UUID town,Map<Resource,Long> amounts,Map<Resource,Long> keep)throws IOException{
+    public boolean reserve(UUID id,UUID town,Map<Resource,Long> amounts,Map<Resource,Long> keep)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {
         Objects.requireNonNull(id);var cost=Amounts.copy(amounts);var old=reservations.get(id);
         if(old!=null){if(!old.town().equals(town)||!old.amounts().equals(cost))throw new IllegalArgumentException("ID резерва уже занят другим счётом");return old.status()!=Reservation.Status.RELEASED;}
         var state=states.get(town);if(state==null)throw new IllegalStateException("Город ещё не рассчитан");
         for(var resource:Resource.values())if(cost.get(resource)>Math.max(0,state.balances().get(resource)-keep.getOrDefault(resource,0L)))return false;
         for(var resource:Resource.values())state=state.balance(resource,state.balances().get(resource)-cost.get(resource));
         var next=new HashMap<>(states);next.put(town,state);var journal=new HashMap<>(reservations);journal.put(id,new Reservation(town,cost,Reservation.Status.HELD));write(next,journal);return true;
-    }
-    public void settle(UUID id,boolean consume)throws IOException{
+    } }
+    public void settle(UUID id,boolean consume)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {
         var receipt=reservations.get(id);if(receipt==null)throw new IllegalArgumentException("Резерв не найден");
         var expected=consume?Reservation.Status.CONSUMED:Reservation.Status.RELEASED;
         if(receipt.status()==expected)return;if(receipt.status()!=Reservation.Status.HELD)throw new IllegalStateException("Резерв уже завершён иначе");
@@ -82,11 +82,11 @@ public final class ResourcesRepository {
         if(!consume){var state=next.get(receipt.town());if(state==null)throw new IllegalStateException("Нет города для возврата");
             for(var resource:Resource.values())state=state.balance(resource,Math.addExact(state.balances().get(resource),receipt.amounts().get(resource)));next.put(receipt.town(),state);}
         var journal=new HashMap<>(reservations);journal.put(id,receipt.finish(consume));write(next,journal);
-    }
-    public void forget(UUID id)throws IOException{
+    } }
+    public void forget(UUID id)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {
         var receipt=reservations.get(id);if(receipt==null)return;if(receipt.status()==Reservation.Status.HELD)throw new IllegalStateException("Нельзя удалить незавершённый резерв");
         var journal=new HashMap<>(reservations);journal.remove(id);write(states,journal);
-    }
+    } }
     private static void validateHeadroom(Map<UUID,TownState> states,Map<UUID,Reservation> receipts)throws IOException{
         Map<UUID,Map<Resource,Long>> total=new HashMap<>();
         for(var receipt:receipts.values())if(receipt.status()==Reservation.Status.HELD){var sum=total.computeIfAbsent(receipt.town(),id->Amounts.mutable(Map.of()));for(var r:Resource.values())sum.put(r,Math.addExact(sum.get(r),receipt.amounts().get(r)));}

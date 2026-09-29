@@ -22,24 +22,24 @@ public final class EffectJournal {
       this.file = file;
    }
 
-   public static UUID id(String value) {
+   public static UUID id(String value) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return UUID.nameUUIDFromBytes(value.getBytes(StandardCharsets.UTF_8));
-   }
+   } }
 
-   public boolean writable() {
+   public boolean writable() { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.loaded && AtomicFiles.writable(this.file);
-   }
+   } }
 
-   public Collection<EffectJournal.Entry> entries() {
+   public Collection<EffectJournal.Entry> entries() { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.entries.values();
-   }
+   } }
 
-   public EffectJournal.State state(UUID id) {
+   public EffectJournal.State state(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
       EffectJournal.Entry entry = this.entries.get(id);
       return entry == null ? EffectJournal.State.READY : entry.state();
-   }
+   } }
 
-   public void load() throws IOException {
+   public void load() throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.loaded = false;
       Map<UUID, EffectJournal.Entry> next = new LinkedHashMap<>();
       if (Files.exists(this.file)) {
@@ -69,7 +69,7 @@ public final class EffectJournal {
       this.entries = Map.copyOf(next);
       AtomicFiles.loaded(this.file);
       this.loaded = true;
-   }
+   } }
 
    private void put(EffectJournal.Entry value) throws IOException {
       if (!this.writable()) {
@@ -94,7 +94,7 @@ public final class EffectJournal {
       }
    }
 
-   public boolean execute(UUID id, String description, EffectJournal.Action action) throws Exception {
+   public boolean execute(UUID id, String description, EffectJournal.Action action) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
       if (!this.writable()) {
          throw new IOException("Журнал операций недоступен");
       } else {
@@ -112,24 +112,24 @@ public final class EffectJournal {
             return success;
          }
       }
-   }
+   } }
 
-   public void resolve(UUID id, boolean applied) throws IOException {
+   public void resolve(UUID id, boolean applied) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
       EffectJournal.Entry old = this.entries.get(id);
       if (old != null && old.state() == EffectJournal.State.PENDING) {
          this.put(new EffectJournal.Entry(id, old.description(), applied ? EffectJournal.State.DONE : EffectJournal.State.READY));
       } else {
          throw new IllegalArgumentException("Нет операции, ожидающей сверки");
       }
-   }
+   } }
 
-   public void review(UUID id, String description) throws IOException {
+   public void review(UUID id, String description) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
       if (!this.entries.containsKey(id)) {
          this.put(new EffectJournal.Entry(id, description, EffectJournal.State.PENDING));
       }
-   }
+   } }
 
-   public void retain(Set<UUID> needed) throws IOException {
+   public void retain(Set<UUID> needed) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
       if (!this.writable()) {
          throw new IOException("Журнал операций недоступен");
       } else {
@@ -152,7 +152,7 @@ public final class EffectJournal {
             this.entries = Map.copyOf(next);
          }
       }
-   }
+   } }
 
    @FunctionalInterface
    public interface Action {

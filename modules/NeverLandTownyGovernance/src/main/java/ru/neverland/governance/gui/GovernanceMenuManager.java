@@ -49,7 +49,7 @@ public final class GovernanceMenuManager implements Listener {
         actionKey = new NamespacedKey(plugin, "menu_action"); valueKey = new NamespacedKey(plugin, "menu_value");
     }
 
-    public void openMain(Player player) {
+    public void openMain(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = requireTown(player); if (town == null) return; TownGovernanceData data = governance.data(town);
         Inventory menu = menu(GovernanceMenuHolder.Type.MAIN, town, 45, config("gui.main-title")); fill(menu);
         menu.setItem(10, tagged(Material.BOOKSHELF, "main_laws", "", "&#63E6BEЗаконы города", List.of(
@@ -67,9 +67,9 @@ public final class GovernanceMenuManager implements Listener {
                 "&7Налог: &f" + number(town.getTaxes()) + (town.isTaxPercentage() ? "%" : " монет"),
                 "&7Бонусных участков: &f" + town.getBonusBlocks())));
         player.openInventory(menu);
-    }
+    } }
 
-    public void openLaws(Player player) {
+    public void openLaws(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = requireTown(player); if (town == null) return; TownGovernanceData data = governance.data(town);
         Inventory menu = menu(GovernanceMenuHolder.Type.LAWS, town, 54, config("gui.laws-title")); fill(menu);
         int slot = 0;
@@ -82,9 +82,9 @@ public final class GovernanceMenuManager implements Listener {
             menu.setItem(slot++, tagged(icon(law), "law", law.id(), law.name(), lore));
         }
         menu.setItem(49, back()); player.openInventory(menu);
-    }
+    } }
 
-    public void openVotes(Player player) {
+    public void openVotes(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = requireTown(player); if (town == null) return;
         Inventory menu = menu(GovernanceMenuHolder.Type.VOTES, town, 54, config("gui.votes-title")); fill(menu);
         List<Proposal> proposals = governance.open(town); int slot = 0;
@@ -101,9 +101,9 @@ public final class GovernanceMenuManager implements Listener {
         }
         if (proposals.isEmpty()) menu.setItem(22, item(Material.BARRIER, "&#ADB5BDНет открытых голосований", List.of("&7Совет пока не рассматривает решений.")));
         menu.setItem(49, back()); player.openInventory(menu);
-    }
+    } }
 
-    public void openCouncil(Player player) {
+    public void openCouncil(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = requireTown(player); if (town == null) return; TownGovernanceData data = governance.data(town);
         Inventory menu = menu(GovernanceMenuHolder.Type.COUNCIL, town, 54, config("gui.council-title")); fill(menu);
         int slot = 10;
@@ -121,9 +121,9 @@ public final class GovernanceMenuManager implements Listener {
         List<String> members = governance.council(town).stream().map(towny::resident).filter(java.util.Objects::nonNull).map(value -> value.getName()).sorted().toList();
         menu.setItem(40, item(Material.BELL, "&#FFD166Состав совета", members.isEmpty() ? List.of("&7Совет не сформирован") : members.stream().map(name -> "&7• &f" + name).toList()));
         menu.setItem(49, back()); player.openInventory(menu);
-    }
+    } }
 
-    public void openHistory(Player player) {
+    public void openHistory(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = requireTown(player); if (town == null) return; Inventory menu = menu(GovernanceMenuHolder.Type.HISTORY, town, 54, config("gui.history-title")); fill(menu);
         int slot = 0;
         for (HistoryEntry entry : governance.data(town).history()) {
@@ -131,9 +131,9 @@ public final class GovernanceMenuManager implements Listener {
             menu.setItem(slot++, item(Material.PAPER, "&#FFFFFF" + entry.description(), List.of("&7" + DATE.format(Instant.ofEpochMilli(entry.timestamp())), "&7Инициатор: &f" + entry.actorName())));
         }
         menu.setItem(49, back()); player.openInventory(menu);
-    }
+    } }
 
-    @EventHandler public void onClick(InventoryClickEvent event) {
+    @EventHandler public void onClick(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyGovernance")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getInventory().getHolder() instanceof GovernanceMenuHolder holder)) return; event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player) || event.getClickedInventory() != event.getView().getTopInventory()) return;
         ItemStack clicked = event.getCurrentItem(); if (clicked == null || clicked.getType().isAir() || !clicked.hasItemMeta()) return;
@@ -142,7 +142,7 @@ public final class GovernanceMenuManager implements Listener {
         if (action == null) return;
         switch (action) {
             case "main_laws" -> openLaws(player); case "main_votes" -> openVotes(player); case "main_council" -> openCouncil(player);
-            case "ministers" -> org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> player.performCommand("townycouncil"));
+            case "ministers" -> ru.neverland.core.SuiteScheduler.entity(plugin, player, () -> player.performCommand("townycouncil"));
             case "main_treasury" -> player.performCommand("townytreasury");
             case "main_policies" -> player.performCommand("townypolicies");
             case "main_history" -> openHistory(player); case "back" -> openMain(player);
@@ -158,10 +158,10 @@ public final class GovernanceMenuManager implements Listener {
             }
             default -> { }
         }
-    }
-    @EventHandler public void onDrag(InventoryDragEvent event) { if (event.getInventory().getHolder() instanceof GovernanceMenuHolder) event.setCancelled(true); }
+    } }
+    @EventHandler public void onDrag(InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyGovernance")){ru.neverland.core.ModuleGate.stopEvent(event);return;} if (event.getInventory().getHolder() instanceof GovernanceMenuHolder) event.setCancelled(true); } }
 
-    public void handleProposal(Player player, GovernanceService.ProposalResult result) {
+    public void handleProposal(Player player, GovernanceService.ProposalResult result) { synchronized (ru.neverland.core.SuiteState.lock()) {
         switch (result.result()) {
             case SUCCESS -> messages.send(player, "proposal-created", Map.of("id", result.proposal().shortId(), "law", governance.law(result.proposal().lawId()).name(), "time", TimeUtil.format(result.remainingMillis())));
             case NO_TOWN -> messages.send(player, "no-town"); case NO_PERMISSION -> messages.send(player, "cannot-propose");
@@ -171,9 +171,9 @@ public final class GovernanceMenuManager implements Listener {
             case COOLDOWN -> messages.send(player, "proposal-cooldown", Map.of("time", TimeUtil.format(result.remainingMillis())));
             default -> messages.send(player, "no-permission");
         }
-    }
+    } }
 
-    public void handleVote(Player player, GovernanceService.VoteResult result) {
+    public void handleVote(Player player, GovernanceService.VoteResult result) { synchronized (ru.neverland.core.SuiteState.lock()) {
         switch (result.result()) {
             case SUCCESS -> { VoteChoice choice = result.proposal().voteOf(player.getUniqueId()); messages.send(player, "vote-recorded", Map.of("id", result.proposal().shortId(), "choice", governance.choiceText(choice))); }
             case NO_TOWN -> messages.send(player, "no-town"); case NO_PERMISSION -> messages.send(player, "no-permission");
@@ -181,7 +181,7 @@ public final class GovernanceMenuManager implements Listener {
             case UNKNOWN_PROPOSAL -> messages.send(player, "unknown-proposal", Map.of("id", "?")); case NOT_ELIGIBLE -> messages.send(player, "not-eligible");
             case CHANGE_DISABLED -> messages.send(player, "vote-change-disabled"); default -> messages.send(player, "no-permission");
         }
-    }
+    } }
 
     private Town requireTown(Player player) { Town town = towny.town(player); if (town == null) messages.send(player, "no-town"); return town; }
     private Inventory menu(GovernanceMenuHolder.Type type, Town town, int size, String title) { return ru.neverland.core.MenuStyle.inventory(plugin, new GovernanceMenuHolder(type, town.getUUID()), size, ColorUtil.color(title)); }

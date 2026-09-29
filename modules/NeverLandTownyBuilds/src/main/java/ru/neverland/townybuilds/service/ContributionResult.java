@@ -7,9 +7,9 @@ public record ContributionResult(Status status, int totalItems, List<String> det
         details = List.copyOf(details);
     }
 
-    public static ContributionResult of(Status status) {
+    public static ContributionResult of(Status status) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return new ContributionResult(status, 0, List.of());
-    }
+    } }
 
     public enum Status {
         SPECIALIZATION_LOCKED,

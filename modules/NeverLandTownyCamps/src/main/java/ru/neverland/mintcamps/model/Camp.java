@@ -51,60 +51,60 @@ public final class Camp {
         this.stash = new ItemStack[Math.max(9, stashSize)];
     }
 
-    public UUID ownerId() { return ownerId; }
-    public String ownerName() { return ownerName; }
-    public void ownerName(String value) { ownerName = value; }
-    public UUID worldId() { return worldId; }
-    public String worldName() { return worldName; }
-    public BlockPos anchor() { return anchor; }
-    public BlockFace facing() { return facing; }
-    public int level() { return level; }
-    public void level(int value) { level = Math.max(1, Math.min(3, value)); }
-    public String styleId() { return styleId; }
-    public long createdAt() { return createdAt; }
-    public long burnUntil() { return burnUntil; }
-    public void burnUntil(long value) { burnUntil = value; }
-    public boolean mobsDisabled() { return mobsDisabled; }
-    public void mobsDisabled(boolean value) { mobsDisabled = value; }
-    public Map<UUID, String> trusted() { return trusted; }
-    public ItemStack[] stash() { return stash; }
-    public void stash(ItemStack[] value, int size) {
+    public UUID ownerId() { synchronized (ru.neverland.core.SuiteState.lock()) { return ownerId; } }
+    public String ownerName() { synchronized (ru.neverland.core.SuiteState.lock()) { return ownerName; } }
+    public void ownerName(String value) { synchronized (ru.neverland.core.SuiteState.lock()) { ownerName = value; } }
+    public UUID worldId() { synchronized (ru.neverland.core.SuiteState.lock()) { return worldId; } }
+    public String worldName() { synchronized (ru.neverland.core.SuiteState.lock()) { return worldName; } }
+    public BlockPos anchor() { synchronized (ru.neverland.core.SuiteState.lock()) { return anchor; } }
+    public BlockFace facing() { synchronized (ru.neverland.core.SuiteState.lock()) { return facing; } }
+    public int level() { synchronized (ru.neverland.core.SuiteState.lock()) { return level; } }
+    public void level(int value) { synchronized (ru.neverland.core.SuiteState.lock()) { level = Math.max(1, Math.min(3, value)); } }
+    public String styleId() { synchronized (ru.neverland.core.SuiteState.lock()) { return styleId; } }
+    public long createdAt() { synchronized (ru.neverland.core.SuiteState.lock()) { return createdAt; } }
+    public long burnUntil() { synchronized (ru.neverland.core.SuiteState.lock()) { return burnUntil; } }
+    public void burnUntil(long value) { synchronized (ru.neverland.core.SuiteState.lock()) { burnUntil = value; } }
+    public boolean mobsDisabled() { synchronized (ru.neverland.core.SuiteState.lock()) { return mobsDisabled; } }
+    public void mobsDisabled(boolean value) { synchronized (ru.neverland.core.SuiteState.lock()) { mobsDisabled = value; } }
+    public Map<UUID, String> trusted() { synchronized (ru.neverland.core.SuiteState.lock()) { return trusted; } }
+    public ItemStack[] stash() { synchronized (ru.neverland.core.SuiteState.lock()) { return stash; } }
+    public void stash(ItemStack[] value, int size) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ItemStack[] resized = new ItemStack[Math.max(9, size)];
         if (value != null) System.arraycopy(value, 0, resized, 0, Math.min(value.length, resized.length));
         stash = resized;
-    }
-    public Map<BlockPos, BlockSnapshot> snapshots() { return snapshots; }
-    public Set<BlockPos> placedBlocks() { return placedBlocks; }
-    public BlockPos stashBlock() { return stashBlock; }
-    public void stashBlock(BlockPos value) { stashBlock = value; }
-    public UUID hologramId() { return hologramId; }
-    public void hologramId(UUID value) { hologramId = value; }
+    } }
+    public Map<BlockPos, BlockSnapshot> snapshots() { synchronized (ru.neverland.core.SuiteState.lock()) { return snapshots; } }
+    public Set<BlockPos> placedBlocks() { synchronized (ru.neverland.core.SuiteState.lock()) { return placedBlocks; } }
+    public BlockPos stashBlock() { synchronized (ru.neverland.core.SuiteState.lock()) { return stashBlock; } }
+    public void stashBlock(BlockPos value) { synchronized (ru.neverland.core.SuiteState.lock()) { stashBlock = value; } }
+    public UUID hologramId() { synchronized (ru.neverland.core.SuiteState.lock()) { return hologramId; } }
+    public void hologramId(UUID value) { synchronized (ru.neverland.core.SuiteState.lock()) { hologramId = value; } }
 
-    public Optional<World> world() {
+    public Optional<World> world() { synchronized (ru.neverland.core.SuiteState.lock()) {
         World world = Bukkit.getWorld(worldId);
         if (world == null) world = Bukkit.getWorld(worldName);
         return Optional.ofNullable(world);
-    }
+    } }
 
-    public Location anchorLocation() {
+    public Location anchorLocation() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return world().map(anchor::location).orElse(null);
-    }
+    } }
 
-    public boolean canAccess(UUID playerId) {
+    public boolean canAccess(UUID playerId) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return ownerId.equals(playerId) || trusted.containsKey(playerId);
-    }
+    } }
 
-    public long remainingBurnMillis(long now) {
+    public long remainingBurnMillis(long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return Math.max(0L, burnUntil - now);
-    }
+    } }
 
-    public long remainingLifeMillis(long now, long maximumLifeMillis) {
+    public long remainingLifeMillis(long now, long maximumLifeMillis) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return Math.max(0L, createdAt + maximumLifeMillis - now);
-    }
+    } }
 
-    public List<ItemStack> nonEmptyStash() {
+    public List<ItemStack> nonEmptyStash() { synchronized (ru.neverland.core.SuiteState.lock()) {
         List<ItemStack> result = new ArrayList<>();
         for (ItemStack item : stash) if (item != null && !item.getType().isAir()) result.add(item.clone());
         return result;
-    }
+    } }
 }

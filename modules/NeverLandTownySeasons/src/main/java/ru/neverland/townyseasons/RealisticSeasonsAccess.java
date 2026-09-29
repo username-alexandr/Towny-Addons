@@ -9,8 +9,8 @@ public final class RealisticSeasonsAccess {
     private Plugin provider;
     private Method instance, season;
     private String status="NOT_QUERIED";
-    public String status() { return status; }
-    public Season read(World world) {
+    public String status() { synchronized (ru.neverland.core.SuiteState.lock()) { return status; } }
+    public Season read(World world) { synchronized (ru.neverland.core.SuiteState.lock()) {
         var current=Bukkit.getPluginManager().getPlugin("RealisticSeasons");
         if(current==null)throw failure("NOT_INSTALLED",null);
         if(!current.isEnabled())throw failure("DISABLED",null);
@@ -28,7 +28,7 @@ public final class RealisticSeasonsAccess {
             if(!(value instanceof Enum<?> e))throw new IllegalStateException("Season unavailable in world");
             Season result=Season.parse(e.name());status="READY";return result;
         } catch(ReflectiveOperationException|RuntimeException|LinkageError e) { throw failure("INVOCATION_ERROR",e); }
-    }
+    } }
     private IllegalStateException failure(String state,Throwable cause) {
         status=state;return new IllegalStateException("RealisticSeasons: "+state,cause);
     }

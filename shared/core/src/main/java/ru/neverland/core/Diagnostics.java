@@ -13,7 +13,7 @@ public final class Diagnostics {
    private Diagnostics() {
    }
 
-   public static void show(CommandSender sender) {
+   public static void show(CommandSender sender) { synchronized (ru.neverland.core.SuiteState.lock()) {
       Set<String> lines = new TreeSet<>();
 
       for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
@@ -33,7 +33,7 @@ public final class Diagnostics {
       for (String line : lines) {
          sender.sendMessage(line);
       }
-   }
+   } }
 
    private static void collect(Map<?, ?> snapshot, Set<String> lines) {
       try {

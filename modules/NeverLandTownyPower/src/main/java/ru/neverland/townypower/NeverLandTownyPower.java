@@ -14,7 +14,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 public final class NeverLandTownyPower extends JavaPlugin {
     private PowerService service;private boolean townCommand;private PowerExpansion expansion;
-    @Override public void onEnable(){
+    @Override public void onEnable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 try{
         saveDefaultConfig();if(!new File(getDataFolder(),"buildings.yml").exists())saveResource("buildings.yml",false);
@@ -24,11 +24,11 @@ try{
         getServer().getPluginManager().registerEvents(menu,this);service.start();getServer().getServicesManager().register(TownyPowerApi.class,service,this,ServicePriority.Normal);
         if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")){expansion=new PowerExpansion(service,getPluginMeta().getVersion());expansion.register();}
         getLogger().info("Энергетика включена: "+service.settings().profiles().size()+" профилей.");
-    }catch(Exception|LinkageError ex){getLogger().log(java.util.logging.Level.SEVERE,"Энергетика не загружена. Данные не перезаписаны; питание приостановлено до исправления причины.",ex);getServer().getPluginManager().disablePlugin(this);}}
+    }catch(Exception|LinkageError ex){getLogger().log(java.util.logging.Level.SEVERE,"Энергетика не загружена. Данные не перезаписаны; питание приостановлено до исправления причины.",ex);getServer().getPluginManager().disablePlugin(this);}} }
     private YamlConfiguration read(String name)throws Exception{var y=new YamlConfiguration();y.load(new File(getDataFolder(),name));try(var input=getResource(name)){if(input!=null)y.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(input,StandardCharsets.UTF_8)));}y.options().copyDefaults(true);return y;}
     private PowerSettings settings()throws Exception{return PowerSettings.load(read("config.yml"),read("buildings.yml"));}
-    public boolean reloadPower(){try{service.reload(settings());return true;}catch(Exception ex){getLogger().warning("Настройки энергетики не применены: "+ex.getMessage());return false;}}
-    @Override public void onDisable(){
+    public boolean reloadPower(){ synchronized (ru.neverland.core.SuiteState.lock()) {try{service.reload(settings());return true;}catch(Exception ex){getLogger().warning("Настройки энергетики не применены: "+ex.getMessage());return false;}} }
+    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
-if(expansion!=null)expansion.unregister();if(service!=null)service.stop();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"power");}
+if(expansion!=null)expansion.unregister();if(service!=null)service.stop();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"power");} }
 }

@@ -11,9 +11,9 @@ public final class WarehouseBridge {
     private final JavaPlugin plugin;
     public WarehouseBridge(JavaPlugin plugin){this.plugin=plugin;}
     private ru.neverland.core.ApiServices.Connection api(){return ru.neverland.core.ApiServices.connect(plugin.getConfig().getString("warehouse.plugin","NeverLandTownyBuilds"),"ru.neverland.townybuilds.api.MunicipalStorageApi",1,"capacity","deposit","acknowledge");}
-    public boolean available(){return api().ready();}
+    public boolean available(){ synchronized (ru.neverland.core.SuiteState.lock()) {return api().ready();} }
     private Object call(String name,Class<?>[] types,Object... args)throws ReflectiveOperationException{return api().invoke(name,types,args);}
-    public int capacity(UUID town,ItemStack item){try{return ((Number)call("capacity",new Class<?>[]{UUID.class,ItemStack.class},town,item)).intValue();}catch(Exception ex){return -1;}}
-    public String deposit(UUID town,UUID id,ItemStack item,int amount)throws Exception{return (String)call("deposit",new Class<?>[]{UUID.class,UUID.class,ItemStack.class,int.class},town,id,item,amount);}
-    public void acknowledge(UUID town,UUID id)throws Exception{call("acknowledge",new Class<?>[]{UUID.class,UUID.class},town,id);}
+    public int capacity(UUID town,ItemStack item){ synchronized (ru.neverland.core.SuiteState.lock()) {try{return ((Number)call("capacity",new Class<?>[]{UUID.class,ItemStack.class},town,item)).intValue();}catch(Exception ex){return -1;}} }
+    public String deposit(UUID town,UUID id,ItemStack item,int amount)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {return (String)call("deposit",new Class<?>[]{UUID.class,UUID.class,ItemStack.class,int.class},town,id,item,amount);} }
+    public void acknowledge(UUID town,UUID id)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {call("acknowledge",new Class<?>[]{UUID.class,UUID.class},town,id);} }
 }

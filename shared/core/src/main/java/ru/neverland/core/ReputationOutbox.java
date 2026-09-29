@@ -7,12 +7,12 @@ import org.bukkit.configuration.ConfigurationSection;
 /** Written in the SAME atomic snapshot as its source operation. Provider receipts make ack retries safe. */
 public final class ReputationOutbox {
     private final Map<String, ReputationOutcome> pending = new LinkedHashMap<>();
-    public void add(ReputationOutcome outcome) {
+    public void add(ReputationOutcome outcome) { synchronized (ru.neverland.core.SuiteState.lock()) {
         var previous = pending.putIfAbsent(outcome.id(), outcome);
         if (previous != null && !previous.equals(outcome)) throw new IllegalArgumentException("Конфликт события репутации: " + outcome.id());
-    }
-    public int size() { return pending.size(); }
-    public void load(ConfigurationSection yaml) {
+    } }
+    public int size() { synchronized (ru.neverland.core.SuiteState.lock()) { return pending.size(); } }
+    public void load(ConfigurationSection yaml) { synchronized (ru.neverland.core.SuiteState.lock()) {
         var next = new ReputationOutbox();
         for (var row : SafeYaml.maps(yaml, "reputation-outbox")) {
             var s = new org.bukkit.configuration.MemoryConfiguration(); row.forEach((k,v) -> s.set(String.valueOf(k), v));
@@ -23,12 +23,12 @@ public final class ReputationOutbox {
             next.add(outcome);
         }
         pending.clear(); pending.putAll(next.pending);
-    }
-    public void write(ConfigurationSection yaml) {
+    } }
+    public void write(ConfigurationSection yaml) { synchronized (ru.neverland.core.SuiteState.lock()) {
         yaml.set("reputation-outbox", pending.values().stream().map(o -> Map.of("id", o.id(), "scope", o.scope(), "subject", o.subject().toString(),
                 "rule", o.rule(), "at", o.at(), "context", o.context())).toList());
-    }
-    public void flush(BooleanSupplier healthy, Runnable persist) {
+    } }
+    public void flush(BooleanSupplier healthy, Runnable persist) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!healthy.getAsBoolean()) return;
         // Bound synchronous work; unacknowledged outcomes remain durable for the next tick.
         for (var outcome : List.copyOf(pending.values()).stream().limit(16).toList()) {
@@ -37,5 +37,5 @@ public final class ReputationOutbox {
             try { persist.run(); }
             catch (RuntimeException ex) { pending.put(outcome.id(), outcome); throw ex; }
         }
-    }
+    } }
 }

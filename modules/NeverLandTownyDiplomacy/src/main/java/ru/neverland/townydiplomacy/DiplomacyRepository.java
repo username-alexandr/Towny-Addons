@@ -22,21 +22,21 @@ public final class DiplomacyRepository {
         }
     }
     private final ru.neverland.core.ReputationOutbox reputation = new ru.neverland.core.ReputationOutbox();
-    public void flushReputation(){reputation.flush(this::writable,()->{try{commit(treaties,List.of(),List.of());}catch(IOException ex){throw new java.io.UncheckedIOException(ex);}});}
-    public void commit(Map<UUID,Treaty> values,List<Audit> additions,List<Incident> newIncidents,List<ru.neverland.core.ReputationOutcome> outcomes)throws IOException {
+    public void flushReputation(){ synchronized (ru.neverland.core.SuiteState.lock()) {reputation.flush(this::writable,()->{try{commit(treaties,List.of(),List.of());}catch(IOException ex){throw new java.io.UncheckedIOException(ex);}});} }
+    public void commit(Map<UUID,Treaty> values,List<Audit> additions,List<Incident> newIncidents,List<ru.neverland.core.ReputationOutcome> outcomes)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!writable())throw new IOException("Реестр дипломатии остановлен");
         // Validate before adding events; malformed proposed snapshots must not leave an outbox entry.
         DiplomacyRules.validateSnapshot(values.values(),System.currentTimeMillis());
         outcomes.forEach(reputation::add);commit(values,additions,newIncidents);
-    }
+    } }
     private final Path file;
     private Map<UUID,Treaty> treaties=Map.of(); private List<Audit> history=List.of(); private List<Incident> incidents=List.of(); private boolean writable;
     public DiplomacyRepository(Path file) { this.file=file; }
-    public boolean writable() { return writable&&AtomicFiles.writable(file); }
-    public Map<UUID,Treaty> all() { return treaties; }
-    public List<Audit> history() { return history; }
-    public List<Incident> incidents() { return incidents; }
-    public void load()throws Exception {
+    public boolean writable() { synchronized (ru.neverland.core.SuiteState.lock()) { return writable&&AtomicFiles.writable(file); } }
+    public Map<UUID,Treaty> all() { synchronized (ru.neverland.core.SuiteState.lock()) { return treaties; } }
+    public List<Audit> history() { synchronized (ru.neverland.core.SuiteState.lock()) { return history; } }
+    public List<Incident> incidents() { synchronized (ru.neverland.core.SuiteState.lock()) { return incidents; } }
+    public void load()throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
         writable=false;reputation.load(new YamlConfiguration());var next=new LinkedHashMap<UUID,Treaty>();var audit=new ArrayList<Audit>();var alerts=new ArrayList<Incident>();
         if(Files.exists(file)) {
             var y=new YamlConfiguration();y.load(file.toFile());
@@ -62,8 +62,8 @@ public final class DiplomacyRepository {
         }
         DiplomacyRules.validateSnapshot(next.values(),System.currentTimeMillis());
         treaties=Map.copyOf(next);history=List.copyOf(audit);incidents=List.copyOf(alerts);AtomicFiles.loaded(file);writable=true;
-    }
-    public void commit(Map<UUID,Treaty> values,List<Audit> additions,List<Incident> newIncidents)throws IOException {
+    } }
+    public void commit(Map<UUID,Treaty> values,List<Audit> additions,List<Incident> newIncidents)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!writable())throw new IOException("Реестр дипломатии остановлен; восстановите файл и перезапустите сервер");
         var next=new LinkedHashMap<>(values);
         for(var e:next.entrySet())if(!e.getKey().equals(e.getValue().id()))throw new IllegalArgumentException("Ключ договора не совпадает с ID");
@@ -90,7 +90,7 @@ public final class DiplomacyRepository {
         }
         try { AtomicFiles.write(file,y::saveToString);treaties=Map.copyOf(next);history=List.copyOf(audit);incidents=List.copyOf(alerts); }
         catch(IOException ex) { writable=false;throw ex; }
-    }
+    } }
     private static ConfigurationSection section(ConfigurationSection s,String key)throws IOException { var value=s.getConfigurationSection(key);if(value==null)throw new IOException("Повреждён раздел "+key);return value; }
     private static String string(ConfigurationSection s,String key)throws IOException { if(!(s.get(key) instanceof String text))throw new IOException("Ожидалась строка "+key);return text; }
     private static UUID uuid(ConfigurationSection s,String key)throws IOException { return UUID.fromString(string(s,key)); }

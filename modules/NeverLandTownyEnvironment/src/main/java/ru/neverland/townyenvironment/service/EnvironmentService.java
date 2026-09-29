@@ -26,22 +26,22 @@ public final class EnvironmentService implements TownyEnvironmentApi {
     public EnvironmentService(Plugin plugin, EnvironmentRepository repository, EnvironmentSettings settings, EnvironmentMetrics metrics) {
         this.plugin = plugin; this.repository = repository; this.settings = settings; this.metrics = metrics;
     }
-    public EnvironmentSettings settings() { return settings; }
-    public EnvironmentState state(UUID town) { return repository.get(town); }
-    public Observation observation(UUID town) {
+    public EnvironmentSettings settings() { synchronized (ru.neverland.core.SuiteState.lock()) { return settings; } }
+    public EnvironmentState state(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { return repository.get(town); } }
+    public Observation observation(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return observations.getOrDefault(town, new Observation(false, "Ожидаются данные зданий", Map.of(), new EnvironmentEngine.Pressure(0, 0, Map.of())));
-    }
-    public Town town(Player player) { var resident = TownyAPI.getInstance().getResident(player); return resident == null ? null : resident.getTownOrNull(); }
-    public Town requireTown(Player player) {
+    } }
+    public Town town(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) { var resident = TownyAPI.getInstance().getResident(player); return resident == null ? null : resident.getTownOrNull(); } }
+    public Town requireTown(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = town(player); if (town == null || !player.hasPermission("neverlandtownyenvironment.use")) throw new IllegalArgumentException("Нужен свой город и доступ к экологии"); return town;
-    }
-    public void start() { refresh(false); task = Bukkit.getScheduler().runTaskTimer(plugin, () -> refresh(true), 100, 100); }
-    public void stop() { if (task != null) task.cancel(); elapsed.clear(); observations.clear(); }
-    public void reload(EnvironmentSettings next) {
+    } }
+    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) { refresh(false); task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, () -> refresh(true), 100, 100); } }
+    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) { if (task != null) task.cancel(); elapsed.clear(); observations.clear(); } }
+    public void reload(EnvironmentSettings next) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ApiServices.primaryThread(); if (storageFault) throw new IllegalStateException("Ошибка хранилища: восстановите данные и перезапустите модуль");
         stop(); settings = next; start();
-    }
-    public void refreshView() { refresh(false); }
+    } }
+    public void refreshView() { synchronized (ru.neverland.core.SuiteState.lock()) { refresh(false); } }
     private void refresh(boolean advance) {
         ApiServices.primaryThread(); if (storageFault) return;
         var next = new HashMap<>(repository.towns()); Set<UUID> existing = new HashSet<>();
@@ -81,24 +81,24 @@ public final class EnvironmentService implements TownyEnvironmentApi {
         ApiServices.primaryThread(); if (town == null || TownyAPI.getInstance().getTown(town) == null) throw new IllegalArgumentException("Город не найден");
         return EnvironmentEngine.effects(state(town), settings, !storageFault && observation(town).ready());
     }
-    @Override public double happiness(UUID town) { return effects(town).happiness(); }
-    @Override public double agricultureMultiplier(UUID town, String building) { var effects = effects(town); return settings.agriculture().contains(building) ? effects.agriculture() : 1; }
-    @Override public Map<String, Object> environment(UUID town) {
+    @Override public double happiness(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { return effects(town).happiness(); } }
+    @Override public double agricultureMultiplier(UUID town, String building) { synchronized (ru.neverland.core.SuiteState.lock()) { var effects = effects(town); return settings.agriculture().contains(building) ? effects.agriculture() : 1; } }
+    @Override public Map<String, Object> environment(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         var effects = effects(town); var state = state(town); var view = observation(town);
         return Map.ofEntries(Map.entry("pollution", state.pollution()), Map.entry("cycles", state.cycles()), Map.entry("paused", state.paused()),
                 Map.entry("ready", view.ready() && !storageFault), Map.entry("status", view.status()), Map.entry("emissions", view.pressure().emissions()),
                 Map.entry("cleaning", view.pressure().cleaning()), Map.entry("happiness", effects.happiness()), Map.entry("agriculture", effects.agriculture()),
                 Map.entry("levels", view.levels()), Map.entry("secondsUntilCycle", settings.interval() - elapsed.getOrDefault(town, 0)));
-    }
-    public List<ActivityAdmin.Target> adminTargets() {
+    } }
+    public List<ActivityAdmin.Target> adminTargets() { synchronized (ru.neverland.core.SuiteState.lock()) {
         ApiServices.primaryThread(); var list = new ArrayList<ActivityAdmin.Target>();
         for (Town town : TownyAPI.getInstance().getTowns()) {
             var state = state(town.getUUID()); list.add(new ActivityAdmin.Target(town.getUUID().toString(), town.getName() + " — экология " + format(state.pollution()) + "/100" + (state.paused() ? " (пауза)" : ""),
                     state.paused() ? Set.of("status", "resume") : Set.of("status", "pause", "restart"), (action, minutes) -> control(town.getUUID(), action)));
         }
         return List.copyOf(list);
-    }
-    public String control(UUID town, String action) throws Exception {
+    } }
+    public String control(UUID town, String action) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
         ApiServices.primaryThread(); if (TownyAPI.getInstance().getTown(town) == null) throw new IllegalArgumentException("Город удалён");
         switch (action) {
             case "pause" -> { repository.put(town, state(town).paused(true)); suspend(town, "Пауза администратора; штрафы отключены"); }
@@ -108,6 +108,6 @@ public final class EnvironmentService implements TownyEnvironmentApi {
             default -> throw new IllegalArgumentException("Доступны status, pause, resume, restart");
         }
         return "Загрязнение " + format(state(town).pollution()) + "/100; " + observation(town).status() + "; сохранённые данные не сброшены";
-    }
-    public static String format(double value) { return String.format(Locale.ROOT, "%.2f", value); }
+    } }
+    public static String format(double value) { synchronized (ru.neverland.core.SuiteState.lock()) { return String.format(Locale.ROOT, "%.2f", value); } }
 }

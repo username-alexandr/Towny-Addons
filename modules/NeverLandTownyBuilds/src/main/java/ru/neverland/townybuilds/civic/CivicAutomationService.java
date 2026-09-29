@@ -74,8 +74,8 @@ public final class CivicAutomationService {
 
     private final JavaPlugin plugin;private final TownyHook towny;private final DataStore dataStore;private final TownyBuildsApi api;private BukkitTask task;
     public CivicAutomationService(JavaPlugin plugin,TownyHook towny,DataStore dataStore,TownyBuildsApi api){this.plugin=plugin;this.towny=towny;this.dataStore=dataStore;this.api=api;}
-    public void start(){stop();long interval=Math.max(100L,plugin.getConfig().getLong("settings.civic.automation-interval-ticks",1200L));task=Bukkit.getScheduler().runTaskTimer(plugin,this::runAutomation,interval,interval);}
-    public void stop(){if(task!=null)task.cancel();task=null;}
+    public void start(){ synchronized (ru.neverland.core.SuiteState.lock()) {stop();long interval=Math.max(100L,plugin.getConfig().getLong("settings.civic.automation-interval-ticks",1200L));task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::runAutomation,interval,interval);} }
+    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(task!=null)task.cancel();task=null;} }
     private boolean waterNetworkActive(UUID town){return api.waterNetworkActive(town);}
     private int inventorySize(String projectId, int level) {
         if (projectId.equals("forestry")) return level >= 5 ? 54 : Math.max(9, level * 9);
@@ -92,16 +92,16 @@ public final class CivicAutomationService {
             runIrrigation(town, data);
             runRecycling(data);
         }
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        ru.neverland.core.SuiteScheduler.players(plugin, player -> {{
             Town town = towny.town(player);
-            if (town == null || !(player.getVehicle() instanceof AbstractHorse horse)) continue;
+            if (town == null || !(player.getVehicle() instanceof AbstractHorse horse)) return;
             int level = dataStore.town(town.getUUID()).operationalLevel("stables");
             if (level > 0 && ru.neverland.core.CitizensAccess.allows(town.getUUID(),player.getUniqueId(),"STABLES") && town.equals(towny.townAt(player.getLocation()))) {
                 horse.addPotionEffect(new PotionEffect(PotionEffectType.SPEED,
                         Math.max(140, plugin.getConfig().getInt("settings.civic.automation-interval-ticks", 1200) + 40),
                         level >= 4 ? 1 : 0, true, false, true));
             }
-        }
+        }});
         dataStore.saveIfDirty();
     }
 
@@ -112,27 +112,30 @@ public final class CivicAutomationService {
         if (level <= 0 || area == null) return;
         World world = Bukkit.getWorld(area.worldId());
         if (world == null) return;
-        int planted = 0;
+        int[] planted = {0};
         int attempts = Math.min(640, 80 * level);
         ThreadLocalRandom random = ThreadLocalRandom.current();
         int plantingLimit = ru.neverland.integration.DistrictBonuses.output(level * 3 + data.operationalLevel("world_tree") * 8,
                 ru.neverland.integration.JobsAccess.multiplier(data.townId(),"forestry",ru.neverland.integration.DistrictBonuses.multiplier(data.townId(), "forestry")));
-        for (int attempt = 0; attempt < attempts && planted < plantingLimit; attempt++) {
+        for (int attempt = 0; attempt < attempts; attempt++) {
             int x = random.nextInt(area.minX(), area.maxX() + 1);
             int z = random.nextInt(area.minZ(), area.maxZ() + 1);
-            if (!world.isChunkLoaded(Math.floorDiv(x, 16), Math.floorDiv(z, 16))) continue;
+            ru.neverland.core.SuiteScheduler.region(plugin,new Location(world,x,0,z),()->{
+            if(dataStore.storageBusy(data.townId(),"forestry")||dataStore.storageBusy(data.townId(),"warehouse")||data.operationalLevel("forestry")<=0)return;
+            if (planted[0]>=plantingLimit || !world.isChunkLoaded(Math.floorDiv(x,16),Math.floorDiv(z,16)) || !ru.neverland.core.WorldTasks.ownsBox(new Location(world,x,0,z),2)) return;
             int y = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES);
             Block ground = world.getBlockAt(x, y, z);
             Block above = ground.getRelative(org.bukkit.block.BlockFace.UP);
-            if (!PLANTABLE_GROUND.contains(ground.getType()) || !above.getType().isAir()) continue;
+            if (!PLANTABLE_GROUND.contains(ground.getType()) || !above.getType().isAir()) return;
             Town owner = towny.townAt(ground.getLocation());
-            if (owner == null || !owner.getUUID().equals(town.getUUID()) || nearbyTree(above)) continue;
+            if (owner == null || !owner.getUUID().equals(town.getUUID()) || nearbyTree(above)) return;
             Material sapling = takeSapling(data);
-            if (sapling == null) break;
+            if (sapling == null) return;
             above.setType(sapling, false);
-            planted++;
+            planted[0]++;dataStore.markDirty();
+            });
         }
-        if (planted > 0) dataStore.markDirty();
+
     }
 
     private boolean nearbyTree(Block center) {
@@ -174,15 +177,16 @@ public final class CivicAutomationService {
         if (level <= 0 || area == null || !waterNetworkActive(town.getUUID())) return;
         World world = Bukkit.getWorld(area.worldId());
         if (world == null) return;
-        int hydrated = 0;
+        int[] hydrated = {0};
         int hydrationLimit = ru.neverland.integration.DistrictBonuses.output(level * 32,
                 ru.neverland.integration.JobsAccess.multiplier(data.townId(),"irrigation_station",ru.neverland.integration.ResearchBonuses.production(data.townId(),"irrigation_station",ru.neverland.integration.DistrictBonuses.multiplier(data.townId(), "irrigation_station"))));
         int attempts = Math.min(1000, 140 * level);
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        for (int attempt = 0; attempt < attempts && hydrated < hydrationLimit; attempt++) {
+        for (int attempt = 0; attempt < attempts; attempt++) {
             int x = random.nextInt(area.minX(), area.maxX() + 1);
             int z = random.nextInt(area.minZ(), area.maxZ() + 1);
-            if (!world.isChunkLoaded(Math.floorDiv(x, 16), Math.floorDiv(z, 16))) continue;
+            ru.neverland.core.SuiteScheduler.region(plugin,new Location(world,x,0,z),()->{
+            if (hydrated[0]>=hydrationLimit || !world.isChunkLoaded(Math.floorDiv(x,16),Math.floorDiv(z,16)) || !ru.neverland.core.WorldTasks.ownsBox(new Location(world,x,0,z),2)) return;
             int top = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING);
             for (int y = top; y >= Math.max(world.getMinHeight(), top - 4); y--) {
                 Block block = world.getBlockAt(x, y, z);
@@ -191,11 +195,12 @@ public final class CivicAutomationService {
                     if (owner != null && owner.getUUID().equals(town.getUUID())) {
                         farmland.setMoisture(farmland.getMaximumMoisture());
                         block.setBlockData(farmland, false);
-                        hydrated++;
+                        hydrated[0]++;
                     }
                     break;
                 }
             }
+            });
         }
     }
 

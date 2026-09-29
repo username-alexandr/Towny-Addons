@@ -10,5 +10,5 @@ import ru.neverland.archaeology.service.MessageService;
 
 public final class TownMuseumCommand implements CommandExecutor {
     private final ArchaeologyMenuManager menus; private final MessageService messages; public TownMuseumCommand(ArchaeologyMenuManager menus, MessageService messages) { this.menus = menus; this.messages = messages; }
-    @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) { if (!(sender instanceof Player player)) { messages.send(sender, "players-only"); return true; } if (!player.hasPermission("townyarchaeology.use")) { messages.send(player, "no-permission"); return true; } menus.openMuseum(player); return true; }
+    @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyArchaeology")){return true;} if (!(sender instanceof Player player)) { messages.send(sender, "players-only"); return true; } if (!player.hasPermission("townyarchaeology.use")) { messages.send(player, "no-permission"); return true; } menus.openMuseum(player); return true; } }
 }

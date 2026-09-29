@@ -19,8 +19,8 @@ public final class ProjectIcons {
 
     private ProjectIcons() {}
 
-    public static Material resolve(String projectId, Material configured, boolean custom) {
+    public static Material resolve(String projectId, Material configured, boolean custom) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Change change = CHANGES.get(projectId);
         return !custom && change != null && configured == change.previous() ? change.current() : configured;
-    }
+    } }
 }

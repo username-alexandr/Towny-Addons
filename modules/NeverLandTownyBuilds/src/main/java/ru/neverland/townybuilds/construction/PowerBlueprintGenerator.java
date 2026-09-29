@@ -7,12 +7,12 @@ import java.util.*;
 /** Three additive, five-stage power plants. All roofs rest on completed walls. */
 public final class PowerBlueprintGenerator {
     public static final Set<String> PROJECTS=Set.of("water_wheel","generator","power_station");
-    public BlueprintPlan generate(String id,int requested){
+    public BlueprintPlan generate(String id,int requested){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!PROJECTS.contains(id))return null;int level=Math.max(1,Math.min(5,requested));var b=new Builder(level);
         switch(id){case "water_wheel"->wheel(b);case "generator"->generator(b);case "power_station"->station(b);default->throw new IllegalArgumentException(id);}
         return new BlueprintPlan(id,level,stageName(level),b.blocks);
-    }
-    public String stageName(int level){return List.of("Фундамент и площадка","Несущий корпус","Крыша и энергоузел","Расширение мощности","Городская энергосистема").get(Math.max(1,Math.min(5,level))-1);}
+    } }
+    public String stageName(int level){ synchronized (ru.neverland.core.SuiteState.lock()) {return List.of("Фундамент и площадка","Несущий корпус","Крыша и энергоузел","Расширение мощности","Городская энергосистема").get(Math.max(1,Math.min(5,level))-1);} }
     private void house(Builder b,int hx,int hz,Material wall,Material roof){
         b.floor(-hx-1,hx+1,-hz-1,hz+1,0,Material.STONE_BRICKS,1);b.floor(-1,1,-hz-3,-hz-2,0,Material.STONE_BRICKS,1);
         for(int y=1;y<=4;y++){

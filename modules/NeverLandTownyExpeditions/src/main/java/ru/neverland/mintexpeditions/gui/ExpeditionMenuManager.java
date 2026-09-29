@@ -35,7 +35,7 @@ public final class ExpeditionMenuManager implements Listener {
         this.itemNames = itemNames;
     }
 
-    public void open(Player player) {
+    public void open(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin,
                 new ExpeditionMenuHolder(), 54,
                 ColorUtil.color(plugin.getConfig().getString(
@@ -75,7 +75,7 @@ public final class ExpeditionMenuManager implements Listener {
             inventory.setItem(49, button);
         }
         player.openInventory(inventory);
-    }
+    } }
 
     private ItemStack item(Material material, String name, List<String> lore) {
         ItemStack stack = new ItemStack(material);
@@ -87,7 +87,7 @@ public final class ExpeditionMenuManager implements Listener {
     }
 
     @EventHandler
-    public void click(InventoryClickEvent event) {
+    public void click(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getInventory().getHolder() instanceof ExpeditionMenuHolder)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player)) return;
@@ -106,14 +106,14 @@ public final class ExpeditionMenuManager implements Listener {
                 return;
             }
         }
-    }
+    } }
 
     @EventHandler
-    public void drag(org.bukkit.event.inventory.InventoryDragEvent event) {
+    public void drag(org.bukkit.event.inventory.InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (event.getView().getTopInventory().getHolder() instanceof ExpeditionMenuHolder) event.setCancelled(true);
-    }
+    } }
 
-    public void start(Player player, ExpeditionDefinition definition) {
+    public void start(Player player, ExpeditionDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ExpeditionService.StartResult result = service.start(player, definition);
         switch (result) {
             case NO_CAMP -> message(player, "no-camp");
@@ -127,7 +127,7 @@ public final class ExpeditionMenuManager implements Listener {
             default -> {
             }
         }
-    }
+    } }
 
     private void message(Player player, String key) {
         ((MintTownyExpeditions) plugin).messages().send(player, key);

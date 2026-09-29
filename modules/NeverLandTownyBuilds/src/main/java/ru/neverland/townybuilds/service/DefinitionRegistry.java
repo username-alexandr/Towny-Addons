@@ -44,7 +44,7 @@ public final class DefinitionRegistry {
         reload();
     }
 
-    public void reload() {
+    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
         projects.clear();
         // Сначала читаем встроенный каталог. Так обновление добавляет новые проекты даже
         // при сохранённом старом projects.yml, а значения администратора загружаются поверх.
@@ -64,7 +64,7 @@ public final class DefinitionRegistry {
         }
         rebalanceResources();
         plugin.getLogger().info("Загружено городских проектов: " + projects.size());
-    }
+    } }
 
     private void rebalanceResources() {
         if (!plugin.getConfig().getBoolean("settings.resources.blueprint-budget", true)) return;
@@ -237,33 +237,33 @@ public final class DefinitionRegistry {
         return explicitlyConfigured || inherited.isEmpty() ? configured : inherited;
     }
 
-    public ProjectDefinition project(String id) {
+    public ProjectDefinition project(String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return projects.get(id.toLowerCase(Locale.ROOT));
-    }
+    } }
 
-    public Collection<ProjectDefinition> all() {
+    public Collection<ProjectDefinition> all() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return projects.values().stream().sorted(Comparator.comparing(ProjectDefinition::type)
                 .thenComparingInt(ProjectDefinition::order)
                 .thenComparingInt(ProjectDefinition::slot)
                 .thenComparing(ProjectDefinition::id)).toList();
-    }
+    } }
 
-    public List<ProjectDefinition> type(ProjectType type) {
+    public List<ProjectDefinition> type(ProjectType type) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return projects.values().stream().filter(project -> project.type() == type)
                 .sorted(Comparator.comparingInt(ProjectDefinition::order)
                         .thenComparingInt(ProjectDefinition::slot)
                 .thenComparing(ProjectDefinition::id)).toList();
-    }
+    } }
 
-    public List<ProjectDefinition> category(ProjectCategory category) {
+    public List<ProjectDefinition> category(ProjectCategory category) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return projects.values().stream().filter(project -> project.type() == ProjectType.BUILDING)
                 .filter(project -> project.category() == category)
                 .sorted(Comparator.comparingInt(ProjectDefinition::order)
                         .thenComparingInt(ProjectDefinition::slot)
                         .thenComparing(ProjectDefinition::id)).toList();
-    }
+    } }
 
-    public ProjectDefinition create(String id, ProjectType type) {
+    public ProjectDefinition create(String id, ProjectType type) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String normalized = id.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_-]", "_");
         if (normalized.isBlank() || projects.containsKey(normalized)) {
             return null;
@@ -276,11 +276,11 @@ public final class DefinitionRegistry {
         projects.put(normalized, project);
         saveCustomProjects();
         return project;
-    }
+    } }
 
-    public void ensureCustom(ProjectDefinition project) {
+    public void ensureCustom(ProjectDefinition project) { synchronized (ru.neverland.core.SuiteState.lock()) {
         project.setCustom(true);
-    }
+    } }
 
     private int firstFreeSlot(ProjectType type) {
         for (int slot = 10; slot < 44; slot++) {
@@ -293,7 +293,7 @@ public final class DefinitionRegistry {
         return 10;
     }
 
-    public void saveCustomProjects() {
+    public void saveCustomProjects() { synchronized (ru.neverland.core.SuiteState.lock()) {
         YamlConfiguration yaml = new YamlConfiguration();
         for (ProjectDefinition project : projects.values()) {
             if (!project.custom()) {
@@ -338,5 +338,5 @@ public final class DefinitionRegistry {
         } catch (IOException exception) {
             plugin.getLogger().severe("Не удалось сохранить custom-projects.yml: " + exception.getMessage());
         }
-    }
+    } }
 }

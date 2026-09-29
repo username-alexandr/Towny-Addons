@@ -29,7 +29,7 @@ public final class EventRegistry {
         reload();
     }
 
-    public void reload() {
+    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
         definitions.clear();
         MaterialNameConfig.reload(plugin, itemNames);
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "events.yml"));
@@ -53,7 +53,7 @@ public final class EventRegistry {
                 plugin.getLogger().warning("Событие " + id + " пропущено: " + exception.getMessage());
             }
         }
-    }
+    } }
 
     private EventDefinition parse(String id, ConfigurationSection section) {
         Material icon = material(section.getString("icon", "PAPER"), Material.PAPER);
@@ -122,11 +122,11 @@ public final class EventRegistry {
         return Math.max(min, Math.min(max, value));
     }
 
-    public EventDefinition get(String id) {
+    public EventDefinition get(String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return id == null ? null : definitions.get(id.toLowerCase(Locale.ROOT));
-    }
+    } }
 
-    public Collection<EventDefinition> all() {
+    public Collection<EventDefinition> all() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return List.copyOf(definitions.values());
-    }
+    } }
 }

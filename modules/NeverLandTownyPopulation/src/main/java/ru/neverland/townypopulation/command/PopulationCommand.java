@@ -17,7 +17,7 @@ public final class PopulationCommand implements CommandExecutor, TabCompleter {
     public PopulationCommand(NeverLandTownyPopulation plugin, PopulationService service, PopulationMenu menu, Messages messages) {
         this.plugin=plugin; this.service=service; this.menu=menu; this.messages=messages;
     }
-    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyPopulation")){return true;}
         String action=args.length==0?"menu":args[0].toLowerCase(Locale.ROOT);
         if(action.equals("reload") || action.equals("set")) {
             if(!sender.hasPermission("neverlandtownypopulation.admin")) { messages.send(sender,"no-permission"); return true; }
@@ -60,8 +60,8 @@ public final class PopulationCommand implements CommandExecutor, TabCompleter {
             if(snapshot.paused()) messages.send(sender,"paused");
         } else menu.open((Player)sender,town.getUUID(),action.equals("buildings"),0);
         return true;
-    }
-    @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    } }
+    @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         List<String> options=new ArrayList<>();
         if(args.length==1) {
             if(sender.hasPermission("neverlandtownypopulation.use")) options.addAll(List.of("info","buildings"));
@@ -71,5 +71,5 @@ public final class PopulationCommand implements CommandExecutor, TabCompleter {
             TownyAPI.getInstance().getTowns().forEach(t->options.add(t.getName()));
         String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);
         return options.stream().filter(s->s.toLowerCase(Locale.ROOT).startsWith(prefix)).sorted().toList();
-    }
+    } }
 }

@@ -23,7 +23,7 @@ public final class StickService {
         this.legacyKey = NamespacedKey.fromString("morstownstick:territory_selector");
     }
 
-    public ItemStack create() {
+    public ItemStack create() { synchronized (ru.neverland.core.SuiteState.lock()) {
         String configured = plugin.getConfig().getString("stick.material", "STICK");
         Material material = Material.matchMaterial(configured);
         if (material == null || !material.isItem()) material = Material.STICK;
@@ -38,24 +38,24 @@ public final class StickService {
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         item.setItemMeta(meta);
         return item;
-    }
+    } }
 
-    public boolean isSelector(ItemStack item) {
+    public boolean isSelector(ItemStack item) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (item == null || item.getType().isAir() || !item.hasItemMeta()) return false;
         Byte value = item.getItemMeta().getPersistentDataContainer().get(key, PersistentDataType.BYTE);
         if (value == null && legacyKey != null) value = item.getItemMeta().getPersistentDataContainer().get(legacyKey, PersistentDataType.BYTE);
         return value != null && value == (byte) 1;
-    }
+    } }
 
-    public boolean has(Player player) {
+    public boolean has(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         for (ItemStack item : player.getInventory().getContents()) if (isSelector(item)) return true;
         return false;
-    }
+    } }
 
-    public void give(Player player) {
+    public void give(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ItemStack item = create();
         for (ItemStack leftover : player.getInventory().addItem(item).values()) {
             player.getWorld().dropItemNaturally(player.getLocation(), leftover);
         }
-    }
+    } }
 }

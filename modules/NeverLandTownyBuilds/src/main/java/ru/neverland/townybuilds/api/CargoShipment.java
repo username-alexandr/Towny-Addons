@@ -11,7 +11,7 @@ public record CargoShipment(UUID id,String route,String source,String target,Ite
         if(status.equals("TRANSIT")&&StockMath.total(cargo)==0)throw new IllegalArgumentException("Пустой груз");
         if(!status.equals("TRANSIT")&&StockMath.total(cargo)!=0)throw new IllegalArgumentException("Груз уже разгружен");
     }
-    @Override public ItemStack[] cargo(){return StockMath.copy(cargo);}
-    public boolean inTransit(){return status.equals("TRANSIT");}
-    public CargoShipment finish(boolean returned){return new CargoShipment(id,route,source,target,new ItemStack[0],returned?"RETURNED":"DELIVERED",createdAt);}
+    @Override public ItemStack[] cargo(){ synchronized (ru.neverland.core.SuiteState.lock()) {return StockMath.copy(cargo);} }
+    public boolean inTransit(){ synchronized (ru.neverland.core.SuiteState.lock()) {return status.equals("TRANSIT");} }
+    public CargoShipment finish(boolean returned){ synchronized (ru.neverland.core.SuiteState.lock()) {return new CargoShipment(id,route,source,target,new ItemStack[0],returned?"RETURNED":"DELIVERED",createdAt);} }
 }

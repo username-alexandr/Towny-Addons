@@ -9,8 +9,8 @@ public record RelationKey(ReputationScope scope, UUID first, UUID second) {
             UUID swap = first; first = second; second = swap;
         }
     }
-    public static RelationKey of(ReputationScope scope, UUID first, UUID second) { return new RelationKey(scope, first, second); }
-    public String storageKey() { return first + (scope == ReputationScope.PLAYER ? ">" : "~") + second; }
-    public boolean involves(UUID id) { return first.equals(id) || second.equals(id); }
-    public UUID other(UUID id) { return first.equals(id) ? second : first; }
+    public static RelationKey of(ReputationScope scope, UUID first, UUID second) { synchronized (ru.neverland.core.SuiteState.lock()) { return new RelationKey(scope, first, second); } }
+    public String storageKey() { synchronized (ru.neverland.core.SuiteState.lock()) { return first + (scope == ReputationScope.PLAYER ? ">" : "~") + second; } }
+    public boolean involves(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return first.equals(id) || second.equals(id); } }
+    public UUID other(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return first.equals(id) ? second : first; } }
 }

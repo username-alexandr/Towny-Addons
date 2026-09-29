@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 public final class ColorUtil {
     private static final Pattern HEX = Pattern.compile("&#([A-Fa-f0-9]{6})");
     private ColorUtil() { }
-    public static String color(String input) {
+    public static String color(String input) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (input == null) return "";
         Matcher matcher = HEX.matcher(input); StringBuffer result = new StringBuffer();
         while (matcher.find()) {
@@ -17,6 +17,6 @@ public final class ColorUtil {
         }
         matcher.appendTail(result);
         return ChatColor.translateAlternateColorCodes('&', result.toString());
-    }
-    public static String strip(String input) { return ChatColor.stripColor(color(input)); }
+    } }
+    public static String strip(String input) { synchronized (ru.neverland.core.SuiteState.lock()) { return ChatColor.stripColor(color(input)); } }
 }

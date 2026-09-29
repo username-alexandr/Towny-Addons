@@ -14,8 +14,8 @@ public final class ModulePauseStore {
         public State { requests=Set.copyOf(requests); modules=Map.copyOf(modules); }
     }
     private ModulePauseStore() {}
-    public static Path file(Path plugins) { return plugins.resolve("NeverLandTownyControl/modules.yml"); }
-    public static State load(Path file) {
+    public static Path file(Path plugins) { synchronized (ru.neverland.core.SuiteState.lock()) { return plugins.resolve("NeverLandTownyControl/modules.yml"); } }
+    public static State load(Path file) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!Files.exists(file)) return new State(Set.of(),Map.of());
         var y=SafeYaml.load(file); SafeYaml.keys(y,"schema","requests","modules");
         if(SafeYaml.intValue(y,"schema")!=1) throw new IllegalStateException("Неизвестная версия управления модулями");
@@ -28,22 +28,22 @@ public final class ModulePauseStore {
         }
         var requests=new HashSet<>(SafeYaml.strings(y,"requests")); requests.forEach(ModulePauseStore::validateName);
         AtomicFiles.loaded(file); return new State(requests,entries);
-    }
-    public static void save(Path file,State state)throws IOException {
+    } }
+    public static void save(Path file,State state)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         var y=new YamlConfiguration();y.set("schema",1);y.set("requests",state.requests().stream().sorted().toList());y.createSection("modules");
         state.modules().entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e->{validateName(e.getKey());String p="modules."+e.getKey()+".";y.set(p+"disabled",e.getValue().disabled());y.set(p+"paused-at",e.getValue().pausedAt());});
         AtomicFiles.write(file,y::saveToString);
-    }
-    public static State request(State before,Set<String> requested,Set<String> disabled,long now) {
+    } }
+    public static State request(State before,Set<String> requested,Set<String> disabled,long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
         var entries=new HashMap<>(before.modules());
         for(String name:disabled) { var old=entries.get(name); entries.put(name,new Entry(true,old!=null&&old.pausedAt()>0?old.pausedAt():now)); }
         entries.replaceAll((name,e)->new Entry(disabled.contains(name),e.pausedAt()));
         return new State(requested,entries);
-    }
-    public static void resumed(Path file,String name,long expected)throws IOException {
+    } }
+    public static void resumed(Path file,String name,long expected)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         State s=load(file);Entry entry=s.modules().get(name);
         if(entry==null||entry.disabled()||entry.pausedAt()!=expected) throw new IOException("Состояние паузы изменилось: "+name);
         var entries=new HashMap<>(s.modules()); entries.put(name,new Entry(false,0)); save(file,new State(s.requests(),entries));
-    }
-    public static void validateName(String name) { if(!name.matches("NeverLandTowny[A-Za-z]+")||name.equals("NeverLandTownyControl"))throw new IllegalArgumentException("Неизвестное имя аддона: "+name); }
+    } }
+    public static void validateName(String name) { synchronized (ru.neverland.core.SuiteState.lock()) { if(!name.matches("NeverLandTowny[A-Za-z]+")||name.equals("NeverLandTownyControl"))throw new IllegalArgumentException("Неизвестное имя аддона: "+name); } }
 }

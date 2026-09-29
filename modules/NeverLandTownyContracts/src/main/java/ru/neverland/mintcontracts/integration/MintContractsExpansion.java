@@ -14,11 +14,11 @@ public final class MintContractsExpansion extends PlaceholderExpansion {
     public MintContractsExpansion(MintTownyContracts plugin, TownyHook towny, ContractService contracts) {
         this.plugin = plugin; this.towny = towny; this.contracts = contracts;
     }
-    @Override public @NotNull String getIdentifier() { return "mintcontracts"; }
-    @Override public @NotNull String getAuthor() { return "Alexander Sokolov"; }
-    @Override public @NotNull String getVersion() { return plugin.getPluginMeta().getVersion(); }
-    @Override public boolean persist() { return true; }
-    @Override public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) {
+    @Override public @NotNull String getIdentifier() { synchronized (ru.neverland.core.SuiteState.lock()) { return "mintcontracts"; } }
+    @Override public @NotNull String getAuthor() { synchronized (ru.neverland.core.SuiteState.lock()) { return "Alexander Sokolov"; } }
+    @Override public @NotNull String getVersion() { synchronized (ru.neverland.core.SuiteState.lock()) { return plugin.getPluginMeta().getVersion(); } }
+    @Override public boolean persist() { synchronized (ru.neverland.core.SuiteState.lock()) { return true; } }
+    @Override public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!(offline instanceof Player player)) return "";
         Town town = towny.town(player);
         return switch (params.toLowerCase()) {
@@ -28,5 +28,5 @@ public final class MintContractsExpansion extends PlaceholderExpansion {
             case "total_progress" -> String.valueOf(town == null ? 0 : contracts.active(town.getUUID()).stream().mapToInt(c -> c.progress()).sum());
             default -> null;
         };
-    }
+    } }
 }

@@ -35,11 +35,11 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
     private CivicService civic;
     private ru.neverland.townybuilds.storage.ProductionService production;
     private ru.neverland.townybuilds.storage.BuildingStorageService storage;
-    public ru.neverland.townybuilds.storage.BuildingStorageService storage(){return storage;}
+    public ru.neverland.townybuilds.storage.BuildingStorageService storage(){ synchronized (ru.neverland.core.SuiteState.lock()) {return storage;} }
     private ru.neverland.townybuilds.army.ArmyService army;
 
     @Override
-    public void onEnable() {
+    public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         saveDefaultConfig();
@@ -98,13 +98,13 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         if(production==null)production=new ru.neverland.townybuilds.storage.ProductionService(this,dataStore,storage);
         production.start();
         long autosave = Math.max(20L, getConfig().getLong("settings.storage.autosave-seconds", 60L) * 20L);
-        getServer().getScheduler().runTaskTimer(this, dataStore::saveIfDirty, autosave, autosave);
+        ru.neverland.core.SuiteScheduler.get().runTaskTimer(this, dataStore::saveIfDirty, autosave, autosave);
         getLogger().info("NeverLandTownyBuilds " + getPluginMeta().getVersion()
                 + " включён: процедурные здания и Чудеса, фонды ресурсов и совместное строительство готовы.");
-    }
+    } }
 
     @Override
-    public void onDisable() {
+    public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (effects != null) effects.stop();
@@ -116,9 +116,9 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         if (dataStore != null) dataStore.save();
         TownyHook towny = new TownyHook();
         for (String command : TOWN_COMMANDS) towny.unregisterTownCommand(command);
-    }
+    } }
 
-    public void reloadPlugin() {
+    public void reloadPlugin() { synchronized (ru.neverland.core.SuiteState.lock()) {
         reloadConfig();
         messages.reload();
         itemsAdder.reload();
@@ -129,7 +129,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         civic.start();
         if(production==null)production=new ru.neverland.townybuilds.storage.ProductionService(this,dataStore,storage);
         production.start();
-    }
+    } }
 
     private void registerTownCommands(TownyHook towny, MenuManager menus) {
         towny.registerTownCommand("builds", new TownSubCommand(TownSubCommand.Target.BUILDINGS, menus, messages));
@@ -140,7 +140,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         towny.registerTownCommand("shop", new CivicCommand(civic, messages, true));
     }
 
-    public ru.neverland.townybuilds.army.ArmyService army() { return army; }
+    public ru.neverland.townybuilds.army.ArmyService army() { synchronized (ru.neverland.core.SuiteState.lock()) { return army; } }
 
     private void copyResource(String name) {
         if (!new File(getDataFolder(), name).exists()) saveResource(name, false);

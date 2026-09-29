@@ -34,7 +34,7 @@ public final class AdminCommand implements TabExecutor {
     public AdminCommand(TownyArchaeology plugin, TownyHook towny, ArchaeologyRegistry registry, ArtifactService artifacts, MuseumService museums, SiteService sites, MessageService messages) { this.plugin = plugin; this.towny = towny; this.registry = registry; this.artifacts = artifacts; this.museums = museums; this.sites = sites; this.messages = messages; }
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, @NotNull String[] args) {
+                             @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         boolean artifactCommand = command.getName().equalsIgnoreCase("artifact");
         if (artifactCommand) {
             if (!sender.hasPermission(GIVE_PERMISSION) && !sender.hasPermission(ADMIN_PERMISSION)) {
@@ -69,7 +69,7 @@ public final class AdminCommand implements TabExecutor {
             default -> messages.send(sender, "usage-admin");
         }
         return true;
-    }
+    } }
 
     private void give(CommandSender sender, String[] args, String usageMessage) {
         if (args.length < 3) {
@@ -100,7 +100,7 @@ public final class AdminCommand implements TabExecutor {
     private int number(String[] args, int index, int fallback) { if (args.length <= index) return fallback; try { return Math.max(1, Integer.parseInt(args[index])); } catch (NumberFormatException ignored) { return fallback; } }
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
-                                                 @NotNull String alias, @NotNull String[] args) {
+                                                 @NotNull String alias, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         boolean artifactCommand = command.getName().equalsIgnoreCase("artifact");
         if (artifactCommand) {
             if (!sender.hasPermission(GIVE_PERMISSION) && !sender.hasPermission(ADMIN_PERMISSION)) return List.of();
@@ -127,6 +127,6 @@ public final class AdminCommand implements TabExecutor {
         if ((args.length == 2 && args[0].equalsIgnoreCase("info")) || (args.length == 3 && args[0].equalsIgnoreCase("museum"))) return filter(towny.towns().stream().map(Town::getName).toList(), args[args.length - 1]);
         if (args.length == 4 && args[0].equalsIgnoreCase("museum")) return filter(registry.artifacts().stream().map(ArtifactDefinition::id).toList(), args[3]);
         return List.of();
-    }
+    } }
     private List<String> filter(List<String> values, String prefix) { String lower = prefix.toLowerCase(Locale.ROOT); List<String> result = new ArrayList<>(); for (String value : values) if (value.toLowerCase(Locale.ROOT).startsWith(lower)) result.add(value); return result; }
 }

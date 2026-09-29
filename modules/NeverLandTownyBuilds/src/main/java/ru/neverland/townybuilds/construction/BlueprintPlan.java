@@ -9,15 +9,15 @@ public record BlueprintPlan(String projectId, int level, String stageName,
         blocks = Map.copyOf(new LinkedHashMap<>(blocks));
     }
 
-    public long residentBlocks(int fromStage) {
+    public long residentBlocks(int fromStage) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return blocks.values().stream()
                 .filter(block -> block.role() == BlockRole.RESIDENT && block.stage() >= fromStage)
                 .count();
-    }
+    } }
 
-    public long decorationBlocks(int fromStage) {
+    public long decorationBlocks(int fromStage) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return blocks.values().stream()
                 .filter(block -> block.role() == BlockRole.DECORATION && block.stage() >= fromStage)
                 .count();
-    }
+    } }
 }

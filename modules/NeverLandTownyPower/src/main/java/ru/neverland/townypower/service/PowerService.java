@@ -17,13 +17,13 @@ public final class PowerService implements TownyPowerApi {
     private record Cache(Map<UUID,PowerSnapshot> towns,Map<UUID,UUID> residents){Cache{towns=Map.copyOf(towns);residents=Map.copyOf(residents);}}
     private volatile Cache cache=new Cache(Map.of(),Map.of());private final Set<UUID> failures=new HashSet<>();
     public PowerService(Plugin plugin,PowerRepository repository,PowerSettings settings){this.plugin=plugin;this.repository=repository;this.settings=settings;}
-    public PowerSettings settings(){return settings;}
-    private void primary(){if(!Bukkit.isPrimaryThread())throw new IllegalStateException("Расчёт сети выполняется в основном потоке");}
-    public void start(){primary();refresh();schedule();}
-    private void schedule(){task=Bukkit.getScheduler().runTaskTimer(plugin,this::refresh,20L*settings.interval(),20L*settings.interval());}
-    public void reload(PowerSettings next){primary();settings=next;if(task!=null)task.cancel();refresh();schedule();}
-    public void stop(){if(task!=null)task.cancel();cache=new Cache(Map.of(),Map.of());}
-    public void refresh(){primary();Map<UUID,PowerSnapshot> towns=new HashMap<>();Map<UUID,UUID> residents=new HashMap<>();
+    public PowerSettings settings(){ synchronized (ru.neverland.core.SuiteState.lock()) {return settings;} }
+    private void primary(){if(!ru.neverland.core.SuiteState.held())throw new IllegalStateException("Расчёт сети выполняется в основном потоке");}
+    public void start(){ synchronized (ru.neverland.core.SuiteState.lock()) {primary();refresh();schedule();} }
+    private void schedule(){task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::refresh,20L*settings.interval(),20L*settings.interval());}
+    public void reload(PowerSettings next){ synchronized (ru.neverland.core.SuiteState.lock()) {primary();settings=next;if(task!=null)task.cancel();refresh();schedule();} }
+    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(task!=null)task.cancel();cache=new Cache(Map.of(),Map.of());} }
+    public void refresh(){ synchronized (ru.neverland.core.SuiteState.lock()) {primary();Map<UUID,PowerSnapshot> towns=new HashMap<>();Map<UUID,UUID> residents=new HashMap<>();
         try{for(Town town:List.copyOf(TownyAPI.getInstance().getTowns())){
             UUID id=town.getUUID();TownPowerState state=repository.towns().getOrDefault(id,TownPowerState.empty());
             for(var r:town.getResidents())residents.put(r.getUUID(),id);
@@ -31,16 +31,16 @@ public final class PowerService implements TownyPowerApi {
             catch(Exception|LinkageError ex){towns.put(id,new PowerSnapshot(id,town.getName(),true,"Расчёт сети недоступен",new PowerEngine.Grid(0,0,0,Map.of()),state));if(failures.add(id))plugin.getLogger().log(java.util.logging.Level.WARNING,"Не удалось рассчитать энергосеть города "+town.getName(),ex);}
         }cache=new Cache(towns,residents);failures.retainAll(towns.keySet());}
         catch(Exception|LinkageError ex){cache=new Cache(Map.of(),Map.of());plugin.getLogger().log(java.util.logging.Level.WARNING,"Энергосеть временно недоступна",ex);}
-    }
-    @Override public boolean powered(UUID town,String project){var p=settings.profiles().get(project);if(p==null||!p.enabled()||!p.relevant())return true;var s=cache.towns().get(town);if(s==null||s.paused())return false;var a=s.grid().buildings().get(project);return a!=null&&a.powered();}
-    @Override public String status(UUID town,String project){var p=settings.profiles().get(project);if(p==null||!p.relevant())return "Энергия не требуется";if(!p.enabled())return PowerEngine.Status.EXEMPT.title;var s=cache.towns().get(town);if(s==null||s.paused())return PowerEngine.Status.UNAVAILABLE.title;var a=s.grid().buildings().get(project);return a==null?PowerEngine.Status.NOT_BUILT.title:a.status().title;}
-    @Override public Optional<PowerSnapshot> power(UUID town){return Optional.ofNullable(cache.towns().get(town));}
-    @Override public Optional<PowerSnapshot> residentPower(UUID resident){var current=cache;UUID town=current.residents().get(resident);return Optional.ofNullable(town==null?null:current.towns().get(town));}
-    @Override public Collection<PowerSnapshot> towns(){return cache.towns().values();}
-    public Town town(Player p){var r=TownyAPI.getInstance().getResident(p);return r==null?null:r.getTownOrNull();}
-    public boolean manager(Player p,Town t){var r=TownyAPI.getInstance().getResident(p);return r!=null&&t.equals(r.getTownOrNull())&&(t.isMayor(r)||r.hasTownRank("assistant")||p.hasPermission("neverlandtownypower.manage"));}
-    public void change(UUID town,String project,Boolean stop,Integer priority)throws Exception{primary();var p=settings.profiles().get(project);if(p==null||!p.enabled()||!p.relevant())throw new IllegalArgumentException("Укажите здание энергетической сети");var s=power(town).orElseThrow(()->new IllegalStateException("Ожидается расчёт города"));var a=s.grid().buildings().get(project);if(s.paused()||a==null||a.level()==0)throw new IllegalArgumentException("Здание не построено или сеть недоступна");
+    } }
+    @Override public boolean powered(UUID town,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {var p=settings.profiles().get(project);if(p==null||!p.enabled()||!p.relevant())return true;var s=cache.towns().get(town);if(s==null||s.paused())return false;var a=s.grid().buildings().get(project);return a!=null&&a.powered();} }
+    @Override public String status(UUID town,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {var p=settings.profiles().get(project);if(p==null||!p.relevant())return "Энергия не требуется";if(!p.enabled())return PowerEngine.Status.EXEMPT.title;var s=cache.towns().get(town);if(s==null||s.paused())return PowerEngine.Status.UNAVAILABLE.title;var a=s.grid().buildings().get(project);return a==null?PowerEngine.Status.NOT_BUILT.title:a.status().title;} }
+    @Override public Optional<PowerSnapshot> power(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return Optional.ofNullable(cache.towns().get(town));} }
+    @Override public Optional<PowerSnapshot> residentPower(UUID resident){ synchronized (ru.neverland.core.SuiteState.lock()) {var current=cache;UUID town=current.residents().get(resident);return Optional.ofNullable(town==null?null:current.towns().get(town));} }
+    @Override public Collection<PowerSnapshot> towns(){ synchronized (ru.neverland.core.SuiteState.lock()) {return cache.towns().values();} }
+    public Town town(Player p){ synchronized (ru.neverland.core.SuiteState.lock()) {var r=TownyAPI.getInstance().getResident(p);return r==null?null:r.getTownOrNull();} }
+    public boolean manager(Player p,Town t){ synchronized (ru.neverland.core.SuiteState.lock()) {var r=TownyAPI.getInstance().getResident(p);return r!=null&&t.equals(r.getTownOrNull())&&(t.isMayor(r)||r.hasTownRank("assistant")||p.hasPermission("neverlandtownypower.manage"));} }
+    public void change(UUID town,String project,Boolean stop,Integer priority)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {primary();var p=settings.profiles().get(project);if(p==null||!p.enabled()||!p.relevant())throw new IllegalArgumentException("Укажите здание энергетической сети");var s=power(town).orElseThrow(()->new IllegalStateException("Ожидается расчёт города"));var a=s.grid().buildings().get(project);if(s.paused()||a==null||a.level()==0)throw new IllegalArgumentException("Здание не построено или сеть недоступна");
         var state=repository.towns().getOrDefault(town,TownPowerState.empty());if(stop!=null)state=state.stop(project,stop);if(priority!=null)state=state.priority(project,priority);
         var next=new HashMap<>(repository.towns());if(state.equals(TownPowerState.empty()))next.remove(town);else next.put(town,state);repository.replace(next);refresh();
-    }
+    } }
 }

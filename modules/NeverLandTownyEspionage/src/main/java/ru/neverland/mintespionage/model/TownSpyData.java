@@ -6,9 +6,9 @@ import java.util.UUID;
 
 public final class TownSpyData {
     private final UUID townId; private int networkLevel, defenseLevel; private final Map<String,Long> cooldowns=new HashMap<>();
-    public TownSpyData(UUID townId){this.townId=townId;} public UUID townId(){return townId;}
-    public int networkLevel(){return networkLevel;} public void networkLevel(int value){networkLevel=Math.max(0,value);}
-    public int defenseLevel(){return defenseLevel;} public void defenseLevel(int value){defenseLevel=Math.max(0,value);}
-    public Map<String,Long> cooldowns(){return cooldowns;} public long cooldown(String key){return cooldowns.getOrDefault(key,0L);}
-    public void cooldown(String key,long until){cooldowns.put(key,until);}
+    public TownSpyData(UUID townId){this.townId=townId;} public UUID townId(){ synchronized (ru.neverland.core.SuiteState.lock()) {return townId;} }
+    public int networkLevel(){ synchronized (ru.neverland.core.SuiteState.lock()) {return networkLevel;} } public void networkLevel(int value){ synchronized (ru.neverland.core.SuiteState.lock()) {networkLevel=Math.max(0,value);} }
+    public int defenseLevel(){ synchronized (ru.neverland.core.SuiteState.lock()) {return defenseLevel;} } public void defenseLevel(int value){ synchronized (ru.neverland.core.SuiteState.lock()) {defenseLevel=Math.max(0,value);} }
+    public Map<String,Long> cooldowns(){ synchronized (ru.neverland.core.SuiteState.lock()) {return cooldowns;} } public long cooldown(String key){ synchronized (ru.neverland.core.SuiteState.lock()) {return cooldowns.getOrDefault(key,0L);} }
+    public void cooldown(String key,long until){ synchronized (ru.neverland.core.SuiteState.lock()) {cooldowns.put(key,until);} }
 }

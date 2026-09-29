@@ -13,11 +13,11 @@ import ru.neverland.minttrade.util.TimeUtil;
 public final class MintTradeExpansion extends PlaceholderExpansion {
     private final MintTownyTrade plugin; private final TownyHook towny; private final TradeService trade;
     public MintTradeExpansion(MintTownyTrade plugin, TownyHook towny, TradeService trade) { this.plugin = plugin; this.towny = towny; this.trade = trade; }
-    @Override public @NotNull String getIdentifier() { return "minttrade"; }
-    @Override public @NotNull String getAuthor() { return "Alexander Sokolov"; }
-    @Override public @NotNull String getVersion() { return plugin.getPluginMeta().getVersion(); }
-    @Override public boolean persist() { return true; }
-    @Override public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) {
+    @Override public @NotNull String getIdentifier() { synchronized (ru.neverland.core.SuiteState.lock()) { return "minttrade"; } }
+    @Override public @NotNull String getAuthor() { synchronized (ru.neverland.core.SuiteState.lock()) { return "Alexander Sokolov"; } }
+    @Override public @NotNull String getVersion() { synchronized (ru.neverland.core.SuiteState.lock()) { return plugin.getPluginMeta().getVersion(); } }
+    @Override public boolean persist() { synchronized (ru.neverland.core.SuiteState.lock()) { return true; } }
+    @Override public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!(offline instanceof Player player)) return ""; Town town = towny.town(player);
         return switch (params.toLowerCase()) {
             case "town" -> town == null ? "" : town.getName(); case "market_level" -> String.valueOf(trade.marketLevel(town));
@@ -27,5 +27,5 @@ public final class MintTradeExpansion extends PlaceholderExpansion {
             case "next_arrival" -> town == null || trade.caravans(town).isEmpty() ? "—" : TimeUtil.format(trade.caravans(town).stream().mapToLong(value -> value.timer().remaining(System.currentTimeMillis())).min().orElse(0));
             default -> null;
         };
-    }
+    } }
 }

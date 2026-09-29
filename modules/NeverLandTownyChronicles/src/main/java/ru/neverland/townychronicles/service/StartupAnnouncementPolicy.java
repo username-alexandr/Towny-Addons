@@ -4,12 +4,12 @@ package ru.neverland.townychronicles.service;
 public final class StartupAnnouncementPolicy {
     private StartupAnnouncementPolicy() { }
 
-    public static boolean shouldAnnounce(boolean freshTown, boolean initialSync) {
+    public static boolean shouldAnnounce(boolean freshTown, boolean initialSync) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return !freshTown && !initialSync;
-    }
+    } }
 
     public static boolean shouldRecordWonder(boolean discovered, boolean initialSync,
-                                             boolean recordExistingWonders) {
+                                             boolean recordExistingWonders) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return discovered && (!initialSync || recordExistingWonders);
-    }
+    } }
 }

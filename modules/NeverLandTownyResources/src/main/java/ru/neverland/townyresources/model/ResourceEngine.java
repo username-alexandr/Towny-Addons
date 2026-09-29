@@ -11,10 +11,10 @@ public final class ResourceEngine {
     public record Result(TownState state,Map<Resource,Long> capacity,Map<Resource,Long> demand,Map<String,Activity> activity) {
         public Result { capacity=Amounts.copy(capacity);demand=Amounts.copy(demand);activity=Collections.unmodifiableMap(new LinkedHashMap<>(activity)); }
     }
-    public static Result calculate(TownState state,Map<String,Building> built,int people,ResourcesSettings config,long now) {
+    public static Result calculate(TownState state,Map<String,Building> built,int people,ResourcesSettings config,long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return calculate(state,built,people,config,now,Map.of());
-    }
-    public static Result calculate(TownState state,Map<String,Building> built,int people,ResourcesSettings config,long now,Map<Resource,Long> held) {
+    } }
+    public static Result calculate(TownState state,Map<String,Building> built,int people,ResourcesSettings config,long now,Map<Resource,Long> held) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(people<0||people>10_000_000)throw new IllegalArgumentException("Некорректное население");
         var stock=Amounts.mutable(state.balances());var cap=Amounts.mutable(config.baseCapacity());var income=Amounts.mutable(Map.of());var expense=Amounts.mutable(Map.of());
         var demand=Amounts.mutable(Map.of());if(config.populationLinked()){demand.put(Resource.FOOD,Amounts.multiply(config.foodPerPerson(),people));demand.put(Resource.WATER,Amounts.multiply(config.waterPerPerson(),people));}
@@ -49,5 +49,5 @@ public final class ResourceEngine {
         for(var r:List.of(Resource.FOOD,Resource.WATER)){long wanted=demand.get(r),paid=Math.min(wanted,stock.get(r));stock.put(r,stock.get(r)-paid);expense.put(r,Math.addExact(expense.get(r),paid));double coverage=wanted==0?1:(double)paid/wanted;if(r==Resource.FOOD)food=coverage;else water=coverage;}
         var next=new TownState(stock,state.reserves(),state.paused(),state.priorities(),Math.addExact(state.cycles(),1),now,income,expense,food,water);
         return new Result(next,cap,demand,activities);
-    }
+    } }
 }

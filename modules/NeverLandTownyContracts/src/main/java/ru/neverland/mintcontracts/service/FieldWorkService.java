@@ -13,25 +13,25 @@ public final class FieldWorkService {
     private final ScoutTracker scouts=new ScoutTracker();private int cursor;
     public FieldWorkService(JavaPlugin plugin,ContractService contracts,TownyHook towny){this.plugin=plugin;this.contracts=contracts;this.towny=towny;}
     private boolean eligible(Player p){return contracts.eligibleMode(p)&&p.hasPermission("mintcontracts.contribute");}
-    public void placed(Player p,Block block){
+    public void placed(Player p,Block block){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!eligible(p))return;Town town=towny.town(p);if(town==null)return;boolean changed=false;
         for(ActiveContract c:contracts.active(town.getUUID()))if(is(c,ContractType.ROAD)&&contracts.companyContributor(p,c)&&same(c.area(),block)){
             String key=WorkArea.key(block.getX(),block.getZ());
             if(c.area().required().contains(key)&&block.getType().name().equals(c.snapshot().target())){c.proof(key,new WorkProof(p.getUniqueId(),System.currentTimeMillis()));changed=true;}
         }if(changed)save();
-    }
-    public void broken(Block block){boolean changed=false;
+    } }
+    public void broken(Block block){ synchronized (ru.neverland.core.SuiteState.lock()) {boolean changed=false;
         for(ActiveContract c:contracts.repository().allActive())if(is(c,ContractType.ROAD)&&same(c.area(),block)){
             String key=WorkArea.key(block.getX(),block.getZ());if(c.proofs().containsKey(key)){c.removeProof(key);c.replaceWorkProgress(Map.of());changed=true;}
         }if(changed)save();
-    }
-    public void move(Player p,Location from,Location to){
+    } }
+    public void move(Player p,Location from,Location to){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(to==null||!eligible(p)||p.isFlying()||p.isGliding()||p.isInsideVehicle()){reset(p);return;}
         if(from.getX()==to.getX()&&from.getY()==to.getY()&&from.getZ()==to.getZ())return;
         scouts.move(p.getUniqueId(),to.getWorld().getUID(),to.getBlockX()>>4,to.getBlockZ()>>4,System.currentTimeMillis());
-    }
-    public void reset(Player p){scouts.reset(p.getUniqueId());}
-    public void pulse()throws java.io.IOException{
+    } }
+    public void reset(Player p){ synchronized (ru.neverland.core.SuiteState.lock()) {scouts.reset(p.getUniqueId());} }
+    public void pulse()throws java.io.IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {
         long now=System.currentTimeMillis();boolean changed=false;
         for(UUID actor:scouts.players()){
             Player p=Bukkit.getPlayer(actor);if(p==null||!eligible(p)||p.isFlying()||p.isGliding()||p.isInsideVehicle()){scouts.reset(actor);continue;}
@@ -60,7 +60,7 @@ public final class FieldWorkService {
             if(result.complete()){contracts.saveField();contracts.completeField(c);changed=false;}
         }
         if(changed)contracts.saveField();
-    }
+    } }
     private boolean is(ActiveContract c,ContractType type){return !c.timer().paused()&&c.funded()&&c.settlementStatus()==null&&c.snapshot()!=null&&c.snapshot().type()==type&&c.area()!=null;}
     private boolean same(WorkArea a,Block b){return a.world().equals(b.getWorld().getUID())&&a.y()==b.getY()&&a.contains(b.getX(),b.getZ());}
     private void save(){try{contracts.saveField();}catch(Exception ex){plugin.getLogger().severe("Сохранение полевых заданий остановлено: "+ex.getMessage());}}

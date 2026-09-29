@@ -6,9 +6,9 @@ import ru.neverland.governance.service.GovernanceService;
 
 public final class PlaceholderHook {
     private PlaceholderHook() { }
-    public static boolean register(TownyGovernance plugin, TownyHook towny, GovernanceService governance) {
+    public static boolean register(TownyGovernance plugin, TownyHook towny, GovernanceService governance) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) return false;
         try { return new GovernanceExpansion(plugin, towny, governance).register(); }
         catch (LinkageError error) { plugin.getLogger().warning("PlaceholderAPI несовместим: " + error.getMessage()); return false; }
-    }
+    } }
 }

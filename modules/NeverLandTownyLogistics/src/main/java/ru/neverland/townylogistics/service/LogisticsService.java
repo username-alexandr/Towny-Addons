@@ -23,46 +23,46 @@ public final class LogisticsService {
         this.plugin=plugin;this.repository=repository;this.builds=builds;this.settings=settings;this.networks=new HashMap<>(state.networks());this.jobs=new LinkedHashMap<>(state.jobs());
         npcs=new CourierNpcs(plugin,settings,e->{var j=jobs.get(e.getKey());if(j!=null&&CourierNpcs.owned(j.town(),e.getValue()))jobs.put(j.id(),j.move(e.getValue(),j.waypoint()));});
     }
-    public void start()throws IOException{reconcile();npcs.start();task=Bukkit.getScheduler().runTaskTimer(plugin,this::tick,20,10);}
-    public void stop(){if(task!=null)task.cancel();npcs.stop();try{save();}catch(IOException ex){plugin.getLogger().severe("Не удалось записать позиции курьеров: "+ex.getMessage());}}
-    public void reload(LogisticsSettings value)throws IOException{save();reconcile();settings=value;npcs.settings(value);fault=false;refreshed=0;}
-    public LogisticsSettings settings(){return settings;}public BuildsStorage builds(){return builds;}public boolean paused(){return fault;}
-    public Network network(UUID id){return networks.getOrDefault(id,Network.empty(id));}
-    public List<CourierJob> jobs(UUID town){return jobs.values().stream().filter(j->j.town().equals(town)).toList();}
-    public String routeStatus(UUID town,String route){
+    public void start()throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {reconcile();npcs.start();task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::tick,20,10);} }
+    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(task!=null)task.cancel();npcs.stop();try{save();}catch(IOException ex){plugin.getLogger().severe("Не удалось записать позиции курьеров: "+ex.getMessage());}} }
+    public void reload(LogisticsSettings value)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {save();reconcile();settings=value;npcs.settings(value);fault=false;refreshed=0;} }
+    public LogisticsSettings settings(){ synchronized (ru.neverland.core.SuiteState.lock()) {return settings;} }public BuildsStorage builds(){ synchronized (ru.neverland.core.SuiteState.lock()) {return builds;} }public boolean paused(){ synchronized (ru.neverland.core.SuiteState.lock()) {return fault;} }
+    public Network network(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {return networks.getOrDefault(id,Network.empty(id));} }
+    public List<CourierJob> jobs(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return jobs.values().stream().filter(j->j.town().equals(town)).toList();} }
+    public String routeStatus(UUID town,String route){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(fault)return "Приостановлено из-за ошибки записи";if(!network(town).route(route).enabled())return "Приостановлен; текущий груз завершит доставку";
         var active=jobs(town).stream().filter(j->j.route().equals(route)).toList();if(!active.isEmpty())return status(active.get(0))+" • курьеров: "+active.size();
         if(jobs.size()>=settings.active())return "Достигнут общий предел курьеров";
         return routeStatuses.getOrDefault(town+"/"+route,"Ожидает проверки маршрута");
-    }
-    public String status(CourierJob j){return statuses.getOrDefault(j.id(),j.phase().title);}
-    public Town town(Player p){var resident=TownyAPI.getInstance().getResident(p);return resident==null?null:resident.getTownOrNull();}
-    public boolean manager(Player p,Town t){var resident=TownyAPI.getInstance().getResident(p);return resident!=null&&t.equals(resident.getTownOrNull())&&(t.isMayor(resident)||resident.hasTownRank("assistant")||p.hasPermission("neverlandtownylogistics.manage"));}
-    public Map<String,BuildsStorage.Depot> depots(UUID town)throws IOException{return builds.depots(town);}
+    } }
+    public String status(CourierJob j){ synchronized (ru.neverland.core.SuiteState.lock()) {return statuses.getOrDefault(j.id(),j.phase().title);} }
+    public Town town(Player p){ synchronized (ru.neverland.core.SuiteState.lock()) {var resident=TownyAPI.getInstance().getResident(p);return resident==null?null:resident.getTownOrNull();} }
+    public boolean manager(Player p,Town t){ synchronized (ru.neverland.core.SuiteState.lock()) {var resident=TownyAPI.getInstance().getResident(p);return resident!=null&&t.equals(resident.getTownOrNull())&&(t.isMayor(resident)||resident.hasTownRank("assistant")||p.hasPermission("neverlandtownylogistics.manage"));} }
+    public Map<String,BuildsStorage.Depot> depots(UUID town)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {return builds.depots(town);} }
     private void save()throws IOException{repository.save(networks,jobs);saved=System.currentTimeMillis();}
-    public void change(Network next,boolean topology)throws IOException{
+    public void change(Network next,boolean topology)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(fault)throw new IllegalStateException("Логистика приостановлена из-за ошибки сохранения; обратитесь к администратору");
         if(topology&&!jobs(next.town()).isEmpty())throw new IllegalArgumentException("Сначала приостановите маршруты и дождитесь курьеров; свободных можно снять командой dismiss");
         var copy=new HashMap<>(networks);copy.put(next.town(),next);repository.save(copy,jobs);networks=copy;refreshed=0;
-    }
-    public void dismiss(UUID town,String route)throws IOException{
+    } }
+    public void dismiss(UUID town,String route)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {
         var cargo=builds.shipments(town);if(jobs(town).stream().anyMatch(j->j.route().equals(route)&&cargo.containsKey(j.id())&&cargo.get(j.id()).transit()))throw new IllegalArgumentException("В маршруте есть груз; дождитесь доставки или восстановления администратором");
         var copy=new LinkedHashMap<>(jobs);for(var j:jobs(town))if(j.route().equals(route)){npcs.remove(j.id());copy.remove(j.id());}
         repository.save(networks,copy);jobs=copy;for(var s:cargo.values())if(s.route().equals(route)&&!s.transit())builds.acknowledge(town,s.id());
-    }
-    public boolean recover(UUID town,UUID id)throws IOException{
+    } }
+    public boolean recover(UUID town,UUID id)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!builds.unload(town,id,true))return false;npcs.remove(id);var copy=new LinkedHashMap<>(jobs);copy.remove(id);repository.save(networks,copy);jobs=copy;builds.acknowledge(town,id);return true;
-    }
-    public void validateNode(UUID town,Node node)throws IOException{
+    } }
+    public void validateNode(UUID town,Node node)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!CourierNpcs.owned(town,node.point())||!CourierNpcs.standable(node.point()))throw new IllegalArgumentException("Встаньте на безопасный проход на территории своего города");
         if(node.kind()==Kind.BUILDING){var depot=depots(town).get(node.project());if(depot==null||!depot.contains(node.point()))throw new IllegalArgumentException("Точка погрузки должна быть у выбранного построенного здания");}
-    }
-    public void validateLink(UUID town,Node a,Node b){
+    } }
+    public void validateLink(UUID town,Node a,Node b){ synchronized (ru.neverland.core.SuiteState.lock()) {
         double distance=a.point().distance(b.point());if(!Double.isFinite(distance)||distance>settings.linkDistance())throw new IllegalArgumentException("Связь не длиннее "+settings.linkDistance()+" блоков, в одном мире");
         int steps=Math.max(1,(int)Math.ceil(distance));for(int i=0;i<=steps;i++){double f=(double)i/steps;var p=new Position(a.point().world(),a.point().x()+(b.point().x()-a.point().x())*f,a.point().y()+(b.point().y()-a.point().y())*f,a.point().z()+(b.point().z()-a.point().z())*f);
             if(!CourierNpcs.owned(town,p)||!CourierNpcs.loaded(p))throw new IllegalArgumentException("Связь проходит через чужую или незагруженную территорию");}
-    }
-    public CourierJob job(Network n,Route r)throws IOException{
+    } }
+    public CourierJob job(Network n,Route r)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {
         var hub=n.node(r.hub());var source=n.node(r.source());var target=n.node(r.target());var stock=depots(n.town());
         for(var node:List.of(hub,source,target)){if(node.kind()!=Kind.BUILDING||!stock.containsKey(node.project()))throw new IllegalArgumentException("Нет построенного здания для узла "+node.id());if(!stock.get(node.project()).contains(node.point())||!CourierNpcs.owned(n.town(),node.point()))throw new IllegalArgumentException("Точка здания потеряла привязку или территорию");}
         if(!settings.hubs().contains(hub.project()))throw new IllegalArgumentException("Узел отправки должен быть складом, терминалом, караван-сараем или портом");
@@ -71,7 +71,7 @@ public final class LogisticsService {
         var out=n.path(r.hub(),r.source(),settings.routeDistance());var delivery=n.path(r.source(),r.target(),settings.routeDistance());var home=n.path(r.target(),r.hub(),settings.routeDistance());
         double length=0;for(var path:List.of(out,delivery,home))for(int i=1;i<path.size();i++)length+=path.get(i-1).distance(path.get(i));if(length>settings.routeDistance())throw new IllegalArgumentException("Полный рейс слишком длинный");
         return new CourierJob(UUID.randomUUID(),n.town(),r.id(),hub.project(),source.project(),target.project(),Math.min(5,stock.get(hub.project()).level()),out,delivery,home,Phase.TO_SOURCE,0,hub.point(),0);
-    }
+    } }
     private void reconcile()throws IOException{
         boolean changed=false;
         for(UUID town:builds.shipmentTowns())for(var cargo:builds.shipments(town).values()){
@@ -138,7 +138,7 @@ public final class LogisticsService {
             }catch(IllegalArgumentException ex){routeStatuses.put(key,ex.getMessage());cooldown.put(key,now+10000);}
         }
     }
-    public List<ru.neverland.core.ActivityAdmin.Target> adminTargets() {
+    public List<ru.neverland.core.ActivityAdmin.Target> adminTargets() { synchronized (ru.neverland.core.SuiteState.lock()) {
         ru.neverland.core.ApiServices.primaryThread();
         var result=new ArrayList<ru.neverland.core.ActivityAdmin.Target>();
         for(var network:networks.values())for(var route:network.routes().values()) {
@@ -152,5 +152,5 @@ public final class LogisticsService {
             }));
         }
         return List.copyOf(result);
-    }
+    } }
 }

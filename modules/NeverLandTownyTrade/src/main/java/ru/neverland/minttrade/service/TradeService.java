@@ -46,8 +46,8 @@ public final class TradeService {
     private final TaxesBridge taxes;
     private BukkitTask task;
     private Runnable beforeQuote = () -> { };
-    public void beforeQuote(Runnable action) { beforeQuote = java.util.Objects.requireNonNull(action); }
-    public double feeMultiplier(UUID buyer) { beforeQuote.run();return ru.neverland.core.ReputationAccess.tradeFeeMultiplier(buyer); }
+    public void beforeQuote(Runnable action) { synchronized (ru.neverland.core.SuiteState.lock()) { beforeQuote = java.util.Objects.requireNonNull(action); } }
+    public double feeMultiplier(UUID buyer) { synchronized (ru.neverland.core.SuiteState.lock()) { beforeQuote.run();return ru.neverland.core.ReputationAccess.tradeFeeMultiplier(buyer); } }
 
     public TradeService(JavaPlugin plugin, TownyHook towny, BuildBridge builds, WarehouseBridge warehouse,
                         ExportRegistry registry, TradeRepository repository, RoutePlanner routes,
@@ -55,14 +55,14 @@ public final class TradeService {
         this.plugin = plugin; this.towny = towny; this.builds = builds; this.warehouse = warehouse;
         this.registry = registry; this.repository = repository; this.routes = routes; this.economy = economy; this.messages = messages; this.taxes = taxes;
     }
-    public void start() {
+    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (task != null) task.cancel();
-        task = Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 20, 20);
-    }
-    public void shutdown() { if (task != null) task.cancel(); task = null; if(repository.writable())repository.save(); }
+        task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::tick, 20, 20);
+    } }
+    public void shutdown() { synchronized (ru.neverland.core.SuiteState.lock()) { if (task != null) task.cancel(); task = null; if(repository.writable())repository.save(); } }
 
-    public static boolean importsAllowed(Town buyer,Town seller){var nation=buyer.getNationOrNull();boolean sameNation=nation!=null&&seller.getNationOrNull()!=null&&nation.getUUID().equals(seller.getNationOrNull().getUUID());return ru.neverland.integration.PoliciesAccess.importsAllowed(buyer.getUUID(),seller.getUUID(),sameNation);}
-    public ProposeOutcome propose(Town seller, Town buyer, ExportDefinition definition) {
+    public static boolean importsAllowed(Town buyer,Town seller){ synchronized (ru.neverland.core.SuiteState.lock()) {var nation=buyer.getNationOrNull();boolean sameNation=nation!=null&&seller.getNationOrNull()!=null&&nation.getUUID().equals(seller.getNationOrNull().getUUID());return ru.neverland.integration.PoliciesAccess.importsAllowed(buyer.getUUID(),seller.getUUID(),sameNation);} }
+    public ProposeOutcome propose(Town seller, Town buyer, ExportDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (seller == null || buyer == null || definition == null) return new ProposeOutcome(ProposeResult.ROUTE_UNAVAILABLE, null);
         if (seller.getUUID().equals(buyer.getUUID())) return new ProposeOutcome(ProposeResult.SAME_TOWN, null);
         if (!importsAllowed(buyer,seller)) return new ProposeOutcome(ProposeResult.IMPORT_RESTRICTED,null);
@@ -80,12 +80,12 @@ public final class TradeService {
         if (plugin.getConfig().getBoolean("announcements.proposal", true)) announce(buyer, "proposal-received", Map.of(
                 "town", seller.getName(), "export", ColorUtil.strip(definition.name())));
         return new ProposeOutcome(ProposeResult.SUCCESS, offer);
-    }
+    } }
 
-    public AcceptOutcome accept(Town buyer, TradeOffer offer) {
+    public AcceptOutcome accept(Town buyer, TradeOffer offer) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return accept(buyer,offer,null);
-    }
-    public AcceptOutcome accept(Town buyer, TradeOffer offer,UUID actor) {
+    } }
+    public AcceptOutcome accept(Town buyer, TradeOffer offer,UUID actor) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!repository.writable()) return new AcceptOutcome(AcceptResult.SAVE_ERROR,null,0);
         if (offer == null || repository.findOffer(offer.id().toString())==null) return new AcceptOutcome(AcceptResult.NOT_FOUND, null, 0);
         if (buyer == null || !buyer.getUUID().equals(offer.buyerId())) return new AcceptOutcome(AcceptResult.NOT_BUYER, null, 0);
@@ -114,37 +114,37 @@ public final class TradeService {
         if(!caravan.settlement().equals("ACTIVE"))return new AcceptOutcome(AcceptResult.PROCESSING,caravan,total);
         if(plugin.getConfig().getBoolean("announcements.departure",true))announceBoth(caravan,"caravan-town-departed",definition,Map.of());
         return new AcceptOutcome(AcceptResult.SUCCESS,caravan,total);
-    }
+    } }
 
-    public CancelResult reject(Town buyer, TradeOffer offer) {
+    public CancelResult reject(Town buyer, TradeOffer offer) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (offer == null) return CancelResult.NOT_FOUND;
         if (buyer == null || !offer.buyerId().equals(buyer.getUUID())) return CancelResult.NOT_PARTY;
         repository.remove(offer); saveNow(); return CancelResult.SUCCESS;
-    }
-    public CancelResult cancelOffer(Town seller, TradeOffer offer) {
+    } }
+    public CancelResult cancelOffer(Town seller, TradeOffer offer) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (offer == null) return CancelResult.NOT_FOUND;
         if (seller == null || !offer.sellerId().equals(seller.getUUID())) return CancelResult.NOT_PARTY;
         repository.remove(offer); saveNow(); return CancelResult.SUCCESS;
-    }
-    public CancelResult cancelCaravan(Caravan caravan) {
+    } }
+    public CancelResult cancelCaravan(Caravan caravan) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(caravan==null||caravan.terminal())return CancelResult.NOT_FOUND;
         if(!repository.writable())return CancelResult.WAREHOUSE_UNAVAILABLE;
         if(!java.util.Set.of("PREPARED","ACTIVE","RETURNING").contains(caravan.settlement())||repository.effects().state(caravan.operation("debit"))==ru.neverland.core.EffectJournal.State.PENDING)return CancelResult.PAYMENT_PENDING;
         caravan.settlement("RETURNING");repository.save();
         try{advance(caravan);return caravan.terminal()?CancelResult.SUCCESS:CancelResult.WAREHOUSE_BUSY;}catch(Exception ex){warn(caravan,ex);return CancelResult.PAYMENT_PENDING;}
-    }
-    public boolean forceComplete(Caravan caravan){if(caravan==null||!repository.writable())return false;return deliver(caravan);}
+    } }
+    public boolean forceComplete(Caravan caravan){ synchronized (ru.neverland.core.SuiteState.lock()) {if(caravan==null||!repository.writable())return false;return deliver(caravan);} }
 
-    public double tariff(Town town) { return tariff(town.getUUID()); }
+    public double tariff(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) { return tariff(town.getUUID()); } }
     private double tariff(UUID town) { return ru.neverland.integration.PoliciesAccess.tariff(town,repository.tariff(town,plugin.getConfig().getDouble("tariffs.default-percent",0)),maxTariff()); }
-    public double maxTariff() { return plugin.getConfig().getDouble("tariffs.maximum-percent", 20); }
-    public boolean setTariff(Town town, double percent) {
+    public double maxTariff() { synchronized (ru.neverland.core.SuiteState.lock()) { return plugin.getConfig().getDouble("tariffs.maximum-percent", 20); } }
+    public boolean setTariff(Town town, double percent) { synchronized (ru.neverland.core.SuiteState.lock()) {
         double max = maxTariff();
         if (town == null || percent < 0 || percent > max) return false;
         repository.setTariff(town.getUUID(), cents(percent)); saveNow(); return true;
-    }
-    public int marketLevel(Town town) { return town == null ? 0 : builds.marketLevel(town.getUUID()); }
-    public int routeLimit(Town town) {
+    } }
+    public int marketLevel(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) { return town == null ? 0 : builds.marketLevel(town.getUUID()); } }
+    public int routeLimit(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (town == null) return 0;
         int limit = plugin.getConfig().getInt("market.routes-by-level." + marketLevel(town), 0);
         limit += builds.projectLevel(town.getUUID(), "rhodes_colossus")
@@ -152,9 +152,9 @@ public final class TradeService {
         limit += builds.projectLevel(town.getUUID(), "crystal_palace")
                 * plugin.getConfig().getInt("market.crystal-palace-extra-routes", 2);
         return limit;
-    }
-    public int activeCount(Town town) { return town == null ? 0 : repository.caravans(town.getUUID()).size(); }
-    public boolean hasRouteSlot(Town town) { return activeCount(town) < routeLimit(town); }
+    } }
+    public int activeCount(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) { return town == null ? 0 : repository.caravans(town.getUUID()).size(); } }
+    public boolean hasRouteSlot(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) { return activeCount(town) < routeLimit(town); } }
 
     private long warned;
     private void warn(Caravan c,Exception ex){if(System.currentTimeMillis()-warned>60000){warned=System.currentTimeMillis();plugin.getLogger().log(java.util.logging.Level.WARNING,"Караван "+c.id()+" ожидает восстановления: "+c.settlement(),ex);}}
@@ -189,19 +189,19 @@ public final class TradeService {
         if(c.settlement().equals("PREPARED") && taxes.tradeBlocked(c.sellerId(),c.buyerId())
                 && repository.effects().state(c.operation("debit"))==ru.neverland.core.EffectJournal.State.READY){c.settlement("RETURNING");repository.save();}
         audit(c,null);
-        CaravanProcessor.advance(c,new CaravanProcessor.Store(){public void save(){repository.save();audit(c,null);}public void finish(Caravan value,CaravanStatus status){finishHistory(value,status);}},new CaravanProcessor.Gateway(){
-            public boolean reserve(Caravan value)throws Exception{return warehouse.transfer(value.operation("take"),value.sellerId(),value.cargoItem(),value.totalCargo(),false).status()==WarehouseBridge.Status.SUCCESS;}
-            public boolean debit(Caravan value)throws Exception{return repository.effects().execute(value.operation("debit"),"Списание каравана "+value.id()+" город "+value.buyerId()+": "+value.escrow(),()->economy.transfer(towny.town(value.buyerId()),value.escrow(),definition(value),"debit",value.operation("debit"),false));}
-            public boolean deliver(Caravan value)throws Exception{return warehouse.transfer(value.operation("delivery"),value.buyerId(),value.cargoItem(),value.remainingCargo(),true).status()==WarehouseBridge.Status.SUCCESS;}
-            public boolean credit(Caravan value,UUID recipient,double amount,String kind)throws Exception{
+        CaravanProcessor.advance(c,new CaravanProcessor.Store(){public void save(){ synchronized (ru.neverland.core.SuiteState.lock()) {repository.save();audit(c,null);} }public void finish(Caravan value,CaravanStatus status){ synchronized (ru.neverland.core.SuiteState.lock()) {finishHistory(value,status);} }},new CaravanProcessor.Gateway(){
+            public boolean reserve(Caravan value)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {return warehouse.transfer(value.operation("take"),value.sellerId(),value.cargoItem(),value.totalCargo(),false).status()==WarehouseBridge.Status.SUCCESS;} }
+            public boolean debit(Caravan value)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {return repository.effects().execute(value.operation("debit"),"Списание каравана "+value.id()+" город "+value.buyerId()+": "+value.escrow(),()->economy.transfer(towny.town(value.buyerId()),value.escrow(),definition(value),"debit",value.operation("debit"),false));} }
+            public boolean deliver(Caravan value)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {return warehouse.transfer(value.operation("delivery"),value.buyerId(),value.cargoItem(),value.remainingCargo(),true).status()==WarehouseBridge.Status.SUCCESS;} }
+            public boolean credit(Caravan value,UUID recipient,double amount,String kind)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {
                 if(amount<=0)return true;UUID id=value.operation(kind+":"+recipient);
                 boolean paid=repository.effects().execute(id,creditDescription(value,recipient,amount,kind),()->economy.transfer(towny.town(recipient),amount,definition(value),kind,id,true));
                 if(paid)ru.neverland.core.AuditTrail.record(plugin,kind+":"+recipient,value.id().toString(),kind.equals("tariff")?"TRADE_TARIFF":kind.equals("refund")?"TRADE_REFUND":"TRADE_PAYMENT","COMPLETED",ru.neverland.core.AuditRecord.Party.system(),kind.equals("refund")?new ru.neverland.core.AuditRecord.Party("ESCROW",value.id().toString(),"Резерв каравана",value.buyerId().toString()):ru.neverland.core.AuditTrail.town(value.buyerId()),ru.neverland.core.AuditTrail.town(recipient),"",0,ru.neverland.core.AuditTrail.money(amount),"effect="+id);
                 return paid;
-            }
-            public boolean sourceTaken(Caravan value)throws Exception{return value.legacyFunded()||warehouse.transferred(value.operation("take"),value.sellerId());}
-            public boolean funded(Caravan value){return value.legacyFunded()||repository.effects().state(value.operation("debit"))==ru.neverland.core.EffectJournal.State.DONE;}
-            public boolean returnStock(Caravan value)throws Exception{return warehouse.transfer(value.operation("return"),value.sellerId(),value.cargoItem(),value.remainingCargo(),true).status()==WarehouseBridge.Status.SUCCESS;}
+            } }
+            public boolean sourceTaken(Caravan value)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {return value.legacyFunded()||warehouse.transferred(value.operation("take"),value.sellerId());} }
+            public boolean funded(Caravan value){ synchronized (ru.neverland.core.SuiteState.lock()) {return value.legacyFunded()||repository.effects().state(value.operation("debit"))==ru.neverland.core.EffectJournal.State.DONE;} }
+            public boolean returnStock(Caravan value)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {return warehouse.transfer(value.operation("return"),value.sellerId(),value.cargoItem(),value.remainingCargo(),true).status()==WarehouseBridge.Status.SUCCESS;} }
         });
     }
     private void finishHistory(Caravan c,CaravanStatus status){
@@ -221,7 +221,7 @@ public final class TradeService {
         java.util.Set<UUID> needed=new java.util.HashSet<>();for(var c:repository.allCaravans()){needed.add(c.operation("debit"));needed.add(c.operation("seller:"+c.sellerId()));needed.add(c.operation("refund:"+c.buyerId()));c.tariffs().keySet().forEach(t->needed.add(c.operation("tariff:"+t)));}
         repository.pendingCredits().keySet().forEach(t->needed.add(ru.neverland.core.EffectJournal.id("legacy-trade-credit:"+t)));repository.effects().retain(needed);
     }
-    public void resolveCaravan(String id,String decision)throws Exception{
+    public void resolveCaravan(String id,String decision)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {
         var c=repository.findCaravan(id);if(c==null||!c.settlement().equals("LEGACY_REVIEW"))throw new IllegalArgumentException("Нет старого каравана, ожидающего сверки");
         if(decision.equals("legacy-active")){if(c.remainingCargo()<1)throw new IllegalArgumentException("Груз уже выгружен: используйте legacy-delivered или legacy-complete");c.settlement("ACTIVE");}
         else if(decision.equals("legacy-complete")){finishHistory(c,CaravanStatus.COMPLETED);return;}
@@ -231,7 +231,7 @@ public final class TradeService {
             for(var t:c.tariffs().entrySet())if(t.getValue()>0)repository.effects().review(c.operation("tariff:"+t.getKey()),creditDescription(c,t.getKey(),t.getValue(),"tariff"));
         }else throw new IllegalArgumentException("Решение: legacy-active, legacy-delivered или legacy-complete");
         repository.save();
-    }
+    } }
     private Map<UUID, Double> tolls(ExportDefinition definition, List<UUID> towns, Town seller, Town buyer) {
         Map<UUID, Double> result = new LinkedHashMap<>();
         double reputation = feeMultiplier(buyer.getUUID());
@@ -265,24 +265,24 @@ public final class TradeService {
     }
     private void announce(Town town, String key, Map<String, ?> values) {
         String text = messages.text(key, values, true);
-        for (Player player : Bukkit.getOnlinePlayers()) { Town playerTown = towny.town(player); if (town.equals(playerTown)) player.sendMessage(text); }
+        ru.neverland.core.SuiteScheduler.players(plugin, player -> {{ Town playerTown = towny.town(player); if (town.equals(playerTown)) player.sendMessage(text); }});
     }
     private void saveNow() { repository.save(); }
     private double cents(double value) { return TradeMath.cents(value); }
 
-    public ExportRegistry registry() { return registry; }
-    public TradeRepository repository() { return repository; }
-    public EconomyService economy() { return economy; }
-    public TradeOffer offer(String id) { return repository.findOffer(id); }
-    public Caravan caravan(String id) { return repository.findCaravan(id); }
-    public List<TradeOffer> incoming(Town town) { return town == null ? List.of() : repository.incoming(town.getUUID()); }
-    public List<TradeOffer> outgoing(Town town) { return town == null ? List.of() : repository.outgoing(town.getUUID()); }
-    public List<Caravan> caravans(Town town) { return town == null ? List.of() : repository.caravans(town.getUUID()); }
-    public List<TradeHistory> history(Town town) { return town == null ? List.of() : repository.history(town.getUUID()); }
-    public ExportDefinition definition(TradeOffer offer) { return offer == null ? null : registry.get(offer.exportId()); }
-    public ExportDefinition definitionOf(Caravan caravan) { return caravan == null ? null : definition(caravan); }
+    public ExportRegistry registry() { synchronized (ru.neverland.core.SuiteState.lock()) { return registry; } }
+    public TradeRepository repository() { synchronized (ru.neverland.core.SuiteState.lock()) { return repository; } }
+    public EconomyService economy() { synchronized (ru.neverland.core.SuiteState.lock()) { return economy; } }
+    public TradeOffer offer(String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return repository.findOffer(id); } }
+    public Caravan caravan(String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return repository.findCaravan(id); } }
+    public List<TradeOffer> incoming(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) { return town == null ? List.of() : repository.incoming(town.getUUID()); } }
+    public List<TradeOffer> outgoing(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) { return town == null ? List.of() : repository.outgoing(town.getUUID()); } }
+    public List<Caravan> caravans(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) { return town == null ? List.of() : repository.caravans(town.getUUID()); } }
+    public List<TradeHistory> history(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) { return town == null ? List.of() : repository.history(town.getUUID()); } }
+    public ExportDefinition definition(TradeOffer offer) { synchronized (ru.neverland.core.SuiteState.lock()) { return offer == null ? null : registry.get(offer.exportId()); } }
+    public ExportDefinition definitionOf(Caravan caravan) { synchronized (ru.neverland.core.SuiteState.lock()) { return caravan == null ? null : definition(caravan); } }
 
-    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() {
+    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() { synchronized (ru.neverland.core.SuiteState.lock()) {
         ru.neverland.core.ApiServices.primaryThread();
         return repository.caravans().stream().map(c -> new ru.neverland.core.ActivityAdmin.Target(c.id().toString(),c.exportId()+" / "+c.sellerId()+" → "+c.buyerId()+" / "+c.settlement(),
                 c.settlement().equals("ACTIVE") ? ru.neverland.core.ActivityAdmin.TIMED : java.util.Set.of("status"), (action,minutes) -> {
@@ -295,6 +295,6 @@ public final class TradeService {
             catch(Exception ex){c.timer(before);c.travelTimes(oldDeparture,oldIncident); throw ex;}
             return c.id()+" | "+c.timer().describe(System.currentTimeMillis());
         })).toList();
-    }
+    } }
 
 }

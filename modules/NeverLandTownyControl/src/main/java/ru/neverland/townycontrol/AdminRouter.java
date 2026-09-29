@@ -44,7 +44,7 @@ final class AdminRouter implements TabExecutor {
         sender.sendMessage("§f/nltadmin "+name+" native <штатные аргументы команды>");
         if(e.activities())sender.sendMessage("§f/nltadmin "+name+" list | status|pause|resume|restart|cancel <ID> | extend <минуты> <ID> §7— list показывает поддерживаемые действия");
     }
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!allowed(sender)){sender.sendMessage("§cНет прав.");return true;}
         try {
             if((args.length==0||args.length==1&&Set.of("menu","logs").contains(args[0].toLowerCase(Locale.ROOT)))&&sender instanceof org.bukkit.entity.Player player){
@@ -70,8 +70,8 @@ final class AdminRouter implements TabExecutor {
             } else describe(sender,e);
         }catch(Exception ex){sender.sendMessage("§cОперация остановлена: "+ex.getMessage());}
         return true;
-    }
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) {
+    } }
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!allowed(sender))return List.of();
         try {
             if(args.length<=1){var names=new ArrayList<>(entries.keySet());names.addAll(List.of("list","menu","logs"));return filter(names,args.length==0?"":args[0]);}
@@ -85,6 +85,6 @@ final class AdminRouter implements TabExecutor {
             else return List.of();
             return direct.tabComplete(sender,e.command(),nested);
         }catch(Exception ignored){return List.of();}
-    }
+    } }
     private static List<String> filter(Collection<String> values,String prefix){return values.stream().filter(v->v.toLowerCase(Locale.ROOT).startsWith(prefix.toLowerCase(Locale.ROOT))).sorted().toList();}
 }

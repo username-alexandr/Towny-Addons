@@ -4,11 +4,11 @@ public final class TimeUtil {
     private TimeUtil() {
     }
 
-    public static String formatMillis(long millis) {
+    public static String formatMillis(long millis) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return formatSeconds(Math.max(0L, (millis + 999L) / 1000L));
-    }
+    } }
 
-    public static String formatSeconds(long seconds) {
+    public static String formatSeconds(long seconds) { synchronized (ru.neverland.core.SuiteState.lock()) {
         long value = Math.max(0L, seconds);
         long days = value / 86400L;
         long hours = value % 86400L / 3600L;
@@ -20,5 +20,5 @@ public final class TimeUtil {
         if (minutes > 0 || hours > 0 || days > 0) text.append(minutes).append(" мин. ");
         if (days == 0 && hours == 0) text.append(secs).append(" сек.");
         return text.toString().trim();
-    }
+    } }
 }

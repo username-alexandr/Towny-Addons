@@ -26,7 +26,7 @@ public final class EconomyService {
         this.itemsAdder = itemsAdder;
     }
 
-    public Result withdraw(Player player, Town town, double amount, String reason) {
+    public Result withdraw(Player player, Town town, double amount, String reason) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (amount <= 0.0D) return Result.SUCCESS;
         String mode = plugin.getConfig().getString("settings.economy.mode", "TOWN_BANK").toUpperCase(Locale.ROOT);
         try {
@@ -44,17 +44,17 @@ public final class EconomyService {
             plugin.getLogger().severe("Ошибка списания валюты в режиме " + mode + ": " + exception.getMessage());
             return Result.ERROR;
         }
-    }
+    } }
 
-    public String currencyName() {
+    public String currencyName() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return plugin.getConfig().getString("settings.economy.currency-name", "монет");
-    }
+    } }
 
-    public String format(double value) {
+    public String format(double value) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String pattern = plugin.getConfig().getString("settings.economy.number-format", "#,##0.##");
         DecimalFormat format = new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(Locale.forLanguageTag("ru-RU")));
         return format.format(value);
-    }
+    } }
 
     private Result withdrawTown(Town town, double amount, String reason) {
         if (town == null || town.getAccount() == null) return Result.ERROR;

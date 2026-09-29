@@ -11,7 +11,7 @@ public record TradeCargo(UUID id,UUID buyer,ItemStack sample,int amount,ItemStac
         if(status.equals("RESERVED")?(StockMath.total(cargo)!=amount||StockMath.count(cargo,sample)!=amount):StockMath.total(cargo)!=0)
             throw new IllegalArgumentException("Повреждён резерв поставки");
     }
-    @Override public ItemStack sample(){return sample.clone();}
-    @Override public ItemStack[] cargo(){return StockMath.copy(cargo);}
-    public TradeCargo finish(boolean delivered){return new TradeCargo(id,buyer,sample,amount,new ItemStack[0],delivered?"DELIVERED":"RETURNED");}
+    @Override public ItemStack sample(){ synchronized (ru.neverland.core.SuiteState.lock()) {return sample.clone();} }
+    @Override public ItemStack[] cargo(){ synchronized (ru.neverland.core.SuiteState.lock()) {return StockMath.copy(cargo);} }
+    public TradeCargo finish(boolean delivered){ synchronized (ru.neverland.core.SuiteState.lock()) {return new TradeCargo(id,buyer,sample,amount,new ItemStack[0],delivered?"DELIVERED":"RETURNED");} }
 }

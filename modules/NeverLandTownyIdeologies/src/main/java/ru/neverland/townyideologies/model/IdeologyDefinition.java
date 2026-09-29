@@ -18,7 +18,7 @@ public record IdeologyDefinition(
 ) {
     public static final int MAX_LEVEL = 5;
 
-    public double priceForLevel(int level) {
+    public double priceForLevel(int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return level <= 1 ? selectionPrice : upgradePrices.getOrDefault(level, -1.0D);
-    }
+    } }
 }

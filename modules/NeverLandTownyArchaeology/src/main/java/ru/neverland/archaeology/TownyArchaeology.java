@@ -37,7 +37,7 @@ public final class TownyArchaeology extends JavaPlugin {
     private BukkitTask autosave;
 
     @Override
-    public void onEnable() {
+    public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         ru.neverland.archaeology.util.LegacyDataMigrator.migrate(this, "TownyArchaeology");
@@ -92,10 +92,10 @@ public final class TownyArchaeology extends JavaPlugin {
                 + " включён: артефактов " + registry.artifacts().size()
                 + ", участков " + repository.sites().size() + ", /t archaeology=true, /t museum="
                 + museumCommand + ", PlaceholderAPI=" + papi + ".");
-    }
+    } }
 
     @Override
-    public void onDisable() {
+    public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (sites != null) sites.stop();
@@ -106,16 +106,16 @@ public final class TownyArchaeology extends JavaPlugin {
             towny.unregister("museum");
         }
         getServer().getServicesManager().unregisterAll(this);
-    }
+    } }
 
-    public void reloadPlugin() {
+    public void reloadPlugin() { synchronized (ru.neverland.core.SuiteState.lock()) {
         reloadConfig();
         messages.reload();
         itemsAdder.reload();
         registry.reload();
         sites.start();
         startAutosave();
-    }
+    } }
 
     private void startTasks() {
         sites.start();
@@ -125,7 +125,7 @@ public final class TownyArchaeology extends JavaPlugin {
     private void startAutosave() {
         if (autosave != null) autosave.cancel();
         long ticks = Math.max(20L, getConfig().getLong("storage.autosave-seconds", 60) * 20L);
-        autosave = getServer().getScheduler().runTaskTimer(this, repository::save, ticks, ticks);
+        autosave = ru.neverland.core.SuiteScheduler.get().runTaskTimer(this, repository::save, ticks, ticks);
     }
 
     private void copy(String name) {

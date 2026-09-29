@@ -23,7 +23,7 @@ public final class AdminCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){return true;}
         if (!sender.hasPermission("morstownstick.admin")) {
             messages.send(sender, "no-permission");
             return true;
@@ -39,7 +39,7 @@ public final class AdminCommand implements CommandExecutor {
             messages.send(sender, "reload-usage");
         }
         return true;
-    }
+    } }
 
     private void give(CommandSender sender, String playerName) {
         Player target = plugin.getServer().getPlayerExact(playerName);

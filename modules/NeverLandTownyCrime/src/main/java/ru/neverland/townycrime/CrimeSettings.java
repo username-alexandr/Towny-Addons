@@ -19,8 +19,8 @@ public record CrimeSettings(long cycle, double change, double unhappiness, doubl
     static boolean finite(double n,double min,double max){return Double.isFinite(n)&&n>=min&&n<=max;}
     static double n(ConfigurationSection c,String key){Object v=c.get(key);if(!(v instanceof Number a)||!Double.isFinite(a.doubleValue()))throw new IllegalArgumentException("Нужно число: "+key);return a.doubleValue();}
     static long integer(ConfigurationSection c,String key){Object v=c.get(key);if(!(v instanceof Integer||v instanceof Long))throw new IllegalArgumentException("Нужно целое: "+key);return ((Number)v).longValue();}
-    public static CrimeSettings load(ConfigurationSection c){
+    public static CrimeSettings load(ConfigurationSection c){ synchronized (ru.neverland.core.SuiteState.lock()) {
         Object raw=c.get("incidents.resources");if(!(raw instanceof List<?> list)||list.stream().anyMatch(x->!(x instanceof String)))throw new IllegalArgumentException("Неверный список ресурсов");
         return new CrimeSettings(Math.multiplyExact(integer(c,"cycle-seconds"),1000),n(c,"maximum-change"),n(c,"unhappiness-weight"),n(c,"unguarded-pressure"),n(c,"guard-level-strength"),n(c,"guard-worker-strength"),n(c,"guard-reduction"),Math.toIntExact(integer(c,"maximum-shop-loss-bps")),n(c,"incidents.minimum-crime"),n(c,"incidents.chance-per-cycle"),Math.multiplyExact(integer(c,"incidents.cooldown-seconds"),1000),Math.multiplyExact(integer(c,"incidents.duration-seconds"),1000),Math.toIntExact(integer(c,"incidents.extortion-loss-bps")),Math.toIntExact(integer(c,"incidents.theft-share-bps")),integer(c,"incidents.theft-cap"),list.stream().map(String.class::cast).toList());
-    }
+    } }
 }

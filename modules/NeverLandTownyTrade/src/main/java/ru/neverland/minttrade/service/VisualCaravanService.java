@@ -35,15 +35,15 @@ public final class VisualCaravanService {
       this.towny = towny;
    }
 
-   public void start() {
+   public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.stop();
       if (this.plugin.getConfig().getBoolean("visuals.enabled", true)) {
          long period = Math.max(2L, this.plugin.getConfig().getLong("visuals.update-ticks", 10L));
-         this.task = Bukkit.getScheduler().runTaskTimer(this.plugin, this::tick, period, period);
+         this.task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(this.plugin, this::tick, period, period);
       }
-   }
+   } }
 
-   public void stop() {
+   public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) {
       if (this.task != null) {
          this.task.cancel();
       }
@@ -51,7 +51,7 @@ public final class VisualCaravanService {
       this.task = null;
       this.visuals.values().forEach(this::remove);
       this.visuals.clear();
-   }
+   } }
 
    private void tick() {
       for (UUID id : new ArrayList<>(this.visuals.keySet())) {

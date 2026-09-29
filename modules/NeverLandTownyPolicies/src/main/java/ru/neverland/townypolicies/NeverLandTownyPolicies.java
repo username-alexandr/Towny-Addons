@@ -14,7 +14,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 public final class NeverLandTownyPolicies extends JavaPlugin {
     private PoliciesService service;private boolean townCommand;private PoliciesExpansion expansion;
-    @Override public void onEnable(){
+    @Override public void onEnable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 try{
         saveDefaultConfig();if(!new File(getDataFolder(),"policies.yml").exists())saveResource("policies.yml",false);
@@ -24,11 +24,11 @@ try{
         getServer().getPluginManager().registerEvents(menu,this);getServer().getServicesManager().register(TownyPoliciesApi.class,service,this,ServicePriority.Normal);service.start();
         if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")){expansion=new PoliciesExpansion(service,getPluginMeta().getVersion());expansion.register();}
         getLogger().info("Политики включены: "+service.settings().groups().size()+" профилей.");
-    }catch(Exception|LinkageError ex){getLogger().log(java.util.logging.Level.SEVERE,"Политики не загружены; проверьте настройки и сохранённую базу.",ex);getServer().getPluginManager().disablePlugin(this);}}
+    }catch(Exception|LinkageError ex){getLogger().log(java.util.logging.Level.SEVERE,"Политики не загружены; проверьте настройки и сохранённую базу.",ex);getServer().getPluginManager().disablePlugin(this);}} }
     private YamlConfiguration read(String name)throws Exception{var y=new YamlConfiguration();y.load(new File(getDataFolder(),name));try(var input=getResource(name)){if(input!=null)y.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(input,StandardCharsets.UTF_8)));}y.options().copyDefaults(true);return y;}
     private PoliciesSettings settings()throws Exception{return PoliciesSettings.load(read("config.yml"),read("policies.yml"));}
-    public boolean reloadPolicies(){try{service.reload(settings());return true;}catch(Exception ex){getLogger().warning("Настройки политик не применены: "+ex.getMessage());return false;}}
-    @Override public void onDisable(){
+    public boolean reloadPolicies(){ synchronized (ru.neverland.core.SuiteState.lock()) {try{service.reload(settings());return true;}catch(Exception ex){getLogger().warning("Настройки политик не применены: "+ex.getMessage());return false;}} }
+    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
-if(expansion!=null)expansion.unregister();if(service!=null)service.stop();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"policies");}
+if(expansion!=null)expansion.unregister();if(service!=null)service.stop();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"policies");} }
 }

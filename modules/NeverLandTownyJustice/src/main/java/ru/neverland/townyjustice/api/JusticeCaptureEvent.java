@@ -5,6 +5,6 @@ import org.bukkit.event.*;
 public final class JusticeCaptureEvent extends Event implements Cancellable {
     private static final HandlerList HANDLERS=new HandlerList();private boolean cancelled;private final UUID caseId,town,target,hunter;
     public JusticeCaptureEvent(UUID id,UUID town,UUID target,UUID hunter){caseId=id;this.town=town;this.target=target;this.hunter=hunter;}
-    public UUID caseId(){return caseId;}public UUID town(){return town;}public UUID target(){return target;}public UUID hunter(){return hunter;}
-    @Override public boolean isCancelled(){return cancelled;}@Override public void setCancelled(boolean c){cancelled=c;}@Override public HandlerList getHandlers(){return HANDLERS;}public static HandlerList getHandlerList(){return HANDLERS;}
+    public UUID caseId(){ synchronized (ru.neverland.core.SuiteState.lock()) {return caseId;} }public UUID town(){ synchronized (ru.neverland.core.SuiteState.lock()) {return town;} }public UUID target(){ synchronized (ru.neverland.core.SuiteState.lock()) {return target;} }public UUID hunter(){ synchronized (ru.neverland.core.SuiteState.lock()) {return hunter;} }
+    @Override public boolean isCancelled(){ synchronized (ru.neverland.core.SuiteState.lock()) {return cancelled;} }@Override public void setCancelled(boolean c){ synchronized (ru.neverland.core.SuiteState.lock()) {cancelled=c;} }@Override public HandlerList getHandlers(){ synchronized (ru.neverland.core.SuiteState.lock()) {return HANDLERS;} }public static HandlerList getHandlerList(){ synchronized (ru.neverland.core.SuiteState.lock()) {return HANDLERS;} }
 }

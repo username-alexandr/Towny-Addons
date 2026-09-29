@@ -5,7 +5,7 @@ import static ru.neverland.townyarmy.ArmyModel.*;
 public final class ArmyMigration {
     public interface Legacy { Map<UUID, UUID> legacy() throws Exception; void handoff(Map<UUID, UUID> expected) throws Exception; }
     private ArmyMigration() { }
-    public static void resume(ArmyRepository repository, Legacy legacy, long now) throws Exception {
+    public static void resume(ArmyRepository repository, Legacy legacy, long now) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!repository.state().imported()) {
             var roster = legacy.legacy(); var d = repository.draft(); d.imported = true; d.legacy.putAll(roster);
             for (var e : roster.entrySet()) d.soldier(Soldier.applicant(e.getKey(), e.getValue(), Unit.INFANTRY, now).swear().status(Status.ACTIVE));
@@ -15,5 +15,5 @@ public final class ArmyMigration {
             legacy.handoff(repository.state().legacy()); var d = repository.draft(); d.handoff = true;
             repository.commit(d, SYSTEM, SYSTEM, SYSTEM, "HANDOFF", "Builds подтвердил передачу состава", now);
         }
-    }
+    } }
 }

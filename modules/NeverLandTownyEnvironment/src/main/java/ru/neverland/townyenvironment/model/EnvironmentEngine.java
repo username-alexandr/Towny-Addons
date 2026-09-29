@@ -11,10 +11,10 @@ public final class EnvironmentEngine {
                 throw new IllegalArgumentException("Некорректная экологическая нагрузка");
             contributions = Map.copyOf(contributions);
         }
-        public double change() { return emissions - cleaning; }
+        public double change() { synchronized (ru.neverland.core.SuiteState.lock()) { return emissions - cleaning; } }
     }
     public record Effects(double happiness, double agriculture) { }
-    public static Pressure pressure(Map<String, Integer> active, EnvironmentSettings settings) {
+    public static Pressure pressure(Map<String, Integer> active, EnvironmentSettings settings) { synchronized (ru.neverland.core.SuiteState.lock()) {
         double emissions = 0, cleaning = settings.naturalRecovery(); var contributions = new TreeMap<String, Double>();
         for (var entry : active.entrySet()) {
             int level = entry.getValue(); if (level < 0 || level > 5) throw new IllegalArgumentException("Неверный уровень здания");
@@ -23,13 +23,13 @@ public final class EnvironmentEngine {
             contributions.put(entry.getKey(), (profile.emission() - profile.cleaning()) * level);
         }
         return new Pressure(emissions, cleaning, contributions);
-    }
-    public static EnvironmentState advance(EnvironmentState state, Pressure pressure) {
+    } }
+    public static EnvironmentState advance(EnvironmentState state, Pressure pressure) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return state.paused() ? state : new EnvironmentState(Math.max(0, Math.min(100, state.pollution() + pressure.change())), Math.addExact(state.cycles(), 1), false);
-    }
-    public static Effects effects(EnvironmentState state, EnvironmentSettings settings, boolean ready) {
+    } }
+    public static Effects effects(EnvironmentState state, EnvironmentSettings settings, boolean ready) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ready || state.paused()) return new Effects(0, 1);
         double severity = Math.max(0, (state.pollution() - settings.threshold()) / (100 - settings.threshold()));
         return new Effects(-settings.maximumHappinessPenalty() * severity, 1 - settings.maximumAgriculturePenalty() * severity);
-    }
+    } }
 }

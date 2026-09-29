@@ -7,8 +7,8 @@ import java.lang.reflect.Method;
 public final class ItemsAdderHook {
     private boolean available;
     public ItemsAdderHook() { reload(); }
-    public void reload() { available = Bukkit.getPluginManager().isPluginEnabled("ItemsAdder"); }
-    public ItemStack item(String key) {
+    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) { available = Bukkit.getPluginManager().isPluginEnabled("ItemsAdder"); } }
+    public ItemStack item(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!available || key == null || !key.toLowerCase().startsWith("itemsadder:")) return null;
         try {
             String namespaced = key.substring("itemsadder:".length());
@@ -18,5 +18,5 @@ public final class ItemsAdderHook {
             if (value == null) return null;
             return (ItemStack) customStack.getMethod("getItemStack").invoke(value);
         } catch (ReflectiveOperationException | ClassCastException ignored) { return null; }
-    }
+    } }
 }

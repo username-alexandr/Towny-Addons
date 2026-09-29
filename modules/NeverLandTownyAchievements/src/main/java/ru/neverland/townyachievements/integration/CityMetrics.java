@@ -10,9 +10,9 @@ import java.util.*;
 public class CityMetrics {
     public record Observation(boolean ready, long value, String detail) {
         public Observation { if (value < 0) throw new IllegalArgumentException("Отрицательное значение"); }
-        public static Observation waiting(String detail) { return new Observation(false, 0, detail); }
+        public static Observation waiting(String detail) { synchronized (ru.neverland.core.SuiteState.lock()) { return new Observation(false, 0, detail); } }
     }
-    public Observation observe(Town town, Achievement achievement) {
+    public Observation observe(Town town, Achievement achievement) { synchronized (ru.neverland.core.SuiteState.lock()) {
         try {
             UUID id = town.getUUID(); long value;
             switch (achievement.kind()) {
@@ -44,6 +44,6 @@ public class CityMetrics {
             }
             return new Observation(true, value, "Сейчас: " + Math.min(value, achievement.target()) + "/" + achievement.target());
         } catch (Exception | LinkageError ex) { return Observation.waiting("Ожидается поставщик данных: " + ex.getClass().getSimpleName()); }
-    }
+    } }
     private static Object read(Object target, String method) throws Exception { return target.getClass().getMethod(method).invoke(target); }
 }

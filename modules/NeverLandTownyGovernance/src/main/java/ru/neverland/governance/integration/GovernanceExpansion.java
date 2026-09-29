@@ -16,11 +16,11 @@ import java.util.Locale;
 public final class GovernanceExpansion extends PlaceholderExpansion {
     private final TownyGovernance plugin; private final TownyHook towny; private final GovernanceService governance;
     public GovernanceExpansion(TownyGovernance plugin, TownyHook towny, GovernanceService governance) { this.plugin = plugin; this.towny = towny; this.governance = governance; }
-    @Override public @NotNull String getIdentifier() { return "townygovernance"; }
-    @Override public @NotNull String getAuthor() { return "Alexander Sokolov"; }
-    @Override public @NotNull String getVersion() { return plugin.getPluginMeta().getVersion(); }
-    @Override public boolean persist() { return true; }
-    @Override public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) {
+    @Override public @NotNull String getIdentifier() { synchronized (ru.neverland.core.SuiteState.lock()) { return "townygovernance"; } }
+    @Override public @NotNull String getAuthor() { synchronized (ru.neverland.core.SuiteState.lock()) { return "Alexander Sokolov"; } }
+    @Override public @NotNull String getVersion() { synchronized (ru.neverland.core.SuiteState.lock()) { return plugin.getPluginMeta().getVersion(); } }
+    @Override public boolean persist() { synchronized (ru.neverland.core.SuiteState.lock()) { return true; } }
+    @Override public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!(offline instanceof Player player)) return ""; Town town = towny.town(player); if (town == null) return "";
         String key = params.toLowerCase(Locale.ROOT);
         if (key.startsWith("has_law_")) return String.valueOf(governance.hasLaw(town.getUUID(), key.substring(8)));
@@ -35,6 +35,6 @@ public final class GovernanceExpansion extends PlaceholderExpansion {
             case "ideology_experience" -> percent(governance.ideologyExperience(town.getUUID())); case "tax" -> String.valueOf(town.getTaxes());
             case "tax_mode" -> town.isTaxPercentage() ? "Процент" : "Фиксированный"; default -> null;
         };
-    }
+    } }
     private String percent(double value) { return Math.round(value * 100) + "%"; }
 }

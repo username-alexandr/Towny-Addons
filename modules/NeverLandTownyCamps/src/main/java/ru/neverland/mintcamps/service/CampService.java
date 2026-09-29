@@ -57,11 +57,11 @@ public final class CampService {
         this.itemNames = itemNames;
     }
 
-    public void holograms(HologramService value) {
+    public void holograms(HologramService value) { synchronized (ru.neverland.core.SuiteState.lock()) {
         this.holograms = value;
-    }
+    } }
 
-    public boolean create(Player player) {
+    public boolean create(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (repository.get(player.getUniqueId()).isPresent()) {
             messages.send(player, "already-has-camp");
             return false;
@@ -75,6 +75,7 @@ public final class CampService {
         BlockFace facing = DirectionUtil.cardinal(player.getLocation().getYaw());
         int centerX = player.getLocation().getBlockX() + facing.getModX() * 3;
         int centerZ = player.getLocation().getBlockZ() + facing.getModZ() * 3;
+        if (!ru.neverland.core.WorldTasks.ownsBox(new Location(world,centerX,player.getY(),centerZ),16)) { messages.send(player,"placement.unsafe");return false; }
         Surface surface = findSurface(world, centerX, centerZ, player.getLocation().getBlockY(), facing, 1);
         if (surface == null) {
             placementFailure(player, "placement.unsafe");
@@ -138,9 +139,9 @@ public final class CampService {
             messages.send(player, "placement.failed", Map.of("reason", messages.raw("placement.internal-error")));
             return false;
         }
-    }
+    } }
 
-    public boolean upgrade(Player player) {
+    public boolean upgrade(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Camp camp = repository.get(player.getUniqueId()).orElse(null);
         if (camp == null) {
             messages.send(player, "no-camp");
@@ -154,6 +155,7 @@ public final class CampService {
             messages.send(player, "upgrade.max-level");
             return false;
         }
+        if (!ru.neverland.core.WorldTasks.ownsBox(camp.anchorLocation(),16) || repository.stashBusy(camp.ownerId())) { player.sendMessage("§eПодойдите к лагерю и закройте его склад.");return false; }
         int oldLevel = camp.level();
         int nextLevel = oldLevel + 1;
         List<ItemStack> cost = costs.get(nextLevel);
@@ -212,9 +214,9 @@ public final class CampService {
             messages.send(player, "upgrade.internal-error");
             return false;
         }
-    }
+    } }
 
-    public boolean pack(Player player) {
+    public boolean pack(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Camp camp = repository.get(player.getUniqueId()).orElse(null);
         if (camp == null) {
             messages.send(player, "no-camp");
@@ -227,14 +229,12 @@ public final class CampService {
         messages.send(player, "pack.success");
         sound(player, "settings.sounds.pack", Sound.BLOCK_WOOD_BREAK);
         return true;
-    }
+    } }
 
-    public boolean pack(Camp camp, Player receiver, boolean expired) {
+    public boolean pack(Camp camp, Player receiver, boolean expired) { synchronized (ru.neverland.core.SuiteState.lock()) {
         try {
-            for (Player online : Bukkit.getOnlinePlayers()) {
-                if (online.getOpenInventory().getTopInventory().getHolder() instanceof CampInventoryHolder holder
-                        && holder.campOwner().equals(camp.ownerId())) online.closeInventory();
-            }
+            if (!ru.neverland.core.WorldTasks.ownsBox(camp.anchorLocation(),16) || repository.stashBusy(camp.ownerId())) return false;
+            if (repository.get(camp.ownerId()).orElse(null) != camp) return false;
             List<ItemStack> savedItems = new ArrayList<>(camp.nonEmptyStash());
             savedItems.addAll(structures.drainPlacedContainers(camp));
             structures.restoreAll(camp);
@@ -257,9 +257,9 @@ public final class CampService {
             plugin.getLogger().severe("Ошибка сворачивания лагеря " + camp.ownerName() + ": " + exception.getMessage());
             return false;
         }
-    }
+    } }
 
-    public boolean trust(Player owner, UUID targetId, String targetName) {
+    public boolean trust(Player owner, UUID targetId, String targetName) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Camp camp = repository.get(owner.getUniqueId()).orElse(null);
         if (camp == null) { messages.send(owner, "no-camp"); return false; }
         if (owner.getUniqueId().equals(targetId)) { messages.send(owner, "self-trust"); return false; }
@@ -273,9 +273,9 @@ public final class CampService {
         Player online = Bukkit.getPlayer(targetId);
         if (online != null) messages.send(online, "trust-notify-added", Map.of("owner", owner.getName()));
         return true;
-    }
+    } }
 
-    public boolean untrust(Player owner, UUID targetId, String targetName) {
+    public boolean untrust(Player owner, UUID targetId, String targetName) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Camp camp = repository.get(owner.getUniqueId()).orElse(null);
         if (camp == null) { messages.send(owner, "no-camp"); return false; }
         if (camp.trusted().remove(targetId) == null) {
@@ -288,19 +288,20 @@ public final class CampService {
         Player online = Bukkit.getPlayer(targetId);
         if (online != null) messages.send(online, "trust-notify-removed", Map.of("owner", owner.getName()));
         return true;
-    }
+    } }
 
-    public void toggleBarrier(Player player) {
+    public void toggleBarrier(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Camp camp = repository.get(player.getUniqueId()).orElse(null);
         if (camp == null) { messages.send(player, "no-camp"); return; }
         camp.mobsDisabled(!camp.mobsDisabled());
         repository.markDirty();
         messages.send(player, camp.mobsDisabled() ? "barrier.enabled" : "barrier.disabled");
-    }
+    } }
 
-    public void updateCampfire(Camp camp) {
+    public void updateCampfire(Camp camp) { synchronized (ru.neverland.core.SuiteState.lock()) {
         World world = camp.world().orElse(null);
         if (world == null) return;
+        if (!ru.neverland.core.WorldTasks.ownsBox(camp.anchorLocation(),16)) { ru.neverland.core.SuiteScheduler.region(plugin,camp.anchorLocation(),()->{ if(ru.neverland.core.WorldTasks.ownsBox(camp.anchorLocation(),16))updateCampfire(camp); });return; }
         migrateRaisedCampfire(camp);
         BlockPos pos = DirectionUtil.rotate(camp.anchor(), camp.facing(), StructureGenerator.CAMPFIRE_RELATIVE);
         Block block = world.getBlockAt(pos.x(), pos.y(), pos.z());
@@ -311,34 +312,34 @@ public final class CampService {
                 block.setBlockData(lightable, false);
             }
         }
-    }
+    } }
 
-    public void migrateRaisedCampfires() {
+    public void migrateRaisedCampfires() { synchronized (ru.neverland.core.SuiteState.lock()) {
         int migrated = 0;
         for (Camp camp : repository.all()) {
-            if (migrateRaisedCampfire(camp)) migrated++;
+            if (camp.anchorLocation()!=null) ru.neverland.core.SuiteScheduler.region(plugin,camp.anchorLocation(),()->{ if(ru.neverland.core.WorldTasks.ownsBox(camp.anchorLocation(),16)&&migrateRaisedCampfire(camp))repository.saveIfDirty(); });
         }
         if (migrated > 0) {
             repository.saveIfDirty();
             plugin.getLogger().info("Исправлена высота очага у лагерей: " + migrated + ".");
         }
-    }
+    } }
 
-    public int stashSize(int level) {
+    public int stashSize(int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return plugin.getConfig().getInt("settings.levels." + level + ".stash-size", level * 9);
-    }
+    } }
 
-    public int maxTrusted(int level) {
+    public int maxTrusted(int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return plugin.getConfig().getInt("settings.levels." + level + ".max-trusted", level * 2);
-    }
+    } }
 
-    public String levelName(int level) {
+    public String levelName(int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return messages.formatConfig(plugin.getConfig().getString("settings.levels." + level + ".name", "Уровень " + level));
-    }
+    } }
 
-    public String styleName(Camp camp) {
+    public String styleName(Camp camp) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return styles.find(camp.styleId()).map(value -> messages.formatConfig(value.name())).orElse(camp.styleId());
-    }
+    } }
 
     private List<Placement> placements(Camp camp, int level) {
         return structures.placements(camp, id -> styles.find(id).orElseThrow(), level);

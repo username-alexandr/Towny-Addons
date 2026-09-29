@@ -44,47 +44,47 @@ public final class ConstructionSite {
         this.architectureVersion = Math.max(1, architectureVersion);
     }
 
-    public String projectId() { return projectId; }
-    public UUID worldId() { return worldId; }
-    public int originX() { return originX; }
-    public int originY() { return originY; }
-    public int originZ() { return originZ; }
-    public BlockFace facing() { return facing; }
-    public int completedStage() { return completedStage; }
-    public int targetStage() { return targetStage; }
-    public int buildFromStage() { return buildFromStage; }
-    public boolean active() { return active; }
-    public int architectureVersion() { return architectureVersion; }
+    public String projectId() { synchronized (ru.neverland.core.SuiteState.lock()) { return projectId; } }
+    public UUID worldId() { synchronized (ru.neverland.core.SuiteState.lock()) { return worldId; } }
+    public int originX() { synchronized (ru.neverland.core.SuiteState.lock()) { return originX; } }
+    public int originY() { synchronized (ru.neverland.core.SuiteState.lock()) { return originY; } }
+    public int originZ() { synchronized (ru.neverland.core.SuiteState.lock()) { return originZ; } }
+    public BlockFace facing() { synchronized (ru.neverland.core.SuiteState.lock()) { return facing; } }
+    public int completedStage() { synchronized (ru.neverland.core.SuiteState.lock()) { return completedStage; } }
+    public int targetStage() { synchronized (ru.neverland.core.SuiteState.lock()) { return targetStage; } }
+    public int buildFromStage() { synchronized (ru.neverland.core.SuiteState.lock()) { return buildFromStage; } }
+    public boolean active() { synchronized (ru.neverland.core.SuiteState.lock()) { return active; } }
+    public int architectureVersion() { synchronized (ru.neverland.core.SuiteState.lock()) { return architectureVersion; } }
 
-    public void setArchitectureVersion(int version) {
+    public void setArchitectureVersion(int version) { synchronized (ru.neverland.core.SuiteState.lock()) {
         architectureVersion = Math.max(1, version);
-    }
+    } }
 
-    public void activate(int targetStage, int buildFromStage) {
+    public void activate(int targetStage, int buildFromStage) { synchronized (ru.neverland.core.SuiteState.lock()) {
         this.targetStage = targetStage;
         this.buildFromStage = buildFromStage;
         this.active = true;
-    }
+    } }
 
-    public void complete() {
+    public void complete() { synchronized (ru.neverland.core.SuiteState.lock()) {
         completedStage = targetStage;
         buildFromStage = targetStage + 1;
         active = false;
-    }
+    } }
 
-    public Location location(World world, BlockOffset offset) {
+    public Location location(World world, BlockOffset offset) { synchronized (ru.neverland.core.SuiteState.lock()) {
         int[] rotated = rotate(offset.x(), offset.z());
         return new Location(world, originX + rotated[0], originY + offset.y(), originZ + rotated[1]);
-    }
+    } }
 
-    public BlockOffset offset(Location location) {
+    public BlockOffset offset(Location location) { synchronized (ru.neverland.core.SuiteState.lock()) {
         int dx = location.getBlockX() - originX;
         int dz = location.getBlockZ() - originZ;
         int[] local = inverse(dx, dz);
         return new BlockOffset(local[0], location.getBlockY() - originY, local[1]);
-    }
+    } }
 
-    public BlockFace worldFace(BlockFace localFace) {
+    public BlockFace worldFace(BlockFace localFace) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (localFace == null || localFace == BlockFace.UP || localFace == BlockFace.DOWN) return localFace;
         return switch (facing) {
             case EAST -> switch (localFace) {
@@ -110,15 +110,15 @@ public final class ConstructionSite {
             };
             default -> localFace;
         };
-    }
+    } }
 
-    public Axis worldAxis(Axis localAxis) {
+    public Axis worldAxis(Axis localAxis) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (localAxis == null || localAxis == Axis.Y) return localAxis;
         if (facing == BlockFace.EAST || facing == BlockFace.WEST) {
             return localAxis == Axis.X ? Axis.Z : Axis.X;
         }
         return localAxis;
-    }
+    } }
 
     private int[] rotate(int x, int z) {
         return switch (facing) {
@@ -138,11 +138,11 @@ public final class ConstructionSite {
         };
     }
 
-    public static BlockFace cardinal(BlockFace face) {
+    public static BlockFace cardinal(BlockFace face) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (face == BlockFace.EAST || face == BlockFace.SOUTH || face == BlockFace.WEST) return face;
         return BlockFace.NORTH;
-    }
+    } }
     private boolean adminPaused;
-    public boolean adminPaused(){return adminPaused;}
-    public void adminPaused(boolean value){adminPaused=value;}
+    public boolean adminPaused(){ synchronized (ru.neverland.core.SuiteState.lock()) {return adminPaused;} }
+    public void adminPaused(boolean value){ synchronized (ru.neverland.core.SuiteState.lock()) {adminPaused=value;} }
 }

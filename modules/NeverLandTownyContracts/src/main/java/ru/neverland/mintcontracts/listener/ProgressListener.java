@@ -16,34 +16,34 @@ public final class ProgressListener implements Listener {
     public ProgressListener(ContractService contracts) { this.contracts = contracts; }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onKill(EntityDeathEvent event) {
+    public void onKill(EntityDeathEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyContracts")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         Player killer = event.getEntity().getKiller();
         if (killer != null) contracts.record(killer, ContractType.MOB_KILL, event.getEntityType().name(), 1);
-    }
+    } }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onBreak(BlockBreakEvent event) {
+    public void onBreak(BlockBreakEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyContracts")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         contracts.fieldWork().broken(event.getBlock());
         contracts.record(event.getPlayer(), ContractType.BLOCK_BREAK, event.getBlock().getType().name(), 1);
-    }
+    } }
 
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)
-    public void onPlace(org.bukkit.event.block.BlockPlaceEvent e){contracts.fieldWork().placed(e.getPlayer(),e.getBlockPlaced());}
+    public void onPlace(org.bukkit.event.block.BlockPlaceEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {contracts.fieldWork().placed(e.getPlayer(),e.getBlockPlaced());} }
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)
-    public void onMove(org.bukkit.event.player.PlayerMoveEvent e){if(!(e instanceof org.bukkit.event.player.PlayerTeleportEvent))contracts.fieldWork().move(e.getPlayer(),e.getFrom(),e.getTo());}
+    public void onMove(org.bukkit.event.player.PlayerMoveEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(!(e instanceof org.bukkit.event.player.PlayerTeleportEvent))contracts.fieldWork().move(e.getPlayer(),e.getFrom(),e.getTo());} }
     @EventHandler(priority=EventPriority.MONITOR)
-    public void onTeleport(org.bukkit.event.player.PlayerTeleportEvent e){contracts.fieldWork().reset(e.getPlayer());}
-    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void onExplosion(org.bukkit.event.entity.EntityExplodeEvent e){e.blockList().forEach(contracts.fieldWork()::broken);}
-    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void onBlockExplosion(org.bukkit.event.block.BlockExplodeEvent e){e.blockList().forEach(contracts.fieldWork()::broken);}
-    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void onPiston(org.bukkit.event.block.BlockPistonExtendEvent e){e.getBlocks().forEach(contracts.fieldWork()::broken);}
-    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void onRetract(org.bukkit.event.block.BlockPistonRetractEvent e){e.getBlocks().forEach(contracts.fieldWork()::broken);}
-    @EventHandler public void onQuit(org.bukkit.event.player.PlayerQuitEvent e){contracts.fieldWork().reset(e.getPlayer());}
-    @EventHandler public void onWorld(org.bukkit.event.player.PlayerChangedWorldEvent e){contracts.fieldWork().reset(e.getPlayer());}
+    public void onTeleport(org.bukkit.event.player.PlayerTeleportEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {contracts.fieldWork().reset(e.getPlayer());} }
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void onExplosion(org.bukkit.event.entity.EntityExplodeEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {e.blockList().forEach(contracts.fieldWork()::broken);} }
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void onBlockExplosion(org.bukkit.event.block.BlockExplodeEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {e.blockList().forEach(contracts.fieldWork()::broken);} }
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void onPiston(org.bukkit.event.block.BlockPistonExtendEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {e.getBlocks().forEach(contracts.fieldWork()::broken);} }
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void onRetract(org.bukkit.event.block.BlockPistonRetractEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {e.getBlocks().forEach(contracts.fieldWork()::broken);} }
+    @EventHandler public void onQuit(org.bukkit.event.player.PlayerQuitEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {contracts.fieldWork().reset(e.getPlayer());} }
+    @EventHandler public void onWorld(org.bukkit.event.player.PlayerChangedWorldEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {contracts.fieldWork().reset(e.getPlayer());} }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onFish(PlayerFishEvent event) {
+    public void onFish(PlayerFishEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyContracts")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (event.getState() != PlayerFishEvent.State.CAUGHT_FISH) return;
         String target = event.getCaught() instanceof Item item ? item.getItemStack().getType().name() : "ANY";
         contracts.record(event.getPlayer(), ContractType.FISH, target, 1);
-    }
+    } }
 }

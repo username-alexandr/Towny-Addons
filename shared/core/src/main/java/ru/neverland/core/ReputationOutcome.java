@@ -10,7 +10,7 @@ public record ReputationOutcome(String id, String scope, UUID subject, String ru
                 || subject == null || rule == null || !rule.matches("[A-Z_]{1,64}") || at < 0
                 || context == null || context.length() > 400) throw new IllegalArgumentException("Некорректное событие репутации");
     }
-    public static ReputationOutcome town(String id, UUID town, String rule, long at, String context) {
+    public static ReputationOutcome town(String id, UUID town, String rule, long at, String context) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return new ReputationOutcome(id + ":" + town, "TOWN", town, rule, at, context);
-    }
+    } }
 }

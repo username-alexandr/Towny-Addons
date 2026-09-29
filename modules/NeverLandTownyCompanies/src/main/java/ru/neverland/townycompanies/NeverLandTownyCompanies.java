@@ -6,7 +6,7 @@ import ru.neverland.townycompanies.api.CompaniesApi;
 
 public final class NeverLandTownyCompanies extends JavaPlugin {
     private CompanyService service;private CompanyMenus menus;
-    @Override public void onEnable(){
+    @Override public void onEnable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         saveDefaultConfig();
@@ -18,12 +18,12 @@ public final class NeverLandTownyCompanies extends JavaPlugin {
             TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"companies",command);
             getServer().getPluginManager().registerEvents(menus,this);
             getServer().getServicesManager().register(CompaniesApi.class,service,this,ServicePriority.Normal);
-            getServer().getScheduler().runTaskTimer(this,service::tick,1L,1200L);
+            ru.neverland.core.SuiteScheduler.get().runTaskTimer(this,service::tick,1L,1200L);
             getLogger().info("Предприятия города включены: "+repo.state().companies().size());
         }catch(Exception ex){getLogger().severe("Предприятия не запущены: "+ex.getMessage());getServer().getPluginManager().disablePlugin(this);}
-    }
-    public CompaniesApi companies(){return service;}
-    @Override public void onDisable(){
+    } }
+    public CompaniesApi companies(){ synchronized (ru.neverland.core.SuiteState.lock()) {return service;} }
+    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
-if(menus!=null)menus.close();TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"companies");getServer().getServicesManager().unregisterAll(this);}
+if(menus!=null)menus.close();TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"companies");getServer().getServicesManager().unregisterAll(this);} }
 }

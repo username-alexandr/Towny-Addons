@@ -35,7 +35,7 @@ public final class CampCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){return true;}
         if (!(sender instanceof Player player)) {
             messages.send(sender, "players-only");
             return true;
@@ -63,7 +63,7 @@ public final class CampCommand implements CommandExecutor, TabCompleter {
             default -> menus.openMain(player);
         }
         return true;
-    }
+    } }
 
     @SuppressWarnings("deprecation")
     private void trust(Player owner, String[] args, boolean add) {
@@ -82,7 +82,7 @@ public final class CampCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (args.length == 1) return filter(List.of("create", "spawn", "trust", "untrust", "pack", "storage", "barrier"), args[0]);
         if (args.length == 2 && List.of("spawn", "tp", "home").contains(args[0].toLowerCase(Locale.ROOT))) {
             List<String> owners = repository.all().stream().map(Camp::ownerName).toList();
@@ -92,7 +92,7 @@ public final class CampCommand implements CommandExecutor, TabCompleter {
             return filter(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[1]);
         }
         return List.of();
-    }
+    } }
 
     private List<String> filter(List<String> values, String prefix) {
         String needle = prefix.toLowerCase(Locale.ROOT);

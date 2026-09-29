@@ -6,9 +6,9 @@ import ru.neverland.minttrade.service.TradeService;
 
 public final class PlaceholderHook {
     private PlaceholderHook() {}
-    public static boolean register(MintTownyTrade plugin, TownyHook towny, TradeService trade) {
+    public static boolean register(MintTownyTrade plugin, TownyHook towny, TradeService trade) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) return false;
         try { return new MintTradeExpansion(plugin, towny, trade).register(); }
         catch (LinkageError error) { plugin.getLogger().warning("PlaceholderAPI несовместим: " + error.getMessage()); return false; }
-    }
+    } }
 }

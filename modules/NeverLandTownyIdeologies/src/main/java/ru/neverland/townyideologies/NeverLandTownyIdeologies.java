@@ -31,7 +31,7 @@ public final class NeverLandTownyIdeologies extends JavaPlugin {
     private IdeologyExpansion placeholders;
 
     @Override
-    public void onEnable() {
+    public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         saveDefaultConfig();
@@ -73,13 +73,13 @@ public final class NeverLandTownyIdeologies extends JavaPlugin {
         }
         bonuses.start();
         long autosave = Math.max(20L, getConfig().getLong("settings.data.autosave-seconds", 60L) * 20L);
-        Bukkit.getScheduler().runTaskTimer(this, data::saveIfDirty, autosave, autosave);
+        ru.neverland.core.SuiteScheduler.get().runTaskTimer(this, data::saveIfDirty, autosave, autosave);
         getLogger().info("NeverLandTownyIdeologies " + getPluginMeta().getVersion()
                 + " включён: " + registry.all().size() + " идеологий, Paper 26.2, Towny и ItemsAdder-ready.");
-    }
+    } }
 
     @Override
-    public void onDisable() {
+    public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         Bukkit.getServicesManager().unregisterAll(this);
@@ -87,23 +87,23 @@ public final class NeverLandTownyIdeologies extends JavaPlugin {
         if (data != null) data.save();
         if (placeholders != null) placeholders.unregister();
         if (towny != null) for (String name : TOWN_COMMANDS) towny.unregisterTownCommand(name);
-    }
+    } }
 
-    public void reloadPlugin() {
+    public void reloadPlugin() { synchronized (ru.neverland.core.SuiteState.lock()) {
         reloadConfig();
         messages.reload();
         itemsAdder.reload();
         registry.reload();
         bonuses.start();
-    }
+    } }
 
-    public IdeologyService ideologyService() {
+    public IdeologyService ideologyService() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return ideologies;
-    }
+    } }
 
-    public IdeologyRegistry ideologyRegistry() {
+    public IdeologyRegistry ideologyRegistry() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return registry;
-    }
+    } }
 
     private void copyResource(String name) {
         if (!new File(getDataFolder(), name).exists()) saveResource(name, false);

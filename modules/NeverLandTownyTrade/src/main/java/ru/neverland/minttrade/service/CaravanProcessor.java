@@ -9,7 +9,7 @@ public final class CaravanProcessor {
    private CaravanProcessor() {
    }
 
-   public static void advance(Caravan c, CaravanProcessor.Store store, CaravanProcessor.Gateway gateway) throws Exception {
+   public static void advance(Caravan c, CaravanProcessor.Store store, CaravanProcessor.Gateway gateway) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
       String var3 = c.settlement();
       switch (var3) {
          case "PREPARED":
@@ -52,7 +52,7 @@ public final class CaravanProcessor {
 
             store.finish(c, CaravanStatus.CANCELLED);
       }
-   }
+   } }
 
    public interface Gateway {
       boolean reserve(Caravan var1) throws Exception;

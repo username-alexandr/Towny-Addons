@@ -51,15 +51,15 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
     }
     private boolean external(){return Bukkit.getPluginManager().getPlugin("NeverLandTownyArmy")!=null;}
     private boolean redirect(CommandSender sender,String[] args){var command=Bukkit.getPluginCommand("townymilitary");if(command==null||!command.getPlugin().isEnabled()||!command.getPlugin().getName().equals("NeverLandTownyArmy")){tell(sender,"&cНовая армия временно недоступна; старый состав не активируется.");return true;}return command.execute(sender,"army",args);}
-    @Override public java.util.OptionalInt characterAge(UUID id){ru.neverland.core.ApiServices.primaryThread();return age(id);}
-    @Override public Map<UUID,UUID> legacyRoster(){ru.neverland.core.ApiServices.primaryThread();return Map.copyOf(roster);}
-    @Override public boolean completeMigration(Map<UUID,UUID> expected){ru.neverland.core.ApiServices.primaryThread();if(retired)return true;if(!roster.equals(expected))return false;var yaml=new YamlConfiguration();ages.forEach((id,age)->yaml.set("ages."+id,age));yaml.createSection("soldiers");yaml.set("retired",true);try{ru.neverland.core.AtomicFiles.write(file.toPath(),yaml::saveToString);}catch(IOException ex){throw new java.io.UncheckedIOException(ex);}roster.clear();retired=true;reconcile();return true;}
-    public void start() {
+    @Override public java.util.OptionalInt characterAge(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();return age(id);} }
+    @Override public Map<UUID,UUID> legacyRoster(){ synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();return Map.copyOf(roster);} }
+    @Override public boolean completeMigration(Map<UUID,UUID> expected){ synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();if(retired)return true;if(!roster.equals(expected))return false;var yaml=new YamlConfiguration();ages.forEach((id,age)->yaml.set("ages."+id,age));yaml.createSection("soldiers");yaml.set("retired",true);try{ru.neverland.core.AtomicFiles.write(file.toPath(),yaml::saveToString);}catch(IOException ex){throw new java.io.UncheckedIOException(ex);}roster.clear();retired=true;reconcile();return true;} }
+    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
         Bukkit.getServicesManager().register(TownArmyApi.class, this, plugin, ServicePriority.Normal);
         // Wait for optional passport providers to register during plugin startup.
-        task = Bukkit.getScheduler().runTaskTimer(plugin, this::reconcile, 100, 200);
-    }
-    public void stop() {
+        task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::reconcile, 100, 200);
+    } }
+    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (task != null) task.cancel();
         for (var entry : attachments.entrySet()) {
             Player player = Bukkit.getPlayer(entry.getKey());
@@ -67,7 +67,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         }
         attachments.clear(); save();
         Bukkit.getServicesManager().unregister(TownArmyApi.class, this);
-    }
+    } }
     private OptionalInt age(UUID id) {
         var registration = Bukkit.getServicesManager().getRegistration(ResidentAgeProvider.class);
         try {
@@ -95,7 +95,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
             * ru.neverland.integration.DistrictBonuses.multiplier(town.getUUID(), "army"));return ru.neverland.integration.PolicyEffects.capacity(base,ru.neverland.integration.PoliciesAccess.effect(town.getUUID(),"army")); }
     private boolean manager(Player player, Town town) { return towny.isMayor(player, town) || player.hasPermission("neverlandtownybuilds.army.mobilize") || ru.neverland.core.CouncilAccess.allows(player, town.getUUID(), "army"); }
     private boolean sameTown(Resident resident, Town town) { return resident != null && resident.getTownOrNull() != null && resident.getTownOrNull().getUUID().equals(town.getUUID()); }
-    @Override public boolean isMobilized(UUID id) {
+    @Override public boolean isMobilized(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ru.neverland.core.ApiServices.primaryThread();
         if(external())try{return Boolean.TRUE.equals(ru.neverland.core.ApiServices.call("NeverLandTownyArmy","ru.neverland.townyarmy.api.TownyArmyApi","isMobilized",new Class<?>[]{UUID.class},id));}catch(ReflectiveOperationException|RuntimeException ex){return false;}
         if(retired)return false;
@@ -104,15 +104,15 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         Town town = towny.town(townId);
         Resident resident = TownyAPI.getInstance().getResident(id);
         return town != null && level(town) > 0 && sameTown(resident, town) && age(id).orElse(-1) >= 18 && ru.neverland.integration.PolicyEffects.rosterActive(roster,id,townId,capacity(town));
-    }
-    @Override @SuppressWarnings("unchecked") public Set<UUID> soldiers(UUID townId) {
+    } }
+    @Override @SuppressWarnings("unchecked") public Set<UUID> soldiers(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ru.neverland.core.ApiServices.primaryThread();
         if(external())try{return Set.copyOf((Set<UUID>)ru.neverland.core.ApiServices.call("NeverLandTownyArmy","ru.neverland.townyarmy.api.TownyArmyApi","soldiers",new Class<?>[]{UUID.class},townId));}catch(ReflectiveOperationException|RuntimeException ex){return Set.of();}
         if(retired)return Set.of();
         Set<UUID> result = new LinkedHashSet<>();
         for (var entry : roster.entrySet()) if (entry.getValue().equals(townId) && isMobilized(entry.getKey())) result.add(entry.getKey());
         return Set.copyOf(result);
-    }
+    } }
     private void reconcile() {
         if(external()||retired){for(var e:attachments.entrySet()){var p=Bukkit.getPlayer(e.getKey());if(p!=null)p.removeAttachment(e.getValue());}attachments.clear();return;}
         // Temporary provider outages suspend privileges; they do not erase the saved roster.
@@ -134,7 +134,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         if (changed) save();
     }
     private void tell(CommandSender sender, String text) { sender.sendMessage(ColorUtil.component("&#B65CFF[NeverLand • Армия] &f" + text)); }
-    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){return true;}
         if (args.length > 0 && args[0].equalsIgnoreCase("age")) { setAge(sender, args); return true; }
         if(external())return redirect(sender,args);
         if(retired){tell(sender,"&cСостав передан в NeverLandTownyArmy. Восстановите модуль армии.");return true;}
@@ -148,7 +148,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
             change(player, town, resident, args[0].equalsIgnoreCase("mobilize"));
         } else tell(player, "/t army — состав; /t army mobilize <житель>; /t army release <житель>");
         return true;
-    }
+    } }
     private void setAge(CommandSender sender, String[] args) {
         if (!sender.hasPermission("neverlandtownybuilds.army.age")) { tell(sender, "&cВозраст персонажа подтверждает администратор."); return; }
         if (args.length != 3) { tell(sender, "/townyarmy age <житель> <0..150|clear>"); return; }
@@ -194,7 +194,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         Player target = Bukkit.getPlayer(resident.getUUID());
         if (target != null && !target.equals(player)) tell(target, "Вы мобилизованы в армию города " + town.getName() + ". Состав: /t army");
     }
-    public void open(Player player, int page) {
+    public void open(Player player, int page) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(external()||retired){redirect(player,new String[]{"menu"});return;}
         Town town = towny.town(player);
         if (town == null || !player.hasPermission("neverlandtownybuilds.army.use")) { tell(player, "&cНет доступа к армии города."); return; }
@@ -217,13 +217,13 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         if (current > 0) holder.inventory.setItem(45, item(Material.ARROW, "Предыдущая страница", List.of()));
         if ((current + 1) * 45 < residents.size()) holder.inventory.setItem(53, item(Material.ARROW, "Следующая страница", List.of()));
         player.openInventory(holder.inventory);
-    }
+    } }
     private ItemStack item(Material material, String name, List<String> lore) {
         ItemStack item = new ItemStack(material);
         item.editMeta(meta -> { meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component("&f" + name))); meta.lore(ru.neverland.core.MenuStyle.loreComponents(lore.stream().map(ColorUtil::component).toList())); });
         return item;
     }
-    @EventHandler public void click(InventoryClickEvent event) {
+    @EventHandler public void click(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getView().getTopInventory().getHolder() instanceof ArmyHolder holder)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player)) return;
@@ -232,10 +232,10 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         int slot = event.getRawSlot(); UUID id = holder.residents.get(slot);
         if (id != null) { change(player, town, TownyAPI.getInstance().getResident(id), !town.getUUID().equals(roster.get(id))); open(player, holder.page); }
         else if ((slot == 45 || slot == 53) && event.getCurrentItem() != null) open(player, holder.page + (slot == 45 ? -1 : 1));
-    }
-    @EventHandler public void drag(InventoryDragEvent event) {
+    } }
+    @EventHandler public void drag(InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (event.getView().getTopInventory().getHolder() instanceof ArmyHolder) event.setCancelled(true);
-    }
+    } }
     private void save() {
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.set("retired",retired);
@@ -243,7 +243,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         roster.forEach((id, town) -> yaml.set("soldiers." + id, town.toString()));
         try { ru.neverland.core.AtomicFiles.write(file.toPath(),yaml::saveToString); } catch(IOException ex){throw new java.io.UncheckedIOException(ex);}
     }
-    @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(external()&&!(args.length>0&&args[0].equalsIgnoreCase("age"))){var c=Bukkit.getPluginCommand("townymilitary");if(c!=null&&c.getPlugin().isEnabled()&&c.getPlugin().getName().equals("NeverLandTownyArmy"))return c.tabComplete(sender,"army",args);return List.of();}
         List<String> choices = new ArrayList<>();
         if (args.length == 1) { choices.addAll(List.of("list", "mobilize", "release")); if (sender.hasPermission("neverlandtownybuilds.army.age")) choices.add("age"); }
@@ -252,10 +252,10 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         }
         String prefix = args.length == 0 ? "" : args[args.length - 1].toLowerCase(Locale.ROOT);
         return choices.stream().filter(value -> value.toLowerCase(Locale.ROOT).startsWith(prefix)).toList();
-    }
+    } }
     private static final class ArmyHolder implements InventoryHolder {
         private final UUID town; private final int page; private final Map<Integer, UUID> residents = new HashMap<>(); private Inventory inventory;
         private ArmyHolder(UUID town, int page) { this.town = town; this.page = page; }
-        @Override public Inventory getInventory() { return inventory; }
+        @Override public Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { return inventory; } }
     }
 }

@@ -15,13 +15,13 @@ public final class SiegeWarAccess {
     private Plugin bound;
     private Class<?> siegeType;
     private Method getSiege, active, battle, side;
-    public State state() { return state; }
-    public String detail() { return detail; }
+    public State state() { synchronized (ru.neverland.core.SuiteState.lock()) { return state; } }
+    public String detail() { synchronized (ru.neverland.core.SuiteState.lock()) { return detail; } }
     private void status(State next,String text) {
         if (state!=next && next!=State.READY && next!=State.NOT_INSTALLED) Bukkit.getLogger().warning("[NeverLand Sieges+] SiegeWar: "+next+" — "+text);
         state=next; detail=text;
     }
-    public boolean connect() {
+    public boolean connect() { synchronized (ru.neverland.core.SuiteState.lock()) {
         Plugin plugin=Bukkit.getPluginManager().getPlugin("SiegeWar");
         if (plugin==null) { bound=null; status(State.NOT_INSTALLED,"SiegeWar не установлен"); return false; }
         if (!plugin.isEnabled()) { bound=null; status(State.DISABLED,"SiegeWar отключён"); return false; }
@@ -38,9 +38,9 @@ public final class SiegeWarAccess {
             for (Method m:List.of(getSiege,active,battle,side)) if (!Modifier.isStatic(m.getModifiers())) throw new NoSuchMethodException(m.getName());
             bound=plugin; status(State.READY,"SiegeWar "+plugin.getDescription().getVersion()); return true;
         } catch (ReflectiveOperationException | RuntimeException | LinkageError e) { bound=null; status(State.INCOMPATIBLE_API,e.toString()); return false; }
-    }
-    public record Context(boolean active, boolean battle, String side) { public static Context none() { return new Context(false,false,"NOBODY"); } }
-    public Context context(Town town,Player player) {
+    } }
+    public record Context(boolean active, boolean battle, String side) { public static Context none() { synchronized (ru.neverland.core.SuiteState.lock()) { return new Context(false,false,"NOBODY"); } } }
+    public Context context(Town town,Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ru.neverland.core.ApiServices.primaryThread();
         if (!connect()) throw new IllegalStateException(detail);
         try {
@@ -51,5 +51,5 @@ public final class SiegeWarAccess {
             if (!Set.of("ATTACKERS","DEFENDERS","NOBODY").contains(allegiance)) throw new IllegalStateException("Неизвестная сторона осады");
             status(State.READY,"SiegeWar "+bound.getDescription().getVersion()); return new Context(ongoing,fighting,allegiance);
         } catch (ReflectiveOperationException | RuntimeException | LinkageError e) { status(State.INVOCATION_ERROR,e.toString()); throw new IllegalStateException("Не удалось проверить сторону осады",e); }
-    }
+    } }
 }

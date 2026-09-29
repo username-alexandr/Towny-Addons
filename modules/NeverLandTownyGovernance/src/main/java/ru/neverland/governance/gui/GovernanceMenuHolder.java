@@ -8,7 +8,7 @@ public final class GovernanceMenuHolder implements InventoryHolder {
     public enum Type { MAIN, LAWS, VOTES, COUNCIL, HISTORY }
     private final Type type; private final UUID townId;
     public GovernanceMenuHolder(Type type, UUID townId) { this.type = type; this.townId = townId; }
-    public Type type() { return type; }
-    public UUID townId() { return townId; }
-    @Override public Inventory getInventory() { return null; }
+    public Type type() { synchronized (ru.neverland.core.SuiteState.lock()) { return type; } }
+    public UUID townId() { synchronized (ru.neverland.core.SuiteState.lock()) { return townId; } }
+    @Override public Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { return null; } }
 }

@@ -11,12 +11,12 @@ import org.bukkit.inventory.*;
 import ru.neverland.core.MenuStyle;
 
 public final class CouncilMenus implements Listener {
-    record Holder(UUID viewer, UUID town, Inventory back) implements InventoryHolder { public Inventory getInventory() { return null; } }
+    record Holder(UUID viewer, UUID town, Inventory back) implements InventoryHolder { public Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { return null; } } }
     private final NeverLandTownyCouncil plugin; private final CouncilService service;
     private static final int[] SLOTS = {19, 21, 23, 25};
     public CouncilMenus(NeverLandTownyCouncil plugin, CouncilService service) { this.plugin = plugin; this.service = service; }
     static String name(UUID id) { var r = TownyAPI.getInstance().getResident(id); return r == null ? id.toString() : r.getName(); }
-    public void open(Player viewer, Town town) {
+    public void open(Player viewer, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!viewer.hasPermission("neverlandtownycouncil.use")) return;
         var current = viewer.getOpenInventory().getTopInventory();
         var back = current.getHolder() instanceof Holder h ? h.back() : MenuStyle.previousMenu(viewer);
@@ -40,19 +40,19 @@ public final class CouncilMenus implements Listener {
         menu.setItem(40, item(Material.BOOK, "&eПомощь", List.of("&7Назначения, снятие и права.", "&fНажмите — список команд.")));
         menu.setItem(44, item(Material.SUNFLOWER, "&fОбновить", List.of("&7Показать текущий состав.")));
         viewer.openInventory(menu);
-    }
+    } }
     private static ItemStack item(Material material, String name, List<String> lore) {
         var item = new ItemStack(material); var meta = item.getItemMeta(); meta.setDisplayName(MenuStyle.nameLegacy(name)); meta.setLore(MenuStyle.loreStrings(lore)); item.setItemMeta(meta); return item;
     }
-    @EventHandler public void click(InventoryClickEvent e) {
+    @EventHandler public void click(InventoryClickEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCouncil")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         if (!(e.getView().getTopInventory().getHolder() instanceof Holder h)) return;
         e.setCancelled(true);
         if (!(e.getWhoClicked() instanceof Player p) || !p.getUniqueId().equals(h.viewer()) || !p.hasPermission("neverlandtownycouncil.use")) return;
         var town = TownyAPI.getInstance().getTown(h.town());
-        if (e.getRawSlot() == 36) org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> MenuStyle.returnTo(p, h.back()));
+        if (e.getRawSlot() == 36) ru.neverland.core.SuiteScheduler.entity(plugin, p, () -> MenuStyle.returnTo(p, h.back()));
         else if (e.getRawSlot() == 40) CouncilCommand.help(p);
-        else if (e.getRawSlot() == 42 && p.hasPermission("neverlandtownydiplomacy.use")) org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> p.performCommand("townydiplomacy"));
-        else if (e.getRawSlot() == 44 && town != null) org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> open(p, town));
+        else if (e.getRawSlot() == 42 && p.hasPermission("neverlandtownydiplomacy.use")) ru.neverland.core.SuiteScheduler.entity(plugin, p, () -> p.performCommand("townydiplomacy"));
+        else if (e.getRawSlot() == 44 && town != null) ru.neverland.core.SuiteScheduler.entity(plugin, p, () -> open(p, town));
         else for (int i = 0; i < SLOTS.length; i++) if (e.getRawSlot() == SLOTS[i]) {
             var role = MinisterRole.values()[i]; CouncilCommand.tell(p, "&e" + role.title() + " • Права:");
             service.permissions(role.id()).stream().sorted().forEach(node -> CouncilCommand.tell(p, "&7• &f" + node));
@@ -61,6 +61,6 @@ public final class CouncilMenus implements Listener {
                 CouncilCommand.tell(p, "&e/council dismiss " + role.id());
             }
         }
-    }
-    @EventHandler public void drag(InventoryDragEvent e) { if (e.getView().getTopInventory().getHolder() instanceof Holder) e.setCancelled(true); }
+    } }
+    @EventHandler public void drag(InventoryDragEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCouncil")){ru.neverland.core.ModuleGate.stopEvent(e);return;} if (e.getView().getTopInventory().getHolder() instanceof Holder) e.setCancelled(true); } }
 }

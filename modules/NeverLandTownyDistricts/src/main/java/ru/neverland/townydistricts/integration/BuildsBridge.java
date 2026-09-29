@@ -3,10 +3,10 @@ import org.bukkit.Bukkit;
 import ru.neverland.townydistricts.model.DistrictRules.Building;
 import java.util.*;
 public final class BuildsBridge {
-    public static void verify()throws ReflectiveOperationException{
+    public static void verify()throws ReflectiveOperationException{ synchronized (ru.neverland.core.SuiteState.lock()) {
         ru.neverland.core.ApiServices.require("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","buildingFootprints");
-    }
-    public List<Building> buildings(UUID town)throws ReflectiveOperationException{
+    } }
+    public List<Building> buildings(UUID town)throws ReflectiveOperationException{ synchronized (ru.neverland.core.SuiteState.lock()) {
         Map<?,?> values=(Map<?,?>)ru.neverland.core.ApiServices.call("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","buildingFootprints",new Class<?>[]{UUID.class},town);
         List<Building> result=new ArrayList<>();
         for(var entry:values.entrySet()){
@@ -16,6 +16,6 @@ public final class BuildsBridge {
                     ru.neverland.integration.BuildingOperations.level(town,entry.getKey().toString(),integer(type,b,"completedLevel")),integer(type,b,"requiredLevel")));
         }
         return List.copyOf(result);
-    }
+    } }
     private int integer(Class<?> type,Object value,String name)throws ReflectiveOperationException{return ((Number)type.getMethod(name).invoke(value)).intValue();}
 }

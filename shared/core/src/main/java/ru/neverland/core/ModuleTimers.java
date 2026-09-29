@@ -8,7 +8,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 /** Explicit millisecond deadline schemas. Money, receipts, history and duration counters are untouched. */
 public final class ModuleTimers {
     private ModuleTimers() {}
-    public static Map<String,List<String>> rules(String name) {
+    public static Map<String,List<String>> rules(String name) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String module=name.replaceFirst("^NeverLandTowny", "");
         return switch(module) {
             case "Events" -> Map.of("events-data.yml", List.of("active.*.ends-at","active.*.paused-at","active.*.last-raid-wave","towns.*.last-event-at","shields.*"));
@@ -32,8 +32,8 @@ public final class ModuleTimers {
             case "Environment","Achievements","Quests","Archaeology","Builds","Chronicles","Council","Districts","Ideologies","Jobs","Logistics","Market","Policies","Population","Power","Research","Resources","SiegesPlus","Specialization","Stick","TreasuryPlus","Upkeep" -> Map.of();
             default -> throw new IllegalArgumentException("Нет проверенной схемы таймеров: "+name);
         };
-    }
-    public static String shifted(String text,List<String> rules,long delta)throws Exception {
+    } }
+    public static String shifted(String text,List<String> rules,long delta)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(delta<0) throw new IllegalArgumentException("Часы сервера идут назад");
         var y=new YamlConfiguration();y.loadFromString(text);
         for(String key:new ArrayList<>(y.getKeys(true))) for(String rule:rules) if(matches(key,rule) && live(y,key)) {
@@ -53,7 +53,7 @@ public final class ModuleTimers {
             y.set("relations",rows);
         }
         return y.saveToString();
-    }
+    } }
     private static boolean live(YamlConfiguration y,String key) {
         int dot=key.lastIndexOf('.');if(dot<0)return true;String root=key.substring(0,dot),field=key.substring(dot+1);
         String phase=y.getString(root+".phase",y.getString(root+".status",""));
@@ -69,7 +69,7 @@ public final class ModuleTimers {
         for(int i=0;i<a.length;i++)if(!b[i].equals("*")&&!b[i].equals(a[i]))return false;return true;
     }
     /** Journal permits recovery after any individual file replacement, without shifting twice. */
-    public static void resume(Path directory,String name,long pausedAt,long now)throws Exception {
+    public static void resume(Path directory,String name,long pausedAt,long now)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(now<pausedAt) throw new IOException("Время сервера раньше начала паузы");
         Path journal=directory.resolve("module-resume.yml");
         YamlConfiguration plan=Files.exists(journal)?SafeYaml.load(journal):null;
@@ -96,5 +96,5 @@ public final class ModuleTimers {
             var f=SafeYaml.section(files,key);Path file=directory.resolve(SafeYaml.text(f,"name"));String after=SafeYaml.text(f,"after");
             if(!Files.readString(file).equals(after))AtomicFiles.write(file,()->after);
         }
-    }
+    } }
 }

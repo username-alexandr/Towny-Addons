@@ -14,7 +14,7 @@ public final class ColorUtil {
      * No Adventure serializer call is used, which keeps this compatible with
      * different Adventure revisions bundled by Paper and Purpur.
      */
-    public static String legacy(String value) {
+    public static String legacy(String value) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String expanded = expandHex(value == null ? "" : value);
         char[] characters = expanded.toCharArray();
         for (int index = 0; index < characters.length - 1; index++) {
@@ -22,7 +22,7 @@ public final class ColorUtil {
                 characters[index] = '\u00A7';
         }
         return new String(characters);
-    }
+    } }
 
     private static String expandHex(String input) {
         Matcher matcher = HEX.matcher(input);

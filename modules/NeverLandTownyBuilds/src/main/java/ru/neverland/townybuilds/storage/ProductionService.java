@@ -15,7 +15,7 @@ public final class ProductionService {
     private final JavaPlugin plugin;private final DataStore data;private final BuildingStorageService storage;private final TownyHook towny=new TownyHook();
     private List<Recipe> recipes=List.of();private BukkitTask task;
     public ProductionService(JavaPlugin plugin,DataStore data,BuildingStorageService storage){this.plugin=plugin;this.data=data;this.storage=storage;}
-    public void start(){
+    public void start(){ synchronized (ru.neverland.core.SuiteState.lock()) {
         try{
             var config=new YamlConfiguration();config.load(new File(plugin.getDataFolder(),"production.yml"));
             List<Recipe> next=new ArrayList<>();var root=config.getConfigurationSection("recipes");if(root==null)throw new IllegalArgumentException("Нет recipes");
@@ -24,14 +24,14 @@ public final class ProductionService {
                 var output=items(r.getConfigurationSection("output"));if(output.isEmpty())throw new IllegalArgumentException("Пустой выпуск "+id);
                 next.add(new Recipe(project,items(r.getConfigurationSection("input")),output,r.getBoolean("district-bonus",true)));}
             int interval=config.getInt("interval-ticks",1200);if(interval<200||interval>72000)throw new IllegalArgumentException("interval-ticks: 200..72000");
-            stop();recipes=List.copyOf(next);if(config.getBoolean("enabled",true))task=Bukkit.getScheduler().runTaskTimer(plugin,this::produce,interval,interval);
+            stop();recipes=List.copyOf(next);if(config.getBoolean("enabled",true))task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::produce,interval,interval);
         }catch(Exception ex){plugin.getLogger().warning("Настройки производства не применены: "+ex.getMessage());}
-    }
+    } }
     private List<ItemStack> items(ConfigurationSection section){List<ItemStack> result=new ArrayList<>();if(section==null)return result;
         for(String key:section.getKeys(false)){Material material=Material.matchMaterial(key);int count=section.getInt(key);
             if(material==null||!material.isItem()||material.isAir()||count<1||count>64)throw new IllegalArgumentException("Ресурс рецепта "+key);
             result.add(new ItemStack(material,count));}return List.copyOf(result);}
-    public void stop(){if(task!=null){task.cancel();task=null;}}
+    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(task!=null){task.cancel();task=null;}} }
     private boolean available(UUID town,BuildingDepot d){World w=Bukkit.getWorld(d.world());if(w==null)return false;
         int size=com.palmergames.bukkit.towny.object.Coord.getCellSize();
         for(int x=Math.floorDiv(d.minX(),16);x<=Math.floorDiv(d.maxX(),16);x++)for(int z=Math.floorDiv(d.minZ(),16);z<=Math.floorDiv(d.maxZ(),16);z++)if(!w.isChunkLoaded(x,z))return false;

@@ -4,7 +4,7 @@ import ru.neverland.core.ApiServices;
 /** Optional army; a broken installed provider must not erase paid-operation defense. */
 public final class ArmyAccess {
     private ArmyAccess() { }
-    public static Optional<Map<String, Object>> garrison(UUID town) {
+    public static Optional<Map<String, Object>> garrison(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         var api = ApiServices.connect("NeverLandTownyArmy", "ru.neverland.townyarmy.api.TownyArmyApi", 1, "healthy", "garrison");
         if (api.state() == ApiServices.State.NOT_INSTALLED) return Optional.empty();
         try {
@@ -18,6 +18,6 @@ public final class ArmyAccess {
             if (!Double.isFinite(defense) || defense < 0 || defense > .5) throw new IllegalStateException("Неверный бонус армии");
             return Optional.of(Map.copyOf(out));
         } catch (ReflectiveOperationException | RuntimeException | LinkageError e) { throw new IllegalStateException("Разведка приостановлена: Army API недоступен", e); }
-    }
-    public static double defense(UUID town) { return garrison(town).map(g -> ((Number)g.get("defenseBonus")).doubleValue()).orElse(0.0); }
+    } }
+    public static double defense(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { return garrison(town).map(g -> ((Number)g.get("defenseBonus")).doubleValue()).orElse(0.0); } }
 }

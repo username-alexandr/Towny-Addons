@@ -3,7 +3,7 @@ import java.util.*;
 import org.bukkit.configuration.ConfigurationSection;
 public record ElectionsSettings(long interval, long initialDelay, long nomination, long voting, long checkTicks,
         double quorum, boolean authoritarian, Map<String,Integer> seats, Map<String,String> names) {
-    public static ElectionsSettings load(ConfigurationSection y) {
+    public static ElectionsSettings load(ConfigurationSection y) { synchronized (ru.neverland.core.SuiteState.lock()) {
         long interval = integer(y, "schedule.interval-days", 1, 3650) * 86_400_000L;
         long initial = integer(y, "schedule.first-election-delay-days", 0, 3650) * 86_400_000L;
         long nomination = integer(y, "schedule.nomination-hours", 1, 8760) * 3_600_000L;
@@ -19,7 +19,7 @@ public record ElectionsSettings(long interval, long initialDelay, long nominatio
         }
         if (!Integer.valueOf(1).equals(seats.get("mayor")) || !seats.containsKey("councillor") || seats.size() > 20) throw new IllegalArgumentException("Нужны mayor: 1 и councillor; не более 20 должностей");
         return new ElectionsSettings(interval, initial, nomination, voting, integer(y,"schedule.check-seconds",1,3600)*20, n.doubleValue(), y.getBoolean("allow-authoritarian"), Collections.unmodifiableMap(seats), Map.copyOf(names));
-    }
+    } }
     static long integer(ConfigurationSection y, String key, long min, long max) {
         Object v = y.get(key); if (!(v instanceof Integer || v instanceof Long) || ((Number)v).longValue() < min || ((Number)v).longValue() > max) throw new IllegalArgumentException("Неверное целое значение: " + key);
         return ((Number)v).longValue();

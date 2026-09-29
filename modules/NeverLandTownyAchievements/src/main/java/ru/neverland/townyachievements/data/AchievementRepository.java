@@ -16,10 +16,10 @@ public final class AchievementRepository {
     private Map<UUID, CityAchievements> towns = Map.of();
     private Map<UUID, Cosmetic> cosmetics = Map.of();
     public AchievementRepository(Path file) { this.file = file; }
-    public Map<UUID, CityAchievements> towns() { return towns; }
-    public Map<UUID, Cosmetic> cosmetics() { return cosmetics; }
-    public CityAchievements get(UUID town) { return towns.getOrDefault(town, CityAchievements.empty()); }
-    public void load() throws Exception {
+    public Map<UUID, CityAchievements> towns() { synchronized (ru.neverland.core.SuiteState.lock()) { return towns; } }
+    public Map<UUID, Cosmetic> cosmetics() { synchronized (ru.neverland.core.SuiteState.lock()) { return cosmetics; } }
+    public CityAchievements get(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { return towns.getOrDefault(town, CityAchievements.empty()); } }
+    public void load() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
         ready = false;
         if (!Files.exists(file)) { towns = Map.of(); cosmetics = Map.of(); AtomicFiles.loaded(file); ready = true; return; }
         var y = new YamlConfiguration(); y.load(file.toFile());
@@ -41,21 +41,21 @@ public final class AchievementRepository {
         }
         validateCosmetics(next, effects);
         towns = Map.copyOf(next); cosmetics = Map.copyOf(effects); AtomicFiles.loaded(file); ready = true;
-    }
+    } }
     private static void validateCosmetics(Map<UUID, CityAchievements> cities, Map<UUID, Cosmetic> effects) {
         for (var c : effects.values()) {
             var p = cities.getOrDefault(c.town(), CityAchievements.empty()).progress().get(c.achievement());
             if (p == null || !p.earned() || p.definition().reward().cosmetic().isEmpty()) throw new IllegalArgumentException("Косметика ещё не открыта");
         }
     }
-    public void put(UUID town, CityAchievements city) throws IOException {
+    public void put(UUID town, CityAchievements city) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (city.equals(towns.get(town))) return;
         var next = new HashMap<>(towns); next.put(Objects.requireNonNull(town), city); save(next, cosmetics);
-    }
-    public void cosmetic(UUID player, Cosmetic cosmetic) throws IOException {
+    } }
+    public void cosmetic(UUID player, Cosmetic cosmetic) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         var next = new HashMap<>(cosmetics); if (cosmetic == null) next.remove(player); else next.put(player, cosmetic);
         if (!next.equals(cosmetics)) save(towns, next);
-    }
+    } }
     private void save(Map<UUID, CityAchievements> cities, Map<UUID, Cosmetic> effects) throws IOException {
         if (!ready || !AtomicFiles.writable(file)) throw new IOException("Хранилище достижений заблокировано");
         validateCosmetics(cities, effects);

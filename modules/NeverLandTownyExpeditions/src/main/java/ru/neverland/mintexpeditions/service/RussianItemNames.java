@@ -13,13 +13,13 @@ public final class RussianItemNames {
 
     public RussianItemNames(JavaPlugin plugin) { this.plugin = plugin; reload(); }
 
-    public void reload() { MaterialNameConfig.reload(plugin, names); }
+    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) { MaterialNameConfig.reload(plugin, names); } }
 
-    public String name(Material material) {
+    public String name(Material material) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return material == null ? "Пусто" : names.name(material.name());
-    }
+    } }
 
-    public String name(ItemStack item) {
+    public String name(ItemStack item) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (item == null || item.getType().isAir()) return "Пусто";
         ItemMeta meta = item.getItemMeta();
         String custom = MaterialNameConfig.customName(meta);
@@ -29,5 +29,5 @@ public final class RussianItemNames {
             if (name != null) return name;
         }
         return name(item.getType());
-    }
+    } }
 }

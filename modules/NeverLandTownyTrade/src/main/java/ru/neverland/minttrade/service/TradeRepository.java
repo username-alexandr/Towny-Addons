@@ -38,13 +38,13 @@ public final class TradeRepository {
    private boolean writable;
    private final EffectJournal effects;
 
-   public EffectJournal effects() {
+   public EffectJournal effects() { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.effects;
-   }
+   } }
 
-   public boolean writable() {
+   public boolean writable() { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.writable && AtomicFiles.writable(this.file.toPath()) && this.effects.writable();
-   }
+   } }
 
    private void gate() {
       if (!this.writable()) {
@@ -58,7 +58,7 @@ public final class TradeRepository {
       this.effects = new EffectJournal(plugin.getDataFolder().toPath().resolve("caravan-effects.yml"));
    }
 
-   public void load() {
+   public void load() { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.writable = false;
       this.offers.clear();
       this.caravans.clear();
@@ -110,7 +110,7 @@ public final class TradeRepository {
          this.dirty = true;
          this.save();
       }
-   }
+   } }
 
    private void loadOffers(ConfigurationSection root) {
       if (root != null) {
@@ -201,41 +201,41 @@ public final class TradeRepository {
       }
    }
 
-   public Collection<TradeOffer> offers() {
+   public Collection<TradeOffer> offers() { synchronized (ru.neverland.core.SuiteState.lock()) {
       return Collections.unmodifiableCollection(this.offers.values());
-   }
+   } }
 
-   public Collection<Caravan> caravans() {
+   public Collection<Caravan> caravans() { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.caravans.values().stream().filter(c -> !c.terminal()).toList();
-   }
+   } }
 
-   public Collection<Caravan> allCaravans() {
+   public Collection<Caravan> allCaravans() { synchronized (ru.neverland.core.SuiteState.lock()) {
       return List.copyOf(this.caravans.values());
-   }
+   } }
 
-   public List<TradeOffer> incoming(UUID townId) {
+   public List<TradeOffer> incoming(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.offers.values().stream().filter(value -> value.buyerId().equals(townId)).toList();
-   }
+   } }
 
-   public List<TradeOffer> outgoing(UUID townId) {
+   public List<TradeOffer> outgoing(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.offers.values().stream().filter(value -> value.sellerId().equals(townId)).toList();
-   }
+   } }
 
-   public List<Caravan> caravans(UUID townId) {
+   public List<Caravan> caravans(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.caravans().stream().filter(value -> value.sellerId().equals(townId) || value.buyerId().equals(townId)).toList();
-   }
+   } }
 
-   public List<TradeHistory> history(UUID townId) {
+   public List<TradeHistory> history(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.history.stream().filter(value -> value.sellerId().equals(townId) || value.buyerId().equals(townId)).toList();
-   }
+   } }
 
-   public TradeOffer findOffer(String id) {
+   public TradeOffer findOffer(String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.find(this.offers, id);
-   }
+   } }
 
-   public Caravan findCaravan(String id) {
+   public Caravan findCaravan(String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.find(this.caravans, id);
-   }
+   } }
 
    private <T> T find(Map<UUID, T> values, String raw) {
       if (raw == null) {
@@ -258,50 +258,50 @@ public final class TradeRepository {
       }
    }
 
-   public void add(TradeOffer value) {
+   public void add(TradeOffer value) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       this.offers.put(value.id(), value);
       this.dirty = true;
-   }
+   } }
 
-   public void remove(TradeOffer value) {
+   public void remove(TradeOffer value) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       if (value != null) {
          this.offers.remove(value.id());
          this.dirty = true;
       }
-   }
+   } }
 
-   public void add(Caravan value) {
+   public void add(Caravan value) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       this.caravans.put(value.id(), value);
       this.dirty = true;
-   }
+   } }
 
-   public void remove(Caravan value) {
+   public void remove(Caravan value) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       if (value != null) {
          this.caravans.remove(value.id());
          this.dirty = true;
       }
-   }
+   } }
 
-   public void changed() {
+   public void changed() { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       this.dirty = true;
-   }
+   } }
 
-   public double tariff(UUID townId, double fallback) {
+   public double tariff(UUID townId, double fallback) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.tariffs.getOrDefault(townId, fallback);
-   }
+   } }
 
-   public void setTariff(UUID townId, double value) {
+   public void setTariff(UUID townId, double value) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       this.tariffs.put(townId, value);
       this.dirty = true;
-   }
+   } }
 
-   public void addHistory(TradeHistory entry, int limit) {
+   public void addHistory(TradeHistory entry, int limit) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       this.history.add(0, entry);
       int perTown = Math.max(1, limit);
@@ -312,31 +312,31 @@ public final class TradeRepository {
          return seller > perTown && buyer > perTown;
       });
       this.dirty = true;
-   }
+   } }
 
-   public Map<UUID, Double> pendingCredits() {
+   public Map<UUID, Double> pendingCredits() { synchronized (ru.neverland.core.SuiteState.lock()) {
       return Map.copyOf(this.pendingCredits);
-   }
+   } }
 
-   public void addPending(UUID townId, double amount) {
+   public void addPending(UUID townId, double amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       if (amount > 0.0) {
          this.pendingCredits.merge(townId, amount, Double::sum);
          this.dirty = true;
       }
-   }
+   } }
 
-   public void clearPending(UUID townId) {
+   public void clearPending(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
       this.pendingCredits.remove(townId);
       this.dirty = true;
-   }
+   } }
 
-   public boolean saveIfDirty() {
+   public boolean saveIfDirty() { synchronized (ru.neverland.core.SuiteState.lock()) {
       return !this.dirty || this.save();
-   }
+   } }
 
-   public boolean save() {
+   public boolean save() { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.gate();
 
       try {
@@ -347,7 +347,7 @@ public final class TradeRepository {
          this.writable = false;
          throw new UncheckedIOException(var2);
       }
-   }
+   } }
 
    private String snapshot() {
       YamlConfiguration yaml = new YamlConfiguration();

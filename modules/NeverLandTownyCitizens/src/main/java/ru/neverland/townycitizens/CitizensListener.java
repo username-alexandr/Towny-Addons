@@ -26,12 +26,12 @@ public final class CitizensListener implements Listener {
         return !allowed;
     }
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void place(BlockPlaceEvent event) {
+    public void place(BlockPlaceEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCitizens")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (event instanceof org.bukkit.event.block.BlockMultiPlaceEvent multi) {
             for (var state : multi.getReplacedBlockStates()) if (denied(event.getPlayer(), state.getLocation(), "BUILD")) { event.setCancelled(true); return; }
         } else if (denied(event.getPlayer(), event.getBlockPlaced().getLocation(), "BUILD")) event.setCancelled(true);
-    }
+    } }
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void destroy(BlockBreakEvent event) { if (denied(event.getPlayer(), event.getBlock().getLocation(), "DESTROY")) event.setCancelled(true); }
-    @EventHandler public void quit(org.bukkit.event.player.PlayerQuitEvent event) { notified.remove(event.getPlayer().getUniqueId()); }
+    public void destroy(BlockBreakEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCitizens")){ru.neverland.core.ModuleGate.stopEvent(event);return;} if (denied(event.getPlayer(), event.getBlock().getLocation(), "DESTROY")) event.setCancelled(true); } }
+    @EventHandler public void quit(org.bukkit.event.player.PlayerQuitEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) { notified.remove(event.getPlayer().getUniqueId()); } }
 }

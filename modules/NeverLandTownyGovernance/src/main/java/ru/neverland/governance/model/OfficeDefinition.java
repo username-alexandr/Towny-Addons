@@ -15,5 +15,5 @@ public record OfficeDefinition(
         boolean allCategories,
         List<String> description
 ) {
-    public boolean mayPropose(LawCategory category) { return allCategories || proposalCategories.contains(category); }
+    public boolean mayPropose(LawCategory category) { synchronized (ru.neverland.core.SuiteState.lock()) { return allCategories || proposalCategories.contains(category); } }
 }

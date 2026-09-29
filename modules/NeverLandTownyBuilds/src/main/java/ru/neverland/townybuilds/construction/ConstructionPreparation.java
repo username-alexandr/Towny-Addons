@@ -15,8 +15,8 @@ public record ConstructionPreparation(Status status, UUID townId, ConstructionSi
         UNKNOWN_BLUEPRINT
     }
 
-    public static ConstructionPreparation failed(Status status, String detail) {
+    public static ConstructionPreparation failed(Status status, String detail) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return new ConstructionPreparation(status, null, null, null,
                 detail == null || detail.isBlank() ? List.of() : List.of(detail));
-    }
+    } }
 }

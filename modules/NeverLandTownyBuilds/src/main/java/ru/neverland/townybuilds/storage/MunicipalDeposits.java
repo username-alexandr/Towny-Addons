@@ -7,8 +7,8 @@ import ru.neverland.townybuilds.api.MunicipalReceipt;
 
 public final class MunicipalDeposits {
     private MunicipalDeposits(){}
-    public static int capacity(ItemStack[] items,ItemStack sample){int max=Math.min(64,sample.getMaxStackSize()),n=0;for(var item:items){if(!StockMath.present(item))n+=max;else if(item.isSimilar(sample))n+=Math.max(0,max-item.getAmount());}return n;}
-    public static String deposit(TownData town,MarketTransactions.Access a,UUID id,ItemStack sample,int amount)throws IOException {
+    public static int capacity(ItemStack[] items,ItemStack sample){ synchronized (ru.neverland.core.SuiteState.lock()) {int max=Math.min(64,sample.getMaxStackSize()),n=0;for(var item:items){if(!StockMath.present(item))n+=max;else if(item.isSimilar(sample))n+=Math.max(0,max-item.getAmount());}return n;} }
+    public static String deposit(TownData town,MarketTransactions.Access a,UUID id,ItemStack sample,int amount)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         var receipt=new MunicipalReceipt(id,sample,amount);var old=town.municipalReceipts().get(id);
         if(old!=null){if(old.amount()!=amount||!old.sample().isSimilar(sample))throw new IllegalArgumentException("ID поставки занят");return "DELIVERED";}
         if(a.busy(town.townId()))return "BUSY";
@@ -18,9 +18,9 @@ public final class MunicipalDeposits {
         a.write(town.townId(),work);town.putMunicipalReceipt(receipt);
         try{a.commit();}catch(IOException|RuntimeException ex){town.removeMunicipalReceipt(id);a.write(town.townId(),before);throw ex;}
         return "DELIVERED";
-    }
-    public static void acknowledge(TownData town,MarketTransactions.Access a,UUID id)throws IOException {
+    } }
+    public static void acknowledge(TownData town,MarketTransactions.Access a,UUID id)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         var old=town.municipalReceipts().get(id);if(old==null)return;town.removeMunicipalReceipt(id);
         try{a.commit();}catch(IOException|RuntimeException ex){town.putMunicipalReceipt(old);throw ex;}
-    }
+    } }
 }

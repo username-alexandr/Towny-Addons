@@ -29,7 +29,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         this.plugin = plugin; this.towny = towny; this.contracts = contracts; this.messages = messages;
     }
     @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                                       @NotNull String label, @NotNull String[] args) {
+                                       @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!sender.hasPermission("mintcontracts.admin")) { messages.send(sender, "no-permission"); return true; }
         if (args.length == 0) { messages.list("admin-help").forEach(sender::sendMessage); return true; }
         switch (args[0].toLowerCase()) {
@@ -43,7 +43,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             default -> messages.list("admin-help").forEach(sender::sendMessage);
         }
         return true;
-    }
+    } }
     private void reconcile(CommandSender sender,String[] args){
         boolean delivery=args[0].equalsIgnoreCase("resolve-delivery");String yes=delivery?"taken":"applied",no=delivery?"untouched":"rejected";
         if(args.length!=4||!args[3].equalsIgnoreCase("confirm")||!args[2].equalsIgnoreCase(yes)&&!args[2].equalsIgnoreCase(no)){sender.sendMessage("После проверки журнала банка или инвентаря: /townycontracts "+args[0]+" <UUID> "+yes+"|"+no+" confirm");return;}
@@ -90,14 +90,14 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     }
     private String join(String[] args, int start) { return String.join(" ", Arrays.copyOfRange(args, start, args.length)); }
     @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
-                                                           @NotNull String alias, @NotNull String[] args) {
+                                                           @NotNull String alias, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!sender.hasPermission("mintcontracts.admin"))return List.of();
         if (args.length == 1) return filter(List.of("start", "cancel", "list", "reload", "payments", "deliveries", "resolve", "resolve-delivery"), args[0]);
         if (args.length == 2 && args[0].equalsIgnoreCase("start")) return filter(contracts.registry().all().stream().map(ContractDefinition::id).toList(), args[1]);
         if (args.length == 3 && (args[0].equalsIgnoreCase("start") || args[0].equalsIgnoreCase("cancel")))
             return filter(towny.towns().stream().map(Town::getName).toList(), args[2]);
         return List.of();
-    }
+    } }
     private List<String> filter(List<String> values, String prefix) {
         List<String> out = new ArrayList<>(); for (String value : values) if (value.toLowerCase().startsWith(prefix.toLowerCase())) out.add(value); return out;
     }

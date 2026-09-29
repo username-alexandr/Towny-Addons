@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 public final class LegacyDataMigrator {
     private LegacyDataMigrator() { }
 
-    public static void migrate(JavaPlugin plugin, String legacyPluginName) {
+    public static void migrate(JavaPlugin plugin, String legacyPluginName) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Path current = plugin.getDataFolder().toPath();
         Path plugins = current.getParent();
         if (plugins == null || Files.exists(current)) return;
@@ -28,5 +28,5 @@ public final class LegacyDataMigrator {
         } catch (IOException exception) {
             plugin.getLogger().severe("Не удалось перенести данные из " + legacyPluginName + ": " + exception.getMessage());
         }
-    }
+    } }
 }

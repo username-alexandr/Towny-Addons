@@ -13,7 +13,7 @@ public final class SeasonRepository {
     private Map<UUID,Season> overrides=Map.of();
     private boolean loaded;
     public SeasonRepository(Path file) { this.file=file; }
-    public void load(long now) throws IOException {
+    public void load(long now) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         loaded=false;
         if(!Files.exists(file)) { if(now<1)throw new IllegalArgumentException("Неверная дата"); write(now,Map.of()); }
         else {
@@ -25,15 +25,15 @@ public final class SeasonRepository {
             epoch=start;overrides=Map.copyOf(next);
         }
         AtomicFiles.loaded(file);loaded=true;
-    }
-    public boolean healthy() { return loaded&&AtomicFiles.writable(file); }
-    public long epoch() { require();return epoch; }
-    public Map<UUID,Season> overrides() { require();return overrides; }
-    public void set(UUID world,Season season) throws IOException {
+    } }
+    public boolean healthy() { synchronized (ru.neverland.core.SuiteState.lock()) { return loaded&&AtomicFiles.writable(file); } }
+    public long epoch() { synchronized (ru.neverland.core.SuiteState.lock()) { require();return epoch; } }
+    public Map<UUID,Season> overrides() { synchronized (ru.neverland.core.SuiteState.lock()) { require();return overrides; } }
+    public void set(UUID world,Season season) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         require();Objects.requireNonNull(world);var next=new HashMap<>(overrides);
         if(season==null)next.remove(world);else next.put(world,season);
         write(epoch,next);
-    }
+    } }
     private void require() { if(!healthy())throw new IllegalStateException("Календарь заблокирован: проверьте calendar.yml и перезапустите плагин"); }
     private void write(long start,Map<UUID,Season> next) throws IOException {
         var y=new YamlConfiguration();y.set("schema",1);y.set("epoch",start);

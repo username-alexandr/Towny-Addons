@@ -17,10 +17,10 @@ public final class CitizensRepository {
     private Map<String, CitizenshipRecord> records = Map.of();
     private boolean writable;
     public CitizensRepository(Path file) { this.file = file; }
-    public boolean writable() { return writable && AtomicFiles.writable(file); }
-    public Map<String, CitizenshipRecord> all() { return records; }
-    public CitizenshipRecord get(UUID town, UUID resident) { return records.get(town + "/" + resident); }
-    public void load() throws Exception {
+    public boolean writable() { synchronized (ru.neverland.core.SuiteState.lock()) { return writable && AtomicFiles.writable(file); } }
+    public Map<String, CitizenshipRecord> all() { synchronized (ru.neverland.core.SuiteState.lock()) { return records; } }
+    public CitizenshipRecord get(UUID town, UUID resident) { synchronized (ru.neverland.core.SuiteState.lock()) { return records.get(town + "/" + resident); } }
+    public void load() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
         writable = false;
         Map<String, CitizenshipRecord> next = new LinkedHashMap<>();
         if (Files.exists(file)) {
@@ -37,8 +37,8 @@ public final class CitizensRepository {
             }
         }
         records = Map.copyOf(next); AtomicFiles.loaded(file); writable = true;
-    }
-    public void put(CitizenshipRecord record) throws IOException {
+    } }
+    public void put(CitizenshipRecord record) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!writable()) throw new IOException("Реестр гражданства остановлен после ошибки записи");
         var next = new LinkedHashMap<>(records); next.put(record.key(), record);
         var y = new YamlConfiguration(); y.set("schema", 1); y.createSection("records");
@@ -50,7 +50,7 @@ public final class CitizensRepository {
         });
         try { AtomicFiles.write(file, y::saveToString); records = Map.copyOf(next); }
         catch (IOException ex) { writable = false; throw ex; }
-    }
+    } }
     static long number(ConfigurationSection s, String key) throws IOException {
         Object v = s.get(key);
         if (!(v instanceof Integer || v instanceof Long) || ((Number) v).longValue() < 0)

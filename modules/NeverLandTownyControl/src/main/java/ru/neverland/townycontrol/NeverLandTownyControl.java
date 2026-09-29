@@ -19,7 +19,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
     private boolean applying;
     private BankAudit bankAudit;
     private AdminMenu adminMenu;
-    @Override public void onEnable() {
+    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         try(var stream=getResource("module-dependencies.yml")) {
             if(stream==null)throw new IOException("Нет схемы зависимостей");
             var y=new YamlConfiguration();y.load(new InputStreamReader(stream,StandardCharsets.UTF_8));
@@ -41,9 +41,9 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             getLogger().log(java.util.logging.Level.SEVERE,"Управление аддонами не загружено; проверьте modules.yml",e);
             getServer().getPluginManager().disablePlugin(this);
         }
-    }
-    @Override public void onDisable(){if(adminMenu!=null)adminMenu.shutdown();if(bankAudit!=null)bankAudit.stop();}
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) {
+    } }
+    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(adminMenu!=null)adminMenu.shutdown();if(bankAudit!=null)bankAudit.stop();} }
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!AdminAccess.admin(sender)){sender.sendMessage("§cНет прав.");return true;}
         try {
             if(graph==null)throw new IllegalStateException("Управление недоступно");
@@ -66,7 +66,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             ModulePauseStore.save(stateFile,ModulePauseStore.request(state,requested,blocked,System.currentTimeMillis()));
             if(action.equals("disable")) {
                 stop(blocked);
-                sender.sendMessage("§eОтключены с зависимостями: §f"+shortNames(blocked));
+                sender.sendMessage("§eПриостановлены с зависимостями: §f"+shortNames(blocked));
                 sender.sendMessage("§7Прогресс, денежные журналы и оставшееся время сохранены. Провалы за время отключения не начисляются.");
             } else {
                 sender.sendMessage("§aЗапуск разрешён после полного перезапуска сервера.");
@@ -78,19 +78,31 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
                 AuditRecord.Party.unknown(),new AuditRecord.Party("MODULE",args[1],args[1],""),"",0,"",String.join(" ",args)+"; disabled="+shortNames(blocked));
         } catch(Exception e) {sender.sendMessage("§cОперация остановлена: "+e.getMessage());getLogger().log(java.util.logging.Level.WARNING,"Управление модулями",e);}
         return true;
-    }
+    } }
     private void stop(Set<String> names) { stop(names, ""); }
     private void stop(Set<String> names, String originating) {
-        applying=true;
-        try {
-            // Close open UI/storage while its original listeners can still persist the contents.
-            for(var player:List.copyOf(Bukkit.getOnlinePlayers()))player.closeInventory();
-            List<Plugin> plugins=new ArrayList<>();for(Plugin p:getServer().getPluginManager().getPlugins())if(names.contains(p.getName())&&!p.getName().equals(originating)&&p.isEnabled())plugins.add(p);
-            Collections.reverse(plugins);
-            for(Plugin p:plugins)getServer().getPluginManager().disablePlugin(p);
-        } finally {applying=false;}
+        names.forEach(SuiteState::freeze);
+        var players=List.copyOf(Bukkit.getOnlinePlayers());
+        var remaining=new java.util.concurrent.atomic.AtomicInteger(players.size()+1);
+        Runnable acknowledged=()->{
+            if(remaining.decrementAndGet()!=0)return;
+            SuiteScheduler.get().runTask(this,()->{
+                applying=true;
+                try {
+                    List<Plugin> plugins=new ArrayList<>();
+                    for(Plugin p:getServer().getPluginManager().getPlugins())
+                        if(names.contains(p.getName())&&!p.getName().equals(originating)&&p.isEnabled())plugins.add(p);
+                    Collections.reverse(plugins);
+                    for(Plugin p:plugins)getServer().getPluginManager().disablePlugin(p);
+                } finally {applying=false;}
+            });
+        };
+        for(var player:players)SuiteScheduler.entityLater(this,player,()->{
+            try { player.closeInventory(); } finally { acknowledged.run(); }
+        },acknowledged,1);
+        acknowledged.run();
     }
-    @EventHandler(priority=EventPriority.MONITOR) public void onDisable(PluginDisableEvent event) {
+    @EventHandler(priority=EventPriority.MONITOR) public void onDisable(PluginDisableEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(applying||graph==null||!isEnabled()||!graph.modules().contains(event.getPlugin().getName())||Bukkit.isStopping())return;
         String name=event.getPlugin().getName();
         try {
@@ -102,7 +114,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             stop(blocked,name);
             getLogger().warning("Внешнее отключение "+name+": зависимые аддоны приостановлены без списаний за простой.");
         } catch(Exception e){getLogger().log(java.util.logging.Level.SEVERE,"Не удалось сохранить защитную паузу зависимостей",e);stop(graph.closure(Set.of(name)),name);}
-    }
+    } }
     private boolean dormant(org.bukkit.entity.Entity entity) {
         if(entity instanceof org.bukkit.entity.Projectile projectile && projectile.getShooter() instanceof org.bukkit.entity.Entity owner) entity=owner;
         if(entity==null)return false;
@@ -116,15 +128,15 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
         }
         return false;
     }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void damage(org.bukkit.event.entity.EntityDamageEvent e) {
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void damage(org.bukkit.event.entity.EntityDamageEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(dormant(e.getEntity()) || e instanceof org.bukkit.event.entity.EntityDamageByEntityEvent hit && dormant(hit.getDamager()))e.setCancelled(true);
-    }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void target(org.bukkit.event.entity.EntityTargetLivingEntityEvent e) {if(dormant(e.getEntity()))e.setCancelled(true);}
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void explode(org.bukkit.event.entity.EntityExplodeEvent e) {if(dormant(e.getEntity()))e.setCancelled(true);}
-    @EventHandler public void loaded(org.bukkit.event.world.EntitiesLoadEvent e) {
+    } }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void target(org.bukkit.event.entity.EntityTargetLivingEntityEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(dormant(e.getEntity()))e.setCancelled(true);} }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void explode(org.bukkit.event.entity.EntityExplodeEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(dormant(e.getEntity()))e.setCancelled(true);} }
+    @EventHandler public void loaded(org.bukkit.event.world.EntitiesLoadEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(getServer().getPluginManager().isPluginEnabled("NeverLandTownyEvents"))return;
         for(var entity:e.getEntities())for(var key:entity.getPersistentDataContainer().getKeys())if(key.getKey().equals("raid_town")&&Set.of("neverlandtownyevents","minttownyevents").contains(key.getNamespace())){entity.remove();break;}
-    }
+    } }
     String moduleStatus(String name){try{return describe(name,ModulePauseStore.load(stateFile));}catch(Exception ex){return "§cСостояние не прочитано: "+ex.getMessage();}}
     List<String> modulePlan(String name){return graph.closure(Set.of(graph.resolve(name))).stream().map(n->n.substring("NeverLandTowny".length())).sorted().toList();}
     private String describe(String name,ModulePauseStore.State state) {
@@ -133,9 +145,9 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
         return "§f"+name.substring("NeverLandTowny".length())+" §7— "+status+(state.requests().contains(name)?" §7(по запросу)":"");
     }
     private static String shortNames(Set<String> names){return String.join(", ",names.stream().map(n->n.substring("NeverLandTowny".length())).sorted().toList());}
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) {
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!AdminAccess.admin(sender)||graph==null)return List.of();
         List<String> options=args.length==1?List.of("list","status","plan","disable","enable"):args.length==2?java.util.stream.Stream.concat(java.util.stream.Stream.of("all"),graph.modules().stream().map(n->n.substring("NeverLandTowny".length()))).sorted().toList():List.of();
         String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return options.stream().filter(s->s.toLowerCase(Locale.ROOT).startsWith(prefix)).toList();
-    }
+    } }
 }

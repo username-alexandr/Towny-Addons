@@ -27,7 +27,7 @@ public final class StyleRegistry {
         reload();
     }
 
-    public void reload() {
+    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
         styles.clear();
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "styles.yml"));
         ConfigurationSection root = yaml.getConfigurationSection("styles");
@@ -46,13 +46,13 @@ public final class StyleRegistry {
                     yaml.getString("styles." + id + ".name", id), Collections.unmodifiableMap(materials)));
         }
         plugin.getLogger().info("Загружено биомных стилей лагеря: " + styles.size() + ".");
-    }
+    } }
 
-    public Optional<StyleDefinition> find(String id) {
+    public Optional<StyleDefinition> find(String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return id == null ? Optional.empty() : Optional.ofNullable(styles.get(id.toLowerCase(Locale.ROOT)));
-    }
+    } }
 
-    public StyleDefinition detect(World world, Biome biome) {
+    public StyleDefinition detect(World world, Biome biome) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (world.getEnvironment() == World.Environment.NETHER) return fallback("nether");
         String key = biome.getKey().getKey().toLowerCase(Locale.ROOT);
         if (containsAny(key, "desert", "badlands", "eroded_badlands", "wooded_badlands")) return fallback("desert");
@@ -61,7 +61,7 @@ public final class StyleRegistry {
         if (containsAny(key, "snow", "ice", "frozen", "grove", "peak", "windswept_hills")) return fallback("snowy");
         if (containsAny(key, "taiga", "old_growth_pine", "old_growth_spruce")) return fallback("taiga");
         return fallback("plains");
-    }
+    } }
 
     private StyleDefinition fallback(String id) {
         StyleDefinition value = styles.get(id);

@@ -6,14 +6,14 @@ import ru.neverland.townypower.model.PowerEngine.Building;
 import java.util.*;
 
 public final class CityBridge {
-    public Map<String,Building> buildings(UUID town)throws ReflectiveOperationException {
+    public Map<String,Building> buildings(UUID town)throws ReflectiveOperationException { synchronized (ru.neverland.core.SuiteState.lock()) {
         Map<?,?> values=(Map<?,?>)ru.neverland.core.ApiServices.call("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","buildingFootprints",new Class<?>[]{UUID.class},town);Map<String,Building> result=new HashMap<>();
         for(var entry:values.entrySet()){
             Object b=entry.getValue();String id=entry.getKey().toString();int completed=integer(b,"completedLevel");
             result.put(id,new Building(Math.max(0,Math.min(5,completed)),owned(town,b),ru.neverland.integration.BuildingOperations.maintained(town,id),ru.neverland.integration.DistrictBonuses.multiplier(town,id),ru.neverland.integration.SpecializationAccess.allowed(town,id)));
         }
         return Map.copyOf(result);
-    }
+    } }
     private static int integer(Object value,String method)throws ReflectiveOperationException{return ((Number)value.getClass().getMethod(method).invoke(value)).intValue();}
     private boolean owned(UUID town,Object b)throws ReflectiveOperationException{
         UUID worldId=(UUID)b.getClass().getMethod("worldId").invoke(b);World w=Bukkit.getWorld(worldId);if(w==null)return false;

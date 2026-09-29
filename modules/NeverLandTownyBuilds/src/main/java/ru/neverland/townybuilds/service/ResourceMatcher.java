@@ -9,7 +9,7 @@ public final class ResourceMatcher {
     private ResourceMatcher() {
     }
 
-    public static boolean matches(ItemStack candidate, ItemStack required) {
+    public static boolean matches(ItemStack candidate, ItemStack required) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (candidate == null || required == null
                 || isAir(candidate.getType()) || isAir(required.getType())) {
             return false;
@@ -26,7 +26,7 @@ public final class ResourceMatcher {
             return false;
         }
         return hasNoCustomIdentity(candidate);
-    }
+    } }
 
     private static boolean hasNoCustomIdentity(ItemStack item) {
         if (!item.hasItemMeta()) return true;

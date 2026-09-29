@@ -53,18 +53,18 @@ public final class GovernanceService {
         this.plugin = plugin; this.towny = towny; this.definitions = definitions; this.repository = repository; this.messages = messages;
     }
 
-    public void start() {
+    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
         stopTasks();
         long resolvePeriod = Math.max(20L, plugin.getConfig().getLong("voting.resolution-interval-seconds", 20) * 20L);
         long savePeriod = Math.max(20L, plugin.getConfig().getLong("storage.autosave-seconds", 60) * 20L);
-        resolver = Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 20L, resolvePeriod);
-        autosave = Bukkit.getScheduler().runTaskTimer(plugin, repository::saveIfDirty, savePeriod, savePeriod);
-    }
+        resolver = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::tick, 20L, resolvePeriod);
+        autosave = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, repository::saveIfDirty, savePeriod, savePeriod);
+    } }
 
-    public void shutdown() { stopTasks(); repository.save(); }
+    public void shutdown() { synchronized (ru.neverland.core.SuiteState.lock()) { stopTasks(); repository.save(); } }
     private void stopTasks() { if (resolver != null) resolver.cancel(); if (autosave != null) autosave.cancel(); resolver = autosave = null; }
 
-    public ProposalResult propose(Player player, String lawId, ProposalAction action) {
+    public ProposalResult propose(Player player, String lawId, ProposalAction action) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = towny.town(player); if (town == null) return new ProposalResult(Result.NO_TOWN, null, 0);
         LawDefinition law = definitions.law(lawId); if (law == null) return new ProposalResult(Result.UNKNOWN_LAW, null, 0);
         if (!player.hasPermission("townygovernance.propose") || !mayPropose(player, town, law.category()))
@@ -89,9 +89,9 @@ public final class GovernanceService {
         if (plugin.getConfig().getBoolean("messages.broadcast-new-proposal", true)) broadcast(town, "proposal-broadcast", Map.of(
                 "player", player.getName(), "action", actionText(action), "law", law.name()));
         return new ProposalResult(Result.SUCCESS, proposal, duration);
-    }
+    } }
 
-    public VoteResult vote(Player player, String proposalId, VoteChoice choice) {
+    public VoteResult vote(Player player, String proposalId, VoteChoice choice) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = towny.town(player); if (town == null) return new VoteResult(Result.NO_TOWN, null);
         if (!player.hasPermission("townygovernance.vote")) return new VoteResult(Result.NO_PERMISSION, null);
         Proposal proposal = repository.findOpen(town.getUUID(), proposalId);
@@ -103,9 +103,9 @@ public final class GovernanceService {
         proposal.vote(player.getUniqueId(), choice); repository.changed();
         if (System.currentTimeMillis() >= proposal.endsAt()) resolve(proposal, false);
         return new VoteResult(Result.SUCCESS, proposal);
-    }
+    } }
 
-    public Result appoint(Player actor, String officeId, String residentName) {
+    public Result appoint(Player actor, String officeId, String residentName) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = towny.town(actor); if (town == null) return Result.NO_TOWN;
         if (!actor.hasPermission("townygovernance.offices") || !towny.isManager(actor, town)
                 || !ru.neverland.core.CitizensAccess.allows(town.getUUID(), actor.getUniqueId(), "HOLD_OFFICE")) return Result.NO_PERMISSION;
@@ -122,9 +122,9 @@ public final class GovernanceService {
         repository.history(data, new HistoryEntry(System.currentTimeMillis(), "APPOINT", resident.getName() + " назначен: "
                 + ColorUtil.strip(office.name()), actor.getUniqueId(), actor.getName()));
         return Result.SUCCESS;
-    }
+    } }
 
-    public Result dismiss(Player actor, String officeId, String residentName) {
+    public Result dismiss(Player actor, String officeId, String residentName) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = towny.town(actor); if (town == null) return Result.NO_TOWN;
         if (!actor.hasPermission("townygovernance.offices") || !towny.isManager(actor, town)
                 || !ru.neverland.core.CitizensAccess.allows(town.getUUID(), actor.getUniqueId(), "HOLD_OFFICE")) return Result.NO_PERMISSION;
@@ -137,9 +137,9 @@ public final class GovernanceService {
         repository.history(data, new HistoryEntry(System.currentTimeMillis(), "DISMISS", holder.residentName() + " снят: "
                 + ColorUtil.strip(office.name()), actor.getUniqueId(), actor.getName()));
         return Result.SUCCESS;
-    }
+    } }
 
-    public boolean mayPropose(Player player, Town town, LawCategory category) {
+    public boolean mayPropose(Player player, Town town, LawCategory category) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.CitizensAccess.allows(town.getUUID(), player.getUniqueId(), "HOLD_OFFICE")) return false;
         if (player.hasPermission("townygovernance.bypass") || towny.isManager(player, town)) return true;
         if (ru.neverland.core.CouncilAccess.allows(player, town.getUUID(), "law_" + category.name().toLowerCase(java.util.Locale.ROOT))) return true;
@@ -149,9 +149,9 @@ public final class GovernanceService {
             if (entry.getValue().stream().anyMatch(value -> value.residentId().equals(player.getUniqueId()))) return true;
         }
         return false;
-    }
+    } }
 
-    public Set<UUID> council(Town town) {
+    public Set<UUID> council(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Set<UUID> result = new LinkedHashSet<>(towny.townRankCouncil(town));
         TownGovernanceData data = data(town);
         boolean electedCouncil = data.electedOffices().contains("councillor") && elective(town);
@@ -166,9 +166,9 @@ public final class GovernanceService {
         }
         result.removeIf(id -> !ru.neverland.core.CitizensAccess.allows(town.getUUID(), id, "HOLD_OFFICE"));
         return result;
-    }
+    } }
 
-    public Set<UUID> electorate(Town town) {
+    public Set<UUID> electorate(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (plugin.getConfig().getString("voting.electorate", "COUNCIL").equalsIgnoreCase("ALL_RESIDENTS")) {
             Set<UUID> result = new LinkedHashSet<>(); town.getResidents().forEach(resident -> result.add(resident.getUUID()));
             result.removeIf(id -> !ru.neverland.core.CitizensAccess.allows(town.getUUID(), id, "VOTE")); return result;
@@ -176,29 +176,29 @@ public final class GovernanceService {
         Set<UUID> result = council(town);
         result.removeIf(id -> !ru.neverland.core.CitizensAccess.allows(town.getUUID(), id, "VOTE"));
         return result;
-    }
+    } }
 
-    private void electionThread() { if (!Bukkit.isPrimaryThread()) throw new IllegalStateException("Governance API: main thread required"); }
+    private void electionThread() { if (!ru.neverland.core.SuiteState.held()) throw new IllegalStateException("Governance API: main thread required"); }
     private boolean elective(Town town) {
         var connection = ru.neverland.core.ApiServices.connect("NeverLandTownyElections", "ru.neverland.townyelections.api.TownyElectionsApi", 1, "elective");
         if (connection.state() == ru.neverland.core.ApiServices.State.NOT_INSTALLED) return false;
         try { return Boolean.TRUE.equals(connection.invoke("elective", new Class<?>[]{UUID.class}, town.getUUID())); }
         catch (ReflectiveOperationException | RuntimeException ex) { return true; } // Keep elected seats protected while an installed API is unavailable.
     }
-    public Map<String, Integer> officeCatalog() {
+    public Map<String, Integer> officeCatalog() { synchronized (ru.neverland.core.SuiteState.lock()) {
         electionThread(); Map<String, Integer> result = new java.util.LinkedHashMap<>();
         offices().forEach(o -> result.put(o.id(), o.maxHolders())); return Map.copyOf(result);
-    }
-    public Map<String, List<UUID>> officeHolders(UUID id) {
+    } }
+    public Map<String, List<UUID>> officeHolders(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
         electionThread(); Town town = towny.town(id); if (town == null) throw new IllegalArgumentException("Unknown town");
         Map<String, List<UUID>> result = new java.util.LinkedHashMap<>();
         data(town).offices().forEach((key, holders) -> result.put(key, holders.stream().map(OfficeHolder::residentId).toList()));
         return Map.copyOf(result);
-    }
-    public String electionReceipt(UUID id) {
+    } }
+    public String electionReceipt(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
         electionThread(); Town town = towny.town(id); if (town == null) throw new IllegalArgumentException("Unknown town"); return data(town).electionReceipt();
-    }
-    public void applyElection(UUID id, UUID election, Map<String, List<UUID>> winners) {
+    } }
+    public void applyElection(UUID id, UUID election, Map<String, List<UUID>> winners) { synchronized (ru.neverland.core.SuiteState.lock()) {
         electionThread(); java.util.Objects.requireNonNull(election);
         Town town = towny.town(id); if (town == null) throw new IllegalArgumentException("Unknown town");
         TownGovernanceData data = data(town);
@@ -229,22 +229,22 @@ public final class GovernanceService {
             data.offices().clear(); data.offices().putAll(old); data.electedOffices().clear(); data.electedOffices().addAll(oldManaged);
             data.electionReceipt(oldReceipt); data.history().clear(); data.history().addAll(oldHistory); throw ex;
         }
-    }
+    } }
 
-    public TownGovernanceData data(Town town) { return repository.town(town.getUUID(), town.getName()); }
-    public List<Proposal> open(Town town) { return town == null ? List.of() : repository.open(town.getUUID()); }
-    public Proposal find(Town town, String id) { return town == null ? null : repository.findOpen(town.getUUID(), id); }
-    public Collection<LawDefinition> laws() { return definitions.laws(); }
-    public Collection<OfficeDefinition> offices() { return definitions.offices(); }
-    public LawDefinition law(String id) { return definitions.law(id); }
-    public OfficeDefinition office(String id) { return definitions.office(id); }
-    public boolean hasLaw(UUID townId, String lawId) { TownGovernanceData data = repository.town(townId); return data != null && data.activeLaws().containsKey(lawId.toLowerCase(Locale.ROOT)); }
+    public TownGovernanceData data(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) { return repository.town(town.getUUID(), town.getName()); } }
+    public List<Proposal> open(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) { return town == null ? List.of() : repository.open(town.getUUID()); } }
+    public Proposal find(Town town, String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return town == null ? null : repository.findOpen(town.getUUID(), id); } }
+    public Collection<LawDefinition> laws() { synchronized (ru.neverland.core.SuiteState.lock()) { return definitions.laws(); } }
+    public Collection<OfficeDefinition> offices() { synchronized (ru.neverland.core.SuiteState.lock()) { return definitions.offices(); } }
+    public LawDefinition law(String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return definitions.law(id); } }
+    public OfficeDefinition office(String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return definitions.office(id); } }
+    public boolean hasLaw(UUID townId, String lawId) { synchronized (ru.neverland.core.SuiteState.lock()) { TownGovernanceData data = repository.town(townId); return data != null && data.activeLaws().containsKey(lawId.toLowerCase(Locale.ROOT)); } }
 
-    public double constructionCost(UUID townId) { return multiplier(townId, Multiplier.CONSTRUCTION); }
-    public double ideologyCost(UUID townId) { return multiplier(townId, Multiplier.IDEOLOGY_COST); }
-    public double ideologyExperience(UUID townId) { return multiplier(townId, Multiplier.IDEOLOGY_EXPERIENCE); }
+    public double constructionCost(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { return multiplier(townId, Multiplier.CONSTRUCTION); } }
+    public double ideologyCost(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { return multiplier(townId, Multiplier.IDEOLOGY_COST); } }
+    public double ideologyExperience(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { return multiplier(townId, Multiplier.IDEOLOGY_EXPERIENCE); } }
 
-    public boolean enact(Town town, LawDefinition law, UUID actorId, String actorName) {
+    public boolean enact(Town town, LawDefinition law, UUID actorId, String actorName) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (town == null || law == null) return false; TownGovernanceData data = data(town);
         if (data.activeLaws().containsKey(law.id())) return false;
         if (!law.exclusiveGroup().isBlank()) {
@@ -258,23 +258,23 @@ public final class GovernanceService {
         town.save(); repository.changed();
         repository.history(data, new HistoryEntry(System.currentTimeMillis(), "ENACT", "Принят закон «" + ColorUtil.strip(law.name()) + "»", actorId, actorName));
         return true;
-    }
+    } }
 
-    public boolean repeal(Town town, LawDefinition law, UUID actorId, String actorName) {
+    public boolean repeal(Town town, LawDefinition law, UUID actorId, String actorName) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (town == null || law == null) return false; TownGovernanceData data = data(town);
         if (!data.activeLaws().containsKey(law.id())) return false;
         removeLaw(town, data, law, true); town.save(); repository.changed();
         repository.history(data, new HistoryEntry(System.currentTimeMillis(), "REPEAL", "Отменён закон «" + ColorUtil.strip(law.name()) + "»", actorId, actorName));
         return true;
-    }
+    } }
 
-    public boolean resolveNow(String proposalPrefix) {
+    public boolean resolveNow(String proposalPrefix) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Proposal match = null;
         for (Proposal proposal : repository.open()) if (proposal.id().toString().startsWith(proposalPrefix.toLowerCase(Locale.ROOT))) {
             if (match != null) return false; match = proposal;
         }
         if (match == null) return false; resolve(match, true); return true;
-    }
+    } }
 
     private void tick() {
         cleanupOffices(); long now = System.currentTimeMillis();
@@ -339,10 +339,10 @@ public final class GovernanceService {
     private boolean isResident(Town town, UUID resident) { return town != null && town.hasResident(resident); }
     private void broadcast(Town town, String path, Map<String, ?> replacements) { towny.online(town).forEach(player -> messages.send(player, path, replacements)); }
     private String actionText(ProposalAction action) { return ColorUtil.strip(messages.raw(action == ProposalAction.ENACT ? "action-enact" : "action-repeal")); }
-    public String choiceText(VoteChoice choice) { return ColorUtil.strip(messages.raw(switch (choice) { case YES -> "choice-yes"; case NO -> "choice-no"; case ABSTAIN -> "choice-abstain"; })); }
+    public String choiceText(VoteChoice choice) { synchronized (ru.neverland.core.SuiteState.lock()) { return ColorUtil.strip(messages.raw(switch (choice) { case YES -> "choice-yes"; case NO -> "choice-no"; case ABSTAIN -> "choice-abstain"; })); } }
     private enum Multiplier { CONSTRUCTION, IDEOLOGY_COST, IDEOLOGY_EXPERIENCE }
 
-    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() {
+    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() { synchronized (ru.neverland.core.SuiteState.lock()) {
         ru.neverland.core.ApiServices.primaryThread();
         return repository.open().stream().map(c -> new ru.neverland.core.ActivityAdmin.Target(c.id().toString(),c.townName()+" / "+c.lawId()+" / голосов "+c.votes().size(),
                 c.status()==ProposalStatus.OPEN ? ru.neverland.core.ActivityAdmin.TIMED : java.util.Set.of("status"), (action,minutes) -> {
@@ -355,6 +355,6 @@ public final class GovernanceService {
             catch(Exception ex){c.timer(before); throw ex;}
             return c.id()+" | "+c.timer().describe(System.currentTimeMillis());
         })).toList();
-    }
+    } }
 
 }

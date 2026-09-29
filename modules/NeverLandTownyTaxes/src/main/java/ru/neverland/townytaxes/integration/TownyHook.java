@@ -20,33 +20,33 @@ public final class TownyHook {
     public record Party(Domain.Scope scope, UUID id, String name, Account account) {}
     private final JavaPlugin plugin;
     public TownyHook(JavaPlugin plugin) { this.plugin = plugin; }
-    public Resident resident(Player player) { return TownyAPI.getInstance().getResident(player); }
-    public Resident resident(UUID id) { return TownyAPI.getInstance().getResident(id); }
-    public Resident resident(String name) { return TownyAPI.getInstance().getResident(name); }
-    public Town town(Player player) { Resident resident = resident(player); return resident == null ? null : resident.getTownOrNull(); }
-    public Town town(UUID id) { return TownyAPI.getInstance().getTown(id); }
-    public Town town(String name) { return TownyAPI.getInstance().getTown(name); }
-    public Nation nation(UUID id) { return TownyAPI.getInstance().getNation(id); }
-    public Nation nation(String name) { return TownyAPI.getInstance().getNation(name); }
-    public Nation nation(Player player) { Town town=town(player); return town==null?null:town.getNationOrNull(); }
-    public Collection<Resident> residents() { return TownyAPI.getInstance().getResidents(); }
-    public Collection<Town> towns() { return TownyAPI.getInstance().getTowns(); }
-    public boolean isTownManager(Player player, Town town, String action) {
+    public Resident resident(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getResident(player); } }
+    public Resident resident(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getResident(id); } }
+    public Resident resident(String name) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getResident(name); } }
+    public Town town(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) { Resident resident = resident(player); return resident == null ? null : resident.getTownOrNull(); } }
+    public Town town(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getTown(id); } }
+    public Town town(String name) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getTown(name); } }
+    public Nation nation(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getNation(id); } }
+    public Nation nation(String name) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getNation(name); } }
+    public Nation nation(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) { Town town=town(player); return town==null?null:town.getNationOrNull(); } }
+    public Collection<Resident> residents() { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getResidents(); } }
+    public Collection<Town> towns() { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getTowns(); } }
+    public boolean isTownManager(Player player, Town town, String action) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return isTownManager(player, town) || town != null && ru.neverland.core.CouncilAccess.allows(player, town.getUUID(), action);
-    }
-    public boolean isTownManager(Player player, Town town) {
+    } }
+    public boolean isTownManager(Player player, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Resident resident = resident(player); if (resident == null || town == null || !town.equals(resident.getTownOrNull())) return false;
         if (town.isMayor(resident)) return true;
         for (String rank : plugin.getConfig().getStringList("management.allowed-town-ranks")) if (resident.hasTownRank(rank)) return true;
         return player.hasPermission("townytaxes.bypass");
-    }
-    public boolean isNationManager(Player player, Nation nation) {
+    } }
+    public boolean isNationManager(Player player, Nation nation) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Resident resident = resident(player); if (resident == null || nation == null || !resident.hasNation()) return false;
         if (nation.isKing(resident) || nation.hasAssistant(resident)) return true;
         for (String rank : plugin.getConfig().getStringList("management.allowed-nation-ranks")) if (resident.hasNationRank(rank)) return true;
         return player.hasPermission("townytaxes.bypass");
-    }
-    public Party resolve(Domain.Scope scope, String value) {
+    } }
+    public Party resolve(Domain.Scope scope, String value) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (scope == null) return null;
         return switch (scope) {
             case GLOBAL -> new Party(scope, GLOBAL_ID, "Сервер", null);
@@ -54,15 +54,15 @@ public final class TownyHook {
             case TOWN -> { Town t = town(value); yield t == null ? null : new Party(scope, t.getUUID(), t.getName(), t.getAccount()); }
             case NATION -> { Nation n = nation(value); yield n == null ? null : new Party(scope, n.getUUID(), n.getName(), n.getAccount()); }
         };
-    }
-    public Party resolve(Domain.Scope scope, UUID id) {
+    } }
+    public Party resolve(Domain.Scope scope, UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (scope == Domain.Scope.GLOBAL) return new Party(scope, GLOBAL_ID, "Сервер", null);
         return resolve(scope, switch (scope) { case PLAYER -> { Resident r=resident(id); yield r==null?"":r.getName(); } case TOWN -> {Town t=town(id);yield t==null?"":t.getName();} case NATION -> {Nation n=nation(id);yield n==null?"":n.getName();} default -> ""; });
-    }
-    public List<Resident> residents(Town town) { return town == null ? List.of() : town.getResidents(); }
-    public List<Town> towns(Nation nation) { return nation == null ? List.of() : nation.getTowns(); }
-    public boolean register(String name, CommandExecutor executor) { return TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.TOWN, name, executor); }
-    public void unregister(String name) { TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN, name); }
-    public boolean registerNation(String name, CommandExecutor executor) { return TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.NATION, name, executor); }
-    public void unregisterNation(String name) { TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.NATION, name); }
+    } }
+    public List<Resident> residents(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) { return town == null ? List.of() : town.getResidents(); } }
+    public List<Town> towns(Nation nation) { synchronized (ru.neverland.core.SuiteState.lock()) { return nation == null ? List.of() : nation.getTowns(); } }
+    public boolean register(String name, CommandExecutor executor) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.TOWN, name, executor); } }
+    public void unregister(String name) { synchronized (ru.neverland.core.SuiteState.lock()) { TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN, name); } }
+    public boolean registerNation(String name, CommandExecutor executor) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.NATION, name, executor); } }
+    public void unregisterNation(String name) { synchronized (ru.neverland.core.SuiteState.lock()) { TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.NATION, name); } }
 }

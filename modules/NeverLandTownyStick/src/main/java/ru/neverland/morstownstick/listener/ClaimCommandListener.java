@@ -19,11 +19,11 @@ public final class ClaimCommandListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onCommand(PlayerCommandPreprocessEvent event) {
+    public void onCommand(PlayerCommandPreprocessEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         String normalized = event.getMessage().trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", " ");
         if (!normalized.equals("/t claim") && !normalized.equals("/town claim")) return;
         if (selections.count(event.getPlayer().getUniqueId()) == 0) return;
         event.setCancelled(true);
         claims.start(event.getPlayer());
-    }
+    } }
 }

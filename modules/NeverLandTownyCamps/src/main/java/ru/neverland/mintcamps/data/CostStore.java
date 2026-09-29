@@ -24,7 +24,7 @@ public final class CostStore {
         reload();
     }
 
-    public void reload() {
+    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
         costs.clear();
         YamlConfiguration yaml = ru.neverland.core.SafeYaml.load(file.toPath());
         for (int level = 1; level <= 3; level++) {
@@ -35,26 +35,26 @@ public final class CostStore {
             }
             costs.put(level, items);
         }
-    }
+    } }
 
-    public List<ItemStack> get(int level) {
+    public List<ItemStack> get(int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return costs.getOrDefault(level, List.of()).stream().map(ItemStack::clone).toList();
-    }
+    } }
 
-    public void set(int level, List<ItemStack> items) {
+    public void set(int level, List<ItemStack> items) { synchronized (ru.neverland.core.SuiteState.lock()) {
         List<ItemStack> clean = items.stream().filter(item -> item != null && !item.getType().isAir())
                 .map(ItemStack::clone).toList();
         costs.put(Math.max(1, Math.min(3, level)), new ArrayList<>(clean));
         save();
-    }
+    } }
 
-    public void save() {
+    public void save() { synchronized (ru.neverland.core.SuiteState.lock()) {
         YamlConfiguration yaml = new YamlConfiguration();
         for (int level = 1; level <= 3; level++) yaml.set("costs." + level, costs.getOrDefault(level, List.of()));
         try {
             ru.neverland.core.AtomicFiles.write(file.toPath(),yaml::saveToString);
         } catch(IOException exception){throw new java.io.UncheckedIOException(exception);}
-    }
+    } }
 
     private ItemStack parse(Object value) {
         if (value instanceof ItemStack item) return item.clone();

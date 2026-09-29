@@ -6,9 +6,9 @@ import ru.neverland.reputation.service.ReputationService;
 
 public final class PlaceholderHook {
     private PlaceholderHook() { }
-    public static boolean register(TownyReputation plugin, TownyHook towny, ReputationService reputation) {
+    public static boolean register(TownyReputation plugin, TownyHook towny, ReputationService reputation) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) return false;
         try { return new ReputationExpansion(plugin, towny, reputation).register(); }
         catch (LinkageError error) { plugin.getLogger().warning("PlaceholderAPI несовместим: " + error.getMessage()); return false; }
-    }
+    } }
 }

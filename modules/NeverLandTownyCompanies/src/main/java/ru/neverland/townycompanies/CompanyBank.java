@@ -7,7 +7,7 @@ import ru.neverland.integration.TreasuryAccess;
 import static ru.neverland.townycompanies.CompanyData.*;
 
 public final class CompanyBank implements CompanyLedger.Bank {
-    @Override public boolean transfer(Payment p) {
+    @Override public boolean transfer(Payment p) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!com.palmergames.bukkit.towny.TownyEconomyHandler.isActive())return false;
         boolean city=p.purpose()==Purpose.TAX||p.purpose()==Purpose.REFUND;
         var town=city?TownyAPI.getInstance().getTown(p.account()):null;
@@ -16,8 +16,8 @@ public final class CompanyBank implements CompanyLedger.Bank {
         Account account=city?town.getAccount():resident.getAccount();boolean incoming=p.purpose()!=Purpose.DEPOSIT;
         String token="[companies:"+p.id()+"]";var evidence=new PaymentEvidence(account,incoming,token,p.amount());
         var observer=new AccountObserver(){
-            public void withdrew(Account source,double amount,String reason){evidence.observe(source,false,amount,reason);}
-            public void deposited(Account source,double amount,String reason){evidence.observe(source,true,amount,reason);}
+            public void withdrew(Account source,double amount,String reason){ synchronized (ru.neverland.core.SuiteState.lock()) {evidence.observe(source,false,amount,reason);} }
+            public void deposited(Account source,double amount,String reason){ synchronized (ru.neverland.core.SuiteState.lock()) {evidence.observe(source,true,amount,reason);} }
         };
         synchronized(account) {
             account.addObserver(observer);
@@ -29,5 +29,5 @@ public final class CompanyBank implements CompanyLedger.Bank {
                 return evidence.result(result);
             } finally {account.removeObserver(observer);}
         }
-    }
+    } }
 }

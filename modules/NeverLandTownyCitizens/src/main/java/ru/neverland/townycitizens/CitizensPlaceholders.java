@@ -13,14 +13,14 @@ final class CitizensPlaceholders extends PlaceholderExpansion {
         if (!expansion.register()) throw new IllegalStateException("Не удалось зарегистрировать citizens placeholders");
         return expansion::unregister;
     }
-    @Override public String getIdentifier() { return "townycitizens"; }
-    @Override public String getAuthor() { return "NeverLand"; }
-    @Override public String getVersion() { return plugin.getDescription().getVersion(); }
-    @Override public boolean persist() { return true; }
-    @Override public String onRequest(OfflinePlayer player, String params) {
+    @Override public String getIdentifier() { synchronized (ru.neverland.core.SuiteState.lock()) { return "townycitizens"; } }
+    @Override public String getAuthor() { synchronized (ru.neverland.core.SuiteState.lock()) { return "NeverLand"; } }
+    @Override public String getVersion() { synchronized (ru.neverland.core.SuiteState.lock()) { return plugin.getDescription().getVersion(); } }
+    @Override public boolean persist() { synchronized (ru.neverland.core.SuiteState.lock()) { return true; } }
+    @Override public String onRequest(OfflinePlayer player, String params) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (player == null) return "";
         // Do not access Towny from async renderers; they may retry on the main thread.
-        if (!Bukkit.isPrimaryThread()) return "Недоступно";
+        if (!ru.neverland.core.SuiteState.held()) return "Недоступно";
         try {
             var town = service.ownTown(player.getUniqueId());
             if (params.equals("town")) return town == null ? "Нет города" : town.getName();
@@ -29,5 +29,5 @@ final class CitizensPlaceholders extends PlaceholderExpansion {
                 case "expires" -> fields.get("citizenship_expires"); case "tax_multiplier" -> fields.get("citizenship_tax_multiplier");
                 case "vote" -> fields.get("citizenship_vote"); default -> null; };
         } catch (RuntimeException ex) { return "Недоступно"; }
-    }
+    } }
 }

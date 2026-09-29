@@ -51,7 +51,7 @@ public final class SiteService {
         legacyMobKey = NamespacedKey.fromString("minttownyexpeditions:expedition_id");
     }
 
-    public void findSite(World world, Location camp, ExpeditionDefinition definition, Consumer<BlockPos> callback) {
+    public void findSite(World world, Location camp, ExpeditionDefinition definition, Consumer<BlockPos> callback) { synchronized (ru.neverland.core.SuiteState.lock()) {
         List<int[]> candidates = new ArrayList<>();
         Random random = new Random();
         int tries = plugin.getConfig().getInt("expeditions.search-attempts", 12);
@@ -65,7 +65,7 @@ public final class SiteService {
             });
         }
         find(world, definition, candidates, 0, callback);
-    }
+    } }
 
     private void find(World world, ExpeditionDefinition definition, List<int[]> candidates,
                       int index, Consumer<BlockPos> callback) {
@@ -76,7 +76,7 @@ public final class SiteService {
         int[] candidate = candidates.get(index);
         CompletableFuture<org.bukkit.Chunk> future =
                 world.getChunkAtAsync(candidate[0] >> 4, candidate[1] >> 4, true);
-        future.whenComplete((chunk, error) -> Bukkit.getScheduler().runTask(plugin, () -> {
+        future.whenComplete((chunk, error) -> ru.neverland.core.SuiteScheduler.region(plugin, new Location(world,candidate[0],0,candidate[1]), () -> {
             if (error != null) {
                 find(world, definition, candidates, index + 1, callback);
                 return;
@@ -112,10 +112,11 @@ public final class SiteService {
         }));
     }
 
-    public boolean build(ActiveExpedition expedition, ExpeditionDefinition definition) {
+    public boolean build(ActiveExpedition expedition, ExpeditionDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
         World world = expedition.world();
         if (world == null) return false;
         SitePlan plan = generator.generate(definition, expedition.siteAnchor());
+        if(plan.blocks().keySet().stream().anyMatch(pos->!ru.neverland.core.SuiteScheduler.owns(pos.location(world))))return false;
         try {
             for (BlockPos position : plan.blocks().keySet()) {
                 expedition.snapshots().put(position, snapshot(position.location(world).getBlock()));
@@ -135,7 +136,7 @@ public final class SiteService {
             restore(expedition, () -> {});
             return false;
         }
-    }
+    } }
 
     private SiteSnapshot snapshot(Block block) {
         List<ItemStack> items = new ArrayList<>();
@@ -148,7 +149,8 @@ public final class SiteService {
         return new SiteSnapshot(block.getType(), block.getBlockData().getAsString(), items);
     }
 
-    public void respawn(ActiveExpedition expedition, ExpeditionDefinition definition, int count) {
+    public void respawn(ActiveExpedition expedition, ExpeditionDefinition definition, int count) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        if (expedition.siteLocation()!=null && !ru.neverland.core.SuiteScheduler.owns(expedition.siteLocation())) { ru.neverland.core.SuiteScheduler.region(plugin,expedition.siteLocation(),()->respawn(expedition,definition,count));return; }
         if (count <= 0 || expedition.status() != ExpeditionStatus.ACTIVE
                 || repository.get(expedition.id()) == null) return;
         int spawned = spawn(expedition, definition, count);
@@ -156,7 +158,7 @@ public final class SiteService {
             repository.changed();
             repository.saveIfDirty();
         }
-    }
+    } }
 
     private int spawn(ActiveExpedition expedition, ExpeditionDefinition definition, int count) {
         World world = expedition.world();
@@ -210,6 +212,7 @@ public final class SiteService {
     }
 
     private Location safeLandColumn(World world, int x, int z, int clearance) {
+        if (!Bukkit.isOwnedByCurrentRegion(world,x>>4,z>>4)) return null;
         int y = world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES) + 1;
         if (y <= world.getMinHeight() || y + clearance >= world.getMaxHeight()) return null;
         Block floor = world.getBlockAt(x, y - 1, z);
@@ -222,6 +225,7 @@ public final class SiteService {
     }
 
     private Location safeWaterColumn(World world, int x, int baseY, int z) {
+        if (!Bukkit.isOwnedByCurrentRegion(world,x>>4,z>>4)) return null;
         int vertical = Math.max(4, plugin.getConfig().getInt("combat.spawn-search-height", 12));
         for (int distance = 0; distance <= vertical; distance++) {
             for (int direction : distance == 0 ? new int[]{1} : new int[]{1, -1}) {
@@ -256,15 +260,15 @@ public final class SiteService {
         return result;
     }
 
-    public ActiveExpedition expeditionForMob(Entity entity) {
+    public ActiveExpedition expeditionForMob(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
         UUID id = expeditionMob(entity);
         return id == null ? null : repository.get(id);
-    }
+    } }
 
-    public boolean insideMobArea(ActiveExpedition expedition, Location location) {
+    public boolean insideMobArea(ActiveExpedition expedition, Location location) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Location center = expedition.siteLocation();
         return center != null && insideMobArea(center, location);
-    }
+    } }
 
     private boolean insideMobArea(Location center, Location location) {
         if (location == null || location.getWorld() == null
@@ -280,63 +284,48 @@ public final class SiteService {
                 && Math.abs(location.getY() - center.getY()) <= maximumHeight;
     }
 
-    public boolean relocateMob(Entity entity) {
+    public boolean relocateMob(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ActiveExpedition expedition = expeditionForMob(entity);
         Location center = expedition == null ? null : expedition.siteLocation();
         if (center == null) return false;
         Location desired = center.clone().add(
                 plugin.getConfig().getDouble("combat.mob-spawn-radius", 7.0) * 0.5, 0, 0);
+        if (!ru.neverland.core.WorldTasks.ownsBox(center,24)) { ru.neverland.core.SuiteScheduler.region(plugin,center,()->{
+            Location checked=safeSpawnLocation(center.getWorld(),desired,center,entity.getType(),new HashSet<>());
+            if(checked!=null)ru.neverland.core.SuiteScheduler.entity(plugin,entity,()->entity.teleportAsync(checked));
+        });return true;}
         Location safe = safeSpawnLocation(center.getWorld(), desired, center,
                 entity.getType(), new HashSet<>());
         if (safe == null) return false;
         entity.setVelocity(new Vector(0, 0, 0));
         entity.setFallDistance(0);
-        return entity.teleport(safe);
-    }
+        entity.teleportAsync(safe);return true;
+    } }
 
-    public void guard(ActiveExpedition expedition, ExpeditionDefinition definition) {
-        World world = expedition.world();
-        if (world == null || !world.isChunkLoaded(
-                expedition.siteAnchor().x() >> 4, expedition.siteAnchor().z() >> 4)) return;
-        int living = 0;
-        boolean changed = false;
-        for (UUID mobId : new ArrayList<>(expedition.spawnedMobs())) {
-            Entity entity = Bukkit.getEntity(mobId);
-            if (!(entity instanceof LivingEntity) || !entity.isValid() || entity.isDead()) {
-                expedition.spawnedMobs().remove(mobId);
-                changed = true;
-                continue;
-            }
-            if (!expedition.id().equals(expeditionMob(entity))) {
-                expedition.spawnedMobs().remove(mobId);
-                changed = true;
-                continue;
-            }
-            living++;
-            if (!insideMobArea(expedition, entity.getLocation()) && relocateMob(entity)) changed = true;
+    public void guard(ActiveExpedition expedition, ExpeditionDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        Location center=expedition.siteLocation();if(center==null)return;
+        if(!ru.neverland.core.SuiteScheduler.owns(center)) {ru.neverland.core.SuiteScheduler.region(plugin,center,()->guard(expedition,definition));return;}
+        if(repository.get(expedition.id())!=expedition || expedition.status()!=ExpeditionStatus.ACTIVE)return;
+        for(UUID id:List.copyOf(expedition.spawnedMobs())) {
+            Entity entity=ru.neverland.core.WorldTasks.find(id);
+            if(entity!=null)ru.neverland.core.SuiteScheduler.entity(plugin,entity,()->{
+                if(!entity.isValid()||entity.isDead()){expedition.spawnedMobs().remove(id);repository.changed();return;}
+                if(!insideMobArea(expedition,entity.getLocation()))relocateMob(entity);
+            });
         }
-        int missing = Math.max(0, definition.mobCount() - expedition.kills() - living);
-        if (missing > 0 && spawn(expedition, definition, missing) > 0) changed = true;
-        if (changed) repository.changed();
-    }
+        int missing=Math.max(0,definition.mobCount()-expedition.kills()-expedition.spawnedMobs().size());
+        if(missing>0&&spawn(expedition,definition,missing)>0)repository.changed();
+    }}
 
-    public void resume(ActiveExpedition expedition, ExpeditionDefinition definition) {
-        if (!plugin.getConfig().getBoolean("combat.respawn-missing-on-restart", true)
-                || expedition.world() == null) return;
-        int living = 0;
-        for (Entity entity : expedition.world().getEntities()) {
-            UUID id = expeditionMob(entity);
-            if (!expedition.id().equals(id)) continue;
-            expedition.spawnedMobs().add(entity.getUniqueId());
-            living++;
-            if (!insideMobArea(expedition, entity.getLocation())) relocateMob(entity);
-        }
-        int remaining = Math.max(0, definition.mobCount() - expedition.kills() - living);
-        if (remaining > 0) spawn(expedition, definition, remaining);
-        repository.changed();
-    }
+    public void resume(ActiveExpedition expedition, ExpeditionDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        ru.neverland.core.WorldTasks.eachEntity(plugin,entity->{if(expedition.id().equals(expeditionMob(entity))) {
+            expedition.spawnedMobs().add(entity.getUniqueId());repository.changed();
+            if(!insideMobArea(expedition,entity.getLocation()))relocateMob(entity);
+        }});
+        guard(expedition,definition);
+    }}
 
-    public UUID expeditionMob(Entity entity) {
+    public UUID expeditionMob(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String raw = entity.getPersistentDataContainer().get(mobKey, PersistentDataType.STRING);
         if (raw == null && legacyMobKey != null) {
             raw = entity.getPersistentDataContainer().get(legacyMobKey, PersistentDataType.STRING);
@@ -346,29 +335,26 @@ public final class SiteService {
         } catch (IllegalArgumentException exception) {
             return null;
         }
-    }
+    } }
 
-    public void restore(ActiveExpedition expedition, Runnable done) {
+    public void restore(ActiveExpedition expedition, Runnable done) { synchronized (ru.neverland.core.SuiteState.lock()) {
         World world = expedition.world();
         if (world == null) {
             done.run();
             return;
         }
-        for (Entity entity : new ArrayList<>(world.getEntities())) {
-            if (expedition.id().equals(expeditionMob(entity))) entity.remove();
-        }
+ru.neverland.core.WorldTasks.eachEntity(plugin,entity->{if(expedition.id().equals(expeditionMob(entity)))entity.remove();});
         List<Map.Entry<BlockPos, SiteSnapshot>> entries =
                 new ArrayList<>(expedition.snapshots().entrySet());
         int batch = Math.max(1,
                 plugin.getConfig().getInt("generation.restore-blocks-per-tick", 80));
-        new org.bukkit.scheduler.BukkitRunnable() {
+        class RestoreBatch implements Runnable {
             int index;
-
-            @Override
-            public void run() {
+            public void run() { synchronized(ru.neverland.core.SuiteState.lock()) {
                 for (int restored = 0; restored < batch && index < entries.size();
                      restored++, index++) {
                     Map.Entry<BlockPos, SiteSnapshot> entry = entries.get(index);
+                    if(!ru.neverland.core.SuiteScheduler.owns(entry.getKey().location(world)))break;
                     Block block = entry.getKey().location(world).getBlock();
                     SiteSnapshot snapshot = entry.getValue();
                     block.setType(snapshot.material(), false);
@@ -387,11 +373,11 @@ public final class SiteService {
                         holder.getInventory().setContents(content);
                     }
                 }
-                if (index >= entries.size()) {
-                    cancel();
-                    done.run();
-                }
-            }
-        }.runTaskTimer(plugin, 1, 1);
-    }
+
+                if(index>=entries.size()){done.run();return;}
+                ru.neverland.core.SuiteScheduler.region(plugin,entries.get(index).getKey().location(world),this);
+            }}
+        }
+        if(entries.isEmpty())done.run();else ru.neverland.core.SuiteScheduler.region(plugin,entries.get(0).getKey().location(world),new RestoreBatch());
+    } }
 }

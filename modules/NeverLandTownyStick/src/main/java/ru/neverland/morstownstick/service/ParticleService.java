@@ -28,28 +28,28 @@ public final class ParticleService {
         this.borderCache = borderCache;
     }
 
-    public void start() {
+    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
         stop();
         elapsedTicks = 0L;
-        task = Bukkit.getScheduler().runTaskTimer(plugin, this::render, 1L, 1L);
-    }
+        task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::render, 1L, 1L);
+    } }
 
-    public void stop() {
+    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (task != null) task.cancel();
         task = null;
-    }
+    } }
 
     private void render() {
         elapsedTicks++;
         boolean selectedTick = due("particles.selection");
         boolean borderTick = due("particles.town-border");
         if (!selectedTick && !borderTick) return;
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        ru.neverland.core.SuiteScheduler.players(plugin, player -> {{
             if (selectedTick && plugin.getConfig().getBoolean("particles.selection.enabled", true))
                 renderSelection(player);
             if (borderTick && plugin.getConfig().getBoolean("particles.town-border.enabled", true))
                 renderTownBorder(player);
-        }
+        }});
     }
 
     private boolean due(String path) {

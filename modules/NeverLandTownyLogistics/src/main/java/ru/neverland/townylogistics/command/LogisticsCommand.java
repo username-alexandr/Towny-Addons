@@ -14,12 +14,12 @@ import java.io.IOException;
 public final class LogisticsCommand implements CommandExecutor,TabCompleter {
     private final NeverLandTownyLogistics plugin;private final LogisticsService service;private LogisticsMenu menu;
     public LogisticsCommand(NeverLandTownyLogistics plugin,LogisticsService service){this.plugin=plugin;this.service=service;}
-    public void menu(LogisticsMenu menu){this.menu=menu;}
-    public static void tell(CommandSender sender,String text){sender.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&aNeverLand &8• &fЛогистика&8] &r"+text));}
-    @Override public boolean onCommand(CommandSender sender,Command c,String label,String[] args){
+    public void menu(LogisticsMenu menu){ synchronized (ru.neverland.core.SuiteState.lock()) {this.menu=menu;} }
+    public static void tell(CommandSender sender,String text){ synchronized (ru.neverland.core.SuiteState.lock()) {sender.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&aNeverLand &8• &fЛогистика&8] &r"+text));} }
+    @Override public boolean onCommand(CommandSender sender,Command c,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){return true;}
         try{execute(sender,args);}catch(NumberFormatException ex){tell(sender,"&cОжидается целое число.");}catch(IllegalArgumentException|IllegalStateException ex){tell(sender,"&c"+(ex.getMessage()==null?"Проверьте аргументы команды":ex.getMessage()));}
         catch(IOException ex){plugin.getLogger().warning("Операция логистики не завершена: "+ex.getMessage());tell(sender,"&cОшибка доступа к данным. Груз остаётся в журнале; проверьте консоль.");}return true;
-    }
+    } }
     private void count(String[] args,int n,String usage){if(args.length!=n)throw new IllegalArgumentException(usage);}
     private void execute(CommandSender sender,String[] args)throws IOException{
         String action=args.length==0?"menu":args[0].toLowerCase(Locale.ROOT);
@@ -76,7 +76,7 @@ public final class LogisticsCommand implements CommandExecutor,TabCompleter {
         }
         service.change(new Network(id,n.nodes(),n.links(),routes),topology);tell(p,"&aМаршрут обновлён.");menu.open(p,"routes",null,0);
     }
-    public static List<String> helpLines(){return List.of(
+    public static List<String> helpLines(){ synchronized (ru.neverland.core.SuiteState.lock()) {return List.of(
         "&6&lСоздание логистической сети",
         "&f/t logistics node <id> <здание>",
         "&7  Точка погрузки в вашем текущем положении.",
@@ -98,14 +98,14 @@ public final class LogisticsCommand implements CommandExecutor,TabCompleter {
         "&7  Приостановить маршрут.",
         "&f/t logistics resume <id>",
         "&7  Возобновить маршрут.",
-        "&f/t logistics &7— открыть меню сети.");}
+        "&f/t logistics &7— открыть меню сети.");} }
     private void showMap(Player p,Network network){int points=0;for(var link:network.links()){
         var a=network.node(link.a()).point();var b=network.node(link.b()).point();if(!a.world().equals(p.getWorld().getUID()))continue;
         int count=Math.max(1,(int)Math.ceil(a.distance(b)));for(int i=0;i<=count&&points<300;i+=2){double f=(double)i/count;var v=new Position(a.world(),a.x()+(b.x()-a.x())*f,a.y()+(b.y()-a.y())*f+0.2,a.z()+(b.z()-a.z())*f);
             if(v.distance(CourierNpcs.position(p.getLocation()))<=64){p.spawnParticle(Particle.DUST,v.x(),v.y(),v.z(),1,0,0,0,0,new Particle.DustOptions(Color.AQUA,1.4f));points++;}}
         if(points>=300)break;
     }}
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!(sender instanceof Player p)||!p.hasPermission("neverlandtownylogistics.use"))return List.of();var town=service.town(p);if(town==null)return List.of();var n=service.network(town.getUUID());List<String> values=new ArrayList<>();
         try{
             if(args.length==1){values.addAll(List.of("routes","nodes","depots","couriers","cargo","info","storage","map","help"));if(service.manager(p,town))values.addAll(List.of("node","waypoint","link","unlink","remove","route","filter","limit","keep","pause","resume","dismiss","delete"));if(p.hasPermission("neverlandtownylogistics.admin"))values.addAll(List.of("reload","recover"));}
@@ -116,5 +116,5 @@ public final class LogisticsCommand implements CommandExecutor,TabCompleter {
             else if(args[0].equals("filter")&&args.length==3)values.addAll(List.of("hand","all"));
         }catch(IOException ignored){}
         String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return values.stream().filter(v->v.startsWith(prefix)).sorted().toList();
-    }
+    } }
 }

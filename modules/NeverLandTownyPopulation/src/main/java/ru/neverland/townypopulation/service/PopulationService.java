@@ -25,17 +25,17 @@ public final class PopulationService implements TownyPopulationApi {
     public PopulationService(JavaPlugin plugin, PopulationRepository repository, PopulationSettings settings) {
         this.plugin=plugin; this.repository=repository; this.settings=settings;
     }
-    public PopulationSettings settings() { return settings; }
-    public void start() {
+    public PopulationSettings settings() { synchronized (ru.neverland.core.SuiteState.lock()) { return settings; } }
+    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
         repository.rebase(System.currentTimeMillis());
         pulse();
-        task = Bukkit.getScheduler().runTaskTimer(plugin,this::pulse,200,200);
-    }
-    public void reload(PopulationSettings settings) {
+        task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::pulse,200,200);
+    } }
+    public void reload(PopulationSettings settings) { synchronized (ru.neverland.core.SuiteState.lock()) {
         PopulationSettings previous=this.settings;
         try { this.settings=settings; refresh(false); }
         catch(RuntimeException ex) { this.settings=previous; throw ex; }
-    }
+    } }
     private void pulse() {
         try { refresh(true); save(); }
         catch (RuntimeException ex) { warn("Ошибка расчёта населения: "+ex.getMessage()); }
@@ -88,14 +88,14 @@ public final class PopulationService implements TownyPopulationApi {
         repository.retain(existing);
         cache = new Cache(Map.copyOf(towns),Map.copyOf(residents));
     }
-    public boolean setPopulation(UUID townId, int amount) {
-        if (!Bukkit.isPrimaryThread()) throw new IllegalStateException("Изменение населения требует основного потока");
+    public boolean setPopulation(UUID townId, int amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        if (!ru.neverland.core.SuiteState.held()) throw new IllegalStateException("Изменение населения требует основного потока");
         if (amount < 0 || amount > settings.rules().maximum() || TownyAPI.getInstance().getTown(townId) == null) return false;
         repository.put(townId,new PopulationState(amount,0,0,System.currentTimeMillis()));
         refresh(false); save(); return true;
-    }
-    public void refreshView() { refresh(false); }
-    public void stop() { if (task != null) task.cancel(); save(); }
+    } }
+    public void refreshView() { synchronized (ru.neverland.core.SuiteState.lock()) { refresh(false); } }
+    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) { if (task != null) task.cancel(); save(); } }
     private void save() {
         try { repository.save(); }
         catch (java.io.IOException ex) { warn("Не удалось сохранить population-data.yml: "+ex.getMessage()); }
@@ -104,10 +104,10 @@ public final class PopulationService implements TownyPopulationApi {
         long now = System.currentTimeMillis();
         if (now-lastWarning >= 60000) { lastWarning=now; plugin.getLogger().warning(message); }
     }
-    @Override public Optional<PopulationSnapshot> population(UUID id) { return Optional.ofNullable(id == null ? null : cache.towns().get(id)); }
-    @Override public Optional<PopulationSnapshot> residentPopulation(UUID id) {
+    @Override public Optional<PopulationSnapshot> population(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return Optional.ofNullable(id == null ? null : cache.towns().get(id)); } }
+    @Override public Optional<PopulationSnapshot> residentPopulation(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Cache current = cache; UUID town = id == null ? null : current.residents().get(id);
         return Optional.ofNullable(town == null ? null : current.towns().get(town));
-    }
-    @Override public Collection<PopulationSnapshot> populations() { return List.copyOf(cache.towns().values()); }
+    } }
+    @Override public Collection<PopulationSnapshot> populations() { synchronized (ru.neverland.core.SuiteState.lock()) { return List.copyOf(cache.towns().values()); } }
 }

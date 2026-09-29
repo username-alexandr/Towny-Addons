@@ -9,7 +9,7 @@ import java.util.UUID;
 public final class PlayerJournal {
     private final UUID playerId; private String playerName; private int totalFound; private final Map<String, Integer> discoveries = new LinkedHashMap<>(); private final Set<String> serials = new LinkedHashSet<>();
     public PlayerJournal(UUID playerId, String playerName) { this.playerId = playerId; this.playerName = playerName; }
-    public UUID playerId() { return playerId; } public String playerName() { return playerName; } public void playerName(String value) { if (value != null && !value.isBlank()) playerName = value; }
-    public int totalFound() { return totalFound; } public void totalFound(int value) { totalFound = Math.max(0, value); } public Map<String, Integer> discoveries() { return discoveries; } public Set<String> serials() { return serials; }
-    public boolean discover(String artifact, String serial) { if (!serials.add(serial)) return false; boolean first = !discoveries.containsKey(artifact); discoveries.merge(artifact, 1, Integer::sum); totalFound++; return first; }
+    public UUID playerId() { synchronized (ru.neverland.core.SuiteState.lock()) { return playerId; } } public String playerName() { synchronized (ru.neverland.core.SuiteState.lock()) { return playerName; } } public void playerName(String value) { synchronized (ru.neverland.core.SuiteState.lock()) { if (value != null && !value.isBlank()) playerName = value; } }
+    public int totalFound() { synchronized (ru.neverland.core.SuiteState.lock()) { return totalFound; } } public void totalFound(int value) { synchronized (ru.neverland.core.SuiteState.lock()) { totalFound = Math.max(0, value); } } public Map<String, Integer> discoveries() { synchronized (ru.neverland.core.SuiteState.lock()) { return discoveries; } } public Set<String> serials() { synchronized (ru.neverland.core.SuiteState.lock()) { return serials; } }
+    public boolean discover(String artifact, String serial) { synchronized (ru.neverland.core.SuiteState.lock()) { if (!serials.add(serial)) return false; boolean first = !discoveries.containsKey(artifact); discoveries.merge(artifact, 1, Integer::sum); totalFound++; return first; } }
 }

@@ -6,8 +6,8 @@ public record DistrictSettings(int maxDistricts,int maxCells,int maxSelection,do
                                double maximum,Set<String> requires,boolean furnaces,boolean crops,Map<String,Project> projects){
     public record Project(String name,String icon,DistrictType type){}
     public DistrictSettings{requires=Set.copyOf(requires);projects=Collections.unmodifiableMap(new LinkedHashMap<>(projects));}
-    public Map<String,DistrictType> types(){Map<String,DistrictType> result=new HashMap<>();projects.forEach((k,v)->result.put(k,v.type()));return result;}
-    public static DistrictSettings load(YamlConfiguration c,YamlConfiguration catalog){
+    public Map<String,DistrictType> types(){ synchronized (ru.neverland.core.SuiteState.lock()) {Map<String,DistrictType> result=new HashMap<>();projects.forEach((k,v)->result.put(k,v.type()));return result;} }
+    public static DistrictSettings load(YamlConfiguration c,YamlConfiguration catalog){ synchronized (ru.neverland.core.SuiteState.lock()) {
         Map<String,Project> projects=new LinkedHashMap<>();var section=catalog.getConfigurationSection("projects");
         if(section==null)throw new IllegalArgumentException("Нет раздела projects");
         for(String id:section.getKeys(false)){
@@ -21,7 +21,7 @@ public record DistrictSettings(int maxDistricts,int maxCells,int maxSelection,do
                 integer(c,"limits.selection-cells",1,4096),number(c,"bonuses.matching-building",0,2),
                 number(c,"bonuses.industrial-combination",0,2),number(c,"bonuses.maximum-multiplier",1,3),requires,
                 c.getBoolean("production.industrial-furnaces",true),c.getBoolean("production.agricultural-crops",true),projects);
-    }
+    } }
     private static int integer(YamlConfiguration c,String key,int min,int max){double n=number(c,key,min,max);if(n!=Math.rint(n))throw new IllegalArgumentException(key+": требуется целое число");return(int)n;}
     private static double number(YamlConfiguration c,String key,double min,double max){Object raw=c.get(key);if(!(raw instanceof Number n)||!Double.isFinite(n.doubleValue())||n.doubleValue()<min||n.doubleValue()>max)throw new IllegalArgumentException(key+": требуется число "+min+".."+max);return n.doubleValue();}
 }

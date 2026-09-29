@@ -11,17 +11,17 @@ public record PopulationSettings(long intervalMillis, int initial, Capacity base
                                  PopulationMath.Rules rules, Map<String, Building> buildings) {
     public PopulationSettings { buildings = Collections.unmodifiableMap(new LinkedHashMap<>(buildings)); }
     public record Building(String name, String icon, int minimumLevel, int maximumLevel, Capacity capacity) {
-        public Capacity atLevel(int level) { return capacity.times(Math.max(0, Math.min(maximumLevel,level)-minimumLevel+1)); }
+        public Capacity atLevel(int level) { synchronized (ru.neverland.core.SuiteState.lock()) { return capacity.times(Math.max(0, Math.min(maximumLevel,level)-minimumLevel+1)); } }
     }
-    public Capacity capacity(ToIntFunction<String> levels) {
+    public Capacity capacity(ToIntFunction<String> levels) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return capacity(levels,id -> 1.0);
-    }
-    public Capacity capacity(ToIntFunction<String> levels, java.util.function.ToDoubleFunction<String> multipliers) {
+    } }
+    public Capacity capacity(ToIntFunction<String> levels, java.util.function.ToDoubleFunction<String> multipliers) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Capacity result = base;
         for (var entry : buildings.entrySet()) result = result.plus(entry.getValue().atLevel(levels.applyAsInt(entry.getKey())).scaled(multipliers.applyAsDouble(entry.getKey())));
         return result;
-    }
-    public static PopulationSettings load(YamlConfiguration config, YamlConfiguration catalog) {
+    } }
+    public static PopulationSettings load(YamlConfiguration config, YamlConfiguration catalog) { synchronized (ru.neverland.core.SuiteState.lock()) {
         int maximum = integer(config,"simulation.maximum-population",1,1000000);
         int initial = integer(config,"simulation.initial-population",0,maximum);
         var rules = new PopulationMath.Rules(maximum,
@@ -48,7 +48,7 @@ public record PopulationSettings(long intervalMillis, int initial, Capacity base
         if (b == null) throw new IllegalArgumentException("Нет раздела base");
         return new PopulationSettings(integer(config,"simulation.interval-seconds",10,604800)*1000L,
                 initial, readCapacity(b, true), rules, buildings);
-    }
+    } }
     private static Capacity readCapacity(ConfigurationSection c, boolean base) {
         return new Capacity(optionalInt(c,"housing"), optionalInt(c,"jobs"),
                 optional(c,"food",0,10000000), optional(c,"water",0,10000000),

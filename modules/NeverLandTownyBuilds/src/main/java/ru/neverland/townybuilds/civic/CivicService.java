@@ -88,19 +88,19 @@ public final class CivicService implements Listener, TownyBuildsApi {
         shops=new CivicShopMenus(plugin,towny,dataStore,messages,itemNames,this);
     }
 
-    public void start() {
+    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
         stopTasks();
         automation.start();shops.start();
-        previewTask = Bukkit.getScheduler().runTaskTimer(plugin, this::renderSelections, 20L, 20L);
+        previewTask = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::renderSelections, 20L, 20L);
         Bukkit.getServicesManager().unregister(TownyBuildsApi.class, effectsApi);
         Bukkit.getServicesManager().register(TownyBuildsApi.class, effectsApi, plugin, ServicePriority.Normal);
-    }
+    } }
 
-    public void stop() {
+    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) {
         stopTasks();
         selections.clear();
         Bukkit.getServicesManager().unregister(TownyBuildsApi.class, effectsApi);
-    }
+    } }
 
     private void stopTasks() {
         automation.stop();shops.stop();
@@ -109,7 +109,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
         previewTask = null;
     }
 
-    public void handle(Player player, String[] args) {
+    public void handle(Player player, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (args.length == 0 || args[0].equalsIgnoreCase("status")) {
             status(player);
             return;
@@ -123,7 +123,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
             case "bulletin" -> bulletin(player, args);
             default -> help(player);
         }
-    }
+    } }
 
     private void help(Player player) {
         messages.send(player, "civic-help");
@@ -471,20 +471,20 @@ public final class CivicService implements Listener, TownyBuildsApi {
 
     private record CivicStorageHolder(UUID townId, String projectId, boolean mayor) implements CivicHolder { }
 
-    public void setStall(Player p,String id){shops.setStall(p,id);}
-    public void removeStall(org.bukkit.command.CommandSender sender,String id){shops.removeStall(sender,id);}
-    public List<String> stallIds(){return shops.stallIds();}
-    public CivicShopMenus shops(){return shops;}
-    public java.util.Set<String> supportedProjects(){return effectsApi.supportedProjects();}
-    public int projectLevel(UUID town,String project){return effectsApi.projectLevel(town,project);}
-    public int operationalLevel(UUID town,String project){return effectsApi.operationalLevel(town,project);}
-    public Map<String,ru.neverland.townybuilds.api.BuildingFootprint> buildingFootprints(UUID town){return effectsApi.buildingFootprints(town);}
-    public Map<String,ru.neverland.townybuilds.api.BuildingWorkplace> workplaces(UUID town){return effectsApi.workplaces(town);}
-    public double benefit(UUID town,CivicBenefit benefit){return effectsApi.benefit(town,benefit);}
-    public boolean waterNetworkActive(UUID town){return effectsApi.waterNetworkActive(town);}
-    public double insuranceReserve(UUID town){return effectsApi.insuranceReserve(town);}
-    public double consumeInsurance(UUID town,double amount){return effectsApi.consumeInsurance(town,amount);}
-    public Optional<CivicArea> area(UUID town,String project){return effectsApi.area(town,project);}
-    public Optional<CivicLine> line(UUID town,String project){return effectsApi.line(town,project);}
+    public void setStall(Player p,String id){ synchronized (ru.neverland.core.SuiteState.lock()) {shops.setStall(p,id);} }
+    public void removeStall(org.bukkit.command.CommandSender sender,String id){ synchronized (ru.neverland.core.SuiteState.lock()) {shops.removeStall(sender,id);} }
+    public List<String> stallIds(){ synchronized (ru.neverland.core.SuiteState.lock()) {return shops.stallIds();} }
+    public CivicShopMenus shops(){ synchronized (ru.neverland.core.SuiteState.lock()) {return shops;} }
+    public java.util.Set<String> supportedProjects(){ synchronized (ru.neverland.core.SuiteState.lock()) {return effectsApi.supportedProjects();} }
+    public int projectLevel(UUID town,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {return effectsApi.projectLevel(town,project);} }
+    public int operationalLevel(UUID town,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {return effectsApi.operationalLevel(town,project);} }
+    public Map<String,ru.neverland.townybuilds.api.BuildingFootprint> buildingFootprints(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return effectsApi.buildingFootprints(town);} }
+    public Map<String,ru.neverland.townybuilds.api.BuildingWorkplace> workplaces(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return effectsApi.workplaces(town);} }
+    public double benefit(UUID town,CivicBenefit benefit){ synchronized (ru.neverland.core.SuiteState.lock()) {return effectsApi.benefit(town,benefit);} }
+    public boolean waterNetworkActive(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return effectsApi.waterNetworkActive(town);} }
+    public double insuranceReserve(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return effectsApi.insuranceReserve(town);} }
+    public double consumeInsurance(UUID town,double amount){ synchronized (ru.neverland.core.SuiteState.lock()) {return effectsApi.consumeInsurance(town,amount);} }
+    public Optional<CivicArea> area(UUID town,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {return effectsApi.area(town,project);} }
+    public Optional<CivicLine> line(UUID town,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {return effectsApi.line(town,project);} }
 
 }

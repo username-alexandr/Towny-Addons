@@ -25,10 +25,10 @@ public final class DataStore {
     private boolean dirty;
     private boolean writable = true;
     private final ru.neverland.townybuilds.storage.StorageSessions storageLocks=new ru.neverland.townybuilds.storage.StorageSessions();
-    public synchronized boolean storageBusy(UUID town,String project){return storageLocks.busy(town,project);}
-    public synchronized boolean lockStorage(UUID town,String project,UUID session){return storageLocks.acquire(town,project,session);}
-    public synchronized boolean ownsStorage(UUID town,String project,UUID session){return storageLocks.owns(town,project,session);}
-    public synchronized void unlockStorage(UUID town,String project,UUID session){storageLocks.release(town,project,session);}
+    public boolean storageBusy(UUID town,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {return storageLocks.busy(town,project);} }
+    public boolean lockStorage(UUID town,String project,UUID session){ synchronized (ru.neverland.core.SuiteState.lock()) {return storageLocks.acquire(town,project,session);} }
+    public boolean ownsStorage(UUID town,String project,UUID session){ synchronized (ru.neverland.core.SuiteState.lock()) {return storageLocks.owns(town,project,session);} }
+    public void unlockStorage(UUID town,String project,UUID session){ synchronized (ru.neverland.core.SuiteState.lock()) {storageLocks.release(town,project,session);} }
 
 
     public DataStore(JavaPlugin plugin, int storageSize) {
@@ -37,7 +37,7 @@ public final class DataStore {
         this.file = new File(plugin.getDataFolder(), "town-data.yml");
     }
 
-    public synchronized void load() {
+    public void load() { synchronized (ru.neverland.core.SuiteState.lock()) {
         writable = false;
         towns.clear();
         if (!file.exists()) {
@@ -132,38 +132,38 @@ public final class DataStore {
         }
         writable = true; ru.neverland.core.AtomicFiles.loaded(file.toPath());
         dirty = false;
-    }
+    } }
 
-    public synchronized boolean writable() {return writable && ru.neverland.core.AtomicFiles.writable(file.toPath());}
+    public boolean writable() { synchronized (ru.neverland.core.SuiteState.lock()) {return writable && ru.neverland.core.AtomicFiles.writable(file.toPath());} }
 
-    public synchronized TownData town(UUID townId) {
+    public TownData town(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!writable())throw new IllegalStateException("Хранилище построек остановлено после ошибки записи");
         return towns.computeIfAbsent(townId, id -> {
             dirty = true;
             return new TownData(id, storageSize);
         });
-    }
+    } }
 
-    public synchronized void markDirty() {
+    public void markDirty() { synchronized (ru.neverland.core.SuiteState.lock()) {
         dirty = true;
-    }
+    } }
 
-    public synchronized Map<UUID, TownData> towns() {
+    public Map<UUID, TownData> towns() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return Map.copyOf(towns);
-    }
+    } }
 
-    public synchronized void saveIfDirty() {
+    public void saveIfDirty() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (dirty) {
             save();
         }
-    }
+    } }
 
-    public synchronized void save() {
+    public void save() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!writable) return;
         try { saveOrThrow(); } catch (IOException ex) { writable=false; plugin.getLogger().severe("Не удалось сохранить town-data.yml: " + ex.getMessage()); throw new java.io.UncheckedIOException(ex); }
-    }
+    } }
 
-    public synchronized void saveOrThrow() throws IOException {
+    public void saveOrThrow() throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!writable()) throw new IOException("Запись повреждённой базы запрещена");
         YamlConfiguration yaml = new YamlConfiguration();
         for (TownData data : towns.values()) {
@@ -256,7 +256,7 @@ public final class DataStore {
         }
         ru.neverland.townybuilds.util.AtomicYamlFile.write(yaml,file.toPath());
         dirty=false;
-    }
+    } }
 
     private void loadMarket(ConfigurationSection section,TownData data)throws IOException,ClassNotFoundException {
         var root=section.getConfigurationSection("market-stock");if(root==null){if(section.contains("market-stock"))throw new IOException("Повреждён резерв рынка");return;}

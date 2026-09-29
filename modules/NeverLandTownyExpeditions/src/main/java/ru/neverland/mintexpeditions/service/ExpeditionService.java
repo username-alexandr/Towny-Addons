@@ -78,17 +78,17 @@ public final class ExpeditionService {
       this.returnTickets = new ReturnTickets(plugin);
    }
 
-   public void startTasks() {
+   public void startTasks() { synchronized (ru.neverland.core.SuiteState.lock()) {
       this.stopTasks();
       long period = Math.max(20L, this.plugin.getConfig().getLong("expeditions.expiry-check-seconds", 10L) * 20L);
-      this.task = Bukkit.getScheduler().runTaskTimer(this.plugin, this::tick, period, period);
-      this.shieldTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
-         for (Player player : Bukkit.getOnlinePlayers()) {
+      this.task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(this.plugin, this::tick, period, period);
+      this.shieldTask = ru.neverland.core.SuiteScheduler.get().runTaskTimer(this.plugin, () -> {
+         ru.neverland.core.SuiteScheduler.players(this.plugin,player -> {
             if (player.getActiveItem().getType() == Material.SHIELD && this.shieldDenied(player)) {
                player.clearActiveItem();
                this.warnShield(player);
             }
-         }
+         });
       }, 1L, 1L);
 
       for (ActiveExpedition expedition : this.repository.active()) {
@@ -101,9 +101,9 @@ public final class ExpeditionService {
             });
          }
       }
-   }
+   } }
 
-   public void stopTasks() {
+   public void stopTasks() { synchronized (ru.neverland.core.SuiteState.lock()) {
       if (this.task != null) {
          this.task.cancel();
       }
@@ -120,9 +120,9 @@ public final class ExpeditionService {
 
       this.bars.clear();
       this.shieldWarnings.clear();
-   }
+   } }
 
-   public ExpeditionService.StartResult start(Player leader, ExpeditionDefinition definition) {
+   public ExpeditionService.StartResult start(Player leader, ExpeditionDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
       CampView camp = this.camps.owned(leader);
       if (camp == null) {
          return ExpeditionService.StartResult.NO_CAMP;
@@ -192,7 +192,7 @@ public final class ExpeditionService {
                               boolean teleport = this.plugin.getConfig().getBoolean("expeditions.teleport-party-to-site", false);
                               Location destination = expedition.siteLocation();
 
-                              for (Player player : party) {
+                              for (Player player : party) ru.neverland.core.SuiteScheduler.entity(plugin,player,()->{
                                  if (!player.equals(leader)) {
                                     this.messages.send(player, "party-member", Map.of("expedition", ColorUtil.strip(definition.name())));
                                  }
@@ -201,7 +201,7 @@ public final class ExpeditionService {
                                  if (teleport && destination != null) {
                                     player.teleportAsync(destination);
                                  }
-                              }
+                              });
                            }
                         }
                      }
@@ -210,9 +210,9 @@ public final class ExpeditionService {
             }
          }
       }
-   }
+   } }
 
-   public boolean objective(Player player, BlockPos position) {
+   public boolean objective(Player player, BlockPos position) { synchronized (ru.neverland.core.SuiteState.lock()) {
       ActiveExpedition expedition = this.at(position, player.getWorld());
       if (expedition == null || expedition.timer().paused() || !expedition.objectives().contains(position) || expedition.completed().contains(position)) {
          return false;
@@ -229,9 +229,9 @@ public final class ExpeditionService {
          this.check(expedition, definition);
          return true;
       }
-   }
+   } }
 
-   public void mobDied(LivingEntity entity) {
+   public void mobDied(LivingEntity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
       ActiveExpedition expedition = this.sites.expeditionForMob(entity);
       if (expedition != null && !expedition.timer().paused() && expedition.status() == ExpeditionStatus.ACTIVE) {
          expedition.spawnedMobs().remove(entity.getUniqueId());
@@ -247,7 +247,7 @@ public final class ExpeditionService {
             } else {
                this.repository.changed();
                if (this.plugin.getConfig().getBoolean("combat.respawn-uncredited-deaths", true)) {
-                  Bukkit.getScheduler().runTask(this.plugin, () -> {
+                  ru.neverland.core.SuiteScheduler.get().runTask(this.plugin, () -> {
                      if (expedition.status() == ExpeditionStatus.ACTIVE && this.repository.get(expedition.id()) != null) {
                         this.sites.respawn(expedition, definition, 1);
                      }
@@ -256,37 +256,37 @@ public final class ExpeditionService {
             }
          }
       }
-   }
+   } }
 
-   public ActiveExpedition expeditionForMob(Entity entity) {
+   public ActiveExpedition expeditionForMob(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.sites.expeditionForMob(entity);
-   }
+   } }
 
-   public boolean insideMobArea(ActiveExpedition expedition, Location location) {
+   public boolean insideMobArea(ActiveExpedition expedition, Location location) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.sites.insideMobArea(expedition, location);
-   }
+   } }
 
-   public boolean preventMobTeleportOutside() {
+   public boolean preventMobTeleportOutside() { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.plugin.getConfig().getBoolean("combat.prevent-teleport-outside", true);
-   }
+   } }
 
-   public boolean protectMobFromEnvironment() {
+   public boolean protectMobFromEnvironment() { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.plugin.getConfig().getBoolean("combat.protect-from-fall-and-suffocation", true);
-   }
+   } }
 
-   public boolean relocateMob(Entity entity) {
+   public boolean relocateMob(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.sites.relocateMob(entity);
-   }
+   } }
 
-   public void relocateMobNextTick(Entity entity) {
+   public void relocateMobNextTick(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
       UUID entityId = entity.getUniqueId();
-      Bukkit.getScheduler().runTask(this.plugin, () -> {
-         Entity current = Bukkit.getEntity(entityId);
+      ru.neverland.core.SuiteScheduler.entity(this.plugin, entity, () -> {
+         Entity current = ru.neverland.core.WorldTasks.find(entityId);
          if (current != null && current.isValid() && !current.isDead()) {
             this.sites.relocateMob(current);
          }
       });
-   }
+   } }
 
    private void check(ActiveExpedition expedition, ExpeditionDefinition definition) {
       if (expedition.objectiveProgress() >= definition.goal() && expedition.kills() >= definition.mobCount()) {
@@ -294,7 +294,7 @@ public final class ExpeditionService {
       }
    }
 
-   public void finish(ActiveExpedition expedition, ExpeditionStatus status) {
+   public void finish(ActiveExpedition expedition, ExpeditionStatus status) { synchronized (ru.neverland.core.SuiteState.lock()) {
       if (!this.repository.writable()) {
          throw new IllegalStateException("Хранилище экспедиций недоступно");
       } else if (expedition.status() == ExpeditionStatus.ACTIVE) {
@@ -365,10 +365,10 @@ public final class ExpeditionService {
             this.repository.save();
          });
       }
-   }
+   } }
 
-   public void claim(Player player) {
-      if (!Bukkit.isPrimaryThread()) {
+   public void claim(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+      if (!ru.neverland.core.SuiteState.held()) {
          throw new IllegalStateException("Награды требуют основного потока");
       } else if (!this.repository.hasReward(player.getUniqueId())) {
          this.messages.send(player, "no-reward");
@@ -438,9 +438,9 @@ public final class ExpeditionService {
       } else {
          player.sendMessage("Награды доступны в выживании или приключении.");
       }
-   }
+   } }
 
-   public void returnToCamp(Player player) {
+   public void returnToCamp(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
       if (!this.canReturn(player)) {
          this.messages.send(player, "return-denied");
       } else {
@@ -454,7 +454,7 @@ public final class ExpeditionService {
                   try {
                      player.teleportAsync(camp.anchor()).whenComplete((success, error) -> {
                         if (this.plugin.isEnabled()) {
-                           Bukkit.getScheduler().runTask(this.plugin, () -> {
+                           ru.neverland.core.SuiteScheduler.entity(this.plugin, player, () -> {
                               this.returning.remove(player.getUniqueId());
                               if (error == null && Boolean.TRUE.equals(success)) {
                                  this.returnTickets.remove(player.getUniqueId());
@@ -475,15 +475,15 @@ public final class ExpeditionService {
             }
          }
       }
-   }
+   } }
 
-   public boolean canReturn(Player player) {
+   public boolean canReturn(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return ExpeditionPermissions.canReturn(player);
-   }
+   } }
 
-   public boolean hasReturnTarget(Player player) {
+   public boolean hasReturnTarget(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.returnCampOwner(player) != null;
-   }
+   } }
 
    private UUID returnCampOwner(Player player) {
       ActiveExpedition expedition = this.repository.byLeader(player.getUniqueId());
@@ -495,19 +495,19 @@ public final class ExpeditionService {
       }
    }
 
-   public boolean shieldDenied(Player player) {
+   public boolean shieldDenied(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return ExpeditionPermissions.shieldDenied(player, this.at(BlockPos.of(player.getLocation()), player.getWorld()) != null);
-   }
+   } }
 
-   public void warnShield(Player player) {
+   public void warnShield(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
       long now = System.currentTimeMillis();
       if (now - this.shieldWarnings.getOrDefault(player.getUniqueId(), 0L) >= 3000L) {
          this.shieldWarnings.put(player.getUniqueId(), now);
          this.messages.send(player, "shield-denied");
       }
-   }
+   } }
 
-   public void sendTarget(Player player, ActiveExpedition expedition) {
+   public void sendTarget(Player player, ActiveExpedition expedition) { synchronized (ru.neverland.core.SuiteState.lock()) {
       Location target = expedition.siteLocation();
       if (target != null) {
          long distance = player.getWorld().equals(target.getWorld()) ? Math.round(player.getLocation().distance(target)) : -1L;
@@ -529,7 +529,7 @@ public final class ExpeditionService {
                )
             );
       }
-   }
+   } }
 
    private void tick() {
       long now = System.currentTimeMillis();
@@ -552,7 +552,7 @@ public final class ExpeditionService {
       this.repository.saveIfDirty();
    }
 
-   public ActiveExpedition at(BlockPos position, World world) {
+   public ActiveExpedition at(BlockPos position, World world) { synchronized (ru.neverland.core.SuiteState.lock()) {
       int radius = this.plugin.getConfig().getInt("generation.protected-radius", 16);
 
       for (ActiveExpedition expedition : this.repository.active()) {
@@ -566,11 +566,11 @@ public final class ExpeditionService {
       }
 
       return null;
-   }
+   } }
 
-   public boolean participant(Player player, ActiveExpedition expedition) {
+   public boolean participant(Player player, ActiveExpedition expedition) { synchronized (ru.neverland.core.SuiteState.lock()) {
       return expedition != null && expedition.participants().contains(player.getUniqueId());
-   }
+   } }
 
    private void broadcast(ActiveExpedition expedition, String key, Map<String, ?> variables) {
       for (UUID participant : expedition.participants()) {
@@ -627,13 +627,13 @@ public final class ExpeditionService {
       }
    }
 
-   public ExpeditionRepository repository() {
+   public ExpeditionRepository repository() { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.repository;
-   }
+   } }
 
-   public ExpeditionRegistry registry() {
+   public ExpeditionRegistry registry() { synchronized (ru.neverland.core.SuiteState.lock()) {
       return this.registry;
-   }
+   } }
 
    public static enum StartResult {
       QUEUED,
@@ -647,7 +647,7 @@ public final class ExpeditionService {
       WORLD_BLOCKED;
    }
 
-    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() {
+    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() { synchronized (ru.neverland.core.SuiteState.lock()) {
         ru.neverland.core.ApiServices.primaryThread();
         return repository.active().stream().map(c -> new ru.neverland.core.ActivityAdmin.Target(c.id().toString(),c.definitionId()+" / "+c.leaderId(),
                 c.status()==ExpeditionStatus.ACTIVE ? ru.neverland.core.ActivityAdmin.TIMED : java.util.Set.of("status"), (action,minutes) -> {
@@ -660,6 +660,6 @@ public final class ExpeditionService {
             catch(Exception ex){c.timer(before); throw ex;}
             return c.id()+" | "+c.timer().describe(System.currentTimeMillis());
         })).toList();
-    }
+    } }
 
 }

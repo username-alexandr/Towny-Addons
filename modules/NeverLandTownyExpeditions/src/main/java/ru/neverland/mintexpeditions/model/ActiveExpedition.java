@@ -24,17 +24,17 @@ public final class ActiveExpedition {
         this.worldName=worldName; this.campAnchor=campAnchor; this.siteAnchor=siteAnchor;
         this.startedAt=startedAt; this.timer=ru.neverland.core.ActivityTimer.running(startedAt,expiresAt);
     }
-    public UUID id(){return id;} public UUID leaderId(){return leaderId;} public String definitionId(){return definitionId;}
-    public UUID worldId(){return worldId;} public String worldName(){return worldName;} public BlockPos campAnchor(){return campAnchor;}
-    public BlockPos siteAnchor(){return siteAnchor;} public long startedAt(){return startedAt;} public long expiresAt(){return timer.deadline();}
-    public Set<UUID> participants(){return participants;} public Set<BlockPos> objectives(){return objectives;}
-    public Set<BlockPos> completed(){return completed;} public Map<BlockPos,SiteSnapshot> snapshots(){return snapshots;}
-    public Set<UUID> spawnedMobs(){return spawnedMobs;} public int kills(){return kills;} public void kills(int v){kills=Math.max(0,v);}
-    public ExpeditionStatus status(){return status;} public void status(ExpeditionStatus v){status=v;}
-    public World world(){World w=Bukkit.getWorld(worldId); return w==null?Bukkit.getWorld(worldName):w;}
-    public Location siteLocation(){World w=world(); return w==null?null:siteAnchor.location(w).add(.5,1,.5);}
-    public Location campLocation(){World w=world(); return w==null?null:campAnchor.location(w).add(.5,1,.5);}
-    public int objectiveProgress(){return completed.size();}
-    public ru.neverland.core.ActivityTimer timer(){return timer;}
-    public void timer(ru.neverland.core.ActivityTimer value){timer=java.util.Objects.requireNonNull(value);}
+    public UUID id(){ synchronized (ru.neverland.core.SuiteState.lock()) {return id;} } public UUID leaderId(){ synchronized (ru.neverland.core.SuiteState.lock()) {return leaderId;} } public String definitionId(){ synchronized (ru.neverland.core.SuiteState.lock()) {return definitionId;} }
+    public UUID worldId(){ synchronized (ru.neverland.core.SuiteState.lock()) {return worldId;} } public String worldName(){ synchronized (ru.neverland.core.SuiteState.lock()) {return worldName;} } public BlockPos campAnchor(){ synchronized (ru.neverland.core.SuiteState.lock()) {return campAnchor;} }
+    public BlockPos siteAnchor(){ synchronized (ru.neverland.core.SuiteState.lock()) {return siteAnchor;} } public long startedAt(){ synchronized (ru.neverland.core.SuiteState.lock()) {return startedAt;} } public long expiresAt(){ synchronized (ru.neverland.core.SuiteState.lock()) {return timer.deadline();} }
+    public Set<UUID> participants(){ synchronized (ru.neverland.core.SuiteState.lock()) {return participants;} } public Set<BlockPos> objectives(){ synchronized (ru.neverland.core.SuiteState.lock()) {return objectives;} }
+    public Set<BlockPos> completed(){ synchronized (ru.neverland.core.SuiteState.lock()) {return completed;} } public Map<BlockPos,SiteSnapshot> snapshots(){ synchronized (ru.neverland.core.SuiteState.lock()) {return snapshots;} }
+    public Set<UUID> spawnedMobs(){ synchronized (ru.neverland.core.SuiteState.lock()) {return spawnedMobs;} } public int kills(){ synchronized (ru.neverland.core.SuiteState.lock()) {return kills;} } public void kills(int v){ synchronized (ru.neverland.core.SuiteState.lock()) {kills=Math.max(0,v);} }
+    public ExpeditionStatus status(){ synchronized (ru.neverland.core.SuiteState.lock()) {return status;} } public void status(ExpeditionStatus v){ synchronized (ru.neverland.core.SuiteState.lock()) {status=v;} }
+    public World world(){ synchronized (ru.neverland.core.SuiteState.lock()) {World w=Bukkit.getWorld(worldId); return w==null?Bukkit.getWorld(worldName):w;} }
+    public Location siteLocation(){ synchronized (ru.neverland.core.SuiteState.lock()) {World w=world(); return w==null?null:siteAnchor.location(w).add(.5,1,.5);} }
+    public Location campLocation(){ synchronized (ru.neverland.core.SuiteState.lock()) {World w=world(); return w==null?null:campAnchor.location(w).add(.5,1,.5);} }
+    public int objectiveProgress(){ synchronized (ru.neverland.core.SuiteState.lock()) {return completed.size();} }
+    public ru.neverland.core.ActivityTimer timer(){ synchronized (ru.neverland.core.SuiteState.lock()) {return timer;} }
+    public void timer(ru.neverland.core.ActivityTimer value){ synchronized (ru.neverland.core.SuiteState.lock()) {timer=java.util.Objects.requireNonNull(value);} }
 }

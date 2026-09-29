@@ -25,13 +25,13 @@ public final class MintCampsExpansion extends PlaceholderExpansion {
         this.fuel = fuel;
     }
 
-    @Override public @NotNull String getIdentifier() { return "mintcamps"; }
-    @Override public @NotNull String getAuthor() { return "Alexander Sokolov"; }
-    @Override public @NotNull String getVersion() { return plugin.getPluginMeta().getVersion(); }
-    @Override public boolean persist() { return true; }
+    @Override public @NotNull String getIdentifier() { synchronized (ru.neverland.core.SuiteState.lock()) { return "mintcamps"; } }
+    @Override public @NotNull String getAuthor() { synchronized (ru.neverland.core.SuiteState.lock()) { return "Alexander Sokolov"; } }
+    @Override public @NotNull String getVersion() { synchronized (ru.neverland.core.SuiteState.lock()) { return plugin.getPluginMeta().getVersion(); } }
+    @Override public boolean persist() { synchronized (ru.neverland.core.SuiteState.lock()) { return true; } }
 
     @Override
-    public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) {
+    public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (offline == null) return "";
         Camp camp = repository.get(offline.getUniqueId()).orElse(null);
         return switch (params.toLowerCase()) {
@@ -48,5 +48,5 @@ public final class MintCampsExpansion extends PlaceholderExpansion {
                     ? repository.findAt(player.getLocation()).map(Camp::ownerName).orElse("") : "";
             default -> null;
         };
-    }
+    } }
 }

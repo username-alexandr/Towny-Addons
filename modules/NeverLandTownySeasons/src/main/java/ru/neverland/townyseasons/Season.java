@@ -6,8 +6,8 @@ public enum Season {
     SPRING("Весна"), SUMMER("Лето"), AUTUMN("Осень"), WINTER("Зима");
     public final String title;
     Season(String title) { this.title = title; }
-    public static Season parse(String value) {
+    public static Season parse(String value) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String name = value.toUpperCase(Locale.ROOT);
         return valueOf(name.equals("FALL") ? "AUTUMN" : name);
-    }
+    } }
 }

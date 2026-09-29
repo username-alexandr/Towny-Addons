@@ -19,7 +19,7 @@ public final class NeverLandTownyPopulation extends JavaPlugin {
     private Messages messages;
     private Runnable unregisterPlaceholder;
     private boolean townCommandRegistered;
-    @Override public void onEnable() {
+    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         try {
@@ -46,21 +46,21 @@ public final class NeverLandTownyPopulation extends JavaPlugin {
             getLogger().log(java.util.logging.Level.SEVERE,"Не удалось загрузить население; проверьте настройки и базу.",ex);
             getServer().getPluginManager().disablePlugin(this);
         }
-    }
+    } }
     private void registerPlaceholders() {
         try {
             var expansion=new PopulationExpansion(service,getPluginMeta().getVersion());
             if(expansion.register()) unregisterPlaceholder=expansion::unregister;
         } catch(LinkageError ex) { getLogger().warning("PlaceholderAPI несовместим: "+ex.getMessage()); }
     }
-    public boolean reloadPopulation() {
+    public boolean reloadPopulation() { synchronized (ru.neverland.core.SuiteState.lock()) {
         try {
             var settings=readSettings(); var newMessages=read("messages.yml");
             service.reload(settings); messages.reload(newMessages); return true;
         } catch(Exception ex) {
             getLogger().warning("Настройки населения не применены: "+ex.getMessage()); return false;
         }
-    }
+    } }
     private PopulationSettings readSettings() throws Exception { return PopulationSettings.load(read("config.yml"),read("buildings.yml")); }
     private YamlConfiguration read(String file) throws Exception {
         YamlConfiguration result=new YamlConfiguration(); result.load(new File(getDataFolder(),file));
@@ -71,12 +71,12 @@ public final class NeverLandTownyPopulation extends JavaPlugin {
         result.options().copyDefaults(true);
         return result;
     }
-    @Override public void onDisable() {
+    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if(service!=null) service.stop();
         if(unregisterPlaceholder!=null) unregisterPlaceholder.run();
         if(townCommandRegistered) TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"population");
         getServer().getServicesManager().unregisterAll(this);
-    }
+    } }
 }

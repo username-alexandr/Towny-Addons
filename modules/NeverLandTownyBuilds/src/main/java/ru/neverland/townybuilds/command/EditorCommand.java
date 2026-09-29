@@ -19,7 +19,7 @@ public final class EditorCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, @NotNull String[] args) {
+                             @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!(sender instanceof Player player)) {
             messages.send(sender, "only-player");
             return true;
@@ -30,5 +30,5 @@ public final class EditorCommand implements CommandExecutor {
         }
         editor.openIndex(player);
         return true;
-    }
+    } }
 }

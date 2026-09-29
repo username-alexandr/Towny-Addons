@@ -19,33 +19,33 @@ public final class Election {
     final Map<String, String> results = new LinkedHashMap<>();
     final List<String> history = new ArrayList<>();
     public Election(UUID town, long next) { this.id = UUID.randomUUID(); this.town = town; this.next = next; }
-    public Election copy() {
+    public Election copy() { synchronized (ru.neverland.core.SuiteState.lock()) {
         var e = new Election(town, next); e.id=id; e.originalMayor=originalMayor; e.phase=phase;
         e.adminPausedAt=adminPausedAt;e.nominationDuration=nominationDuration;e.start=start; e.nominationEnd=nominationEnd; e.votingEnd=votingEnd; e.interval=interval; e.votingDuration=votingDuration; e.quorum=quorum; e.detail=detail; e.governanceBefore=governanceBefore;
         e.electorate.addAll(electorate); e.seats.putAll(seats); e.candidates.putAll(candidates);
         ballots.forEach((r, votes) -> { var map = new LinkedHashMap<UUID,List<UUID>>(); votes.forEach((v, choices) -> map.put(v, List.copyOf(choices))); e.ballots.put(r, map); });
         winners.forEach((r, list) -> e.winners.put(r, List.copyOf(list))); e.results.putAll(results); e.history.addAll(history); return e;
-    }
-    public boolean active() { return phase == Phase.NOMINATION || phase == Phase.VOTING || phase == Phase.APPLYING || phase == Phase.REVIEW; }
-    public void nominate(UUID resident, String race, long now) {
+    } }
+    public boolean active() { synchronized (ru.neverland.core.SuiteState.lock()) { return phase == Phase.NOMINATION || phase == Phase.VOTING || phase == Phase.APPLYING || phase == Phase.REVIEW; } }
+    public void nominate(UUID resident, String race, long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (adminPausedAt>0 || phase != Phase.NOMINATION || now >= nominationEnd) throw new IllegalArgumentException("Приём кандидатов закрыт.");
         if (!seats.containsKey(race)) throw new IllegalArgumentException("Неизвестная должность.");
         if (candidates.containsKey(resident)) throw new IllegalArgumentException("Можно выдвинуться только на одну должность. Сначала withdraw.");
         candidates.put(resident, race);
-    }
-    public void withdraw(UUID resident, long now) {
+    } }
+    public void withdraw(UUID resident, long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (adminPausedAt>0 || phase != Phase.NOMINATION || now >= nominationEnd) throw new IllegalArgumentException("Снятие кандидатуры уже закрыто.");
         if (candidates.remove(resident) == null) throw new IllegalArgumentException("Вы не выдвигались.");
-    }
-    public void vote(UUID voter, String race, List<UUID> choices, long now) {
+    } }
+    public void vote(UUID voter, String race, List<UUID> choices, long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (adminPausedAt>0 || phase != Phase.VOTING || now >= votingEnd) throw new IllegalArgumentException("Голосование закрыто.");
         if (!electorate.contains(voter)) throw new IllegalArgumentException("Вы не вошли в список избирателей на старте кампании.");
         if (!seats.containsKey(race) || choices.isEmpty() || choices.size() > seats.get(race) || new HashSet<>(choices).size() != choices.size()) throw new IllegalArgumentException("Неверное число выбранных кандидатов.");
         for (UUID candidate : choices) if (!race.equals(candidates.get(candidate))) throw new IllegalArgumentException("Кандидат не участвует в этих выборах.");
         ballots.computeIfAbsent(race, key -> new LinkedHashMap<>()).put(voter, List.copyOf(choices));
-    }
+    } }
     /** Approval voting: up to N distinct candidates for N seats. Ties at the boundary preserve incumbents. */
-    public void tally(Set<UUID> eligibleVoters, Set<UUID> eligibleCandidates) {
+    public void tally(Set<UUID> eligibleVoters, Set<UUID> eligibleCandidates) { synchronized (ru.neverland.core.SuiteState.lock()) {
         winners.clear(); results.clear();
         var voters = new HashSet<>(electorate); voters.retainAll(eligibleVoters);
         for (var race : seats.entrySet()) {
@@ -68,7 +68,7 @@ public final class Election {
             else { winners.put(race.getKey(), List.copyOf(ranking.subList(0, count))); reason = "Избрано: " + count; }
             results.put(race.getKey(), reason + "; явка " + turnout + "/" + voters.size());
         }
-    }
+    } }
     void validate() {
         Objects.requireNonNull(id); Objects.requireNonNull(town); Objects.requireNonNull(phase);
         if(adminPausedAt<0||nominationDuration<0||adminPausedAt>0&&(!java.util.Set.of(Phase.NOMINATION,Phase.VOTING).contains(phase)||adminPausedAt>timer().deadline()))throw new IllegalArgumentException("Invalid campaign pause");
@@ -86,7 +86,7 @@ public final class Election {
                 || ids.stream().anyMatch(id -> !r.equals(candidates.get(id)) || !selected.add(id))) throw new IllegalArgumentException("Invalid saved winners"); });
         if (!Set.of(Phase.APPLYING, Phase.REVIEW, Phase.COMPLETE).contains(phase) && !winners.isEmpty()) throw new IllegalArgumentException("Premature winners");
     }
-    public ru.neverland.core.ActivityTimer timer(){return new ru.neverland.core.ActivityTimer(phase==Phase.NOMINATION?nominationEnd:votingEnd,adminPausedAt,phase==Phase.NOMINATION?Math.max(1,nominationDuration>0?nominationDuration:nominationEnd-start):Math.max(1,votingDuration));}
-    public void timer(ru.neverland.core.ActivityTimer timer){if(phase==Phase.NOMINATION)nominationEnd=timer.deadline();else votingEnd=timer.deadline();adminPausedAt=timer.pausedAt();}
+    public ru.neverland.core.ActivityTimer timer(){ synchronized (ru.neverland.core.SuiteState.lock()) {return new ru.neverland.core.ActivityTimer(phase==Phase.NOMINATION?nominationEnd:votingEnd,adminPausedAt,phase==Phase.NOMINATION?Math.max(1,nominationDuration>0?nominationDuration:nominationEnd-start):Math.max(1,votingDuration));} }
+    public void timer(ru.neverland.core.ActivityTimer timer){ synchronized (ru.neverland.core.SuiteState.lock()) {if(phase==Phase.NOMINATION)nominationEnd=timer.deadline();else votingEnd=timer.deadline();adminPausedAt=timer.pausedAt();} }
 
 }

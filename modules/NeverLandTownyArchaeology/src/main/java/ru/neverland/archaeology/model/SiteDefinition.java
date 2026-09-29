@@ -8,6 +8,6 @@ import java.util.Set;
 
 public record SiteDefinition(String id, String name, Set<String> biomes, Material suspiciousBlock, Set<Material> replaceable,
                              int minimumBlocks, int maximumBlocks, Map<String, Integer> artifactWeights) {
-    public int totalWeight() { return artifactWeights.values().stream().mapToInt(Integer::intValue).sum(); }
-    public List<String> artifacts() { return List.copyOf(artifactWeights.keySet()); }
+    public int totalWeight() { synchronized (ru.neverland.core.SuiteState.lock()) { return artifactWeights.values().stream().mapToInt(Integer::intValue).sum(); } }
+    public List<String> artifacts() { synchronized (ru.neverland.core.SuiteState.lock()) { return List.copyOf(artifactWeights.keySet()); } }
 }

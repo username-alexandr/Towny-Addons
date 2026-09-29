@@ -7,11 +7,11 @@ import java.util.Locale;
 public final class ResourcesExpansion extends PlaceholderExpansion {
     private final TownyResourcesApi api;private final String version;
     public ResourcesExpansion(TownyResourcesApi api,String version){this.api=api;this.version=version;}
-    @Override public String getIdentifier(){return "nltresources";}
-    @Override public String getAuthor(){return "Alexander Sokolov";}
-    @Override public String getVersion(){return version;}
-    @Override public boolean persist(){return true;}
-    @Override public String onRequest(OfflinePlayer player,String parameters){
+    @Override public String getIdentifier(){ synchronized (ru.neverland.core.SuiteState.lock()) {return "nltresources";} }
+    @Override public String getAuthor(){ synchronized (ru.neverland.core.SuiteState.lock()) {return "Alexander Sokolov";} }
+    @Override public String getVersion(){ synchronized (ru.neverland.core.SuiteState.lock()) {return version;} }
+    @Override public boolean persist(){ synchronized (ru.neverland.core.SuiteState.lock()) {return true;} }
+    @Override public String onRequest(OfflinePlayer player,String parameters){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(player==null)return "";var s=api.residentResources(player.getUniqueId()).orElse(null);if(s==null)return "";String key=parameters.toLowerCase(Locale.ROOT);
         if(key.equals("paused"))return s.paused()?"да":"нет";
         if(key.equals("food_coverage"))return String.format(Locale.ROOT,"%.1f",s.foodCoverage()*100);
@@ -24,5 +24,5 @@ public final class ResourcesExpansion extends PlaceholderExpansion {
             if(key.equals(r.id()+"_net"))return Amounts.decimal(s.forecastIncome().get(r)-s.forecastExpense().get(r));
         }
         return null;
-    }
+    } }
 }

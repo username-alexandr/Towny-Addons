@@ -34,44 +34,44 @@ public final class ReputationService {
     private final JavaPlugin plugin; private final ReputationRegistry registry; private final ReputationRepository repository;
     private final ZoneId zone = ZoneId.systemDefault(); private BukkitTask autosaveTask; private BukkitTask decayTask;
     private ReputationProfiles profiles;
-    public void profiles(ReputationProfiles value) { this.profiles = java.util.Objects.requireNonNull(value); }
-    public ReputationProfiles profiles() { return java.util.Objects.requireNonNull(profiles, "Профили ещё не загружены"); }
+    public void profiles(ReputationProfiles value) { synchronized (ru.neverland.core.SuiteState.lock()) { this.profiles = java.util.Objects.requireNonNull(value); } }
+    public ReputationProfiles profiles() { synchronized (ru.neverland.core.SuiteState.lock()) { return java.util.Objects.requireNonNull(profiles, "Профили ещё не загружены"); } }
     private int minimum; private int maximum; private int historyLimit;
     public ReputationService(JavaPlugin plugin, ReputationRegistry registry, ReputationRepository repository) {
         this.plugin = plugin; this.registry = registry; this.repository = repository; reloadSettings();
     }
-    public void reloadSettings() {
+    public void reloadSettings() { synchronized (ru.neverland.core.SuiteState.lock()) {
         minimum = plugin.getConfig().getInt("score.minimum", -1000); maximum = plugin.getConfig().getInt("score.maximum", 1000);
         if (minimum > maximum) { int swap = minimum; minimum = maximum; maximum = swap; }
         historyLimit = Math.max(1, plugin.getConfig().getInt("storage.history-per-relation", 30));
-    }
-    public void start() {
+    } }
+    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
         stopTasks(); reloadSettings();repository.flushReputation();
         long saveTicks = Math.max(20L, plugin.getConfig().getLong("storage.autosave-seconds", 60) * 20L);
-        autosaveTask = Bukkit.getScheduler().runTaskTimer(plugin, ()->{repository.save();repository.flushReputation();}, saveTicks, saveTicks);
+        autosaveTask = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, ()->{repository.save();repository.flushReputation();}, saveTicks, saveTicks);
         long decayTicks = Math.max(1200L, plugin.getConfig().getLong("decay.check-interval-minutes", 30) * 1200L);
-        decayTask = Bukkit.getScheduler().runTaskTimer(plugin, this::runDecayIfNeeded, 20L, decayTicks);
-    }
-    public void shutdown() { stopTasks(); repository.save(); }
+        decayTask = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::runDecayIfNeeded, 20L, decayTicks);
+    } }
+    public void shutdown() { synchronized (ru.neverland.core.SuiteState.lock()) { stopTasks(); repository.save(); } }
     private void stopTasks() { if (autosaveTask != null) autosaveTask.cancel(); if (decayTask != null) decayTask.cancel(); autosaveTask = null; decayTask = null; }
 
-    public int score(ReputationScope scope, UUID first, UUID second) { ReputationRecord record = repository.get(RelationKey.of(scope, first, second)); return record == null ? 0 : record.score(); }
-    public ReputationSnapshot snapshot(ReputationScope scope, UUID first, UUID second) {
+    public int score(ReputationScope scope, UUID first, UUID second) { synchronized (ru.neverland.core.SuiteState.lock()) { ReputationRecord record = repository.get(RelationKey.of(scope, first, second)); return record == null ? 0 : record.score(); } }
+    public ReputationSnapshot snapshot(ReputationScope scope, UUID first, UUID second) { synchronized (ru.neverland.core.SuiteState.lock()) {
         int score = score(scope, first, second); ReputationTier tier = registry.tier(score);
         return new ReputationSnapshot(scope, first, second, score, tier.id(), tier.name(), Set.copyOf(tier.privileges()), tier.tradeDiscountPercent(), tier.rewardMultiplier());
-    }
-    public boolean featureUnlocked(String featureId, ReputationScope scope, UUID first, UUID second) {
+    } }
+    public boolean featureUnlocked(String featureId, ReputationScope scope, UUID first, UUID second) { synchronized (ru.neverland.core.SuiteState.lock()) {
         FeatureDefinition feature = registry.feature(featureId); return feature != null && feature.supports(scope) && score(scope, first, second) >= feature.minimumScore();
-    }
-    public ReputationRecord record(ReputationScope scope, UUID first, UUID second) { return repository.get(RelationKey.of(scope, first, second)); }
-    public List<ReputationRecord> involving(ReputationScope scope, UUID id) { return repository.involving(scope, id); }
-    public List<ReputationRecord> top(ReputationScope scope, int limit) { return repository.all().stream().filter(record -> record.key().scope() == scope).sorted(Comparator.comparingInt((ReputationRecord record) -> record.score()).reversed()).limit(Math.max(1, limit)).toList(); }
-    public ReputationTier tier(int score) { return registry.tier(score); }
-    public List<ReputationTier> tiers() { return registry.tiers(); }
-    public Set<String> featureIds() { return registry.features().keySet(); }
+    } }
+    public ReputationRecord record(ReputationScope scope, UUID first, UUID second) { synchronized (ru.neverland.core.SuiteState.lock()) { return repository.get(RelationKey.of(scope, first, second)); } }
+    public List<ReputationRecord> involving(ReputationScope scope, UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return repository.involving(scope, id); } }
+    public List<ReputationRecord> top(ReputationScope scope, int limit) { synchronized (ru.neverland.core.SuiteState.lock()) { return repository.all().stream().filter(record -> record.key().scope() == scope).sorted(Comparator.comparingInt((ReputationRecord record) -> record.score()).reversed()).limit(Math.max(1, limit)).toList(); } }
+    public ReputationTier tier(int score) { synchronized (ru.neverland.core.SuiteState.lock()) { return registry.tier(score); } }
+    public List<ReputationTier> tiers() { synchronized (ru.neverland.core.SuiteState.lock()) { return registry.tiers(); } }
+    public Set<String> featureIds() { synchronized (ru.neverland.core.SuiteState.lock()) { return registry.features().keySet(); } }
 
     public ReputationChangeResult change(ReputationScope scope, UUID first, String firstName, UUID second, String secondName, int delta,
-                                         String source, String reason, String uniqueKey, UUID actorId, String actorName) {
+                                         String source, String reason, String uniqueKey, UUID actorId, String actorName) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (scope == null || first == null || second == null || first.equals(second)) return new ReputationChangeResult(ChangeStatus.SELF_TARGET, 0, 0, delta, 0);
         String normalizedSource = normalize(source, "default"); RelationKey key = RelationKey.of(scope, first, second);
         ReputationRecord existing = repository.get(key); int oldScore = existing == null ? 0 : existing.score();
@@ -92,13 +92,13 @@ public final class ReputationService {
             if (Math.abs(appliedRequest) < Math.abs(delta)) return new ReputationChangeResult(ChangeStatus.RATE_LIMITED, result.oldScore(), result.newScore(), delta, result.appliedDelta());
         }
         return result;
-    }
+    } }
 
     public ReputationChangeResult set(ReputationScope scope, UUID first, String firstName, UUID second, String secondName, int desired,
-                                      String source, String reason, String uniqueKey, UUID actorId, String actorName) {
+                                      String source, String reason, String uniqueKey, UUID actorId, String actorName) { synchronized (ru.neverland.core.SuiteState.lock()) {
         int current = scope == null || first == null || second == null ? 0 : score(scope, first, second);
         return change(scope, first, firstName, second, secondName, ReputationMath.clamp(desired, minimum, maximum) - current, source, reason, uniqueKey, actorId, actorName);
-    }
+    } }
 
     private ReputationChangeResult apply(RelationKey key, String firstName, String secondName, int delta, String source, String reason, UUID actorId, String actorName, boolean touchActivity) {
         ReputationRecord record = repository.get(key); int oldScore = record == null ? 0 : record.score(); int requestedScore = ReputationMath.clamp(oldScore + delta, minimum, maximum);
@@ -112,7 +112,7 @@ public final class ReputationService {
         return new ReputationChangeResult(ChangeStatus.SUCCESS, oldScore, requestedScore, delta, requestedScore - oldScore);
     }
 
-    public FeedbackResult feedback(Player actor, Player target, boolean positive) {
+    public FeedbackResult feedback(Player actor, Player target, boolean positive) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!plugin.getConfig().getBoolean("feedback.enabled", true)) return new FeedbackResult(FeedbackStatus.DISABLED, null, 0);
         if (actor.getUniqueId().equals(target.getUniqueId())) return new FeedbackResult(FeedbackStatus.SELF_TARGET, null, 0);
         int requiredHours = Math.max(0, plugin.getConfig().getInt("feedback.minimum-playtime-hours", 2));
@@ -128,9 +128,9 @@ public final class ReputationService {
         repository.feedbackCooldown(pair, now); repository.feedbackDaily(dayKey, used + 1);
         repository.outcome(new ru.neverland.core.ReputationOutcome("feedback:"+pair+":"+LocalDate.now(zone),"PLAYER",target.getUniqueId(),positive?"PLAYER_ENDORSE":"PLAYER_DENOUNCE",now,"Отзыв игрока "+actor.getName()));
         repository.save();repository.flushReputation();return new FeedbackResult(FeedbackStatus.SUCCESS, change, 0);
-    }
+    } }
 
-    public int runDecayNow() { return runDecay(true); }
+    public int runDecayNow() { synchronized (ru.neverland.core.SuiteState.lock()) { return runDecay(true); } }
     private void runDecayIfNeeded() { runDecay(false); }
     private int runDecay(boolean force) {
         if (!plugin.getConfig().getBoolean("decay.enabled", true) && !force) return 0;

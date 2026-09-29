@@ -27,7 +27,7 @@ final class AdminMenu implements Listener {
         final UUID owner;final Map<Integer,Action> buttons=new HashMap<>();final Set<String> permissions;
         Inventory inventory;boolean busy;long expires=Long.MAX_VALUE;
         Screen(Player player,Set<String> permissions){owner=player.getUniqueId();this.permissions=permissions;}
-        @Override public Inventory getInventory(){return inventory;}
+        @Override public Inventory getInventory(){ synchronized (ru.neverland.core.SuiteState.lock()) {return inventory;} }
     }
     AdminMenu(NeverLandTownyControl plugin,AdminRouter router,AuditCommand audit){this.plugin=plugin;this.router=router;this.activities=new ActivityBridge(router);this.audit=audit;Bukkit.getPluginManager().registerEvents(this,plugin);}
     private Screen screen(Player player,String title,String... permissions){
@@ -175,21 +175,21 @@ final class AdminMenu implements Listener {
     private static Material actionIcon(String action){return switch(action){case "cancel"->Material.REDSTONE;case "restart","extend"->Material.CLOCK;case "pause"->Material.REPEATER;case "resume"->Material.LIME_DYE;default->Material.BOOK;};}
     private static List<String> actionLore(String action,String module){if(module.equals("Environment")&&action.equals("restart"))return List.of("Обновить данные зданий и начать новый цикл","Накопленное загрязнение сохраняется");if(module.equals("Environment")&&action.equals("pause"))return List.of("Сохранить загрязнение и остановить расчёт","Экологические штрафы на паузе отключены");if(module.equals("Achievements")&&action.equals("restart"))return List.of("Повторно проверить условия достижений","Открытые награды и прогресс сохраняются");return switch(action){case "cancel"->List.of("Нейтральная отмена без начисления провала","Расчёты и возвраты выполняет аддон");case "restart"->List.of("Запустить таймер заново; сохранить прогресс",module.equals("Events")?"Событие также выйдет из паузы":"Текущее состояние паузы сохраняется");case "pause"->List.of("Приостановить задачу, сохранив прогресс");case "resume"->List.of("Продолжить приостановленную задачу");default->List.of("Увеличить оставшееся время");};}
     private void attempt(Player player,Action action){try{action.run();}catch(Exception ex){player.sendMessage("§cОперация остановлена: "+clean(ex.getMessage()));}}
-    @EventHandler(priority=EventPriority.HIGHEST) public void click(InventoryClickEvent event){
+    @EventHandler(priority=EventPriority.HIGHEST) public void click(InventoryClickEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!(event.getView().getTopInventory().getHolder() instanceof Screen s))return;event.setCancelled(true);
         if(!(event.getWhoClicked() instanceof Player player)||!current(player,s))return;
         if(!authorized(player,s)){player.closeInventory();return;}
         if(event.getClick()!=ClickType.LEFT||event.getRawSlot()<0||event.getRawSlot()>=54||s.busy)return;
         var action=s.buttons.get(event.getRawSlot());if(action==null)return;s.busy=true;
-        Bukkit.getScheduler().runTask(plugin,()->{
+        ru.neverland.core.SuiteScheduler.entity(plugin, player,()->{
             if(!current(player,s))return;
             if(!authorized(player,s)){player.closeInventory();return;}
             if(System.currentTimeMillis()>s.expires){player.sendMessage("§eПодтверждение истекло. Откройте действие заново");player.closeInventory();return;}
             attempt(player,action);if(current(player,s))s.busy=false;
         });
-    }
-    @EventHandler(priority=EventPriority.HIGHEST) public void drag(InventoryDragEvent event){if(event.getView().getTopInventory().getHolder() instanceof Screen)event.setCancelled(true);}
-    @EventHandler public void close(InventoryCloseEvent event){if(event.getInventory().getHolder() instanceof Screen s)screens.remove(event.getPlayer().getUniqueId(),s);}
-    @EventHandler public void quit(PlayerQuitEvent event){screens.remove(event.getPlayer().getUniqueId());}
+    } }
+    @EventHandler(priority=EventPriority.HIGHEST) public void drag(InventoryDragEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(event.getView().getTopInventory().getHolder() instanceof Screen)event.setCancelled(true);} }
+    @EventHandler public void close(InventoryCloseEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(event.getInventory().getHolder() instanceof Screen s)screens.remove(event.getPlayer().getUniqueId(),s);} }
+    @EventHandler public void quit(PlayerQuitEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {screens.remove(event.getPlayer().getUniqueId());} }
     void shutdown(){for(var player:List.copyOf(Bukkit.getOnlinePlayers()))if(player.getOpenInventory().getTopInventory().getHolder() instanceof Screen)player.closeInventory();screens.clear();}
 }

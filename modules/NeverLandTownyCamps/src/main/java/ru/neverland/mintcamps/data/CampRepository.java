@@ -33,16 +33,20 @@ public final class CampRepository {
     private final File file;
     private final Map<UUID, Camp> camps = new LinkedHashMap<>();
     private final Map<UUID, Map<Long, Set<UUID>>> chunkIndex = new HashMap<>();
+    private final Map<UUID,org.bukkit.inventory.Inventory> storageSessions = new HashMap<>();
+    public boolean stashBusy(UUID owner) { synchronized (ru.neverland.core.SuiteState.lock()) { return storageSessions.containsKey(owner); } }
+    public boolean openStash(UUID owner,org.bukkit.inventory.Inventory inventory) { synchronized (ru.neverland.core.SuiteState.lock()) { return storageSessions.putIfAbsent(owner,inventory)==null; } }
+    public boolean closeStash(UUID owner,org.bukkit.inventory.Inventory inventory) { synchronized (ru.neverland.core.SuiteState.lock()) { return storageSessions.remove(owner,inventory); } }
     private boolean dirty;
     private boolean writable;
-    public boolean writable(){return writable&&ru.neverland.core.AtomicFiles.writable(file.toPath());}
+    public boolean writable(){ synchronized (ru.neverland.core.SuiteState.lock()) {return writable&&ru.neverland.core.AtomicFiles.writable(file.toPath());} }
 
     public CampRepository(JavaPlugin plugin) {
         this.plugin = plugin;
         this.file = new File(plugin.getDataFolder(), "camps.yml");
     }
 
-    public void load() {
+    public void load() { synchronized (ru.neverland.core.SuiteState.lock()) {
         writable=false;
         camps.clear();
         chunkIndex.clear();
@@ -90,38 +94,38 @@ public final class CampRepository {
         rebuildIndex();
         dirty = false;writable=true;ru.neverland.core.AtomicFiles.loaded(file.toPath());
         plugin.getLogger().info("Загружено активных лагерей: " + camps.size() + ".");
-    }
+    } }
 
-    public Collection<Camp> all() {
+    public Collection<Camp> all() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return Collections.unmodifiableCollection(camps.values());
-    }
+    } }
 
-    public Optional<Camp> get(UUID ownerId) {
+    public Optional<Camp> get(UUID ownerId) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return Optional.ofNullable(camps.get(ownerId));
-    }
+    } }
 
-    public Optional<Camp> getByOwnerName(String name) {
+    public Optional<Camp> getByOwnerName(String name) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return camps.values().stream().filter(camp -> camp.ownerName().equalsIgnoreCase(name)).findFirst();
-    }
+    } }
 
-    public void put(Camp camp) {
+    public void put(Camp camp) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Camp old = camps.put(camp.ownerId(), camp);
         if (old != null) unindex(old);
         index(camp);
         dirty = true;
-    }
+    } }
 
-    public void remove(Camp camp) {
+    public void remove(Camp camp) { synchronized (ru.neverland.core.SuiteState.lock()) {
         camps.remove(camp.ownerId());
         unindex(camp);
         dirty = true;
-    }
+    } }
 
-    public void markDirty() {
+    public void markDirty() { synchronized (ru.neverland.core.SuiteState.lock()) {
         dirty = true;
-    }
+    } }
 
-    public Optional<Camp> findAt(Location location) {
+    public Optional<Camp> findAt(Location location) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (location.getWorld() == null) return Optional.empty();
         Map<Long, Set<UUID>> worldIndex = chunkIndex.get(location.getWorld().getUID());
         if (worldIndex == null) return Optional.empty();
@@ -138,9 +142,9 @@ public final class CampRepository {
             }
         }
         return Optional.empty();
-    }
+    } }
 
-    public boolean isTooClose(Location location, int minimumDistance) {
+    public boolean isTooClose(Location location, int minimumDistance) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (location.getWorld() == null) return true;
         double squared = (double) minimumDistance * minimumDistance;
         for (Camp camp : camps.values()) {
@@ -150,17 +154,17 @@ public final class CampRepository {
             if (dx * dx + dz * dz < squared) return true;
         }
         return false;
-    }
+    } }
 
-    public void saveIfDirty() {
+    public void saveIfDirty() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (dirty) save();
-    }
+    } }
 
-    public void save() {
+    public void save() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!writable())throw new IllegalStateException("Хранилище лагерей недоступно");
         try{saveOrThrow();}catch(IOException ex){writable=false;throw new java.io.UncheckedIOException(ex);}
-    }
-    public void saveOrThrow()throws IOException {
+    } }
+    public void saveOrThrow()throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!writable())throw new IOException("Хранилище лагерей недоступно");
         YamlConfiguration yaml = new YamlConfiguration();
         for (Camp camp : camps.values()) {
@@ -196,7 +200,7 @@ public final class CampRepository {
             yaml.set(path + "placed-blocks", camp.placedBlocks().stream().map(BlockPos::key).toList());
         }
         try{ru.neverland.core.AtomicFiles.write(file.toPath(),yaml::saveToString);dirty=false;}catch(IOException ex){writable=false;throw ex;}
-    }
+    } }
 
     private List<ItemStack> readItems(List<?> values) {
         List<ItemStack> items = new ArrayList<>();

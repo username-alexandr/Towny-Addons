@@ -45,11 +45,11 @@ public final class ExpansionBlueprintGenerator {
             Map.entry("prison", "Тюрьма")
     );
 
-    public Set<String> supportedProjects() {
+    public Set<String> supportedProjects() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return Set.copyOf(PROJECTS);
-    }
+    } }
 
-    public BlueprintPlan generate(String rawId, int rawLevel) {
+    public BlueprintPlan generate(String rawId, int rawLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String id = rawId == null ? "" : rawId.toLowerCase(Locale.ROOT);
         if (!PROJECTS.contains(id)) return null;
         int level = Math.max(1, Math.min(5, rawLevel));
@@ -75,9 +75,9 @@ public final class ExpansionBlueprintGenerator {
             default -> throw new IllegalStateException("Неизвестная модель " + id);
         }
         return new BlueprintPlan(id, level, stageName(id, level), b.blocks);
-    }
+    } }
 
-    public String stageName(String id, int level) {
+    public String stageName(String id, int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String[] names = switch (id) {
             case "infirmary" -> new String[]{"Приёмный покой", "Палатное крыло", "Аптекарский дом", "Башня лекаря", "Лечебный сад"};
             case "fire_station" -> new String[]{"Дежурный дом", "Пожарное депо", "Водяная башня", "Конюшня команды", "Учебный двор"};
@@ -99,7 +99,7 @@ public final class ExpansionBlueprintGenerator {
             default -> new String[]{"Основание", "Корпус", "Расширение", "Башня", "Завершение"};
         };
         return names[Math.max(1, Math.min(5, level)) - 1];
-    }
+    } }
 
     private void infirmary(Builder b) {
         b.house(-7, 7, -5, 5, 4, Material.POLISHED_DIORITE, Material.CALCITE,

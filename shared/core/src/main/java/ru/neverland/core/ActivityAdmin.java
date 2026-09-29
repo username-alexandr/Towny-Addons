@@ -20,21 +20,21 @@ public final class ActivityAdmin implements TabExecutor {
     private ActivityAdmin(JavaPlugin plugin, String permission, Supplier<List<Target>> targets, CommandExecutor original, TabCompleter completions) {
         this.plugin=plugin; this.permission=permission; this.targets=targets; this.original=original; this.completions=completions;
     }
-    public static void attach(JavaPlugin plugin, String command, String permission, Supplier<List<Target>> targets) {
+    public static void attach(JavaPlugin plugin, String command, String permission, Supplier<List<Target>> targets) { synchronized (ru.neverland.core.SuiteState.lock()) {
         var direct=Objects.requireNonNull(plugin.getCommand(command), "Нет команды " + command);
         if (direct.getExecutor() instanceof ActivityAdmin) throw new IllegalStateException("Администрирование уже подключено");
         var control=new ActivityAdmin(plugin,permission,targets,direct.getExecutor(),direct.getTabCompleter());
         direct.setExecutor(control); direct.setTabCompleter(control);
-    }
+    } }
     private boolean allowed(CommandSender sender) { return sender.isOp() || sender.hasPermission(permission); }
     /** Public, class-loader-neutral menu protocol. The owner always checks permissions and current state. */
-    public int adminMenuVersion() { return 1; }
-    public List<Map<String,Object>> adminMenuTargets(CommandSender sender) {
+    public int adminMenuVersion() { synchronized (ru.neverland.core.SuiteState.lock()) { return 1; } }
+    public List<Map<String,Object>> adminMenuTargets(CommandSender sender) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ApiServices.primaryThread();
         if (!plugin.isEnabled() || !allowed(sender)) throw new IllegalArgumentException("Нет доступа к задачам аддона");
         return targets.get().stream().map(t -> Map.<String,Object>of("id",t.id(),"name",t.name(),"actions",t.actions().stream().sorted().toList())).toList();
-    }
-    public String adminMenuAction(CommandSender sender, String id, String expectedName, String action, long minutes) throws Exception {
+    } }
+    public String adminMenuAction(CommandSender sender, String id, String expectedName, String action, long minutes) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
         ApiServices.primaryThread();
         if (!plugin.isEnabled() || !allowed(sender)) throw new IllegalArgumentException("Нет доступа к задачам аддона");
         var target=targets.get().stream().filter(t->t.id().equals(id)).findFirst().orElseThrow(()->new IllegalArgumentException("Задача уже завершена или заменена. Обновите меню"));
@@ -44,21 +44,21 @@ public final class ActivityAdmin implements TabExecutor {
         String result=target.action().run(action,minutes);
         if(!action.equals("status"))audit(sender,target,action,minutes,result);
         return result;
-    }
+    } }
     private void audit(CommandSender sender,Target target,String action,long minutes,String result){
         plugin.getLogger().info("Администратор "+sender.getName()+": "+action+" "+target.id()+" +"+minutes+" мин. — "+result);
         AuditTrail.record(plugin,UUID.randomUUID().toString(),target.id(),"ADMIN_ACTIVITY","COMPLETED",
             sender instanceof org.bukkit.entity.Player p?AuditTrail.player(p.getUniqueId()):new AuditRecord.Party("CONSOLE","",sender.getName(),""),
             AuditRecord.Party.unknown(),new AuditRecord.Party("ACTIVITY",target.id(),target.name(),""),"",0,"",action+" +"+minutes+" мин.; "+result);
     }
-    public static Target find(List<Target> targets, String id) {
+    public static Target find(List<Target> targets, String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
         var exact=targets.stream().filter(t->t.id().equalsIgnoreCase(id)).toList();
         var found=exact.isEmpty()?targets.stream().filter(t->t.id().toLowerCase(Locale.ROOT).startsWith(id.toLowerCase(Locale.ROOT))).toList():exact;
         if (id.isBlank() || found.isEmpty()) throw new IllegalArgumentException("Активная задача не найдена. Используйте admin list");
         if (found.size()!=1) throw new IllegalArgumentException("Неоднозначный ID: укажите полный идентификатор");
         return found.get(0);
-    }
-    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    } }
+    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (args.length==0 || !args[0].equalsIgnoreCase("admin")) return original.onCommand(sender,command,label,args);
         if (!allowed(sender)) { sender.sendMessage("§cНет разрешения " + permission); return true; }
         try {
@@ -85,8 +85,8 @@ public final class ActivityAdmin implements TabExecutor {
             if(!action.equals("status"))audit(sender,target,action,minutes,result);
         } catch(Exception ex) { sender.sendMessage("§cОперация остановлена: "+ex.getMessage()); }
         return true;
-    }
-    @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    } }
+    @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!allowed(sender)) return args.length>0&&args[0].equalsIgnoreCase("admin")?List.of():completions==null?List.of():completions.onTabComplete(sender,command,alias,args);
         if(args.length==1) {
             var values=new ArrayList<String>(); if(completions!=null){var old=completions.onTabComplete(sender,command,alias,args);if(old!=null)values.addAll(old);}values.add("admin");return filter(values,args[0]);
@@ -98,6 +98,6 @@ public final class ActivityAdmin implements TabExecutor {
             if(args.length==(args[1].equalsIgnoreCase("extend")?4:3))return filter(targets.get().stream().filter(t->t.actions().contains(args[1].toLowerCase(Locale.ROOT))).map(Target::id).toList(),args[args.length-1]);
         }catch(Exception ignored){}
         return List.of();
-    }
+    } }
     private static List<String> filter(Collection<String> values,String prefix) {return values.stream().filter(v->v.toLowerCase(Locale.ROOT).startsWith(prefix.toLowerCase(Locale.ROOT))).distinct().sorted().toList();}
 }

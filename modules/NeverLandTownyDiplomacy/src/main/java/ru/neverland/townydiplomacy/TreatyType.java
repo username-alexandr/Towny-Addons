@@ -12,14 +12,14 @@ public enum TreatyType {
     SANCTIONS("Санкции", "Торговые и/или дипломатические ограничения", false);
     private final String title, description; private final boolean bilateral;
     TreatyType(String title, String description, boolean bilateral) { this.title=title; this.description=description; this.bilateral=bilateral; }
-    public String id() { return name().toLowerCase(Locale.ROOT); }
-    public String title() { return title; }
-    public String description() { return description; }
-    public boolean bilateral() { return bilateral; }
-    public boolean protective() { return this==ALLIANCE || this==NONAGGRESSION || this==VASSALAGE || this==GUARANTEE; }
-    public boolean directional() { return this==VASSALAGE || this==GUARANTEE || !bilateral; }
-    public static TreatyType parse(String value) {
+    public String id() { synchronized (ru.neverland.core.SuiteState.lock()) { return name().toLowerCase(Locale.ROOT); } }
+    public String title() { synchronized (ru.neverland.core.SuiteState.lock()) { return title; } }
+    public String description() { synchronized (ru.neverland.core.SuiteState.lock()) { return description; } }
+    public boolean bilateral() { synchronized (ru.neverland.core.SuiteState.lock()) { return bilateral; } }
+    public boolean protective() { synchronized (ru.neverland.core.SuiteState.lock()) { return this==ALLIANCE || this==NONAGGRESSION || this==VASSALAGE || this==GUARANTEE; } }
+    public boolean directional() { synchronized (ru.neverland.core.SuiteState.lock()) { return this==VASSALAGE || this==GUARANTEE || !bilateral; } }
+    public static TreatyType parse(String value) { synchronized (ru.neverland.core.SuiteState.lock()) {
         try { return valueOf(value.toUpperCase(Locale.ROOT)); }
         catch (RuntimeException ex) { throw new IllegalArgumentException("Тип: alliance, trade, nonaggression, vassalage, guarantee, embargo, sanctions"); }
-    }
+    } }
 }

@@ -24,7 +24,7 @@ public final class TownyHook {
         reload();
     }
 
-    public void reload() {
+    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
         available = false;
         if (Bukkit.getPluginManager().getPlugin("Towny") == null) return;
         try {
@@ -41,9 +41,9 @@ public final class TownyHook {
         } catch (ReflectiveOperationException exception) {
             plugin.getLogger().warning("Не удалось подключить API Towny: " + exception.getMessage());
         }
-    }
+    } }
 
-    public PlacementResult canPlace(Player player, Location location) {
+    public PlacementResult canPlace(Player player, Location location) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!available || player.hasPermission("mintcamps.bypass.placement")) return PlacementResult.ALLOWED;
         try {
             Object locationTown = getTownAt.invoke(api, location);
@@ -62,5 +62,5 @@ public final class TownyHook {
             plugin.getLogger().warning("Ошибка проверки территории Towny: " + exception.getMessage());
             return PlacementResult.ERROR;
         }
-    }
+    } }
 }

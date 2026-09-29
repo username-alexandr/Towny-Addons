@@ -14,18 +14,18 @@ public final class ResourcesMenu implements Listener {
     private static final class View implements InventoryHolder {
         final UUID town;final String kind,project;final int page;final Map<Integer,Runnable> actions=new HashMap<>();Inventory inventory;
         View(UUID town,String kind,String project,int page){this.town=town;this.kind=kind;this.project=project;this.page=page;}
-        @Override public Inventory getInventory(){return inventory;}
+        @Override public Inventory getInventory(){ synchronized (ru.neverland.core.SuiteState.lock()) {return inventory;} }
     }
     public ResourcesMenu(org.bukkit.plugin.Plugin plugin,ResourcesService service){this.plugin=plugin;this.service=service;}
     private boolean access(Player p,UUID id){var town=service.town(p);return p.hasPermission("neverlandtownyresources.admin")||(p.hasPermission("neverlandtownyresources.use")&&town!=null&&town.getUUID().equals(id));}
-    public void open(Player p,UUID id,String kind,String project,int requested){
+    public void open(Player p,UUID id,String kind,String project,int requested){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!access(p,id)){tell(p,"&cНет доступа к ресурсам этого города.");return;}
         var s=service.resources(id).orElse(null);if(s==null){tell(p,"Первый расчёт города ещё не выполнен.");return;}
         int pages=Math.max(1,(service.settings().buildings().size()+35)/36);int page=Math.max(0,Math.min(pages-1,requested));var view=new View(id,kind,project,page);
         view.inventory=ru.neverland.core.MenuStyle.inventory(plugin, view,54,color("&2"+(kind.equals("buildings")?"Производство города":kind.equals("info")?"Ресурсы здания":"Городские ресурсы")));
         if(kind.equals("buildings"))buildings(p,view,s,pages);else if(kind.equals("info"))detail(p,view,s);else overview(p,view,s);
         button(view,49,Material.SUNFLOWER,"&aОбновить",List.of("Показать текущие запасы и прогноз."),()->open(p,id,kind,project,page));p.openInventory(view.inventory);
-    }
+    } }
     private void overview(Player p,View v,ResourceSnapshot s){
         button(v,4,Material.BELL,"&a"+s.townName(),List.of("Восемь стратегических запасов города.","Цикл: "+service.settings().interval()+" сек.",s.status()),null);
         int[] slots={10,12,14,16,28,30,32,34};int i=0;
@@ -62,6 +62,6 @@ public final class ResourcesMenu implements Listener {
         try{action.run();open(p,v.town,"info",v.project,0);}catch(Exception ex){tell(p,"&cОперация не завершена: "+ex.getMessage());}}
     private static String percent(double n){return String.format(Locale.forLanguageTag("ru-RU"),"%.1f",n*100);}
     private void button(View v,int slot,Material icon,String name,List<String> lore,Runnable action){var item=new ItemStack(icon);var meta=item.getItemMeta();meta.setDisplayName(ru.neverland.core.MenuStyle.nameLegacy(color(name)));meta.setLore(ru.neverland.core.MenuStyle.loreStrings(lore.stream().map(s->color("&7"+s)).toList()));item.setItemMeta(meta);v.inventory.setItem(slot,item);if(action!=null)v.actions.put(slot,action);}
-    @EventHandler public void click(InventoryClickEvent e){if(!(e.getView().getTopInventory().getHolder() instanceof View v))return;e.setCancelled(true);if(!(e.getWhoClicked() instanceof Player p))return;if(!access(p,v.town)){p.closeInventory();return;}var action=v.actions.get(e.getRawSlot());if(action!=null)Bukkit.getScheduler().runTask(plugin,()->{if(p.isOnline()&&p.getOpenInventory().getTopInventory().getHolder()==v&&access(p,v.town))action.run();});}
-    @EventHandler public void drag(InventoryDragEvent e){if(e.getView().getTopInventory().getHolder() instanceof View)e.setCancelled(true);}
+    @EventHandler public void click(InventoryClickEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyResources")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(!(e.getView().getTopInventory().getHolder() instanceof View v))return;e.setCancelled(true);if(!(e.getWhoClicked() instanceof Player p))return;if(!access(p,v.town)){p.closeInventory();return;}var action=v.actions.get(e.getRawSlot());if(action!=null)ru.neverland.core.SuiteScheduler.entity(plugin, p,()->{if(p.isOnline()&&p.getOpenInventory().getTopInventory().getHolder()==v&&access(p,v.town))action.run();});} }
+    @EventHandler public void drag(InventoryDragEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyResources")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(e.getView().getTopInventory().getHolder() instanceof View)e.setCancelled(true);} }
 }

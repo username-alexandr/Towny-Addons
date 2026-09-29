@@ -26,7 +26,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, @NotNull String[] args) {
+                             @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!sender.hasPermission("neverlandtownybuilds.admin")) {
             messages.send(sender, "no-permission");
             return true;
@@ -54,16 +54,16 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         }
         sender.sendMessage("/townybuilds reload | /townybuilds stall <set|remove|list> [id] | /townybuilds shop payments | /townybuilds diagnostics");
         return true;
-    }
+    } }
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
-                                                 @NotNull String label, @NotNull String[] args) {
+                                                 @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (args.length == 1) return List.of("reload", "stall", "shop", "diagnostics");
         if (args.length == 2 && args[0].equalsIgnoreCase("stall")) return List.of("set", "remove", "list");
         if (args.length == 3 && args[0].equalsIgnoreCase("stall") && args[1].equalsIgnoreCase("remove")) {
             return civic.stallIds();
         }
         return List.of();
-    }
+    } }
 }

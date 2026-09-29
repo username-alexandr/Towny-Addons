@@ -23,7 +23,7 @@ public final class ExcavationPlanner {
 
     private ExcavationPlanner() { }
 
-    public static Set<BlockOffset> offsets(BlueprintPlan plan, int fromStage) {
+    public static Set<BlockOffset> offsets(BlueprintPlan plan, int fromStage) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Map<Integer, Bounds> layers = new LinkedHashMap<>();
         for (Map.Entry<BlockOffset, BlueprintBlock> entry : plan.blocks().entrySet()) {
             BlockOffset offset = entry.getKey();
@@ -41,13 +41,13 @@ public final class ExcavationPlanner {
             }
         }
         return Set.copyOf(result);
-    }
+    } }
 
-    public static boolean canClear(Material material) {
+    public static boolean canClear(Material material) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (material == null || material == Material.AIR
                 || material == Material.CAVE_AIR || material == Material.VOID_AIR) return true;
         return NATURAL_TERRAIN.contains(material) || material.name().endsWith("_ORE");
-    }
+    } }
 
     private static final class Bounds {
         private int minX = Integer.MAX_VALUE;

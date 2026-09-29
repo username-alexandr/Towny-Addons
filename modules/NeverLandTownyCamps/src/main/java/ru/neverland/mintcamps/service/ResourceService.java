@@ -9,16 +9,16 @@ import java.util.List;
 public final class ResourceService {
     public record Missing(ItemStack item, int required, int available) { }
 
-    public List<Missing> missing(Player player, List<ItemStack> costs) {
+    public List<Missing> missing(Player player, List<ItemStack> costs) { synchronized (ru.neverland.core.SuiteState.lock()) {
         List<Missing> missing = new ArrayList<>();
         for (ItemStack cost : costs) {
             int available = count(player, cost);
             if (available < cost.getAmount()) missing.add(new Missing(cost.clone(), cost.getAmount(), available));
         }
         return missing;
-    }
+    } }
 
-    public boolean withdraw(Player player, List<ItemStack> costs) {
+    public boolean withdraw(Player player, List<ItemStack> costs) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!missing(player, costs).isEmpty()) return false;
         for (ItemStack cost : costs) {
             int remaining = cost.getAmount();
@@ -33,21 +33,21 @@ public final class ResourceService {
             }
         }
         return true;
-    }
+    } }
 
-    public void refund(Player player, List<ItemStack> items) {
+    public void refund(Player player, List<ItemStack> items) { synchronized (ru.neverland.core.SuiteState.lock()) {
         for (ItemStack item : items) {
             for (ItemStack leftover : player.getInventory().addItem(item.clone()).values()) {
                 player.getWorld().dropItemNaturally(player.getLocation(), leftover);
             }
         }
-    }
+    } }
 
-    public int count(Player player, ItemStack sample) {
+    public int count(Player player, ItemStack sample) { synchronized (ru.neverland.core.SuiteState.lock()) {
         int count = 0;
         for (ItemStack item : player.getInventory().getStorageContents()) {
             if (item != null && item.isSimilar(sample)) count += item.getAmount();
         }
         return count;
-    }
+    } }
 }

@@ -22,7 +22,7 @@ public final class MessageService {
         reload();
     }
 
-    public void reload() {
+    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
         File file = new File(plugin.getDataFolder(), "messages.yml");
         messages = YamlConfiguration.loadConfiguration(file);
         try (InputStream stream = plugin.getResource("messages.yml")) {
@@ -35,32 +35,32 @@ public final class MessageService {
         } catch (Exception exception) {
             plugin.getLogger().warning("Не удалось загрузить стандартные сообщения: " + exception.getMessage());
         }
-    }
+    } }
 
-    public Component component(String key) {
+    public Component component(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return component(key, Map.of());
-    }
+    } }
 
-    public Component component(String key, Map<String, ?> replacements) {
+    public Component component(String key, Map<String, ?> replacements) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String value = value(key);
         for (Map.Entry<String, ?> replacement : replacements.entrySet()) {
             value = value.replace("{" + replacement.getKey() + "}", String.valueOf(replacement.getValue()));
         }
         return ColorUtil.component(value);
-    }
+    } }
 
-    public void send(CommandSender sender, String key) {
+    public void send(CommandSender sender, String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
         send(sender, key, Map.of());
-    }
+    } }
 
-    public void send(CommandSender sender, String key, Map<String, ?> replacements) {
+    public void send(CommandSender sender, String key, Map<String, ?> replacements) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String prefix = messages.getString("prefix", "");
         String value = value(key);
         for (Map.Entry<String, ?> replacement : replacements.entrySet()) {
             value = value.replace("{" + replacement.getKey() + "}", String.valueOf(replacement.getValue()));
         }
         sender.sendMessage(ColorUtil.component(prefix + value));
-    }
+    } }
 
     private String value(String key) {
         String value = messages.getString(key);

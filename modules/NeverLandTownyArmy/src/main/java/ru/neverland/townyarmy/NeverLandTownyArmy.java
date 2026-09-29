@@ -19,8 +19,8 @@ public final class NeverLandTownyArmy extends JavaPlugin {
         for (var unit : settings.units().values()) if (!unit.icon().isItem()) throw new IllegalArgumentException("Иконка подразделения должна быть предметом");
         return settings;
     }
-    public void reloadArmy() throws Exception { service.reload(settings()); reloadConfig(); }
-    @Override public void onEnable() {
+    public void reloadArmy() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) { service.reload(settings()); reloadConfig(); } }
+    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         try {
@@ -32,18 +32,18 @@ public final class NeverLandTownyArmy extends JavaPlugin {
             getServer().getPluginManager().registerEvents(menu, this);
             getServer().getPluginManager().registerEvents(new ArmyListener(service), this);
             getServer().getServicesManager().register(TownyArmyApi.class, service, this, ServicePriority.Normal);
-            task = getServer().getScheduler().runTaskTimer(this, service::pulse, 40L, 100L);
+            task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(this, service::pulse, 40L, 100L);
             if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) { expansion = new ArmyExpansion(service, getPluginMeta().getVersion()); expansion.register(); }
             // Builds owns /t army and /townyarmy and forwards to this module without a loading cycle.
         } catch (Exception | LinkageError ex) {
             getLogger().log(java.util.logging.Level.SEVERE, "Армия не загружена; проверьте данные и версии Builds/Resources", ex);
             getServer().getPluginManager().disablePlugin(this);
         }
-    }
-    @Override public void onDisable() {
+    } }
+    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (task != null) task.cancel(); if (service != null) service.stop();
         if (expansion != null) expansion.unregister(); getServer().getServicesManager().unregisterAll(this);
-    }
+    } }
 }

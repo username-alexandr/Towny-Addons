@@ -23,27 +23,27 @@ public final class IdeologyExpansion extends PlaceholderExpansion {
     }
 
     @Override
-    public @NotNull String getIdentifier() {
+    public @NotNull String getIdentifier() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return "nlti";
-    }
+    } }
 
     @Override
-    public @NotNull String getAuthor() {
+    public @NotNull String getAuthor() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return "Alexander Sokolov";
-    }
+    } }
 
     @Override
-    public @NotNull String getVersion() {
+    public @NotNull String getVersion() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return plugin.getPluginMeta().getVersion();
-    }
+    } }
 
     @Override
-    public boolean persist() {
+    public boolean persist() { synchronized (ru.neverland.core.SuiteState.lock()) {
         return true;
-    }
+    } }
 
     @Override
-    public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) {
+    public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (player == null) return "";
         TownIdeology current = ideologies.get(player).orElse(null);
         if (current == null) {
@@ -63,5 +63,5 @@ public final class IdeologyExpansion extends PlaceholderExpansion {
             case "progress" -> "■".repeat(current.level()) + "□".repeat(5 - current.level());
             default -> null;
         };
-    }
+    } }
 }

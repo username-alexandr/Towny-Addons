@@ -22,7 +22,7 @@ public final class MessageService {
         reload();
     }
 
-    public void reload() {
+    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
         yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "messages.yml"));
         try (InputStream stream = plugin.getResource("messages.yml")) {
             if (stream != null) {
@@ -33,9 +33,9 @@ public final class MessageService {
         } catch (Exception exception) {
             plugin.getLogger().warning("Не удалось загрузить встроенные сообщения: " + exception.getMessage());
         }
-    }
+    } }
 
-    public static boolean migrateLegacy(YamlConfiguration yaml, YamlConfiguration defaults) {
+    public static boolean migrateLegacy(YamlConfiguration yaml, YamlConfiguration defaults) { synchronized (ru.neverland.core.SuiteState.lock()) {
         boolean changed = false;
         for (String key : yaml.getKeys(true)) {
             Object value = yaml.get(key);
@@ -50,42 +50,42 @@ public final class MessageService {
             yaml.set("raid-wave-town", old + " &7(волна %wave%/%waves%)"); changed = true;
         }
         return changed;
-    }
+    } }
 
-    public String raw(String key) {
+    public String raw(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return template(yaml, key);
-    }
+    } }
 
-    public static String template(YamlConfiguration yaml, String key) {
+    public static String template(YamlConfiguration yaml, String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String value = yaml.getString(key);
         return value == null ? key : value;
-    }
+    } }
 
-    public String format(String key, Map<String, ?> placeholders) {
+    public String format(String key, Map<String, ?> placeholders) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return formatText(raw(key), placeholders, true);
-    }
+    } }
 
-    public String formatText(String value, Map<String, ?> placeholders, boolean prefix) {
+    public String formatText(String value, Map<String, ?> placeholders, boolean prefix) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String text = value == null ? "" : value;
         for (Map.Entry<String, ?> entry : placeholders.entrySet()) {
             text = text.replace("%" + entry.getKey() + "%", String.valueOf(entry.getValue()));
         }
         String base = prefix ? java.util.Objects.toString(yaml.getString("prefix"), "") + text : text;
         return ColorUtil.color(base);
-    }
+    } }
 
-    public void send(CommandSender sender, String key) {
+    public void send(CommandSender sender, String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
         send(sender, key, Map.of());
-    }
+    } }
 
-    public void send(CommandSender sender, String key, Map<String, ?> placeholders) {
+    public void send(CommandSender sender, String key, Map<String, ?> placeholders) { synchronized (ru.neverland.core.SuiteState.lock()) {
         sender.sendMessage(format(key, placeholders));
-    }
+    } }
 
-    public List<String> list(String key) {
+    public List<String> list(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
         List<String> values = yaml.getStringList(key);
         List<String> result = new ArrayList<>(values.size());
         for (String value : values) result.add(ColorUtil.color(value));
         return result;
-    }
+    } }
 }

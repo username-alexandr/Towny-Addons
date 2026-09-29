@@ -46,7 +46,7 @@ public final class ReputationMenuManager implements Listener {
         actionKey = new NamespacedKey(plugin, "menu_action"); valueKey = new NamespacedKey(plugin, "menu_value");
     }
 
-    public void openMain(Player player) {
+    public void openMain(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Inventory menu = menu(ReputationMenuHolder.Type.MAIN, null, player.getUniqueId(), 45, config("gui.main-title")); fill(menu);
         menu.setItem(10, tagged(Material.PLAYER_HEAD, "scope", "PLAYER", "&#74C0FCИгроки", List.of("&7Три направления репутации", "&7Связей: &f" + reputation.involving(ReputationScope.PLAYER, player.getUniqueId()).size(), "", "&#FFD166Нажмите, чтобы открыть")));
         Town town = towny.town(player); menu.setItem(12, tagged(Material.BELL, "scope", "TOWN", "&#63E6BEГорода", List.of(town == null ? "&#FF6B6BВы не состоите в городе" : "&7Город: &f" + town.getName(), "&7Дипломатия • Торговля • Оборона", "", "&#FFD166Нажмите, чтобы открыть")));
@@ -54,12 +54,12 @@ public final class ReputationMenuManager implements Listener {
         menu.setItem(16, tagged(Material.EXPERIENCE_BOTTLE, "levels", "", "&#FFD166Уровни отношений", List.of("&7Пороги прежних двусторонних связей", "", "&#FFD166Нажмите, чтобы открыть")));
         menu.setItem(31, item(Material.WRITABLE_BOOK, "&#ADB5BDОтзывы игроков", List.of("&f/rep endorse <игрок>", "&f/rep denounce <игрок>", "", "&7Отзывы ограничены задержкой", "&7и суточным лимитом.")));
         player.openInventory(menu);
-    }
+    } }
 
-    public void openProfile(Player player, ReputationScope scope) {
+    public void openProfile(Player player, ReputationScope scope) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Owner own = owner(player, scope); if (own != null) openProfile(player, scope, own.id(), own.name());
-    }
-    public void openProfile(Player player, ReputationScope scope, UUID id, String name) {
+    } }
+    public void openProfile(Player player, ReputationScope scope, UUID id, String name) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!reputation.profiles().healthy()) { player.sendMessage(ColorUtil.color("&cРепутация временно недоступна. Обратитесь к администратору.")); return; }
         var profile = reputation.profiles().get(scope, id);
         Inventory menu = menu(ReputationMenuHolder.Type.PROFILE, scope, id, 45, "&fРепутация: " + name); fill(menu);
@@ -77,7 +77,7 @@ public final class ReputationMenuManager implements Listener {
         menu.setItem(29, tagged(Material.WRITABLE_BOOK, "relations", scope.name(), "&bОтношения с другими", List.of("&7Прежние связи и отзывы", "&7сохранены отдельно от профиля.")));
         menu.setItem(31, item(Material.NAME_TAG, "&f" + name, List.of("&7Профиль: &f" + scopeName(scope), "", "&7При обновлении прежняя оценка", "&7перенесена в дипломатию.", "&7Торговля и оборона начинаются с 0.")));
         menu.setItem(36, back()); player.openInventory(menu);
-    }
+    } }
     private void openProfileHistory(Player player, ReputationScope scope, UUID id, ReputationAspect aspect, int page) {
         var entries = new ArrayList<>(reputation.profiles().get(scope,id).history().stream().filter(e -> e.aspect() == aspect).toList());
         java.util.Collections.reverse(entries); int pages = Math.max(1,(entries.size()+27)/28); page = Math.max(0,Math.min(page,pages-1));
@@ -98,7 +98,7 @@ public final class ReputationMenuManager implements Listener {
         if(scope==ReputationScope.NATION){var n=towny.nation(id);return n==null?id.toString():n.getName();}
         var r=towny.resident(id);return r==null?id.toString():r.getName();
     }
-    public void openRelations(Player player, ReputationScope scope) {
+    public void openRelations(Player player, ReputationScope scope) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Owner owner = owner(player, scope); if (owner == null) return;
         String title = switch (scope) { case PLAYER -> config("gui.player-title"); case TOWN -> config("gui.town-title"); case NATION -> config("gui.nation-title"); };
         Inventory menu = menu(ReputationMenuHolder.Type.RELATIONS, scope, owner.id(), 54, title); fill(menu); int slot = 10;
@@ -113,29 +113,29 @@ public final class ReputationMenuManager implements Listener {
         }
         if (records.isEmpty()) menu.setItem(22, item(Material.BARRIER, "&#ADB5BDСвязей пока нет", List.of("&7Репутация появится после отзывов", "&7и событий других аддонов.")));
         menu.setItem(45, back()); menu.setItem(49, item(Material.NAME_TAG, "&#FFFFFF" + owner.name(), List.of("&7Найдено связей: &f" + records.size()))); player.openInventory(menu);
-    }
+    } }
 
-    public void openHistory(Player player, RelationKey key) {
+    public void openHistory(Player player, RelationKey key) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ReputationRecord record = reputation.record(key.scope(), key.first(), key.second()); if (record == null) { messages.send(player, "relation-not-found"); return; }
         Inventory menu = menu(ReputationMenuHolder.Type.HISTORY, key.scope(), key.first(), 54, config("gui.history-title")); fill(menu); ReputationTier tier = reputation.tier(record.score());
         menu.setItem(4, item(icon(tier), tier.name(), List.of("&f" + record.firstName() + (key.scope() == ReputationScope.PLAYER ? " &7→ &f" : " &7↔ &f") + record.secondName(), "&7Текущее значение: " + scoreColor(record.score()) + signed(record.score()))));
         int slot = 10; for (ReputationHistory history : record.history()) { while (slot < 44 && isBorder(slot)) slot++; if (slot >= 44) break; List<String> lore = new ArrayList<>(); lore.add("&7" + DATE.format(Instant.ofEpochMilli(history.timestamp()))); lore.add("&7Изменение: " + scoreColor(history.delta()) + signed(history.delta())); lore.add("&7Было: &f" + history.oldScore() + " &7→ стало: &f" + history.newScore()); lore.add("&7Источник: &f" + sourceName(history.source())); if (!history.reason().isBlank()) lore.add("&7Причина: &f" + history.reason()); lore.add("&7Инициатор: &f" + history.actorName()); menu.setItem(slot++, item(history.delta() >= 0 ? Material.LIME_DYE : Material.RED_DYE, history.delta() >= 0 ? "&#63E6BEПовышение" : "&#FF6B6BПонижение", lore)); }
         menu.setItem(45, back()); player.openInventory(menu);
-    }
+    } }
 
-    public void openLevels(Player player) {
+    public void openLevels(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Inventory menu = menu(ReputationMenuHolder.Type.LEVELS, null, player.getUniqueId(), 45, config("gui.main-title") + " &8— уровни"); fill(menu); int slot = 10;
         for (ReputationTier tier : reputation.tiers()) { List<String> lore = new ArrayList<>(tier.description()); lore.add(""); lore.add("&7От: &f" + tier.minimumScore() + " очков"); lore.add("&7Льгота отношений: &f" + number(tier.tradeDiscountPercent()) + "%"); lore.add("&7Награды: &fx" + number(tier.rewardMultiplier())); if (!tier.privileges().isEmpty()) { lore.add(""); lore.add("&7Возможности:"); tier.privileges().forEach(value -> lore.add("&#63E6BE• &f" + value)); } menu.setItem(slot++, item(icon(tier), tier.name(), lore)); }
         menu.setItem(36, back()); player.openInventory(menu);
-    }
+    } }
 
-    public void openTop(Player player, ReputationScope scope) {
+    public void openTop(Player player, ReputationScope scope) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Inventory menu = menu(ReputationMenuHolder.Type.TOP, scope, player.getUniqueId(), 54, "&#18243AТоп репутации: &f" + scopeName(scope)); fill(menu); int slot = 10; int rank = 1;
         for (ReputationRecord record : reputation.top(scope, 28)) { while (slot < 44 && isBorder(slot)) slot++; if (slot >= 44) break; ReputationTier tier = reputation.tier(record.score()); menu.setItem(slot++, item(icon(tier), "&#FFD166#" + rank++ + " &f" + record.firstName() + (scope == ReputationScope.PLAYER ? " → " : " ↔ ") + record.secondName(), List.of("&7Очки: " + scoreColor(record.score()) + signed(record.score()), "&7Уровень: " + tier.name()))); }
         menu.setItem(45, back()); player.openInventory(menu);
-    }
+    } }
 
-    @EventHandler public void onClick(InventoryClickEvent event) {
+    @EventHandler public void onClick(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyReputation")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getInventory().getHolder() instanceof ReputationMenuHolder holder)) return; event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player) || event.getClickedInventory() != event.getView().getTopInventory()) return;
         ItemStack stack = event.getCurrentItem(); if (stack == null || stack.getType().isAir() || !stack.hasItemMeta()) return;
@@ -144,8 +144,8 @@ public final class ReputationMenuManager implements Listener {
             case "profile-history" -> openProfileHistory(player,holder.scope(),holder.owner(),ReputationAspect.valueOf(value),0);
             case "profile-page" -> { var parts=value.split(":"); openProfileHistory(player,holder.scope(),holder.owner(),ReputationAspect.valueOf(parts[0]),Integer.parseInt(parts[1])); }
             case "relations" -> openRelations(player,ReputationScope.valueOf(value)); case "back" -> openMain(player); case "levels" -> openLevels(player); case "scope" -> { ReputationScope scope = ReputationScope.parse(value); if (scope != null) openProfile(player, scope); } case "history" -> { RelationKey key = decode(value); if (key != null) openHistory(player, key); } default -> { } }
-    }
-    @EventHandler public void onDrag(InventoryDragEvent event) { if (event.getInventory().getHolder() instanceof ReputationMenuHolder) event.setCancelled(true); }
+    } }
+    @EventHandler public void onDrag(InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyReputation")){ru.neverland.core.ModuleGate.stopEvent(event);return;} if (event.getInventory().getHolder() instanceof ReputationMenuHolder) event.setCancelled(true); } }
 
     private Owner owner(Player player, ReputationScope scope) { if (scope == ReputationScope.PLAYER) return new Owner(player.getUniqueId(), player.getName()); if (scope == ReputationScope.TOWN) { Town town = towny.town(player); if (town == null) { messages.send(player, "no-town"); return null; } return new Owner(town.getUUID(), town.getName()); } Nation nation = towny.nation(player); if (nation == null) { messages.send(player, "no-nation"); return null; } return new Owner(nation.getUUID(), nation.getName()); }
     private Inventory menu(ReputationMenuHolder.Type type, ReputationScope scope, UUID owner, int size, String title) { return ru.neverland.core.MenuStyle.inventory(plugin, new ReputationMenuHolder(type, scope, owner), size, ColorUtil.color(title)); }

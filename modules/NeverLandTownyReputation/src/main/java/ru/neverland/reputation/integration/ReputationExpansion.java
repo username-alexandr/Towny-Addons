@@ -19,14 +19,14 @@ import java.util.UUID;
 public final class ReputationExpansion extends PlaceholderExpansion {
     private final TownyReputation plugin; private final TownyHook towny; private final ReputationService reputation;
     public ReputationExpansion(TownyReputation plugin, TownyHook towny, ReputationService reputation) { this.plugin = plugin; this.towny = towny; this.reputation = reputation; }
-    @Override public @NotNull String getIdentifier() { return "townyreputation"; }
-    @Override public @NotNull String getAuthor() { return "Alexander Sokolov"; }
-    @Override public @NotNull String getVersion() { return plugin.getPluginMeta().getVersion(); }
-    @Override public boolean persist() { return true; }
-    @Override public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) {
+    @Override public @NotNull String getIdentifier() { synchronized (ru.neverland.core.SuiteState.lock()) { return "townyreputation"; } }
+    @Override public @NotNull String getAuthor() { synchronized (ru.neverland.core.SuiteState.lock()) { return "Alexander Sokolov"; } }
+    @Override public @NotNull String getVersion() { synchronized (ru.neverland.core.SuiteState.lock()) { return plugin.getPluginMeta().getVersion(); } }
+    @Override public boolean persist() { synchronized (ru.neverland.core.SuiteState.lock()) { return true; } }
+    @Override public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!(offline instanceof Player player)) return ""; String key = params.toLowerCase(Locale.ROOT);
         if(key.matches("(player|town|nation)_(diplomatic|trade|military|trade_fee_multiplier)")) {
-            if(!org.bukkit.Bukkit.isPrimaryThread() || !reputation.profiles().healthy())return "";
+            if(!ru.neverland.core.SuiteState.held() || !reputation.profiles().healthy())return "";
             int split=key.indexOf('_');var scope=ReputationScope.parse(key.substring(0,split));var side=own(player,scope);if(side==null)return "";
             var profile=reputation.profiles().get(scope,side.id());String field=key.substring(split+1);
             return field.equals("trade_fee_multiplier")?String.format(Locale.ROOT,"%.2f",reputation.profiles().fee(profile.trade())):String.valueOf(profile.score(ru.neverland.reputation.model.ReputationAspect.parse(field)));
@@ -36,7 +36,7 @@ public final class ReputationExpansion extends PlaceholderExpansion {
         if (key.equals("nation_relations")) { Nation nation = towny.nation(player); return nation == null ? "0" : String.valueOf(reputation.involving(ReputationScope.NATION, nation.getUUID()).size()); }
         String[] prefixes = {"player_score_", "player_tier_", "town_score_", "town_tier_", "nation_score_", "nation_tier_", "player_feature_", "town_feature_", "nation_feature_"};
         for (String prefix : prefixes) if (key.startsWith(prefix)) return resolve(player, prefix, params.substring(prefix.length())); return null;
-    }
+    } }
     private String resolve(Player player, String prefix, String tail) {
         ReputationScope scope = prefix.startsWith("player") ? ReputationScope.PLAYER : prefix.startsWith("town") ? ReputationScope.TOWN : ReputationScope.NATION;
         Side own = own(player, scope); if (own == null) return "";

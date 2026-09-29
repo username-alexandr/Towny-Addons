@@ -8,14 +8,14 @@ public final class ModuleGraph {
         for(var e:copy.entrySet())if(!copy.keySet().containsAll(e.getValue())||e.getValue().contains(e.getKey()))throw new IllegalArgumentException("Некорректная зависимость "+e.getKey());
         this.dependencies=Map.copyOf(copy);
     }
-    public Set<String> modules() { return dependencies.keySet(); }
-    public Set<String> closure(Set<String> roots) {
+    public Set<String> modules() { synchronized (ru.neverland.core.SuiteState.lock()) { return dependencies.keySet(); } }
+    public Set<String> closure(Set<String> roots) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!dependencies.keySet().containsAll(roots))throw new IllegalArgumentException("Неизвестный модуль");
         Set<String> result=new TreeSet<>(roots);boolean changed;
         do { changed=false;for(var e:dependencies.entrySet())if(!Collections.disjoint(e.getValue(),result))changed|=result.add(e.getKey()); }while(changed);
         return Set.copyOf(result);
-    }
-    public String resolve(String raw) {
+    } }
+    public String resolve(String raw) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return modules().stream().filter(n->n.equalsIgnoreCase(raw)||n.substring("NeverLandTowny".length()).equalsIgnoreCase(raw)).findFirst().orElseThrow(()->new IllegalArgumentException("Неизвестный аддон: "+raw));
-    }
+    } }
 }

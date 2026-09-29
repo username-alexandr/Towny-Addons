@@ -30,7 +30,7 @@ public final class TownEventsCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, @NotNull String[] args) {
+                             @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (args.length > 0 && ADMIN_ACTIONS.contains(args[0].toLowerCase(Locale.ROOT))) {
             if (!sender.hasPermission("mintevents.admin")) {
                 messages.send(sender, "no-permission");
@@ -56,5 +56,5 @@ public final class TownEventsCommand implements CommandExecutor {
         else if (args.length > 0 && args[0].equalsIgnoreCase("repair")) { menus.confirmRepairs(player, town); menus.openRepairs(player, town); }
         else menus.open(player);
         return true;
-    }
+    } }
 }

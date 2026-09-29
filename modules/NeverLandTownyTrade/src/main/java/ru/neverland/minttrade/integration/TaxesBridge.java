@@ -9,15 +9,15 @@ import ru.neverland.core.DiplomacyAccess;
 public final class TaxesBridge {
     private final JavaPlugin owner;
     public TaxesBridge(JavaPlugin owner){this.owner=owner;}
-    public boolean available(){return plugin()!=null;}
-    public boolean tradeBlocked(UUID first,UUID second){return supplyRestriction(first,second)!=null;}
-    public String supplyRestriction(UUID first,UUID second){
+    public boolean available(){ synchronized (ru.neverland.core.SuiteState.lock()) {return plugin()!=null;} }
+    public boolean tradeBlocked(UUID first,UUID second){ synchronized (ru.neverland.core.SuiteState.lock()) {return supplyRestriction(first,second)!=null;} }
+    public String supplyRestriction(UUID first,UUID second){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if(DiplomacyAccess.tradeBlocked(first,second))return "Торговля закрыта дипломатией или реестр недоступен";
         if(owner.getServer().getPluginManager().getPlugin("NeverLandTownyTaxes")==null&&owner.getServer().getPluginManager().getPlugin("TaxyTowny")==null)return null;
         Object value=invoke("isTradeBlocked",first,second);
         return value instanceof Boolean flag?(flag?"Торговля запрещена санкциями":null):"Система санкций временно недоступна";
-    }
-    public double preferenceMultiplier(UUID first,UUID second){Object value=invoke("tradePreferenceMultiplier",first,second);return value instanceof Number n&&Double.isFinite(n.doubleValue())?Math.max(0,Math.min(1,n.doubleValue())):1;}
+    } }
+    public double preferenceMultiplier(UUID first,UUID second){ synchronized (ru.neverland.core.SuiteState.lock()) {Object value=invoke("tradePreferenceMultiplier",first,second);return value instanceof Number n&&Double.isFinite(n.doubleValue())?Math.max(0,Math.min(1,n.doubleValue())):1;} }
     private Object invoke(String method,UUID first,UUID second){
         Plugin plugin=plugin();if(plugin==null)return null;
         try{

@@ -72,7 +72,7 @@ public final class MenuManager implements Listener {
         this.itemsAdder = itemsAdder;
     }
 
-    public void openMain(Player player) {
+    public void openMain(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Camp camp = repository.get(player.getUniqueId()).orElse(null);
         MenuHolder holder = new MenuHolder(MenuType.MAIN, player.getUniqueId(), 0);
         Inventory inventory = create(holder, 27, plugin.getConfig().getString("settings.gui.main-title", "&8Походный лагерь"));
@@ -110,20 +110,21 @@ public final class MenuManager implements Listener {
             inventory.setItem(22, icon("pack-item", Material.BUNDLE, messages.raw("gui.pack-title"), lore("gui.pack-lore", Map.of())));
         }
         player.openInventory(inventory);
-    }
+    } }
 
-    public void openStorage(Player player, Camp camp) {
+    public void openStorage(Player player, Camp camp) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!camp.canAccess(player.getUniqueId()) && !player.hasPermission("mintcamps.admin")) {
             messages.send(player, "protection.interact");
             return;
         }
         MenuHolder holder = new MenuHolder(MenuType.STORAGE, camp.ownerId(), camp.level());
         Inventory inventory = create(holder, camp.stash().length, messages.raw("gui.storage-title"));
+        if (!repository.openStash(camp.ownerId(),inventory)) { player.sendMessage("§eСклад лагеря уже открыт другим игроком."); return; }
         inventory.setContents(Arrays.stream(camp.stash()).map(item -> item == null ? null : item.clone()).toArray(ItemStack[]::new));
         player.openInventory(inventory);
-    }
+    } }
 
-    public void openEditor(Player player) {
+    public void openEditor(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         MenuHolder holder = new MenuHolder(MenuType.EDITOR_LEVELS, player.getUniqueId(), 0);
         Inventory inventory = create(holder, 27, plugin.getConfig().getString("settings.gui.editor-title", "&8Редактор стоимости лагерей"));
         fill(inventory);
@@ -135,9 +136,9 @@ public final class MenuManager implements Listener {
             inventory.setItem(slots[level - 1], icon(null, materials[level - 1], camps.levelName(level), lore));
         }
         player.openInventory(inventory);
-    }
+    } }
 
-    public void openCostEditor(Player player, int level) {
+    public void openCostEditor(Player player, int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
         MenuHolder holder = new MenuHolder(MenuType.EDITOR_COST, player.getUniqueId(), level);
         String title = messages.replace(plugin.getConfig().getString("settings.gui.cost-editor-title", "&8Стоимость: {level}"),
                 Map.of("level", ColorUtil.plain(camps.levelName(level))));
@@ -150,10 +151,10 @@ public final class MenuManager implements Listener {
         inventory.setItem(51, icon("save-item", Material.LIME_DYE, messages.raw("gui.editor-save"), lore("gui.editor-save-lore", Map.of())));
         player.openInventory(inventory);
         messages.send(player, "editor.opened");
-    }
+    } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onInteract(PlayerInteractEvent event) {
+    public void onInteract(PlayerInteractEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!event.getAction().isRightClick() || event.getClickedBlock() == null) return;
         Block block = event.getClickedBlock();
         Camp camp = repository.findAt(block.getLocation()).orElse(null);
@@ -178,10 +179,10 @@ public final class MenuManager implements Listener {
             event.setCancelled(true);
             messages.send(event.getPlayer(), "protection.interact");
         }
-    }
+    } }
 
     @EventHandler
-    public void onClick(InventoryClickEvent event) {
+    public void onClick(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getInventory().getHolder() instanceof MenuHolder holder) || !(event.getWhoClicked() instanceof Player player)) return;
         if (holder.type() == MenuType.STORAGE) return;
         if (holder.type() == MenuType.EDITOR_COST) {
@@ -203,27 +204,28 @@ public final class MenuManager implements Listener {
             }
             default -> { }
         }
-    }
+    } }
 
     @EventHandler
-    public void onDrag(InventoryDragEvent event) {
+    public void onDrag(InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getInventory().getHolder() instanceof MenuHolder holder)) return;
         if (holder.type() != MenuType.EDITOR_COST) {
             if (holder.type() != MenuType.STORAGE) event.setCancelled(true);
             return;
         }
         if (event.getRawSlots().stream().anyMatch(slot -> slot < 54 && slot >= 45)) event.setCancelled(true);
-    }
+    } }
 
     @EventHandler
-    public void onClose(InventoryCloseEvent event) {
+    public void onClose(InventoryCloseEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!(event.getInventory().getHolder() instanceof MenuHolder holder) || holder.type() != MenuType.STORAGE) return;
+        if (!repository.closeStash(holder.owner(),event.getInventory())) return;
         repository.get(holder.owner()).ifPresent(camp -> {
             camp.stash(event.getInventory().getContents(), camp.stash().length);
             repository.markDirty();
             repository.saveIfDirty();
         });
-    }
+    } }
 
     private void handleMain(Player player, int slot) {
         Camp camp = repository.get(player.getUniqueId()).orElse(null);
@@ -388,9 +390,9 @@ public final class MenuManager implements Listener {
 
         MenuType type() { return type; }
         UUID owner() { return owner; }
-        @Override public UUID campOwner() { return owner; }
+        @Override public UUID campOwner() { synchronized (ru.neverland.core.SuiteState.lock()) { return owner; } }
         int level() { return level; }
         void inventory(Inventory value) { inventory = value; }
-        @Override public Inventory getInventory() { return inventory; }
+        @Override public Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { return inventory; } }
     }
 }

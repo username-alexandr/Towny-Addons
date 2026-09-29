@@ -8,18 +8,18 @@ import static ru.neverland.townycompanies.CompanyData.*;
 public final class CompanyLedger {
     public record State(Map<UUID,Company> companies, Map<UUID,Payment> payments, Map<UUID,Receipt> receipts) {
         public State { companies=Map.copyOf(companies);payments=Map.copyOf(payments);receipts=Map.copyOf(receipts);validate(companies,payments,receipts); }
-        public static State empty() { return new State(Map.of(),Map.of(),Map.of()); }
+        public static State empty() { synchronized (ru.neverland.core.SuiteState.lock()) { return new State(Map.of(),Map.of(),Map.of()); } }
     }
     public interface Store { State state(); void save(State state)throws IOException; boolean writable(); }
     public interface Bank { boolean transfer(Payment payment)throws Exception; }
     private final Store store; private final Bank bank;
     public CompanyLedger(Store store,Bank bank) { this.store=store;this.bank=bank; }
-    public State state() { return store.state(); }
-    public Company company(UUID id) { return state().companies().get(id); }
-    public Company membership(UUID player) { return state().companies().values().stream().filter(c->!c.closed()&&c.members().containsKey(player)).findFirst().orElse(null); }
-    public void put(Company c)throws IOException { var cs=new LinkedHashMap<>(state().companies());cs.put(c.id(),c);store.save(new State(cs,state().payments(),state().receipts())); }
-    public boolean busy(UUID company) { return state().payments().values().stream().anyMatch(p->p.company().equals(company)&&(p.phase()==Phase.READY||p.phase()==Phase.PENDING)); }
-    public Payment begin(UUID company, UUID account, Purpose purpose, long amount,long now)throws IOException {
+    public State state() { synchronized (ru.neverland.core.SuiteState.lock()) { return store.state(); } }
+    public Company company(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return state().companies().get(id); } }
+    public Company membership(UUID player) { synchronized (ru.neverland.core.SuiteState.lock()) { return state().companies().values().stream().filter(c->!c.closed()&&c.members().containsKey(player)).findFirst().orElse(null); } }
+    public void put(Company c)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) { var cs=new LinkedHashMap<>(state().companies());cs.put(c.id(),c);store.save(new State(cs,state().payments(),state().receipts())); } }
+    public boolean busy(UUID company) { synchronized (ru.neverland.core.SuiteState.lock()) { return state().payments().values().stream().anyMatch(p->p.company().equals(company)&&(p.phase()==Phase.READY||p.phase()==Phase.PENDING)); } }
+    public Payment begin(UUID company, UUID account, Purpose purpose, long amount,long now)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         Company c=Objects.requireNonNull(company(company));if(c.closed()||busy(company))throw new IllegalStateException("Предыдущий платёж компании ещё не завершён");
         if(purpose==Purpose.REFUND)throw new IllegalArgumentException("Возврат создаётся только расчётом контракта");
         if(purpose==Purpose.DEPOSIT)money(Math.addExact(c.balance(),amount));
@@ -28,15 +28,15 @@ public final class CompanyLedger {
         Payment p=new Payment(UUID.randomUUID(),company,account,purpose,amount,Phase.READY,now);
         var cs=new LinkedHashMap<>(state().companies());cs.put(c.id(),c);var ps=new LinkedHashMap<>(state().payments());ps.put(p.id(),p);
         store.save(new State(cs,ps,state().receipts()));return p;
-    }
-    public void process(UUID id)throws IOException {
+    } }
+    public void process(UUID id)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         Payment p=state().payments().get(id);if(p==null||p.phase()!=Phase.READY)return;
         // Missing final bank evidence never triggers an automatic retry.
         set(p.phase(Phase.PENDING)); boolean success;
         try { success=bank.transfer(p); } catch(Exception ex) { return; }
         finish(id,success);
-    }
-    public void finish(UUID id,boolean success)throws IOException {
+    } }
+    public void finish(UUID id,boolean success)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         Payment p=state().payments().get(id);if(p==null||p.phase()!=Phase.PENDING)throw new IllegalArgumentException("Платёж не ожидает сверки");
         Company c=company(p.company());long balance=c.balance(),debt=c.debt();
         if(success&&p.purpose()==Purpose.DEPOSIT)balance=Math.addExact(balance,p.amount());
@@ -47,21 +47,21 @@ public final class CompanyLedger {
         // A definitively rejected city refund remains held and can be retried safely.
         ps.put(id,p.phase(!success&&p.purpose()==Purpose.REFUND?Phase.READY:success?Phase.DONE:Phase.REJECTED));
         store.save(new State(cs,ps,state().receipts()));
-    }
+    } }
     private void set(Payment p)throws IOException {var ps=new LinkedHashMap<>(state().payments());ps.put(p.id(),p);store.save(new State(state().companies(),ps,state().receipts()));}
-    public void assess(UUID id,long rate,long now,long interval)throws IOException {
+    public void assess(UUID id,long rate,long now,long interval)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         Company c=company(id);if(c.closed()||now<c.nextTax()||busy(id))return;
         // One assessment after downtime; existing debt blocks another assessment.
         put(c.funds(c.balance(),c.debt()==0?rate:c.debt(),Math.addExact(now,interval)));
-    }
-    public boolean settle(Receipt receipt,long now)throws IOException {
+    } }
+    public boolean settle(Receipt receipt,long now)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         Receipt old=state().receipts().get(receipt.contract());if(old!=null){if(!old.equals(receipt))throw new IllegalArgumentException("Условия повторного расчёта отличаются");return true;}
         Company c=company(receipt.company());if(c==null||c.closed()||!c.town().equals(receipt.town())||busy(c.id()))return false;
         var cs=new LinkedHashMap<>(state().companies());cs.put(c.id(),c.funds(Math.addExact(c.balance(),receipt.payout()),c.debt(),c.nextTax()));
         var rs=new LinkedHashMap<>(state().receipts());rs.put(receipt.contract(),receipt);var ps=new LinkedHashMap<>(state().payments());
         if(receipt.refund()>0){var p=new Payment(receipt.contract(),c.id(),c.town(),Purpose.REFUND,receipt.refund(),Phase.READY,now);if(ps.putIfAbsent(p.id(),p)!=null)throw new IllegalArgumentException("ID платежа занят");}
         store.save(new State(cs,ps,rs));return true;
-    }
+    } }
     private static void validate(Map<UUID,Company> cs,Map<UUID,Payment> ps,Map<UUID,Receipt> rs) {
         Set<UUID> members=new HashSet<>();Set<String> names=new HashSet<>();
         cs.forEach((id,c)->{if(!id.equals(c.id()))throw new IllegalArgumentException("ID компании не совпадает");if(!c.closed()){

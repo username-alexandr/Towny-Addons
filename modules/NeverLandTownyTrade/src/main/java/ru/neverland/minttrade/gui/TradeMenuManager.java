@@ -46,7 +46,7 @@ public final class TradeMenuManager implements Listener {
         this.plugin = plugin; this.towny = towny; this.trade = trade; this.messages = messages;
         offerKey = new NamespacedKey(plugin, "offer"); actionKey = new NamespacedKey(plugin, "action");
     }
-    public void open(Player player) {
+    public void open(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = towny.town(player); if (town == null) { messages.send(player, "no-town"); return; }
         TradeMenuHolder holder = new TradeMenuHolder(town.getUUID(), TradeMenuHolder.Type.BOARD);
         Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, holder, 54, ColorUtil.color(plugin.getConfig().getString("gui.title", "Городская торговля")));
@@ -75,8 +75,8 @@ public final class TradeMenuManager implements Listener {
         if(Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyMarket"))inventory.setItem(7,actionItem("markets",Material.CHEST,"&#63E6BEМеждународный рынок",List.of("&7Товарные предложения городов.")));
         inventory.setItem(8, actionItem("contracts",Material.CLOCK,"&#63E6BEРегулярные договоры",List.of("&7Поставки между складами по расписанию.")));
         player.openInventory(inventory);
-    }
-    public void openHistory(Player player, Town town) {
+    } }
+    public void openHistory(Player player, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         TradeMenuHolder holder = new TradeMenuHolder(town.getUUID(), TradeMenuHolder.Type.HISTORY);
         Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, holder, 54, ColorUtil.color(plugin.getConfig().getString("gui.history-title", "История торговли")));
         holder.inventory(inventory); fill(inventory); int slot = 0;
@@ -94,8 +94,8 @@ public final class TradeMenuManager implements Listener {
         }
         inventory.setItem(49, actionItem("back", Material.ARROW, "&fНазад", List.of("&7Вернуться к торговле.")));
         player.openInventory(inventory);
-    }
-    @EventHandler public void onClick(InventoryClickEvent event) {
+    } }
+    @EventHandler public void onClick(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyTrade")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getInventory().getHolder() instanceof TradeMenuHolder holder)) return;
         event.setCancelled(true); if (!(event.getWhoClicked() instanceof Player player)) return;
         Town town = towny.town(player); if (town == null || !town.getUUID().equals(holder.townId())) { player.closeInventory(); return; }
@@ -120,9 +120,9 @@ public final class TradeMenuManager implements Listener {
             trade.cancelOffer(town, offer); messages.send(player, "proposal-cancelled");
         }
         open(player);
-    }
-    @EventHandler public void onDrag(org.bukkit.event.inventory.InventoryDragEvent event){if(event.getView().getTopInventory().getHolder() instanceof TradeMenuHolder)event.setCancelled(true);}
-    public void sendAccept(Player player, TradeService.AcceptOutcome outcome) {
+    } }
+    @EventHandler public void onDrag(org.bukkit.event.inventory.InventoryDragEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(event.getView().getTopInventory().getHolder() instanceof TradeMenuHolder)event.setCancelled(true);} }
+    public void sendAccept(Player player, TradeService.AcceptOutcome outcome) { synchronized (ru.neverland.core.SuiteState.lock()) {
         switch (outcome.result()) {
             case SUCCESS -> messages.send(player, "caravan-departed", Map.of("export", ColorUtil.strip(trade.definitionOf(outcome.caravan()).name()),
                     "time", TimeUtil.format(outcome.caravan().arrivesAt() - System.currentTimeMillis())));
@@ -138,7 +138,7 @@ public final class TradeMenuManager implements Listener {
             case WAREHOUSE_BUSY -> messages.send(player, "warehouse-busy"); case WAREHOUSE_UNAVAILABLE -> messages.send(player, "warehouse-unavailable");
             case ECONOMY_ERROR, SAVE_ERROR -> messages.send(player, "economy-error");
         }
-    }
+    } }
     private void listOffers(Inventory inventory, List<TradeOffer> offers, int[] slots, boolean incoming) {
         for (int index = 0; index < slots.length; index++) {
             if (index >= offers.size()) { inventory.setItem(slots[index], item(Material.GRAY_STAINED_GLASS_PANE,

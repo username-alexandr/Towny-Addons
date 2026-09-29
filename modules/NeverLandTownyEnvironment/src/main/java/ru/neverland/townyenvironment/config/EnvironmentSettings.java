@@ -21,10 +21,10 @@ public record EnvironmentSettings(int interval, double naturalRecovery, double t
     }
     private static void id(String id) { if (id == null || !id.matches("[a-z][a-z0-9_]{0,63}")) throw new IllegalArgumentException("Неверный ID здания"); }
     private static void bound(double n, double min, double max) { if (!Double.isFinite(n) || n < min || n > max) throw new IllegalArgumentException("Коэффициент вне диапазона: " + min + "…" + max); }
-    public static ConfigurationSection section(ConfigurationSection root, String key) {
+    public static ConfigurationSection section(ConfigurationSection root, String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
         var s = SafeYaml.section(root, key); if (s == null) throw new IllegalArgumentException("Отсутствует раздел " + key); return s;
-    }
-    public static EnvironmentSettings load(ConfigurationSection config) {
+    } }
+    public static EnvironmentSettings load(ConfigurationSection config) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Map<String, Profile> profiles = new LinkedHashMap<>(); var root = section(config, "buildings");
         for (String id : root.getKeys(false)) {
             var s = section(root, id); profiles.put(id, new Profile(SafeYaml.text(s, "name"), SafeYaml.text(s, "icon"), SafeYaml.doubleValue(s, "emission"), SafeYaml.doubleValue(s, "cleaning")));
@@ -32,5 +32,5 @@ public record EnvironmentSettings(int interval, double naturalRecovery, double t
         return new EnvironmentSettings(Math.toIntExact(SafeYaml.integer(config, "cycle-seconds")), SafeYaml.doubleValue(config, "natural-recovery"),
                 SafeYaml.doubleValue(config, "penalties.threshold"), SafeYaml.doubleValue(config, "penalties.maximum-happiness"),
                 SafeYaml.doubleValue(config, "penalties.maximum-agriculture"), profiles, new HashSet<>(SafeYaml.strings(config, "agriculture")));
-    }
+    } }
 }

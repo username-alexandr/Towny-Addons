@@ -90,7 +90,7 @@ public final class EventService implements MintTownyEventsApi {
         this.legacyRaidMobKey = NamespacedKey.fromString("minttownyevents:raid_town");
     }
 
-    public void start() {
+    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
         stopTasks();
         repository.initializeRaidVictories(registry.all().stream().filter(d -> d.mode() == EventMode.RAID)
                 .map(EventDefinition::id).collect(java.util.stream.Collectors.toSet()));
@@ -104,18 +104,18 @@ public final class EventService implements MintTownyEventsApi {
                 repository.put(upgraded);
             }
         }
-        for (World world : Bukkit.getWorlds()) for (Entity entity : new ArrayList<>(world.getEntities())) validateLoadedRaidEntity(entity);
+ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         long tickPeriod = Math.max(1, plugin.getConfig().getLong("runtime.tick-seconds", 1)) * 20;
-        tickTask = Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 20, tickPeriod);
-        saveTask = Bukkit.getScheduler().runTaskTimer(plugin, repository::saveIfDirty, 1200, 1200);
+        tickTask = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::tick, 20, tickPeriod);
+        saveTask = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, repository::saveIfDirty, 1200, 1200);
         if (plugin.getConfig().getBoolean("scheduler.enabled", true)) {
             long delay = Math.max(1, plugin.getConfig().getLong("scheduler.startup-delay-minutes", 10)) * 1200;
             long period = Math.max(1, plugin.getConfig().getLong("scheduler.check-interval-minutes", 5)) * 1200;
-            randomTask = Bukkit.getScheduler().runTaskTimer(plugin, this::randomCheck, delay, period);
+            randomTask = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::randomCheck, delay, period);
         }
-    }
+    } }
 
-    public void shutdown() {
+    public void shutdown() { synchronized (ru.neverland.core.SuiteState.lock()) {
         stopTasks();
         fires.clearVisuals();
         bars.values().forEach(BossBar::removeAll);
@@ -126,7 +126,7 @@ public final class EventService implements MintTownyEventsApi {
         }
         repository.save();
         for(ActiveEvent event : repository.active().values()) cleanupRaidMobs(event.townId());
-    }
+    } }
 
     private void stopTasks() {
         if (tickTask != null) tickTask.cancel();
@@ -135,8 +135,8 @@ public final class EventService implements MintTownyEventsApi {
         tickTask = randomTask = saveTask = null;
     }
 
-    public boolean startEvent(Town town, EventDefinition definition) { return startEvent(town, definition, false); }
-    public boolean startEvent(Town town, EventDefinition definition, boolean force) {
+    public boolean startEvent(Town town, EventDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) { return startEvent(town, definition, false); } }
+    public boolean startEvent(Town town, EventDefinition definition, boolean force) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (town == null || definition == null || repository.active(town.getUUID()) != null) return false;
         if (!force && hostile(definition) && shieldRemainingMillis(town.getUUID()) > 0) return false;
         if (definition.mode() == EventMode.FIRE && hasFireDamage(town.getUUID())) return false;
@@ -156,10 +156,10 @@ public final class EventService implements MintTownyEventsApi {
             if (anchor != null) maybeRaidWave(town, anchor, active, 1.0 - active.protection(), now, false);
         }
         return true;
-    }
+    } }
 
     private static boolean hostile(EventDefinition definition) { return definition.mode() != EventMode.FESTIVAL; }
-    @Override public long shieldRemainingMillis(UUID townId) {
+    @Override public long shieldRemainingMillis(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ru.neverland.core.ApiServices.primaryThread();
         Town city = town(townId); if(city == null) return 0;
         Long explicit = repository.shield(townId);
@@ -167,21 +167,21 @@ public final class EventService implements MintTownyEventsApi {
         if(registered > 0 && registered < 100_000_000_000L) registered *= 1000;
         long until = explicit != null ? explicit : registered > 0 ? Math.addExact(registered, 86_400_000L) : 0;
         return Math.max(0, until - System.currentTimeMillis());
-    }
-    public void townCreated(Town town) {
+    } }
+    public void townCreated(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(repository.shield(town.getUUID()) != null) return;
         long registered = town.getRegistered();
         if(registered > 0 && registered < 100_000_000_000L) registered *= 1000;
         long until = Math.addExact(registered > 0 ? registered : System.currentTimeMillis(), 86_400_000L);
         repository.shield(town.getUUID(), until);
         for(Player player : onlineResidents(town)) player.sendMessage("§bЩит новичка: город защищён от неблагоприятных городских событий на 24 часа.");
-    }
-    public void shield(Town town, long hours) {
+    } }
+    public void shield(Town town, long hours) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(hours < 0 || hours > 720) throw new IllegalArgumentException("Щит: от 0 до 720 часов");
         repository.shield(town.getUUID(), hours == 0 ? 0 : System.currentTimeMillis() + hours * 3_600_000L);
-    }
-    @Override public boolean paused(UUID townId) { ru.neverland.core.ApiServices.primaryThread(); ActiveEvent event = active(townId); return event != null && event.paused(); }
-    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() {
+    } }
+    @Override public boolean paused(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { ru.neverland.core.ApiServices.primaryThread(); ActiveEvent event = active(townId); return event != null && event.paused(); } }
+    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() { synchronized (ru.neverland.core.SuiteState.lock()) {
         ru.neverland.core.ApiServices.primaryThread();
         var targets=new java.util.ArrayList<ru.neverland.core.ActivityAdmin.Target>();
         for(Town town:towny.towns()) {
@@ -198,35 +198,35 @@ public final class EventService implements MintTownyEventsApi {
             }));
         }
         return java.util.List.copyOf(targets);
-    }
-    public boolean cancel(Town town) {
+    } }
+    public boolean cancel(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ActiveEvent event = town == null ? null : active(town.getUUID()); if(event == null) return false;
         repository.replace(event, null, System.currentTimeMillis());
         clearRuntime(event);
         for(Player player : onlineResidents(town)) player.sendMessage("§eСобытие отменено администратором. Поражение и штрафы не начислены.");
         plugin.getLogger().info("Нейтральная отмена: " + town.getName() + " / " + event.eventId());
         return true;
-    }
-    public boolean pause(Town town, boolean pause) {
+    } }
+    public boolean pause(Town town, boolean pause) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ActiveEvent old = town == null ? null : active(town.getUUID());
         if(old == null || old.paused() == pause) return false;
         long now = System.currentTimeMillis();
         ActiveEvent next = old.reschedule(pause ? old.endsAt() : Math.addExact(old.endsAt(), Math.max(0, now-old.pausedAt())), pause ? now : 0);
         replaceRuntime(old, next); return true;
-    }
+    } }
     /** Restart keeps contributions and defeated raid enemies; only the timer is restarted. */
-    public boolean restart(Town town) {
+    public boolean restart(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ActiveEvent old = town == null ? null : active(town.getUUID()); EventDefinition definition = definition(old);
         if(old == null || definition == null) return false;
         ActiveEvent next = old.reschedule(Math.addExact(System.currentTimeMillis(), definition.durationSeconds()*1000L), 0);
         next.lastRaidWave(0); replaceRuntime(old, next); return true;
-    }
-    public boolean extend(Town town, long minutes) {
+    } }
+    public boolean extend(Town town, long minutes) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(minutes < 1 || minutes > 10080) throw new IllegalArgumentException("Продление: от 1 до 10080 минут");
         ActiveEvent old = town == null ? null : active(town.getUUID()); if(old == null) return false;
         repository.replace(old, old.reschedule(Math.addExact(old.endsAt(), minutes*60_000L), old.pausedAt()), 0);
         return true;
-    }
+    } }
     private void replaceRuntime(ActiveEvent old, ActiveEvent next) {
         if(old.raid() != null) {
             var yaml = new org.bukkit.configuration.file.YamlConfiguration(); old.raid().save(yaml);
@@ -240,13 +240,13 @@ public final class EventService implements MintTownyEventsApi {
         BossBar bar = bars.remove(event.townId()); if(bar != null) bar.removeAll();
     }
 
-    public boolean resolve(Town town, boolean success) {
+    public boolean resolve(Town town, boolean success) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (town == null) return false;
         ActiveEvent active = repository.active(town.getUUID());
         if (active == null) return false;
         resolveInternal(town, active, success);
         return true;
-    }
+    } }
 
     private void resolveInternal(Town town, ActiveEvent active, boolean success) {
         EventDefinition definition = registry.get(active.eventId());
@@ -270,7 +270,7 @@ public final class EventService implements MintTownyEventsApi {
         saveNow();
     }
 
-    public int contribute(Town town, int points) {
+    public int contribute(Town town, int points) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ActiveEvent event = town == null ? null : repository.active(town.getUUID());
         if (event == null || event.paused()) return -1;
         int value = event.addProgress(points);
@@ -281,9 +281,9 @@ public final class EventService implements MintTownyEventsApi {
             resolveInternal(town, event, true);
         } else saveNow();
         return value;
-    }
+    } }
 
-    public void creditRaidKill(LivingEntity entity) {
+    public void creditRaidKill(LivingEntity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String owner = raidOwner(entity);
         if (owner == null) return;
         entity.getPersistentDataContainer().remove(raidMobKey);
@@ -309,10 +309,10 @@ public final class EventService implements MintTownyEventsApi {
         }
         if (town != null && event.completed()) resolveInternal(town, event, true);
         else saveNow();
-    }
+    } }
 
     /** Removes stale raid bodies even if their chunk was unloaded during shutdown/cleanup. */
-    public void validateLoadedRaidEntity(Entity entity) {
+    public void validateLoadedRaidEntity(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
         String owner = raidOwner(entity);
         if (owner == null) return;
         ActiveEvent active = null;
@@ -320,7 +320,7 @@ public final class EventService implements MintTownyEventsApi {
         if (active == null || active.paused() || active.raid() == null
                 || !active.raid().generation().toString().equals(entity.getPersistentDataContainer().get(raidGenerationKey, PersistentDataType.STRING))
                 || !active.raid().owns(entity.getUniqueId())) entity.remove();
-    }
+    } }
 
     private void tick() {
         repository.flushReputation();
@@ -352,9 +352,9 @@ public final class EventService implements MintTownyEventsApi {
             if (anchor != null) maybeRaidWave(town, anchor, active, severity, now, false);
             return;
         }
-        for (Player player : onlineResidents(town)) {
+        for (Player player : onlineResidents(town)) ru.neverland.core.SuiteScheduler.entity(plugin,player,()->{
             Town current = towny.townAt(player.getLocation());
-            if (current == null || !current.getUUID().equals(town.getUUID())) continue;
+            if (repository.active(town.getUUID())!=active || active.paused() || current == null || !current.getUUID().equals(town.getUUID())) return;
             int duration = (int) Math.max(60, plugin.getConfig().getLong("runtime.effects-refresh-seconds", 8) * 30);
             switch (definition.mode()) {
                 case EPIDEMIC -> {
@@ -374,11 +374,12 @@ public final class EventService implements MintTownyEventsApi {
                 case RAID -> { }
                 case DROUGHT, FLOOD -> { }
             }
-        }
+        });
     }
 
     private int maybeRaidWave(Town town, Location anchor, ActiveEvent event, double severity, long now,
                               boolean ignoreInterval) {
+        if (!ru.neverland.core.SuiteScheduler.owns(anchor)) { ru.neverland.core.SuiteScheduler.region(plugin,anchor,()->{ if(repository.active(event.townId())==event&&!event.paused())maybeRaidWave(town,anchor,event,severity,System.currentTimeMillis(),ignoreInterval); });return 0;}
         var state = event.raid();
         if (state == null || state.finished()) return 0;
         long interval = Math.max(1, plugin.getConfig().getLong("gameplay.raid-wave-interval-seconds", 60)) * 1000;
@@ -451,9 +452,9 @@ public final class EventService implements MintTownyEventsApi {
         }
     }
 
-    public double raidRangedMultiplier(Entity entity) {
+    public double raidRangedMultiplier(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return isRaidMob(entity) ? entity.getPersistentDataContainer().getOrDefault(raidRangedMultiplierKey, PersistentDataType.DOUBLE, 1.0) : 1.0;
-    }
+    } }
 
     private boolean blockedBody(LivingEntity entity) {
         BoundingBox body = entity.getBoundingBox().clone().expand(-0.01);
@@ -515,7 +516,7 @@ public final class EventService implements MintTownyEventsApi {
     }
 
     private Location safeRaidLocation(World world, int x, int z, Town town, boolean allowLiquidFloor) {
-        if (!belongsToTown(town, world, x, z)) return null;
+        if (!ru.neverland.core.WorldTasks.ownsBox(new Location(world,x,0,z),2) || !belongsToTown(town, world, x, z)) return null;
         Location center = new Location(world, x + 0.5, world.getMinHeight() + 1, z + 0.5);
         if (!world.getWorldBorder().isInside(center)) return null;
         int scanDown = Math.max(4, plugin.getConfig().getInt("gameplay.raid-vertical-scan-down", 16));
@@ -579,8 +580,9 @@ public final class EventService implements MintTownyEventsApi {
 
     private Location raidAnchor(Town town) {
         for (Player player : onlineResidents(town)) {
-            Town current = towny.townAt(player.getLocation());
-            if (current != null && current.getUUID().equals(town.getUUID())) return player.getLocation();
+            Location currentPosition=ru.neverland.core.WorldTasks.position(player);if(currentPosition==null)continue;
+            Town current = towny.townAt(currentPosition);
+            if (current != null && current.getUUID().equals(town.getUUID())) return currentPosition;
         }
         Location spawn = town.getSpawnOrNull();
         if (spawn != null && spawn.getWorld() != null) return spawn;
@@ -590,7 +592,7 @@ public final class EventService implements MintTownyEventsApi {
         BoundingBox box = home.getWorldCoord().getBoundingBox();
         World world = home.getWorldCoord().getBukkitWorld();
         return world == null ? null : new Location(world, (box.getMinX() + box.getMaxX()) * 0.5,
-                world.getHighestBlockYAt((int) box.getCenterX(), (int) box.getCenterZ()) + 1,
+                world.getMinHeight() + 1,
                 (box.getMinZ() + box.getMaxZ()) * 0.5);
     }
 
@@ -598,7 +600,7 @@ public final class EventService implements MintTownyEventsApi {
         Player nearest = null;
         double distance = Double.MAX_VALUE;
         for (Player player : onlineResidents(town)) {
-            if (!player.getWorld().equals(location.getWorld())) continue;
+            if (!ru.neverland.core.SuiteScheduler.owns(player) || !player.getWorld().equals(location.getWorld())) continue;
             double current = player.getLocation().distanceSquared(location);
             if (current > 4096) continue;
             if (current < distance) { distance = current; nearest = player; }
@@ -606,38 +608,20 @@ public final class EventService implements MintTownyEventsApi {
         return nearest;
     }
 
-    public int forceRaidWave(Town town) {
+    public int forceRaidWave(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ActiveEvent event = town == null ? null : repository.active(town.getUUID());
         EventDefinition definition = event == null ? null : registry.get(event.eventId());
         if (event == null || event.paused() || definition == null || definition.mode() != EventMode.RAID) return -1;
         Location anchor = raidAnchor(town);
         return anchor == null ? 0 : maybeRaidWave(town, anchor, event,
                 1.0 - event.protection(), System.currentTimeMillis(), true);
-    }
+    } }
 
-    private int raidMobCount(UUID townId) {
-        int count = 0;
-        String expected = townId.toString();
-        for (World world : Bukkit.getWorlds()) {
-            for (LivingEntity entity : world.getLivingEntities()) {
-                if (expected.equals(raidOwner(entity))) count++;
-            }
-        }
-        return count;
-    }
+    private int raidMobCount(UUID townId) {var event=repository.active(townId);return event==null||event.raid()==null?0:event.raid().aliveCount();}
 
-    private void cleanupRaidMobs(UUID townId) {
-        String expected = townId.toString();
-        for (World world : Bukkit.getWorlds()) {
-            for (LivingEntity entity : new ArrayList<>(world.getLivingEntities())) {
-                if (expected.equals(raidOwner(entity))) {
-                    entity.remove();
-                }
-            }
-        }
-    }
+    private void cleanupRaidMobs(UUID townId) {ru.neverland.core.WorldTasks.eachEntity(plugin,entity->{if(townId.toString().equals(raidOwner(entity)))entity.remove();});}
 
-    @Override public double productionMultiplier(UUID townId,String building) {
+    @Override public double productionMultiplier(UUID townId,String building) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ru.neverland.core.ApiServices.primaryThread();
         if(townId==null||building==null)throw new IllegalArgumentException("Город и постройка обязательны");
         if(!building.equals("agrarian_complex"))return 1;
@@ -646,7 +630,7 @@ public final class EventService implements MintTownyEventsApi {
         return WeatherEconomy.production(definition.mode(),active.protection(),
                 plugin.getConfig().getDouble("seasonal.drought-output-loss",.50),
                 plugin.getConfig().getDouble("seasonal.flood-output-loss",.40));
-    }
+    } }
 
     private void randomCheck() {
         if (repository.active().size() >= Math.max(1, plugin.getConfig().getInt("scheduler.max-active-events", 3))) return;
@@ -712,42 +696,42 @@ public final class EventService implements MintTownyEventsApi {
                 "protection", Math.round(event.protection() * 100));
     }
 
-    public Collection<Player> onlineResidents(Town town) {
+    public Collection<Player> onlineResidents(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         List<Player> result = new ArrayList<>();
         for (Player player : Bukkit.getOnlinePlayers()) {
             Town playerTown = towny.town(player);
             if (playerTown != null && playerTown.getUUID().equals(town.getUUID())) result.add(player);
         }
         return result;
-    }
+    } }
 
-    public Town town(UUID id) {
+    public Town town(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
         for (Town town : towny.towns()) if (town.getUUID().equals(id)) return town;
         return null;
-    }
+    } }
 
-    public ActiveEvent active(UUID townId) { return repository.active(townId); }
-    public EventDefinition definition(ActiveEvent event) { return event == null ? null : registry.get(event.eventId()); }
-    @Override public long raidVictories(UUID townId) { ru.neverland.core.ApiServices.primaryThread(); return repository.raidVictories(townId); }
+    public ActiveEvent active(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { return repository.active(townId); } }
+    public EventDefinition definition(ActiveEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) { return event == null ? null : registry.get(event.eventId()); } }
+    @Override public long raidVictories(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { ru.neverland.core.ApiServices.primaryThread(); return repository.raidVictories(townId); } }
 
-    public List<HistoryEntry> history(UUID townId) { return repository.history(townId); }
-    public NamespacedKey raidMobKey() { return raidMobKey; }
-    public boolean isRaidMob(Entity entity) { return raidOwner(entity) != null; }
+    public List<HistoryEntry> history(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { return repository.history(townId); } }
+    public NamespacedKey raidMobKey() { synchronized (ru.neverland.core.SuiteState.lock()) { return raidMobKey; } }
+    public boolean isRaidMob(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) { return raidOwner(entity) != null; } }
     private String raidOwner(Entity entity) { if (entity == null) return null; String value = entity.getPersistentDataContainer().get(raidMobKey, PersistentDataType.STRING); return value != null || legacyRaidMobKey == null ? value : entity.getPersistentDataContainer().get(legacyRaidMobKey, PersistentDataType.STRING); }
-    public EventRegistry registry() { return registry; }
-    public DevelopmentService development() { return development; }
-    public FireService fires() { return fires; }
-    public boolean fireActive(UUID townId) {
+    public EventRegistry registry() { synchronized (ru.neverland.core.SuiteState.lock()) { return registry; } }
+    public DevelopmentService development() { synchronized (ru.neverland.core.SuiteState.lock()) { return development; } }
+    public FireService fires() { synchronized (ru.neverland.core.SuiteState.lock()) { return fires; } }
+    public boolean fireActive(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
         EventDefinition definition = definition(active(townId));
         return definition != null && !active(townId).paused() && definition.mode() == EventMode.FIRE;
-    }
-    @Override public boolean requiresRepair(UUID world, int x, int y, int z) {
+    } }
+    @Override public boolean requiresRepair(UUID world, int x, int y, int z) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return !fires.repository().writable() || fires.requiresRepair(world, x, y, z);
-    }
-    @Override public boolean hasFireDamage(UUID town) {
+    } }
+    @Override public boolean hasFireDamage(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return !fires.repository().writable() || !fires.damage(town).isEmpty();
-    }
-    public void extinguish(Player player, Location water) {
+    } }
+    public void extinguish(Player player, Location water) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!player.hasPermission("mintevents.contribute")) return;
         Town town = towny.town(player);
         if (town == null || !fireActive(town.getUUID())) return;
@@ -757,38 +741,38 @@ public final class EventService implements MintTownyEventsApi {
             contribute(town, points);
             player.sendMessage("§aПотушено очагов: §f" + count + " §7· §a+" + points + " очков защиты");
         }
-    }
+    } }
 
-    public void reloadRuntime() {
+    public void reloadRuntime() { synchronized (ru.neverland.core.SuiteState.lock()) {
         fires.reload();
         raidCatalog = new RaidCatalog(plugin);
         development.clearCache();
         start();
-    }
+    } }
 
     private void saveNow() {
         if (plugin.getConfig().getBoolean("runtime.save-immediately", true)) repository.save();
     }
 
     @Override
-    public Optional<EventSnapshot> activeEvent(UUID townId) {ru.neverland.core.ApiServices.primaryThread();
+    public Optional<EventSnapshot> activeEvent(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();
         ActiveEvent event = repository.active(townId);
         EventDefinition definition = definition(event);
         if (event == null || event.paused() || definition == null) return Optional.empty();
         return Optional.of(new EventSnapshot(townId, event.eventId(), ColorUtil.strip(definition.name()),
                 event.endsAt(), event.raid() == null ? event.progress() : event.raid().wave() - (event.raid().clear() ? 0 : 1),
                 event.raid() == null ? event.goal() : 10, event.protection()));
-    }
+    } }
 
     @Override
-    public boolean addProgress(UUID townId, int points, String source) {ru.neverland.core.ApiServices.primaryThread();
+    public boolean addProgress(UUID townId, int points, String source) { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();
         Town town = town(townId);
         return town != null && points > 0 && contribute(town, points) >= 0;
-    }
+    } }
 
     @Override
-    public double protection(UUID townId) {ru.neverland.core.ApiServices.primaryThread();
+    public double protection(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();
         ActiveEvent event = repository.active(townId);
         return event == null || event.paused() ? 0 : event.protection();
-    }
+    } }
 }

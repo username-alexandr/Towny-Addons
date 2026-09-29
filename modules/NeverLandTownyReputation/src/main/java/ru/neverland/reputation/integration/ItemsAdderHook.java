@@ -8,8 +8,8 @@ import java.lang.reflect.Method;
 public final class ItemsAdderHook {
     private boolean available;
     public ItemsAdderHook() { reload(); }
-    public void reload() { available = Bukkit.getPluginManager().isPluginEnabled("ItemsAdder"); }
-    public ItemStack item(String namespacedId) {
+    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) { available = Bukkit.getPluginManager().isPluginEnabled("ItemsAdder"); } }
+    public ItemStack item(String namespacedId) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!available || namespacedId == null || namespacedId.isBlank()) return null;
         try {
             Class<?> customStack = Class.forName("dev.lone.itemsadder.api.CustomStack");
@@ -18,5 +18,5 @@ public final class ItemsAdderHook {
             if (custom == null) return null;
             return ((ItemStack) customStack.getMethod("getItemStack").invoke(custom)).clone();
         } catch (ReflectiveOperationException | ClassCastException ignored) { return null; }
-    }
+    } }
 }

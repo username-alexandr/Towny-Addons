@@ -10,7 +10,7 @@ import ru.neverland.townyquests.service.QuestService;
 public final class QuestCommand implements TabExecutor {
     private final NeverLandTownyQuests plugin; private final QuestService service; private final QuestMenu menu;
     public QuestCommand(NeverLandTownyQuests plugin, QuestService service, QuestMenu menu) { this.plugin = plugin; this.service = service; this.menu = menu; }
-    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyQuests")){return true;}
         try {
             if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
                 if (!sender.isOp() && !sender.hasPermission("neverlandtownyquests.admin")) throw new IllegalArgumentException("Нет прав администратора");
@@ -24,13 +24,13 @@ public final class QuestCommand implements TabExecutor {
             else sender.sendMessage("§e/t quests [menu|info <проект>|start <проект>] — городские проекты");
         } catch (Exception ex) { sender.sendMessage("§c" + ex.getMessage()); }
         return true;
-    }
-    @Override public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+    } }
+    @Override public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (args.length == 0) return List.of();
         if (!sender.hasPermission("neverlandtownyquests.use") && !sender.isOp()) return List.of();
         var choices = new ArrayList<String>();
         if (args.length == 1) { choices.addAll(List.of("menu", "info", "start")); if (sender.isOp() || sender.hasPermission("neverlandtownyquests.admin")) choices.add("reload"); }
         if (args.length == 2 && Set.of("info", "start").contains(args[0].toLowerCase(Locale.ROOT))) choices.addAll(service.settings().projects().keySet());
         return choices.stream().filter(s -> s.startsWith(args[args.length - 1].toLowerCase(Locale.ROOT))).toList();
-    }
+    } }
 }

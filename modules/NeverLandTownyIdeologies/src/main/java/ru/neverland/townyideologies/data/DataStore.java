@@ -27,7 +27,7 @@ public final class DataStore {
         this.file = new File(plugin.getDataFolder(), "towns.yml");
     }
 
-    public void load() {ready=false;
+    public void load() { synchronized (ru.neverland.core.SuiteState.lock()) {ready=false;
         towns.clear();
 
         YamlConfiguration yaml = ru.neverland.core.SafeYaml.load(file.toPath());ru.neverland.core.SafeYaml.keys(yaml,"towns");
@@ -52,26 +52,26 @@ public final class DataStore {
             }
         }
         dirty = false;
-    loaded();}
+    loaded();} }
 
-    public Optional<TownIdeology> get(UUID townId) {gate();
+    public Optional<TownIdeology> get(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
         return Optional.ofNullable(towns.get(townId));
-    }
+    } }
 
-    public void set(TownIdeology ideology) {gate();
+    public void set(TownIdeology ideology) { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
         towns.put(ideology.townId(), ideology);
         dirty = true;
-    }
+    } }
 
-    public void remove(UUID townId) {gate();
+    public void remove(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
         if (towns.remove(townId) != null) dirty = true;
-    }
+    } }
 
-    public void saveIfDirty() {gate();
+    public void saveIfDirty() { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
         if (dirty) save();
-    }
+    } }
 
-    public void save() {gate();
+    public void save() { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
         YamlConfiguration yaml = new YamlConfiguration();
         for (TownIdeology data : towns.values()) {
             String path = "towns." + data.townId() + ".";
@@ -88,5 +88,5 @@ public final class DataStore {
             ru.neverland.core.AtomicFiles.write(file.toPath(),yaml::saveToString);
             dirty = false;
         } catch(IOException exception){throw new java.io.UncheckedIOException(exception);}
-    }
+    } }
 }

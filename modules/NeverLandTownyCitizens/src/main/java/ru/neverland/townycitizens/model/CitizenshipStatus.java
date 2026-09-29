@@ -7,8 +7,8 @@ public enum CitizenshipStatus {
 
     private final String title;
     CitizenshipStatus(String title) { this.title = title; }
-    public String title() { return title; }
-    public static CitizenshipStatus parse(String value) {
+    public String title() { synchronized (ru.neverland.core.SuiteState.lock()) { return title; } }
+    public static CitizenshipStatus parse(String value) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return switch (value.toLowerCase(Locale.ROOT)) {
             case "citizen", "гражданин" -> CITIZEN;
             case "temporary", "временный" -> TEMPORARY;
@@ -16,5 +16,5 @@ public enum CitizenshipStatus {
             case "honorary", "почётный", "почетный" -> HONORARY;
             default -> throw new IllegalArgumentException("Неизвестный статус: " + value);
         };
-    }
+    } }
 }

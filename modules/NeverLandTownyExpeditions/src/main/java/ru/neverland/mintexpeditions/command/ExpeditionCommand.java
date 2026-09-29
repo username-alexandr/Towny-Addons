@@ -32,7 +32,7 @@ public final class ExpeditionCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){return true;}
         if (!(sender instanceof Player player)) {
             messages.send(sender, "only-player");
             return true;
@@ -63,7 +63,7 @@ public final class ExpeditionCommand implements CommandExecutor, TabCompleter {
             default -> menu.open(player);
         }
         return true;
-    }
+    } }
 
     private void showStatus(Player player) {
         ActiveExpedition expedition =
@@ -114,7 +114,7 @@ public final class ExpeditionCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command,
-                                      String alias, String[] args) {
+                                      String alias, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (args.length == 1) {
             return List.of("start", "status", "return", "claim", "history").stream()
                     .filter(value -> !value.equals("return") || sender.hasPermission("neverlandtownyexpeditions.return"))
@@ -125,5 +125,5 @@ public final class ExpeditionCommand implements CommandExecutor, TabCompleter {
                     .map(ExpeditionDefinition::id).toList();
         }
         return List.of();
-    }
+    } }
 }

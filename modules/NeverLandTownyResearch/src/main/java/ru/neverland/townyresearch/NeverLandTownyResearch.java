@@ -14,7 +14,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 public final class NeverLandTownyResearch extends JavaPlugin {
     private ResearchService service;private boolean townCommand;private ResearchExpansion expansion;
-    @Override public void onEnable(){
+    @Override public void onEnable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 try{
         saveDefaultConfig();if(!new File(getDataFolder(),"technologies.yml").exists())saveResource("technologies.yml",false);
@@ -25,11 +25,11 @@ try{
         getServer().getPluginManager().registerEvents(menu,this);getServer().getPluginManager().registerEvents(new ru.neverland.townyresearch.integration.WallProtection(service),this);service.start();getServer().getServicesManager().register(TownyResearchApi.class,service,this,ServicePriority.Normal);
         if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")){expansion=new ResearchExpansion(service,getPluginMeta().getVersion());expansion.register();}
         getLogger().info("Исследования включены: "+service.settings().technologies().size()+" профилей.");
-    }catch(Exception|LinkageError ex){getLogger().log(java.util.logging.Level.SEVERE,"Исследования не загружены. Данные не перезаписаны; исследования приостановлены до исправления причины.",ex);getServer().getPluginManager().disablePlugin(this);}}
+    }catch(Exception|LinkageError ex){getLogger().log(java.util.logging.Level.SEVERE,"Исследования не загружены. Данные не перезаписаны; исследования приостановлены до исправления причины.",ex);getServer().getPluginManager().disablePlugin(this);}} }
     private YamlConfiguration read(String name)throws Exception{var y=new YamlConfiguration();y.load(new File(getDataFolder(),name));try(var input=getResource(name)){if(input!=null)y.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(input,StandardCharsets.UTF_8)));}y.options().copyDefaults(true);return y;}
     private ResearchSettings settings()throws Exception{return ResearchSettings.load(read("config.yml"),read("technologies.yml"));}
-    public boolean reloadResearch(){try{service.reload(settings());return true;}catch(Exception ex){getLogger().warning("Настройки исследований не применены: "+ex.getMessage());return false;}}
-    @Override public void onDisable(){
+    public boolean reloadResearch(){ synchronized (ru.neverland.core.SuiteState.lock()) {try{service.reload(settings());return true;}catch(Exception ex){getLogger().warning("Настройки исследований не применены: "+ex.getMessage());return false;}} }
+    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
-if(expansion!=null)expansion.unregister();if(service!=null)service.stop();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"research");}
+if(expansion!=null)expansion.unregister();if(service!=null)service.stop();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"research");} }
 }

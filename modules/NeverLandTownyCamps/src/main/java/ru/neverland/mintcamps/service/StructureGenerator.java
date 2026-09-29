@@ -14,7 +14,7 @@ import java.util.Map;
 public final class StructureGenerator {
     public static final BlockPos CAMPFIRE_RELATIVE = new BlockPos(0, 0, 0);
 
-    public List<Placement> generate(int level, StyleDefinition style) {
+    public List<Placement> generate(int level, StyleDefinition style) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Builder builder = new Builder();
         addCommon(builder, style);
         switch (Math.max(1, Math.min(3, level))) {
@@ -24,15 +24,15 @@ public final class StructureGenerator {
             default -> throw new IllegalStateException();
         }
         return builder.values();
-    }
+    } }
 
-    public BlockPos stashRelative(int level) {
+    public BlockPos stashRelative(int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return switch (Math.max(1, Math.min(3, level))) {
             case 1 -> new BlockPos(1, 1, 5);
             case 2 -> new BlockPos(2, 1, 6);
             default -> new BlockPos(3, 1, 7);
         };
-    }
+    } }
 
     private void addCommon(Builder b, StyleDefinition style) {
         b.add(0, 0, 0, Material.CAMPFIRE, PlacementKind.CAMPFIRE);

@@ -10,16 +10,16 @@ import ru.neverland.townycrime.api.*;
 public final class CrimeService implements TownyCrimeApi {
     private final JavaPlugin plugin;private final CrimeRepository repository;private final CrimeBridge bridge=new CrimeBridge();
     private CrimeSettings settings;private BukkitTask task;private final Map<UUID,String> faults=new HashMap<>();private final Map<UUID,Long> warnings=new HashMap<>();
-    private final TheftProcessor.Store store=new TheftProcessor.Store(){public CrimeState get(UUID id){return repository.all().get(id);}public void put(CrimeState s)throws Exception{repository.put(s);}};
+    private final TheftProcessor.Store store=new TheftProcessor.Store(){public CrimeState get(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {return repository.all().get(id);} }public void put(CrimeState s)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {repository.put(s);} }};
     public CrimeService(JavaPlugin p,CrimeRepository r,CrimeSettings s){plugin=p;repository=r;settings=s;}
-    public void start()throws Exception{
+    public void start()throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {
         // Grant one online cycle after every start, never replay downtime cycles/incidents.
         long now=System.currentTimeMillis();var next=new LinkedHashMap<UUID,CrimeState>();
         for(var v:repository.all().values())next.put(v.town(),new CrimeState(v.town(),v.level(),now+settings.cycle(),Math.max(v.nextIncident(),now+settings.cycle()),v.incident()));repository.commit(next);
-        task=Bukkit.getScheduler().runTaskTimer(plugin,this::pulse,40,100);
-    }
-    public void stop(){if(task!=null)task.cancel();}
-    public void reload(CrimeSettings next){ApiServices.primaryThread();settings=next;}
+        task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::pulse,40,100);
+    } }
+    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(task!=null)task.cancel();} }
+    public void reload(CrimeSettings next){ synchronized (ru.neverland.core.SuiteState.lock()) {ApiServices.primaryThread();settings=next;} }
     private void writable(){if(!repository.writable())throw new IllegalStateException("Преступность: ошибка сохранения, требуется исправление базы и перезапуск");}
     private CrimeState state(UUID town)throws Exception{
         var state=repository.all().get(town);if(state==null){long now=System.currentTimeMillis();state=new CrimeState(town,0,now+settings.cycle(),now+settings.cooldown(),null);repository.put(state);}return state;
@@ -51,7 +51,7 @@ public final class CrimeService implements TownyCrimeApi {
         for(var resident:town.getResidents()){var player=Bukkit.getPlayer(resident.getUUID());if(player!=null)player.sendMessage(ru.neverland.core.MenuStyle.decode("&e[Городская стража] &f"+message+". &b/t crime"));}}
         Bukkit.getPluginManager().callEvent(new CrimeIncidentEvent(i.id(),s.town(),i.kind(),i.resource(),i.amount()));
     }
-    @Override public Optional<Map<String,Object>> crime(UUID town){ApiServices.primaryThread();Objects.requireNonNull(town);if(TownyAPI.getInstance().getTown(town)==null)return Optional.empty();
+    @Override public Optional<Map<String,Object>> crime(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {ApiServices.primaryThread();Objects.requireNonNull(town);if(TownyAPI.getInstance().getTown(town)==null)return Optional.empty();
         var s=repository.all().get(town);Map<String,Object> result=new LinkedHashMap<>();result.put("town",town);result.put("level",s==null?0.0:s.level());result.put("nextCycle",s==null?0L:s.nextCycle());
         boolean paused=false;boolean protectedTown=false;String status="Расчёт работает";CrimeEngine.Inputs inputs=null;
         try{writable();protectedTown=ru.neverland.core.NewcomerProtection.remaining(plugin,town)>0;if(protectedTown)status="Щит новичка: новые происшествия и потери дохода отключены";inputs=bridge.inputs(town);if(s==null)throw new IllegalStateException("Первый расчёт ещё не выполнен");if(faults.containsKey(town))throw new IllegalStateException(faults.get(town));}catch(Exception|LinkageError ex){paused=true;status="Расчёт приостановлен; новые продажи ожидают восстановления";}
@@ -59,7 +59,7 @@ public final class CrimeService implements TownyCrimeApi {
         var i=s==null?null:s.incident();long now=System.currentTimeMillis();boolean extortion=i!=null&&i.kind().equals("EXTORTION")&&i.active(now);
         result.put("newcomerProtected",protectedTown);result.put("incomeBasisPoints",protectedTown?10000:CrimeEngine.income(s==null?0:s.level(),extortion,settings));result.put("incident",i==null?Map.of():Map.<String,Object>of("id",i.id(),"kind",i.kind(),"resource",i.resource(),"amount",i.amount(),"phase",i.phase(),"until",i.until(),"active",i.active(now)));
         return Optional.of(Map.copyOf(result));
-    }
-    @Override public Collection<Map<String,Object>> towns(){ApiServices.primaryThread();return TownyAPI.getInstance().getTowns().stream().map(t->crime(t.getUUID()).orElseThrow()).toList();}
-    @Override public int shopIncomeBasisPoints(UUID town){var snapshot=crime(town).orElseThrow(()->new IllegalArgumentException("Город не найден"));if(Boolean.TRUE.equals(snapshot.get("paused")))throw new IllegalStateException((String)snapshot.get("status"));return (Integer)snapshot.get("incomeBasisPoints");}
+    } }
+    @Override public Collection<Map<String,Object>> towns(){ synchronized (ru.neverland.core.SuiteState.lock()) {ApiServices.primaryThread();return TownyAPI.getInstance().getTowns().stream().map(t->crime(t.getUUID()).orElseThrow()).toList();} }
+    @Override public int shopIncomeBasisPoints(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {var snapshot=crime(town).orElseThrow(()->new IllegalArgumentException("Город не найден"));if(Boolean.TRUE.equals(snapshot.get("paused")))throw new IllegalStateException((String)snapshot.get("status"));return (Integer)snapshot.get("incomeBasisPoints");} }
 }

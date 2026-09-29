@@ -8,13 +8,13 @@ public record ActivityTimer(long deadline, long pausedAt, long duration) {
         if (deadline < 0 || pausedAt < 0 || duration <= 0 || pausedAt > deadline)
             throw new IllegalArgumentException("Повреждён таймер задачи");
     }
-    public static ActivityTimer running(long start, long end) {
+    public static ActivityTimer running(long start, long end) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return new ActivityTimer(end, 0, Math.max(1, Math.subtractExact(end, start)));
-    }
-    public boolean paused() { return pausedAt != 0; }
-    public long now(long wallTime) { return paused() ? pausedAt : wallTime; }
-    public long remaining(long wallTime) { return Math.max(0, deadline - now(wallTime)); }
-    public ActivityTimer edit(String action, long minutes, long wallTime) {
+    } }
+    public boolean paused() { synchronized (ru.neverland.core.SuiteState.lock()) { return pausedAt != 0; } }
+    public long now(long wallTime) { synchronized (ru.neverland.core.SuiteState.lock()) { return paused() ? pausedAt : wallTime; } }
+    public long remaining(long wallTime) { synchronized (ru.neverland.core.SuiteState.lock()) { return Math.max(0, deadline - now(wallTime)); } }
+    public ActivityTimer edit(String action, long minutes, long wallTime) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (wallTime <= 0) throw new IllegalArgumentException("Некорректное время сервера");
         return switch (action) {
             case "pause" -> {
@@ -34,17 +34,17 @@ public record ActivityTimer(long deadline, long pausedAt, long duration) {
             }
             default -> throw new IllegalArgumentException("Неизвестное действие с таймером: " + action);
         };
-    }
-    public static ActivityTimer read(ConfigurationSection section, String prefix, ActivityTimer initial) {
+    } }
+    public static ActivityTimer read(ConfigurationSection section, String prefix, ActivityTimer initial) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return new ActivityTimer(initial.deadline(), SafeYaml.longValue(section, prefix + "admin-paused-at", 0),
                 SafeYaml.longValue(section, prefix + "admin-duration", initial.duration()));
-    }
-    public void write(ConfigurationSection section, String prefix) {
+    } }
+    public void write(ConfigurationSection section, String prefix) { synchronized (ru.neverland.core.SuiteState.lock()) {
         section.set(prefix + "admin-paused-at", pausedAt);
         section.set(prefix + "admin-duration", duration);
-    }
-    public String describe(long now) {
+    } }
+    public String describe(long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
         long seconds = (remaining(now) + 999) / 1000;
         return (paused() ? "Пауза" : "Работает") + "; осталось " + seconds / 60 + " мин. " + seconds % 60 + " сек.";
-    }
+    } }
 }

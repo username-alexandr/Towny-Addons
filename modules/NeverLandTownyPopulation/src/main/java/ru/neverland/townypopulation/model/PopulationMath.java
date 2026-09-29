@@ -16,7 +16,7 @@ public final class PopulationMath {
                           double change, List<String> reasons) {
         public Metrics { reasons = List.copyOf(reasons); }
     }
-    public static Metrics evaluate(int population, Capacity c, Rules r) {
+    public static Metrics evaluate(int population, Capacity c, Rules r) { synchronized (ru.neverland.core.SuiteState.lock()) {
         int workers = (int)Math.ceil(population * r.workforce());
         int employed = Math.min(workers, c.jobs());
         double unemployment = workers == 0 ? 0 : (workers - employed) / (double)workers;
@@ -51,19 +51,19 @@ public final class PopulationMath {
         if (population >= r.maximum()) reasons.add("Достигнут предел населения в настройках");
         if (reasons.isEmpty()) reasons.add(change > 0 ? "Условия для роста выполнены" : "Население стабильно");
         return new Metrics(workers, employed, workers-employed, unemployment, food, water, happiness, change, reasons);
-    }
-    public static Metrics evaluate(int population,Capacity capacity,Rules rules,double medicineBonus){
+    } }
+    public static Metrics evaluate(int population,Capacity capacity,Rules rules,double medicineBonus){ synchronized (ru.neverland.core.SuiteState.lock()) {
         var base=evaluate(population,capacity,rules);if(base.change()<=0)return base;
         double sustainable=Math.min(capacity.housing(),Math.min(capacity.food()/rules.foodDemand(),capacity.water()/rules.waterDemand()));
         double headroom=Math.max(0,Math.floor(Math.min(rules.maximum(),sustainable))-population);
         double change=Math.min(headroom,ru.neverland.integration.ResearchEffects.speed(base.change(),medicineBonus));
         return new Metrics(base.workforce(),base.employed(),base.unemployed(),base.unemployment(),base.foodCoverage(),base.waterCoverage(),base.happiness(),change,base.reasons());
-    }
+    } }
     private static double coverage(double supply, double demand) { return demand <= 0 ? 1 : Math.min(1, supply/demand); }
-    public static PopulationState advance(PopulationState state, Capacity capacity, Rules rules, long now) {
+    public static PopulationState advance(PopulationState state, Capacity capacity, Rules rules, long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return advance(state,capacity,rules,now,0);
-    }
-    public static PopulationState advance(PopulationState state,Capacity capacity,Rules rules,long now,double medicineBonus){
+    } }
+    public static PopulationState advance(PopulationState state,Capacity capacity,Rules rules,long now,double medicineBonus){ synchronized (ru.neverland.core.SuiteState.lock()) {
         double change = evaluate(state.population(), capacity, rules,medicineBonus).change();
         double remainder = state.remainder();
         if (change == 0 || Math.signum(change) != Math.signum(remainder)) remainder = 0;
@@ -71,5 +71,5 @@ public final class PopulationMath {
         int delta = (int)amount; // towards zero: preserve fractional growth/decline across cycles
         int next = Math.max(0, state.population() + delta);
         return new PopulationState(next, next == 0 && change <= 0 ? 0 : amount-delta, next-state.population(), now);
-    }
+    } }
 }

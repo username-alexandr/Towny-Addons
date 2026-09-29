@@ -27,7 +27,7 @@ public final class MintTownyEvents extends JavaPlugin {
     private EventService events;
 
     @Override
-    public void onEnable() {
+    public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         ru.neverland.mintevents.util.LegacyDataMigrator.migrate(this, "MintTownyEvents");
@@ -61,24 +61,24 @@ public final class MintTownyEvents extends JavaPlugin {
         events.start();
         getLogger().info("NeverLandTownyEvents " + getPluginMeta().getVersion() + " включён: загружено событий " + registry.all().size()
                 + ", PlaceholderAPI=" + placeholders + ".");
-    }
+    } }
 
     @Override
-    public void onDisable() {
+    public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (events != null) events.shutdown();
         if (towny != null) towny.unregisterTownCommand("events");
         getServer().getServicesManager().unregisterAll(this);
-    }
+    } }
 
-    public void reloadPlugin() {
+    public void reloadPlugin() { synchronized (ru.neverland.core.SuiteState.lock()) {
         reloadConfig();
         messages.reload();
         registry.reload();
         development.clearCache();
         events.reloadRuntime();
-    }
+    } }
 
     private void copyResource(String name) {
         if (!new File(getDataFolder(), name).exists()) saveResource(name, false);
