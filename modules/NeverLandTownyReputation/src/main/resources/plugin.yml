@@ -1,6 +1,7 @@
 name: NeverLandTownyReputation
-version: 0.2.8
+version: 0.2.9
 main: ru.neverland.reputation.TownyReputation
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 website: https://neverland.ru

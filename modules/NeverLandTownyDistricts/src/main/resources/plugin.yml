@@ -1,6 +1,7 @@
 name: NeverLandTownyDistricts
-version: 0.1.16
+version: 0.1.17
 main: ru.neverland.townydistricts.NeverLandTownyDistricts
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Городские районы, размещение зданий и совместные бонусы.

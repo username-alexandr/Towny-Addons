@@ -1,6 +1,7 @@
 name: NeverLandTownyDiplomacy
-version: 0.1.10
+version: 0.1.11
 main: ru.neverland.townydiplomacy.NeverLandTownyDiplomacy
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Межгородские договоры, вассалитет, гарантии, эмбарго и санкции.

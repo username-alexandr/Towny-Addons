@@ -1,6 +1,7 @@
 name: NeverLandTownyCitizens
-version: 0.1.10
+version: 0.1.11
 main: ru.neverland.townycitizens.NeverLandTownyCitizens
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Гражданство, временное проживание, городские права и паспортный API.

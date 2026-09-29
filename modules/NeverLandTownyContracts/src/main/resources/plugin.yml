@@ -1,6 +1,7 @@
 name: NeverLandTownyContracts
-version: 0.3.13
+version: 0.3.14
 main: ru.neverland.mintcontracts.MintTownyContracts
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 website: https://neverland.ru

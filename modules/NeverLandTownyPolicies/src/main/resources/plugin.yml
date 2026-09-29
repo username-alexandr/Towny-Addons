@@ -1,6 +1,7 @@
 name: NeverLandTownyPolicies
-version: 0.1.13
+version: 0.1.14
 main: ru.neverland.townypolicies.NeverLandTownyPolicies
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Городские политики, указы, преимущества и издержки.

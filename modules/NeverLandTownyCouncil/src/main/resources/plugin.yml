@@ -1,6 +1,7 @@
 name: NeverLandTownyCouncil
-version: 0.1.12
+version: 0.1.13
 main: ru.neverland.townycouncil.NeverLandTownyCouncil
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Назначаемые мэром министры и права городских служб.

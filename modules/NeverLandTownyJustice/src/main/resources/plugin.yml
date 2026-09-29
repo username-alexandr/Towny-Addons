@@ -1,6 +1,7 @@
 name: NeverLandTownyJustice
-version: 0.1.7
+version: 0.1.8
 main: ru.neverland.townyjustice.NeverLandTownyJustice
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Судебные дела, штрафы, розыск, тюрьмы Towny и обеспеченные награды за поимку.

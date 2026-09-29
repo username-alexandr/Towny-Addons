@@ -12,8 +12,8 @@ import static ru.neverland.townyjustice.JusticePayment.Step.READY;
 import static ru.neverland.townyjustice.JusticePayment.Step.DEBITED;
 import static ru.neverland.townyjustice.JusticePayment.Step.COMPLETE;
 public final class JusticeService implements TownyJusticeApi {
-    private final JavaPlugin plugin;private final JusticeRepository repository;private final JusticeBank bank=new JusticeBank();private final JusticeJails jails=new JusticeJails();private JusticeSettings settings;private long warned;
-    public JusticeService(JavaPlugin p,JusticeRepository r,JusticeSettings s){plugin=p;repository=r;settings=s;}
+    private final JavaPlugin plugin;private final JusticeRepository repository;private final JusticeBank bank=new JusticeBank();private final JusticeJails jails;private JusticeSettings settings;private long warned;
+    public JusticeService(JavaPlugin p,JusticeRepository r,JusticeSettings s){plugin=p;repository=r;settings=s;jails=new JusticeJails(p);}
     public JusticeRepository repository(){ synchronized (ru.neverland.core.SuiteState.lock()) {return repository;} }public JusticeSettings settings(){ synchronized (ru.neverland.core.SuiteState.lock()) {return settings;} }
     public void reload(JusticeSettings s){ synchronized (ru.neverland.core.SuiteState.lock()) {ApiServices.primaryThread();settings=s;} }
     private void writable(){ApiServices.primaryThread();if(!repository.writable())throw new IllegalStateException("Суд приостановлен после ошибки сохранения; требуется исправление и перезапуск");}
@@ -38,7 +38,7 @@ public final class JusticeService implements TownyJusticeApi {
     private void refund(JusticeCase c)throws Exception{if(c.payout()!=null)throw new IllegalStateException("Резерв уже направлен на выплату");if(!funded(c))throw new IllegalStateException("Резерв ещё не подтверждён");JusticePayment tx=c.amount()==0?null:payment(c,JusticePayment.Kind.BOUNTY_REFUND,c.subject(),System.currentTimeMillis());repository.put(c.settlement(tx==null?null:tx.id(),tx==null?CANCELLED:REFUNDING),tx);}
     private static UUID territory(Player p){var town=TownyAPI.getInstance().getTown(p.getLocation());return town==null?null:town.getUUID();}
     private boolean playerReady(Player p){return p!=null&&p.isOnline()&&!p.isDead()&&!p.isInsideVehicle()&&(p.getGameMode()==GameMode.SURVIVAL||p.getGameMode()==GameMode.ADVENTURE);}
-    private void captureAllowed(Player actor,Player target,JusticeCase c){var resident=target==null?null:TownyAPI.getInstance().getResident(target.getUniqueId());var hunter=TownyAPI.getInstance().getResident(actor.getUniqueId());boolean jailed=resident==null||resident.isJailed()||jails.queued(c);double distance=target!=null&&target.getWorld().equals(actor.getWorld())?target.getLocation().distance(actor.getLocation()):Double.POSITIVE_INFINITY;
+    private void captureAllowed(Player actor,Player target,JusticeCase c){if(target!=null&&!ru.neverland.core.SuiteScheduler.owns(target))throw new IllegalArgumentException("Подойдите к разыскиваемому и повторите поимку");var resident=target==null?null:TownyAPI.getInstance().getResident(target.getUniqueId());var hunter=TownyAPI.getInstance().getResident(actor.getUniqueId());boolean jailed=resident==null||resident.isJailed()||jails.queued(c);double distance=target!=null&&target.getWorld().equals(actor.getWorld())?target.getLocation().distance(actor.getLocation()):Double.POSITIVE_INFINITY;
         if(!actor.hasPermission("neverlandtownyjustice.capture")||hunter==null||hunter.isJailed()||!CaptureRules.allowed(actor.getUniqueId(),c.subject(),c.town(),territory(actor),target==null?null:territory(target),playerReady(actor),playerReady(target),jailed,funded(c),c.kind()==JusticeCase.Kind.WARRANT&&c.phase()==WANTED&&System.currentTimeMillis()<c.due(),distance,settings.captureDistance()))throw new IllegalArgumentException("Для поимки подойдите к разыскиваемому в пределах города-инициатора; нужен действующий оплаченный розыск");
         if(repository.state().cases().values().stream().anyMatch(other->!other.id().equals(c.id())&&other.subject().equals(c.subject())&&Set.of(ARRESTING,JAILED,RELEASING).contains(other.phase())))throw new IllegalArgumentException("Поимка этого игрока уже обрабатывается");
     }
@@ -55,7 +55,10 @@ public final class JusticeService implements TownyJusticeApi {
     public void resolve(UUID id,String decision)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {writable();var tx=repository.get(id);if(tx==null)throw new IllegalArgumentException("Платёж не найден");repository.put(JusticePayments.resolve(tx,decision,System.currentTimeMillis()));process(id);} }
     private void process(UUID id){for(int i=0;i<3;i++)try{JusticePayments.advance(id,System.currentTimeMillis(),settings.retry(),repository,bank);}catch(Exception ex){warn(ex);break;}try{project(get(repository.get(id).caseId()),System.currentTimeMillis());}catch(Exception ex){warn(ex);}}
     void pulse(){if(!repository.writable())return;long now=System.currentTimeMillis();
-        for(var p:List.copyOf(repository.state().prisons().values()))if(!p.ready())try{jails.ensure(p);repository.prison(p.finish());}catch(Exception ex){warn(ex);}
+        for(var p:List.copyOf(repository.state().prisons().values())){
+            if(p.ready()){jails.usable(p);continue;}
+            try{ru.neverland.core.SuiteScheduler.region(plugin,jails.point(p),()->{if(!p.equals(repository.state().prisons().get(p.id())))return;try{jails.ensure(p);repository.prison(p.finish());}catch(Exception ex){warn(ex);}});}catch(Exception ex){warn(ex);}
+        }
         for(var tx:List.copyOf(repository.state().payments().values()))if(tx.step()==READY||tx.step()==DEBITED)try{JusticePayments.advance(tx.id(),now,settings.retry(),repository,bank);}catch(Exception ex){warn(ex);}
         for(var c:List.copyOf(repository.state().cases().values()))if(!c.terminal())try{project(c,now);}catch(Exception ex){warn(ex);}
     }

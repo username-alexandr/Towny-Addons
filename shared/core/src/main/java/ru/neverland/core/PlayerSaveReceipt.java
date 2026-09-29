@@ -26,8 +26,8 @@ public final class PlayerSaveReceipt {
    }
 
    public static PlayerSaveReceipt before(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
-      if (!ru.neverland.core.SuiteState.held()) {
-         throw new IllegalStateException("Сохранение игрока требует основного потока");
+      if (!SuiteScheduler.owns(player)) {
+         throw new IllegalStateException("Сохранение игрока требует потока его региона");
       } else {
          Path root = ((World)Bukkit.getWorlds().get(0)).getWorldFolder().toPath();
          Path dimensions = root.getParent() == null ? null : root.getParent().getParent();
@@ -47,8 +47,8 @@ public final class PlayerSaveReceipt {
    } }
 
    public void save(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
-      if (!ru.neverland.core.SuiteState.held()) {
-         throw new IllegalStateException("Сохранение игрока требует основного потока");
+      if (!SuiteScheduler.owns(player)) {
+         throw new IllegalStateException("Сохранение игрока требует потока его региона");
       } else {
          player.saveData();
 

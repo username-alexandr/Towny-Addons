@@ -1,6 +1,7 @@
 name: NeverLandTownyResearch
-version: 0.1.15
+version: 0.1.16
 main: ru.neverland.townyresearch.NeverLandTownyResearch
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Городские исследования, знания и технологии.

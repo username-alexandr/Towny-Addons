@@ -14,7 +14,7 @@ import java.util.concurrent.Semaphore;
 public final class AuditCommand implements CommandExecutor,TabCompleter {
     private final JavaPlugin plugin;private final Semaphore jobs=new Semaphore(2);
     public AuditCommand(JavaPlugin plugin){this.plugin=plugin;var c=plugin.getCommand("nltaudit");c.setExecutor(this);c.setTabCompleter(this);}
-    void page(AuditQuery query,int size,java.util.function.BiConsumer<AuditReader.Page,Exception> callback) {
+    void page(org.bukkit.entity.Player viewer,AuditQuery query,int size,java.util.function.BiConsumer<AuditReader.Page,Exception> callback) {
         if(!jobs.tryAcquire())throw new IllegalStateException("Уже выполняются две проверки журнала; повторите позже");
         try { ru.neverland.core.SuiteScheduler.get().runTaskAsynchronously(plugin,()->{
             AuditReader.Page page=null;Exception failure=null;
@@ -22,7 +22,7 @@ public final class AuditCommand implements CommandExecutor,TabCompleter {
             catch(Exception ex){failure=ex;plugin.getLogger().log(java.util.logging.Level.WARNING,"Чтение аудита для меню",ex);}
             finally{jobs.release();}
             var result=page;var error=failure;
-            if(plugin.isEnabled())ru.neverland.core.SuiteScheduler.get().runTask(plugin,()->callback.accept(result,error));
+            if(plugin.isEnabled())ru.neverland.core.SuiteScheduler.player(plugin,viewer,p->callback.accept(result,error));
         }); } catch(RuntimeException ex){jobs.release();throw ex;}
     }
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
@@ -36,7 +36,7 @@ public final class AuditCommand implements CommandExecutor,TabCompleter {
             for(String k:List.of("town","player","from","to"))if(filters.containsKey(k)){String v=filters.get(k);try{filters.put(k,UUID.fromString(v).toString());}catch(IllegalArgumentException ex){if(k.equals("player")){var r=TownyAPI.getInstance().getResident(v);if(r==null)throw new IllegalArgumentException("Игрок не найден; для удалённого используйте UUID");filters.put(k,r.getUUID().toString());}else{var t=TownyAPI.getInstance().getTown(v);if(t==null)throw new IllegalArgumentException("Город не найден; для удалённого используйте UUID");filters.put(k,t.getUUID().toString());}}}
             var query=new AuditQuery(filters,parsed.page());if(!jobs.tryAcquire())throw new IllegalStateException("Уже выполняются две проверки журнала; повторите позже");
             sender.sendMessage("§7Читаю журнал…");
-            ru.neverland.core.SuiteScheduler.get().runTaskAsynchronously(plugin,()->{List<String> reply;try{reply=read(action,query);}catch(Exception ex){reply=List.of("§cАудит не прочитан полностью: "+ex.getMessage()+". Результат не выдан как полный.");plugin.getLogger().log(java.util.logging.Level.WARNING,"Чтение аудита",ex);}finally{jobs.release();}var messages=reply;if(plugin.isEnabled())ru.neverland.core.SuiteScheduler.get().runTask(plugin,()->{if(AdminAccess.has(sender,AdminAccess.AUDIT)&&(!action.equals("export")||AdminAccess.has(sender,AdminAccess.EXPORT)))messages.forEach(sender::sendMessage);});});
+            ru.neverland.core.SuiteScheduler.get().runTaskAsynchronously(plugin,()->{List<String> reply;try{reply=read(action,query);}catch(Exception ex){reply=List.of("§cАудит не прочитан полностью: "+ex.getMessage()+". Результат не выдан как полный.");plugin.getLogger().log(java.util.logging.Level.WARNING,"Чтение аудита",ex);}finally{jobs.release();}var messages=reply;if(plugin.isEnabled())ru.neverland.core.SuiteScheduler.reply(plugin,sender,()->{if(AdminAccess.has(sender,AdminAccess.AUDIT)&&(!action.equals("export")||AdminAccess.has(sender,AdminAccess.EXPORT)))messages.forEach(sender::sendMessage);});});
         }catch(Exception ex){sender.sendMessage("§c"+ex.getMessage());}return true;
     } }
     private List<String> read(String action,AuditQuery query)throws Exception {

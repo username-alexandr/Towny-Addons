@@ -74,10 +74,11 @@ public final class SiteService {
             return;
         }
         int[] candidate = candidates.get(index);
-        CompletableFuture<org.bukkit.Chunk> future =
-                world.getChunkAtAsync(candidate[0] >> 4, candidate[1] >> 4, true);
+        var loads=new java.util.ArrayList<CompletableFuture<org.bukkit.Chunk>>();
+        for(int x=(candidate[0]-32)>>4;x<=(candidate[0]+32)>>4;x++)for(int z=(candidate[1]-32)>>4;z<=(candidate[1]+32)>>4;z++)loads.add(world.getChunkAtAsync(x,z,true));
+        CompletableFuture<Void> future=CompletableFuture.allOf(loads.toArray(CompletableFuture[]::new));
         future.whenComplete((chunk, error) -> ru.neverland.core.SuiteScheduler.region(plugin, new Location(world,candidate[0],0,candidate[1]), () -> {
-            if (error != null) {
+            if (error != null || !ru.neverland.core.WorldTasks.ownsBox(new Location(world,candidate[0],0,candidate[1]),24)) {
                 find(world, definition, candidates, index + 1, callback);
                 return;
             }
@@ -350,7 +351,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,entity->{if(expedition.id().equal
                 plugin.getConfig().getInt("generation.restore-blocks-per-tick", 80));
         class RestoreBatch implements Runnable {
             int index;
-            public void run() { synchronized(ru.neverland.core.SuiteState.lock()) {
+            public void run() { synchronized (ru.neverland.core.SuiteState.lock()) { synchronized(ru.neverland.core.SuiteState.lock()) {
                 for (int restored = 0; restored < batch && index < entries.size();
                      restored++, index++) {
                     Map.Entry<BlockPos, SiteSnapshot> entry = entries.get(index);
@@ -375,9 +376,9 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,entity->{if(expedition.id().equal
                 }
 
                 if(index>=entries.size()){done.run();return;}
-                ru.neverland.core.SuiteScheduler.region(plugin,entries.get(index).getKey().location(world),this);
-            }}
+                ru.neverland.core.WorldTasks.loaded(plugin,entries.get(index).getKey().location(world),this);
+            }} }
         }
-        if(entries.isEmpty())done.run();else ru.neverland.core.SuiteScheduler.region(plugin,entries.get(0).getKey().location(world),new RestoreBatch());
+        if(entries.isEmpty())done.run();else ru.neverland.core.WorldTasks.loaded(plugin,entries.get(0).getKey().location(world),new RestoreBatch());
     } }
 }

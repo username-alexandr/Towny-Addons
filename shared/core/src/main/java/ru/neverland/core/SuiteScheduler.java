@@ -53,8 +53,16 @@ public final class SuiteScheduler {
         return task;
     }
     public static void player(Plugin plugin, Player player, Consumer<Player> action) {
+        if(plugin.isEnabled()&&!SuiteState.frozen(plugin.getName())) entity(plugin, player, () -> { if (player.isOnline()) action.accept(player); });
+    }
+    /** Teardown only: the controller stays alive while dependent addons are disabled. */
+    public static void cleanupPlayer(Plugin plugin, Player player, Consumer<Player> action) {
+        if(owns(player)) { action.accept(player); return; }
         Plugin owner=WorldTasks.cleanupOwner(plugin);
-        if(owner!=null)entity(owner, player, () -> { if (player.isOnline()) action.accept(player); });
+        if(owner!=null) entity(owner,player,()->action.accept(player));
+    }
+    public static void cleanupPlayers(Plugin plugin,Consumer<Player> action) {
+        for(Player player:Bukkit.getOnlinePlayers())cleanupPlayer(plugin,player,action);
     }
     public static void players(Plugin plugin, Consumer<Player> action) {
         for (Player player : Bukkit.getOnlinePlayers()) player(plugin, player, action);

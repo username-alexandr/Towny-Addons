@@ -121,7 +121,7 @@ public final class MenuManager implements Listener {
         Inventory inventory = create(holder, camp.stash().length, messages.raw("gui.storage-title"));
         if (!repository.openStash(camp.ownerId(),inventory)) { player.sendMessage("§eСклад лагеря уже открыт другим игроком."); return; }
         inventory.setContents(Arrays.stream(camp.stash()).map(item -> item == null ? null : item.clone()).toArray(ItemStack[]::new));
-        player.openInventory(inventory);
+        try{player.openInventory(inventory);}finally{if(player.getOpenInventory().getTopInventory()!=inventory)repository.closeStash(camp.ownerId(),inventory);}
     } }
 
     public void openEditor(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {

@@ -63,7 +63,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         if (task != null) task.cancel();
         for (var entry : attachments.entrySet()) {
             Player player = Bukkit.getPlayer(entry.getKey());
-            if (player != null) player.removeAttachment(entry.getValue());
+            if (player != null) {var attachment=entry.getValue();ru.neverland.core.SuiteScheduler.cleanupPlayer(plugin,player,p->p.removeAttachment(attachment));}
         }
         attachments.clear(); save();
         Bukkit.getServicesManager().unregister(TownArmyApi.class, this);
@@ -114,7 +114,7 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         return Set.copyOf(result);
     } }
     private void reconcile() {
-        if(external()||retired){for(var e:attachments.entrySet()){var p=Bukkit.getPlayer(e.getKey());if(p!=null)p.removeAttachment(e.getValue());}attachments.clear();return;}
+        if(external()||retired){for(var e:attachments.entrySet()){var p=Bukkit.getPlayer(e.getKey());if(p!=null){var attachment=e.getValue();ru.neverland.core.SuiteScheduler.cleanupPlayer(plugin,p,who->who.removeAttachment(attachment));}}attachments.clear();return;}
         // Temporary provider outages suspend privileges; they do not erase the saved roster.
         boolean changed = roster.entrySet().removeIf(entry -> {
             Town town = towny.town(entry.getValue());
@@ -123,14 +123,14 @@ public final class ArmyService implements CommandExecutor, TabCompleter, Listene
         attachments.entrySet().removeIf(entry -> {
             Player player = Bukkit.getPlayer(entry.getKey());
             if (player == null) return true;
-            if (!isMobilized(entry.getKey())) { player.removeAttachment(entry.getValue()); return true; }
+            if (!isMobilized(entry.getKey())) { var attachment=entry.getValue();ru.neverland.core.SuiteScheduler.cleanupPlayer(plugin,player,p->p.removeAttachment(attachment)); return true; }
             return false;
         });
-        for (Player player : Bukkit.getOnlinePlayers()) if (isMobilized(player.getUniqueId()) && !attachments.containsKey(player.getUniqueId())) {
+        ru.neverland.core.SuiteScheduler.players(plugin, player -> {if (isMobilized(player.getUniqueId()) && !attachments.containsKey(player.getUniqueId())) {
             var attachment = player.addAttachment(plugin);
             attachment.setPermission("neverlandtownybuilds.army.soldier", true);
             attachments.put(player.getUniqueId(), attachment);
-        }
+        }});
         if (changed) save();
     }
     private void tell(CommandSender sender, String text) { sender.sendMessage(ColorUtil.component("&#B65CFF[NeverLand • Армия] &f" + text)); }

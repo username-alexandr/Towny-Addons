@@ -95,7 +95,7 @@ public final class SiegeService implements TownySiegesApi {
         geometry.entrySet().removeIf(e->System.currentTimeMillis()-e.getValue().at()>60000);
     } }
     public void leave(Player p) { synchronized (ru.neverland.core.SuiteState.lock()) { slow(p,0);messages.remove(p.getUniqueId()); } }
-    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) { ru.neverland.core.SuiteScheduler.players(plugin, p -> {leave(p);});geometry.clear(); } }
+    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) { ru.neverland.core.SuiteScheduler.cleanupPlayers(plugin, p -> {leave(p);});geometry.clear(); } }
     @Override public boolean healthy() { synchronized (ru.neverland.core.SuiteState.lock()) { ApiServices.primaryThread();return war.connect() && war.state()==SiegeWarAccess.State.READY && failure.isEmpty(); } }
     @Override public Map<String,String> warStatus() { synchronized (ru.neverland.core.SuiteState.lock()) { ApiServices.primaryThread();war.connect();return Map.of("state",war.state().name(),"detail",war.detail(),"dependencyError",failure,"testedVersion","3.6.2"); } }
     @Override public Collection<Map<String,Object>> defenses(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {

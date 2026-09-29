@@ -247,10 +247,12 @@ public final class ArmyService implements TownyArmyApi {
             }
             if (changed) { while (d.audit.size() > settings.auditLimit()) d.audit.remove(0); repository.commit(d.freeze()); }
             for (UUID id : List.copyOf(duty.keySet())) {
-                var p = Bukkit.getPlayer(id); var s = repository.state().soldiers().get(id); var session = duty.get(id);
-                if (p == null || !p.isOnline() || p.isDead() || s == null || !s.serving() || !eligible(s, now)) { endSession(id); continue; }
+                var p=Bukkit.getPlayer(id);if(p==null){endSession(id);continue;}
+                ru.neverland.core.SuiteScheduler.player(plugin,p,online->{try{
+                    var s=repository.state().soldiers().get(id);var session=duty.get(id);if(session==null)return;
+                if (p == null || !p.isOnline() || p.isDead() || s == null || !s.serving() || !eligible(s, now)) { endSession(id); return; }
                 if (now - session.accounted >= 60000) account(id, now);
-                if (now - session.moved >= settings.dutyIdle()) { endSession(id); ArmyCommand.say(p, "&eДежурство завершено из-за отсутствия активности."); continue; }
+                if (now - session.moved >= settings.dutyIdle()) { endSession(id); ArmyCommand.say(p, "&eДежурство завершено из-за отсутствия активности."); return; }
                 var t = training.get(id);
                 if (t != null) {
                     if (!atBase(s.town(), p.getLocation())) training.remove(id);
@@ -265,6 +267,7 @@ public final class ArmyService implements TownyArmyApi {
                         } else ArmyCommand.say(p, "&eТренировка не зачтена: требуется движение по территории базы.");
                     }
                 }
+                }catch(Exception ex){report(ex);}});
             }
             for (var tx : repository.state().transfers().values()) if (tx.phase() != Phase.CLOSED && tx.phase() != Phase.CANCELLED) try { process(tx.id()); } catch (Exception e) { report(e); }
             for (UUID town : List.copyOf(repository.state().cities().keySet())) upkeep(town, now);
@@ -281,12 +284,12 @@ public final class ArmyService implements TownyArmyApi {
         repository.commit(d, town, SYSTEM, SYSTEM, enough ? "UPKEEP" : "SHORTAGE", enough ? "Гарнизон обеспечен на следующий период" : "Недостаток снабжения: снижена готовность гарнизона", now);
     }
     private void report(Throwable e) { long now = System.currentTimeMillis(); if (now - lastError > 60000) { lastError = now; plugin.getLogger().log(java.util.logging.Level.WARNING, "Армия: действие приостановлено, данные сохранены", e); } }
-    private void removePermissions(UUID id) { var attachment = permissions.remove(id); grants.remove(id); if (attachment != null) try { attachment.remove(); } catch (IllegalArgumentException ignored) { } }
+    private void removePermissions(UUID id) { var attachment = permissions.remove(id); grants.remove(id); if (attachment != null) {var player=Bukkit.getPlayer(id);if(player!=null) ru.neverland.core.SuiteScheduler.cleanupPlayer(plugin,player,p->{try{attachment.remove();}catch(IllegalArgumentException ignored){}});} }
     private void clearPermissions() { for (UUID id : List.copyOf(permissions.keySet())) removePermissions(id); }
     public void refresh() { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!healthy()) { clearPermissions(); return; }
         var effective = new HashMap<UUID, Set<UUID>>(); long now = System.currentTimeMillis();
-        for (var p : Bukkit.getOnlinePlayers()) {
+        ru.neverland.core.SuiteScheduler.players(plugin, p -> {{
             UUID id = p.getUniqueId(); var s = repository.state().soldiers().get(id); var nodes = new HashSet<String>();
             try {
                 if (s != null && s.serving() && eligible(s, now)) {
@@ -297,7 +300,7 @@ public final class ArmyService implements TownyArmyApi {
                 }
             } catch (Exception | LinkageError e) { nodes.clear(); report(e); }
             if (!nodes.equals(grants.getOrDefault(id, Set.of()))) { removePermissions(id); if (!nodes.isEmpty()) { var a = p.addAttachment(plugin); for (String node : nodes) a.setPermission(node, true); permissions.put(id, a); grants.put(id, Set.copyOf(nodes)); } }
-        }
+        }});
         for (UUID id : List.copyOf(permissions.keySet())) if (Bukkit.getPlayer(id) == null) removePermissions(id);
     } }
     public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) { for (UUID id : List.copyOf(duty.keySet())) leave(id); clearPermissions(); training.clear(); } }

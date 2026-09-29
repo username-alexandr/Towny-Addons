@@ -1,6 +1,7 @@
 name: NeverLandTownyCrime
-version: 0.1.7
+version: 0.1.8
 main: ru.neverland.townycrime.NeverLandTownyCrime
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Преступность, городская стража, потери лавок и кражи виртуальных ресурсов.

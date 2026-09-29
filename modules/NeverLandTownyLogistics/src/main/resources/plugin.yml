@@ -1,6 +1,7 @@
 name: NeverLandTownyLogistics
-version: 0.1.17
+version: 0.1.18
 main: ru.neverland.townylogistics.NeverLandTownyLogistics
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: NPC-курьеры, городские маршруты и перевозка ресурсов между зданиями.

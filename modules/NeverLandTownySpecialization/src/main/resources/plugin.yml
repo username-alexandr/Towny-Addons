@@ -1,6 +1,7 @@
 name: NeverLandTownySpecialization
-version: 0.1.13
+version: 0.1.14
 main: ru.neverland.townyspecialization.NeverLandTownySpecialization
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Специализация города, уникальные здания и городские бонусы.

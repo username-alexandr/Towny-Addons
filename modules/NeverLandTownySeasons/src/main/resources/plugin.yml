@@ -1,6 +1,7 @@
 name: NeverLandTownySeasons
-version: 0.1.7
+version: 0.1.8
 main: ru.neverland.townyseasons.NeverLandTownySeasons
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Сезонный календарь, аграрное производство и риски городских событий.

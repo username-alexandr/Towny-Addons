@@ -1,6 +1,7 @@
 name: NeverLandTownyUpkeep
-version: 0.1.17
+version: 0.1.18
 main: ru.neverland.townyupkeep.NeverLandTownyUpkeep
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Обслуживание зданий деньгами и стратегическими ресурсами.

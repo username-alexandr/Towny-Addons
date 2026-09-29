@@ -2,7 +2,7 @@ name: Publish release
 
 on:
   push:
-    branches: [release/v0.40.0]
+    branches: [release/v0.41.0]
   workflow_dispatch:
 
 permissions:

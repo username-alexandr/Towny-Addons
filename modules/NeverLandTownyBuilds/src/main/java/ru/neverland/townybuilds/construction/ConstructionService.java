@@ -578,19 +578,19 @@ public final class ConstructionService implements Listener {
     private void renderObstructions() {
         long now = System.currentTimeMillis();
         Particle.DustOptions red = new Particle.DustOptions(Color.fromRGB(255, 55, 55), 1.1f);
-        var iterator = obstructionPreviews.entrySet().iterator();
-        while (iterator.hasNext()) {
-            var entry = iterator.next();
+        for(var entry:new ArrayList<>(obstructionPreviews.entrySet())) {
             Player player = Bukkit.getPlayer(entry.getKey());
             ObstructionPreview preview = entry.getValue();
-            if (player == null || preview.expiresAt() <= now) { iterator.remove(); continue; }
+            if (player == null || preview.expiresAt() <= now) { obstructionPreviews.remove(entry.getKey()); continue; }
+            ru.neverland.core.SuiteScheduler.player(plugin,player,current->{
+            if(obstructionPreviews.get(current.getUniqueId())!=preview)return;
             preview.blocks().removeIf(obstacle -> {
                 Location location = obstacle.location();
                 World world = location.getWorld();
-                return world == null || (world.isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)
+                return world == null || (ru.neverland.core.SuiteScheduler.owns(location) && world.isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)
                         && location.getBlock().getType() != obstacle.material());
             });
-            if (preview.blocks().isEmpty()) { iterator.remove(); continue; }
+            if (preview.blocks().isEmpty()) { obstructionPreviews.remove(entry.getKey()); return; }
             for (Obstruction obstacle : preview.blocks()) {
                 Location location = obstacle.location();
                 if (player.getWorld().equals(location.getWorld())
@@ -598,6 +598,7 @@ public final class ConstructionService implements Listener {
                     renderOutline(player, location, red);
                 }
             }
+            });
         }
     }
 

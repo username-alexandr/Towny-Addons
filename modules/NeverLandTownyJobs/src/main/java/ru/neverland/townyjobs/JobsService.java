@@ -13,16 +13,16 @@ import static ru.neverland.townyjobs.WorkPolicy.*;
 public final class JobsService implements TownyJobsApi {
     public interface PresenceSource {Presence get(UUID actor);}
     private final JavaPlugin plugin;private final JobsRepository repository;private final CityBridge bridge;
-    private JobsSettings settings;private BukkitTask task;private boolean fault;private long lastPulse;
-    private LongSupplier clock=System::currentTimeMillis;private PresenceSource source=this::nativePresence;
+    private JobsSettings settings;private BukkitTask task,presenceTask;private boolean fault;private long lastPulse;
+    private LongSupplier clock=System::currentTimeMillis;private PresenceSource source=this::nativePresence;private final Map<UUID,Presence> presenceCache=new HashMap<>();private final Map<UUID,Long> presenceAt=new HashMap<>();private final Set<UUID> presencePending=new HashSet<>();
     private final Map<UUID,Shift> shifts=new HashMap<>();private Map<UUID,Map<String,Site>> sites=Map.of();
     private Map<UUID,Map<String,List<UUID>>> rosters=Map.of();private Set<UUID> admitted=Set.of();
     public JobsService(JavaPlugin plugin,JobsRepository repository,JobsSettings settings,CityBridge bridge){this.plugin=plugin;this.repository=repository;this.settings=settings;this.bridge=bridge;}
     public JobsSettings settings(){ synchronized (ru.neverland.core.SuiteState.lock()) {return settings;} }public JobsRepository repository(){ synchronized (ru.neverland.core.SuiteState.lock()) {return repository;} }public boolean fault(){ synchronized (ru.neverland.core.SuiteState.lock()) {return fault||!repository.writable();} }
     private void primary(){if(!ru.neverland.core.SuiteState.held())throw new IllegalStateException("Нужен основной поток сервера");}
     private void ready(){primary();if(fault())throw new IllegalStateException("Профессии временно недоступны; проверьте консоль");}
-    public void start()throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {primary();bridge.verify();refresh(false);lastPulse=clock.getAsLong();task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,()->refresh(true),20L*settings.interval(),20L*settings.interval());} }
-    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(task!=null)task.cancel();task=null;shifts.clear();sites=Map.of();rosters=Map.of();admitted=Set.of();} }
+    public void start()throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {primary();bridge.verify();presenceTask=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,()->ru.neverland.core.SuiteScheduler.players(plugin,p->nativePresence(p.getUniqueId())),1,10);refresh(false);lastPulse=clock.getAsLong();task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,()->refresh(true),20L*settings.interval(),20L*settings.interval());} }
+    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(task!=null)task.cancel();if(presenceTask!=null)presenceTask.cancel();presenceTask=null;presenceCache.clear();presenceAt.clear();presencePending.clear();task=null;shifts.clear();sites=Map.of();rosters=Map.of();admitted=Set.of();} }
     public void reload(JobsSettings next)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {primary();bridge.verify();stop();settings=next;fault=false;start();} }
     public Town town(Player p){ synchronized (ru.neverland.core.SuiteState.lock()) {return town(p.getUniqueId());} }
     public Town town(UUID actor){ synchronized (ru.neverland.core.SuiteState.lock()) {var resident=TownyAPI.getInstance().getResident(actor);return resident==null?null:resident.getTownOrNull();} }
@@ -71,7 +71,12 @@ public final class JobsService implements TownyJobsApi {
         }catch(Exception ex){fail(ex);}
     } }
     private void fail(Exception ex){if(!fault)plugin.getLogger().log(java.util.logging.Level.SEVERE,"Профессии приостановлены; назначения сохранены",ex);fault=true;shifts.clear();sites=Map.of();rosters=Map.of();admitted=Set.of();}
-    private Presence nativePresence(UUID actor){Player p=Bukkit.getPlayer(actor);if(p==null)return null;Town t=town(actor);Location l=p.getLocation();boolean allowed=p.hasPermission("neverlandtownyjobs.use")&&p.hasPermission("neverlandtownyjobs.work")&&(p.getGameMode()==GameMode.SURVIVAL||p.getGameMode()==GameMode.ADVENTURE)&&!p.isFlying()&&!p.isGliding()&&!p.isInsideVehicle();return new Presence(t==null?null:t.getUUID(),l.getWorld().getUID(),l.getX(),l.getY(),l.getZ(),p.isOnline(),allowed);}
+    private Presence nativePresence(UUID actor){Player p=Bukkit.getPlayer(actor);if(p==null){presenceCache.remove(actor);presenceAt.remove(actor);return null;}
+        if(!ru.neverland.core.SuiteScheduler.owns(p)){
+            if(presencePending.add(actor))ru.neverland.core.SuiteScheduler.entityLater(plugin,p,()->{presencePending.remove(actor);nativePresence(actor);},()->{presencePending.remove(actor);presenceCache.remove(actor);presenceAt.remove(actor);},1);
+            return System.currentTimeMillis()-presenceAt.getOrDefault(actor,0L)<=2000?presenceCache.get(actor):null;
+        }
+        Town t=town(actor);Location l=p.getLocation();boolean allowed=p.hasPermission("neverlandtownyjobs.use")&&p.hasPermission("neverlandtownyjobs.work")&&(p.getGameMode()==GameMode.SURVIVAL||p.getGameMode()==GameMode.ADVENTURE)&&!p.isFlying()&&!p.isGliding()&&!p.isInsideVehicle();Presence result=new Presence(t==null?null:t.getUUID(),l.getWorld().getUID(),l.getX(),l.getY(),l.getZ(),p.isOnline(),allowed);presenceCache.put(actor,result);presenceAt.put(actor,System.currentTimeMillis());return result;}
     private List<UUID> roster(UUID town,String project){return rosters.getOrDefault(town,Map.of()).getOrDefault(project,List.of());}
     @Override public boolean supports(String project){ synchronized (ru.neverland.core.SuiteState.lock()) {return settings.profiles().values().stream().anyMatch(p->p.enabled()&&p.buildings().contains(project));} }
     @Override public double bonus(UUID town,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {if(!ru.neverland.core.SuiteState.held()||fault()||town==null||project==null)return 0;List<Double> values=new ArrayList<>();for(UUID actor:roster(town,project))if(status(actor).equals("На смене")){Career c=career(actor);values.add(settings.profiles().get(c.profession()).bonus().get(settings.level(c)-1));}return sum(values,settings.cap());} }

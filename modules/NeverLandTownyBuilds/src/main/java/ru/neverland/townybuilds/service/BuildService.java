@@ -143,7 +143,7 @@ public final class BuildService {
         town.save();
         dataStore.markDirty();
         dataStore.save();
-        runCommands(player, town, level);
+        runCommands(player, town, project.id(), level);
         if (project.type() == ProjectType.WONDER) {
             completeWonder(player, town, project);
         }
@@ -190,7 +190,7 @@ public final class BuildService {
         town.save();
         dataStore.markDirty();
         dataStore.save();
-        runCommands(player, town, definition);
+        runCommands(player, town, project.id(), definition);
         messages.send(player, "construction-complete", Map.of("project", project.name(), "level", level));
         if (project.type() == ProjectType.WONDER) completeWonder(player, town, project);
     } }
@@ -375,15 +375,13 @@ public final class BuildService {
 
     private record PendingContribution(ItemStack template, int amount) { }
 
-    private void runCommands(Player player, Town town, LevelDefinition level) {
-        for (String command : level.commands()) {
-            String parsed = command.replace("{player}", player.getName()).replace("{town}", town.getName())
-                    .replace("{level}", String.valueOf(level.level()));
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsed.startsWith("/") ? parsed.substring(1) : parsed);
-        }
+    private void runCommands(Player player, Town town, String projectId, LevelDefinition level) {var commands=new java.util.ArrayList<String>();
+        for(String command:level.commands())commands.add(command.replace("{player}",player.getName()).replace("{town}",town.getName()).replace("{level}",String.valueOf(level.level())));
+        ru.neverland.core.CommandOutbox.enqueue(plugin,"building:"+town.getUUID()+":"+projectId+":"+level.level(),commands);
     }
 
     private void completeWonder(Player player, Town town, ProjectDefinition project) {
+        if(!ru.neverland.core.SuiteScheduler.owns(player)){ru.neverland.core.SuiteScheduler.player(plugin,player,p->completeWonder(p,town,project));return;}
         messages.send(player, "wonder-complete-local", Map.of("project", project.name()));
         if (plugin.getConfig().getBoolean("settings.announcements.wonder-complete", true)) {
             Bukkit.broadcast(messages.component("wonder-broadcast", Map.of("town", town.getName(), "project", project.name())));
@@ -404,6 +402,7 @@ public final class BuildService {
         }
         ThreadLocalRandom random = ThreadLocalRandom.current();
         Location location = origin.clone().add(random.nextDouble(-4, 4), 1, random.nextDouble(-4, 4));
+        if(!ru.neverland.core.SuiteScheduler.owns(location))return;
         Firework firework = origin.getWorld().spawn(location, Firework.class);
         FireworkMeta meta = firework.getFireworkMeta();
         meta.setPower(1);

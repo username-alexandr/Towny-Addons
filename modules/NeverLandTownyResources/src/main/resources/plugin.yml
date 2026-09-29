@@ -1,6 +1,7 @@
 name: NeverLandTownyResources
-version: 0.1.21
+version: 0.1.22
 main: ru.neverland.townyresources.NeverLandTownyResources
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Стратегические запасы, производство и потребление ресурсов города.

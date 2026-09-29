@@ -1,6 +1,7 @@
 name: NeverLandTownyQuests
-version: 0.1.2
+version: 0.1.3
 main: ru.neverland.townyquests.NeverLandTownyQuests
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Общие городские проекты с последовательными этапами и реформами.

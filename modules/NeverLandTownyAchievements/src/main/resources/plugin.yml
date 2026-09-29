@@ -1,6 +1,7 @@
 name: NeverLandTownyAchievements
-version: 0.1.1
+version: 0.1.2
 main: ru.neverland.townyachievements.NeverLandTownyAchievements
+folia-supported: true
 api-version: '26.2'
 authors:
 - Alexander Sokolov

@@ -619,7 +619,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
 
     private int raidMobCount(UUID townId) {var event=repository.active(townId);return event==null||event.raid()==null?0:event.raid().aliveCount();}
 
-    private void cleanupRaidMobs(UUID townId) {ru.neverland.core.WorldTasks.eachEntity(plugin,entity->{if(townId.toString().equals(raidOwner(entity)))entity.remove();});}
+    private void cleanupRaidMobs(UUID townId) {ru.neverland.core.WorldTasks.eachEntityCleanup(plugin,entity->{if(townId.toString().equals(raidOwner(entity)))entity.remove();});}
 
     @Override public double productionMultiplier(UUID townId,String building) { synchronized (ru.neverland.core.SuiteState.lock()) {
         ru.neverland.core.ApiServices.primaryThread();
@@ -681,13 +681,15 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
 
     private void runCommands(Town town, EventDefinition definition, ActiveEvent event, List<String> commands) {
         Map<String, Object> placeholders = placeholders(town, definition, event);
+        var prepared=new java.util.ArrayList<String>();
         for (String raw : commands) {
             String command = raw;
             for (Map.Entry<String, Object> entry : placeholders.entrySet()) {
                 command = command.replace("%" + entry.getKey() + "%", String.valueOf(entry.getValue()));
             }
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.startsWith("/") ? command.substring(1) : command);
+            prepared.add(command);
         }
+        ru.neverland.core.CommandOutbox.enqueue(plugin,"event:"+event.townId()+":"+event.eventId()+":"+event.startedAt(),prepared);
     }
 
     private Map<String, Object> placeholders(Town town, EventDefinition definition, ActiveEvent event) {

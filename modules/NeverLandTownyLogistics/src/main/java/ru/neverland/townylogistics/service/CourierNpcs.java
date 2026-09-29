@@ -58,7 +58,7 @@ public final class CourierNpcs implements Listener {
         });
         if(!npc.isValid()){npc.remove();return null;}Live value=new Live(npc,job.position(),now);live.put(job.id(),value);return value;
     }
-    public Motion tick(CourierJob job,Position target,boolean moving,int level) { synchronized(ru.neverland.core.SuiteState.lock()) {
+    public Motion tick(CourierJob job,Position target,boolean moving,int level) { synchronized (ru.neverland.core.SuiteState.lock()) { synchronized(ru.neverland.core.SuiteState.lock()) {
         requests.put(job.id(),new Request(job,target,moving,level));
         if(pending.add(job.id())) {
             Runnable advance=()->{try{Request r=requests.get(job.id());if(r!=null)motions.put(job.id(),move(r.job(),r.target(),r.moving(),r.level()));}finally{pending.remove(job.id());}};
@@ -67,7 +67,7 @@ public final class CourierNpcs implements Listener {
             else if(at!=null)ru.neverland.core.SuiteScheduler.region(plugin,at,advance);else pending.remove(job.id());
         }
         return motions.getOrDefault(job.id(),new Motion(job.position(),false,"Ожидает регион курьера"));
-    }}
+    }} }
     private Motion move(CourierJob job,Position target,boolean moving,int level){ synchronized (ru.neverland.core.SuiteState.lock()) {
         long now=System.currentTimeMillis();Live value=live.get(job.id());
         if(value!=null&&!value.npc.isValid()){live.remove(job.id());value=null;}

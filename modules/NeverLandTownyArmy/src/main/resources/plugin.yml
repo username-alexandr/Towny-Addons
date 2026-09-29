@@ -1,6 +1,7 @@
 name: NeverLandTownyArmy
-version: 0.1.7
+version: 0.1.8
 main: ru.neverland.townyarmy.NeverLandTownyArmy
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Военная служба, гарнизон, подразделения и снабжение города.

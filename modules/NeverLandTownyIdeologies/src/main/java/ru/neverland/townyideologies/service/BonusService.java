@@ -70,7 +70,7 @@ public final class BonusService implements Listener {
 
     public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) {
         stopTask();
-        ru.neverland.core.SuiteScheduler.players(plugin, player -> {removeHealthBonus(player);});
+        ru.neverland.core.SuiteScheduler.cleanupPlayers(plugin, player -> {removeHealthBonus(player);});
         combatUntil.clear();
     } }
 

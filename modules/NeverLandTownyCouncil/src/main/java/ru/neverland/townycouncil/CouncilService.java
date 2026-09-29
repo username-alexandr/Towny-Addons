@@ -90,6 +90,7 @@ public final class CouncilService implements TownyCouncilApi {
     private static String actorId(CommandSender sender) { return sender instanceof Player p ? p.getUniqueId().toString() : "CONSOLE:" + sender.getName(); }
     /** Called on join and every second. Only this plugin's attachment is ever removed. */
     public void refresh(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        if(!ru.neverland.core.SuiteScheduler.owns(player)){ru.neverland.core.SuiteScheduler.player(plugin,player,this::refresh);return;}
         primary(); var town = ownTown(player.getUniqueId());
         String role = town == null ? "" : role(town.getUUID(), player.getUniqueId());
         var nodes = role.isEmpty() ? Set.<String>of() : permissions(role);
@@ -109,7 +110,7 @@ public final class CouncilService implements TownyCouncilApi {
     } }
     public void release(UUID player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         primary(); var old = grants.remove(player);
-        if (old != null) old.player().removeAttachment(old.attachment());
+        if (old != null) ru.neverland.core.SuiteScheduler.cleanupPlayer(plugin,old.player(),p->{try{p.removeAttachment(old.attachment());}catch(IllegalArgumentException ignored){}});
     } }
     public void clearGrants() { synchronized (ru.neverland.core.SuiteState.lock()) { primary(); new ArrayList<>(grants.keySet()).forEach(this::release); } }
 }

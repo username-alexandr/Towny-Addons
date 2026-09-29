@@ -6,13 +6,15 @@ import org.bukkit.scheduler.BukkitTask;
 import ru.neverland.townydistricts.model.*;
 import java.util.*;
 public final class BorderPreview {
-    private final DistrictService service;private final Map<UUID,Long> players=new HashMap<>();private final BukkitTask task;
-    public BorderPreview(Plugin plugin,DistrictService service){this.service=service;task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::render,20,20);}
+    private final Plugin plugin;private final DistrictService service;private final Map<UUID,Long> players=new HashMap<>();private final BukkitTask task;
+    public BorderPreview(Plugin plugin,DistrictService service){this.plugin=plugin;this.service=service;task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::render,20,20);}
     public void show(Player player){ synchronized (ru.neverland.core.SuiteState.lock()) {players.put(player.getUniqueId(),System.currentTimeMillis()+30000);render();} }
     public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {players.clear();task.cancel();} }
     private void render(){long now=System.currentTimeMillis();for(var entry:new ArrayList<>(players.entrySet())){
-        Player p=Bukkit.getPlayer(entry.getKey());if(p==null||entry.getValue()<now||!p.hasPermission("neverlandtownydistricts.use")){players.remove(entry.getKey());continue;}
-        var town=service.town(p);if(town==null)continue;int count=0,size=service.cellSize();var location=p.getLocation();
+        Player p=Bukkit.getPlayer(entry.getKey());if(p==null||entry.getValue()<now){players.remove(entry.getKey());continue;}
+        ru.neverland.core.SuiteScheduler.player(plugin,p,current->{
+            if(!players.containsKey(current.getUniqueId())||!current.hasPermission("neverlandtownydistricts.use"))return;
+        var town=service.town(p);if(town==null)return;int count=0,size=service.cellSize();var location=p.getLocation();
         for(District d:service.districts(town.getUUID())){
             var dust=new Particle.DustOptions(color(d.type()),1.2f);
             for(Cell c:d.cells()){
@@ -29,6 +31,7 @@ public final class BorderPreview {
                 }
             }
         }
+        });
     }}
     private Color color(DistrictType type){return switch(type){case RESIDENTIAL->Color.LIME;case INDUSTRIAL->Color.ORANGE;case COMMERCIAL->Color.YELLOW;case MILITARY->Color.RED;case PORT->Color.AQUA;case AGRICULTURAL->Color.GREEN;case ADMINISTRATIVE->Color.FUCHSIA;};}
 }

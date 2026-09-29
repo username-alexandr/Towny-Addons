@@ -1,6 +1,7 @@
 name: NeverLandTownyPopulation
-version: 0.1.20
+version: 0.1.21
 main: ru.neverland.townypopulation.NeverLandTownyPopulation
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Население города, жильё, занятость, довольство и снабжение.

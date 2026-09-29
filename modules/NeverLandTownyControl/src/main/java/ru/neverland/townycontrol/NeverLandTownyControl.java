@@ -32,6 +32,14 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             if(!graph.modules().containsAll(state.modules().keySet()))throw new IOException("В состоянии есть неизвестные модули");
             var blocked=graph.closure(state.requests());
             ModulePauseStore.save(stateFile,ModulePauseStore.request(state,state.requests(),blocked,System.currentTimeMillis()));
+            getCommand("nltoutbox").setExecutor((sender,command,label,args)->{synchronized(SuiteState.lock()){
+                if(!AdminAccess.admin(sender)){sender.sendMessage("§cНет прав.");return true;}
+                try{if(args.length<1){sender.sendMessage("§f/nltoutbox <модуль> [UUID done|retry]");return true;}
+                    Plugin target=Bukkit.getPluginManager().getPlugin(graph.resolve(args[0]));if(target==null)throw new IllegalArgumentException("Модуль не найден");
+                    if(args.length==3)CommandOutbox.resolve(target,args[1],args[2].toLowerCase(java.util.Locale.ROOT));
+                    for(var entry:CommandOutbox.entries(target))if(!entry.state().equals("DONE"))sender.sendMessage("§e"+entry.id()+" "+entry.state()+" §f"+entry.command());
+                    sender.sendMessage("§7Сверка завершена. retry повторяет внешнюю команду; используйте после проверки результата.");
+                }catch(Exception ex){sender.sendMessage("§c"+ex.getMessage());}return true;}});
             getCommand("nltmodules").setExecutor(this);getCommand("nltmodules").setTabCompleter(this);
             var router=new AdminRouter(this,graph);var audit=new AuditCommand(this);
             adminMenu=new AdminMenu(this,router,audit);router.register(adminMenu);bankAudit=new BankAudit(this);
@@ -42,7 +50,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             getServer().getPluginManager().disablePlugin(this);
         }
     } }
-    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(adminMenu!=null)adminMenu.shutdown();if(bankAudit!=null)bankAudit.stop();} }
+    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(adminMenu!=null)adminMenu.shutdown();if(bankAudit!=null)bankAudit.stop();SuiteScheduler.get().cancelTasks(this);} }
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!AdminAccess.admin(sender)){sender.sendMessage("§cНет прав.");return true;}
         try {

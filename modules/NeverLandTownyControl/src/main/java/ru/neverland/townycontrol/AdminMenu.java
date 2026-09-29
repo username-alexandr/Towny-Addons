@@ -126,7 +126,7 @@ final class AdminMenu implements Listener {
     }
     private void logPage(Player player,AuditCategory category,AuditQuery query){
         var loading=screen(player,category.title+" • Чтение",AdminAccess.AUDIT);button(loading,22,Material.CLOCK,"Читаю журнал…",List.of("Можно вернуться назад или закрыть меню"),null);back(loading,()->logs(player));show(player,loading);
-        try{audit.page(query,PAGE_SIZE,(result,error)->{
+        try{audit.page(player,query,PAGE_SIZE,(result,error)->{
             if(!current(player,loading))return;
             if(!authorized(player,loading)){player.closeInventory();return;}
             if(error!=null){button(loading,22,Material.BARRIER,"Журнал не прочитан полностью",List.of("Проверьте консоль сервера","Неполный результат не отображается"),null);button(loading,53,Material.SPYGLASS,"Повторить",List.of("Повторить чтение"),()->logPage(player,category,query));return;}
@@ -191,5 +191,5 @@ final class AdminMenu implements Listener {
     @EventHandler(priority=EventPriority.HIGHEST) public void drag(InventoryDragEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(event.getView().getTopInventory().getHolder() instanceof Screen)event.setCancelled(true);} }
     @EventHandler public void close(InventoryCloseEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(event.getInventory().getHolder() instanceof Screen s)screens.remove(event.getPlayer().getUniqueId(),s);} }
     @EventHandler public void quit(PlayerQuitEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {screens.remove(event.getPlayer().getUniqueId());} }
-    void shutdown(){for(var player:List.copyOf(Bukkit.getOnlinePlayers()))if(player.getOpenInventory().getTopInventory().getHolder() instanceof Screen)player.closeInventory();screens.clear();}
+    void shutdown(){for(var player:List.copyOf(Bukkit.getOnlinePlayers()))ru.neverland.core.SuiteScheduler.cleanupPlayer(plugin,player,p->{if(p.getOpenInventory().getTopInventory().getHolder() instanceof Screen)p.closeInventory();});screens.clear();}
 }

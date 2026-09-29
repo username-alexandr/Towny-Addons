@@ -13,15 +13,19 @@ import java.util.function.Consumer;
 
 /** Loaded references are indexed from owning-region events. Never synchronously load a foreign chunk. */
 public final class WorldTasks implements Listener {
-    private static final Map<UUID,Entity> ENTITIES=new ConcurrentHashMap<>();
-    private static final Set<Plugin> INITIALIZED=ConcurrentHashMap.newKeySet();
-    private static final Map<UUID,Location> POSITIONS=new ConcurrentHashMap<>();
+    @SuppressWarnings("unchecked")
+    private static final Map<UUID,Entity> ENTITIES=(Map<UUID,Entity>)System.getProperties().computeIfAbsent("ru.neverland.towny.entities.v1",k->new ConcurrentHashMap<UUID,Entity>());
+    @SuppressWarnings("unchecked")
+    private static final Set<Plugin> INITIALIZED=(Set<Plugin>)System.getProperties().computeIfAbsent("ru.neverland.towny.trackers.v1",k->ConcurrentHashMap.<Plugin>newKeySet());
+    @SuppressWarnings("unchecked")
+    private static final Map<UUID,Location> POSITIONS=(Map<UUID,Location>)System.getProperties().computeIfAbsent("ru.neverland.towny.positions.v1",k->new ConcurrentHashMap<UUID,Location>());
     private WorldTasks() {}
     public static void initialize(Plugin plugin) {
-        if (!INITIALIZED.add(plugin)) return;
+        plugin=cleanupOwner(plugin);if(plugin==null||!INITIALIZED.add(plugin))return;
+        final Plugin tracker=plugin;
         Bukkit.getPluginManager().registerEvents(new WorldTasks(),plugin);
         eachChunk(plugin,chunk->{ for(Entity entity:chunk.getEntities()) ENTITIES.put(entity.getUniqueId(),entity); });
-        SuiteScheduler.get().runTaskTimer(plugin,()->SuiteScheduler.players(plugin,p->POSITIONS.put(p.getUniqueId(),p.getLocation())),1,20);
+        SuiteScheduler.get().runTaskTimer(tracker,()->SuiteScheduler.players(tracker,p->POSITIONS.put(p.getUniqueId(),p.getLocation())),1,20);
     }
     @EventHandler public void load(EntitiesLoadEvent event) { for(Entity entity:event.getEntities()) ENTITIES.put(entity.getUniqueId(),entity); }
     @EventHandler public void unload(EntitiesUnloadEvent event) { for(Entity entity:event.getEntities()) ENTITIES.remove(entity.getUniqueId(),entity); }
@@ -45,6 +49,17 @@ public final class WorldTasks implements Listener {
     }
     public static void eachEntity(Plugin plugin,Consumer<Entity> action) {
         eachChunk(plugin,chunk->{ for(Entity entity:chunk.getEntities()) SuiteScheduler.entity(plugin,entity,()->action.accept(entity)); });
+    }
+    public static void eachEntityCleanup(Plugin plugin,Consumer<Entity> action) {
+        Plugin owner=cleanupOwner(plugin);if(owner!=null)eachEntity(owner,action);
+    }
+    /** Load asynchronously, then enter the owning region. No waiting while holding the ledger. */
+    public static void loaded(Plugin plugin,Location location,Runnable action) {
+        if(location==null||location.getWorld()==null||!plugin.isEnabled())return;
+        location.getWorld().getChunkAtAsync(location).whenComplete((chunk,error)->{
+            if(error!=null){plugin.getLogger().warning("Не удалось загрузить участок: "+error.getMessage());return;}
+            if(plugin.isEnabled()&&!SuiteState.frozen(plugin.getName()))SuiteScheduler.region(plugin,location,action);
+        });
     }
     public static boolean ownsBox(Location center,int radius) {
         if(center==null||center.getWorld()==null)return false;

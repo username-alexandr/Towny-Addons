@@ -1,6 +1,7 @@
 name: NeverLandTownyChronicles
-version: 0.1.17
+version: 0.1.18
 main: ru.neverland.townychronicles.TownyChronicles
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 website: https://neverland.ru

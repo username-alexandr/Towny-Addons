@@ -1,6 +1,7 @@
 name: NeverLandTownySiegesPlus
-version: 0.1.7
+version: 0.1.8
 main: ru.neverland.townysieges.NeverLandTownySiegesPlus
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: 'Sieges+: действующие укрепления и ограничения атакующих во время осады.'

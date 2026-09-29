@@ -103,6 +103,10 @@ public final class EconomyService {
     }
 
     private Result withdrawCommand(Player player, double amount) throws ReflectiveOperationException {
+        if(!Bukkit.isGlobalTickThread()) {
+            plugin.getLogger().warning("COMMAND-валюта не поддерживает подтверждённое списание из региона Folia. Используйте TOWN_BANK, PLAYER_VAULT или ITEM; средства не списаны.");
+            return Result.ERROR;
+        }
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) return Result.ERROR;
         String placeholder = plugin.getConfig().getString("settings.economy.command.balance-placeholder", "");
         String command = plugin.getConfig().getString("settings.economy.command.withdraw-command", "");

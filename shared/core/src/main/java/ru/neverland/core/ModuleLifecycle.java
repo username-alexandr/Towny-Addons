@@ -24,6 +24,7 @@ public final class ModuleLifecycle {
             }
             SuiteState.thaw(plugin.getName());
             WorldTasks.initialize(plugin);
+            CommandOutbox.start(plugin);
             started.add(plugin);
             return true;
         } catch(Exception e) {

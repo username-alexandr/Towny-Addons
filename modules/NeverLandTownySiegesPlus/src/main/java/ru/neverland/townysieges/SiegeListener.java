@@ -74,7 +74,7 @@ public final class SiegeListener implements Listener {
         movingVehicles.add(vehicle.getUniqueId());
         try {
             vehicle.setVelocity(new Vector());
-            if(!vehicle.teleport(e.getFrom()))service.failed(new IllegalStateException("Не удалось вернуть транспорт за линию обороны"));
+            vehicle.teleportAsync(e.getFrom()).whenComplete((ok,error)->ru.neverland.core.SuiteState.run(()->{if(error!=null||!Boolean.TRUE.equals(ok))service.failed(new IllegalStateException("Не удалось вернуть транспорт за линию обороны",error));}));
         } finally {movingVehicles.remove(vehicle.getUniqueId());}
     } }
     @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void mount(EntityMoveEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}

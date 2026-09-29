@@ -162,6 +162,7 @@ public final class CampProtectionListener implements Listener {
             if(!(entity instanceof LivingEntity living)||!hostile(living))return;
             Camp camp=repository.findAt(living.getLocation()).orElse(null);if(!activeBarrier(camp))return;
             if(plugin.getConfig().getBoolean("settings.protection.holy-fire-particles",true))living.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME,living.getLocation().add(0,1,0),18,.35,.55,.35,.025);
+            if(plugin.getConfig().getBoolean("settings.protection.holy-fire-sound",true))living.getWorld().playSound(living.getLocation(),org.bukkit.Sound.BLOCK_FIRE_EXTINGUISH,.6f,1.2f);
             if(plugin.getConfig().getBoolean("settings.protection.instant-kill-hostile-mobs",true))living.remove();else living.damage(plugin.getConfig().getDouble("settings.protection.hostile-mob-damage",1000D));
         });
     }

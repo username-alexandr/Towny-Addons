@@ -1,6 +1,7 @@
 name: NeverLandTownyEvents
-version: 0.4.6
+version: 0.4.7
 main: ru.neverland.mintevents.MintTownyEvents
+folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 website: https://neverland.ru

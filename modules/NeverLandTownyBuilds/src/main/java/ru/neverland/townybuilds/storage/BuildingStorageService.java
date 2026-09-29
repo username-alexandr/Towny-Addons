@@ -24,7 +24,7 @@ public final class BuildingStorageService implements BuildingStorageApi,Listener
     }
     public BuildingStorageService(JavaPlugin plugin,DataStore data,DefinitionRegistry definitions){this.plugin=plugin;this.data=data;this.definitions=definitions;}
     public void start(){ synchronized (ru.neverland.core.SuiteState.lock()) {Bukkit.getServicesManager().register(BuildingStorageApi.class,this,plugin,ServicePriority.Normal);Bukkit.getPluginManager().registerEvents(this,plugin);} }
-    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.SuiteScheduler.players(plugin, p -> {if(p.getOpenInventory().getTopInventory().getHolder() instanceof View)p.closeInventory();});Bukkit.getServicesManager().unregister(BuildingStorageApi.class,this);} }
+    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.SuiteScheduler.cleanupPlayers(plugin, p -> {if(p.getOpenInventory().getTopInventory().getHolder() instanceof View)p.closeInventory();});Bukkit.getServicesManager().unregister(BuildingStorageApi.class,this);} }
     private void thread(){if(!ru.neverland.core.SuiteState.held())throw new IllegalStateException("Операция со складом требует основного потока");}
     public int level(TownData town,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {var s=town.constructionSite(project);return s==null?0:Math.min(town.level(project),s.completedStage());} }
     public int size(TownData town,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {

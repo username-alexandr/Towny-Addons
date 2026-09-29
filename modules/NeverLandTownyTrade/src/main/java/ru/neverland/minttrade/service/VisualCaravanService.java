@@ -61,7 +61,9 @@ public final class VisualCaravanService {
       }
 
       for (Caravan caravan : this.repository.caravans()) {
-         this.update(caravan);
+         Location target=position(caravan);
+         if(target==null){removeVisual(caravan.id());continue;}
+         ru.neverland.core.SuiteScheduler.region(plugin,target,()->{if(repository.caravans().stream().anyMatch(c->c==caravan))update(caravan);});
       }
    }
 
@@ -75,26 +77,27 @@ public final class VisualCaravanService {
             double squared = range * range;
             boolean viewer = false;
 
-            for (Player player : location.getWorld().getPlayers()) {
-               double dx = player.getX() - location.getX();
-               double dz = player.getZ() - location.getZ();
+            for (Player player : Bukkit.getOnlinePlayers()) {
+               Location at=ru.neverland.core.WorldTasks.position(player);if(at==null||at.getWorld()!=location.getWorld())continue;
+               double dx = at.getX() - location.getX();
+               double dz = at.getZ() - location.getZ();
                if (dx * dx + dz * dz <= squared) {
                   viewer = true;
                   break;
                }
             }
 
-            if (viewer && location.getWorld().isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)) {
+            if (viewer && ru.neverland.core.WorldTasks.ownsBox(location,2) && location.getWorld().isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)) {
                location.setY(location.getWorld().getHighestBlockYAt(location.getBlockX(), location.getBlockZ()) + 1.0);
                VisualCaravanService.Visual visual = this.visuals.get(caravan.id());
-               if (visual == null || !this.valid(visual)) {
+               if (visual == null) {
                   visual = this.spawn(caravan, location);
                }
 
                if (visual != null) {
-                  visual.trader.teleport(location);
-                  visual.left.teleport(location.clone().add(1.4, 0.0, 0.8));
-                  visual.right.teleport(location.clone().add(-1.4, 0.0, 0.8));
+                  move(caravan.id(),visual,visual.trader,location);
+                  move(caravan.id(),visual,visual.left,location.clone().add(1.4,0,.8));
+                  move(caravan.id(),visual,visual.right,location.clone().add(-1.4,0,.8));
                }
             } else {
                this.removeVisual(caravan.id());
@@ -163,9 +166,14 @@ public final class VisualCaravanService {
       }
    }
 
-   private boolean valid(VisualCaravanService.Visual visual) {
-      return visual.trader.isValid() && visual.left.isValid() && visual.right.isValid();
+   private void move(UUID id,Visual visual,Entity entity,Location target) {
+       ru.neverland.core.SuiteScheduler.entityLater(plugin,entity,()->{
+           if(visuals.get(id)!=visual)return;
+           if(!entity.isValid()){removeVisual(id);return;}
+           entity.teleportAsync(target);
+       },()->{if(visuals.get(id)==visual)removeVisual(id);},1);
    }
+   private boolean valid(VisualCaravanService.Visual visual) { return true; }
 
    private void removeVisual(UUID id) {
       VisualCaravanService.Visual visual = this.visuals.remove(id);
@@ -176,9 +184,7 @@ public final class VisualCaravanService {
 
    private void remove(VisualCaravanService.Visual visual) {
       for (Entity entity : List.of(visual.trader, visual.left, visual.right)) {
-         if (entity.isValid()) {
-            entity.remove();
-         }
+         ru.neverland.core.WorldTasks.remove(plugin,entity);
       }
    }
 

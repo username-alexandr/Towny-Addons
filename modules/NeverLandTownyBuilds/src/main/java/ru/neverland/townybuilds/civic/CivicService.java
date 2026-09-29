@@ -321,15 +321,16 @@ public final class CivicService implements Listener, TownyBuildsApi {
                 .replace('&', '＆').strip();
         int maximum = 40 + data.operationalLevel("printing_house") * 40;
         if (text.length() > maximum) text = text.substring(0, maximum);
+        final String bulletinText=text;
         data.setBulletin(text);
         dataStore.markDirty();
         dataStore.save();
-        for (Player online : Bukkit.getOnlinePlayers()) {
+        ru.neverland.core.SuiteScheduler.players(plugin, online -> {{
             Town onlineTown = towny.town(online);
             if (onlineTown != null && onlineTown.getUUID().equals(town.getUUID())) {
-                online.sendMessage(ColorUtil.component("&#E7D7A5&lБюллетень " + town.getName() + " &8» &f" + text));
+                online.sendMessage(ColorUtil.component("&#E7D7A5&lБюллетень " + town.getName() + " &8» &f" + bulletinText));
             }
-        }
+        }});
     }
 
     private void openCivicStorage(Player player, Town town, TownData data, String projectId) {
@@ -368,13 +369,15 @@ public final class CivicService implements Listener, TownyBuildsApi {
                 selections.remove(entry.getKey());
                 continue;
             }
-            DraftSelection draft = entry.getValue();
+            ru.neverland.core.SuiteScheduler.player(plugin,player,current->{
+            DraftSelection draft = selections.get(current.getUniqueId());if(draft==null)return;
             if (draft.first != null) marker(player, draft.first, Particle.END_ROD);
             if (draft.second != null) marker(player, draft.second, Particle.HAPPY_VILLAGER);
             if (draft.first != null && draft.second != null && draft.first.getWorld().equals(draft.second.getWorld())) {
                 if (AREA_PROJECTS.contains(draft.projectId)) drawRectangle(player, draft.first, draft.second);
                 else drawLine(player, draft.first, draft.second);
             }
+            });
         }
     }
 
