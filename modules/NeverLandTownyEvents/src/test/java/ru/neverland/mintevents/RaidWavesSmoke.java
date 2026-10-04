@@ -50,6 +50,19 @@ public final class RaidWavesSmoke {
   check(MessageService.migrateLegacy(legacy, new YamlConfiguration()), "old prefix migration");
   check(!legacy.getString("prefix").contains("MintTownyEvents") && legacy.getString("custom").equals("Свой текст"), "preserve custom messages");
   check(!MessageService.migrateLegacy(legacy, new YamlConfiguration()), "idempotent prefix");
+  YamlConfiguration shortName = new YamlConfiguration();
+  shortName.set("prefix", "&d[MintEvents] ");
+  shortName.set("admin-help", List.of("&dMintEvents", "&#FFFFFFmInTtOwNyEvEnTs", "Свой текст %town%"));
+  shortName.set("nested.title", "<gold>MintEvents</gold>");
+  shortName.set("technical", "/mintevents reload | mintevents.admin | %mintevents_active%");
+  check(MessageService.migrateLegacy(shortName, new YamlConfiguration()), "short and list names migrate");
+  check(shortName.getString("prefix").equals("&d[NeverLand • События] "), "short prefix preserves formatting");
+  check(shortName.getStringList("admin-help").equals(List.of("&dNeverLand • События", "&#FFFFFFNeverLand • События", "Свой текст %town%")), "list branding and custom text");
+  check(shortName.getString("nested.title").equals("<gold>NeverLand • События</gold>"), "nested title");
+  check(shortName.getString("technical").equals("/mintevents reload | mintevents.admin | %mintevents_active%"), "technical identifiers unchanged");
+  YamlConfiguration persisted = new YamlConfiguration(); persisted.loadFromString(shortName.saveToString());
+  check(!MessageService.migrateLegacy(persisted, new YamlConfiguration()), "migration remains idempotent after save/load");
+  check(persisted.getString("prefix").equals("&d[NeverLand • События] "), "new name survives restart");
   System.out.println("RaidWavesSmoke OK: 10 growing waves, " + kills + " kills, restart and duplicate protection");
  }
  private static void check(boolean condition, String message) { if (!condition) throw new AssertionError(message); }

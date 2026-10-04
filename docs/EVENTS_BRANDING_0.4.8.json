@@ -1,0 +1,36 @@
+{
+  "module": "NeverLandTownyEvents",
+  "version": "0.4.8",
+  "base_suite": "0.41.0",
+  "jar_sha256": "e3fe94cef09e6fcd64ef9eba08b8839f7ef1797b0c4b887970501a48f1549035",
+  "build_checks": [
+    {
+      "module": "NeverLandTownyEvents",
+      "tests": [
+        "ru.neverland.mintevents.EventMathSmoke",
+        "ru.neverland.mintevents.EventPauseSmoke",
+        "ru.neverland.mintevents.FireDamageSmoke",
+        "ru.neverland.mintevents.LinkageSmoke",
+        "ru.neverland.mintevents.RaidKillAndMessagesSmoke",
+        "ru.neverland.mintevents.RaidSpawnPlannerSmoke",
+        "ru.neverland.mintevents.RaidVictoriesSmoke",
+        "ru.neverland.mintevents.RaidWavesSmoke",
+        "ru.neverland.mintevents.WeatherEconomySmoke"
+      ],
+      "api_contracts": [
+        "ru.neverland.mintevents.api.MintTownyEventsApi"
+      ],
+      "repository_fault_probe": true,
+      "seconds": 97.466
+    }
+  ],
+  "regression_checks": [
+    "MintEvents and MintTownyEvents display names",
+    "Mixed case and color codes",
+    "Lists and nested message values",
+    "Custom wording preserved",
+    "Commands, permissions and PAPI tokens preserved",
+    "YAML save/load and idempotent migration"
+  ],
+  "native_server_retested": false
+}

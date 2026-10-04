@@ -55,7 +55,7 @@
 | NeverLandTownyDistricts | 0.1.17 | Семь типов районов, бонусы зданий и промышленная связка |
 | NeverLandTownyElections | 0.1.11 | Выборы мэра, совета и должностей, расписание и формы правления |
 | NeverLandTownyEspionage | 0.1.21 | Разведка, шпионаж и контрразведка |
-| NeverLandTownyEvents | 0.4.7 | Городские события, 10 волн рейда, ModelEngine / ItemsAdder |
+| NeverLandTownyEvents | 0.4.8 | Городские события, 10 волн рейда, ModelEngine / ItemsAdder |
 | NeverLandTownyExpeditions | 0.1.24 | Экспедиции, ручной возврат и щит по отдельным правам |
 | NeverLandTownyGovernance | 0.1.22 | Законы, должности, городской совет и голосования |
 | NeverLandTownyIdeologies | 0.1.19 | Идеологии и развитие городов |

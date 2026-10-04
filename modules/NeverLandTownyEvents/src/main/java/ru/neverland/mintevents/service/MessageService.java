@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 
 public final class MessageService {
+    // Old display names only: keep command aliases, permission nodes and PAPI tokens intact.
+    private static final java.util.regex.Pattern LEGACY_BRAND = java.util.regex.Pattern.compile(
+            "(?i)(?<![/_%])Mint(?:Towny)?Events(?![\\w%.])");
     private final JavaPlugin plugin;
     private YamlConfiguration yaml;
 
@@ -39,8 +42,9 @@ public final class MessageService {
         boolean changed = false;
         for (String key : yaml.getKeys(true)) {
             Object value = yaml.get(key);
-            if (value instanceof String text && text.toLowerCase(java.util.Locale.ROOT).contains("minttownyevents")) {
-                yaml.set(key, text.replaceAll("(?i)MintTownyEvents", "NeverLand • События"));
+            Object migrated = migrateLegacyValue(value);
+            if (!java.util.Objects.equals(value, migrated)) {
+                yaml.set(key, migrated);
                 changed = true;
             }
         }
@@ -51,6 +55,16 @@ public final class MessageService {
         }
         return changed;
     } }
+
+    private static Object migrateLegacyValue(Object value) {
+        if (value instanceof String text) {
+            return LEGACY_BRAND.matcher(text).replaceAll("NeverLand • События");
+        }
+        if (value instanceof List<?> list) {
+            return list.stream().map(MessageService::migrateLegacyValue).toList();
+        }
+        return value;
+    }
 
     public String raw(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return template(yaml, key);
