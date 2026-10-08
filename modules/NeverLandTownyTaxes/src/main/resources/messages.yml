@@ -64,3 +64,5 @@ help-nation-sanctions:
 help-nation-agreements:
   - "&#63E6BE/n agreements propose <нация> <тип> <значение> [часы]"
   - "&#63E6BE/n agreements accept|reject|cancel <ID>"
+
+economy-unavailable: "&eЭкономика Towny недоступна. Сбор налогов и погашение долгов приостановлены без штрафов."

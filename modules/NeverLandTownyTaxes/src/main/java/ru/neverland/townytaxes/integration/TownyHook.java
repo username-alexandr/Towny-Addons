@@ -19,7 +19,14 @@ public final class TownyHook {
     public static final UUID GLOBAL_ID = new UUID(0, 1);
     public record Party(Domain.Scope scope, UUID id, String name, Account account) {}
     private final JavaPlugin plugin;
-    public TownyHook(JavaPlugin plugin) { this.plugin = plugin; }
+    private final java.util.function.BooleanSupplier economy;
+    public TownyHook(JavaPlugin plugin) { this(plugin, com.palmergames.bukkit.towny.TownyEconomyHandler::isActive); }
+    TownyHook(JavaPlugin plugin, java.util.function.BooleanSupplier economy) { this.plugin = plugin; this.economy = economy; }
+    /** Check before getAccount(): Towny initializes its cached balance in that call. */
+    public boolean economyAvailable() { return economy.getAsBoolean(); }
+    public Account account(java.util.function.Supplier<Account> source) {
+        return economyAvailable() ? source.get() : null;
+    }
     public Resident resident(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getResident(player); } }
     public Resident resident(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getResident(id); } }
     public Resident resident(String name) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getResident(name); } }
@@ -50,9 +57,9 @@ public final class TownyHook {
         if (scope == null) return null;
         return switch (scope) {
             case GLOBAL -> new Party(scope, GLOBAL_ID, "Сервер", null);
-            case PLAYER -> { Resident r = resident(value); yield r == null ? null : new Party(scope, r.getUUID(), r.getName(), r.getAccount()); }
-            case TOWN -> { Town t = town(value); yield t == null ? null : new Party(scope, t.getUUID(), t.getName(), t.getAccount()); }
-            case NATION -> { Nation n = nation(value); yield n == null ? null : new Party(scope, n.getUUID(), n.getName(), n.getAccount()); }
+            case PLAYER -> { Resident r = resident(value); yield r == null ? null : new Party(scope, r.getUUID(), r.getName(), account(r::getAccount)); }
+            case TOWN -> { Town t = town(value); yield t == null ? null : new Party(scope, t.getUUID(), t.getName(), account(t::getAccount)); }
+            case NATION -> { Nation n = nation(value); yield n == null ? null : new Party(scope, n.getUUID(), n.getName(), account(n::getAccount)); }
         };
     } }
     public Party resolve(Domain.Scope scope, UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {

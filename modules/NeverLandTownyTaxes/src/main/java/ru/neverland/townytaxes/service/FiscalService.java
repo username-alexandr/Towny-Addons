@@ -18,7 +18,7 @@ import java.util.*;
 
 public final class FiscalService implements NeverLandTownyTaxesApi {
     private final JavaPlugin plugin; private final TownyHook towny; private final CivicRepository repository; private final MessageService messages;
-    private final DecimalFormat money = new DecimalFormat("#,##0.00"); private final Map<UUID,Double> balanceSnapshots=new HashMap<>(); private BukkitTask task; private boolean internal;
+    private final DecimalFormat money = new DecimalFormat("#,##0.00"); private final Map<UUID,Double> balanceSnapshots=new HashMap<>(); private BukkitTask task; private boolean internal; private boolean economyPaused;
     public FiscalService(JavaPlugin plugin,TownyHook towny,CivicRepository repository,MessageService messages){this.plugin=plugin;this.towny=towny;this.repository=repository;this.messages=messages;}
     public void start(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(task!=null)task.cancel();long period=Math.max(20,plugin.getConfig().getLong("scheduler.check-seconds",20)*20);task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::tick,period,period);} }
     public void shutdown(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(task!=null)task.cancel();task=null;repository.save();} }
@@ -29,7 +29,47 @@ public final class FiscalService implements NeverLandTownyTaxesApi {
     public boolean setAgreement(String id,Domain.AgreementStatus status){ synchronized (ru.neverland.core.SuiteState.lock()) {Agreement a=repository.agreement(id);if(a==null)return false;repository.put(a.status(status));saveCritical();return true;} }
     public boolean removePolicy(String id){ synchronized (ru.neverland.core.SuiteState.lock()) {boolean ok=repository.removePolicy(id);if(ok)saveCritical();return ok;} }public boolean removeSanction(String id){ synchronized (ru.neverland.core.SuiteState.lock()) {boolean ok=repository.removeSanction(id);if(ok)saveCritical();return ok;} }
     public void collectNow(){ synchronized (ru.neverland.core.SuiteState.lock()) {tick();} }
-    private void tick(){if(!ru.neverland.core.CitizensAccess.available())return;scanExternalIncome();long now=System.currentTimeMillis();for(TaxPolicy p:new ArrayList<>(repository.policies()))if(p.enabled()&&p.type()==Domain.TaxType.FIXED&&now>=p.nextCollection()){collectFixed(p);repository.put(p.next(now+Math.max(60_000,p.intervalMillis())));}for(Agreement a:new ArrayList<>(repository.agreements()))if(a.status()==Domain.AgreementStatus.ACTIVE&&a.expiresAt()>0&&now>=a.expiresAt())repository.put(a.status(Domain.AgreementStatus.EXPIRED));repository.saveIfDirty();}
+    /** A missing provider is a pause, never a zero balance or a failed payment. */
+    public boolean economyReady() { synchronized (ru.neverland.core.SuiteState.lock()) {
+        if (!towny.economyAvailable()) {
+            balanceSnapshots.clear();
+            if (!economyPaused) plugin.getLogger().warning("Экономика Towny недоступна: сбор налогов и погашение долгов приостановлены без штрафов. Проверьте подключение экономического провайдера Towny.");
+            economyPaused = true;
+            repository.economyPaused(true);
+            repository.saveIfDirty();
+            return false;
+        }
+        if (economyPaused || repository.economyPaused()) resumeEconomy(System.currentTimeMillis());
+        return true;
+    } }
+    private void resumeEconomy(long now) {
+        balanceSnapshots.clear();
+        // Skip collections missed while unavailable. Do not move future deadlines.
+        for (TaxPolicy policy : repository.policies())
+            if (policy.enabled() && policy.type() == Domain.TaxType.FIXED && policy.nextCollection() <= now)
+                repository.put(policy.next(now + Math.max(60_000, policy.intervalMillis())));
+        repository.economyPaused(false);
+        repository.saveIfDirty();
+        economyPaused = false;
+        plugin.getLogger().info("Экономика Towny доступна: налоги возобновлены без взысканий за время простоя.");
+    }
+    private void tick() {
+        if (economyReady() && ru.neverland.core.CitizensAccess.available()) {
+            scanExternalIncome();
+            long now = System.currentTimeMillis();
+            for (TaxPolicy policy : new ArrayList<>(repository.policies()))
+                if (policy.enabled() && policy.type() == Domain.TaxType.FIXED && now >= policy.nextCollection()) {
+                    if (!economyReady()) break;
+                    collectFixed(policy);
+                    repository.put(policy.next(now + Math.max(60_000, policy.intervalMillis())));
+                }
+        }
+        long now = System.currentTimeMillis();
+        for (Agreement agreement : new ArrayList<>(repository.agreements()))
+            if (agreement.status() == Domain.AgreementStatus.ACTIVE && agreement.expiresAt() > 0 && now >= agreement.expiresAt())
+                repository.put(agreement.status(Domain.AgreementStatus.EXPIRED));
+        repository.saveIfDirty();
+    }
     private void collectFixed(TaxPolicy p){for(TownyHook.Party subject:subjects(p))charge(subject,p,p.value());}
     /** Towny calls listeners with account monitors held. Never acquire the suite ledger here. */
     public void observeTransaction(Transaction transaction){
@@ -37,14 +77,55 @@ public final class FiscalService implements NeverLandTownyTaxesApi {
         if(ru.neverland.core.SuiteState.held())onTransaction(transaction);
         else ru.neverland.core.SuiteScheduler.get().runTask(plugin,()->onTransaction(transaction));
     }
-    public void onTransaction(Transaction transaction){ synchronized (ru.neverland.core.SuiteState.lock()) {if(!ru.neverland.core.CitizensAccess.available())return;if(internal||transaction==null||!transaction.hasReceiverAccount()||transaction.getAmount()<=0||!plugin.getConfig().getBoolean("taxes.transaction-tax-enabled",true))return;Account account=transaction.getReceivingAccount();TownyHook.Party subject=party(account);if(subject==null)return;Domain.TaxType eventType=transaction.hasSenderAccount()?Domain.TaxType.TRANSACTION:Domain.TaxType.INCOME;applyPercentage(subject,eventType,transaction.getAmount());snapshot(subject);} }
-    private void scanExternalIncome(){for(Resident r:towny.residents()){if(r==null||r.isNPC())continue;Account account=r.getAccount();double current;try{current=account.getHoldingBalance();}catch(RuntimeException ignored){continue;}Double previous=balanceSnapshots.putIfAbsent(r.getUUID(),current);if(previous!=null&&current>previous+0.009){TownyHook.Party party=new TownyHook.Party(Domain.Scope.PLAYER,r.getUUID(),r.getName(),account);applyPercentage(party,Domain.TaxType.INCOME,current-previous);snapshot(party);}else balanceSnapshots.put(r.getUUID(),current);}}
+    public void onTransaction(Transaction transaction){ synchronized (ru.neverland.core.SuiteState.lock()) {if(!economyReady()||!ru.neverland.core.CitizensAccess.available())return;if(internal||transaction==null||!transaction.hasReceiverAccount()||transaction.getAmount()<=0||!plugin.getConfig().getBoolean("taxes.transaction-tax-enabled",true))return;Account account=transaction.getReceivingAccount();TownyHook.Party subject=party(account);if(subject==null)return;Domain.TaxType eventType=transaction.hasSenderAccount()?Domain.TaxType.TRANSACTION:Domain.TaxType.INCOME;applyPercentage(subject,eventType,transaction.getAmount());snapshot(subject);} }
+    private void scanExternalIncome() {
+        for (Resident resident : towny.residents()) {
+            if (resident == null || resident.isNPC()) continue;
+            if (!economyReady()) return;
+            Account account;
+            double current;
+            try {
+                account = towny.account(resident::getAccount);
+                if (account == null) { balanceSnapshots.remove(resident.getUUID()); continue; }
+                current = account.getHoldingBalance();
+                if (!Double.isFinite(current)) { balanceSnapshots.remove(resident.getUUID()); continue; }
+            } catch (RuntimeException unavailable) {
+                balanceSnapshots.remove(resident.getUUID());
+                continue;
+            }
+            Double previous = balanceSnapshots.put(resident.getUUID(), current);
+            if (previous != null && current > previous + 0.009) {
+                TownyHook.Party party = new TownyHook.Party(Domain.Scope.PLAYER, resident.getUUID(), resident.getName(), account);
+                applyPercentage(party, Domain.TaxType.INCOME, current - previous);
+                snapshot(party);
+            }
+        }
+    }
     private void applyPercentage(TownyHook.Party subject,Domain.TaxType type,double base){for(TaxPolicy p:repository.policies())if(p.enabled()&&p.type()==type&&matches(p,subject))charge(subject,p,base*p.value()/100D);}
-    private void charge(TownyHook.Party subject,TaxPolicy p,double raw){if(subject==null||subject.account()==null||raw<=0)return;TownyHook.Party destination=towny.resolve(p.destinationScope(),p.destinationId());double citizenMultiplier=citizensMultiplier(subject,p);if(!Double.isFinite(citizenMultiplier))return;double discount=taxDiscount(subject,destination);double amount=cents(citizenMultiplier*ru.neverland.integration.PolicyEffects.tax(raw,municipalMultiplier(subject,p))*taxMultiplier(subject)*(1-discount));if(amount<=0)return;boolean withdrawn=false,paid=false;internal=true;try{withdrawn=subject.account().withdraw(amount,reason(p));if(withdrawn){paid=deposit(destination,amount);if(!paid)subject.account().deposit(amount,"Возврат неисполненного налога NeverLand");}}catch(RuntimeException e){paid=false;}finally{internal=false;}auditTax(subject,destination,p,amount,paid);snapshot(subject);snapshot(destination);long now=System.currentTimeMillis();repository.log(new LedgerEntry(now,"TAX",subject.scope(),subject.id(),subject.name(),amount,p.shortId()+" → "+p.destinationName(),paid));if(!withdrawn&&plugin.getConfig().getBoolean("taxes.failed-payment-debt",true))repository.debt(subject.id(),repository.debt(subject.id())+amount);if(paid&&plugin.getConfig().getBoolean("messages.announce-collections",true)){Resident r=towny.resident(subject.id());if(r!=null&&r.getPlayer()!=null)messages.send(r.getPlayer(),"tax-collected",Map.of("amount",format(amount),"policy",p.shortId()));}}
+    private void charge(TownyHook.Party subject,TaxPolicy p,double raw){if(!economyReady()||subject==null||subject.account()==null||raw<=0)return;TownyHook.Party destination=towny.resolve(p.destinationScope(),p.destinationId());if(destination==null||(destination.scope()!=Domain.Scope.GLOBAL&&destination.account()==null))return;double citizenMultiplier=citizensMultiplier(subject,p);if(!Double.isFinite(citizenMultiplier))return;double discount=taxDiscount(subject,destination);double amount=cents(citizenMultiplier*ru.neverland.integration.PolicyEffects.tax(raw,municipalMultiplier(subject,p))*taxMultiplier(subject)*(1-discount));if(amount<=0)return;boolean withdrawn=false,paid=false,providerFailed=false;internal=true;try{withdrawn=subject.account().withdraw(amount,reason(p));if(withdrawn){paid=deposit(destination,amount);if(!paid)subject.account().deposit(amount,"Возврат неисполненного налога NeverLand");}}catch(RuntimeException e){paid=false;providerFailed=true;}finally{internal=false;}auditTax(subject,destination,p,amount,paid);snapshot(subject);snapshot(destination);long now=System.currentTimeMillis();repository.log(new LedgerEntry(now,"TAX",subject.scope(),subject.id(),subject.name(),amount,p.shortId()+" → "+p.destinationName(),paid));if(!providerFailed&&!withdrawn&&towny.economyAvailable()&&plugin.getConfig().getBoolean("taxes.failed-payment-debt",true))repository.debt(subject.id(),repository.debt(subject.id())+amount);if(paid&&plugin.getConfig().getBoolean("messages.announce-collections",true)){Resident r=towny.resident(subject.id());if(r!=null&&r.getPlayer()!=null)messages.send(r.getPlayer(),"tax-collected",Map.of("amount",format(amount),"policy",p.shortId()));}}
     private void auditTax(TownyHook.Party source,TownyHook.Party destination,TaxPolicy policy,double amount,boolean paid){try{var from=ru.neverland.core.AuditTrail.account(source.account());var to=destination==null||destination.scope()==Domain.Scope.GLOBAL?new ru.neverland.core.AuditRecord.Party("SERVER","","Налоговый резерв",""):ru.neverland.core.AuditTrail.account(destination.account());ru.neverland.core.AuditTrail.record(plugin,"tax",UUID.randomUUID().toString(),"TAX_TRANSFER",paid?"COMPLETED":"UNCONFIRMED",ru.neverland.core.AuditRecord.Party.system(),from,to,"",0,ru.neverland.core.AuditTrail.money(amount),"policy="+policy.id()+"; "+reason(policy));}catch(Exception ex){plugin.getLogger().log(java.util.logging.Level.SEVERE,"AUDIT GAP: налоги",ex);}}
     private boolean deposit(TownyHook.Party destination,double amount){if(destination==null||destination.scope()==Domain.Scope.GLOBAL){repository.addServerBank(amount);return true;}return destination.account()!=null&&destination.account().deposit(amount,"Налоговые поступления NeverLand");}
-    public boolean payDebt(TownyHook.Party subject){ synchronized (ru.neverland.core.SuiteState.lock()) {double amount=repository.debt(subject.id());if(amount<=0||subject.account()==null)return false;internal=true;try{if(!subject.account().withdraw(amount,"Погашение налоговой задолженности"))return false;repository.addServerBank(amount);repository.debt(subject.id(),0);repository.log(new LedgerEntry(System.currentTimeMillis(),"DEBT_PAID",subject.scope(),subject.id(),subject.name(),amount,"Погашение задолженности",true));snapshot(subject);saveCritical();return true;}finally{internal=false;}} }
-    private List<TownyHook.Party> subjects(TaxPolicy p){List<TownyHook.Party> out=new ArrayList<>();switch(p.scope()){case PLAYER->{TownyHook.Party v=towny.resolve(Domain.Scope.PLAYER,p.targetId());if(v!=null)out.add(v);}case TOWN->{Town t=towny.town(p.targetId());if(t!=null)for(Resident r:towny.residents(t))if(eligible(r))out.add(new TownyHook.Party(Domain.Scope.PLAYER,r.getUUID(),r.getName(),r.getAccount()));}case NATION->{Nation n=towny.nation(p.targetId());if(n!=null)for(Town t:towny.towns(n))out.add(new TownyHook.Party(Domain.Scope.TOWN,t.getUUID(),t.getName(),t.getAccount()));}case GLOBAL->{for(Resident r:towny.residents())if(eligible(r))out.add(new TownyHook.Party(Domain.Scope.PLAYER,r.getUUID(),r.getName(),r.getAccount()));}}return out;}
+    public boolean payDebt(TownyHook.Party subject) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        if (!economyReady() || subject == null) return false;
+        double amount = repository.debt(subject.id());
+        if (amount <= 0 || subject.account() == null) return false;
+        internal = true;
+        try {
+            try {
+                if (!subject.account().withdraw(amount, "Погашение налоговой задолженности")) return false;
+            } catch (RuntimeException unavailable) {
+                balanceSnapshots.remove(subject.id());
+                return false;
+            }
+            repository.addServerBank(amount);
+            repository.debt(subject.id(), 0);
+            repository.log(new LedgerEntry(System.currentTimeMillis(), "DEBT_PAID", subject.scope(), subject.id(), subject.name(), amount, "Погашение задолженности", true));
+            snapshot(subject);
+            saveCritical();
+            return true;
+        } finally { internal = false; }
+    } }
+    private List<TownyHook.Party> subjects(TaxPolicy p){List<TownyHook.Party> out=new ArrayList<>();switch(p.scope()){case PLAYER->{TownyHook.Party v=towny.resolve(Domain.Scope.PLAYER,p.targetId());if(v!=null)out.add(v);}case TOWN->{Town t=towny.town(p.targetId());if(t!=null)for(Resident r:towny.residents(t))if(eligible(r))out.add(new TownyHook.Party(Domain.Scope.PLAYER,r.getUUID(),r.getName(),towny.account(r::getAccount)));}case NATION->{Nation n=towny.nation(p.targetId());if(n!=null)for(Town t:towny.towns(n))out.add(new TownyHook.Party(Domain.Scope.TOWN,t.getUUID(),t.getName(),towny.account(t::getAccount)));}case GLOBAL->{for(Resident r:towny.residents())if(eligible(r))out.add(new TownyHook.Party(Domain.Scope.PLAYER,r.getUUID(),r.getName(),towny.account(r::getAccount)));}}return out;}
     private boolean eligible(Resident r){if(r==null||r.isNPC())return false;if(!plugin.getConfig().getBoolean("taxes.process-offline-residents",true)&&r.getPlayer()==null)return false;long days=plugin.getConfig().getLong("taxes.inactive-resident-days",60);return days<=0||r.getPlayer()!=null||System.currentTimeMillis()-r.getLastOnline()<=days*86_400_000L;}
     private boolean matches(TaxPolicy p,TownyHook.Party s){if(p.scope()==Domain.Scope.GLOBAL)return true;if(p.scope()==s.scope()&&Objects.equals(p.targetId(),s.id()))return true;if(s.scope()==Domain.Scope.PLAYER){Resident r=towny.resident(s.id());Town t=r==null?null:r.getTownOrNull();if(p.scope()==Domain.Scope.TOWN)return t!=null&&p.targetId().equals(t.getUUID());Nation n=t==null?null:t.getNationOrNull();return p.scope()==Domain.Scope.NATION&&n!=null&&p.targetId().equals(n.getUUID());}if(s.scope()==Domain.Scope.TOWN&&p.scope()==Domain.Scope.NATION){Town t=towny.town(s.id());Nation n=t==null?null:t.getNationOrNull();return n!=null&&p.targetId().equals(n.getUUID());}return false;}
     private TownyHook.Party party(Account account){UUID id=account.getUUID();Resident r=towny.resident(id);if(r!=null)return new TownyHook.Party(Domain.Scope.PLAYER,id,r.getName(),account);Town t=towny.town(id);if(t!=null)return new TownyHook.Party(Domain.Scope.TOWN,id,t.getName(),account);Nation n=towny.nation(id);return n==null?null:new TownyHook.Party(Domain.Scope.NATION,id,n.getName(),account);}
@@ -65,5 +146,5 @@ public final class FiscalService implements NeverLandTownyTaxesApi {
     public boolean validTaxValue(Domain.TaxType type,double value){ synchronized (ru.neverland.core.SuiteState.lock()) {double max=type==Domain.TaxType.FIXED?plugin.getConfig().getDouble("taxes.maximum-fixed",1_000_000):plugin.getConfig().getDouble("taxes.maximum-percent",50);return Double.isFinite(value)&&value>=0&&value<=max;} }
     public long intervalMillis(long minutes){ synchronized (ru.neverland.core.SuiteState.lock()) {return Math.max(plugin.getConfig().getLong("taxes.minimum-interval-minutes",10),minutes)*60_000L;} }
     public CivicRepository repository(){ synchronized (ru.neverland.core.SuiteState.lock()) {return repository;} }public String format(double v){ synchronized (ru.neverland.core.SuiteState.lock()) {return money.format(v);} }private double cents(double v){return Math.round(v*100D)/100D;}private String reason(TaxPolicy p){return plugin.getConfig().getString("taxes.reason","Налог NeverLand: %policy%").replace("%policy%",p.shortId());}private void saveCritical(){if(plugin.getConfig().getBoolean("storage.save-after-critical-operation",true))repository.save();}
-    private void snapshot(TownyHook.Party party){if(party!=null&&party.scope()==Domain.Scope.PLAYER&&party.account()!=null)try{balanceSnapshots.put(party.id(),party.account().getHoldingBalance());}catch(RuntimeException ignored){}}
+    private void snapshot(TownyHook.Party party){if(!economyReady())return;if(party!=null&&party.scope()==Domain.Scope.PLAYER&&party.account()!=null)try{balanceSnapshots.put(party.id(),party.account().getHoldingBalance());}catch(RuntimeException ignored){balanceSnapshots.remove(party.id());}}
 }

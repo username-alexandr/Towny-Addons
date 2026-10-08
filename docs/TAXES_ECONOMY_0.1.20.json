@@ -1,0 +1,36 @@
+{
+  "module": "NeverLandTownyTaxes",
+  "version": "0.1.20",
+  "towny": "0.103.2.0",
+  "folia_supported": true,
+  "sha256": "9578d22242b3494b40b621c50b37ff520f17e3ec71f760bea7a66583ef36551f",
+  "validation": [
+    {
+      "module": "NeverLandTownyTaxes",
+      "tests": [
+        "ru.neverland.townytaxes.DomainSmoke",
+        "ru.neverland.townytaxes.MunicipalTaxesSmoke",
+        "ru.neverland.townytaxes.integration.EconomyUnavailableSmoke"
+      ],
+      "api_contracts": [
+        "ru.neverland.townytaxes.api.NeverLandTownyTaxesApi"
+      ],
+      "repository_fault_probe": true,
+      "seconds": 14.315
+    }
+  ],
+  "economy_outage_assertions": 21,
+  "scenarios": [
+    "real Towny without an economy adapter never creates accounts",
+    "scheduler and debt payments pause without changing balances or debts",
+    "income snapshots reset after outages",
+    "missed fixed taxes restart with a fresh interval",
+    "future tax deadlines remain intact",
+    "pause and recovery persist across restarts",
+    "warning once per outage"
+  ],
+  "limitations": [
+    "No live economy provider or player session used in this hotfix test.",
+    "The Towny economy provider must be configured separately."
+  ]
+}
