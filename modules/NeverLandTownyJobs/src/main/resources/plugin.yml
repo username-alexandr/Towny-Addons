@@ -1,5 +1,5 @@
 name: NeverLandTownyJobs
-version: 0.1.14
+version: 0.1.15
 main: ru.neverland.townyjobs.NeverLandTownyJobs
 folia-supported: true
 api-version: '26.2'
@@ -7,11 +7,18 @@ authors: [Alexander Sokolov]
 description: Профессии жителей, рабочие места и эффективность городских зданий.
 depend: [Towny, NeverLandTownyBuilds]
 commands:
+  jobpay:
+    description: Зарплата за работу и сверка начислений
+    usage: /jobpay [status|admin]
   townyjobs:
     aliases: [nltjobs]
     description: Городские профессии
     usage: /townyjobs [help|choose|work|duty|leave|staff|admin]
 permissions:
+  neverlandtownyjobs.earn:
+    default: true
+  neverlandtownyjobs.payments:
+    default: op
   neverlandtownyjobs.use:
     default: true
   neverlandtownyjobs.work:

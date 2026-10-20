@@ -1,5 +1,5 @@
 name: NeverLandTownyControl
-version: 0.4.4
+version: 0.4.5
 main: ru.neverland.townycontrol.NeverLandTownyControl
 folia-supported: true
 api-version: '26.2'
@@ -37,6 +37,8 @@ permissions:
       neverlandtownyachievements.admin: true
       mintcamps.admin: true
       mintcontracts.admin: true
+      neverland.orders.admin: true
+      neverlandtownyjobs.payments: true
       mintespionage.admin: true
       mintevents.admin: true
       mintexpeditions.admin: true

@@ -3,7 +3,7 @@ import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 
 group = "ru.neverland"
-version = "0.3.14"
+version = "0.3.15"
 
 repositories {
     mavenCentral()
@@ -44,3 +44,5 @@ configurations.named("testRuntimeClasspath") { extendsFrom(configurations.named(
 sourceSets.main { java.srcDir("../../shared/core/src/main/java") }
 
 apply(from = "../../scripts/smoke.gradle")
+
+sourceSets.main { java.srcDir("../../shared/earnings/src/main/java") }

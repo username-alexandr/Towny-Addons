@@ -1,0 +1,39 @@
+# Public server-funded orders. Existing city contracts keep their own config and treasury.
+enabled: true
+maximum-active: 3
+board-size: 4
+refresh-seconds: 3600
+limits:
+  player-24h: 1500
+  server-24h: 100000
+# Durations count enabled server time; downtime/module pauses cannot fail an order.
+# Accepted orders keep a snapshot of their terms across configuration changes.
+templates:
+  wheat_delivery:
+    title: Поставка пшеницы
+    type: DELIVERY
+    target: WHEAT
+    amount: 64
+    reward: 120
+    duration-seconds: 7200
+  iron_mining:
+    title: Разведка железной жилы
+    type: MINING
+    target: IRON_ORE
+    amount: 24
+    reward: 180
+    duration-seconds: 14400
+  zombie_hunt:
+    title: Безопасность дорог
+    type: HUNTING
+    target: ZOMBIE
+    amount: 20
+    reward: 160
+    duration-seconds: 7200
+  cod_fishing:
+    title: Рыба для поселений
+    type: FISHING
+    target: COD
+    amount: 16
+    reward: 120
+    duration-seconds: 7200

@@ -1,3 +1,12 @@
+## Economy MVP — 2026-10-20 (playtest)
+
+- Contracts 0.3.15: independent public `/orders` board for townless players, delivery/mining/hunting/fishing, immutable accepted terms, three active orders, configurable rotation and active-time deadlines. Existing city/company contract funding remains unchanged.
+- Jobs 0.1.15: confirmed-action wages for seven existing professions; existing careers, XP, workplaces and building bonuses retained. Separate salary configuration; no presence/AFK salary.
+- Shared earnings outbox: durable reservations, rolling per-player/server budgets, Towny account receipts, restart recovery, ambiguous-payment reconciliation and persisted delivery receipts. Towny/Vault provider readiness checks before personal account access.
+- Control 0.4.5: server-income section, separate public-order/salary audit categories, diagnostics and reconciliation links; OP and delegated permission access retained.
+- Taxes 0.1.20 readiness fix included. Builds 0.8.27 and Companies 0.1.14 preserved; no building-price/resource changes or automatic company payroll.
+- Validation: 48 executable regression tests and 30 native checks on NeverFolia 26.2. Full client/provider gameplay acceptance remains required; see docs/ECONOMY_VALIDATION_RU.md.
+
 ## 0.30.0
 
 - Justice 0.1.0: штрафы, публичный розыск, нативные тюрьмы Towny, обеспеченные награды и атомарный журнал платежей.

@@ -17,17 +17,19 @@ public final class EconomyService {
     private final TownyHook towny;
     public EconomyService(JavaPlugin plugin, TownyHook towny) { this.plugin = plugin; this.towny = towny; }
     public boolean canReserve(Town town, double amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
-        try { return amount <= 0 || ru.neverland.integration.TreasuryAccess.canSpend(town,"infrastructure",amount); }
+        try { return amount <= 0 || TownyEconomyHandler.isActive() && ru.neverland.integration.TreasuryAccess.canSpend(town,"infrastructure",amount); }
         catch (RuntimeException exception) { return false; }
     } }
     public boolean reserve(Town town, ContractDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (definition.reward() <= 0) return true;
+        if (!TownyEconomyHandler.isActive()) return false;
         String reason = reason("economy.reserve-reason", definition);
         try { return ru.neverland.integration.TreasuryAccess.withdraw(town,"infrastructure","contracts",definition.reward(),reason); }
         catch (RuntimeException exception) { return false; }
     } }
     public boolean pay(UUID residentId, double amount, ContractDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (amount <= 0) return true;
+        if (!TownyEconomyHandler.isActive()) return false;
         try {
             Resident resident = towny.resident(residentId);
             Account account = resident == null ? null : resident.getAccount();
@@ -36,6 +38,7 @@ public final class EconomyService {
     } }
     public boolean refund(Town town, double amount, ContractDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (amount <= 0) return true;
+        if (!TownyEconomyHandler.isActive()) return false;
         try { return town != null && ru.neverland.integration.TreasuryAccess.deposit(town,"infrastructure","contracts",true,amount,reason("economy.refund-reason",definition)); }
         catch (RuntimeException exception) { return false; }
     } }
@@ -47,7 +50,7 @@ public final class EconomyService {
         catch (RuntimeException exception) { return FALLBACK.format(amount); }
     } }
     public String balance(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
-        try { return town == null ? format(0) : town.getAccount().getHoldingFormattedBalance(); }
+        try { return town == null || !TownyEconomyHandler.isActive() ? format(0) : town.getAccount().getHoldingFormattedBalance(); }
         catch (RuntimeException exception) { return format(0); }
     } }
 }

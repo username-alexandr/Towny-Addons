@@ -1,7 +1,7 @@
 import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 group = "ru.neverland"
-version = "0.1.14"
+version = "0.1.15"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -33,3 +33,5 @@ sourceSets.main { java.srcDir("../../shared/jobs/src/main/java") }
 sourceSets.main { java.srcDir("../../shared/core/src/main/java") }
 
 apply(from = "../../scripts/smoke.gradle")
+
+sourceSets.main { java.srcDir("../../shared/earnings/src/main/java") }

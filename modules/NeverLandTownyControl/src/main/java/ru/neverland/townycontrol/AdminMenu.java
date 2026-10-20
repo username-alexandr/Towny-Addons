@@ -57,8 +57,24 @@ final class AdminMenu implements Listener {
         button(s,15,Material.CLOCK,"Перезапуск задач",List.of("Новый таймер активной задачи","Прогресс и квитанции сохраняются"),()->activityModules(player,"restart"));
         button(s,29,Material.REPEATER,"Пауза и время",List.of("Приостановить, продолжить или продлить"),()->time(player));
         button(s,31,Material.LEVER,"Управление модулями",List.of("Состояние и безопасное отключение","Предпросмотр зависимых аддонов"),()->modules(player,1,false));
+        button(s,42,Material.GOLD_INGOT,"Серверные выплаты",List.of("Заказы и зарплаты: диагностика и сверка"),()->income(player));
         button(s,40,Material.COMMAND_BLOCK,"Команды наград",List.of("Очередь выдачи и спорные результаты","Сверка перед повторным выполнением"),()->rewardCommands(player,1));
         button(s,33,Material.COMPASS,"Справочник аддонов",List.of("Игровых аддонов: "+router.entries().size(),"Штатные команды и доступные задачи"),()->modules(player,1,true));show(player,s);
+    }
+    private void income(Player player){
+        var s=screen(player,"Экономика • Серверные выплаты");
+        button(s,10,Material.WRITABLE_BOOK,"Журнал заказов",List.of("Серверные награды на личные счета"),()->logPage(player,AuditCategory.PUBLIC_ORDERS,new AuditQuery(Map.of("category","PUBLIC_ORDERS"),1)));
+        button(s,12,Material.GOLDEN_PICKAXE,"Журнал зарплат",List.of("Подтверждённая работа семи профессий"),()->logPage(player,AuditCategory.SALARIES,new AuditQuery(Map.of("category","SALARIES"),1)));
+        button(s,14,Material.COMPARATOR,"Диагностика заказов",List.of("Towny/Vault, провайдер, лимиты","Право: neverland.orders.admin"),()->incomeCommand(player,"Contracts","orders","status"));
+        button(s,16,Material.COMPARATOR,"Диагностика зарплат",List.of("Towny/Vault, провайдер, лимиты","Право: neverlandtownyjobs.payments"),()->incomeCommand(player,"Jobs","jobpay","status"));
+        button(s,28,Material.PAPER,"Начисления заказов",List.of("Последние десять записей и их ID","Все страницы: /orders admin list <страница>"),()->incomeCommand(player,"Contracts","orders","list"));
+        button(s,30,Material.PAPER,"Начисления зарплат",List.of("Последние десять записей и их ID","Все страницы: /jobpay admin list <страница>"),()->incomeCommand(player,"Jobs","jobpay","list"));
+        button(s,32,Material.SPYGLASS,"Сверка спорных выплат",List.of("REVIEW: проверить банковский журнал","HELD: проверить квитанцию ресурсов","Решение требует ID и письменного основания"),()->{player.closeInventory();player.sendMessage("/orders admin show <UUID> или /jobpay admin show <UUID>");player.sendMessage("... admin resolve <UUID> <paid|retry|taken|untouched> confirm <основание сверки>");});
+        back(s,()->home(player));show(player,s);
+    }
+    private void incomeCommand(Player player,String module,String command,String action){
+        var addon=Bukkit.getPluginManager().getPlugin("NeverLandTowny"+module);if(!(addon instanceof org.bukkit.plugin.java.JavaPlugin owner)||!owner.isEnabled())throw new IllegalArgumentException("Аддон недоступен");
+        var direct=owner.getCommand(command);if(direct==null)throw new IllegalArgumentException("Нужна обновлённая версия аддона");player.closeInventory();direct.execute(player,command,new String[]{"admin",action});
     }
     private record RewardCommand(org.bukkit.plugin.Plugin addon,ru.neverland.core.CommandOutbox.Entry entry){}
     private void rewardCommands(Player player,int page)throws Exception {
@@ -187,7 +203,7 @@ final class AdminMenu implements Listener {
     }
     private void outcomes(Player player,AuditCategory category,AuditQuery query){
         var s=screen(player,"Журналы • Результат",AdminAccess.AUDIT);int slot=0;
-        for(String value:List.of("COMPLETED","COMPLETE","DONE","DELIVERED","CREDIT","DEBIT","OBSERVED","CANCELLED","RETURNED","REFUNDED","REJECTED","UNCONFIRMED","PREPARED","PAID"))button(s,slot++,Material.PAPER,AuditCategory.outcome(value),List.of("Точный статус: "+value,"Финальный результат зависит от типа операции"),()->logPage(player,category,with(query,"outcome",value)));
+        for(String value:List.of("COMPLETED","COMPLETE","DONE","DELIVERED","CREDIT","DEBIT","OBSERVED","CANCELLED","RETURNED","REFUNDED","REJECTED","UNCONFIRMED","PREPARED","PAID","REVIEW"))button(s,slot++,Material.PAPER,AuditCategory.outcome(value),List.of("Точный статус: "+value,"Финальный результат зависит от типа операции"),()->logPage(player,category,with(query,"outcome",value)));
         button(s,40,Material.MILK_BUCKET,"Все результаты",List.of("Снять фильтр результата"),()->logPage(player,category,with(query,"outcome",null)));back(s,()->filters(player,category,query));show(player,s);
     }
     private void record(Player player,AuditRecord record,AuditCategory category,AuditQuery query){
