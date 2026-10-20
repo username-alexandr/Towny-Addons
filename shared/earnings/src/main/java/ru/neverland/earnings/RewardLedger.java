@@ -18,6 +18,7 @@ public final class RewardLedger {
     private final Path directory;
     private final LongSupplier clock;
     private final Map<UUID,Entry> entries=new LinkedHashMap<>();
+    private final LinkedHashSet<UUID> pending=new LinkedHashSet<>();
     private final long playerLimit,serverLimit;
     private boolean fault;
     public RewardLedger(Path directory,long playerLimit,long serverLimit) { this(directory,playerLimit,serverLimit,System::currentTimeMillis); }
@@ -26,7 +27,7 @@ public final class RewardLedger {
         this.directory=directory;this.playerLimit=playerLimit;this.serverLimit=serverLimit;this.clock=clock;
     }
     public void load() throws IOException { synchronized(ru.neverland.core.SuiteState.lock()) {
-        entries.clear();fault=true;Files.createDirectories(directory);
+        entries.clear();pending.clear();fault=true;Files.createDirectories(directory);
         try(var files=Files.list(directory)) {
             for(Path file:files.filter(p->p.toString().endsWith(".properties")).sorted().toList()) {
                 Properties p=new Properties();try(var reader=Files.newBufferedReader(file)){p.load(reader);}
@@ -35,7 +36,7 @@ public final class RewardLedger {
                 int count=Integer.parseInt(p.getProperty("history-count"));if(count<1||count>10000)throw new IOException("Invalid reward history");
                 List<String> history=new ArrayList<>();for(int i=0;i<count;i++)history.add(Objects.requireNonNull(p.getProperty("history."+i)));
                 var entry=new Entry(id,UUID.fromString(p.getProperty("player")),Long.parseLong(p.getProperty("cents")),p.getProperty("source"),Long.parseLong(p.getProperty("created")),Long.parseLong(p.getProperty("paid-at")),State.valueOf(p.getProperty("state")),history);
-                entries.put(id,entry);AtomicFiles.loaded(file);
+                entries.put(id,entry);if(entry.state()==State.PENDING)pending.add(id);AtomicFiles.loaded(file);
             }
         } catch(RuntimeException ex){throw new IOException("Повреждён журнал начислений; выплаты остановлены",ex);}
         fault=false;
@@ -43,6 +44,16 @@ public final class RewardLedger {
     } }
     public Entry get(UUID id) { synchronized(ru.neverland.core.SuiteState.lock()){return entries.get(id);} }
     public List<Entry> all() { synchronized(ru.neverland.core.SuiteState.lock()){return List.copyOf(entries.values());} }
+    /** Rotate attempts, including unavailable recipients, so one account cannot starve others. */
+    public List<Entry> pendingBatch(int maximum) { synchronized(ru.neverland.core.SuiteState.lock()) {
+        if(maximum<1)throw new IllegalArgumentException("Positive batch size required");
+        List<Entry> batch=new ArrayList<>();int count=Math.min(maximum,pending.size());
+        for(int i=0;i<count;i++){
+            var iterator=pending.iterator();UUID id=iterator.next();iterator.remove();pending.add(id);
+            batch.add(entries.get(id));
+        }
+        return List.copyOf(batch);
+    } }
     public boolean fault(){return fault;}
     public long used(UUID player) { synchronized(ru.neverland.core.SuiteState.lock()) {
         long after=clock.getAsLong()-DAY,total=0;
@@ -84,7 +95,7 @@ public final class RewardLedger {
     }
     private void save(Entry e)throws IOException {
         check();Properties p=new Properties();p.setProperty("schema","1");p.setProperty("id",e.id().toString());p.setProperty("player",e.player().toString());p.setProperty("cents",Long.toString(e.cents()));p.setProperty("source",e.source());p.setProperty("created",Long.toString(e.created()));p.setProperty("paid-at",Long.toString(e.paidAt()));p.setProperty("state",e.state().name());p.setProperty("history-count",Integer.toString(e.history().size()));for(int i=0;i<e.history().size();i++)p.setProperty("history."+i,e.history().get(i));
-        try{AtomicFiles.write(directory.resolve(e.id()+".properties"),()->{var out=new StringWriter();p.store(out,"NeverLand server reward; do not edit");return out.toString();});entries.put(e.id(),e);}
+        try{AtomicFiles.write(directory.resolve(e.id()+".properties"),()->{var out=new StringWriter();p.store(out,"NeverLand server reward; do not edit");return out.toString();});entries.put(e.id(),e);if(e.state()==State.PENDING)pending.add(e.id());else pending.remove(e.id());}
         catch(IOException ex){fault=true;throw ex;}
     }
 }

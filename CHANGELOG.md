@@ -1,3 +1,10 @@
+## Economy review — 2026-10-20
+
+- Contracts 0.3.17 / Jobs 0.1.16: cancelled death events no longer count; final cancellation is checked on the player scheduler. Pending payouts rotate fairly past unavailable recipients.
+- Contracts: full provider readiness and initial inventory receipt before delivery reservation; permission rechecked when accepting from an already open board.
+- Control 0.4.6: new resident/town/nation audit listeners avoid account initialization while Towny economy is inactive.
+- Nine executable regression programs and 41 native Folia checks passed; report and limits in `docs/ECONOMY_REVIEW_20261020_RU.md`.
+
 ## Contracts 0.3.16 — 2026-10-20
 
 - Русские названия целей публичных заказов из существующего словаря, включая пользовательские переопределения.

@@ -83,10 +83,13 @@ public final class WageService implements Listener,CommandExecutor,TabCompleter 
         int before=count(p,result);CraftingInventory inventory=e.getInventory();ItemStack[] ingredients=inventory.getMatrix();for(int i=0;i<ingredients.length;i++)if(ingredients[i]!=null)ingredients[i]=ingredients[i].clone();String proof="craft:"+UUID.randomUUID();
         SuiteScheduler.entity(plugin,p,()->{if(e.isCancelled()||!p.getOpenInventory().getTopInventory().equals(inventory)||count(p,result)<=before)return;ItemStack[] after=inventory.getMatrix();boolean consumed=false;for(int i=0;i<Math.min(ingredients.length,after.length);i++)if(ingredients[i]!=null&&(after[i]==null||!ingredients[i].isSimilar(after[i])||after[i].getAmount()<ingredients[i].getAmount()))consumed=true;if(consumed)pay(p,Profession.ENGINEER,proof);});
     }}
-    @EventHandler(priority=EventPriority.MONITOR) public void kill(EntityDeathEvent e){synchronized(SuiteState.lock()){
-        if(!guard.hunted(e))return;Player p=e.getEntity().getKiller();Location before=lastKill.get(p.getUniqueId()),now=p.getLocation();
-        if(before!=null&&before.getWorld().equals(now.getWorld())&&before.distanceSquared(now)<16)return;
-        lastKill.put(p.getUniqueId(),now);pay(p,Profession.GUARD,"kill:"+e.getEntity().getUniqueId());
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void kill(EntityDeathEvent e){synchronized(SuiteState.lock()){
+        if(!guard.hunted(e))return;Player p=e.getEntity().getKiller();Location at=p.getLocation();UUID victim=e.getEntity().getUniqueId();
+        SuiteScheduler.entity(plugin,p,()->{
+            if(e.isCancelled()||!eligible(p,Profession.GUARD))return;Location before=lastKill.get(p.getUniqueId());
+            if(before!=null&&before.getWorld().equals(at.getWorld())&&before.distanceSquared(at)<16)return;
+            lastKill.put(p.getUniqueId(),at);pay(p,Profession.GUARD,"kill:"+victim);
+        });
     }}
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void trade(PlayerTradeEvent e){synchronized(SuiteState.lock()){
         Player p=e.getPlayer();var villager=e.getVillager();if(!SuiteScheduler.owns(villager)||!e.willIncreaseTradeUses()||!eligible(p,Profession.MERCHANT))return;

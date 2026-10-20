@@ -1,0 +1,123 @@
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42327 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=42327 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 2.673s
+
+OK
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42327 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=42327 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42327 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=42327 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+
+Welcome to Gradle 9.0.0!
+
+Here are the highlights of this release:
+ - Configuration Cache is the recommended execution mode
+ - Gradle requires JVM 17 or higher to run
+ - Build scripts use Kotlin 2.2 and Groovy 4.0
+ - Improved Kotlin DSL script compilation avoidance
+
+For more details see https://docs.gradle.org/9.0.0/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.0.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :clean UP-TO-DATE
+> Task :compileJava
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :processResources
+> Task :classes
+> Task :jar
+> Task :compileTestJava
+> Task :processTestResources NO-SOURCE
+> Task :testClasses
+> Task :writeSmokeClasspath
+
+[Incubating] Problems report is available at: file:///workspace/scratch/eb47b830f6d4/Towny-Addons/modules/NeverLandTownyContracts/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 1m 6s
+6 actionable tasks: 5 executed, 1 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.0.0/userguide/configuration_cache_enabling.html
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.CompanyContractsSmoke
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42327 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=42327 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+ContractMathSmoke OK
+CompanyContractsSmoke OK: ownership, escrow, settlement restart and legacy migration
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.ContractMathSmoke
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42327 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=42327 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+ContractMathSmoke OK
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.MunicipalContractsSmoke
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42327 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=42327 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+ContractMathSmoke OK
+CompanyContractsSmoke OK: ownership, escrow, settlement restart and legacy migration
+MunicipalContractsSmoke OK: durable money, delivery crash windows, road verification, scout dwell, immutable conditions and restart
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.RewardLedgerSmoke
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42327 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=42327 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+REWARD_LEDGER_SMOKE_PASS: 38 checks
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42327 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=42327 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+API CONTRACT PASS: ru.neverland.mintcontracts.api.MintTownyContractsApi (27 signatures/capabilities)
+PASS NeverLandTownyContracts: 4 executable tests
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42327 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=42327 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.0.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :clean UP-TO-DATE
+
+> Task :compileJava
+Note: /workspace/scratch/eb47b830f6d4/Towny-Addons/shared/core/src/main/java/ru/neverland/core/MenuStyle.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :processResources
+> Task :classes
+> Task :jar
+> Task :compileTestJava
+> Task :processTestResources NO-SOURCE
+> Task :testClasses
+> Task :writeSmokeClasspath
+
+[Incubating] Problems report is available at: file:///workspace/scratch/eb47b830f6d4/Towny-Addons/modules/NeverLandTownyControl/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 12s
+6 actionable tasks: 5 executed, 1 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.0.0/userguide/configuration_cache_enabling.html
+TEST NeverLandTownyControl ru.neverland.townycontrol.ActivityAdminSmoke
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42327 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=42327 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+ActivityAdminSmoke PASS: persistent pause, restart, extension, module pause composition, strict IDs, overflow, newcomer registration
+TEST NeverLandTownyControl ru.neverland.townycontrol.AdminMenuSmoke
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42327 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=42327 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+AdminMenuSmoke PASS: permission inheritance, Events adapter, exclusive categories, bounded pagination, filters, corrupt source refusal
+TEST NeverLandTownyControl ru.neverland.townycontrol.AuditSmoke
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42327 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=42327 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+AuditSmoke PASS: 28 checks; restart, collision, corruption, filters and CSV
+TEST NeverLandTownyControl ru.neverland.townycontrol.ModuleSafetySmoke
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42327 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=42327 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+ModuleSafetySmoke PASS: graph, durable group, time freeze, journal recovery, corruption and financial preservation
+PASS NeverLandTownyControl: 4 executable tests
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42327 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=42327 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.0.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :clean UP-TO-DATE
+
+> Task :compileJava
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: /workspace/scratch/eb47b830f6d4/Towny-Addons/modules/NeverLandTownyJobs/src/main/java/ru/neverland/townyjobs/CityBridge.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :processResources
+> Task :classes
+> Task :jar
+> Task :compileTestJava
+> Task :processTestResources NO-SOURCE
+> Task :testClasses
+> Task :writeSmokeClasspath
+
+[Incubating] Problems report is available at: file:///workspace/scratch/eb47b830f6d4/Towny-Addons/modules/NeverLandTownyJobs/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 13s
+6 actionable tasks: 5 executed, 1 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.0.0/userguide/configuration_cache_enabling.html
+TEST NeverLandTownyJobs ru.neverland.townyjobs.JobsSmoke
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42327 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=42327 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+JOBS_SMOKE_PASS: 78 checks
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=42327 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=42327 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+API CONTRACT PASS: ru.neverland.townyjobs.api.TownyJobsApi (16 signatures/capabilities)
+PASS NeverLandTownyJobs: 1 executable tests
+SUITE PASS: 3 modules; 9 executable tests

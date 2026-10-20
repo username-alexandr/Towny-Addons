@@ -78,6 +78,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         if(changed)try{save();}catch(IOException e){plugin.getLogger().severe(e.getMessage());}
     }}
     private void accept(Player p,String template)throws IOException{
+        if(!p.hasPermission("neverland.orders.use"))throw new IllegalArgumentException("Нет прав на заказы");
         if(!active())throw new IllegalArgumentException("Заказы приостановлены; прогресс сохранён");
         if(orders.values().stream().filter(o->o.player().equals(p.getUniqueId())&&open(o)).count()>=maximum)throw new IllegalArgumentException("Одновременно разрешено "+maximum+" заказа");
         long cycle=System.currentTimeMillis()/refresh;if(orders.values().stream().anyMatch(o->o.player().equals(p.getUniqueId())&&o.template().equals(template)&&o.cycle()==cycle))throw new IllegalArgumentException("Этот заказ уже принят в текущем обновлении доски");
@@ -94,11 +95,12 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         var existing=income.ledger().get(id);if(existing!=null){recover(p);showOrder(p,o);return;}
         if(!open(o))throw new IllegalArgumentException("Заказ уже закрыт");
         if(o.type()==Type.DELIVERY){
-            if(!com.palmergames.bukkit.towny.TownyEconomyHandler.isActive())throw new IllegalArgumentException("Экономика не подключена. Ресурсы остаются у вас.");
+            if(!income.ready(p.getUniqueId()))throw new IllegalArgumentException("Экономика не подключена. Ресурсы остаются у вас.");
             var sample=new ItemStack(Material.valueOf(o.target()));int total=0;for(ItemStack item:p.getInventory().getStorageContents())if(item!=null&&item.isSimilar(sample))total+=item.getAmount();
             if(total<o.goal())throw new IllegalArgumentException("Для сдачи нужно: "+names.value(o.target())+" × "+o.goal()+". В инвентаре: "+total+". Именные и изменённые предметы не принимаются.");
+            var receipt=PlayerSaveReceipt.before(p);
             income.ledger().reserve(id,p.getUniqueId(),o.cents(),"orders:"+o.template(),true);
-            var receipt=PlayerSaveReceipt.before(p);int left=o.goal();ItemStack[] contents=p.getInventory().getStorageContents();
+            int left=o.goal();ItemStack[] contents=p.getInventory().getStorageContents();
             for(int i=0;i<contents.length&&left>0;i++)if(contents[i]!=null&&contents[i].isSimilar(sample)){int n=Math.min(left,contents[i].getAmount());contents[i]=contents[i].clone();contents[i].setAmount(contents[i].getAmount()-n);left-=n;if(contents[i].getAmount()==0)contents[i]=null;}
             p.getInventory().setStorageContents(contents);p.getPersistentDataContainer().set(receiptKey(id),PersistentDataType.BYTE,(byte)1);receipt.save(p);
             income.ledger().release(id,"saved player inventory "+p.getUniqueId());
@@ -116,7 +118,10 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void mine(BlockBreakEvent e){synchronized(SuiteState.lock()){
         if(!ActionGuard.ore(e.getBlock().getType()))return;boolean natural=guard.untouched(e.getBlock());guard.deny(e.getBlock());if(natural&&e.isDropItems()){Player player=e.getPlayer();Material material=e.getBlock().getType();Location location=e.getBlock().getLocation();SuiteScheduler.region(plugin,location,()->{if(!e.isCancelled()&&location.getBlock().getType()!=material)SuiteScheduler.entity(plugin,player,()->progress(player,Type.MINING,material.name()));});}
     }}
-    @EventHandler(priority=EventPriority.MONITOR) public void kill(EntityDeathEvent e){synchronized(SuiteState.lock()){if(guard.hunted(e))progress(e.getEntity().getKiller(),Type.HUNTING,e.getEntityType().name());}}
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void kill(EntityDeathEvent e){synchronized(SuiteState.lock()){
+        if(!guard.hunted(e))return;Player player=e.getEntity().getKiller();String target=e.getEntityType().name();
+        SuiteScheduler.entity(plugin,player,()->{if(!e.isCancelled())progress(player,Type.HUNTING,target);});
+    }}
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void fish(PlayerFishEvent e){synchronized(SuiteState.lock()){if(e.getState()==PlayerFishEvent.State.CAUGHT_FISH&&e.getCaught() instanceof Item item&&SuiteScheduler.owns(item)){Player player=e.getPlayer();String target=item.getItemStack().getType().name();SuiteScheduler.entity(plugin,player,()->{if(!e.isCancelled())progress(player,Type.FISHING,target);});}}}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){synchronized(SuiteState.lock()){
         try{

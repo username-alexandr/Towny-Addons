@@ -39,6 +39,7 @@ public final class ActionGuard implements Listener {
         if(e.getSpawnReason()==CreatureSpawnEvent.SpawnReason.NATURAL)e.getEntity().getPersistentDataContainer().set(natural,PersistentDataType.BYTE,(byte)1);
     }
     public boolean hunted(EntityDeathEvent e){
+        if(e.isCancelled())return false;
         Player p=e.getEntity().getKiller();if(p==null||!ru.neverland.core.SuiteScheduler.owns(p)||!(e.getEntity() instanceof Enemy)||!e.getEntity().getPersistentDataContainer().has(natural,PersistentDataType.BYTE))return false;
         // Require a direct, recent finishing blow. Fall/fire/redstone/indirect AFK traps do not qualify.
         return e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent damage&&damage.getDamager()==p;

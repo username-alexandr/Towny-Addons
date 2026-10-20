@@ -13,7 +13,17 @@ public final class IncomeRuntime {
     }
     public RewardLedger ledger(){return ledger;}
     public boolean enabled(){return enabled&&!ledger.fault()&&!SuiteState.frozen(plugin.getName());}
-    public void start(){SuiteScheduler.get().runTaskTimer(plugin,()->{if(!enabled())return;int count=0;for(var e:ledger.all())if(e.state()==RewardLedger.State.PENDING){try{ledger.submit(e.id(),bank);var after=ledger.get(e.id());if(after.state()==RewardLedger.State.REVIEW)AuditTrail.record(plugin,"review-required",e.id().toString(),e.source().startsWith("orders:")?"PUBLIC_ORDER_REWARD":"JOB_SALARY","REVIEW",AuditRecord.Party.unknown(),new AuditRecord.Party("SERVER","server","Государство",""),AuditTrail.player(e.player()),"",0,AuditTrail.cents(e.cents()),"Нужна сверка: "+after.history().get(after.history().size()-1));}catch(Exception ex){plugin.getLogger().severe("Выплаты остановлены: "+ex.getMessage());break;}if(++count>=20)break;}},20,20);}
+    public boolean ready(UUID player){return enabled()&&bank.ready(player);}
+    public void start(){SuiteScheduler.get().runTaskTimer(plugin,()->{
+        if(!enabled())return;
+        for(var e:ledger.pendingBatch(20))try{
+            ledger.submit(e.id(),bank);var after=ledger.get(e.id());
+            if(after.state()==RewardLedger.State.REVIEW)AuditTrail.record(plugin,"review-required",e.id().toString(),e.source().startsWith("orders:")?"PUBLIC_ORDER_REWARD":"JOB_SALARY","REVIEW",AuditRecord.Party.unknown(),new AuditRecord.Party("SERVER","server","Государство",""),AuditTrail.player(e.player()),"",0,AuditTrail.cents(e.cents()),"Нужна сверка: "+after.history().get(after.history().size()-1));
+        }catch(Exception ex){
+            plugin.getLogger().severe("Начисление "+e.id()+" отложено: "+ex.getMessage());
+            if(ledger.fault())break;
+        }
+    },20,20);}
     public void admin(CommandSender sender,String[] args)throws Exception{
         if(args.length==0||args[0].equals("status")){for(String s:bank.diagnostics())sender.sendMessage(s);sender.sendMessage("Начисления: enabled="+enabled()+"; fault="+ledger.fault()+"; reserved/paid24h="+AuditTrail.cents(ledger.used(null)));return;}
         if(args[0].equals("list")){

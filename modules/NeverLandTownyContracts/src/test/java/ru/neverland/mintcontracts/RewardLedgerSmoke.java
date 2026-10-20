@@ -38,6 +38,28 @@ public final class RewardLedgerSmoke {
         Path broken=root.resolve("broken");var disk=new RewardLedger(broken,10000,10000,now::get);disk.load();UUID brokenId=UUID.randomUUID();Files.createDirectory(broken.resolve(brokenId+".properties"));Files.writeString(broken.resolve(brokenId+".properties/blocker"),"fixture");rejects(()->disk.reserve(brokenId,player,100,"jobs:disk",false),"failed durable write");ok(disk.fault()&&disk.get(brokenId)==null,"failed reservation never published");rejects(()->disk.reserve(UUID.randomUUID(),player,100,"jobs:after-fault",false),"disk error freezes ledger");
         Path corrupt=root.resolve("corrupt");Files.createDirectories(corrupt);Files.writeString(corrupt.resolve(UUID.randomUUID()+".properties"),"schema=999\n");var bad=new RewardLedger(corrupt,10000,10000);rejects(bad::load,"corruption cannot reset history");ok(bad.fault(),"corrupt ledger frozen");
         ok(recovered.get(crash).history().stream().anyMatch(s->s.contains("admin admin paid")),"audit keeps operator and reason");
+        var queue=new RewardLedger(root.resolve("queue"),10000,10000,now::get);queue.load();
+        for(int i=0;i<20;i++)queue.reserve(UUID.randomUUID(),other,1,"orders:unavailable-"+i,false);
+        UUID tail=UUID.randomUUID();queue.reserve(tail,player,1,"orders:available-tail",false);
+        AtomicInteger tailCalls=new AtomicInteger();
+        var partialBank=new RewardLedger.Bank(){public boolean ready(UUID p){return p.equals(player);}public boolean deposit(RewardLedger.Entry e){tailCalls.incrementAndGet();return true;}};
+        for(var e:queue.pendingBatch(20))queue.submit(e.id(),partialBank);
+        ok(tailCalls.get()==0,"first batch bounded even when recipients unavailable");
+        var second=queue.pendingBatch(20);ok(second.stream().map(RewardLedger.Entry::id).distinct().count()==second.size(),"no duplicate attempt inside batch");
+        for(var e:second)queue.submit(e.id(),partialBank);
+        ok(queue.get(tail).state()==PAID&&tailCalls.get()==1,"unavailable head cannot starve ready tail");
+        ok(queue.pendingBatch(50).stream().noneMatch(e->e.id().equals(tail)),"paid entries leave queue");
+        var queueReload=new RewardLedger(root.resolve("queue"),10000,10000,now::get);queueReload.load();
+        ok(queueReload.pendingBatch(50).size()==20,"restart rebuilds pending index only");
+        UUID queuedHeld=UUID.randomUUID();queueReload.reserve(queuedHeld,player,1,"orders:held-queue",true);
+        ok(queueReload.pendingBatch(50).stream().noneMatch(e->e.id().equals(queuedHeld)),"held resources never enter payout queue");
+        queueReload.release(queuedHeld,"inventory saved");
+        ok(queueReload.pendingBatch(50).stream().anyMatch(e->e.id().equals(queuedHeld)),"release schedules delivery exactly once");
+        queueReload.submit(queuedHeld,new RewardLedger.Bank(){public boolean ready(UUID p){return true;}public boolean deposit(RewardLedger.Entry e){return false;}});
+        ok(queueReload.pendingBatch(50).stream().noneMatch(e->e.id().equals(queuedHeld)),"review cannot automatically retry");
+        queueReload.resolve(queuedHeld,"retry","admin","confirmed no deposit");
+        ok(queueReload.pendingBatch(50).stream().filter(e->e.id().equals(queuedHeld)).count()==1,"verified retry requeues once");
+        rejects(()->queueReload.pendingBatch(0),"zero batch rejected");
         System.out.println("REWARD_LEDGER_SMOKE_PASS: "+checks+" checks");
     }
 }

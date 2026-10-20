@@ -1,0 +1,39 @@
+[
+  {
+    "module": "NeverLandTownyContracts",
+    "tests": [
+      "ru.neverland.mintcontracts.CompanyContractsSmoke",
+      "ru.neverland.mintcontracts.ContractMathSmoke",
+      "ru.neverland.mintcontracts.MunicipalContractsSmoke",
+      "ru.neverland.mintcontracts.RewardLedgerSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.mintcontracts.api.MintTownyContractsApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 68.174
+  },
+  {
+    "module": "NeverLandTownyControl",
+    "tests": [
+      "ru.neverland.townycontrol.ActivityAdminSmoke",
+      "ru.neverland.townycontrol.AdminMenuSmoke",
+      "ru.neverland.townycontrol.AuditSmoke",
+      "ru.neverland.townycontrol.ModuleSafetySmoke"
+    ],
+    "api_contracts": [],
+    "repository_fault_probe": false,
+    "seconds": 14.029
+  },
+  {
+    "module": "NeverLandTownyJobs",
+    "tests": [
+      "ru.neverland.townyjobs.JobsSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townyjobs.api.TownyJobsApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 13.864
+  }
+]
