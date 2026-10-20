@@ -1,39 +1,346 @@
-# Public server-funded orders. Existing city contracts keep their own config and treasury.
+# Государственные заказы /orders. Городские контракты и их казна не затрагиваются.
+catalog-version: 2
 enabled: true
 maximum-active: 3
-board-size: 4
-refresh-seconds: 3600
+board-size: 12
+# Подборка общая для игроков. Новая — ежедневно в 00:00 Europe/Moscow.
+# Сервер, выключенный в полночь, создаст подборку текущего дня при запуске.
+# Вес относится к каждому шаблону, а не является процентом появления.
+# 0 исключает редкость из следующих подборок. Все четыре вида представлены,
+# если board-size >= 4 и для каждого вида есть шаблон с положительным весом.
+rarity-weights:
+  COMMON: 60
+  UNCOMMON: 30
+  RARE: 12
+  EPIC: 4
+  LEGENDARY: 1
 limits:
   player-24h: 1500
   server-24h: 100000
-# Durations count enabled server time; downtime/module pauses cannot fail an order.
-# Accepted orders keep a snapshot of their terms across configuration changes.
+# Это скользящие 24 часа. Полночь не сбрасывает лимиты выплат.
+# Срок задания учитывает время работы включённого модуля. Выход игрока
+# не останавливает срок; остановка сервера/пауза модуля останавливает.
+# Новые настройки каталога/весов вступают в силу на следующей дневной доске
+# после перезапуска сервера. Принятые задания сохраняют свои условия.
+# enabled: false внутри шаблона исключает его из следующих подборок.
 templates:
   wheat_delivery:
     title: Поставка пшеницы
     type: DELIVERY
+    rarity: COMMON
     target: WHEAT
     amount: 64
+    reward: 120
+    duration-seconds: 7200
+  carrot_delivery:
+    title: Овощи для столовой
+    type: DELIVERY
+    rarity: COMMON
+    target: CARROT
+    amount: 64
+    reward: 100
+    duration-seconds: 7200
+  potato_delivery:
+    title: Запасы для гарнизона
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: POTATO
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  beetroot_delivery:
+    title: Провиант для каравана
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: BEETROOT
+    amount: 128
+    reward: 220
+    duration-seconds: 14400
+  pumpkin_delivery:
+    title: Большой осенний запас
+    type: DELIVERY
+    rarity: RARE
+    target: PUMPKIN
+    amount: 192
+    reward: 350
+    duration-seconds: 21600
+  paper_delivery:
+    title: Архив государственной канцелярии
+    type: DELIVERY
+    rarity: RARE
+    target: PAPER
+    amount: 384
+    reward: 320
+    duration-seconds: 21600
+  iron_delivery:
+    title: Металл для мостов
+    type: DELIVERY
+    rarity: EPIC
+    target: IRON_INGOT
+    amount: 128
+    reward: 650
+    duration-seconds: 43200
+  gold_delivery:
+    title: Снабжение монетного двора
+    type: DELIVERY
+    rarity: EPIC
+    target: GOLD_INGOT
+    amount: 96
+    reward: 700
+    duration-seconds: 43200
+  diamond_delivery:
+    title: Алмазный резерв государства
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: DIAMOND
+    amount: 48
+    reward: 1200
+    duration-seconds: 86400
+  netherite_scrap_delivery:
+    title: Материалы для великой кузницы
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: NETHERITE_SCRAP
+    amount: 16
+    reward: 1400
+    duration-seconds: 86400
+  coal_mining:
+    title: Уголь для поселений
+    type: MINING
+    rarity: COMMON
+    target: COAL_ORE
+    amount: 24
+    reward: 100
+    duration-seconds: 7200
+  copper_mining:
+    title: Медная разведка
+    type: MINING
+    rarity: COMMON
+    target: COPPER_ORE
+    amount: 24
     reward: 120
     duration-seconds: 7200
   iron_mining:
     title: Разведка железной жилы
     type: MINING
+    rarity: UNCOMMON
     target: IRON_ORE
     amount: 24
     reward: 180
     duration-seconds: 14400
+  gold_mining:
+    title: Золотая разведка
+    type: MINING
+    rarity: UNCOMMON
+    target: GOLD_ORE
+    amount: 16
+    reward: 240
+    duration-seconds: 14400
+  redstone_mining:
+    title: Красный камень для механизмов
+    type: MINING
+    rarity: RARE
+    target: REDSTONE_ORE
+    amount: 48
+    reward: 350
+    duration-seconds: 21600
+  lapis_mining:
+    title: Лазурит для академии
+    type: MINING
+    rarity: RARE
+    target: LAPIS_ORE
+    amount: 32
+    reward: 380
+    duration-seconds: 21600
+  diamond_mining:
+    title: Алмазная экспедиция
+    type: MINING
+    rarity: EPIC
+    target: DIAMOND_ORE
+    amount: 16
+    reward: 750
+    duration-seconds: 43200
+  deep_diamond_mining:
+    title: Алмазы из глубин
+    type: MINING
+    rarity: EPIC
+    target: DEEPSLATE_DIAMOND_ORE
+    amount: 24
+    reward: 800
+    duration-seconds: 43200
+  debris_mining:
+    title: Экспедиция за древними обломками
+    type: MINING
+    rarity: LEGENDARY
+    target: ANCIENT_DEBRIS
+    amount: 16
+    reward: 1400
+    duration-seconds: 86400
+  emerald_mining:
+    title: Изумрудные вершины
+    type: MINING
+    rarity: LEGENDARY
+    target: EMERALD_ORE
+    amount: 16
+    reward: 1200
+    duration-seconds: 86400
   zombie_hunt:
     title: Безопасность дорог
     type: HUNTING
+    rarity: COMMON
     target: ZOMBIE
-    amount: 20
-    reward: 160
+    amount: 16
+    reward: 120
     duration-seconds: 7200
+  skeleton_hunt:
+    title: Ночной патруль
+    type: HUNTING
+    rarity: COMMON
+    target: SKELETON
+    amount: 16
+    reward: 140
+    duration-seconds: 7200
+  spider_hunt:
+    title: Пауки у торгового пути
+    type: HUNTING
+    rarity: UNCOMMON
+    target: SPIDER
+    amount: 32
+    reward: 220
+    duration-seconds: 14400
+  creeper_hunt:
+    title: Сапёрный дозор
+    type: HUNTING
+    rarity: UNCOMMON
+    target: CREEPER
+    amount: 24
+    reward: 240
+    duration-seconds: 14400
+  husk_hunt:
+    title: Патруль пустынного тракта
+    type: HUNTING
+    rarity: RARE
+    target: HUSK
+    amount: 48
+    reward: 380
+    duration-seconds: 21600
+  stray_hunt:
+    title: Защита северной границы
+    type: HUNTING
+    rarity: RARE
+    target: STRAY
+    amount: 40
+    reward: 420
+    duration-seconds: 21600
+  enderman_hunt:
+    title: Стражи дальних рубежей
+    type: HUNTING
+    rarity: EPIC
+    target: ENDERMAN
+    amount: 48
+    reward: 750
+    duration-seconds: 43200
+  witch_hunt:
+    title: Ведьмы болотного края
+    type: HUNTING
+    rarity: EPIC
+    target: WITCH
+    amount: 24
+    reward: 800
+    duration-seconds: 43200
+  wither_skeleton_hunt:
+    title: Поход в крепость Незера
+    type: HUNTING
+    rarity: LEGENDARY
+    target: WITHER_SKELETON
+    amount: 64
+    reward: 1400
+    duration-seconds: 86400
+  creeper_campaign:
+    title: Большая зачистка торговых путей
+    type: HUNTING
+    rarity: LEGENDARY
+    target: CREEPER
+    amount: 160
+    reward: 1200
+    duration-seconds: 86400
   cod_fishing:
     title: Рыба для поселений
     type: FISHING
+    rarity: COMMON
     target: COD
     amount: 16
     reward: 120
     duration-seconds: 7200
+  salmon_fishing:
+    title: Улов для городской кухни
+    type: FISHING
+    rarity: COMMON
+    target: SALMON
+    amount: 12
+    reward: 140
+    duration-seconds: 7200
+  cod_supply:
+    title: Рыбный запас каравана
+    type: FISHING
+    rarity: UNCOMMON
+    target: COD
+    amount: 32
+    reward: 220
+    duration-seconds: 14400
+  salmon_supply:
+    title: Провиант для речников
+    type: FISHING
+    rarity: UNCOMMON
+    target: SALMON
+    amount: 24
+    reward: 240
+    duration-seconds: 14400
+  cod_reserve:
+    title: Пополнение рыбного склада
+    type: FISHING
+    rarity: RARE
+    target: COD
+    amount: 64
+    reward: 380
+    duration-seconds: 21600
+  salmon_reserve:
+    title: Большой лососёвый улов
+    type: FISHING
+    rarity: RARE
+    target: SALMON
+    amount: 48
+    reward: 420
+    duration-seconds: 21600
+  cod_fleet:
+    title: Снабжение речной флотилии
+    type: FISHING
+    rarity: EPIC
+    target: COD
+    amount: 112
+    reward: 700
+    duration-seconds: 43200
+  salmon_fleet:
+    title: Провиант для морской экспедиции
+    type: FISHING
+    rarity: EPIC
+    target: SALMON
+    amount: 80
+    reward: 800
+    duration-seconds: 43200
+  cod_state_reserve:
+    title: Государственный рыбный резерв
+    type: FISHING
+    rarity: LEGENDARY
+    target: COD
+    amount: 192
+    reward: 1200
+    duration-seconds: 86400
+  salmon_state_reserve:
+    title: Рекордный улов для государства
+    type: FISHING
+    rarity: LEGENDARY
+    target: SALMON
+    amount: 144
+    reward: 1400
+    duration-seconds: 86400

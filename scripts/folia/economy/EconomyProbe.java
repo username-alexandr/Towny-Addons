@@ -12,6 +12,9 @@ import com.palmergames.bukkit.towny.*;
 import ru.neverland.earnings.*;
 import ru.neverland.core.*;
 import ru.neverland.mintcontracts.orders.PublicOrders;
+import ru.neverland.mintcontracts.orders.DailyOrderBoard;
+import ru.neverland.mintcontracts.orders.OrderCatalog;
+import ru.neverland.mintcontracts.orders.OrderRarity;
 
 /** Native Towny/Vault and Folia checks in an isolated server; no production files are used. */
 public final class EconomyProbe extends JavaPlugin {
@@ -20,7 +23,7 @@ public final class EconomyProbe extends JavaPlugin {
     private void check(String title,boolean value){results.add((value?"PASS ":"FAIL ")+title);if(!value)failed++;}
     @Override public void onEnable(){
         Bukkit.getGlobalRegionScheduler().runDelayed(this,t->{synchronized(SuiteState.lock()){
-            try{bankChecks();auditWhenDisconnected();presentationChecks();regions();}catch(Throwable ex){getLogger().log(java.util.logging.Level.SEVERE,"Probe failed",ex);check(ex.toString(),false);finish();}
+            try{bankChecks();auditWhenDisconnected();presentationChecks();dailyOrdersChecks();regions();}catch(Throwable ex){getLogger().log(java.util.logging.Level.SEVERE,"Probe failed",ex);check(ex.toString(),false);finish();}
         }},60);
     }
     private void bankChecks()throws Exception{
@@ -98,6 +101,60 @@ public final class EconomyProbe extends JavaPlugin {
             try{accept.invoke(executor,player(owner,false,messages),"wheat_delivery");}catch(InvocationTargetException ex){denied=ex.getCause() instanceof IllegalArgumentException&&ex.getCause().getMessage().contains("Нет прав");}
             check("stale board cannot accept after permission revoked",denied&&entries.values().stream().filter(o->o.player().equals(owner)).count()==1);
         }finally{entries.remove(id);}
+    }
+    private void dailyOrdersChecks()throws Exception{
+        var executor=(PublicOrders)Bukkit.getPluginCommand("orders").getExecutor();
+        var plugin=Bukkit.getPluginManager().getPlugin("NeverLandTownyContracts");
+        var cfg=SafeYaml.load(plugin.getDataFolder().toPath().resolve("orders.yml"));
+        var catalog=OrderCatalog.templates(cfg);OrderCatalog.validateItems(catalog);
+        check("migrated installed catalog has 40 valid tasks",catalog.size()==40&&cfg.getInt("catalog-version")==2);
+        check("legacy config backed up",Files.exists(plugin.getDataFolder().toPath().resolve("orders.pre-daily-v2.yml")));
+        var actual=(DailyOrderBoard)field(executor,"dailyBoard");var snapshot=actual.snapshot();
+        check("native board shows 12 unique orders and four activities",snapshot.templates().size()==12&&snapshot.templates().stream().map(PublicOrders.Template::id).distinct().count()==12&&snapshot.templates().stream().map(PublicOrders.Template::type).distinct().count()==4);
+        var icon=PublicOrders.class.getDeclaredMethod("icon",PublicOrders.Template.class);icon.setAccessible(true);
+        boolean readable=true;
+        for(var template:catalog){
+            var item=(org.bukkit.inventory.ItemStack)icon.invoke(executor,template);
+            String lore=String.join("\n",item.getItemMeta().getLore());
+            readable&=lore.contains(template.rarity().label)&&!lore.contains(template.target())&&!lore.contains("Неизвестный");
+        }
+        check("all 40 native icons show translated targets and rarity",readable);
+        var time=new AtomicReference<java.time.Instant>(java.time.Instant.parse("2026-10-20T20:59:59Z"));
+        var clock=new java.time.Clock(){public java.time.ZoneId getZone(){return java.time.ZoneOffset.UTC;}public java.time.Clock withZone(java.time.ZoneId zone){return java.time.Clock.fixed(time.get(),zone);}public java.time.Instant instant(){return time.get();}};
+        var template=new PublicOrders.Template("native_daily","Проверка редкого заказа",PublicOrders.Type.MINING,"IRON_ORE",32,75000,21600000,OrderRarity.EPIC);
+        Path isolated=getDataFolder().toPath().resolve("daily-"+UUID.randomUUID()+".yml");
+        var daily=new DailyOrderBoard(isolated,List.of(template),1,OrderCatalog.weights(cfg),clock,new Random(17));
+        var dailyField=PublicOrders.class.getDeclaredField("dailyBoard");dailyField.setAccessible(true);
+        var entries=rows(executor);var original=new LinkedHashMap<>(entries);Path ordersFile=(Path)field(executor,"file");byte[] originalBytes=Files.exists(ordersFile)?Files.readAllBytes(ordersFile):null;
+        var save=PublicOrders.class.getDeclaredMethod("save");save.setAccessible(true);var load=PublicOrders.class.getDeclaredMethod("load");load.setAccessible(true);
+        var accept=PublicOrders.class.getDeclaredMethod("accept",Player.class,String.class);accept.setAccessible(true);
+        var clickAccept=PublicOrders.class.getDeclaredMethod("accept",Player.class,String.class,java.time.LocalDate.class);clickAccept.setAccessible(true);
+        UUID owner=UUID.randomUUID();var p=player(owner,true,new ArrayList<>());
+        try{
+            dailyField.set(executor,daily);entries.clear();accept.invoke(executor,p,template.id());
+            var accepted=entries.values().iterator().next();
+            check("accepted task snapshots rarity and Moscow board day",accepted.rarity()==OrderRarity.EPIC&&accepted.boardDay().equals("2026-10-20")&&accepted.cents()==75000);
+            var progressed=new PublicOrders.Order(accepted.id(),owner,accepted.template(),accepted.title(),accepted.type(),accepted.target(),accepted.goal(),7,accepted.cents(),123000,accepted.cycle(),accepted.state(),accepted.rarity(),accepted.boardDay());
+            entries.put(progressed.id(),progressed);save.invoke(executor);entries.clear();load.invoke(executor);
+            check("accepted reward goal progress time rarity day survive reload",progressed.equals(entries.get(progressed.id())));
+            time.set(java.time.Instant.parse("2026-10-20T21:00:00Z"));boolean stale=false;
+            try{clickAccept.invoke(executor,p,template.id(),java.time.LocalDate.of(2026,10,20));}catch(InvocationTargetException ex){stale=ex.getCause() instanceof IllegalArgumentException&&ex.getCause().getMessage().contains("Доска обновилась");}
+            check("midnight stale GUI cannot accept even if same ID is on new board",stale&&entries.size()==1);
+            accept.invoke(executor,p,template.id());
+            check("new daily occurrence accepted without changing old order",entries.size()==2&&entries.get(progressed.id()).equals(progressed));
+            var today=entries.values().stream().filter(o->o.boardDay().equals("2026-10-21")).findFirst().orElseThrow();
+            executor.onCommand(p,Bukkit.getPluginCommand("orders"),"orders",new String[]{"cancel",today.id().toString()});boolean duplicate=false;
+            try{accept.invoke(executor,p,template.id());}catch(InvocationTargetException ex){duplicate=ex.getCause() instanceof IllegalArgumentException&&ex.getCause().getMessage().contains("уже принят сегодня");}
+            check("cancelled order cannot be retaken from same daily board",duplicate&&entries.size()==2);
+            var legacy=SafeYaml.load(ordersFile);legacy.set("schema",1);
+            for(String id:legacy.getConfigurationSection("orders").getKeys(false)){legacy.set("orders."+id+".rarity",null);legacy.set("orders."+id+".board-day",null);}
+            AtomicFiles.write(ordersFile,legacy::saveToString);entries.clear();load.invoke(executor);var old=entries.get(progressed.id());
+            check("schema 1 accepted tasks retain progress reward deadline",old.progress()==7&&old.cents()==75000&&old.remaining()==123000&&old.goal()==32&&old.rarity()==OrderRarity.COMMON&&old.boardDay().isEmpty());
+        }finally{
+            dailyField.set(executor,actual);entries.clear();entries.putAll(original);
+            if(originalBytes==null)Files.deleteIfExists(ordersFile);else Files.write(ordersFile,originalBytes);
+            Files.deleteIfExists(isolated);
+        }
     }
     private void regions(){World world=Bukkit.getWorlds().getFirst();for(int x:new int[]{0,10000}){
         Location at=new Location(world,x,80,0);world.getChunkAtAsync(at).thenAccept(chunk->Bukkit.getRegionScheduler().run(this,at,t->{synchronized(SuiteState.lock()){

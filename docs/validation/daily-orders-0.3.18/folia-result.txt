@@ -1,0 +1,55 @@
+PASS Towny economy active with Vault provider
+PASS module enabled: Builds
+PASS module enabled: Contracts
+PASS module enabled: Jobs
+PASS module enabled: Companies
+PASS module enabled: Taxes
+PASS module enabled: Control
+PASS orders executor initialized
+PASS salary executor initialized
+PASS public-order recipient has no town
+DIAGNOSTIC Towny economy active=true; adapter=VAULT
+DIAGNOSTIC Vault=2.20.1 enabled=true
+DIAGNOSTIC Vault provider=jdk.proxy3.$Proxy65 from EconomyFixture
+PASS Towny/Vault personal balance increased by 120
+PASS duplicate submission does not mint twice
+PASS reloaded PAID does not mint twice
+PASS resident transfers income to town treasury
+PASS town received 100, resident retained 20
+PASS city contract reservation spends treasury
+PASS city escrow amount conserved
+PASS disabled provider pauses new bank calls
+PASS outage retains pending obligation
+PASS delivery rejects inactive Vault before reading or removing items
+PASS failed preflight leaves order without HELD reservation
+PASS provider recovery pays pending once
+PASS missing Towny adapter pauses economy
+PASS audit does not initialize resident account without provider
+PASS Folia item hides native attack attributes
+PASS Russian target and readable hours in native item
+PASS player status shows readable goal/progress without UUID
+PASS stale board cannot accept after permission revoked
+PASS migrated installed catalog has 40 valid tasks
+PASS legacy config backed up
+PASS native board shows 12 unique orders and four activities
+PASS all 40 native icons show translated targets and rarity
+PASS accepted task snapshots rarity and Moscow board day
+PASS accepted reward goal progress time rarity day survive reload
+PASS midnight stale GUI cannot accept even if same ID is on new board
+PASS new daily occurrence accepted without changing old order
+PASS cancelled order cannot be retaken from same daily board
+PASS schema 1 accepted tasks retain progress reward deadline
+PASS region owns location 0
+PASS fresh ore eligible 0
+PASS placed/mined coordinate rejected 0
+PASS block provenance survives reload 0
+PASS cancelled death rejected before victim or player access
+PASS orders kill listener skips cancelled events
+PASS jobpay kill listener skips cancelled events
+PASS region owns location 10000
+PASS fresh ore eligible 10000
+PASS placed/mined coordinate rejected 10000
+PASS block provenance survives reload 10000
+PASS entity scheduler owns entity 10000
+PASS entity scheduler owns entity 0
+failed=0

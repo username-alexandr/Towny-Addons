@@ -1,3 +1,11 @@
+## Contracts 0.3.18 — 2026-10-20
+
+- `/orders`: 40 templates, 12 daily offers, five rarities with increasing requirements, deadlines and rewards.
+- Durable weighted selection at 00:00 Europe/Moscow; four activity types, no duplicate offers, no restart reroll. Accepted terms/progress survive rotations.
+- Stale menus cannot accept changed daily offers; cancellation cannot bypass the daily template limit. Existing rolling payout caps remain unchanged.
+- One-time additive configuration migration with backup; schema 1 accepted orders remain readable. Russian rarity/difficulty labels, refresh information and reward budget in the menu.
+- Contracts regression tests and native Folia validation: `docs/DAILY_ORDERS_0.3.18_RU.md`.
+
 ## Economy review — 2026-10-20
 
 - Contracts 0.3.17 / Jobs 0.1.16: cancelled death events no longer count; final cancellation is checked on the player scheduler. Pending payouts rotate fairly past unavailable recipients.
