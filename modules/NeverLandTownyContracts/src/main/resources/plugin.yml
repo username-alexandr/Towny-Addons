@@ -1,5 +1,5 @@
 name: NeverLandTownyContracts
-version: 0.3.15
+version: 0.3.16
 main: ru.neverland.mintcontracts.MintTownyContracts
 folia-supported: true
 api-version: '26.2'

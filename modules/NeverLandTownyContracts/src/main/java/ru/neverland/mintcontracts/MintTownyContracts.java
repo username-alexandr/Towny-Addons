@@ -52,7 +52,7 @@ public final class MintTownyContracts extends JavaPlugin {
         getServer().getServicesManager().register(MintTownyContractsApi.class, contracts, this, ServicePriority.Normal);
         boolean placeholders = PlaceholderHook.register(this, towny, contracts);
 ru.neverland.core.ActivityAdmin.attach(this,"townycontracts","mintcontracts.admin",contracts::adminTargets);
-        getCommand("orders").setExecutor((sender,cmd,label,args)->{sender.sendMessage("Раздел заработка приостановлен: проверьте конфигурацию и журнал запуска.");return true;});try { new ru.neverland.mintcontracts.orders.PublicOrders(this); } catch(Exception ex) { getLogger().log(java.util.logging.Level.SEVERE,"Публичные заказы приостановлены; городские контракты продолжают работать",ex); }
+        getCommand("orders").setExecutor((sender,cmd,label,args)->{sender.sendMessage("Раздел заработка приостановлен: проверьте конфигурацию и журнал запуска.");return true;});try { new ru.neverland.mintcontracts.orders.PublicOrders(this,names); } catch(Exception ex) { getLogger().log(java.util.logging.Level.SEVERE,"Публичные заказы приостановлены; городские контракты продолжают работать",ex); }
         contracts.start();
         getLogger().info("NeverLandTownyContracts 0.3.0 включён: шаблонов " + registry.all().size()
                 + ", склад=" + warehouse.available() + ", PlaceholderAPI=" + placeholders + ".");
