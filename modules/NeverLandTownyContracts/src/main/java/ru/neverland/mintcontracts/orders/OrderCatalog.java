@@ -13,36 +13,50 @@ import ru.neverland.earnings.ActionGuard;
 import ru.neverland.mintcontracts.orders.PublicOrders.Template;
 import ru.neverland.mintcontracts.orders.PublicOrders.Type;
 
-/** Additive, one-time migration. Existing rewards, limits and custom templates survive. */
+/** Versioned, additive migrations preserve custom terms and previously removed templates. */
 public final class OrderCatalog {
+    public static final int CATALOG_VERSION = 3;
+    public static final int DEFAULT_PLAYER_LIMIT = 3000;
+    public static final int DEFAULT_BOARD_SIZE = 18;
+    public static final String MIGRATION_BACKUP = "orders.pre-catalog-v3.yml";
     private OrderCatalog() {}
 
     public static boolean migrate(YamlConfiguration cfg, YamlConfiguration defaults) {
         int version = SafeYaml.intValue(cfg, "catalog-version", 1);
-        if (version < 1 || version > 2) throw new IllegalArgumentException("Неизвестная версия каталога заказов");
-        if (version == 2) return false;
+        if (version < 1 || version > CATALOG_VERSION) throw new IllegalArgumentException("Неизвестная версия каталога заказов");
+        if (version == CATALOG_VERSION) return false;
         var templates = Objects.requireNonNull(defaults.getConfigurationSection("templates"));
         for (String id : templates.getKeys(false)) {
             String path = "templates." + id;
-            if (!cfg.contains(path)) {
+            int introduced = SafeYaml.intValue(templates.getConfigurationSection(id), "introduced-in", 2);
+            if (!cfg.contains(path) && version < introduced) {
                 cfg.createSection(path, templates.getConfigurationSection(id).getValues(false));
-            } else if (!cfg.contains(path + ".rarity")) {
+            } else if (version < 2 && cfg.contains(path) && !cfg.contains(path + ".rarity")) {
                 cfg.set(path + ".rarity", templates.getString(id + ".rarity"));
             }
         }
-        for (OrderRarity rarity : OrderRarity.values()) {
-            String path = "rarity-weights." + rarity.name();
-            if (!cfg.contains(path)) cfg.set(path, rarity.defaultWeight);
+        if (version < 2) {
+            for (OrderRarity rarity : OrderRarity.values()) {
+                String path = "rarity-weights." + rarity.name();
+                if (!cfg.contains(path)) cfg.set(path, rarity.defaultWeight);
+            }
+            int size = SafeYaml.intValue(cfg, "board-size", 4);
+            cfg.set("board-size", size == 4 ? 12 : Math.min(size, 45));
+            cfg.set("refresh-seconds", null);
         }
-        int size = SafeYaml.intValue(cfg, "board-size", 4);
-        cfg.set("board-size", size == 4 ? 12 : Math.min(size, 45));
-        cfg.set("refresh-seconds", null);
-        cfg.set("catalog-version", 2);
+        int size = SafeYaml.intValue(cfg, "board-size", 12);
+        if (size == 12) cfg.set("board-size", DEFAULT_BOARD_SIZE);
+        // Upgrade the previous default only; never lower or replace a custom personal cap.
+        if (SafeYaml.doubleValue(cfg, "limits.player-24h", 1500) == 1500) {
+            double serverLimit = SafeYaml.doubleValue(cfg, "limits.server-24h", 100000);
+            if (serverLimit >= 1500) cfg.set("limits.player-24h", Math.min(DEFAULT_PLAYER_LIMIT, serverLimit));
+        }
+        cfg.set("catalog-version", CATALOG_VERSION);
         return true;
     }
 
     public static void saveMigration(Path file, YamlConfiguration cfg) throws IOException {
-        Path backup = file.resolveSibling("orders.pre-daily-v2.yml");
+        Path backup = file.resolveSibling(MIGRATION_BACKUP);
         if (!Files.exists(backup)) Files.copy(file, backup);
         AtomicFiles.loaded(file);
         AtomicFiles.write(file, cfg::saveToString);

@@ -54,14 +54,14 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         YamlConfiguration defaults;
         try(var reader=new InputStreamReader(Objects.requireNonNull(plugin.getResource("orders.yml")),StandardCharsets.UTF_8)){defaults=new YamlConfiguration();defaults.load(reader);}
         boolean migrated=OrderCatalog.migrate(cfg,defaults);
-        maximum=positive(cfg,"maximum-active",3,3);int boardSize=positive(cfg,"board-size",12,45);
-        income=new IncomeRuntime(plugin,"order-payments",money(cfg,"limits.player-24h",1500),money(cfg,"limits.server-24h",100000),cfg.getBoolean("enabled",true));
+        maximum=positive(cfg,"maximum-active",3,3);int boardSize=positive(cfg,"board-size",OrderCatalog.DEFAULT_BOARD_SIZE,45);
+        income=new IncomeRuntime(plugin,"order-payments",money(cfg,"limits.player-24h",OrderCatalog.DEFAULT_PLAYER_LIMIT),money(cfg,"limits.server-24h",100000),cfg.getBoolean("enabled",true));
         var templates=OrderCatalog.templates(cfg);OrderCatalog.validateItems(templates);
-        long playerLimit=money(cfg,"limits.player-24h",1500),serverLimit=money(cfg,"limits.server-24h",100000);
+        long playerLimit=money(cfg,"limits.player-24h",OrderCatalog.DEFAULT_PLAYER_LIMIT),serverLimit=money(cfg,"limits.server-24h",100000);
         if(templates.stream().anyMatch(t->t.cents()>Math.min(playerLimit,serverLimit)))plugin.getLogger().warning("В каталоге есть награда выше лимита выплат: такой заказ нельзя оплатить до изменения limits");
         dailyBoard=new DailyOrderBoard(plugin.getDataFolder().toPath().resolve("orders-board.yml"),templates,boardSize,OrderCatalog.weights(cfg));
         load();OrderCatalog.validateItems(dailyBoard.snapshot().templates());
-        if(migrated){OrderCatalog.saveMigration(configFile,cfg);plugin.getLogger().info("Заказы обновлены: ежедневная доска в 00:00 МСК; резервная копия orders.pre-daily-v2.yml");}
+        if(migrated){OrderCatalog.saveMigration(configFile,cfg);plugin.getLogger().info("Каталог заказов обновлён: шаблонов "+templates.size()+", мест на следующей доске "+boardSize+", личный лимит за 24 ч. "+AuditTrail.cents(playerLimit)+"; резервная копия "+OrderCatalog.MIGRATION_BACKUP);}
         guard=new ActionGuard(plugin,"order-blocks.log");plugin.getServer().getPluginManager().registerEvents(guard,plugin);plugin.getServer().getPluginManager().registerEvents(this,plugin);
         var command=Objects.requireNonNull(plugin.getCommand("orders"));command.setExecutor(this);command.setTabCompleter(this);
         income.start();SuiteScheduler.get().runTaskTimer(plugin,this::tick,200,200);

@@ -1,8 +1,8 @@
 # Государственные заказы /orders. Городские контракты и их казна не затрагиваются.
-catalog-version: 2
+catalog-version: 3
 enabled: true
 maximum-active: 3
-board-size: 12
+board-size: 18
 # Подборка общая для игроков. Новая — ежедневно в 00:00 Europe/Moscow.
 # Сервер, выключенный в полночь, создаст подборку текущего дня при запуске.
 # Вес относится к каждому шаблону, а не является процентом появления.
@@ -15,14 +15,16 @@ rarity-weights:
   EPIC: 4
   LEGENDARY: 1
 limits:
-  player-24h: 1500
+  player-24h: 3000
   server-24h: 100000
+# Стартовый личный лимит для плейтеста; изменить при необходимости.
 # Это скользящие 24 часа. Полночь не сбрасывает лимиты выплат.
 # Срок задания учитывает время работы включённого модуля. Выход игрока
 # не останавливает срок; остановка сервера/пауза модуля останавливает.
 # Новые настройки каталога/весов вступают в силу на следующей дневной доске
 # после перезапуска сервера. Принятые задания сохраняют свои условия.
 # enabled: false внутри шаблона исключает его из следующих подборок.
+# introduced-in — версия добавления штатного шаблона для миграции каталога.
 templates:
   wheat_delivery:
     title: Поставка пшеницы
@@ -343,4 +345,364 @@ templates:
     target: SALMON
     amount: 144
     reward: 1400
+    duration-seconds: 86400
+  sawmill_delivery:
+    introduced-in: 3
+    title: Лес для городской лесопилки
+    type: DELIVERY
+    rarity: COMMON
+    target: OAK_LOG
+    amount: 64
+    reward: 120
+    duration-seconds: 7200
+  paving_delivery:
+    introduced-in: 3
+    title: Камень для сельских дорог
+    type: DELIVERY
+    rarity: COMMON
+    target: COBBLESTONE
+    amount: 128
+    reward: 100
+    duration-seconds: 7200
+  glass_delivery:
+    introduced-in: 3
+    title: Остекление городских мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: GLASS
+    amount: 128
+    reward: 220
+    duration-seconds: 14400
+  masonry_delivery:
+    introduced-in: 3
+    title: Кирпичи для городской стены
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: STONE_BRICKS
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  honey_delivery:
+    introduced-in: 3
+    title: Мёд для госпиталя
+    type: DELIVERY
+    rarity: RARE
+    target: HONEY_BOTTLE
+    amount: 32
+    reward: 450
+    duration-seconds: 21600
+  bread_delivery:
+    introduced-in: 3
+    title: Хлеб для дальнего похода
+    type: DELIVERY
+    rarity: RARE
+    target: BREAD
+    amount: 256
+    reward: 380
+    duration-seconds: 21600
+  books_delivery:
+    introduced-in: 3
+    title: Пополнение городской библиотеки
+    type: DELIVERY
+    rarity: EPIC
+    target: BOOK
+    amount: 128
+    reward: 800
+    duration-seconds: 43200
+  obsidian_delivery:
+    introduced-in: 3
+    title: Основание портальной станции
+    type: DELIVERY
+    rarity: EPIC
+    target: OBSIDIAN
+    amount: 128
+    reward: 900
+    duration-seconds: 43200
+  prismarine_delivery:
+    introduced-in: 3
+    title: Свет для морского маяка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: PRISMARINE_CRYSTALS
+    amount: 256
+    reward: 1800
+    duration-seconds: 86400
+  amethyst_delivery:
+    introduced-in: 3
+    title: Кристаллы для государственной обсерватории
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: AMETHYST_SHARD
+    amount: 1024
+    reward: 2400
+    duration-seconds: 86400
+  quartz_mining:
+    introduced-in: 3
+    title: Кварц для первых механизмов
+    type: MINING
+    rarity: COMMON
+    target: NETHER_QUARTZ_ORE
+    amount: 48
+    reward: 120
+    duration-seconds: 7200
+  nether_gold_mining:
+    introduced-in: 3
+    title: Золотые вкрапления Незера
+    type: MINING
+    rarity: COMMON
+    target: NETHER_GOLD_ORE
+    amount: 32
+    reward: 140
+    duration-seconds: 7200
+  deep_iron_mining:
+    introduced-in: 3
+    title: Железо из глубинной шахты
+    type: MINING
+    rarity: UNCOMMON
+    target: DEEPSLATE_IRON_ORE
+    amount: 32
+    reward: 240
+    duration-seconds: 14400
+  deep_copper_mining:
+    introduced-in: 3
+    title: Разведка глубинной меди
+    type: MINING
+    rarity: UNCOMMON
+    target: DEEPSLATE_COPPER_ORE
+    amount: 24
+    reward: 260
+    duration-seconds: 14400
+  deep_gold_mining:
+    introduced-in: 3
+    title: Глубинная золотая жила
+    type: MINING
+    rarity: RARE
+    target: DEEPSLATE_GOLD_ORE
+    amount: 32
+    reward: 450
+    duration-seconds: 21600
+  deep_redstone_mining:
+    introduced-in: 3
+    title: Красный камень глубоких пластов
+    type: MINING
+    rarity: RARE
+    target: DEEPSLATE_REDSTONE_ORE
+    amount: 64
+    reward: 480
+    duration-seconds: 21600
+  deep_lapis_mining:
+    introduced-in: 3
+    title: Лазуритовая экспедиция в глубины
+    type: MINING
+    rarity: EPIC
+    target: DEEPSLATE_LAPIS_ORE
+    amount: 64
+    reward: 900
+    duration-seconds: 43200
+  quartz_expedition:
+    introduced-in: 3
+    title: Кварц для большого акведука
+    type: MINING
+    rarity: EPIC
+    target: NETHER_QUARTZ_ORE
+    amount: 256
+    reward: 800
+    duration-seconds: 43200
+  deep_diamond_reserve:
+    introduced-in: 3
+    title: Глубинный алмазный резерв
+    type: MINING
+    rarity: LEGENDARY
+    target: DEEPSLATE_DIAMOND_ORE
+    amount: 64
+    reward: 2400
+    duration-seconds: 86400
+  debris_reserve:
+    introduced-in: 3
+    title: Большая экспедиция за древними обломками
+    type: MINING
+    rarity: LEGENDARY
+    target: ANCIENT_DEBRIS
+    amount: 32
+    reward: 2400
+    duration-seconds: 86400
+  drowned_patrol:
+    introduced-in: 3
+    title: Дозор у речной переправы
+    type: HUNTING
+    rarity: COMMON
+    target: DROWNED
+    amount: 16
+    reward: 140
+    duration-seconds: 7200
+  bogged_patrol:
+    introduced-in: 3
+    title: Патруль болотной тропы
+    type: HUNTING
+    rarity: COMMON
+    target: BOGGED
+    amount: 12
+    reward: 140
+    duration-seconds: 7200
+  ghast_patrol:
+    introduced-in: 3
+    title: Охрана каравана в Незере
+    type: HUNTING
+    rarity: UNCOMMON
+    target: GHAST
+    amount: 8
+    reward: 260
+    duration-seconds: 14400
+  magma_patrol:
+    introduced-in: 3
+    title: Расчистка базальтового прохода
+    type: HUNTING
+    rarity: UNCOMMON
+    target: MAGMA_CUBE
+    amount: 24
+    reward: 240
+    duration-seconds: 14400
+  blaze_patrol:
+    introduced-in: 3
+    title: Зачистка крепостных галерей
+    type: HUNTING
+    rarity: RARE
+    target: BLAZE
+    amount: 32
+    reward: 480
+    duration-seconds: 21600
+  slime_patrol:
+    introduced-in: 3
+    title: Большая зачистка болот
+    type: HUNTING
+    rarity: RARE
+    target: SLIME
+    amount: 64
+    reward: 420
+    duration-seconds: 21600
+  fortress_patrol:
+    introduced-in: 3
+    title: Осада тёмных бастионов крепости
+    type: HUNTING
+    rarity: EPIC
+    target: WITHER_SKELETON
+    amount: 40
+    reward: 1000
+    duration-seconds: 43200
+  ghast_campaign:
+    introduced-in: 3
+    title: Защита воздушных путей Незера
+    type: HUNTING
+    rarity: EPIC
+    target: GHAST
+    amount: 40
+    reward: 1000
+    duration-seconds: 43200
+  enderman_campaign:
+    introduced-in: 3
+    title: Охрана великой экспедиции в Энд
+    type: HUNTING
+    rarity: LEGENDARY
+    target: ENDERMAN
+    amount: 128
+    reward: 2200
+    duration-seconds: 86400
+  witch_campaign:
+    introduced-in: 3
+    title: Разгром болотного ковена
+    type: HUNTING
+    rarity: LEGENDARY
+    target: WITCH
+    amount: 64
+    reward: 2400
+    duration-seconds: 86400
+  pufferfish_sample:
+    introduced-in: 3
+    title: Первые образцы для алхимиков
+    type: FISHING
+    rarity: COMMON
+    target: PUFFERFISH
+    amount: 4
+    reward: 140
+    duration-seconds: 7200
+  cod_kitchen:
+    introduced-in: 3
+    title: Свежий улов для портовой кухни
+    type: FISHING
+    rarity: COMMON
+    target: COD
+    amount: 20
+    reward: 140
+    duration-seconds: 7200
+  salmon_caravan:
+    introduced-in: 3
+    title: Лосось для торгового каравана
+    type: FISHING
+    rarity: UNCOMMON
+    target: SALMON
+    amount: 32
+    reward: 260
+    duration-seconds: 14400
+  pufferfish_supply:
+    introduced-in: 3
+    title: Поставка рыбы в алхимическую школу
+    type: FISHING
+    rarity: UNCOMMON
+    target: PUFFERFISH
+    amount: 8
+    reward: 260
+    duration-seconds: 14400
+  tropical_sample:
+    introduced-in: 3
+    title: Редкие рыбы для городского аквариума
+    type: FISHING
+    rarity: RARE
+    target: TROPICAL_FISH
+    amount: 2
+    reward: 450
+    duration-seconds: 21600
+  pufferfish_reserve:
+    introduced-in: 3
+    title: Рыбный запас для исследователей
+    type: FISHING
+    rarity: RARE
+    target: PUFFERFISH
+    amount: 16
+    reward: 480
+    duration-seconds: 21600
+  tropical_expedition:
+    introduced-in: 3
+    title: Коллекция рыб тёплых морей
+    type: FISHING
+    rarity: EPIC
+    target: TROPICAL_FISH
+    amount: 6
+    reward: 1000
+    duration-seconds: 43200
+  pufferfish_expedition:
+    introduced-in: 3
+    title: Снабжение большой алхимической экспедиции
+    type: FISHING
+    rarity: EPIC
+    target: PUFFERFISH
+    amount: 32
+    reward: 1000
+    duration-seconds: 43200
+  tropical_collection:
+    introduced-in: 3
+    title: Королевская коллекция морских рыб
+    type: FISHING
+    rarity: LEGENDARY
+    target: TROPICAL_FISH
+    amount: 12
+    reward: 2200
+    duration-seconds: 86400
+  pufferfish_state_reserve:
+    introduced-in: 3
+    title: Государственный запас редкой рыбы
+    type: FISHING
+    rarity: LEGENDARY
+    target: PUFFERFISH
+    amount: 80
+    reward: 2400
     duration-seconds: 86400

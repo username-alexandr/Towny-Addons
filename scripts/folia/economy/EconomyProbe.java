@@ -107,10 +107,11 @@ public final class EconomyProbe extends JavaPlugin {
         var plugin=Bukkit.getPluginManager().getPlugin("NeverLandTownyContracts");
         var cfg=SafeYaml.load(plugin.getDataFolder().toPath().resolve("orders.yml"));
         var catalog=OrderCatalog.templates(cfg);OrderCatalog.validateItems(catalog);
-        check("migrated installed catalog has 40 valid tasks",catalog.size()==40&&cfg.getInt("catalog-version")==2);
-        check("legacy config backed up",Files.exists(plugin.getDataFolder().toPath().resolve("orders.pre-daily-v2.yml")));
+        check("migrated installed catalog has 80 valid tasks",catalog.size()==80&&cfg.getInt("catalog-version")==3);
+        check("legacy config backed up",Files.exists(plugin.getDataFolder().toPath().resolve("orders.pre-catalog-v3.yml")));
         var actual=(DailyOrderBoard)field(executor,"dailyBoard");var snapshot=actual.snapshot();
-        check("native board shows 12 unique orders and four activities",snapshot.templates().size()==12&&snapshot.templates().stream().map(PublicOrders.Template::id).distinct().count()==12&&snapshot.templates().stream().map(PublicOrders.Template::type).distinct().count()==4);
+        int size=snapshot.templates().size();
+        check("native board retains existing 12 or generates 18 unique orders and four activities",(size==12||size==18)&&snapshot.templates().stream().map(PublicOrders.Template::id).distinct().count()==size&&snapshot.templates().stream().map(PublicOrders.Template::type).distinct().count()==4);
         var icon=PublicOrders.class.getDeclaredMethod("icon",PublicOrders.Template.class);icon.setAccessible(true);
         boolean readable=true;
         for(var template:catalog){
@@ -118,7 +119,7 @@ public final class EconomyProbe extends JavaPlugin {
             String lore=String.join("\n",item.getItemMeta().getLore());
             readable&=lore.contains(template.rarity().label)&&!lore.contains(template.target())&&!lore.contains("Неизвестный");
         }
-        check("all 40 native icons show translated targets and rarity",readable);
+        check("all 80 native icons show translated targets and rarity",readable);
         var time=new AtomicReference<java.time.Instant>(java.time.Instant.parse("2026-10-20T20:59:59Z"));
         var clock=new java.time.Clock(){public java.time.ZoneId getZone(){return java.time.ZoneOffset.UTC;}public java.time.Clock withZone(java.time.ZoneId zone){return java.time.Clock.fixed(time.get(),zone);}public java.time.Instant instant(){return time.get();}};
         var template=new PublicOrders.Template("native_daily","Проверка редкого заказа",PublicOrders.Type.MINING,"IRON_ORE",32,75000,21600000,OrderRarity.EPIC);

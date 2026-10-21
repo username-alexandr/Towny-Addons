@@ -76,21 +76,49 @@ public final class DailyOrdersSmoke {
 
         var defaults=new YamlConfiguration();
         try(var input=DailyOrdersSmoke.class.getResourceAsStream("/orders.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)){defaults.load(reader);}
-        ok(defaults.getConfigurationSection("templates").getKeys(false).size()==40,"bundled catalog has 40 orders");
+        ok(defaults.getConfigurationSection("templates").getKeys(false).size()==80,"bundled catalog has 80 orders");
         var real=OrderCatalog.templates(defaults);
-        for(var rarity:OrderRarity.values())ok(real.stream().filter(t->t.rarity()==rarity).count()==8,"eight orders of "+rarity);
-        ok(real.stream().allMatch(t->t.cents()<=150000),"every default reward fits player cap");
+        for(var rarity:OrderRarity.values())ok(real.stream().filter(t->t.rarity()==rarity).count()==16,"sixteen orders of "+rarity);
+        for(var type:Type.values())ok(real.stream().filter(t->t.type()==type).count()==20,"twenty orders of "+type);
+        ok(defaults.getInt("limits.player-24h")==3000&&defaults.getInt("board-size")==18,"new-install defaults offer larger board and budget");
+        ok(real.stream().allMatch(t->t.cents()<=PublicOrders.money(defaults,"limits.player-24h",3000)),"every default reward fits player cap");
+        var labels=new ru.neverland.localization.MaterialLabels();
+        ok(real.stream().allMatch(t->!labels.name(t.target()).contains("Неизвестный")&&!labels.name(t.target()).equals(t.target())),"all catalog targets have Russian labels");
         var old=new YamlConfiguration();old.loadFromString("board-size: 4\nrefresh-seconds: 3600\nlimits:\n  player-24h: 987\ntemplates:\n  wheat_delivery:\n    title: Мой заказ\n    reward: 777\n    amount: 17\n  custom_job:\n    enabled: false\n");
         ok(OrderCatalog.migrate(old,defaults),"legacy config migrated");
-        ok(old.getInt("board-size")==12&&!old.contains("refresh-seconds"),"hourly default becomes 12 daily slots");
+        ok(old.getInt("board-size")==18&&!old.contains("refresh-seconds"),"hourly default migrates directly to 18 daily slots");
         ok(old.getInt("limits.player-24h")==987&&old.getInt("templates.wheat_delivery.reward")==777&&old.getInt("templates.wheat_delivery.amount")==17,"custom limits/rewards/requirements preserved");
         ok(old.getString("templates.wheat_delivery.title").equals("Мой заказ")&&old.contains("templates.custom_job"),"custom titles/templates preserved");
-        ok(old.getConfigurationSection("templates").getKeys(false).size()==41,"missing defaults added without deleting custom entries");
+        ok(old.getConfigurationSection("templates").getKeys(false).size()==81,"missing defaults added without deleting custom entries");
         old.set("templates.coal_mining",null);String after=old.saveToString();
         ok(!OrderCatalog.migrate(old,defaults)&&old.saveToString().equals(after),"migration is one-time and respects later deletions");
         Path legacyFile=root.resolve("orders.yml");Files.writeString(legacyFile,"original configuration\n");
         OrderCatalog.saveMigration(legacyFile,old);
-        ok(Files.readString(root.resolve("orders.pre-daily-v2.yml")).equals("original configuration\n"),"original configuration backed up");
+        ok(Files.readString(root.resolve("orders.pre-catalog-v3.yml")).equals("original configuration\n"),"original configuration backed up for this migration");
+
+        var v2=new YamlConfiguration();v2.loadFromString(defaults.saveToString());
+        for(String id:new ArrayList<>(v2.getConfigurationSection("templates").getKeys(false)))
+            if(v2.getInt("templates."+id+".introduced-in",2)==3)v2.set("templates."+id,null);
+        v2.set("catalog-version",2);v2.set("board-size",12);v2.set("limits.player-24h",1500);
+        v2.set("templates.coal_mining",null);v2.set("templates.wheat_delivery.reward",333);
+        v2.set("templates.sawmill_delivery.enabled",false);v2.set("rarity-weights.COMMON",17);
+        ok(OrderCatalog.migrate(v2,defaults),"installed v2 migrates to expanded catalog");
+        ok(v2.getInt("catalog-version")==3&&v2.getInt("board-size")==18&&v2.getInt("limits.player-24h")==3000,"previous standard settings raised once");
+        ok(!v2.contains("templates.coal_mining")&&v2.contains("templates.tropical_collection"),"additions do not resurrect previously removed templates");
+        ok(v2.getInt("templates.wheat_delivery.reward")==333&&v2.getInt("rarity-weights.COMMON")==17,"existing terms and selection weights unchanged");
+        ok(!v2.getBoolean("templates.sawmill_delivery.enabled")&&!v2.contains("templates.sawmill_delivery.title"),"custom template with new built-in ID is not overwritten");
+        v2.set("templates.tropical_collection",null);v2.set("limits.player-24h",1500);String changedV3=v2.saveToString();
+        ok(!OrderCatalog.migrate(v2,defaults)&&v2.saveToString().equals(changedV3),"later manual removals and cap adjustments survive restarts");
+        var custom=new YamlConfiguration();custom.loadFromString("catalog-version: 2\nboard-size: 9\nlimits:\n  player-24h: 5000\n  server-24h: 75000\n");
+        OrderCatalog.migrate(custom,defaults);
+        ok(custom.getInt("board-size")==9&&custom.getInt("limits.player-24h")==5000&&custom.getInt("limits.server-24h")==75000,"custom board and payout limits preserved");
+        var smallServer=new YamlConfiguration();smallServer.loadFromString("catalog-version: 2\nlimits:\n  player-24h: 1500\n  server-24h: 2000\n");
+        OrderCatalog.migrate(smallServer,defaults);
+        ok(smallServer.getInt("limits.player-24h")==2000&&smallServer.getInt("limits.server-24h")==2000,"default cap upgrade cannot exceed a custom server ceiling");
+        var missing=new YamlConfiguration();missing.set("catalog-version",2);OrderCatalog.migrate(missing,defaults);
+        ok(missing.getInt("limits.player-24h")==3000&&missing.getInt("board-size")==18,"missing old defaults acquire new defaults");
+        var future=new YamlConfiguration();future.set("catalog-version",4);
+        rejects(()->OrderCatalog.migrate(future,defaults),"newer config schema is not silently downgraded");
 
         time.now=Instant.parse("2026-12-31T20:59:59Z");
         var year=board(root.resolve("year.yml"),catalog,12,weights,time,4);
@@ -108,6 +136,17 @@ public final class DailyOrdersSmoke {
         time.now=time.now.plusSeconds(1);
         ok(ledger.remaining(player)==30000,"Moscow midnight does not reset rolling payout budget");
         rejects(()->ledger.reserve(UUID.randomUUID(),player,40000,"orders:new-day",false),"next board cannot exceed rolling cap");
+        var upgraded=new RewardLedger(root.resolve("payments"),300000,10000000,()->time.millis());upgraded.load();
+        ok(upgraded.remaining(player)==180000,"higher limit subtracts already paid income instead of resetting usage");
+        var deposits=new java.util.concurrent.atomic.AtomicInteger();
+        upgraded.submit(payment,new RewardLedger.Bank(){public boolean ready(UUID id){return true;}public boolean deposit(RewardLedger.Entry e){deposits.incrementAndGet();return true;}});
+        ok(deposits.get()==0&&upgraded.get(payment).state()==RewardLedger.State.PAID,"raising cap never replays an already paid reward");
+        UUID pending=UUID.randomUUID();upgraded.reserve(pending,player,180000,"orders:after-upgrade",false);
+        rejects(()->upgraded.reserve(UUID.randomUUID(),player,1,"orders:above-new-cap",false),"new cap still bounds paid plus pending obligations");
+        var higherReload=new RewardLedger(root.resolve("payments"),300000,10000000,()->time.millis());higherReload.load();
+        ok(higherReload.remaining(player)==0&&higherReload.get(pending).state()==RewardLedger.State.PENDING,"pending obligation and total usage survive restart under new cap");
+        time.now=time.now.plusSeconds(86400-1);
+        ok(higherReload.remaining(player)==120000,"paid income ages out after 24 hours while pending remains reserved");
         System.out.println("DAILY_ORDERS_SMOKE_PASS: "+checks+" checks");
     }
 }

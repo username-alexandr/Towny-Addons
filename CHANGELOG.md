@@ -1,3 +1,10 @@
+## Contracts 0.3.20 — 2026-10-21
+
+- Added 40 public-order templates (80 total): new deliveries, Nether/deepslate mining, hunting targets and rare fish. Default daily board grows from 12 to 18 offers.
+- Default personal public-order budget increases from 1,500 to 3,000 coins per rolling 24 hours. Existing paid and pending amounts remain counted; server-wide cap and job salaries stay unchanged.
+- Versioned catalog migration adds only new templates, keeps custom settings and deleted older entries, and backs up configuration to `orders.pre-catalog-v3.yml`.
+- Current board and accepted conditions survive the upgrade; expanded selection applies at the next 00:00 Moscow rotation. Details: `docs/EXPANDED_ORDERS_0.3.20_RU.md`.
+
 ## Contracts 0.3.19 — 2026-10-21
 
 - Public order icons now identify both activity and rarity without hovering: wooden/stone/iron/diamond/netherite swords and pickaxes, colored delivery boxes and distinct fishing items.

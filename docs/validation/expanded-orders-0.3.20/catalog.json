@@ -1,0 +1,35 @@
+{
+  "catalog_version": 3,
+  "templates": 80,
+  "daily_offers": 18,
+  "player_24h": 3000,
+  "server_24h": 100000,
+  "old_template_terms_unchanged": true,
+  "by_rarity": {
+    "COMMON": {
+      "count": 16,
+      "reward_min": 100,
+      "reward_max": 140
+    },
+    "UNCOMMON": {
+      "count": 16,
+      "reward_min": 180,
+      "reward_max": 260
+    },
+    "RARE": {
+      "count": 16,
+      "reward_min": 320,
+      "reward_max": 480
+    },
+    "EPIC": {
+      "count": 16,
+      "reward_min": 650,
+      "reward_max": 1000
+    },
+    "LEGENDARY": {
+      "count": 16,
+      "reward_min": 1200,
+      "reward_max": 2400
+    }
+  }
+}
