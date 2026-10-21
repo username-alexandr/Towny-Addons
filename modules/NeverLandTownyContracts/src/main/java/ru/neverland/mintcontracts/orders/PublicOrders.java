@@ -82,7 +82,18 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
     private boolean active(){return !fault&&income.enabled();}
     private boolean open(Order o){return o.state().equals("ACTIVE")&&income.ledger().get(o.id())==null;}
     private DailyOrderBoard.Snapshot boardSnapshot()throws IOException{try{return dailyBoard.snapshot();}catch(IOException ex){fault=true;throw ex;}}
-    private List<Template> board()throws IOException{return boardSnapshot().templates();}
+    private Set<String> paidTemplates(UUID player,LocalDate day){
+        Set<String> paid=new HashSet<>();String boardDay=day.toString();
+        for(Order order:orders.values())if(order.player().equals(player)&&order.boardDay().equals(boardDay)){
+            var payment=income.ledger().get(order.id());
+            if(payment!=null&&payment.state()==RewardLedger.State.PAID)paid.add(order.template());
+        }
+        return paid;
+    }
+    private List<Template> visibleTemplates(UUID player,DailyOrderBoard.Snapshot snapshot){
+        var paid=paidTemplates(player,snapshot.day());
+        return snapshot.templates().stream().filter(t->!paid.contains(t.id())).toList();
+    }
     private void tick(){synchronized(SuiteState.lock()){if(!active())return;boolean changed=false;
         for(Order o:List.copyOf(orders.values()))if(open(o)&&o.progress()<o.goal()){orders.put(o.id(),o.time(Math.max(0,o.remaining()-10000)));changed=true;}
         if(changed)try{save();}catch(IOException e){plugin.getLogger().severe(e.getMessage());}
@@ -155,18 +166,44 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
     }}
     private record Board(LocalDate day,Map<Integer,String> slots) implements InventoryHolder{public Inventory getInventory(){return null;}}
     private void menu(Player p)throws IOException{
-        Map<Integer,String> slots=new HashMap<>();var snapshot=boardSnapshot();var board=snapshot.templates();
+        Map<Integer,String> slots=new HashMap<>();var snapshot=boardSnapshot();var board=visibleTemplates(p.getUniqueId(),snapshot);
         for(int i=0;i<board.size();i++)slots.put(i,board.get(i).id());
-        Inventory inv=MenuStyle.inventory(plugin,new Board(snapshot.day(),Map.copyOf(slots)),54,"Государственные заказы");
+        var holder=new Board(snapshot.day(),slots);
+        Inventory inv=MenuStyle.inventory(plugin,holder,54,"Государственные заказы");
         for(int i=0;i<board.size();i++)inv.setItem(i,icon(board.get(i)));
         inv.setItem(45,information(Material.BOOK,"§eМои заказы",List.of("§7Прогресс, сдача ресурсов и награды","§eНажмите, чтобы посмотреть")));
         inv.setItem(49,information(Material.CLOCK,"§6Обновление: каждый день в 00:00 МСК",List.of(
                 "§7Следующее: §f"+snapshot.day().plusDays(1).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))+" в 00:00 МСК",
-                "§7Принятые заказы сохраняют прогресс,","§7награду и оставшееся время.","§7Один заказ с доски — один раз за день.")));
-        inv.setItem(53,information(Material.EMERALD,"§aЛимит наград",List.of(
-                "§7Осталось за последние 24 ч.: §a"+AuditTrail.cents(income.ledger().remaining(p.getUniqueId()))+" монет",
-                "§7Лимит восстанавливается постепенно,","§7через 24 часа после каждой выплаты.","§7Обновление доски его не сбрасывает.","§7Одновременно: не более "+maximum+" заказов")));
+                "§7Принятые заказы сохраняют прогресс,","§7награду и оставшееся время.","§7Один заказ с доски — один раз за день.",
+                "§7После получения награды заказ","§7скрывается с вашей доски.")));
+        inv.setItem(53,rewardBudget(p.getUniqueId()));
+        emptyBoard(inv,holder);
         p.openInventory(inv);
+        refreshMenu(p,inv,holder);
+    }
+    private ItemStack rewardBudget(UUID player){
+        return information(Material.EMERALD,"§aЛимит наград",List.of(
+                "§7Осталось за последние 24 ч.: §a"+AuditTrail.cents(income.ledger().remaining(player))+" монет",
+                "§7Лимит восстанавливается постепенно,","§7через 24 часа после каждой выплаты.","§7Обновление доски его не сбрасывает.","§7Одновременно: не более "+maximum+" заказов"));
+    }
+    private static void emptyBoard(Inventory inv,Board board){
+        if(board.slots().isEmpty())inv.setItem(22,information(Material.PAPER,"§aВсе заказы с этой доски выполнены",List.of(
+                "§7Новая подборка появится в 00:00 МСК.","§7Затем откройте /orders заново.","§7История наград: /orders mine")));
+    }
+    private void refreshMenu(Player player,Inventory inv,Board board){
+        if(board.slots().isEmpty())return;
+        // Payouts arrive asynchronously. Touch this player's open inventory only on their entity scheduler.
+        SuiteScheduler.entityLater(plugin,player,()->{
+            if(!player.isOnline()||player.getOpenInventory().getTopInventory().getHolder()!=board)return;
+            var paid=paidTemplates(player.getUniqueId(),board.day());
+            boolean changed=board.slots().entrySet().removeIf(entry->{
+                if(!paid.contains(entry.getValue()))return false;
+                inv.setItem(entry.getKey(),null);return true;
+            });
+            if(changed){emptyBoard(inv,board);inv.setItem(53,rewardBudget(player.getUniqueId()));}
+            // Keep remaining icons in place so a pending click cannot select a different order.
+            refreshMenu(player,inv,board);
+        },null,20);
     }
     private static ItemStack information(Material material,String title,List<String> lore){var item=new ItemStack(material);var meta=item.getItemMeta();meta.setDisplayName(MenuStyle.nameLegacy(title));meta.setLore(MenuStyle.loreStrings(lore));item.setItemMeta(meta);return item;}
     private static Material iconMaterial(Type type,OrderRarity rarity){
@@ -295,5 +332,5 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
     }
     @EventHandler public void click(InventoryClickEvent e){if(!(e.getView().getTopInventory().getHolder() instanceof Board board))return;e.setCancelled(true);if(e.getWhoClicked() instanceof Player p)synchronized(SuiteState.lock()){try{if(e.getRawSlot()==45)SuiteScheduler.entity(plugin,p,()->{p.closeInventory();showMine(p);});else if(board.slots().containsKey(e.getRawSlot()))accept(p,board.slots().get(e.getRawSlot()),board.day());}catch(Exception ex){p.sendMessage("§c"+ex.getMessage());}}}
     @EventHandler public void drag(InventoryDragEvent e){if(e.getView().getTopInventory().getHolder() instanceof Board)e.setCancelled(true);}
-    @Override public List<String> onTabComplete(CommandSender s,Command c,String a,String[] args){synchronized(SuiteState.lock()){try{if(args.length==1)return List.of("board","accept","mine","claim","cancel","admin");if(args.length==2&&args[0].equals("accept"))return board().stream().map(Template::id).toList();if(args.length==2&&Set.of("claim","cancel").contains(args[0])&&s instanceof Player p)return orders.values().stream().filter(o->o.player().equals(p.getUniqueId())&&open(o)).map(o->o.id().toString()).toList();}catch(IOException ex){plugin.getLogger().severe(ex.getMessage());}return List.of();}}
+    @Override public List<String> onTabComplete(CommandSender s,Command c,String a,String[] args){synchronized(SuiteState.lock()){try{if(args.length==1)return List.of("board","accept","mine","claim","cancel","admin");if(args.length==2&&args[0].equals("accept")&&s instanceof Player p)return visibleTemplates(p.getUniqueId(),boardSnapshot()).stream().map(Template::id).toList();if(args.length==2&&Set.of("claim","cancel").contains(args[0])&&s instanceof Player p)return orders.values().stream().filter(o->o.player().equals(p.getUniqueId())&&open(o)).map(o->o.id().toString()).toList();}catch(IOException ex){plugin.getLogger().severe(ex.getMessage());}return List.of();}}
 }

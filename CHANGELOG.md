@@ -1,3 +1,10 @@
+## Contracts 0.3.21 — 2026-10-21
+
+- Paid public orders disappear from the completing player's `/orders` board and accept-command suggestions. Filtering uses the accepted board day; the same template on a later daily board remains available.
+- Open boards remove paid icons on the player's Folia entity scheduler without moving other icons or reopening menus. A completed-board message appears when no offers remain.
+- Unclaimed rewards and pending/review payments stay visible. Orders and payment history remain stored; duplicate-acceptance and payout checks stay in effect.
+- Installation and verification: `docs/COMPLETED_ORDERS_0.3.21_RU.md`.
+
 ## Contracts 0.3.20 — 2026-10-21
 
 - Added 40 public-order templates (80 total): new deliveries, Nether/deepslate mining, hunting targets and rare fish. Default daily board grows from 12 to 18 offers.
