@@ -169,9 +169,30 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         p.openInventory(inv);
     }
     private static ItemStack information(Material material,String title,List<String> lore){var item=new ItemStack(material);var meta=item.getItemMeta();meta.setDisplayName(MenuStyle.nameLegacy(title));meta.setLore(MenuStyle.loreStrings(lore));item.setItemMeta(meta);return item;}
+    private static Material iconMaterial(Type type,OrderRarity rarity){
+        return switch(type){
+            case HUNTING -> switch(rarity){
+                case COMMON->Material.WOODEN_SWORD;case UNCOMMON->Material.STONE_SWORD;
+                case RARE->Material.IRON_SWORD;case EPIC->Material.DIAMOND_SWORD;case LEGENDARY->Material.NETHERITE_SWORD;
+            };
+            case MINING -> switch(rarity){
+                case COMMON->Material.WOODEN_PICKAXE;case UNCOMMON->Material.STONE_PICKAXE;
+                case RARE->Material.IRON_PICKAXE;case EPIC->Material.DIAMOND_PICKAXE;case LEGENDARY->Material.NETHERITE_PICKAXE;
+            };
+            case DELIVERY -> switch(rarity){
+                case COMMON->Material.WHITE_SHULKER_BOX;case UNCOMMON->Material.LIME_SHULKER_BOX;
+                case RARE->Material.LIGHT_BLUE_SHULKER_BOX;case EPIC->Material.PURPLE_SHULKER_BOX;case LEGENDARY->Material.ORANGE_SHULKER_BOX;
+            };
+            case FISHING -> switch(rarity){
+                case COMMON->Material.COD;case UNCOMMON->Material.SALMON;
+                case RARE->Material.PUFFERFISH;case EPIC->Material.TROPICAL_FISH;case LEGENDARY->Material.HEART_OF_THE_SEA;
+            };
+        };
+    }
     private ItemStack icon(Template t){
-        var item=new ItemStack(switch(t.type()){case DELIVERY->Material.CHEST;case MINING->Material.IRON_PICKAXE;case HUNTING->Material.IRON_SWORD;case FISHING->Material.FISHING_ROD;});
+        var item=new ItemStack(iconMaterial(t.type(),t.rarity()));
         var meta=item.getItemMeta();
+        meta.setEnchantmentGlintOverride(t.rarity()==OrderRarity.EPIC||t.rarity()==OrderRarity.LEGENDARY);
         meta.setDisplayName(MenuStyle.nameLegacy(t.rarity().legacyColor+t.title()));
         meta.setLore(MenuStyle.loreStrings(List.of(
                 "§7Редкость: "+t.rarity().legacyColor+t.rarity().label,

@@ -1,3 +1,10 @@
+## Contracts 0.3.19 — 2026-10-21
+
+- Public order icons now identify both activity and rarity without hovering: wooden/stone/iron/diamond/netherite swords and pickaxes, colored delivery boxes and distinct fishing items.
+- Epic and legendary menu icons have a visual glint without actual enchantments. Tool attack attributes remain hidden; Russian rarity labels and objective names are preserved.
+- Presentation-only update: accepted orders, daily board, rewards, limits and configuration remain unchanged.
+- Installation and icon mapping: `docs/ORDER_ICONS_0.3.19_RU.md`.
+
 ## Contracts 0.3.18 — 2026-10-20
 
 - `/orders`: 40 templates, 12 daily offers, five rarities with increasing requirements, deadlines and rewards.
