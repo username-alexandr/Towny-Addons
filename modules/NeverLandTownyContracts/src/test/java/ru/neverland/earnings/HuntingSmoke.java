@@ -83,6 +83,20 @@ public final class HuntingSmoke {
         var old=death(remote,arrow,projectile);
         var different=new EntityDeathEvent(old.getEntity(),source(melee,melee),new ArrayList<>());
         ok(HuntingCredit.killer(different,e->true)==null,"previous hit cannot override actual death source");
+        var cancelledLater=new java.util.concurrent.atomic.AtomicBoolean();
+        var victimTasks=new ArrayList<Runnable>();var playerTasks=new ArrayList<Runnable>();
+        var credited=new java.util.concurrent.atomic.AtomicInteger();
+        HuntingCredit.afterDeath(cancelledLater::get,victimTasks::add,playerTasks::add,credited::incrementAndGet);
+        ok(victimTasks.size()==1&&playerTasks.isEmpty(),"remote player cannot run before victim event finishes");
+        cancelledLater.set(true);victimTasks.remove(0).run();
+        ok(playerTasks.isEmpty()&&credited.get()==0,"later death listener cancellation blocks credit");
+        cancelledLater.set(false);
+        HuntingCredit.afterDeath(cancelledLater::get,victimTasks::add,playerTasks::add,credited::incrementAndGet);
+        victimTasks.remove(0).run();ok(playerTasks.size()==1&&credited.get()==0,"credit runs only on player's region");
+        playerTasks.remove(0).run();ok(credited.get()==1,"confirmed death credited once");
+        HuntingCredit.afterDeath(cancelledLater::get,victimTasks::add,playerTasks::add,credited::incrementAndGet);
+        victimTasks.remove(0).run();cancelledLater.set(true);playerTasks.remove(0).run();
+        ok(credited.get()==1,"cancellation rechecked after handoff");
         System.out.println("HuntingSmoke: "+checks+" checks passed");
     }
 }

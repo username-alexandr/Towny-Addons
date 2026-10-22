@@ -85,8 +85,8 @@ public final class WageService implements Listener,CommandExecutor,TabCompleter 
     }}
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void kill(EntityDeathEvent e){synchronized(SuiteState.lock()){
         Player p=guard.hunter(e);if(p==null)return;UUID victim=e.getEntity().getUniqueId();
-        SuiteScheduler.entity(plugin,p,()->{
-            if(e.isCancelled()||!eligible(p,Profession.GUARD))return;Location at=p.getLocation();Location before=lastKill.get(p.getUniqueId());
+        HuntingCredit.afterDeath(plugin,e,p,()->{
+            if(!eligible(p,Profession.GUARD))return;Location at=p.getLocation();Location before=lastKill.get(p.getUniqueId());
             if(before!=null&&before.getWorld().equals(at.getWorld())&&before.distanceSquared(at)<16)return;
             lastKill.put(p.getUniqueId(),at);pay(p,Profession.GUARD,"kill:"+victim);
         });

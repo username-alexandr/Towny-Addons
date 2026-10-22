@@ -146,7 +146,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
     }}
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void kill(EntityDeathEvent e){synchronized(SuiteState.lock()){
         Player player=guard.hunter(e);if(player==null)return;String target=e.getEntityType().name();
-        SuiteScheduler.entity(plugin,player,()->{if(!e.isCancelled())progress(player,Type.HUNTING,target);});
+        HuntingCredit.afterDeath(plugin,e,player,()->progress(player,Type.HUNTING,target));
     }}
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void fish(PlayerFishEvent e){synchronized(SuiteState.lock()){if(e.getState()==PlayerFishEvent.State.CAUGHT_FISH&&e.getCaught() instanceof Item item&&SuiteScheduler.owns(item)){Player player=e.getPlayer();String target=item.getItemStack().getType().name();SuiteScheduler.entity(plugin,player,()->{if(!e.isCancelled())progress(player,Type.FISHING,target);});}}}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){synchronized(SuiteState.lock()){

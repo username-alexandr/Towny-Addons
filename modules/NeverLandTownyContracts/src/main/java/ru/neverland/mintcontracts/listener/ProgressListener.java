@@ -20,9 +20,8 @@ public final class ProgressListener implements Listener {
     public void onKill(EntityDeathEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyContracts")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         Player killer = event.getEntity().getKiller();
         String target=event.getEntityType().name();
-        if (killer != null) ru.neverland.core.SuiteScheduler.entity(plugin,killer,()->{
-            if(!event.isCancelled())contracts.record(killer,ContractType.MOB_KILL,target,1);
-        });
+        if (killer != null) ru.neverland.earnings.HuntingCredit.afterDeath(plugin,event,killer,
+                ()->contracts.record(killer,ContractType.MOB_KILL,target,1));
     } }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

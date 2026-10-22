@@ -1,7 +1,7 @@
 package ru.neverland.earnings;
 
 import java.util.*;
-import java.util.function.Predicate;
+import java.util.function.*;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.*;
@@ -26,6 +26,20 @@ public final class HuntingCredit {
     public static Set<Material> allowedItems() { return ALLOWED; }
     public static boolean allowed(Material material) { return material != null && ALLOWED.contains(material); }
     private static Material type(ItemStack item) { return item == null ? Material.AIR : item.getType(); }
+
+    public static void afterDeath(org.bukkit.plugin.Plugin plugin, EntityDeathEvent event, Player player, Runnable action) {
+        var location=event.getEntity().getLocation();
+        afterDeath(event::isCancelled, next->SuiteScheduler.region(plugin,location,next),
+                next->SuiteScheduler.entity(plugin,player,next), action);
+    }
+    static void afterDeath(BooleanSupplier cancelled, Consumer<Runnable> victimRegion,
+                           Consumer<Runnable> playerRegion, Runnable action) {
+        // A remote player's next tick can precede the remaining death listeners on the victim's region.
+        // Finish that region's event first, then hand off to the player's scheduler.
+        if(cancelled.getAsBoolean())return;
+        victimRegion.accept(()->{if(!cancelled.getAsBoolean())
+            playerRegion.accept(()->{if(!cancelled.getAsBoolean())action.run();});});
+    }
 
     public static Player killer(EntityDeathEvent event) { return killer(event, SuiteScheduler::owns); }
     static Player killer(EntityDeathEvent event, Predicate<Entity> owns) {
