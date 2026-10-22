@@ -81,7 +81,10 @@ jobs:
             "$work_dir/SHA256SUMS.txt"
           )
 
-          if gh api "repos/$GITHUB_REPOSITORY/releases/tags/$tag" > "$work_dir/release.json" 2>/dev/null; then
+          # GitHub's tag lookup excludes drafts; list drafts and use their database ID.
+          release_id="$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq ".[] | select(.tag_name == \"$tag\") | .id")"
+          if [[ -n "$release_id" ]]; then
+            gh api "repos/$GITHUB_REPOSITORY/releases/$release_id" > "$work_dir/release.json"
             python -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["draft"], "Refusing to overwrite a published release"; assert r["target_commitish"]==sys.argv[2], "Draft belongs to a different commit"' "$work_dir/release.json" "$GITHUB_SHA"
           else
             gh release create "$tag" --draft \
@@ -90,8 +93,10 @@ jobs:
               --notes-file RELEASE_NOTES_RU.md
           fi
 
+          release_id="$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq ".[] | select(.tag_name == \"$tag\") | .id")"
+          [[ "$release_id" =~ ^[0-9]+$ ]]
           gh release upload "$tag" "${assets[@]}" --clobber
-          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$tag" > "$work_dir/release.json"
+          gh api "repos/$GITHUB_REPOSITORY/releases/$release_id" > "$work_dir/release.json"
           python scripts/verify_published_assets.py "$work_dir/release.json" "${assets[@]}"
           release_id="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["id"])' "$work_dir/release.json")"
           gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/$release_id" -F draft=false -f make_latest=true >/dev/null
