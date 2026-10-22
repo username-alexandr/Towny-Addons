@@ -52,6 +52,15 @@ public final class CompanyService implements CompaniesApi {
         if(ledger.membership(p.getUniqueId())!=null||c.members().size()>=limit("members",20))throw new IllegalArgumentException("Вступление недоступно: проверьте членство и лимит");
         var members=new LinkedHashMap<>(c.members());members.put(p.getUniqueId(),Role.WORKER);var invites=new LinkedHashMap<>(c.invitations());invites.remove(p.getUniqueId());ledger.put(c.team(c.owner(),members,invites,c.successor(),c.successorUntil()));
     } }
+    /** Only the invited player can dismiss their own unexpired invitation. */
+    public void decline(Player p,Company original)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+        requireUse(p);Company c=ledger.company(original.id());
+        if(c==null||c.closed()||c.invitations().getOrDefault(p.getUniqueId(),0L)<=System.currentTimeMillis())
+            throw new IllegalArgumentException("Приглашение истекло или уже обработано");
+        var invites=new LinkedHashMap<>(c.invitations());invites.remove(p.getUniqueId());
+        ledger.put(c.team(c.owner(),c.members(),invites,c.successor(),c.successorUntil()));
+        message(p,"Приглашение отклонено");
+    } }
     public void role(Player p,UUID target,Role role)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         Company c=manage(p,true,false);if(role==Role.OWNER||target.equals(c.owner())||!c.members().containsKey(target))throw new IllegalArgumentException("Выберите участника и роль manager или worker");
         var members=new LinkedHashMap<>(c.members());members.put(target,role);ledger.put(c.team(c.owner(),members,c.invitations(),c.successor(),c.successorUntil()));

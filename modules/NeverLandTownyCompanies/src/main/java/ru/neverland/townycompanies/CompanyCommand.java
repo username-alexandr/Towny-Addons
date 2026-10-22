@@ -44,6 +44,7 @@ public final class CompanyCommand implements CommandExecutor,TabCompleter {
                 case "deposit", "withdraw" -> {need(args,2);long amount=cents(args[1]);Purpose purpose=args[0].equalsIgnoreCase("deposit")?Purpose.DEPOSIT:Purpose.WITHDRAW;
                     quote(p,(purpose==Purpose.DEPOSIT?"Пополнить общий счёт из личных средств на ":"Вывести владельцу из общего счёта ")+format(amount),()->service.money(p,purpose,amount));}
                 case "invite" -> {need(args,2);service.invite(p,service.resident(args[1]));message(p,"Приглашение создано");}
+                case "decline" -> {need(args,2);service.decline(p,service.find(args[1]));}
                 case "join" -> {need(args,2);Company c=service.find(args[1]);quote(p,"Вступить в «"+c.name()+"» участником",()->service.join(p,c));}
                 case "role" -> {need(args,3);service.role(p,service.resident(args[1]),Role.valueOf(args[2].toUpperCase(Locale.ROOT)));message(p,"Роль обновлена");}
                 case "kick" -> {need(args,2);service.remove(p,service.resident(args[1]));message(p,"Участник или приглашение удалены");}
@@ -82,7 +83,7 @@ public final class CompanyCommand implements CommandExecutor,TabCompleter {
         message(p,"/company transfer <игрок>; acceptowner; disband; confirm; cancel");
     }
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
-        List<String> values=args.length==1?List.of("help","list","create","members","invite","invitations","join","role","kick","leave","deposit","withdraw","payments","contracts","take","release","transfer","acceptowner","disband","confirm","cancel")
+        List<String> values=args.length==1?List.of("help","list","create","members","invite","invitations","join","decline","role","kick","leave","deposit","withdraw","payments","contracts","take","release","transfer","acceptowner","disband","confirm","cancel")
                 :args.length==2&&args[0].equalsIgnoreCase("create")?List.of("shop","mine","farm","transport")
                 :args.length==3&&args[0].equalsIgnoreCase("role")?List.of("manager","worker"):List.of();
         String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return values.stream().filter(s->s.startsWith(prefix)).toList();

@@ -28,6 +28,16 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
     private MessageService messages;
     private ItemsAdderHook itemsAdder;
     private DefinitionRegistry definitions;
+    private MenuManager uiMenus;
+    /** ConstructionService returns supplied blocks after placement; UI must not quote them as consumed. */
+    public boolean uiReturnsPlacedMaterial() { return true; }
+    /** Opens a real, guarded details inventory on the caller player entity thread. */
+    public void uiOpenDetails(org.bukkit.entity.Player player, String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        if (!player.hasPermission("neverlandtownybuilds.use")) throw new IllegalArgumentException("Нет доступа к постройкам");
+        var project = definitions.project(id);
+        if (project == null) throw new IllegalArgumentException("Постройка больше не существует");
+        uiMenus.openDetails(player, project);
+    } }
     private DataStore dataStore;
     private EffectService effects;
     private RussianItemNames itemNames;
@@ -66,6 +76,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
                 new BuildingBlueprintGenerator(), builds::completeConstruction);
         builds.setConstruction(construction);
         MenuManager menus = new MenuManager(this, definitions, dataStore, towny, itemsAdder, builds, messages, itemNames);
+        uiMenus = menus;
         EditorManager editor = new EditorManager(this, definitions, messages);
         civic = new CivicService(this, towny, dataStore, messages, itemNames);
 
