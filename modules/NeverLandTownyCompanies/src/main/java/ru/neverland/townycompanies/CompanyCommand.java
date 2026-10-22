@@ -19,6 +19,11 @@ public final class CompanyCommand implements CommandExecutor,TabCompleter {
         quotes.put(p.getUniqueId(),new Quote(now+30_000,c==null?null:c.id(),c==null?0:c.revision(),action));
         message(p,description+". Подтвердите: /company confirm (30 секунд)");menus.confirm(p,description);
     } }
+    /** Called on the player's entity scheduler after the integrating UI's explicit confirmation. */
+    public void uiJoin(Player p,String companyId)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+        if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCompanies"))throw new IllegalArgumentException("Предприятия временно недоступны");
+        service.requireUse(p);Company c=service.find(companyId);service.join(p,c);quotes.remove(p.getUniqueId());message(p,"Вы вступили в «"+c.name()+"»");
+    } }
     public void confirm(Player p)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
         service.requireUse(p);Quote q=quotes.remove(p.getUniqueId());Company c=service.ledger.membership(p.getUniqueId());
         if(q==null||q.until()<System.currentTimeMillis()||!Objects.equals(q.company(),c==null?null:c.id())||(c!=null&&q.revision()!=c.revision()))throw new IllegalArgumentException("Подтверждение истекло или состояние компании изменилось. Повторите действие");

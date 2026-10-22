@@ -4,7 +4,7 @@ Base: release/v0.42.0 (`2aec261f6c488c1856ef0c17d4d6ff448ef7dfdc`).
 
 - Builds 0.8.29: `uiOpenDetails(Player, String)` opens the real project menu after its use/project checks. `uiReturnsPlacedMaterial()` reports the existing construction rule; CraftoUI must distinguish physical missing blocks from expendable supply.
 - Contracts 0.3.23: the registered PublicOrders command executor provides `uiSnapshot(Player)` and `uiExecute(Player, action, id, quote)`. Snapshots expose the current daily board and only that player's open orders. The quote is rechecked under `SuiteState.lock()` before accept/claim/cancel. These APIs must be called on the player's entity scheduler. A snapshot is not authorization to mutate later.
-- Companies 0.1.15: `/company decline <company UUID>` removes only the caller's live invitation through CompanyService and persists the ledger.
+- Companies 0.1.15: the registered CompanyCommand executor provides `uiJoin(Player, String)` for a UI that already obtained explicit confirmation. It checks suite freeze/readiness, permissions, current invitation, town and member capacity under the suite lock, and clears stale native quotes after success. Ordinary `/company join` retains its own confirmation. `/company decline <company UUID>` removes only the caller's live invitation through CompanyService and persists the ledger.
 
 The APIs supplement the existing commands and inventories. Players without CraftoUI keep their normal command flow. No client dependency is added to these plugins.
 
