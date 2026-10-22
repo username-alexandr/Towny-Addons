@@ -29,7 +29,8 @@ def digest(data):
 
 def download(path, target):
     with target.open('wb') as stream:
-        subprocess.run(['gh', 'api', '-H', 'Accept: application/octet-stream',
+        accept = 'application/json' if path.startswith('actions/') else 'application/octet-stream'
+        subprocess.run(['gh', 'api', '-H', 'Accept: '+accept,
                         f'repos/{REPO}/{path}'], stdout=stream, check=True)
 
 
