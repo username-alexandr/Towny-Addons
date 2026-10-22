@@ -60,6 +60,25 @@ public final class CivicEffectsService implements TownyBuildsApi {
     private final ru.neverland.townybuilds.construction.BuildingFootprints footprints=new ru.neverland.townybuilds.construction.BuildingFootprints();
     public CivicEffectsService(JavaPlugin plugin,TownyHook towny,DataStore dataStore){this.plugin=plugin;this.towny=towny;this.dataStore=dataStore;}
     @Override public java.util.Set<String> supportedProjects(){ synchronized (ru.neverland.core.SuiteState.lock()) {return new ru.neverland.townybuilds.construction.BuildingBlueprintGenerator().supportedProjects();} }
+    @Override public java.util.List<ru.neverland.townybuilds.api.RegisteredBuildingBlock> registeredBuildingBlocks(UUID townId){ synchronized (ru.neverland.core.SuiteState.lock()) {
+        if(townId==null||towny.town(townId)==null)throw new IllegalArgumentException("Город не найден");
+        var generator=new ru.neverland.townybuilds.construction.BuildingBlueprintGenerator();
+        var result=new java.util.ArrayList<ru.neverland.townybuilds.api.RegisteredBuildingBlock>();
+        for(var site:dataStore.town(townId).constructionSites().values()){
+            int stage=site.active()?site.targetStage():site.completedStage();
+            if(stage<=0)continue;
+            // An unfinished upgrade can contain blocks from both the completed and target stage.
+            for(int level:site.active()&&site.completedStage()>0&&site.completedStage()!=stage?new int[]{site.completedStage(),stage}:new int[]{stage}){
+            var plan=generator.generateForArchitecture(site.projectId(),level,site.architectureVersion());
+            if(plan==null)throw new IllegalStateException("Нет чертежа зарегистрированного здания: "+site.projectId());
+            for(var entry:plan.blocks().entrySet()){
+                var position=site.location(null,entry.getKey());
+                result.add(new ru.neverland.townybuilds.api.RegisteredBuildingBlock(site.worldId(),position.getBlockX(),position.getBlockY(),position.getBlockZ(),site.projectId(),entry.getValue().material().name()));
+            }
+            }
+        }
+        return java.util.List.copyOf(result);
+    } }
     @Override
     public int projectLevel(UUID townId, String projectId) { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();
         return townId == null || projectId == null ? 0 : dataStore.town(townId).level(projectId.toLowerCase(Locale.ROOT));

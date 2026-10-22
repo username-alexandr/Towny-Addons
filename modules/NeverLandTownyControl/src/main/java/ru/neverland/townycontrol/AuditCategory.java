@@ -19,12 +19,14 @@ enum AuditCategory implements Predicate<AuditRecord> {
     ENVIRONMENT("Экология города","OAK_SAPLING",Set.of("CITY_ENVIRONMENT")),
     ACHIEVEMENTS("Достижения и награды","NETHER_STAR",Set.of("CITY_ACHIEVEMENT","ACHIEVEMENT_REWARD")),
     QUESTS("Городские проекты","KNOWLEDGE_BOOK",Set.of("CITY_PROJECT")),
+    TOWN_DELETION("Удаление городов","GRASS_BLOCK",Set.of("ADMIN_TOWN_DELETE")),
     ADMIN("Действия администрации","COMMAND_BLOCK",Set.of("ADMIN_ACTIVITY","ADMIN_MODULE","ADMIN_INCOME")),
     OTHER("Прочие операции","PAPER",Set.of());
     final String title,icon;final Set<String> kinds;
     AuditCategory(String title,String icon,Set<String> kinds){this.title=title;this.icon=icon;this.kinds=kinds;}
     @Override public boolean test(AuditRecord record){return this==ALL||this==OTHER?this==ALL||Arrays.stream(values()).filter(c->c!=ALL&&c!=OTHER).noneMatch(c->c.kinds.contains(record.kind())):kinds.contains(record.kind());}
     static String kind(String kind){return switch(kind){
+        case "ADMIN_TOWN_DELETE"->"Удаление города и откат территории";
         case "PUBLIC_ORDER_REWARD"->"Награда государственного заказа";case "JOB_SALARY"->"Зарплата профессии";case "ADMIN_INCOME"->"Сверка денежной выплаты";case "BANK_TRANSFER"->"Перевод между счетами";case "BANK_COMMAND"->"Банковская команда";case "BANK_LEG"->"Изменение счёта";
         case "CARAVAN_DEAL"->"Сделка каравана";case "TRADE_PAYMENT"->"Оплата торговли";case "TRADE_TARIFF"->"Торговый тариф";case "TRADE_REFUND"->"Возврат торговли";case "SUPPLY_AGREEMENT"->"Договор поставки";case "SUPPLY_DEAL"->"Поставка";
         case "MARKET_DEAL"->"Сделка рынка";case "SHOP_DEAL"->"Сделка магазина";case "MARKET_DELIVERY"->"Выдача рынка";case "SHOP_DELIVERY"->"Выдача магазина";

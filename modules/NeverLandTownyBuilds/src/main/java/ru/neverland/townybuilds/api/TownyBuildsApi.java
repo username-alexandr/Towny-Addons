@@ -8,7 +8,8 @@ import java.util.UUID;
 
 /** Публичный API без жёстких зависимостей между аддонами NeverLand. */
 public interface TownyBuildsApi extends ru.neverland.core.ApiContract {
-    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("supportedProjects", "area", "benefit", "buildingFootprints", "consumeInsurance", "insuranceReserve", "line", "operationalLevel", "projectLevel", "waterNetworkActive", "workplaces"); }
+    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("registeredBuildingBlocks", "supportedProjects", "area", "benefit", "buildingFootprints", "consumeInsurance", "insuranceReserve", "line", "operationalLevel", "projectLevel", "waterNetworkActive", "workplaces"); }
+    default java.util.List<RegisteredBuildingBlock> registeredBuildingBlocks(UUID townId) { throw new UnsupportedOperationException("Registered building blocks unavailable"); }
     /** Physical completed level, including inactive buildings. */
     default java.util.Set<String> supportedProjects(){return java.util.Set.of();}
     int projectLevel(UUID townId, String projectId);

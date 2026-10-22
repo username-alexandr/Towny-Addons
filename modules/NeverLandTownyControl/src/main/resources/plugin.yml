@@ -1,5 +1,5 @@
 name: NeverLandTownyControl
-version: 0.4.6
+version: 0.4.7
 main: ru.neverland.townycontrol.NeverLandTownyControl
 folia-supported: true
 api-version: '26.2'
@@ -8,6 +8,9 @@ description: Безопасное административное отключ�
 depend: [Towny]
 loadbefore: [NeverLandTownyEnvironment, NeverLandTownyAchievements, NeverLandTownyQuests, NeverLandTownyArchaeology, NeverLandTownyArmy, NeverLandTownyBuilds, NeverLandTownyCamps, NeverLandTownyChronicles, NeverLandTownyCitizens, NeverLandTownyCompanies, NeverLandTownyContracts, NeverLandTownyCouncil, NeverLandTownyCrime, NeverLandTownyDiplomacy, NeverLandTownyDistricts, NeverLandTownyElections, NeverLandTownyEspionage, NeverLandTownyEvents, NeverLandTownyExpeditions, NeverLandTownyGovernance, NeverLandTownyIdeologies, NeverLandTownyJobs, NeverLandTownyJustice, NeverLandTownyLogistics, NeverLandTownyMarket, NeverLandTownyPolicies, NeverLandTownyPopulation, NeverLandTownyPower, NeverLandTownyReputation, NeverLandTownyResearch, NeverLandTownyResources, NeverLandTownySeasons, NeverLandTownySiegesPlus, NeverLandTownySpecialization, NeverLandTownyStick, NeverLandTownyTaxes, NeverLandTownyTrade, NeverLandTownyTreasuryPlus, NeverLandTownyUpkeep]
 commands:
+  nltdelete:
+    description: Подтверждение удаления города и безопасный откат
+    usage: /nltdelete <город> <full|registered>
   nltoutbox:
     description: Сверка незавершённых команд наград
     usage: /nltoutbox <модуль> [UUID done|retry]
@@ -23,6 +26,9 @@ commands:
     description: Графическое меню администратора и управление аддонами
     usage: /nltadmin [menu|logs|list|модуль] [действие]
 permissions:
+  neverlandtownycontrol.towns.delete:
+    description: Удаление городов с выбором режима отката
+    default: op
   neverlandtownycontrol.audit:
     description: Просмотр всех денежных и ресурсных операций
     default: op
@@ -33,6 +39,7 @@ permissions:
     description: Полный доступ к меню, аддонам и журналам администрации
     default: op
     children:
+      neverlandtownycontrol.towns.delete: true
       neverlandtownyenvironment.admin: true
       neverlandtownyachievements.admin: true
       mintcamps.admin: true

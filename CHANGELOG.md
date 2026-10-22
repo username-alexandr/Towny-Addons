@@ -1,3 +1,11 @@
+## Control 0.4.7 / Builds 0.8.28 — 2026-10-22
+
+- Town deletion now requires a warning and actor-bound confirmation. Admins can preserve ordinary bases and remove only matching blocks from registered Builds blueprints, or explicitly request a validated full rollback.
+- Disable native Towny unclaim erasers with a persistent settings backup. Whole-plot rollback is replaced with complete snapshots, preflight validation, vertical-cut limits, hashed durable plans, region-owned writes and restart-safe compare-and-set application.
+- Add town deletion menu, permission and audit category; retain native Towny city/treasury/ruins processing. Protect tile entities, system blocks, newly claimed plots and later block changes.
+- Builds exports registered blueprint blocks and checks ownership during state normalization; deleted towns are skipped by building repair/migration.
+- Installation, changed unclaim behavior and limitations: `docs/TOWN_DELETION_20261022_RU.md`.
+
 ## Contracts 0.3.21 — 2026-10-21
 
 - Paid public orders disappear from the completing player's `/orders` board and accept-command suggestions. Filtering uses the accepted board day; the same template on a later daily board remains available.

@@ -19,6 +19,8 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
     private boolean applying;
     private BankAudit bankAudit;
     private AdminMenu adminMenu;
+    private TownDeletionService townDeletion;
+    TownDeletionService townDeletion(){return townDeletion;}
     @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
         try(var stream=getResource("module-dependencies.yml")) {
             if(stream==null)throw new IOException("Нет схемы зависимостей");
@@ -43,6 +45,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             getCommand("nltmodules").setExecutor(this);getCommand("nltmodules").setTabCompleter(this);
             var router=new AdminRouter(this,graph);var audit=new AuditCommand(this);
             adminMenu=new AdminMenu(this,router,audit);router.register(adminMenu);bankAudit=new BankAudit(this);
+            saveDefaultConfig();townDeletion=new TownDeletionService(this);
             getServer().getPluginManager().registerEvents(this,this);
             getLogger().info("Управление модулями: "+graph.modules().size()+"; отключено с зависимостями: "+blocked.size());
         } catch(Exception e) {
@@ -50,7 +53,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             getServer().getPluginManager().disablePlugin(this);
         }
     } }
-    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(adminMenu!=null)adminMenu.shutdown();if(bankAudit!=null)bankAudit.stop();SuiteScheduler.get().cancelTasks(this);} }
+    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(townDeletion!=null)townDeletion.stop();if(adminMenu!=null)adminMenu.shutdown();if(bankAudit!=null)bankAudit.stop();SuiteScheduler.get().cancelTasks(this);} }
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!AdminAccess.admin(sender)){sender.sendMessage("§cНет прав.");return true;}
         try {

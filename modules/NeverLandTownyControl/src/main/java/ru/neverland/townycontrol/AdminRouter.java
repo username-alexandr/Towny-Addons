@@ -47,6 +47,11 @@ final class AdminRouter implements TabExecutor {
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!allowed(sender)){sender.sendMessage("§cНет прав.");return true;}
         try {
+            if(args.length>0&&args[0].equalsIgnoreCase("towns")){
+                if(args.length==1&&sender instanceof org.bukkit.entity.Player p)menu.towns(p,1);
+                else plugin.getCommand("nltdelete").execute(sender,"nltdelete",Arrays.copyOfRange(args,1,args.length));
+                return true;
+            }
             if((args.length==0||args.length==1&&Set.of("menu","logs").contains(args[0].toLowerCase(Locale.ROOT)))&&sender instanceof org.bukkit.entity.Player player){
                 if(args.length==1&&args[0].equalsIgnoreCase("logs"))menu.logs(player);else menu.home(player);return true;
             }
@@ -74,7 +79,8 @@ final class AdminRouter implements TabExecutor {
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!allowed(sender))return List.of();
         try {
-            if(args.length<=1){var names=new ArrayList<>(entries.keySet());names.addAll(List.of("list","menu","logs"));return filter(names,args.length==0?"":args[0]);}
+            if(args.length<=1){var names=new ArrayList<>(entries.keySet());names.addAll(List.of("list","menu","logs","towns"));return filter(names,args.length==0?"":args[0]);}
+            if(args[0].equalsIgnoreCase("towns"))return plugin.getCommand("nltdelete").tabComplete(sender,"nltdelete",Arrays.copyOfRange(args,1,args.length));
             var e=entry(args[0]);
             if(args.length==2){var actions=new ArrayList<>(List.of("module"));if(AdminAccess.has(sender,e.permission())){actions.add("native");if(e.activities())actions.addAll(List.of("list","help","status","pause","resume","restart","extend","cancel"));}return filter(actions,args[1]);}
             if(args[1].equalsIgnoreCase("module"))return args.length==3?filter(List.of("status","plan","disable","enable"),args[2]):List.of();

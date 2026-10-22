@@ -1,0 +1,22 @@
+PASS Control and Builds enabled
+PASS all three native erasers disabled
+PASS catalog exports exact registered blocks
+PASS native town delete asks before deletion
+PASS missing permission cannot create offer
+PASS explicit permission works without OP
+PASS confirmation bound to actor
+PASS confirmation cannot replay
+PASS registered deletion completes
+PASS registered matching block removed
+PASS changed registered position preserved
+PASS ordinary base preserved
+PASS neighbor town preserved
+PASS container and contents preserved
+PASS new town initial claim snapshot captured
+PASS full mode restores captured base
+PASS new town initial claim snapshot captured
+PASS corrupt snapshot refuses before deleting town
+PASS new town initial claim snapshot captured
+PASS unknown material refuses before deleting town
+PASS five-wide deep trench refused before deleting town
+failed=0

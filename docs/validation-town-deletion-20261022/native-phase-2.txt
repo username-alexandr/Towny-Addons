@@ -1,0 +1,5 @@
+PASS Control and Builds enabled
+PASS all three native erasers disabled
+PASS durable deletion resumes after real restart
+PASS restart replay preserves later player change
+failed=0

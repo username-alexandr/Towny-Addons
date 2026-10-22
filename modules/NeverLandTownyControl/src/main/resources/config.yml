@@ -1,0 +1,7 @@
+# Native Towny revertunclaim/unclaimblockdelete/entity deletion are disabled per world.
+# Original flags and suspended coordinates are kept in town-removal/worlds-before-protection.yml.
+# Plain unclaim and automatic town loss preserve terrain. Explicit deletion uses a durable, checked plan.
+town-removal:
+  maximum-plots: 256
+  maximum-column-removals: 32
+  maximum-changed-blocks: 1000000

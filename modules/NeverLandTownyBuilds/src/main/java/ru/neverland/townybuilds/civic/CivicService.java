@@ -479,6 +479,7 @@ public final class CivicService implements Listener, TownyBuildsApi {
     public List<String> stallIds(){ synchronized (ru.neverland.core.SuiteState.lock()) {return shops.stallIds();} }
     public CivicShopMenus shops(){ synchronized (ru.neverland.core.SuiteState.lock()) {return shops;} }
     public java.util.Set<String> supportedProjects(){ synchronized (ru.neverland.core.SuiteState.lock()) {return effectsApi.supportedProjects();} }
+    public java.util.List<ru.neverland.townybuilds.api.RegisteredBuildingBlock> registeredBuildingBlocks(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return effectsApi.registeredBuildingBlocks(town);} }
     public int projectLevel(UUID town,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {return effectsApi.projectLevel(town,project);} }
     public int operationalLevel(UUID town,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {return effectsApi.operationalLevel(town,project);} }
     public Map<String,ru.neverland.townybuilds.api.BuildingFootprint> buildingFootprints(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return effectsApi.buildingFootprints(town);} }

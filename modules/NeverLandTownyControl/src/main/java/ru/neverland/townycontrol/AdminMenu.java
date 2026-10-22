@@ -57,6 +57,7 @@ final class AdminMenu implements Listener {
         button(s,15,Material.CLOCK,"Перезапуск задач",List.of("Новый таймер активной задачи","Прогресс и квитанции сохраняются"),()->activityModules(player,"restart"));
         button(s,29,Material.REPEATER,"Пауза и время",List.of("Приостановить, продолжить или продлить"),()->time(player));
         button(s,31,Material.LEVER,"Управление модулями",List.of("Состояние и безопасное отключение","Предпросмотр зависимых аддонов"),()->modules(player,1,false));
+        button(s,24,Material.GRASS_BLOCK,"Удаление городов",List.of("Предупреждение и подтверждение","Режим сохранения обычных баз"),()->towns(player,1));
         button(s,42,Material.GOLD_INGOT,"Серверные выплаты",List.of("Заказы и зарплаты: диагностика и сверка"),()->income(player));
         button(s,40,Material.COMMAND_BLOCK,"Команды наград",List.of("Очередь выдачи и спорные результаты","Сверка перед повторным выполнением"),()->rewardCommands(player,1));
         button(s,33,Material.COMPASS,"Справочник аддонов",List.of("Игровых аддонов: "+router.entries().size(),"Штатные команды и доступные задачи"),()->modules(player,1,true));show(player,s);
@@ -71,6 +72,17 @@ final class AdminMenu implements Listener {
         button(s,30,Material.PAPER,"Начисления зарплат",List.of("Последние десять записей и их ID","Все страницы: /jobpay admin list <страница>"),()->incomeCommand(player,"Jobs","jobpay","list"));
         button(s,32,Material.SPYGLASS,"Сверка спорных выплат",List.of("REVIEW: проверить банковский журнал","HELD: проверить квитанцию ресурсов","Решение требует ID и письменного основания"),()->{player.closeInventory();player.sendMessage("/orders admin show <UUID> или /jobpay admin show <UUID>");player.sendMessage("... admin resolve <UUID> <paid|retry|taken|untouched> confirm <основание сверки>");});
         back(s,()->home(player));show(player,s);
+    }
+    void towns(Player player,int page){
+        var s=screen(player,"Города • Удаление",TownDeletionService.PERMISSION);var all=plugin.townDeletion().towns();int slot=0;
+        for(String name:all.stream().skip((page-1L)*PAGE_SIZE).limit(PAGE_SIZE).toList())button(s,slot++,Material.GRASS_BLOCK,name,List.of("Выбрать режим удаления","Следующий шаг — предупреждение"),()->townDeletionModes(player,name,page));
+        pagination(s,page,all.size(),p->towns(player,p));back(s,()->home(player));show(player,s);
+    }
+    private void townDeletionModes(Player player,String name,int page){
+        var s=screen(player,"Удаление • "+name,TownDeletionService.PERMISSION);
+        button(s,20,Material.OAK_SAPLING,"Сохранить обычные базы",List.of("Убрать только зарегистрированные здания","Показать список перед подтверждением"),()->{player.closeInventory();plugin.townDeletion().request(player,TownyAPI.getInstance().getTown(name),TownDeletionService.Mode.REGISTERED);});
+        button(s,24,Material.TNT,"Удалить с откатом базы",List.of("Территория вернётся к снимку до привата","Постройки игроков могут исчезнуть","Сначала — проверка снимков"),()->{player.closeInventory();plugin.townDeletion().request(player,TownyAPI.getInstance().getTown(name),TownDeletionService.Mode.FULL);});
+        back(s,()->towns(player,page));show(player,s);
     }
     private void incomeCommand(Player player,String module,String command,String action){
         var addon=Bukkit.getPluginManager().getPlugin("NeverLandTowny"+module);if(!(addon instanceof org.bukkit.plugin.java.JavaPlugin owner)||!owner.isEnabled())throw new IllegalArgumentException("Аддон недоступен");

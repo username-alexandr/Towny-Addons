@@ -394,7 +394,7 @@ public final class ConstructionService implements Listener {
             block.setType(expected.material(), false);
             applyExpectedState(block, expected, site);
         }
-        normalizePlanStates(world, site, plan, site.buildFromStage());
+        normalizePlanStates(world, site, plan, site.buildFromStage(), town.getUUID());
         completionHandler.complete(player, town, site.projectId(), site.targetStage());
         site.complete();
         dataStore.markDirty();
@@ -407,6 +407,7 @@ public final class ConstructionService implements Listener {
         int restored = 0;
         boolean changed = false;
         for (TownData town : dataStore.towns().values()) {
+            if (towny.town(town.townId()) == null) continue;
             if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId())) continue;
             for (ConstructionSite site : town.constructionSites().values()) {
                 if (site.architectureVersion() >= ConstructionSite.CURRENT_ARCHITECTURE_VERSION) continue;
@@ -474,6 +475,7 @@ public final class ConstructionService implements Listener {
     private void repairCompletedSites() {
         int repaired = 0;
         for (TownData town : dataStore.towns().values()) {
+            if (towny.town(town.townId()) == null) continue;
             if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId())) continue;
             for (ConstructionSite site : town.constructionSites().values()) {
                 if (site.active() || site.completedStage() <= 0) continue;
@@ -492,17 +494,19 @@ public final class ConstructionService implements Listener {
                     }
                     if (block.getType() == expected.material()) applyExpectedState(block, expected, site);
                 }
-                normalizePlanStates(world, site, plan, 1);
+                normalizePlanStates(world, site, plan, 1, town.townId());
             }
         }
         if (repaired > 0) plugin.getLogger().info("Обновлены завершённые процедурные здания: восстановлено блоков " + repaired + ".");
     }
 
-    private void normalizePlanStates(World world, ConstructionSite site, BlueprintPlan plan, int fromStage) {
+    private void normalizePlanStates(World world, ConstructionSite site, BlueprintPlan plan, int fromStage, UUID townId) {
         for (Map.Entry<BlockOffset, BlueprintBlock> entry : orderedEntries(plan)) {
             BlueprintBlock expected = entry.getValue();
             if (expected.stage() < fromStage) continue;
             Block block = site.location(world, entry.getKey()).getBlock();
+            Town owner = towny.townAt(block.getLocation());
+            if (owner == null || !owner.getUUID().equals(townId)) continue;
             if (block.getType() == expected.material()) applyExpectedState(block, expected, site);
         }
     }
