@@ -84,9 +84,9 @@ public final class WageService implements Listener,CommandExecutor,TabCompleter 
         SuiteScheduler.entity(plugin,p,()->{if(e.isCancelled()||!p.getOpenInventory().getTopInventory().equals(inventory)||count(p,result)<=before)return;ItemStack[] after=inventory.getMatrix();boolean consumed=false;for(int i=0;i<Math.min(ingredients.length,after.length);i++)if(ingredients[i]!=null&&(after[i]==null||!ingredients[i].isSimilar(after[i])||after[i].getAmount()<ingredients[i].getAmount()))consumed=true;if(consumed)pay(p,Profession.ENGINEER,proof);});
     }}
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void kill(EntityDeathEvent e){synchronized(SuiteState.lock()){
-        if(!guard.hunted(e))return;Player p=e.getEntity().getKiller();Location at=p.getLocation();UUID victim=e.getEntity().getUniqueId();
+        Player p=guard.hunter(e);if(p==null)return;UUID victim=e.getEntity().getUniqueId();
         SuiteScheduler.entity(plugin,p,()->{
-            if(e.isCancelled()||!eligible(p,Profession.GUARD))return;Location before=lastKill.get(p.getUniqueId());
+            if(e.isCancelled()||!eligible(p,Profession.GUARD))return;Location at=p.getLocation();Location before=lastKill.get(p.getUniqueId());
             if(before!=null&&before.getWorld().equals(at.getWorld())&&before.distanceSquared(at)<16)return;
             lastKill.put(p.getUniqueId(),at);pay(p,Profession.GUARD,"kill:"+victim);
         });

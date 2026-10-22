@@ -2,11 +2,15 @@ name: Publish release
 
 on:
   push:
-    branches: [release/v0.41.0]
+    branches: [release/v0.42.0]
   workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -35,6 +39,7 @@ jobs:
       - name: Verify bundled artifacts
         run: |
           python scripts/verify_release.py
+          python scripts/release_metadata.py
       - name: Create release archives
         shell: bash
         run: |
@@ -44,6 +49,8 @@ jobs:
           mkdir -p "$work_dir"
 
           python scripts/package_release.py --output "$work_dir"
+          cp build/suite-tests.json build/api-source-inventory.json "$work_dir/"
+          cp dist/plugins/VALIDATION.txt versions.yml RELEASE_NOTES_RU.md "$work_dir/"
 
           {
             cd dist/plugins
@@ -62,8 +69,11 @@ jobs:
           tag="v$(tr -d '[:space:]' < VERSION)"
           work_dir="$RUNNER_TEMP/neverland-release"
           assets=(
-            build/suite-tests.json
-            build/api-source-inventory.json
+            "$work_dir/suite-tests.json"
+            "$work_dir/api-source-inventory.json"
+            "$work_dir/VALIDATION.txt"
+            "$work_dir/versions.yml"
+            "$work_dir/RELEASE_NOTES_RU.md"
             modules/NeverLandTownyBuilds/build/reports/resource-balance.csv
             dist/plugins/*.jar
             assets/models/*.zip
@@ -71,12 +81,26 @@ jobs:
             "$work_dir/SHA256SUMS.txt"
           )
 
-          if gh release view "$tag" >/dev/null 2>&1; then
-            gh release edit "$tag" --title "NeverLand Towny Suite ${tag#v}" --notes-file RELEASE_NOTES_RU.md
-            gh release upload "$tag" "${assets[@]}" --clobber
+          if gh api "repos/$GITHUB_REPOSITORY/releases/tags/$tag" > "$work_dir/release.json" 2>/dev/null; then
+            python -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["draft"], "Refusing to overwrite a published release"; assert r["target_commitish"]==sys.argv[2], "Draft belongs to a different commit"' "$work_dir/release.json" "$GITHUB_SHA"
           else
-            gh release create "$tag" "${assets[@]}" \
+            gh release create "$tag" --draft \
               --target "$GITHUB_SHA" \
               --title "NeverLand Towny Suite ${tag#v}" \
               --notes-file RELEASE_NOTES_RU.md
           fi
+
+          gh release upload "$tag" "${assets[@]}" --clobber
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$tag" > "$work_dir/release.json"
+          python scripts/verify_published_assets.py "$work_dir/release.json" "${assets[@]}"
+          release_id="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["id"])' "$work_dir/release.json")"
+          gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/$release_id" -F draft=false -f make_latest=true >/dev/null
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: suite-release-verification
+          path: |
+            build/suite-tests.json
+            build/api-source-inventory.json
+            dist/plugins/VALIDATION.txt
+            dist/plugins/SHA256SUMS.txt

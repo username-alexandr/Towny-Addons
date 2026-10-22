@@ -13,12 +13,16 @@ import ru.neverland.mintcontracts.service.ContractService;
 
 public final class ProgressListener implements Listener {
     private final ContractService contracts;
-    public ProgressListener(ContractService contracts) { this.contracts = contracts; }
+    private final org.bukkit.plugin.java.JavaPlugin plugin;
+    public ProgressListener(org.bukkit.plugin.java.JavaPlugin plugin, ContractService contracts) { this.plugin=plugin;this.contracts = contracts; }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onKill(EntityDeathEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyContracts")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         Player killer = event.getEntity().getKiller();
-        if (killer != null) contracts.record(killer, ContractType.MOB_KILL, event.getEntityType().name(), 1);
+        String target=event.getEntityType().name();
+        if (killer != null) ru.neverland.core.SuiteScheduler.entity(plugin,killer,()->{
+            if(!event.isCancelled())contracts.record(killer,ContractType.MOB_KILL,target,1);
+        });
     } }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

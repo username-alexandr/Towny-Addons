@@ -1,4 +1,4 @@
-suite: 0.41.0
+suite: 0.42.0
 platform:
   server: Paper/Purpur/Folia 26.2
   towny: 0.103.2.0
@@ -9,7 +9,7 @@ addons:
   NeverLandTownyBuilds: 0.8.28
   NeverLandTownyCamps: 0.1.21
   NeverLandTownyChronicles: 0.1.18
-  NeverLandTownyContracts: 0.3.21
+  NeverLandTownyContracts: 0.3.22
   NeverLandTownyEspionage: 0.1.21
   NeverLandTownyEvents: 0.4.8
   NeverLandTownyExpeditions: 0.1.24
@@ -31,7 +31,7 @@ addons:
   NeverLandTownyTreasuryPlus: 0.1.16
   NeverLandTownyMarket: 0.1.15
   NeverLandTownyCompanies: 0.1.14
-  NeverLandTownyJobs: 0.1.16
+  NeverLandTownyJobs: 0.1.17
   NeverLandTownyCitizens: 0.1.11
   NeverLandTownyElections: 0.1.11
   NeverLandTownyCouncil: 0.1.13

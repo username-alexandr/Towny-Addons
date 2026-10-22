@@ -42,7 +42,7 @@ public final class MintTownyContracts extends JavaPlugin {
         try{contracts.initialize();}catch(Exception ex){getLogger().severe("Контракты отключены: "+ex.getMessage());getServer().getPluginManager().disablePlugin(this);return;}
         ContractMenuManager menus = new ContractMenuManager(this, towny, contracts, messages, names);
         getServer().getPluginManager().registerEvents(menus, this);
-        getServer().getPluginManager().registerEvents(new ProgressListener(contracts), this);
+        getServer().getPluginManager().registerEvents(new ProgressListener(this,contracts), this);
         towny.register("contracts", new TownContractsCommand(towny, contracts, menus, messages));
         PluginCommand admin = getCommand("townycontracts");
         if (admin != null) {

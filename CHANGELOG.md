@@ -1,3 +1,12 @@
+## Suite 0.42.0 / Contracts 0.3.22 / Jobs 0.1.17 — 2026-10-22
+
+- Publish the complete 40-addon suite with all changes since 0.41.0: economy MVP, daily randomized orders, rarity icons, expanded catalog/budget, hidden paid offers, guarded town deletion and readable confirmations.
+- Hunting resolves the actual finishing damage source and player-owned projectiles. Bow/crossbow arrows, spectral arrows and thrown tridents no longer require the shooter to share the victim's Folia region.
+- Explicit vanilla weapon/tool whitelist includes all seven tiers of swords, spears, axes, pickaxes, shovels and hoes, other tools, ranged weapons and the empty hand. Keep natural-spawn and anti-trap checks; read player state on its owning region.
+- Move municipal kill progress to the killer's entity scheduler; retain existing city contract funding and eligibility rules. Guard salary reads the player position only on that scheduler.
+- Build and verify the complete matrix before packaging. Generate fresh checksums/reports and verify every uploaded draft asset by size and SHA-256 before publishing a new release.
+- Details, installation and test boundaries: `docs/UPDATE_0.42.0_RU.md` and `docs/HUNTING_0.3.22_RU.md`.
+
 ## Control 0.4.8 — 2026-10-22
 
 - Rewrite town-deletion warnings, progress, cancellation and failure messages in plain Russian: explain which buildings can disappear and that chests keep their contents.

@@ -34,6 +34,9 @@ def main():
     archive(args.output/f'{prefix}-plugins.zip', jars+['dist/plugins/README.md','dist/plugins/SHA256SUMS.txt','dist/plugins/VALIDATION.txt'])
     archive(args.output/f'{prefix}-full.zip', source+assets+jars+['dist/plugins/README.md','dist/plugins/SHA256SUMS.txt','dist/plugins/VALIDATION.txt'])
     for path in sorted(args.output.glob(prefix+'-*.zip')):
+        with zipfile.ZipFile(path) as packaged:
+            if packaged.testzip() is not None:
+                raise SystemExit(f'Corrupt release archive: {path.name}')
         print(path.name, path.stat().st_size)
 
 if __name__ == '__main__':
