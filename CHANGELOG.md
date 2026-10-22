@@ -1,3 +1,9 @@
+## Control 0.4.8 — 2026-10-22
+
+- Rewrite town-deletion warnings, progress, cancellation and failure messages in plain Russian: explain which buildings can disappear and that chests keep their contents.
+- Players confirm through chat buttons without a visible UUID command; console senders retain the command fallback. Simplify deletion menu descriptions and ordinary-player status/help; administrative diagnostics remain available.
+- Presentation-only update; deletion rules, protection, persistence and permissions are unchanged. Details: `docs/TOWN_DELETION_TEXT_0.4.8_RU.md`.
+
 ## Control 0.4.7 / Builds 0.8.28 — 2026-10-22
 
 - Town deletion now requires a warning and actor-bound confirmation. Admins can preserve ordinary bases and remove only matching blocks from registered Builds blueprints, or explicitly request a validated full rollback.

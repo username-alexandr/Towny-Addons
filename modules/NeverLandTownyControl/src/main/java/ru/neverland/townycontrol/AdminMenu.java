@@ -80,8 +80,8 @@ final class AdminMenu implements Listener {
     }
     private void townDeletionModes(Player player,String name,int page){
         var s=screen(player,"Удаление • "+name,TownDeletionService.PERMISSION);
-        button(s,20,Material.OAK_SAPLING,"Сохранить обычные базы",List.of("Убрать только зарегистрированные здания","Показать список перед подтверждением"),()->{player.closeInventory();plugin.townDeletion().request(player,TownyAPI.getInstance().getTown(name),TownDeletionService.Mode.REGISTERED);});
-        button(s,24,Material.TNT,"Удалить с откатом базы",List.of("Территория вернётся к снимку до привата","Постройки игроков могут исчезнуть","Сначала — проверка снимков"),()->{player.closeInventory();plugin.townDeletion().request(player,TownyAPI.getInstance().getTown(name),TownDeletionService.Mode.FULL);});
+        button(s,20,Material.OAK_SAPLING,"Сохранить обычные базы",List.of("Убрать только здания из списка города","Остальные постройки оставить","Показать список перед подтверждением"),()->{player.closeInventory();plugin.townDeletion().request(player,TownyAPI.getInstance().getTown(name),TownDeletionService.Mode.REGISTERED);});
+        button(s,24,Material.TNT,"Вернуть прежний вид территории",List.of("Вернуть вид, который был до города","Поздние постройки могут исчезнуть","Показать предупреждение"),()->{player.closeInventory();plugin.townDeletion().request(player,TownyAPI.getInstance().getTown(name),TownDeletionService.Mode.FULL);});
         back(s,()->towns(player,page));show(player,s);
     }
     private void incomeCommand(Player player,String module,String command,String action){

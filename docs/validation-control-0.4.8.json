@@ -1,0 +1,21 @@
+{
+  "module": "NeverLandTownyControl",
+  "version": "0.4.8",
+  "jar_sha256": "6e60f06f72ed56d401767a5a35496e94744b463d2ce76fc31495661eefa0b301",
+  "build_and_existing_tests": [
+    {
+      "module": "NeverLandTownyControl",
+      "tests": [
+        "ru.neverland.townycontrol.ActivityAdminSmoke",
+        "ru.neverland.townycontrol.AdminMenuSmoke",
+        "ru.neverland.townycontrol.AuditSmoke",
+        "ru.neverland.townycontrol.DeletionSafetySmoke",
+        "ru.neverland.townycontrol.ModuleSafetySmoke"
+      ],
+      "api_contracts": [],
+      "repository_fault_probe": false,
+      "seconds": 54.839
+    }
+  ],
+  "native_server_rerun": false
+}

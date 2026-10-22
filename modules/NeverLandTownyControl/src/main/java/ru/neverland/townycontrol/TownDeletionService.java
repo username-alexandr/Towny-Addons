@@ -50,7 +50,7 @@ final class TownDeletionService implements Listener,TabExecutor {
     private void authorized(CommandSender sender,Town town,Mode mode){
         if(town==null)throw new IllegalArgumentException("Город уже удалён");
         if(administrator(sender))return;
-        if(mode!=Mode.FULL||!(sender instanceof Player p)||town.getMayor()==null||!town.getMayor().getUUID().equals(p.getUniqueId())||!TownyUniverse.getInstance().getPermissionSource().testPermission(p,"towny.command.town.delete"))throw new IllegalArgumentException("Удалить этот город может его мэр или администратор с правом "+PERMISSION);
+        if(mode!=Mode.FULL||!(sender instanceof Player p)||town.getMayor()==null||!town.getMayor().getUUID().equals(p.getUniqueId())||!TownyUniverse.getInstance().getPermissionSource().testPermission(p,"towny.command.town.delete"))throw new IllegalArgumentException("Удалить этот город может только его мэр или администратор.");
     }
     private static Town town(UUID id){var t=TownyAPI.getInstance().getTown(id);if(t==null)throw new IllegalArgumentException("Город уже удалён");return t;}
     private static Town named(String name){var t=TownyAPI.getInstance().getTown(name);if(t==null)throw new IllegalArgumentException("Город не найден: "+name);return t;}
@@ -81,24 +81,25 @@ final class TownDeletionService implements Listener,TabExecutor {
     List<String> towns(){return TownyAPI.getInstance().getTowns().stream().map(Town::getName).sorted().toList();}
     void request(CommandSender sender,Town town,Mode mode)throws Exception{
         authorized(sender,town,mode);protection.verify();
-        if(jobs.values().stream().anyMatch(j->j.town.equals(town.getUUID())&&j.reserves()))throw new IllegalStateException("Для города уже есть операция. /nltdelete status");
+        if(jobs.values().stream().anyMatch(j->j.town.equals(town.getUUID())&&j.reserves()))throw new IllegalStateException("Удаление этого города уже начато. Посмотреть состояние: /nltdelete status");
         int max=plugin.getConfig().getInt("town-removal.maximum-plots",256);
-        if(town.getNumTownBlocks()>max)throw new IllegalArgumentException("Слишком большой город для одной операции; проверьте town-removal.maximum-plots");
+        if(town.getNumTownBlocks()>max)throw new IllegalArgumentException("Город слишком большой для удаления одной командой. Обратитесь к администрации.");
         var names=new TreeSet<String>();if(mode==Mode.REGISTERED)listed(town).forEach(b->names.add(b.project()));
         var offer=new Offer(UUID.randomUUID(),town.getUUID(),actor(sender),mode,fingerprint(town),System.currentTimeMillis()+60000);offers.put(actor(sender),offer);
-        sender.sendMessage("§6Удаление города «"+town.getName()+"»");
+        sender.sendMessage("§6Удалить город «"+town.getName()+"»?");
         if(mode==Mode.FULL){
-            sender.sendMessage("§cВНИМАНИЕ: база игроков на территории города будет откачена к снимку до привата. Постройки и изменения территории могут исчезнуть.");
-            sender.sendMessage("§eЕсли снимок отсутствует, повреждён или требует опасного сноса, город останется на месте.");
+            sender.sendMessage("§cТерритория вернётся к виду, который был до того, как её занял город.");
+            sender.sendMessage("§cДома, фермы и другие постройки, появившиеся здесь позже, могут исчезнуть.");
         }else{
-            sender.sendMessage("§aОбычные базы и ландшафт сохраняются. Удаляются только совпадающие блоки зарегистрированных чертежей.");
-            sender.sendMessage("§eЗдания: "+(names.isEmpty()?"список пуст — блоки не меняются":String.join(", ",names)));
+            sender.sendMessage("§aОбычные базы и ландшафт останутся. Будут разобраны только городские здания из списка ниже.");
+            sender.sendMessage("§eЗдания: "+(names.isEmpty()?"список пуст — все постройки останутся":String.join(", ",names)));
         }
-        sender.sendMessage("§eКазна и членство обрабатываются Towny. Контейнеры, другие блоки с данными и сущности не удаляются этой операцией.");
-        if(TownySettings.getTownRuinsEnabled())sender.sendMessage("§eПри включённых руинах откат начнётся после окончательного удаления города.");
-        sender.sendMessage(Component.text("[Подтвердить удаление]",NamedTextColor.RED).clickEvent(ClickEvent.runCommand("/nltdelete confirm "+offer.token()))
+        sender.sendMessage("§eСундуки и вещи в них останутся на месте.");
+        if(TownySettings.getTownRuinsEnabled())sender.sendMessage("§eСначала город станет руинами. Территория изменится после его окончательного удаления.");
+        sender.sendMessage("§7Нажмите кнопку ниже. На подтверждение — одна минута.");
+        sender.sendMessage(Component.text("[Да, удалить город]",NamedTextColor.RED).clickEvent(ClickEvent.runCommand("/nltdelete confirm "+offer.token()))
             .append(Component.text("   [Отмена]",NamedTextColor.GREEN).clickEvent(ClickEvent.runCommand("/nltdelete cancel"))));
-        sender.sendMessage("§7Подтверждение действует 60 секунд: /nltdelete confirm "+offer.token());
+        if(!(sender instanceof Player))sender.sendMessage("§7Подтвердить командой: /nltdelete confirm "+offer.token());
     }
     private List<ListedBlock> listed(Town town)throws Exception{
         Object value=ApiServices.call("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","registeredBuildingBlocks",new Class<?>[]{UUID.class},town.getUUID());
@@ -110,20 +111,20 @@ final class TownDeletionService implements Listener,TabExecutor {
     }
     private void confirm(CommandSender sender,UUID token)throws Exception{
         Offer offer=offers.get(actor(sender));
-        if(offer==null||!offer.token().equals(token)||offer.expires()<System.currentTimeMillis())throw new IllegalArgumentException("Подтверждение отсутствует или устарело. Повторите удаление.");
+        if(offer==null||!offer.token().equals(token)||offer.expires()<System.currentTimeMillis())throw new IllegalArgumentException("Эта кнопка больше не действует. Начните удаление заново.");
         Town town=town(offer.town());authorized(sender,town,offer.mode());protection.verify();
         if(!offer.fingerprint().equals(fingerprint(town)))throw new IllegalArgumentException("Мэр или территория города изменились. Запросите новое подтверждение.");
         offers.remove(actor(sender));var blocks=offer.mode()==Mode.REGISTERED?listed(town):List.<ListedBlock>of();
         Job job=new Job();job.id=UUID.randomUUID();job.town=town.getUUID();job.name=town.getName();job.actor=actor(sender);job.mode=offer.mode().name();job.fingerprint=offer.fingerprint();job.directory=root.resolve(job.id.toString());
         var claims=List.copyOf(town.getTownBlocks());job.plots=claims.stream().map(TerrainProtection::plot).toList();
         if(jobs.values().stream().anyMatch(j->j.town.equals(job.town)&&j.reserves()))throw new IllegalStateException("Удаление уже готовится");
-        save(job);jobs.put(job.id,job);sender.sendMessage("§eПроверяю снимки и готовлю план. Город будет удалён только после успешной проверки.");
+        save(job);jobs.put(job.id,job);sender.sendMessage("§eПроверяем территорию перед удалением. Пожалуйста, подождите.");
         prepare(job,sender,claims,blocks,0);
     }
     private void prepare(Job job,CommandSender sender,List<TownBlock> claims,List<ListedBlock> listed,int index){
         if(index>=claims.size()){SuiteScheduler.reply(plugin,sender,()->commit(job,sender));return;}
         TownBlock claim=claims.get(index);Plot p=job.plots.get(index);World world=Bukkit.getWorld(p.world());
-        if(world==null){fail(job,"Мир участка не загружен",false);tell(sender,"§cПодготовка остановлена: мир не загружен");return;}
+        if(world==null){fail(job,"Мир участка не загружен",false);tell(sender,"§cУдаление сейчас недоступно. Город и постройки сохранены. Обратитесь к администрации.");return;}
         SuiteScheduler.region(plugin,new Location(world,p.x()*16,world.getMinHeight(),p.z()*16),()->{
             try{
                 if(!job.state.equals("PREPARING")||!job.fingerprint.equals(fingerprint(town(job.town))))throw new IllegalStateException("Территория города изменилась");
@@ -144,9 +145,9 @@ final class TownDeletionService implements Listener,TabExecutor {
                         }
                         var plan=new ChunkPlan(p,min,max,List.copyOf(changes.values()));
                         SuiteScheduler.get().runTask(plugin,()->finishPlan(job,sender,claims,listed,index,plan));
-                    }catch(Exception ex){SuiteScheduler.get().runTask(plugin,()->{fail(job,ex.getMessage(),false);tell(sender,"§cГород сохранён. Подготовка остановлена: "+ex.getMessage());});}
+                    }catch(Exception ex){SuiteScheduler.get().runTask(plugin,()->{fail(job,ex.getMessage(),false);preparationFailed(sender,ex);});}
                 });
-            }catch(Exception ex){fail(job,ex.getMessage(),false);tell(sender,"§cГород сохранён: "+ex.getMessage());}
+            }catch(Exception ex){fail(job,ex.getMessage(),false);preparationFailed(sender,ex);}
         });
     }
     private void finishPlan(Job job,CommandSender sender,List<TownBlock> claims,List<ListedBlock> listed,int index,ChunkPlan raw){
@@ -167,11 +168,11 @@ final class TownDeletionService implements Listener,TabExecutor {
                     Path path=job.directory.resolve(index+".gz");savePlan(path,plan);String hash=sha(path);
                     SuiteScheduler.get().runTask(plugin,()->{
                         try{if(!job.state.equals("PREPARING"))return;job.hashes.add(hash);job.total+=changes.size();save(job);prepare(job,sender,claims,listed,index+1);}
-                        catch(Exception ex){fail(job,ex.getMessage(),false);tell(sender,"§cГород сохранён. Подготовка остановлена: "+ex.getMessage());}
+                        catch(Exception ex){fail(job,ex.getMessage(),false);preparationFailed(sender,ex);}
                     });
-                }catch(Exception ex){SuiteScheduler.get().runTask(plugin,()->{fail(job,ex.getMessage(),false);tell(sender,"§cГород сохранён. Подготовка остановлена: "+ex.getMessage());});}
+                }catch(Exception ex){SuiteScheduler.get().runTask(plugin,()->{fail(job,ex.getMessage(),false);preparationFailed(sender,ex);});}
             });
-        }catch(Exception ex){fail(job,ex.getMessage(),false);tell(sender,"§cГород сохранён. Подготовка остановлена: "+ex.getMessage());}
+        }catch(Exception ex){fail(job,ex.getMessage(),false);preparationFailed(sender,ex);}
     }
     private static void addChange(Map<String,Change> result,Set<String> tiles,Change c){
         String key=c.x()+":"+c.y()+":"+c.z();if(c.before().equals(c.after())||tiles.contains(key)||protectedBlock(c.before())||protectedBlock(c.after()))return;result.put(key,c);
@@ -192,11 +193,11 @@ final class TownDeletionService implements Listener,TabExecutor {
             try{TownyUniverse.getInstance().getDataSource().removeTown(town,administrator(sender)?DeleteTownEvent.Cause.ADMIN_COMMAND:DeleteTownEvent.Cause.COMMAND,sender);}
             finally{executing.remove(job.town);}
             var remaining=TownyAPI.getInstance().getTown(job.town);
-            if(remaining==null){job.state="APPLYING";save(job);apply(job);sender.sendMessage("§aГород удалён. Применяю проверенный план; статус: /nltdelete status");}
-            else if(remaining.isRuined()){job.state="WAITING_DELETE";save(job);sender.sendMessage("§eГород перешёл в руины. План будет применён после окончательного удаления.");}
-            else {job.state="CANCELLED";save(job);sender.sendMessage("§eУдаление отменено Towny или другим плагином. Блоки не менялись.");}
+            if(remaining==null){job.state="APPLYING";save(job);apply(job);sender.sendMessage(job.mode.equals("FULL")?"§aГород удалён. Возвращаем территорию к прежнему виду.":"§aГород удалён. Разбираем городские здания; обычные базы сохраняются.");}
+            else if(remaining.isRuined()){job.state="WAITING_DELETE";save(job);sender.sendMessage("§eГород стал руинами. Территория изменится после его окончательного удаления.");}
+            else {job.state="CANCELLED";save(job);sender.sendMessage("§eУдаление отменено. Город и постройки сохранены.");}
             audit(job,"REQUESTED");
-        }catch(Exception ex){boolean removed=TownyAPI.getInstance().getTown(job.town)==null;fail(job,ex.getMessage(),removed);tell(sender,"§cУдаление остановлено: "+ex.getMessage());}
+        }catch(Exception ex){boolean removed=TownyAPI.getInstance().getTown(job.town)==null;fail(job,ex.getMessage(),removed);tell(sender,sender instanceof Player?(removed?"§cГород удалён, но изменение территории остановлено. Обратитесь к администрации.":"§cУдаление остановлено. Город и постройки сохранены. Обратитесь к администрации."):"§cУдаление остановлено: "+ex.getMessage());}
     }
     @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void before(PreDeleteTownEvent event){synchronized(SuiteState.lock()){
         if(event.getCause().isCommand()&&!executing.contains(event.getTown().getUUID())){event.setCancelled(true);event.setCancelMessage("Удаление требует предупреждения: используйте /town delete заново.");}
@@ -257,6 +258,15 @@ final class TownDeletionService implements Listener,TabExecutor {
     }
     private void fail(Job job,String error,boolean review){job.busy=false;job.state=review?"REVIEW":"CANCELLED";job.error=String.valueOf(error);try{save(job);audit(job,"STOPPED");}catch(Exception ex){plugin.getLogger().severe("Не сохранено состояние удаления "+job.id+": "+ex.getMessage());}plugin.getLogger().warning("Удаление "+job.name+" остановлено: "+error);}
     private void tell(CommandSender sender,String message){SuiteScheduler.reply(plugin,sender,()->sender.sendMessage(message));}
+    private void preparationFailed(CommandSender sender,Exception error){tell(sender,sender instanceof Player?"§cНе удалось подготовить удаление. Город и постройки сохранены. Обратитесь к администрации.":"§cГород сохранён. Подготовка остановлена: "+error.getMessage());}
+    private static String playerStatus(Job job){return switch(job.state){
+        case "PREPARING","ARMED"->"Проверяем территорию перед удалением.";
+        case "WAITING_DELETE"->"Город стал руинами и ожидает окончательного удаления.";
+        case "APPLYING"->job.mode.equals("FULL")?"Город удалён. Возвращаем территорию к прежнему виду.":"Город удалён. Разбираем городские здания.";
+        case "DONE"->"Удаление города и изменение территории завершены.";
+        case "CANCELLED"->"Удаление остановлено. Оставшиеся изменения отменены.";
+        default->"Удаление приостановлено. Обратитесь к администрации.";
+    };}
     private void audit(Job job,String status){AuditTrail.record(plugin,"town-delete",job.id+":"+status,"ADMIN_TOWN_DELETE",status,new AuditRecord.Party("ACTOR",job.actor,job.actor,""),new AuditRecord.Party("TOWN",job.town.toString(),job.name,""),AuditRecord.Party.unknown(),"",job.changed,"",job.mode+"; skipped="+job.skipped+"; "+job.error);}
     private void save(Job job)throws IOException{
         var y=new YamlConfiguration();y.set("schema",1);y.set("id",job.id.toString());y.set("town",job.town.toString());y.set("name",job.name);y.set("actor",job.actor);y.set("mode",job.mode);y.set("fingerprint",job.fingerprint);y.set("state",job.state);y.set("error",job.error);
@@ -282,16 +292,16 @@ final class TownDeletionService implements Listener,TabExecutor {
     }
     @Override public boolean onCommand(CommandSender sender,Command cmd,String label,String[] args){synchronized(SuiteState.lock()){
         try{
-            if(args.length==1&&args[0].equalsIgnoreCase("cancel")){var removed=offers.remove(actor(sender));sender.sendMessage(removed!=null?"§aПодтверждение отменено, город сохранён.":"§eНет ожидающего подтверждения. Уже запущенные операции: /nltdelete status");return true;}
+            if(args.length==1&&args[0].equalsIgnoreCase("cancel")){var removed=offers.remove(actor(sender));sender.sendMessage(removed!=null?"§aУдаление отменено. Город сохранён.":"§eНет удаления, которое можно отменить этой кнопкой. Посмотреть состояние: /nltdelete status");return true;}
             if(args.length==2&&args[0].equalsIgnoreCase("confirm")){confirm(sender,UUID.fromString(args[1]));return true;}
-            if(args.length==1&&args[0].equalsIgnoreCase("status")){for(var j:jobs.values())if(administrator(sender)||j.actor.equals(actor(sender)))sender.sendMessage("§e"+j.name+" §f"+j.state+"; изменено="+j.changed+", пропущено="+j.skipped+"; "+j.id+(j.error.isEmpty()?"":"; "+j.error));return true;}
+            if(args.length==1&&args[0].equalsIgnoreCase("status")){boolean found=false;for(var j:jobs.values())if(administrator(sender)||j.actor.equals(actor(sender))){found=true;sender.sendMessage(administrator(sender)?"§e"+j.name+" §f"+j.state+"; изменено="+j.changed+", пропущено="+j.skipped+"; "+j.id+(j.error.isEmpty()?"":"; "+j.error):"§e"+j.name+" §f"+playerStatus(j));}if(!found)sender.sendMessage("§eВы ещё не запускали удаление города.");return true;}
             if(args.length==2&&Set.of("resume","abandon").contains(args[0].toLowerCase(Locale.ROOT))){
                 if(!administrator(sender))throw new IllegalArgumentException("Нет права "+PERMISSION);Job j=jobs.get(UUID.fromString(args[1]));if(j==null||!j.state.equals("REVIEW"))throw new IllegalArgumentException("Операция не ожидает сверки");
                 if(args[0].equalsIgnoreCase("abandon")){j.state="CANCELLED";save(j);audit(j,"ABANDONED");sender.sendMessage("§eОставшиеся изменения отменены. Уже применённые изменения не обращены.");}
                 else {if(TownyAPI.getInstance().getTown(j.town)!=null)throw new IllegalStateException("Город существует; продолжение запрещено");if(j.hashes.size()!=j.plots.size())throw new IllegalStateException("План неполный");j.state="APPLYING";j.error="";save(j);apply(j);}return true;
             }
             if(args.length==2&&Set.of("full","registered").contains(args[1].toLowerCase(Locale.ROOT))){if(!administrator(sender))throw new IllegalArgumentException("Нет права "+PERMISSION);request(sender,named(args[0]),Mode.valueOf(args[1].toUpperCase(Locale.ROOT)));return true;}
-            sender.sendMessage("§fМэр: /town delete. Администратор: /nltdelete <город> <full|registered>. /nltdelete status | cancel | confirm <код> | resume|abandon <ID>");
+            sender.sendMessage(administrator(sender)?"§fМэр: /town delete. Администратор: /nltdelete <город> <full|registered>. /nltdelete status | cancel | confirm <код> | resume|abandon <ID>":"§fУдалить свой город: /town delete. Посмотреть состояние удаления: /nltdelete status.");
         }catch(Exception ex){sender.sendMessage("§c"+ex.getMessage());}return true;
     }}
     @Override public List<String> onTabComplete(CommandSender sender,Command cmd,String label,String[] args){synchronized(SuiteState.lock()){
