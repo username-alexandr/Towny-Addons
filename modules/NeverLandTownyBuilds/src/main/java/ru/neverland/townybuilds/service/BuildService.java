@@ -38,6 +38,8 @@ public final class BuildService {
     private final RussianItemNames itemNames;
     private final DefinitionRegistry definitions;
     private ConstructionService construction;
+    private ru.neverland.townybuilds.construction.ConstructionRefunds refunds;
+    public void refunds(ru.neverland.townybuilds.construction.ConstructionRefunds value) { refunds=value; }
 
     public BuildService(JavaPlugin plugin, TownyHook towny, DataStore dataStore, MessageService messages,
                         ArchaeologyBridge archaeology, RussianItemNames itemNames,
@@ -91,6 +93,7 @@ public final class BuildService {
                 return new UpgradeResult(UpgradeResult.Status.NOT_ENOUGH_ARTIFACTS, level.money(), missingArtifacts, next);
             }
         }
+        if (!ru.neverland.townybuilds.construction.ConstructionRefunds.economyReady()) return UpgradeResult.of(UpgradeResult.Status.ECONOMY_ERROR);
         if (!town.getAccount().canPayFromHoldings(level.money())) {
             return new UpgradeResult(UpgradeResult.Status.NOT_ENOUGH_MONEY, level.money(), List.of(), next);
         }
@@ -102,6 +105,17 @@ public final class BuildService {
         }
         String reason = plugin.getConfig().getString("settings.economy.withdraw-reason", "Городская постройка")
                 .replace("{project}", ColorUtil.plain(project.name())).replace("{level}", String.valueOf(next));
+        if (procedural && refunds != null) {
+            try {
+                boolean started=refunds.begin(player,town,project,level,preparation,fund,reason);
+                if (!started) player.sendMessage("§eНе удалось начать стройку. Деньги и ресурсы поставлены на возврат в казну и склад.");
+                return new UpgradeResult(started?UpgradeResult.Status.CONSTRUCTION_STARTED:UpgradeResult.Status.CONSTRUCTION_IN_PROGRESS,level.money(),List.of(),next);
+            } catch (Exception ex) {
+                plugin.getLogger().warning("Старт стройки "+project.id()+": "+ex.getMessage());
+                player.sendMessage("§eСтарт стройки приостановлен: "+ex.getMessage());
+                return UpgradeResult.of(UpgradeResult.Status.CONSTRUCTION_IN_PROGRESS);
+            }
+        }
         if (level.money() > 0 && !ru.neverland.integration.TreasuryAccess.withdraw(town,"construction","construction",level.money(),reason)) {
             return UpgradeResult.of(UpgradeResult.Status.ECONOMY_ERROR);
         }
@@ -209,7 +223,8 @@ public final class BuildService {
         UpgradeResult failure = constructionFailure(preparation, 0, current);
         if (failure != null) return failure;
         try {
-            construction.commit(preparation, player, town);
+            if(refunds!=null)refunds.beginFree(player,town,preparation);
+            else construction.commit(preparation, player, town);
             dataStore.markDirty();
             dataStore.save();
             return new UpgradeResult(UpgradeResult.Status.CONSTRUCTION_STARTED, 0, List.of(), current);

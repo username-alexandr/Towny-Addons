@@ -37,6 +37,10 @@ public final class TownData {
     public void removeShipment(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {shipments.remove(id);} }
     private final Map<String, Integer> levels = new HashMap<>();
     private final Map<String, ConstructionSite> constructionSites = new HashMap<>();
+    private final Map<String, ru.neverland.townybuilds.construction.ConstructionReceipt> constructionReceipts = new HashMap<>();
+    public Map<String, ru.neverland.townybuilds.construction.ConstructionReceipt> constructionReceipts() { synchronized (ru.neverland.core.SuiteState.lock()) { return Map.copyOf(constructionReceipts); } }
+    public void receipt(String project, ru.neverland.townybuilds.construction.ConstructionReceipt receipt) { synchronized (ru.neverland.core.SuiteState.lock()) { if (receipt == null) constructionReceipts.remove(project); else constructionReceipts.put(project, receipt); } }
+    public void removeConstructionSite(String project) { synchronized (ru.neverland.core.SuiteState.lock()) { constructionSites.remove(project); } }
     private final Map<String, ResourceFund> resourceFunds = new HashMap<>();
     private final Map<String, CivicArea> civicAreas = new HashMap<>();
     private final Map<String, CivicLine> civicLines = new HashMap<>();

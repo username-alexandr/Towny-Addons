@@ -1,0 +1,6 @@
+PASS uncertain bank outcome survives real server restart
+PASS exact money and pending resource count preserved
+PASS custom item metadata preserved
+PASS warehouse persisted with same transaction
+checks=4
+failed=0

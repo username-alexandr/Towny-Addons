@@ -1,0 +1,15 @@
+PASS restore recorded construction cell
+PASS original terrain restored
+PASS unregistered adjacent block untouched
+PASS replaying block restoration is harmless
+PASS foreign replacement blocks cancellation
+PASS container contents preserved
+PASS empty construction chest can be removed
+PASS large removal yields after batch limit
+PASS remaining removal continues next pass
+PASS real Folia BlockDisplay is temporary and private
+PASS display block data round-trip
+PASS display cleaned on owning region
+PASS receipt resource metadata survives YAML serialization
+checks=13
+failed=0

@@ -92,6 +92,12 @@ public final class DataStore {
                     }
                 }
                 data.loadConstructionSites(sites);
+                var receipts = ru.neverland.core.SafeYaml.section(section, "construction-receipts");
+                if (receipts != null) for (String project : receipts.getKeys(false)) {
+                    var receipt = receipts.getConfigurationSection(project);
+                    if (receipt == null) throw new IOException("Повреждена квитанция стройки");
+                    data.receipt(project, ru.neverland.townybuilds.construction.ConstructionReceipt.load(receipt));
+                }
                 Map<String, ResourceFund> funds = new HashMap<>();
                 ConfigurationSection fundSection = section == null ? null : section.getConfigurationSection("resource-funds");
                 if (fundSection != null) {
@@ -188,6 +194,8 @@ public final class DataStore {
                 yaml.set(root + ".active", site.active());
                 yaml.set(root + ".architecture-version", site.architectureVersion());
             }
+            for (var receipt : data.constructionReceipts().entrySet())
+                receipt.getValue().save(yaml.createSection(path + ".construction-receipts." + receipt.getKey()));
             for (Map.Entry<String, ResourceFund> fundEntry : data.resourceFunds().entrySet()) {
                 String root = path + ".resource-funds." + fundEntry.getKey();
                 ResourceFund fund = fundEntry.getValue();

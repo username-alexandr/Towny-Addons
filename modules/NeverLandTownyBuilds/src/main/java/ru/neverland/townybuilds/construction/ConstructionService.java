@@ -46,7 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -64,6 +63,12 @@ public final class ConstructionService implements Listener {
     private final BuildingBlueprintGenerator generator;
     private final CompletionHandler completionHandler;
     private final Map<UUID, TextDisplay> guideDisplays = new HashMap<>();
+    private final ConstructionBlockDisplays blockDisplays;
+    private long previewGeneration;
+    private boolean running;
+    private ConstructionRefunds refunds;
+    public void refunds(ConstructionRefunds value) { refunds=value; }
+    private boolean refundBlocked(UUID town, String project) { return refunds!=null&&refunds.blocks(town,project); }
     private final Map<UUID, ObstructionPreview> obstructionPreviews = new HashMap<>();
     private record Obstruction(Location location, Material material) {}
     private record ObstructionPreview(long expiresAt, List<Obstruction> blocks) {}
@@ -80,10 +85,12 @@ public final class ConstructionService implements Listener {
         this.itemNames = itemNames;
         this.generator = generator;
         this.completionHandler = completionHandler;
+        this.blockDisplays = new ConstructionBlockDisplays(plugin);
     }
 
     public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
         stop();
+        running = true;
         // Events registers its public repair API after Builds enables. Wait until all plugins are ready.
         restorationTask = ru.neverland.core.SuiteScheduler.get().runTask(plugin, () -> {
             for (TownData data : dataStore.towns().values()) for (ConstructionSite site : data.constructionSites().values()) {
@@ -98,6 +105,8 @@ public final class ConstructionService implements Listener {
     } }
 
     public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) {
+        running = false;
+        previewGeneration++;
         if (restorationTask != null) restorationTask.cancel();
         restorationTask = null;
         if (renderTask != null) renderTask.cancel();
@@ -106,6 +115,7 @@ public final class ConstructionService implements Listener {
             ru.neverland.core.WorldTasks.remove(plugin, display);
         }
         guideDisplays.clear();
+        blockDisplays.clear();
         obstructionPreviews.clear();
     } }
 
@@ -203,6 +213,90 @@ public final class ConstructionService implements Listener {
         checkCompletion(player, town, preparation.site());
     } }
 
+    public ConstructionReceipt captureReceipt(ConstructionPreparation preparation, double money,
+                                               List<ConstructionReceipt.Item> resources) {
+        synchronized (ru.neverland.core.SuiteState.lock()) {
+            ConstructionSite site = preparation.site(); World world = Bukkit.getWorld(site.worldId());
+            BlueprintPlan plan = preparation.plan();
+            if (!ownsPlan(world, site, plan)) throw new IllegalStateException("Подойдите к строительной площадке");
+            Map<BlockOffset, ConstructionReceipt.Change> changes = new HashMap<>();
+            for (var entry : plan.blocks().entrySet()) {
+                if (entry.getValue().stage() < site.buildFromStage()) continue;
+                BlockData expected = entry.getValue().material().createBlockData();
+                orientExpectedState(expected, entry.getValue(), site);
+                changes.put(entry.getKey(), new ConstructionReceipt.Change(site.location(world, entry.getKey()).getBlock().getBlockData().getAsString(), expected.getAsString()));
+            }
+            // Only the exact excavation cells validated for this site; never a bounding box or chunk reset.
+            for (BlockOffset offset : ExcavationPlanner.offsets(plan, site.buildFromStage())) {
+                Block block = site.location(world, offset).getBlock();
+                if (!block.getType().isAir() && ExcavationPlanner.canClear(block.getType()))
+                    changes.putIfAbsent(offset, new ConstructionReceipt.Change(block.getBlockData().getAsString(), "minecraft:air"));
+            }
+            return new ConstructionReceipt(UUID.randomUUID(), site.targetStage(), ConstructionReceipt.cents(money),
+                    resources, changes, "ACTIVE", 0, List.of(), 0, "", false, resources.size());
+        }
+    }
+
+    /** Legacy costs require explicit administrator verification. Only registered blueprint cells are removed. */
+    public ConstructionReceipt legacyReceipt(ConstructionSite site, double money, List<ConstructionReceipt.Item> resources) {
+        synchronized (ru.neverland.core.SuiteState.lock()) {
+            BlueprintPlan plan = planForSite(site, site.targetStage());
+            BlueprintPlan previous = site.completedStage() == 0 ? null : planForSite(site, site.completedStage());
+            if (plan == null) throw new IllegalStateException("Чертёж недоступен");
+            Map<BlockOffset, ConstructionReceipt.Change> changes = new HashMap<>();
+            for (var entry : plan.blocks().entrySet()) {
+                if (entry.getValue().stage() < site.buildFromStage()) continue;
+                BlockData expected = entry.getValue().material().createBlockData(); orientExpectedState(expected,entry.getValue(),site);
+                BlueprintBlock old = previous == null ? null : previous.blocks().get(entry.getKey());
+                BlockData before = old == null ? Material.AIR.createBlockData() : old.material().createBlockData();
+                if (old != null) orientExpectedState(before,old,site);
+                changes.put(entry.getKey(),new ConstructionReceipt.Change(before.getAsString(),expected.getAsString()));
+            }
+            return new ConstructionReceipt(UUID.randomUUID(),site.targetStage(),ConstructionReceipt.cents(money),resources,changes,"ACTIVE",0,List.of(),0,"",true,resources.size());
+        }
+    }
+
+    public boolean cancellationTerritoryOwned(UUID townId,ConstructionSite site,ConstructionReceipt receipt) {
+        World world=Bukkit.getWorld(site.worldId());if(world==null)return false;
+        for(var offset:receipt.changes().keySet()) {
+            Town owner=towny.townAt(site.location(world,offset));
+            if(owner==null||!owner.getUUID().equals(townId))throw new IllegalStateException("Территория стройки больше не принадлежит городу. Возврат сохранён; верните участки городу перед разбором.");
+        }
+        return true;
+    }
+
+    /** Called on the site region; restart-safe because already-restored cells are skipped. */
+    public boolean restoreCancelled(ConstructionSite site, ConstructionReceipt receipt) {
+        synchronized (ru.neverland.core.SuiteState.lock()) {
+            World world = Bukkit.getWorld(site.worldId()); if (world == null) return false;
+            for (var entry : receipt.changes().entrySet()) {
+                Location at = site.location(world,entry.getKey());
+                if (!ru.neverland.core.SuiteScheduler.owns(at) || !world.isChunkLoaded(at.getBlockX() >> 4,at.getBlockZ() >> 4)) return false;
+            }
+            // Validate the whole operation before the first write, including non-empty containers.
+            for (var entry : receipt.changes().entrySet()) {
+                Block block = site.location(world,entry.getKey()).getBlock();
+                BlockData before = Bukkit.createBlockData(entry.getValue().before());
+                if (block.getBlockData().equals(before)) continue;
+                Material expected = Bukkit.createBlockData(entry.getValue().expected()).getMaterial();
+                if (block.getType() != expected && !block.getType().isAir())
+                    throw new IllegalStateException("На месте стройки изменён блок " + coordinates(block.getLocation()) + ". Возврат сохранён, нужна проверка.");
+                if (block.getState() instanceof Container container && !container.getInventory().isEmpty())
+                    throw new IllegalStateException("Освободите контейнер на стройке: " + coordinates(block.getLocation()));
+            }
+            int changed = 0;
+            for (var entry : receipt.changes().entrySet()) {
+                Block block = site.location(world,entry.getKey()).getBlock();
+                BlockData before = Bukkit.createBlockData(entry.getValue().before());
+                if (block.getBlockData().equals(before)) continue;
+                if (changed++ == 128) return false;
+                block.setBlockData(before, false);
+            }
+            clearPreviews();
+            return true;
+        }
+    }
+
     public ConstructionProgress progress(Town town, String projectId) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (town == null) return new ConstructionProgress(false, 0, 0, 0, "");
         ConstructionSite site = dataStore.town(town.getUUID()).constructionSite(projectId);
@@ -235,7 +329,7 @@ public final class ConstructionService implements Listener {
         if(!ru.neverland.integration.SpecializationAccess.allowed(located.townId(),located.site().projectId())){event.setCancelled(true);messages.send(event.getPlayer(),"specialization-required",Map.of("specialization",ru.neverland.integration.SpecializationAccess.requirement(located.site().projectId())));return;}
         BlueprintBlock expected = located.expected();
         ConstructionSite site = located.site();
-        if(site.adminPaused()){event.setCancelled(true);event.getPlayer().sendMessage("§eСтроительство приостановлено администратором. Прогресс сохранён.");return;}
+        if(site.adminPaused()||refundBlocked(located.townId(),site.projectId())){event.setCancelled(true);event.getPlayer().sendMessage("§eСтройка приостановлена или ожидает возврата. Средства сохранены.");return;}
         if (!site.active() || expected.stage() < site.buildFromStage() || expected.stage() > site.targetStage()
                 || expected.role() == BlockRole.DECORATION) {
             event.setCancelled(true);
@@ -257,7 +351,9 @@ public final class ConstructionService implements Listener {
         ItemStack suppliedBlock = event.getItemInHand().clone();
         suppliedBlock.setAmount(1);
         ru.neverland.core.SuiteScheduler.region(plugin, event.getBlockPlaced().getLocation(), () -> {
-            if (event.getBlockPlaced().getType() != expected.material()) return;
+            // The held sample belongs to the builder even if cancellation has already restored the cell.
+            // A later protection listener can still cancel placement, in which case Minecraft returns it itself.
+            if (event.isCancelled()) return;
             ru.neverland.core.SuiteScheduler.entityLater(plugin, event.getPlayer(), () -> {
                 if (event.getPlayer().getGameMode() == GameMode.SURVIVAL || event.getPlayer().getGameMode() == GameMode.ADVENTURE)
                     event.getPlayer().getInventory().addItem(suppliedBlock).values().forEach(item -> event.getPlayer().getWorld().dropItemNaturally(event.getPlayer().getLocation(),item));
@@ -375,7 +471,7 @@ public final class ConstructionService implements Listener {
     }
 
     private void checkCompletion(Player player, Town town, ConstructionSite site) {
-        if(site.adminPaused())return;
+        if(site.adminPaused()||refundBlocked(town.getUUID(),site.projectId()))return;
         if (!site.active()||!ru.neverland.integration.SpecializationAccess.allowed(town.getUUID(),site.projectId())) return;
         BlueprintPlan plan = planForSite(site, site.targetStage());
         World world = Bukkit.getWorld(site.worldId());
@@ -397,6 +493,7 @@ public final class ConstructionService implements Listener {
         normalizePlanStates(world, site, plan, site.buildFromStage(), town.getUUID());
         completionHandler.complete(player, town, site.projectId(), site.targetStage());
         site.complete();
+        if(refunds!=null)refunds.complete(town.getUUID(),site.projectId());
         dataStore.markDirty();
         dataStore.save();
     }
@@ -528,6 +625,12 @@ public final class ConstructionService implements Listener {
 
     private void applyExpectedState(Block block, BlueprintBlock expected, ConstructionSite site) {
         BlockData data = block.getBlockData();
+        orientExpectedState(data, expected, site);
+        if (data instanceof MultipleFacing multipleFacing) connect(block, multipleFacing);
+        block.setBlockData(data, false);
+    }
+
+    static void orientExpectedState(BlockData data, BlueprintBlock expected, ConstructionSite site) {
         if(site.projectId().equals("seed_vault")&&data instanceof org.bukkit.block.data.type.Leaves leaves)leaves.setPersistent(true);
         if (data instanceof Orientable orientable && expected.axis() != null) {
             org.bukkit.Axis axis = site.worldAxis(expected.axis());
@@ -545,8 +648,6 @@ public final class ConstructionService implements Listener {
         if (data instanceof Bisected bisected && expected.half() != null) bisected.setHalf(expected.half());
         if (data instanceof Door door && expected.hinge() != null) door.setHinge(expected.hinge());
         if (data instanceof Openable openable) openable.setOpen(false);
-        if (data instanceof MultipleFacing multipleFacing) connect(block, multipleFacing);
-        block.setBlockData(data, false);
     }
 
     private void connect(Block block, MultipleFacing data) {
@@ -608,60 +709,94 @@ public final class ConstructionService implements Listener {
 
     private void renderMissingBlocks() {
         renderObstructions();
-        if (!plugin.getConfig().getBoolean("settings.construction.preview-enabled", true)) return;
-        double distance = Math.max(16, plugin.getConfig().getDouble("settings.construction.preview-distance", 64));
-        Particle.DustOptions outline = new Particle.DustOptions(Color.fromRGB(255, 212, 90), 0.9f);
-        ru.neverland.core.SuiteScheduler.players(plugin, player -> {{
-            Town town = towny.town(player);
-            if (town == null) {
-                removeGuide(player.getUniqueId());
-                return;
-            }
-            TownData data = dataStore.town(town.getUUID());
-            PreviewTarget nearest = null;
-            for (ConstructionSite site : data.constructionSites().values()) {
-                if (!site.active() || !player.getWorld().getUID().equals(site.worldId())) continue;
-                BlueprintPlan plan = planForSite(site, site.targetStage());
-                if (plan == null) continue;
-                Optional<Map.Entry<BlockOffset, BlueprintBlock>> missing = plan.blocks().entrySet().stream()
-                        .filter(entry -> entry.getValue().role() == BlockRole.RESIDENT)
-                        .filter(entry -> entry.getValue().stage() >= site.buildFromStage())
-                        .filter(entry -> ru.neverland.core.SuiteScheduler.owns(site.location(player.getWorld(), entry.getKey())))
-                        .filter(entry -> site.location(player.getWorld(), entry.getKey()).getBlock().getType() != entry.getValue().material())
-                        .sorted(Comparator.comparingDouble(entry -> site.location(player.getWorld(), entry.getKey()).distanceSquared(player.getLocation())))
-                        .findFirst();
-                if (missing.isEmpty()) {
-                    checkCompletion(player, town, site);
-                    continue;
-                }
-                Map.Entry<BlockOffset, BlueprintBlock> entry = missing.get();
-                Location location = site.location(player.getWorld(), entry.getKey());
-                double distanceSquared = location.clone().add(0.5, 0.5, 0.5).distanceSquared(player.getLocation());
-                if (distanceSquared <= distance * distance
-                        && (nearest == null || distanceSquared < nearest.distanceSquared())) {
-                    nearest = new PreviewTarget(location, entry.getValue(), distanceSquared);
-                }
-            }
-            if (nearest == null) {
-                removeGuide(player.getUniqueId());
-                return;
-            }
-            renderOutline(player, nearest.location(), outline);
-            Location target = nearest.location();
-            renderGuideDisplay(player, nearest);
-            player.sendActionBar(messages.component("construction-guide", Map.of(
-                    "expected", itemNames.name(new ItemStack(ConstructionSupply.material(nearest.expected().material()))),
-                    "x", target.getBlockX(), "y", target.getBlockY(), "z", target.getBlockZ(),
-                    "distance", String.format(Locale.ROOT, "%.1f", Math.sqrt(nearest.distanceSquared()))
-            )));
-        }});
-        for (UUID playerId : List.copyOf(guideDisplays.keySet())) {
-            if (Bukkit.getPlayer(playerId) == null) removeGuide(playerId);
+        if (!plugin.getConfig().getBoolean("settings.construction.preview-enabled", true)) {
+            clearPreviews();
+            return;
         }
+        long generation = previewGeneration;
+        double distance = Math.max(16, Math.min(128, plugin.getConfig().getDouble("settings.construction.preview-distance", 64)));
+        int perPlayer = Math.max(1, Math.min(2048, plugin.getConfig().getInt("settings.construction.preview-max-blocks-per-player", 512)));
+        int serverLimit = Math.max(1, Math.min(16384, plugin.getConfig().getInt("settings.construction.preview-max-blocks-total", 4096)));
+        float scale = (float) Math.max(0.25, Math.min(0.95, plugin.getConfig().getDouble("settings.construction.preview-block-scale", 0.85)));
+        Particle.DustOptions outline = new Particle.DustOptions(Color.fromRGB(255, 212, 90), 0.9f);
+        ru.neverland.core.SuiteScheduler.players(plugin, player -> {
+            if (!running || previewGeneration != generation) return;
+            Town town = towny.town(player);
+            if (town == null) { removePreview(player.getUniqueId()); return; }
+            TownData data = dataStore.town(town.getUUID());
+            World world = player.getWorld();
+            Location eye = player.getLocation();
+            List<PreviewTarget> targets = new ArrayList<>();
+            for (ConstructionSite site : data.constructionSites().values()) {
+                if (!site.active() || site.adminPaused() || refundBlocked(town.getUUID(),site.projectId()) || !world.getUID().equals(site.worldId())) continue;
+                BlueprintPlan plan = planForSite(site, site.targetStage());
+                // An unknown lower block must never be treated as complete on a Folia region boundary.
+                if (plan == null || !ownsPlan(world, site, plan)) continue;
+                if (plan.blocks().keySet().stream().map(offset -> site.location(world, offset))
+                        .anyMatch(loc -> !world.isChunkLoaded(loc.getBlockX() >> 4, loc.getBlockZ() >> 4))) continue;
+                ConstructionLayers.Layer layer = ConstructionLayers.inspect(plan, site.buildFromStage(), site.targetStage(),
+                        (offset, expected) -> site.location(world, offset).getBlock().getType() == expected.material());
+                if (layer.complete()) { checkCompletion(player, town, site); continue; }
+                String remaining = remainingMaterials(layer);
+                for (ConstructionLayers.Cell cell : layer.missing()) {
+                    Location location = site.location(world, cell.offset());
+                    double squared = location.clone().add(0.5, 0.5, 0.5).distanceSquared(eye);
+                    if (squared <= distance * distance) targets.add(new PreviewTarget(location, cell.block(), squared, site, layer, remaining));
+                }
+            }
+            targets.sort(Comparator.comparingDouble(PreviewTarget::distanceSquared)
+                    .thenComparingInt(t -> t.location().getBlockX()).thenComparingInt(t -> t.location().getBlockZ()));
+            List<ConstructionBlockDisplays.Hint> hints = new ArrayList<>();
+            for (PreviewTarget target : targets.stream().limit(perPlayer).toList()) {
+                BlockData block = target.expected().material().createBlockData();
+                orientExpectedState(block, target.expected(), target.site());
+                hints.add(new ConstructionBlockDisplays.Hint(target.location(), block));
+            }
+            blockDisplays.update(player, hints, perPlayer, serverLimit, scale);
+            if (targets.isEmpty()) { removeGuide(player.getUniqueId()); return; }
+            PreviewTarget nearest = targets.get(0);
+            renderOutline(player, nearest.location(), outline);
+            renderGuideDisplay(player, nearest);
+            player.sendActionBar(messages.component("construction-layer-guide", guideValues(nearest)));
+        });
+        Set<UUID> viewers = new java.util.HashSet<>(guideDisplays.keySet());
+        viewers.addAll(blockDisplays.viewers());
+        for (UUID playerId : viewers) if (Bukkit.getPlayer(playerId) == null) removePreview(playerId);
+    }
+
+    private String remainingMaterials(ConstructionLayers.Layer layer) {
+        Map<Material, Integer> remaining = new java.util.TreeMap<>(Comparator.comparing(Material::name));
+        layer.missing().forEach(cell -> remaining.merge(ConstructionSupply.material(cell.block().material()), 1, Integer::sum));
+        List<String> parts = remaining.entrySet().stream().limit(3)
+                .map(e -> itemNames.name(e.getKey()) + " × " + e.getValue()).toList();
+        return String.join(", ", parts) + (remaining.size() > 3 ? " и другие" : "");
+    }
+
+    private Map<String, Object> guideValues(PreviewTarget target) {
+        return Map.of("expected", itemNames.name(ConstructionSupply.material(target.expected().material())),
+                "x", target.location().getBlockX(), "y", target.location().getBlockY(), "z", target.location().getBlockZ(),
+                "distance", String.format(Locale.ROOT, "%.1f", Math.sqrt(target.distanceSquared())),
+                "layer", target.layer().number(), "layers", target.layer().layers(),
+                "placed", target.layer().placed(), "total", target.layer().total(), "remaining", target.remaining());
+    }
+
+    private void removePreview(UUID playerId) { removeGuide(playerId); blockDisplays.remove(playerId); }
+
+    private void clearPreviews() {
+        blockDisplays.clear();
+        for (UUID playerId : List.copyOf(guideDisplays.keySet())) removeGuide(playerId);
+    }
+
+    @EventHandler public void onQuit(org.bukkit.event.player.PlayerQuitEvent event) {
+        synchronized (ru.neverland.core.SuiteState.lock()) { removePreview(event.getPlayer().getUniqueId()); obstructionPreviews.remove(event.getPlayer().getUniqueId()); }
+    }
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onTeleport(org.bukkit.event.player.PlayerTeleportEvent event) {
+        synchronized (ru.neverland.core.SuiteState.lock()) { removePreview(event.getPlayer().getUniqueId()); }
     }
 
     private void renderGuideDisplay(Player player, PreviewTarget target) {
-        if (!ru.neverland.core.WorldTasks.ownsBox(target.location(), 2)) return;
+        if (!ru.neverland.core.WorldTasks.ownsBox(target.location(), 2)) { removeGuide(player.getUniqueId()); return; }
         if (!plugin.getConfig().getBoolean("settings.construction.guide-label-enabled", true)) {
             removeGuide(player.getUniqueId());
             return;
@@ -689,13 +824,7 @@ public final class ConstructionService implements Listener {
         } else {
             display.teleportAsync(labelLocation);
         }
-        display.text(messages.component("construction-guide-display", Map.of(
-                "expected", itemNames.name(new ItemStack(ConstructionSupply.material(target.expected().material()))),
-                "x", target.location().getBlockX(),
-                "y", target.location().getBlockY(),
-                "z", target.location().getBlockZ(),
-                "distance", String.format(Locale.ROOT, "%.1f", Math.sqrt(target.distanceSquared()))
-        )));
+        display.text(messages.component("construction-layer-guide-display", guideValues(target)));
         player.showEntity(plugin, display);
     }
 
@@ -737,11 +866,14 @@ public final class ConstructionService implements Listener {
     }
 
     private record LocatedBlock(UUID townId, ConstructionSite site, BlueprintBlock expected) { }
-    private record PreviewTarget(Location location, BlueprintBlock expected, double distanceSquared) { }
+    private record PreviewTarget(Location location, BlueprintBlock expected, double distanceSquared,
+                                 ConstructionSite site, ConstructionLayers.Layer layer, String remaining) { }
     public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets(){ synchronized (ru.neverland.core.SuiteState.lock()) {
         ru.neverland.core.ApiServices.primaryThread();var result=new java.util.ArrayList<ru.neverland.core.ActivityAdmin.Target>();
-        dataStore.towns().forEach((id,town)->town.constructionSites().values().stream().filter(ConstructionSite::active).forEach(site->result.add(new ru.neverland.core.ActivityAdmin.Target(id+"/"+site.projectId(),site.projectId()+" / этап "+site.targetStage(),java.util.Set.of("status","pause","resume"),(action,minutes)->{
+        dataStore.towns().forEach((id,town)->town.constructionSites().values().stream().filter(ConstructionSite::active).forEach(site->result.add(new ru.neverland.core.ActivityAdmin.Target(id+"/"+site.projectId(),site.projectId()+" / этап "+site.targetStage(),java.util.Set.of("status","pause","resume","cancel"),(action,minutes)->{
             ru.neverland.core.ApiServices.primaryThread();if(!site.active())throw new IllegalStateException("Строительство уже завершено");
+            if(action.equals("cancel")) {try{return refunds.cancel(id,site.projectId(),null,true,null,"nltadmin");}catch(java.io.IOException ex){throw new java.io.UncheckedIOException(ex);}}
+            if(refundBlocked(id,site.projectId()))return ConstructionRefunds.status(refunds.receipt(id,site.projectId()));
             if(action.equals("status"))return id+" / "+site.projectId()+" / "+(site.adminPaused()?"Пауза":"Строительство")+"; этап "+site.targetStage();
             boolean before=site.adminPaused();try{site.adminPaused(action.equals("pause"));dataStore.markDirty();dataStore.save();}catch(Exception ex){site.adminPaused(before);throw ex;}
             return "Строительство "+(site.adminPaused()?"приостановлено":"продолжено")+"; блоки и оплаченный этап сохранены";

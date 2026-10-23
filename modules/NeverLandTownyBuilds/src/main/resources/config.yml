@@ -15,6 +15,8 @@ settings:
     size: 54
     autosave-seconds: 60
   construction:
+    # При отмене мэром/уполномоченным: комиссия с денег и оплаченных ресурсов; администратору — полный возврат.
+    cancel-fee-percent: 10
     # Мэр начинает этап здания или Чуда, наведясь на землю в пределах города. Последующие уровни используют ту же площадку.
     target-distance: 16
     validation-max-errors: 5
@@ -22,6 +24,10 @@ settings:
     preview-enabled: true
     preview-interval-ticks: 10
     preview-distance: 64
+    # Показывается только нижний незавершённый слой; при больших слоях — ближайшие подсказки.
+    preview-max-blocks-per-player: 512
+    preview-max-blocks-total: 4096
+    preview-block-scale: 0.85
     # Ближайший требуемый блок выделяется контуром; больше точек делают чертёж нечитаемым.
     guide-points-per-edge: 4
     # Персональная подпись над ближайшей точкой: название блока, координаты и расстояние.

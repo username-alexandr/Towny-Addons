@@ -171,9 +171,11 @@ public final class MenuManager implements Listener {
             lore.add("&7Построено: &f" + construction.placed() + "&8/&f" + construction.total());
             lore.add(progressBar(construction.percent()));
             lore.add("");
-            lore.add("&#63E6BEЗелёные частицы показывают");
-            lore.add("&#63E6BEнедостающие блоки чертежа.");
+            lore.add("&#63E6BEПодсказки показывают текущий слой.");
+            lore.add("&#63E6BEЗавершите его, чтобы увидеть следующий.");
             inventory.setItem(15, actionItem("upgrade", upgradeItem(), "&#FFD166&lСТРОИТЕЛЬСТВО ИДЁТ", lore));
+            inventory.setItem(13, actionItem("construction-cancel", new ItemStack(Material.RED_CONCRETE),
+                    "&cОтменить строительство", List.of("&7Посмотреть возврат денег и ресурсов.","&7Затем подтвердить или продолжить стройку.")));
         } else if (builds.needsPhysicalPlacement(town, project)) {
             List<String> lore = new ArrayList<>();
             lore.add("&7Чудо уже открыто городом, но его");
@@ -317,6 +319,8 @@ public final class MenuManager implements Listener {
                 ((ru.neverland.townybuilds.NeverLandTownyBuilds) plugin).army().open(player, 0);
             } else if ("upgrade".equals(action)) {
                 handleUpgrade(player, project, details.page(), details.category());
+            } else if ("construction-cancel".equals(action)) {
+                ((ru.neverland.townybuilds.NeverLandTownyBuilds)plugin).constructionCancelMenu().open(player,project.id());
             } else if ("contribute".equals(action)) {
                 // Инвентарь меняется после завершения отменённого GUI-клика. Иначе Paper/Purpur
                 // может восстановить снимок события: прогресс фонда изменится, а предметы вернутся игроку.
@@ -377,7 +381,7 @@ public final class MenuManager implements Listener {
                 openDetails(player, project, page, category);
             }
             case CONSTRUCTION_STARTED -> {
-                messages.send(player, "construction-started", Map.of("project", project.name(), "level", result.newLevel()));
+                messages.send(player, "construction-layer-started", Map.of("project", project.name(), "level", result.newLevel()));
                 openDetails(player, project, page, category);
             }
             case CONSTRUCTION_IN_PROGRESS -> messages.send(player, "construction-already-active");

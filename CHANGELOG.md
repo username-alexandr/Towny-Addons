@@ -1,3 +1,12 @@
+## Builds 0.8.29 / Control 0.4.9 / Archaeology 0.1.21 — 2026-10-23
+
+- Show personal, temporary BlockDisplay hints for the first unfinished horizontal construction layer, with layer progress and readable materials. Bound entity counts and use Folia ownership checks without loading foreign chunks.
+- Add confirmed cancellation: admins return 100% of paid resources to the municipal warehouse and money to the town treasury; mayors/authorized builders pay a configurable 10% fee by default. Keep the completed previous level and restore only recorded cells.
+- Persist exact purchase receipts, pending refunds and warehouse contents together. Retain overflow, block repeated payouts and require explicit reconciliation of uncertain external bank/museum operations after a crash. Old constructions require verified historical costs before cancellation.
+- Persist museum artifact consumption before reporting success, advertise its durable API, and return authentic artifacts on cancellation. Builds checks this capability before charging for a wonder.
+- Add the construction/refund audit category and administrator tools. Preserve existing project prices and player/town data.
+- Installation, configuration, limitations and verification: `docs/BUILD_LAYERS_AND_REFUNDS_0.8.29_RU.md`.
+
 ## Suite 0.42.0 / Contracts 0.3.22 / Jobs 0.1.17 — 2026-10-22
 
 - Publish the complete 40-addon suite with all changes since 0.41.0: economy MVP, daily randomized orders, rarity icons, expanded catalog/budget, hidden paid offers, guarded town deletion and readable confirmations.

@@ -1,5 +1,5 @@
 name: NeverLandTownyControl
-version: 0.4.8
+version: 0.4.9
 main: ru.neverland.townycontrol.NeverLandTownyControl
 folia-supported: true
 api-version: '26.2'

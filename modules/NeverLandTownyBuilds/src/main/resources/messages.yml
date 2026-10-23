@@ -32,6 +32,8 @@ construction-complete: "Этап завершён! Постройка {project} 
 wonder-placement-complete: "Чудо света {project} успешно размещено. Повторные награды и эффекты не начислялись."
 construction-guide: "&#FFD45AПоставьте: &f{expected} &8• &#63E6BE[{x}, {y}, {z}] &8• &f{distance} м"
 construction-guide-display: "&#FFD45A&lПоставьте: &f{expected}\n&#ADB5BDКоординаты: &#63E6BE{x}, {y}, {z} &8• &f{distance} м"
+construction-layer-guide: "&#FFD45AСлой {layer}/{layers} &8• &f{placed}/{total} &8• &#63E6BEПоставьте: &f{expected}"
+construction-layer-guide-display: "&#FFD45A&lСлой {layer}/{layers} &8• &f{placed}/{total}\n&#63E6BEПоставьте: &f{expected}\n&#ADB5BDОсталось: &f{remaining}"
 wonder-complete-local: "Чудо света {project} завершено!"
 wonder-broadcast: "&#FFD45A&l✦ ЧУДО СВЕТА ✦ &fГород &#B65CFF{town} &fзавершил строительство: {project}&f!"
 data-save-failed: "Не удалось сохранить данные города. Подробности записаны в консоль."
@@ -82,3 +84,5 @@ civic-stall-missing: "Торговое место {stall} не найдено."
 civic-stall-removed: "Торговое место &e{stall}&f удалено; привязанный город освобождён."
 
 specialization-required: "Для этого здания нужна специализация «{specialization}». Выбор: /t specialization"
+
+construction-layer-started: "Стройка {project} уровня &a{level}&f началась. Установите блоки по подсказкам. Когда слой будет готов, появится следующий."
