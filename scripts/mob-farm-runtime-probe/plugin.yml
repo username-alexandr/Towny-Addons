@@ -1,0 +1,6 @@
+name: MobFarmProbe
+version: 1.0.0
+main: ru.neverland.probe.MobFarmProbe
+api-version: '26.2'
+folia-supported: true
+depend: [NeverLandTownyDistricts]

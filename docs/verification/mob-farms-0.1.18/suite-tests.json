@@ -1,0 +1,27 @@
+[
+  {
+    "module": "NeverLandTownyControl",
+    "tests": [
+      "ru.neverland.townycontrol.ActivityAdminSmoke",
+      "ru.neverland.townycontrol.AdminMenuSmoke",
+      "ru.neverland.townycontrol.AuditSmoke",
+      "ru.neverland.townycontrol.DeletionSafetySmoke",
+      "ru.neverland.townycontrol.ModuleSafetySmoke"
+    ],
+    "api_contracts": [],
+    "repository_fault_probe": false,
+    "seconds": 16.157
+  },
+  {
+    "module": "NeverLandTownyDistricts",
+    "tests": [
+      "ru.neverland.townydistricts.DistrictsSmoke",
+      "ru.neverland.townydistricts.MobFarmPolicySmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townydistricts.api.TownyDistrictsApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 9.17
+  }
+]

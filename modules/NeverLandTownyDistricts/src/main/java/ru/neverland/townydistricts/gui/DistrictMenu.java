@@ -39,6 +39,7 @@ public final class DistrictMenu implements Listener {
             button(v,47,Material.STICK,"&fВыделение территории",manager?new String[]{"clear"}:new String[]{"help"},command.selection(player),"/t district pos1 и pos2","Нажатие сбросит выделение.");
             button(v,48,Material.GLOWSTONE_DUST,"&eПоказать границы",new String[]{"map"});
             button(v,49,Material.SUNFLOWER,"&aОбновить",new String[]{"list",String.valueOf(page)});
+            button(v,50,Material.SPAWNER,"&6Фермы и защита от мобов",new String[]{"farms"},"Карта участков с разрешёнными мобами","Настройки, список и границы ферм");
             if(page+1<pages)button(v,53,Material.ARROW,"&aДалее",new String[]{"list",String.valueOf(page+1)});
         }else{
             var d=service.require(townId,districtId);var view=service.view(townId);var evaluation=view.evaluation();

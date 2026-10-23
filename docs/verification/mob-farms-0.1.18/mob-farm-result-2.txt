@@ -1,0 +1,8 @@
+PASS Districts enabled on Folia
+PASS local farm flag survives Towny restart
+PASS neighbor protection survives restart
+PASS other protection flags survive restart
+PASS map API reports persisted zone
+PASS map API reports protected neighbor
+checks=6
+failed=0

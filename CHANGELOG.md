@@ -1,3 +1,10 @@
+## Districts 0.1.18 / Control 0.4.10 — 2026-10-23
+
+- Add `/t farm` for per-plot mob protection: confirmed local changes by town leadership/admins using Towny's persistent flag, preserving other protection flags, world restrictions and external cancellations.
+- Show a colored nearby plot map, all-world farm list, coordinate bounds, temporary particle borders and entry status. Revalidate ownership, permissions and exact plot state before confirmation; refuse grouped changes.
+- Add immutable map API snapshots for future client interfaces and a dedicated mob-farm audit category. Add native Folia tests for spawning/removal, permissions, UI contents and restart persistence.
+- Installation and commands: `docs/MOB_FARMS_0.1.18_RU.md`.
+
 ## Builds 0.8.29 / Control 0.4.9 / Archaeology 0.1.21 — 2026-10-23
 
 - Show personal, temporary BlockDisplay hints for the first unfinished horizontal construction layer, with layer progress and readable materials. Bound entity counts and use Folia ownership checks without loading foreign chunks.

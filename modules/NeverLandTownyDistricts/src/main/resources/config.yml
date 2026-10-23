@@ -2,6 +2,10 @@ limits:
   districts-per-town: 32
   cells-per-district: 256
   selection-cells: 128
+mob-farms:
+  # Выключает меню и подсказки; сохранённые правила Towny остаются, фермы продолжают работать.
+  enabled: true
+  entry-notifications: true
 # Все множители применяются только к завершённым зданиям в своём районе.
 bonuses:
   matching-building: 0.15

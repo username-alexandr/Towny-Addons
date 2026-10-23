@@ -27,6 +27,14 @@ public final class DistrictService implements TownyDistrictsApi,Listener {
     private final JavaPlugin plugin;private final DistrictRepository repository;private final BuildsBridge builds=new BuildsBridge();
     private final int cellSize;private DistrictSettings settings;private long warningAt;
     private volatile Snapshot snapshot=new Snapshot(Map.of(),Map.of());private BukkitTask task;private volatile boolean dirty;
+    private MobFarmService farms;
+    public void farms(MobFarmService value){this.farms=value;}
+    @Override public java.util.Collection<ru.neverland.townydistricts.api.MobFarmPlot> mobFarmPlots(UUID town){synchronized(ru.neverland.core.SuiteState.lock()){
+        return farms==null?List.of():farms.plots(town).stream().filter(p->p.mobsAllowed()||p.protectionDisabled()).toList();
+    }}
+    @Override public java.util.Optional<ru.neverland.townydistricts.api.MobFarmPlot> mobProtectionAt(UUID world,int blockX,int blockZ){synchronized(ru.neverland.core.SuiteState.lock()){
+        return farms==null?Optional.empty():farms.at(world,blockX,blockZ);
+    }}
     public DistrictService(JavaPlugin plugin,DistrictRepository repository,DistrictSettings settings){this.plugin=plugin;this.repository=repository;this.settings=settings;this.cellSize=Coord.getCellSize();}
     public DistrictSettings settings(){ synchronized (ru.neverland.core.SuiteState.lock()) {return settings;} }public int cellSize(){ synchronized (ru.neverland.core.SuiteState.lock()) {return cellSize;} }
     public Town town(Player player){ synchronized (ru.neverland.core.SuiteState.lock()) {var resident=TownyAPI.getInstance().getResident(player);return resident==null?null:resident.getTownOrNull();} }

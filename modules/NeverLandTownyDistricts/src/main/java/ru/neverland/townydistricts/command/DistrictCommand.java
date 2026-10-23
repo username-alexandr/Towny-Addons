@@ -13,6 +13,8 @@ public final class DistrictCommand implements CommandExecutor,TabCompleter,org.b
     private record Selection(UUID town,Cell first,Cell second){}
     private final NeverLandTownyDistricts plugin;private final DistrictService service;private final BorderPreview borders;
     private final Map<UUID,Selection> selections=new HashMap<>();private DistrictMenu menu;
+    private ru.neverland.townydistricts.gui.MobFarmMenu farms;
+    public void farmMenu(ru.neverland.townydistricts.gui.MobFarmMenu value){farms=value;}
     public DistrictCommand(NeverLandTownyDistricts plugin,DistrictService service,BorderPreview borders){this.plugin=plugin;this.service=service;this.borders=borders;}
     @org.bukkit.event.EventHandler public void quit(org.bukkit.event.player.PlayerQuitEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {selections.remove(event.getPlayer().getUniqueId());} }
     public void menu(DistrictMenu menu){ synchronized (ru.neverland.core.SuiteState.lock()) {this.menu=menu;} }
@@ -38,6 +40,7 @@ public final class DistrictCommand implements CommandExecutor,TabCompleter,org.b
         if(!(sender instanceof Player player))throw new IllegalArgumentException("Эта команда выполняется в игре");
         if(!player.hasPermission("neverlandtownydistricts.use"))throw new IllegalArgumentException("Недостаточно прав");
         var town=service.town(player);if(town==null)throw new IllegalArgumentException("Вы не состоите в городе");
+        if(action.equals("farms")){farms.open(player,false,0);return;}
         service.refresh();UUID townId=town.getUUID();
         if(action.equals("menu")||action.equals("list")){menu.open(player,townId,null,args.length>1?Integer.parseInt(args[1]):0);return;}
         if(action.equals("info")){if(args.length<2){menu.open(player,townId,null,0);return;}service.require(townId,args[1]);menu.open(player,townId,args[1],args.length>2?Integer.parseInt(args[2]):0);return;}

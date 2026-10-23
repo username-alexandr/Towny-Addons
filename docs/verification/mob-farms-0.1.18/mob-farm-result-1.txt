@@ -1,0 +1,24 @@
+PASS Districts enabled on Folia
+PASS fresh disposable town
+PASS initial protected state
+PASS only selected plot allows mobs
+PASS build destroy switch item-use PvP fire explosion flags preserved
+PASS stale repeat cannot toggle flag back
+PASS real Towny rejects natural zombie in protected adjacent plot
+PASS real Towny allows natural zombie in farm plot
+PASS Towny periodic removal preserves farm mob
+PASS another plugin's spawn cancellation remains effective
+PASS re-enabled protection removes farm mob through native Towny
+PASS world ban cannot be overridden
+PASS world ban visible in API
+PASS forced world allowance cannot be locally overridden
+PASS changed permissions invalidate confirmation
+PASS changed town invalidates confirmation
+PASS mayor allowed without OP
+PASS ordinary resident cannot change farm settings
+PASS map marks current farm orange
+PASS map marks neighboring protected chunk green
+PASS farm list shows allowed zone only
+PASS future client map API contains one explicit farm
+checks=22
+failed=0
