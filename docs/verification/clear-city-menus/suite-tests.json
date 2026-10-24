@@ -1,0 +1,29 @@
+[
+  {
+    "module": "NeverLandTownyCouncil",
+    "tests": [
+      "ru.neverland.townycouncil.AccessRulesSmoke",
+      "ru.neverland.townycouncil.CouncilRepositorySmoke",
+      "ru.neverland.townycouncil.CouncilSettingsSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.townycouncil.api.TownyCouncilApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 7.293
+  },
+  {
+    "module": "NeverLandTownyGovernance",
+    "tests": [
+      "ru.neverland.governance.GovernanceMathSmoke",
+      "ru.neverland.governance.OfficeMenuSmoke",
+      "ru.neverland.governance.OptionalDependencySmoke",
+      "ru.neverland.governance.ProposalSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.governance.api.TownyGovernanceApi"
+    ],
+    "repository_fault_probe": true,
+    "seconds": 8.281
+  }
+]

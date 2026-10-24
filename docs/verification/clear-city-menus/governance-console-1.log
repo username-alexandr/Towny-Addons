@@ -1,0 +1,291 @@
+Starting org.bukkit.craftbukkit.Main
+[23:47:24 INFO]: [bootstrap] Running Java 25 (OpenJDK 64-Bit Server VM 25.0.2+10-LTS; Azul Systems, Inc. Zulu25.32+21-CA) on Linux 6.18.55 (amd64)
+[23:47:24 INFO]: [bootstrap] Loading Folia 26.2-7-ver/26.2.x@14b7fee (2026-08-25T13:29:28Z) for Minecraft 26.2
+[23:47:24 INFO]: [PluginInitializerManager] Initializing plugins...
+[23:47:25 WARN]: Failed to get system info for Process Loads
+java.lang.NullPointerException: Cannot invoke "oshi.software.os.OSProcess.getUserTime()" because "process" is null
+	at net.minecraft.SystemReport.lambda$putProcessDetails$0(SystemReport.java:191) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.setDetail(SystemReport.java:96) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putProcessDetails(SystemReport.java:188) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$putSoftware$0(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putSoftware(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$new$7(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.<init>(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.<init>(CrashReport.java:32) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.preload(CrashReport.java:240) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+[23:47:25 WARN]: Failed to get system info for Process Virtual Size (MiB)
+java.lang.NullPointerException: Cannot invoke "oshi.software.os.OSProcess.getVirtualSize()" because "process" is null
+	at net.minecraft.SystemReport.lambda$putProcessDetails$1(SystemReport.java:208) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.setDetail(SystemReport.java:96) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putProcessDetails(SystemReport.java:208) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$putSoftware$0(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putSoftware(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$new$7(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.<init>(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.<init>(CrashReport.java:32) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.preload(CrashReport.java:240) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+[23:47:25 WARN]: Failed to get system info for Process Resident Size (MiB)
+java.lang.NullPointerException: Cannot invoke "oshi.software.os.OSProcess.getResidentSetSize()" because "process" is null
+	at net.minecraft.SystemReport.lambda$putProcessDetails$2(SystemReport.java:209) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.setDetail(SystemReport.java:96) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putProcessDetails(SystemReport.java:209) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$putSoftware$0(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putSoftware(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$new$7(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.<init>(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.<init>(CrashReport.java:32) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.preload(CrashReport.java:240) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+[23:47:25 INFO]: [PluginInitializerManager] Initialized 4 plugins
+[23:47:25 INFO]: [PluginInitializerManager] Bukkit plugins (4):
+ - GovernanceMenuRuntimeProbe (1.0), NeverLandTownyCouncil (0.1.15), NeverLandTownyGovernance (0.1.25), Towny (0.103.2.0)
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.joml.MemUtil$MemUtilUnsafe (file:/workspace/scratch/eb47b830f6d4/folia-clear-city-menus/libraries/org/joml/joml/1.10.8/joml-1.10.8.jar)
+WARNING: Please consider reporting this to the maintainers of class org.joml.MemUtil$MemUtilUnsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[23:47:28 INFO]: [ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry] Initialising converters for DataConverter...
+[23:47:28 INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, profilesHost=https://api.mojang.com, name=PROD]
+[23:47:28 ERROR]: Failed to request yggdrasil public key
+com.mojang.authlib.exceptions.MinecraftClientException: Failed to read from https://api.minecraftservices.com/publickeys due to api.minecraftservices.com
+	at com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:151) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.getWithEtag(MinecraftClient.java:81) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:65) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilServicesKeyInfo.fetch(YggdrasilServicesKeyInfo.java:114) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilServicesKeyInfo$1.run(YggdrasilServicesKeyInfo.java:89) ~[authlib-9.0.75.jar:?]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:545) ~[?:?]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:328) ~[?:?]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:309) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614) ~[?:?]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+Caused by: java.net.UnknownHostException: api.minecraftservices.com
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:569) ~[?:?]
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:284) ~[?:?]
+	at java.base/java.net.Socket.connect(Socket.java:666) ~[?:?]
+	at java.base/sun.security.ssl.SSLSocketImpl.connect(SSLSocketImpl.java:304) ~[?:?]
+	at java.base/sun.net.NetworkClient.doConnect(NetworkClient.java:161) ~[?:?]
+	at java.base/sun.net.www.http.HttpClient.openServer(HttpClient.java:516) ~[?:?]
+	at java.base/sun.net.www.http.HttpClient.openServer(HttpClient.java:604) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsClient.<init>(HttpsClient.java:206) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsClient.New(HttpsClient.java:288) ~[?:?]
+	at java.base/sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.getNewHttpClient(AbstractDelegateHttpsURLConnection.java:193) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1011) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:902) ~[?:?]
+	at java.base/sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.connect(AbstractDelegateHttpsURLConnection.java:179) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1380) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1305) ~[?:?]
+	at java.base/java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:493) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsURLConnectionImpl.getResponseCode(HttpsURLConnectionImpl.java:307) ~[?:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:130) ~[authlib-9.0.75.jar:?]
+	... 10 more
+[23:47:28 INFO]: [ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry] Finished initialising converters for DataConverter in 365.0ms
+[23:47:30 INFO]: Loaded 1585 recipes
+[23:47:30 INFO]: Loaded 1688 advancements
+[23:47:30 INFO]: Starting minecraft server version 26.2
+[23:47:30 WARN]: ****************************
+[23:47:30 WARN]: YOU ARE RUNNING THIS SERVER AS AN ADMINISTRATIVE OR ROOT USER. THIS IS NOT ADVISED.
+[23:47:30 WARN]: YOU ARE OPENING YOURSELF UP TO POTENTIAL RISKS WHEN DOING THIS.
+[23:47:30 WARN]: FOR MORE INFORMATION, SEE https://madelinemiller.dev/blog/root-minecraft-server/
+[23:47:30 WARN]: ****************************
+[23:47:30 INFO]: Loading properties
+[23:47:30 INFO]: This server is running Folia version 26.2-7-ver/26.2.x@14b7fee (2026-08-25T13:29:28Z) (Implementing API version 26.2.build.7-beta)
+[23:47:30 INFO]: [spark] This server bundles the spark profiler. For more information please visit https://docs.papermc.io/paper/profiling
+[23:47:30 INFO]: Server Ping Player Sample Count: 12
+[23:47:30 INFO]: Using 4 threads for Netty based IO
+[23:47:30 INFO]: [MoonriseCommon] Paper is using 1 worker threads, 1 I/O threads
+[23:47:30 INFO]: [io.papermc.paper.threadedregions.TickRegions] Initialised EDF Folia scheduler with initial 1 target thread(s)
+[23:47:30 INFO]: Default game type: SURVIVAL
+[23:47:30 INFO]: Generating keypair
+[23:47:30 INFO]: Starting Minecraft server on 127.0.0.1:25649
+[23:47:30 INFO]: Paper: Using libdeflate (Linux x86_64) compression from Velocity.
+[23:47:30 INFO]: Paper: Using OpenSSL 3.x.x (Linux x86_64) cipher from Velocity.
+[23:47:31 WARN]: [io.netty.util.internal.MacAddressUtil] Failed to find a usable hardware address from the network interfaces; using random bytes: 11:17:a8:91:7f:8c:f1:d4
+[23:47:31 INFO]: [Towny] Loading server plugin Towny v0.103.2.0
+[23:47:31 INFO]: [NeverLandTownyCouncil] Loading server plugin NeverLandTownyCouncil v0.1.15
+[23:47:31 INFO]: [NeverLandTownyGovernance] Loading server plugin NeverLandTownyGovernance v0.1.25
+[23:47:31 INFO]: [GovernanceMenuRuntimeProbe] Loading server plugin GovernanceMenuRuntimeProbe v1.0
+[23:47:31 WARN]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[23:47:31 WARN]: The server will make no attempt to authenticate usernames. Beware.
+[23:47:31 WARN]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[23:47:31 WARN]: To change this, set "online-mode" to "true" in the server.properties file.
+[23:47:31 INFO]: Preparing level "world"
+[23:47:31 INFO]: Loading 0 persistent chunks for level 'minecraft:overworld'...
+[23:47:31 INFO]: Preparing spawn area: 100%
+[23:47:31 INFO]: Prepared spawn area in 1 ms
+[23:47:31 INFO]: Loading 0 persistent chunks for level 'minecraft:the_nether'...
+[23:47:31 INFO]: Prepared spawn area in 0 ms
+[23:47:31 INFO]: Loading 0 persistent chunks for level 'minecraft:the_end'...
+[23:47:31 INFO]: Prepared spawn area in 0 ms
+[23:47:31 INFO]: Done preparing level "world" (0.279s)
+[23:47:31 INFO]: [Towny] Enabling Towny v0.103.2.0
+[23:47:31 INFO]: ====================      Towny      ========================
+[23:47:32 INFO]: [Towny] Successfully loaded translations for 45 languages.
+[23:47:32 INFO]: [Towny] Config: Loaded 9 townblock types: default, bank, shop, wilds, inn, farm, embassy, arena, jail.
+[23:47:32 INFO]: [Towny] Database: [Load] flatfile [Save] flatfile
+[23:47:32 INFO]: [Towny] Database: Loaded in 26ms.
+[23:47:32 INFO]: [Towny] Cleaning up old backups...
+[23:47:32 INFO]: [Towny] Successfully cleaned backups.
+[23:47:32 INFO]: [Towny] Making backup...
+[23:47:32 INFO]: [Towny] Time until a New Day: 12 hours, 12 minutes, 28 seconds
+[23:47:32 INFO]: [Towny] Searching for third-party plugins...
+[23:47:32 INFO]: [Towny] Checking for updates...
+[23:47:32 INFO]: [Towny] Plugins found: 
+[23:47:32 INFO]: [Towny]   Permissions: TownyPerms, BukkitPermissions
+[23:47:32 INFO]: [Towny] No new updates found.
+[23:47:32 INFO]: [Towny] Towny flatfiles and settings successfully backed up.
+[23:47:32 INFO]: =============================================================
+[23:47:32 INFO]: [Towny] Version: 0.103.2.0 - Plugin Enabled
+[23:47:32 INFO]: =============================================================
+[23:47:32 INFO]: [NeverLandTownyCouncil] Enabling NeverLandTownyCouncil v0.1.15
+[23:47:32 INFO]: [NeverLandTownyCouncil] Четыре министерства готовы; /council и /t ministers.
+[23:47:32 INFO]: [NeverLandTownyGovernance] Enabling NeverLandTownyGovernance v0.1.25
+[23:47:33 INFO]: [NeverLandTownyGovernance] NeverLandTownyGovernance 0.1.25 включён: законов 9, должностей 6, открытых голосований 0, PlaceholderAPI=false.
+[23:47:33 INFO]: [GovernanceMenuRuntimeProbe] Enabling GovernanceMenuRuntimeProbe v1.0
+[23:47:33 INFO]: [spark] The spark plugin has been preferred but was not loaded. The bundled spark profiler will enabled instead.
+[23:47:33 INFO]: [spark] The spark profiler will not be enabled because it is currently disabled in the configuration.
+[23:47:33 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+[23:47:33 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_nether
+[23:47:33 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_end
+[23:47:33 INFO]: ThreadedAnvilChunkStorage (world): All chunks are saved
+[23:47:33 INFO]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[23:47:33 INFO]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[23:47:33 INFO]: ThreadedAnvilChunkStorage: All dimensions are saved
+[23:47:33 INFO]: Done (8.649s)! For help, type "help"
+[23:47:34 INFO]: [GovernanceMenuRuntimeProbe] CHECK Governance enabled on Folia
+[23:47:34 INFO]: [GovernanceMenuRuntimeProbe] CHECK council menu opens
+[23:47:35 INFO]: [GovernanceMenuRuntimeProbe] CHECK office button opens management
+[23:47:35 INFO]: [GovernanceMenuRuntimeProbe] CHECK assign button opens residents
+[23:47:35 INFO]: [GovernanceMenuRuntimeProbe] CHECK offline town resident included
+[23:47:35 INFO]: [GovernanceMenuRuntimeProbe] CHECK foreign resident excluded
+[23:47:35 INFO]: [GovernanceMenuRuntimeProbe] CHECK residents pagination available
+[23:47:35 INFO]: [GovernanceMenuRuntimeProbe] CHECK last resident page reachable
+[23:47:35 INFO]: [GovernanceMenuRuntimeProbe] CHECK candidate opens confirmation
+[23:47:35 INFO]: [GovernanceMenuRuntimeProbe] CHECK preview does not appoint
+[23:47:36 INFO]: [GovernanceMenuRuntimeProbe] CHECK back cancels preview
+[23:47:36 INFO]: [GovernanceMenuRuntimeProbe] CHECK cancel leaves no appointment
+[23:47:36 INFO]: [GovernanceMenuRuntimeProbe] CHECK button appoints through service
+[23:47:36 INFO]: [GovernanceMenuRuntimeProbe] CHECK confirmation is single-use
+[23:47:36 INFO]: [GovernanceMenuRuntimeProbe] CHECK double click records one appointment
+[23:47:36 INFO]: [GovernanceMenuRuntimeProbe] CHECK full office has no assign action
+[23:47:36 INFO]: [GovernanceMenuRuntimeProbe] CHECK holder opens explicit actions
+[23:47:36 INFO]: [GovernanceMenuRuntimeProbe] CHECK dismiss button opens confirmation
+[23:47:37 INFO]: [GovernanceMenuRuntimeProbe] CHECK dismiss button removes exact holder
+[23:47:37 INFO]: [GovernanceMenuRuntimeProbe] CHECK dismissal recorded in history
+[23:47:37 INFO]: [GovernanceMenuRuntimeProbe] CHECK concurrent appointment fixture
+[23:47:37 INFO]: [GovernanceMenuRuntimeProbe] CHECK stale confirmation cannot overwrite another holder
+[23:47:38 INFO]: [GovernanceMenuRuntimeProbe] CHECK revoked office permission blocks confirmation
+[23:47:39 INFO]: [GovernanceMenuRuntimeProbe] CHECK resident leaving town blocks confirmation
+[23:47:40 INFO]: [GovernanceMenuRuntimeProbe] CHECK closing inventory before scheduled callback cancels mutation
+[23:47:40 INFO]: [GovernanceMenuRuntimeProbe] CHECK ordinary resident cannot access assignment action
+[23:47:40 INFO]: [GovernanceMenuRuntimeProbe] CHECK service also rejects ordinary resident
+[23:47:40 INFO]: [GovernanceMenuRuntimeProbe] CHECK service rejects foreign resident
+[23:47:41 INFO]: [GovernanceMenuRuntimeProbe] CHECK appointed treasurer retains existing law proposal rights
+[23:47:41 INFO]: [GovernanceMenuRuntimeProbe] CHECK new personal deny overrides appointed office rights
+[23:47:41 INFO]: [GovernanceMenuRuntimeProbe] CHECK new personal allow coexists with appointment menus
+[23:47:41 INFO]: [GovernanceMenuRuntimeProbe] CHECK reset restores original office rules
+[23:47:41 INFO]: [GovernanceMenuRuntimeProbe] CHECK council command opens unified roles
+[23:47:41 INFO]: [GovernanceMenuRuntimeProbe] CHECK unified list includes ministry
+[23:47:41 INFO]: [GovernanceMenuRuntimeProbe] CHECK ministry card opens details
+[23:47:41 INFO]: [GovernanceMenuRuntimeProbe] CHECK minister actions are explicit buttons
+[23:47:41 INFO]: [GovernanceMenuRuntimeProbe] CHECK ministry abilities are readable
+[23:47:42 INFO]: [GovernanceMenuRuntimeProbe] CHECK minister candidate list includes offline own residents only
+[23:47:42 INFO]: [GovernanceMenuRuntimeProbe] CHECK minister candidates have next page
+[23:47:42 INFO]: [GovernanceMenuRuntimeProbe] CHECK minister preview does not assign
+[23:47:42 INFO]: [GovernanceMenuRuntimeProbe] CHECK appointment preview reflects personal tax denial
+[23:47:42 INFO]: [GovernanceMenuRuntimeProbe] CHECK candidate full rights screen opens
+[23:47:42 INFO]: [GovernanceMenuRuntimeProbe] CHECK rights review returns to fresh confirmation
+[23:47:42 INFO]: [GovernanceMenuRuntimeProbe] CHECK cancel ministry review keeps vacancy
+[23:47:43 INFO]: [GovernanceMenuRuntimeProbe] CHECK minister assigned by confirmation
+[23:47:43 INFO]: [GovernanceMenuRuntimeProbe] CHECK double click creates one minister audit
+[23:47:43 INFO]: [GovernanceMenuRuntimeProbe] CHECK personal denial survives ministry appointment
+[23:47:43 INFO]: [GovernanceMenuRuntimeProbe] CHECK dismissal explains retained personal rules
+[23:47:43 INFO]: [GovernanceMenuRuntimeProbe] CHECK minister removed via button
+[23:47:43 INFO]: [GovernanceMenuRuntimeProbe] CHECK dismissal retains personal deny
+[23:47:44 INFO]: [GovernanceMenuRuntimeProbe] CHECK changed rights invalidate appointment preview
+[23:47:45 INFO]: [GovernanceMenuRuntimeProbe] CHECK revoked manager permission blocks appointment
+[23:47:45 INFO]: [GovernanceMenuRuntimeProbe] CHECK closed ministry confirmation cannot commit
+[23:47:45 INFO]: [GovernanceMenuRuntimeProbe] CHECK ordinary resident sees reason instead of active assign
+[23:47:46 INFO]: [GovernanceMenuRuntimeProbe] CHECK final minister appointment established
+[23:47:46 INFO]: [GovernanceMenuRuntimeProbe] CHECK stale dismissal cannot remove replacement minister
+[23:47:47 INFO]: [GovernanceMenuRuntimeProbe] CHECK access has three explicit choices
+[23:47:47 INFO]: [GovernanceMenuRuntimeProbe] CHECK opening choice does not alter rights
+[23:47:47 INFO]: [GovernanceMenuRuntimeProbe] CHECK allow button sets personal rule
+[23:47:47 INFO]: [GovernanceMenuRuntimeProbe] CHECK reset removes only chosen rule
+[23:47:47 INFO]: [GovernanceMenuRuntimeProbe] CHECK reset restores minister default
+[23:47:47 INFO]: [GovernanceMenuRuntimeProbe] CHECK reset retains unrelated resident rules
+[23:47:48 INFO]: [GovernanceMenuRuntimeProbe] CHECK deny button sets stable rule
+[23:47:48 INFO]: [GovernanceMenuRuntimeProbe] CHECK closed access menu cannot mutate rule
+[23:47:48 INFO]: [GovernanceMenuRuntimeProbe] CHECK law click opens review instead of submitting
+[23:47:48 INFO]: [GovernanceMenuRuntimeProbe] CHECK law preview does not create vote
+[23:47:48 INFO]: [GovernanceMenuRuntimeProbe] CHECK proposal button creates one vote
+[23:47:48 INFO]: [GovernanceMenuRuntimeProbe] CHECK proposal opens vote choices
+[23:47:48 INFO]: [GovernanceMenuRuntimeProbe] CHECK vote has explicit answers
+[23:47:49 INFO]: [GovernanceMenuRuntimeProbe] CHECK against button records vote
+[23:47:49 INFO]: [GovernanceMenuRuntimeProbe] CHECK abstain button records vote
+[23:47:49 INFO]: [GovernanceMenuRuntimeProbe] CHECK non-council voter sees disabled buttons with reason
+[23:47:49 INFO]: [GovernanceMenuRuntimeProbe] CHECK final appointment committed
+[23:47:49 INFO]: [GovernanceMenuRuntimeProbe] CHECK menu transitions request EntityScheduler
+[23:47:49 INFO]: [RegionShutdownThread] Awaiting scheduler termination for 60s...
+[23:47:49 INFO]: [RegionShutdownThread] Scheduler halted
+[23:47:49 INFO]: Stopping server
+[23:47:49 INFO]: [GovernanceMenuRuntimeProbe] Disabling GovernanceMenuRuntimeProbe v1.0
+[23:47:49 INFO]: [NeverLandTownyGovernance] Disabling NeverLandTownyGovernance v0.1.25
+[23:47:49 INFO]: [NeverLandTownyCouncil] Disabling NeverLandTownyCouncil v0.1.15
+[23:47:49 INFO]: [Towny] Disabling Towny v0.103.2.0
+[23:47:49 INFO]: ==============================================================
+[23:47:49 INFO]: [Towny] Finishing File IO Tasks...
+[23:47:49 INFO]: [Towny] Finishing Universe Tasks...
+[23:47:49 INFO]: [Towny] Version: 0.103.2.0 - Plugin Disabled
+[23:47:49 INFO]: =============================================================
+[23:47:49 INFO]: [RegionShutdownThread] Halting chunk systems...
+[23:47:49 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:overworld'
+[23:47:49 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:overworld'
+[23:47:49 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:the_nether'
+[23:47:49 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:the_nether'
+[23:47:49 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:the_end'
+[23:47:49 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:the_end'
+[23:47:49 INFO]: [RegionShutdownThread] Halted chunk systems
+[23:47:49 INFO]: [RegionShutdownThread] Finishing pending teleports...
+[23:47:49 INFO]: [RegionShutdownThread] Finished pending teleports
+[23:47:49 INFO]: [RegionShutdownThread] Saving all worlds
+[23:47:49 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:overworld'
+[23:47:49 INFO]: [RegionShutdownThread] Closing player inventories...
+[23:47:49 INFO]: [RegionShutdownThread] Closed player inventories
+[23:47:49 INFO]: [RegionShutdownThread] Saving chunks...
+[23:47:49 INFO]: [RegionShutdownThread] Saved chunks
+[23:47:49 INFO]: [RegionShutdownThread] Saving level data...
+[23:47:49 INFO]: [RegionShutdownThread] Saved level data
+[23:47:49 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:overworld'
+[23:47:49 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:the_nether'
+[23:47:49 INFO]: [RegionShutdownThread] Closing player inventories...
+[23:47:49 INFO]: [RegionShutdownThread] Closed player inventories
+[23:47:49 INFO]: [RegionShutdownThread] Saving chunks...
+[23:47:49 INFO]: [RegionShutdownThread] Saved chunks
+[23:47:49 INFO]: [RegionShutdownThread] Saving level data...
+[23:47:49 INFO]: [RegionShutdownThread] Saved level data
+[23:47:49 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:the_nether'
+[23:47:49 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:the_end'
+[23:47:49 INFO]: [RegionShutdownThread] Closing player inventories...
+[23:47:49 INFO]: [RegionShutdownThread] Closed player inventories
+[23:47:49 INFO]: [RegionShutdownThread] Saving chunks...
+[23:47:49 INFO]: [RegionShutdownThread] Saved chunks
+[23:47:49 INFO]: [RegionShutdownThread] Saving level data...
+[23:47:49 INFO]: [RegionShutdownThread] Saved level data
+[23:47:49 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:the_end'
+[23:47:49 INFO]: [RegionShutdownThread] Saved all worlds
+[23:47:49 INFO]: [RegionShutdownThread] Saving global world data...
+[23:47:49 INFO]: [RegionShutdownThread] Saved global world data.
+[23:47:49 INFO]: [RegionShutdownThread] Saving all player data...
+[23:47:49 INFO]: [RegionShutdownThread] Saved all player data
+[23:47:49 INFO]: Waiting for all RegionFile I/O tasks to complete...
+[23:47:49 INFO]: All RegionFile I/O tasks to complete
+[23:47:49 INFO]: [MoonriseCommon] Awaiting termination of worker pool for up to 60s...
+[23:47:49 INFO]: [MoonriseCommon] Awaiting termination of I/O pool for up to 60s...

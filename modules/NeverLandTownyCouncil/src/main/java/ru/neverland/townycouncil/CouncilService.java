@@ -125,16 +125,57 @@ public final class CouncilService implements TownyCouncilApi {
         return sender instanceof Player p && sender.hasPermission("neverlandtownycouncil.manage") && town.equals(ownTown(p.getUniqueId()))
                 && town.getMayor() != null && town.getMayor().getUUID().equals(p.getUniqueId());
     } }
+    /** Read-only UI previews; the mutating service repeats these checks at confirmation time. */
+    public String appointmentProblem(CommandSender actor, Town town, MinisterRole role, UUID resident) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        if (!manages(actor,town)) return "Назначать министров может мэр своего города или администратор.";
+        if (!healthy()) return "Назначения временно недоступны. Сообщите администрации сервера.";
+        if (appointment(town.getUUID(),role)!=null) return "Должность занята. Сначала снимите действующего министра.";
+        if (resident==null) return "";
+        if (!town.equals(ownTown(resident))) return "Этот игрок больше не живёт в вашем городе.";
+        if (town.getMayor()==null || town.getMayor().getUUID().equals(resident)) return "Мэр уже управляет городом. Выберите другого жителя.";
+        if (!CitizensAccess.allows(town.getUUID(),resident,"HOLD_OFFICE")) return "Статус жителя не позволяет занимать должность.";
+        if (repository.all().values().stream().anyMatch(a->a.town().equals(town.getUUID())&&a.resident().equals(resident)&&sameTerm(a)))
+            return "Житель уже назначен министром. Сначала снимите его с прежней должности.";
+        return "";
+    } }
+    public String dismissalProblem(CommandSender actor,Town town,MinisterRole role) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        if (!manages(actor,town)) return "Снимать министров может мэр своего города или администратор.";
+        if (!repository.writable()) return "Изменения временно недоступны. Сообщите администрации сервера.";
+        return appointment(town.getUUID(),role)==null?"Должность уже свободна.":"";
+    } }
+    public String roleExplanation(Town town,String role,TownAction action) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        Boolean value=rules(town).roles().getOrDefault(role,Map.of()).get(action.id());
+        if(value!=null)return value?"Разрешено мэром для должности":"Запрещено мэром для должности";
+        return roleDefault(role,action)?"Разрешено стандартными правами должности":"Должность не выдаёт это право";
+    } }
+    public String residentExplanation(Town town,UUID resident,TownAction action) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        if(!town.equals(ownTown(resident)))return "Игрок больше не состоит в городе";
+        if(town.getMayor()!=null&&town.getMayor().getUUID().equals(resident))return "Разрешено мэру города";
+        if(!healthy())return "Настройки доступа временно недоступны";
+        Boolean personal=rules(town).residents().getOrDefault(resident,Map.of()).get(action.id());
+        if(personal!=null)return personal?"Лично разрешено мэром":"Лично запрещено мэром";
+        String role=role(town.getUUID(),resident);
+        return role.isEmpty()?"Личного правила нет; действуют права жителя и его должностей":roleExplanation(town,role,action);
+    } }
+    public List<String> appointmentRights(Town town,MinisterRole role,UUID resident) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        var result=new ArrayList<String>();var rules=rules(town);
+        for(var action:TownAction.values()){
+            Boolean override=rules.override(resident,role.id(),action);
+            boolean allowed=override!=null?override:roleDefault(role.id(),action);
+            if(allowed)result.add("&a+ "+action.title());
+            else if(override!=null)result.add("&c− "+action.title());
+        }
+        if(result.isEmpty())result.add("&7Дополнительные действия не разрешены.");
+        result.add("&7Личные правила жителя имеют приоритет.");
+        result.add("&7Голосование в совете зависит от его состава.");
+        return result;
+    } }
     public void appoint(CommandSender actor, Town town, MinisterRole role, UUID resident) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         primary(); if (!manages(actor, town)) throw new IllegalArgumentException("Назначать министров может мэр своего города");
         if (!healthy()) throw new IOException("Совет или гражданство недоступны; назначения остановлены");
         prune();
-        if (!town.equals(ownTown(resident)) || town.getMayor() == null || town.getMayor().getUUID().equals(resident))
-            throw new IllegalArgumentException("Выберите другого жителя своего города");
-        if (!CitizensAccess.allows(town.getUUID(), resident, "HOLD_OFFICE")) throw new IllegalArgumentException("Гражданство не разрешает занимать должность");
-        if (appointment(town.getUUID(), role) != null) throw new IllegalArgumentException("Должность занята. Сначала снимите действующего министра");
-        if (repository.all().values().stream().anyMatch(a -> a.town().equals(town.getUUID()) && a.resident().equals(resident)))
-            throw new IllegalArgumentException("Этот житель уже занимает министерскую должность");
+        String problem=appointmentProblem(actor,town,role,resident);
+        if(!problem.isEmpty())throw new IllegalArgumentException(problem);
         var a = new Appointment(town.getUUID(), role, resident, town.getMayor().getUUID(), System.currentTimeMillis(), actorId(actor));
         var next = new LinkedHashMap<>(repository.all()); next.put(a.key(), a);
         commit(next, List.of(audit(town.getUUID(), actorId(actor), "APPOINT " + role.id() + " " + resident))); refreshAll();

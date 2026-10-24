@@ -29,6 +29,10 @@ public final class CouncilCommand implements TabExecutor {
                         tell(sender, role.title() + ": " + (a == null ? "свободно" : CouncilMenus.name(a.resident()) + (service.active(a) ? "" : " (приостановлено)")));
                     }
                 }
+                case "office" -> {
+                    if(!(sender instanceof Player p)||args.length!=2)throw new IllegalArgumentException("Откройте должность из меню города.");
+                    menus.office(p,town(sender,args,2),MinisterRole.parse(args[1]));
+                }
                 case "access" -> {
                     if(!(sender instanceof Player p))throw new IllegalArgumentException("Настройки меняет мэр в игре");
                     var own=service.ownTown(p.getUniqueId());if(!service.mayEditAccess(p,own))throw new IllegalArgumentException("Доступно только мэру своего города");
@@ -38,6 +42,7 @@ public final class CouncilCommand implements TabExecutor {
                     String role="";UUID resident=null;
                     if(args[1].equalsIgnoreCase("role"))role=MinisterRole.parse(args[2]).id();
                     else if(args[1].equalsIgnoreCase("player")){var found=TownyAPI.getInstance().getResident(args[2]);if(found==null)throw new IllegalArgumentException("Житель не найден");resident=found.getUUID();}
+                    else if(args[1].equalsIgnoreCase("resident"))resident=UUID.fromString(args[2]);
                     else throw new IllegalArgumentException("Выберите player или role");
                     if(args.length==3)access.actions(p,own,role,resident,null,0);
                     else{var rules=service.rules(own);service.changeAccess(p,own,rules.mayor(),rules.revision(),role,resident,args[3],args[4]);tell(p,"&aПравило доступа сохранено");}

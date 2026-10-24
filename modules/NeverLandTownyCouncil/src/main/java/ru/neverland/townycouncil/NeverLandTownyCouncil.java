@@ -22,6 +22,8 @@ public final class NeverLandTownyCouncil extends JavaPlugin implements Listener 
             var access = new AccessRepository(getDataFolder().toPath().resolve("access.yml")); access.load();
             service = new CouncilService(this, repository, readSettings(), access);
             var menus = new CouncilMenus(this, service);var accessMenus=new AccessMenus(this,service,menus);menus.access(accessMenus); var command = new CouncilCommand(this, service, menus,accessMenus);
+            var ministerMenus=new MinisterMenus(this,service,menus,accessMenus);menus.ministers(ministerMenus);
+            getServer().getPluginManager().registerEvents(ministerMenus,this);
             getServer().getPluginManager().registerEvents(accessMenus,this);
             getCommand("townycouncil").setExecutor(command); getCommand("townycouncil").setTabCompleter(command);
             townCommand = TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.TOWN, "ministers", command);
@@ -65,6 +67,6 @@ public final class NeverLandTownyCouncil extends JavaPlugin implements Listener 
         if (service != null) service.clearGrants();
         getServer().getServicesManager().unregisterAll(this);
         if (townCommand) TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN, "ministers");
-        ru.neverland.core.SuiteScheduler.cleanupPlayers(this,p->{if(p.getOpenInventory().getTopInventory().getHolder() instanceof CouncilMenus.Holder||p.getOpenInventory().getTopInventory().getHolder() instanceof AccessMenus.View)p.closeInventory();});
+        ru.neverland.core.SuiteScheduler.cleanupPlayers(this,p->{if(p.getOpenInventory().getTopInventory().getHolder() instanceof CouncilMenus.Holder||p.getOpenInventory().getTopInventory().getHolder() instanceof AccessMenus.View||p.getOpenInventory().getTopInventory().getHolder() instanceof MinisterMenus.View)p.closeInventory();});
     } }
 }

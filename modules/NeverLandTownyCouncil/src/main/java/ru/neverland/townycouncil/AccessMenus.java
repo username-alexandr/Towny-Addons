@@ -14,7 +14,7 @@ import ru.neverland.core.*;
 public final class AccessMenus implements Listener {
     private interface Click {void run(Player player)throws Exception;}
     public static final class View implements InventoryHolder {
-        final UUID viewer,town,mayor;final long revision;final Map<Integer,Click> buttons=new HashMap<>();Inventory inventory;
+        final UUID viewer,town,mayor;final long revision;final Map<Integer,Click> buttons=new HashMap<>();Inventory inventory;boolean queued;
         View(Player p,Town t,AccessRules r){viewer=p.getUniqueId();town=t.getUUID();mayor=r.mayor();revision=r.revision();}
         public Inventory getInventory(){return inventory;}
     }
@@ -28,10 +28,10 @@ public final class AccessMenus implements Listener {
         var stack=new ItemStack(icon);var meta=stack.getItemMeta();meta.setDisplayName(MenuStyle.nameLegacy(title));meta.setLore(MenuStyle.loreStrings(lore));
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);stack.setItemMeta(meta);v.inventory.setItem(slot,stack);if(click!=null)v.buttons.put(slot,click);
     }
-    private void back(View v,Click click){button(v,45,Material.ARROW,"&fНазад",List.of(),click);}
+    private void back(View v,Click click){button(v,49,Material.ARROW,"&fНазад",List.of(),click);}
     public void open(Player p,Town town,boolean roles,int page){ synchronized(SuiteState.lock()) {
-        var v=view(p,town,roles?"Доступ должностей":"Доступ жителей");
-        button(v,4,Material.BOOK,"&eДоступ в городе",List.of("&7Личное правило важнее должности.","&7По умолчанию — обычные правила.","&7Настройки меняет только мэр."),null);
+        var v=view(p,town,roles?"Права министров":"Права жителей");
+        button(v,4,Material.BOOK,"&eДоступ в городе",List.of("&7Личное правило важнее должности.","&7Сброс возвращает права жителя и его должностей.","&7Настройки меняет только мэр."),null);
         if(roles){int slot=19;for(var role:MinisterRole.values()){
             button(v,slot,Material.WRITABLE_BOOK,"&f"+role.title(),List.of("&7Выбрать действия этой должности"),who->actions(who,town,role.id(),null,null,0));slot+=2;
         }}else{
@@ -59,30 +59,47 @@ public final class AccessMenus implements Listener {
             var choices=Arrays.stream(TownAction.values()).filter(a->a.category().equals(category)).toList();
             var rules=service.rules(town);var overrides=resident==null?rules.roles().getOrDefault(role,Map.of()):rules.residents().getOrDefault(resident,Map.of());
             int n=0;for(var a:choices){
-                Boolean value=overrides.get(a.id());String label=value==null?"По умолчанию":value?"Разрешено":"Запрещено";
-                String next=value==null?"allow":value?"deny":"default";
-                var lore=new ArrayList<>(List.of("&7"+a.description(),"", "&fСейчас: "+label,"&7ЛКМ — изменить; ПКМ — по умолчанию"));
-                if(resident!=null){String result=service.decision(town.getUUID(),resident,a.id());lore.add("&7Итог: "+switch(result){case "ALLOW"->"разрешено";case "DENY"->"запрещено";default->"обычные правила города";});}
+                Boolean value=overrides.get(a.id());String label=value==null?"Без отдельного правила":value?"Разрешено":"Запрещено";
+                var lore=new ArrayList<>(List.of("&7"+a.description(),"", "&fНастройка: "+label,
+                    "&e"+(resident==null?service.roleExplanation(town,role,a):service.residentExplanation(town,resident,a)),
+                    "&7Нажмите, чтобы выбрать разрешение."));
+                if(resident==null)lore.add("&7Личное правило жителя имеет приоритет.");
                 int slot=10+(n/7)*9+n%7;n++;
-                button(v,slot,value==null?Material.GRAY_DYE:value?Material.LIME_DYE:Material.RED_DYE,"&f"+a.title(),lore,who->{
-                    service.changeAccess(who,town,v.mayor,v.revision,role,resident,a.id(),next);actions(who,town,role,resident,category,page);
-                });
-                v.buttons.put(-slot-1,who->{service.changeAccess(who,town,v.mayor,v.revision,role,resident,a.id(),"default");actions(who,town,role,resident,category,page);});
+                button(v,slot,value==null?Material.GRAY_DYE:value?Material.LIME_DYE:Material.RED_DYE,"&f"+a.title(),lore,
+                    who->choose(who,town,role,resident,a,category,page));
             }
             back(v,who->actions(who,town,role,resident,null,0));
         }
         p.openInventory(v.inventory);
     } }
+    private void choose(Player p,Town town,String role,UUID resident,TownAction action,String category,int page){
+        var v=view(p,town,"Изменить разрешение");
+        button(v,13,Material.BOOK,"&f"+action.title(),List.of("&7"+action.description(),
+            "&7Для: &f"+(resident==null?MinisterRole.parse(role).title():CouncilMenus.name(resident)),
+            "&e"+(resident==null?service.roleExplanation(town,role,action):service.residentExplanation(town,resident,action))),null);
+        String[] modes={"allow","deny","default"};String[] titles={"&aРазрешить","&cЗапретить","&eСбросить отдельное правило"};
+        Material[] icons={Material.LIME_DYE,Material.RED_DYE,Material.GRAY_DYE};
+        for(int i=0;i<modes.length;i++){
+            String mode=modes[i];String hint=i==2?(resident==null?"Вернуть стандартные права должности.":"Снова учитывать должность и обычные права жителя."):
+                (resident==null?"Изменить право для всех назначенных на эту должность.":"Установить личное правило, важнее прав должности.");
+            button(v,29+i*2,icons[i],titles[i],List.of("&7"+hint,"&7Изменение сохранится сразу после нажатия."),who->{
+                service.changeAccess(who,town,v.mayor,v.revision,role,resident,action.id(),mode);
+                CouncilCommand.tell(who,"&aСохранено: "+action.title()+" — "+(mode.equals("allow")?"разрешено":mode.equals("deny")?"запрещено":"отдельное правило снято"));
+                actions(who,town,role,resident,category,page);
+            });
+        }
+        back(v,who->actions(who,town,role,resident,category,page));p.openInventory(v.inventory);
+    }
     @EventHandler public void click(InventoryClickEvent e){ synchronized(SuiteState.lock()) {
         if(!(e.getView().getTopInventory().getHolder() instanceof View v))return;e.setCancelled(true);
         if(SuiteState.frozen(plugin.getName())||!(e.getWhoClicked() instanceof Player p)||!v.viewer.equals(p.getUniqueId()))return;
-        if(e.getRawSlot()<0||e.getRawSlot()>=54||!(e.getClick()==ClickType.LEFT||e.getClick()==ClickType.RIGHT))return;
-        var click=v.buttons.get(e.getClick()==ClickType.RIGHT?-e.getRawSlot()-1:e.getRawSlot());if(click==null)return;
-        SuiteScheduler.entity(plugin,p,()->{try{
-            var town=TownyAPI.getInstance().getTown(v.town);if(!service.mayEditAccess(p,town))throw new IllegalArgumentException("Доступ доступен только действующему мэру");
+        if(e.getRawSlot()<0||e.getRawSlot()>=54||e.getClick()!=ClickType.LEFT||v.queued)return;
+        var click=v.buttons.get(e.getRawSlot());if(click==null)return;v.queued=true;
+        SuiteScheduler.entity(plugin,p,()->{if(!plugin.isEnabled()||SuiteState.frozen(plugin.getName())||!p.isOnline()||p.getOpenInventory().getTopInventory()!=v.inventory)return;try{
+            var town=TownyAPI.getInstance().getTown(v.town);if(!service.mayEditAccess(p,town))throw new IllegalArgumentException("Изменять права может только действующий мэр");
             var now=service.rules(town);if(!now.mayor().equals(v.mayor)||now.revision()!=v.revision)throw new IllegalArgumentException("Настройки изменились. Откройте меню заново");
             click.run(p);
-        }catch(Exception ex){CouncilCommand.tell(p,"&c"+ex.getMessage());}});
+        }catch(Exception ex){CouncilCommand.tell(p,"&c"+ex.getMessage());v.queued=false;}});
     } }
     @EventHandler public void drag(InventoryDragEvent e){if(e.getView().getTopInventory().getHolder() instanceof View)e.setCancelled(true);}
 }

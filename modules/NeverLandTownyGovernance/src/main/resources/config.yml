@@ -37,6 +37,7 @@ modifiers:
   maximum: 5.00
 
 gui:
+  offices-title: "Должности города"
   main-title: "&#18243AГородское управление"
   laws-title: "&#18243AЗаконы города"
   votes-title: "&#18243AГолосования"

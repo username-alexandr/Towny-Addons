@@ -13,7 +13,7 @@ addons:
   NeverLandTownyEspionage: 0.1.22
   NeverLandTownyEvents: 0.4.8
   NeverLandTownyExpeditions: 0.1.24
-  NeverLandTownyGovernance: 0.1.24
+  NeverLandTownyGovernance: 0.1.25
   NeverLandTownyIdeologies: 0.1.19
   NeverLandTownyReputation: 0.2.9
   NeverLandTownyStick: 0.1.20
@@ -34,7 +34,7 @@ addons:
   NeverLandTownyJobs: 0.1.18
   NeverLandTownyCitizens: 0.1.11
   NeverLandTownyElections: 0.1.11
-  NeverLandTownyCouncil: 0.1.14
+  NeverLandTownyCouncil: 0.1.15
   NeverLandTownyDiplomacy: 0.1.11
   NeverLandTownyCrime: 0.1.8
   NeverLandTownyJustice: 0.1.8

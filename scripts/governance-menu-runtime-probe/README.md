@@ -1,6 +1,6 @@
 # Governance council button probe
 
-This test-only plugin runs against an isolated Folia 26.2 server with real Towny 0.103.2.0 and Governance 0.1.24 and Council 0.1.14. It creates disposable town/resident data. Never install it on a player server.
+This test-only plugin runs against an isolated Folia 26.2 server with real Towny 0.103.2.0 and Governance 0.1.25 and Council 0.1.15. It creates disposable town/resident data. Never install it on a player server.
 
 All three guards are mandatory: loopback bind `127.0.0.1`, `-Dneverland.governanceProbe=true`, and a file named `ALLOW_DISPOSABLE_GOVERNANCE_PROBE` in the server directory. The probe shuts the server down when finished.
 
@@ -11,3 +11,5 @@ Player, InventoryView and EntityScheduler objects are explicitly simulated. Sche
 The fixture disables Towny economy and does not require optional Citizens/Elections. Those integration-specific restrictions are preserved in the common Governance service; they are not integration-tested by this probe. Expected offline test-environment Mojang public-key lookup failures do not establish a production authentication test.
 
 The merged-build probe also verifies that an appointed treasurer can propose tax laws, a personal Council denial overrides that office, an allowance restores access, and reset keeps original office rules. Use `run.py --server-dir DIR --java-home JDK --phase 1`, then `--phase 2`. Compile with `--classpath-extra /path/to/annotations-26.1.0.jar` if the server lacks this compile-time dependency.
+
+The current probe also exercises the unified roles list, minister assignments and dismissal confirmations, closed/stale/denied actions, explicit access choices, candidate permission preview, law review, vote choices, and persistence of both appointment registries and personal rules.

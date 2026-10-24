@@ -106,6 +106,30 @@ public final class GovernanceService {
     } }
 
     /** Read-only previews share the exact checks used by commands and menu confirmations. */
+    public String officeAccessReason(Player actor,String officeId) { synchronized(ru.neverland.core.SuiteState.lock()) {
+        Town town=towny.town(actor);if(town==null)return "Сначала вступите в город.";
+        if(!actor.hasPermission("townygovernance.offices"))return "Назначение на должности для вас отключено администрацией сервера.";
+        if(!towny.isManager(actor,town))return "Назначения доступны мэру и уполномоченным им управляющим.";
+        if(!ru.neverland.core.CitizensAccess.allows(town.getUUID(),actor.getUniqueId(),"HOLD_OFFICE"))return "Ваш статус жителя не позволяет управлять должностями.";
+        if(definitions.office(officeId)==null)return "Должность больше не существует.";
+        if(data(town).electedOffices().contains(officeId)&&elective(town)&&!actor.hasPermission("townygovernance.bypass"))return "Эту должность занимают по результатам выборов.";
+        return "";
+    } }
+    public String proposalAccessReason(Player player,Town town,LawCategory category) { synchronized(ru.neverland.core.SuiteState.lock()) {
+        if(town==null||!town.equals(towny.town(player)))return "Сначала вступите в этот город.";
+        if(!player.hasPermission("townygovernance.propose"))return "Предложение законов для вас отключено администрацией сервера.";
+        if(!ru.neverland.core.CitizensAccess.allows(town.getUUID(),player.getUniqueId(),"HOLD_OFFICE"))return "Ваш статус жителя не позволяет предлагать законы.";
+        return mayPropose(player,town,category)?"":"У вас нет права предлагать законы этой категории. Обратитесь к мэру.";
+    } }
+    public String voteAccessReason(Player player,Town town,Proposal proposal) { synchronized(ru.neverland.core.SuiteState.lock()) {
+        if(proposal==null)return "Голосование уже завершено.";
+        if(!player.hasPermission("townygovernance.vote"))return "Голосование для вас отключено администрацией сервера.";
+        if(proposal.timer().paused())return "Голосование приостановлено. Можно проголосовать после возобновления.";
+        if(!ru.neverland.core.CitizensAccess.allows(town.getUUID(),player.getUniqueId(),"VOTE"))return "Ваш статус жителя не позволяет голосовать.";
+        if(!electorate(town).contains(player.getUniqueId()))return "В этом голосовании участвует только городской совет. Вы пока не входите в его состав.";
+        if(proposal.voteOf(player.getUniqueId())!=null&&!plugin.getConfig().getBoolean("voting.allow-change",true))return "Вы уже проголосовали. Изменение голоса отключено.";
+        return "";
+    } }
     public Result officeAccess(Player actor, String officeId) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = towny.town(actor); if (town == null) return Result.NO_TOWN;
         if (!actor.hasPermission("townygovernance.offices") || !towny.isManager(actor, town)

@@ -1,0 +1,81 @@
+Governance enabled on Folia
+council menu opens
+office button opens management
+assign button opens residents
+offline town resident included
+foreign resident excluded
+residents pagination available
+last resident page reachable
+candidate opens confirmation
+preview does not appoint
+back cancels preview
+cancel leaves no appointment
+button appoints through service
+confirmation is single-use
+double click records one appointment
+full office has no assign action
+holder opens explicit actions
+dismiss button opens confirmation
+dismiss button removes exact holder
+dismissal recorded in history
+concurrent appointment fixture
+stale confirmation cannot overwrite another holder
+revoked office permission blocks confirmation
+resident leaving town blocks confirmation
+closing inventory before scheduled callback cancels mutation
+ordinary resident cannot access assignment action
+service also rejects ordinary resident
+service rejects foreign resident
+appointed treasurer retains existing law proposal rights
+new personal deny overrides appointed office rights
+new personal allow coexists with appointment menus
+reset restores original office rules
+council command opens unified roles
+unified list includes ministry
+ministry card opens details
+minister actions are explicit buttons
+ministry abilities are readable
+minister candidate list includes offline own residents only
+minister candidates have next page
+minister preview does not assign
+appointment preview reflects personal tax denial
+candidate full rights screen opens
+rights review returns to fresh confirmation
+cancel ministry review keeps vacancy
+minister assigned by confirmation
+double click creates one minister audit
+personal denial survives ministry appointment
+dismissal explains retained personal rules
+minister removed via button
+dismissal retains personal deny
+changed rights invalidate appointment preview
+revoked manager permission blocks appointment
+closed ministry confirmation cannot commit
+ordinary resident sees reason instead of active assign
+final minister appointment established
+stale dismissal cannot remove replacement minister
+access has three explicit choices
+opening choice does not alter rights
+allow button sets personal rule
+reset removes only chosen rule
+reset restores minister default
+reset retains unrelated resident rules
+deny button sets stable rule
+closed access menu cannot mutate rule
+law click opens review instead of submitting
+law preview does not create vote
+proposal button creates one vote
+proposal opens vote choices
+vote has explicit answers
+against button records vote
+abstain button records vote
+non-council voter sees disabled buttons with reason
+final appointment committed
+menu transitions request EntityScheduler
+Governance enabled on Folia
+Towny town survived restart
+appointed resident persisted after restart
+appointment audit persisted after restart
+minister appointment persisted after restart
+minister audit persisted after restart
+personal access rule persisted after restart

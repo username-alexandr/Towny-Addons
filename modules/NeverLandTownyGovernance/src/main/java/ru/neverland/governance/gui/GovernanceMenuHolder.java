@@ -5,7 +5,7 @@ import org.bukkit.inventory.InventoryHolder;
 import java.util.UUID;
 
 public final class GovernanceMenuHolder implements InventoryHolder {
-    public enum Type { MAIN, LAWS, VOTES, COUNCIL, HISTORY, OFFICE, RESIDENTS, OFFICE_CONFIRM }
+    public enum Type { MAIN, LAWS, VOTES, COUNCIL, HISTORY, OFFICE, RESIDENTS, OFFICE_CONFIRM, OFFICE_HOLDER, LAW_DETAIL, VOTE_DETAIL }
     private final Type type; private final UUID townId;
     private UUID viewer;
     private boolean queued;
