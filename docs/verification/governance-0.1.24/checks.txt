@@ -1,0 +1,37 @@
+Governance enabled on Folia
+council menu opens
+office button opens management
+assign button opens residents
+offline town resident included
+foreign resident excluded
+residents pagination available
+last resident page reachable
+candidate opens confirmation
+preview does not appoint
+back cancels preview
+cancel leaves no appointment
+button appoints through service
+confirmation is single-use
+double click records one appointment
+full office has no assign action
+holder opens dismissal confirmation
+dismiss button removes exact holder
+dismissal recorded in history
+concurrent appointment fixture
+stale confirmation cannot overwrite another holder
+revoked office permission blocks confirmation
+resident leaving town blocks confirmation
+closing inventory before scheduled callback cancels mutation
+ordinary resident cannot access assignment action
+service also rejects ordinary resident
+service rejects foreign resident
+appointed treasurer retains existing law proposal rights
+new personal deny overrides appointed office rights
+new personal allow coexists with appointment menus
+reset restores original office rules
+final appointment committed
+menu transitions request EntityScheduler
+Governance enabled on Folia
+Towny town survived restart
+appointed resident persisted after restart
+appointment audit persisted after restart

@@ -1,0 +1,12 @@
+{
+  "uploaded_sha256": "b7470b526c4b7bcd66043396a8446a56bcb1d0d6ede904a1b48b3bc0b2842772",
+  "merged_sha256": "660714e53724cd417bcc6f5248dd3cca9a5f4f9c465e541ad9ef45124e11e5e4",
+  "missing_entries": [],
+  "different_entries": [
+    "plugin.yml",
+    "ru/neverland/core/CouncilAccess.class",
+    "ru/neverland/governance/service/GovernanceService$1.class",
+    "ru/neverland/governance/service/GovernanceService$Multiplier.class",
+    "ru/neverland/governance/service/GovernanceService.class"
+  ]
+}

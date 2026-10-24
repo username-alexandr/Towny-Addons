@@ -41,11 +41,13 @@ import java.util.Map;
 
 public final class GovernanceMenuManager implements Listener {
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withLocale(new Locale("ru")).withZone(ZoneId.systemDefault());
+    private final CouncilOfficeMenus officeMenus;
     private final JavaPlugin plugin; private final TownyHook towny; private final GovernanceService governance;
     private final ItemsAdderHook itemsAdder; private final MessageService messages; private final NamespacedKey actionKey; private final NamespacedKey valueKey;
 
     public GovernanceMenuManager(JavaPlugin plugin, TownyHook towny, GovernanceService governance, ItemsAdderHook itemsAdder, MessageService messages) {
         this.plugin = plugin; this.towny = towny; this.governance = governance; this.itemsAdder = itemsAdder; this.messages = messages;
+        officeMenus = new CouncilOfficeMenus(plugin, towny, governance, itemsAdder, messages, this::openMain);
         actionKey = new NamespacedKey(plugin, "menu_action"); valueKey = new NamespacedKey(plugin, "menu_value");
     }
 
@@ -104,23 +106,7 @@ public final class GovernanceMenuManager implements Listener {
     } }
 
     public void openCouncil(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
-        Town town = requireTown(player); if (town == null) return; TownGovernanceData data = governance.data(town);
-        Inventory menu = menu(GovernanceMenuHolder.Type.COUNCIL, town, 54, config("gui.council-title")); fill(menu);
-        int slot = 10;
-        for (OfficeDefinition office : governance.offices()) {
-            if (slot % 9 == 8) slot += 2; if (slot >= 45) break;
-            List<OfficeHolder> holders = data.offices().getOrDefault(office.id(), List.of()); List<String> lore = new ArrayList<>(office.description()); lore.add("");
-            lore.add("&7Мест: &f" + holders.size() + "/" + office.maxHolders()); lore.add("&7Член совета: &f" + (office.councilMember() ? "Да" : "Нет")); lore.add("");
-            if (holders.isEmpty()) lore.add("&#ADB5BDНикто не назначен"); else holders.forEach(holder -> lore.add("&#63E6BE• &f" + holder.residentName()));
-            lore.add(""); lore.add("&8Назначение: /t governance appoint");
-            menu.setItem(slot++, item(icon(office), office.name(), lore));
-        }
-        if (org.bukkit.Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyCouncil") && player.hasPermission("neverlandtownycouncil.use"))
-            menu.setItem(46, tagged(Material.WRITABLE_BOOK, "ministers", "", "&eМинистры города",
-                    List.of("&7Экономика • оборона", "&7Строительство • внешняя политика", "", "&fНажмите — назначения мэра.")));
-        List<String> members = governance.council(town).stream().map(towny::resident).filter(java.util.Objects::nonNull).map(value -> value.getName()).sorted().toList();
-        menu.setItem(40, item(Material.BELL, "&#FFD166Состав совета", members.isEmpty() ? List.of("&7Совет не сформирован") : members.stream().map(name -> "&7• &f" + name).toList()));
-        menu.setItem(49, back()); player.openInventory(menu);
+        officeMenus.openCouncil(player, 0);
     } }
 
     public void openHistory(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
@@ -136,6 +122,7 @@ public final class GovernanceMenuManager implements Listener {
     @EventHandler public void onClick(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyGovernance")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getInventory().getHolder() instanceof GovernanceMenuHolder holder)) return; event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player) || event.getClickedInventory() != event.getView().getTopInventory()) return;
+        if (officeMenus.handles(holder)) { officeMenus.click(event, player, holder); return; }
         ItemStack clicked = event.getCurrentItem(); if (clicked == null || clicked.getType().isAir() || !clicked.hasItemMeta()) return;
         String action = clicked.getItemMeta().getPersistentDataContainer().get(actionKey, PersistentDataType.STRING);
         String value = clicked.getItemMeta().getPersistentDataContainer().get(valueKey, PersistentDataType.STRING);
