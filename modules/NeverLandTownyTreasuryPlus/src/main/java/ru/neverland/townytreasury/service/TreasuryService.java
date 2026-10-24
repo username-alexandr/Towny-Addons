@@ -29,7 +29,7 @@ public final class TreasuryService implements TownyTreasuryApi {
     private void primary(){if(!ru.neverland.core.SuiteState.held())throw new IllegalStateException("Нужен основной поток сервера");}
     private void ready(){primary();if(!initialized)throw new IllegalStateException("Казна ожидает загрузки экономики");if(fault)throw new IllegalStateException("Учёт казны требует восстановления; обратитесь к администратору");}
     public Town town(Player player){ synchronized (ru.neverland.core.SuiteState.lock()) {var resident=TownyAPI.getInstance().getResident(player);return resident==null?null:resident.getTownOrNull();} }
-    public boolean manager(Player player,Town town){ synchronized (ru.neverland.core.SuiteState.lock()) {var r=TownyAPI.getInstance().getResident(player);return r!=null&&town!=null&&town.equals(r.getTownOrNull())&&(town.isMayor(r)||player.hasPermission("neverlandtownytreasury.manage")||ru.neverland.core.CouncilAccess.allows(player,town.getUUID(),"budget"));} }
+    public boolean manager(Player player,Town town){ synchronized (ru.neverland.core.SuiteState.lock()) {var r=TownyAPI.getInstance().getResident(player);return r!=null&&town!=null&&town.equals(r.getTownOrNull())&&(town.isMayor(r)||ru.neverland.core.CouncilAccess.check(player,town.getUUID(),"budget",player.hasPermission("neverlandtownytreasury.manage")));} }
     // Vault may expose a provider during onLoad, before its onEnable has finished.
     // Start scanning on the first server tick, after all plugin enable callbacks.
     // Budget operations stay closed until that first scan succeeds.

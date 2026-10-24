@@ -11,3 +11,5 @@ python scripts/mob-farm-runtime-probe/run.py --server-dir /path/to/disposable --
 ```
 
 Both runs stop the server and retain installed-JAR hashes, console log and assertions. The second run reads persisted Towny flags. The fixture tickets its chunks and waits for Folia's entity registration before testing living entities; removal is verified with isValid, not the historical isInWorld flag. The player identity is a strict proxy; Towny objects, API, events, entities, inventories and persistence are real. No visual Minecraft client or AFK yield/load measurement is involved.
+
+The 0.1.19 probe also reproduces dispenser/PvP blocking, exercises Towny splash handling, live potion splash and protected targets. If JetBrains annotations are absent from server libraries, supply `--classpath-extra /path/to/annotations-26.1.0.jar` to build.py.

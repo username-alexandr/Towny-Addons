@@ -1,0 +1,32 @@
+PASS Council enabled on native Folia
+PASS live registry healthy
+PASS fresh disposable fixture
+PASS actual mayor may edit
+PASS OP, outsider mayor and console cannot edit
+PASS OP resident denied mutation
+PASS cannot grant outsider
+PASS cannot restrict mayor
+PASS cannot manufacture server permission
+PASS unconfigured resident uses legacy rules
+PASS existing economy minister defaults retained
+PASS city role denial beats legacy rank or permission
+PASS personal allow beats role denial
+PASS personal denial beats role grant
+PASS rights cannot cross city boundary
+PASS reset inherits role grant
+PASS stale menu revision rejected
+PASS real inventory has four role buttons
+PASS OP non-mayor cannot open editor
+PASS personal default is displayed distinctly
+PASS explicit deny is displayed red
+PASS resident list paginates
+PASS second resident page can go back
+PASS old mayor loses authority immediately
+PASS old term overrides immediately inactive
+PASS new mayor receives clean appointments and overrides
+PASS left resident loses rights immediately
+PASS returning resident does not regain removed grant
+PASS client API exposes complete action catalogue
+PASS client API reports personal policy
+checks=30
+failed=0

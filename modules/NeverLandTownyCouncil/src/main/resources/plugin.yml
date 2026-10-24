@@ -1,5 +1,5 @@
 name: NeverLandTownyCouncil
-version: 0.1.13
+version: 0.1.14
 main: ru.neverland.townycouncil.NeverLandTownyCouncil
 folia-supported: true
 api-version: '26.2'
@@ -12,7 +12,7 @@ commands:
   townycouncil:
     aliases: [council, ministers, nltcouncil]
     description: Министры городского совета
-    usage: /council [menu|appoint|dismiss|permissions|history|help|reload]
+    usage: /council [menu|access|appoint|dismiss|permissions|history|help|reload]
 permissions:
   neverlandtownycouncil.use:
     default: true
@@ -54,4 +54,38 @@ permissions:
     default: false
   neverlandtownycouncil.action.justice:
     description: Судебные дела и тюрьмы своего города
+    default: false
+  neverlandtownycouncil.action.build_cancel:
+    default: false
+  neverlandtownycouncil.action.build_resources:
+    default: false
+  neverlandtownycouncil.action.build_place:
+    default: false
+  neverlandtownycouncil.action.storage_deposit:
+    default: false
+  neverlandtownycouncil.action.storage_withdraw:
+    default: false
+  neverlandtownycouncil.action.districts:
+    default: false
+  neverlandtownycouncil.action.mob_farms:
+    default: false
+  neverlandtownycouncil.action.contracts:
+    default: false
+  neverlandtownycouncil.action.market:
+    default: false
+  neverlandtownycouncil.action.jobs:
+    default: false
+  neverlandtownycouncil.action.law_ideology:
+    default: false
+  neverlandtownycouncil.action.law_civic:
+    default: false
+  neverlandtownycouncil.action.policies:
+    default: false
+  neverlandtownycouncil.action.specialization:
+    default: false
+  neverlandtownycouncil.action.quests:
+    default: false
+  neverlandtownycouncil.action.achievements:
+    default: false
+  neverlandtownycouncil.action.upkeep:
     default: false

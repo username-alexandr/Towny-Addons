@@ -44,7 +44,7 @@ public final class ConstructionRefunds {
     public int fee() { return Math.max(0,Math.min(100,plugin.getConfig().getInt("settings.construction.cancel-fee-percent",10))); }
     public boolean allowed(Player player,Town town) {
         Town current=player==null?null:towny.town(player);
-        return town!=null && current!=null && current.getUUID().equals(town.getUUID()) && (towny.isMayor(player,town) || CouncilAccess.allows(player,town.getUUID(),"build"));
+        return town!=null && current!=null && current.getUUID().equals(town.getUUID()) && (towny.isMayor(player,town) || CouncilAccess.check(player,town.getUUID(),"build_cancel",false));
     }
     public ConstructionReceipt receipt(UUID town,String project) { return data.town(town).constructionReceipts().get(project); }
     public boolean blocks(UUID town,String project) { var r=receipt(town,project);return r!=null&&r.blocksConstruction()&&!r.state().equals("DONE"); }

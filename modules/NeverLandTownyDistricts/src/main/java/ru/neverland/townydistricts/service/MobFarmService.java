@@ -31,7 +31,7 @@ public final class MobFarmService implements Listener {
     public boolean manager(Player p,Town t){
         if(t==null)return false;if(admin(p))return true;
         var r=TownyAPI.getInstance().getResident(p);
-        return r!=null&&t.equals(r.getTownOrNull())&&(t.isMayor(r)||r.hasTownRank("assistant")||p.hasPermission("neverlandtownydistricts.farms.manage"));
+        return r!=null&&t.equals(r.getTownOrNull())&&(t.isMayor(r)||ru.neverland.core.CouncilAccess.check(p,t.getUUID(),"mob_farms",r.hasTownRank("assistant")||p.hasPermission("neverlandtownydistricts.farms.manage")));
     }
     public TownBlock block(UUID world,int x,int z){
         World w=Bukkit.getWorld(world);if(w==null)return null;
@@ -113,6 +113,25 @@ public final class MobFarmService implements Listener {
                 if(Math.hypot(x-loc.getX(),z-loc.getZ())>48||count++>=400)continue;
                 p.spawnParticle(Particle.DUST,x,loc.getY()+0.15,z,1,0,0,0,0,dust);
             }
+        }
+    }
+    /** Towny's native hook is also used by splash/lingering potions and dispenser arrows. */
+    @EventHandler(priority=EventPriority.LOWEST)
+    public void dispenser(com.palmergames.bukkit.towny.event.damage.TownyDispenserDamageEntityEvent e){
+        synchronized(SuiteState.lock()){
+            if(!e.isCancelled()||SuiteState.frozen(plugin.getName())||!enabled()
+                    ||!plugin.getConfig().getBoolean("mob-farms.dispenser-effects",true))return;
+            if(!(e.getEntity() instanceof org.bukkit.entity.Enemy)||e.getEntity() instanceof Player)return;
+            if(com.palmergames.bukkit.towny.hooks.PluginIntegrations.getInstance().isNPC(e.getEntity()))return;
+            var source=e.getDispenserBlock();if(source==null)return;
+            var from=TownyAPI.getInstance().getTownBlock(source.getLocation());
+            var to=e.getTownBlock();
+            if(from==null||to==null||from.getTownOrNull()==null||to.getTownOrNull()==null)return;
+            if(!from.getWorld().isUsingTowny()||!to.getWorld().isUsingTowny())return;
+            if(!source.getWorld().getUID().equals(e.getLocation().getWorld().getUID())
+                    ||!from.getTownOrNull().getUUID().equals(to.getTownOrNull().getUUID())||to.getTownOrNull().isRuined())return;
+            if(snapshot(from).map(MobFarmPlot::protectionDisabled).orElse(false)
+                    &&snapshot(to).map(MobFarmPlot::protectionDisabled).orElse(false))e.setCancelled(false);
         }
     }
     @EventHandler public void quit(PlayerQuitEvent e){synchronized(SuiteState.lock()){entered.remove(e.getPlayer().getUniqueId());previews.remove(e.getPlayer().getUniqueId());}}

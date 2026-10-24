@@ -54,7 +54,7 @@ public final class ArmyService implements TownyArmyApi {
         if (executive(p, town)) return true;
         var s = repository.state().soldiers().get(p.getUniqueId());
         try { return p.hasPermission("neverlandtownyarmy.manage") && s != null && s.town().equals(town) && s.serving() && s.oath()
-                && s.rank().atLeast(minimum) && eligible(s, System.currentTimeMillis()); }
+                && s.rank().atLeast(minimum) && eligible(s, System.currentTimeMillis()) && CouncilAccess.check(p,town,"army",true); }
         catch (Exception | LinkageError e) { return false; }
     } }
     private UUID manage(Player p, Rank minimum) {

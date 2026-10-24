@@ -1,0 +1,8 @@
+PASS Council enabled on native Folia
+PASS live registry healthy
+PASS explicit deny survives server restart
+PASS personal allow survives server restart
+PASS access audit survives restart
+PASS existing appointments survive restart
+checks=6
+failed=0

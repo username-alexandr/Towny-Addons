@@ -62,7 +62,7 @@ public final class BuildService {
         if (town == null) {
             return UpgradeResult.of(UpgradeResult.Status.NO_TOWN);
         }
-        if (!towny.isMayor(player, town) && !ru.neverland.core.CouncilAccess.allows(player, town.getUUID(), "build")) {
+        if (!towny.isMayor(player, town) && !ru.neverland.core.CouncilAccess.check(player, town.getUUID(), "build",false)) {
             return UpgradeResult.of(UpgradeResult.Status.NOT_MAYOR);
         }
         TownData data = dataStore.town(town.getUUID());
@@ -298,7 +298,7 @@ public final class BuildService {
     public ContributionResult contributeFromStorage(Player player, ProjectDefinition project) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = towny.town(player);
         if (town == null) return ContributionResult.of(ContributionResult.Status.NO_TOWN);
-        if (!towny.isMayor(player, town) && !ru.neverland.core.CouncilAccess.allows(player, town.getUUID(), "build")) return ContributionResult.of(ContributionResult.Status.NOT_MAYOR);
+        if (!towny.isMayor(player, town) && !ru.neverland.core.CouncilAccess.check(player, town.getUUID(), "build_resources",false)) return ContributionResult.of(ContributionResult.Status.NOT_MAYOR);
         return contribute(player, town, project, true);
     } }
 

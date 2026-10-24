@@ -98,12 +98,21 @@ public final class BuildingStorageService implements BuildingStorageApi,Listener
     @EventHandler public void click(InventoryClickEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         if(!(e.getView().getTopInventory().getHolder() instanceof View v)||!(e.getWhoClicked() instanceof Player p))return;
         if(!citizen(p,v)){e.setCancelled(true);ru.neverland.core.SuiteScheduler.entity(plugin,p,()->p.closeInventory());return;}
-        if(towny.isMayor(p,towny.town(p)))return;
+        boolean mayor=towny.isMayor(p,towny.town(p));
+        boolean deposit=mayor||ru.neverland.core.CouncilAccess.check(p,v.town,"storage_deposit",true);
+        boolean withdraw=mayor||ru.neverland.core.CouncilAccess.check(p,v.town,"storage_withdraw",false);
         boolean top=e.getClickedInventory()==e.getView().getTopInventory();
-        boolean deposit=e.getAction()==InventoryAction.PLACE_ALL||e.getAction()==InventoryAction.PLACE_ONE||e.getAction()==InventoryAction.PLACE_SOME||e.getAction()==InventoryAction.NOTHING;
-        if((top&&!deposit)||e.getClick()==ClickType.DOUBLE_CLICK||e.getClick()==ClickType.NUMBER_KEY||e.getClick()==ClickType.SWAP_OFFHAND){e.setCancelled(true);tell(p,"Забирать ресурсы со склада может мэр.");}
+        if(!StorageAccessPolicy.allows(e.getAction(),top,deposit,withdraw)){e.setCancelled(true);tell(p,"Мэр ограничил это действие со складом.");}
     } }
-    @EventHandler public void drag(InventoryDragEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(e.getView().getTopInventory().getHolder() instanceof View v&&e.getWhoClicked() instanceof Player p&&!citizen(p,v))e.setCancelled(true);} }
+    @EventHandler public void drag(InventoryDragEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {
+        if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+        if(!(e.getView().getTopInventory().getHolder() instanceof View v)||!(e.getWhoClicked() instanceof Player p))return;
+        if(!citizen(p,v)){e.setCancelled(true);return;}
+        if(e.getRawSlots().stream().anyMatch(slot->slot<e.getView().getTopInventory().getSize())
+                &&!towny.isMayor(p,towny.town(p))&&!ru.neverland.core.CouncilAccess.check(p,v.town,"storage_deposit",true)){
+            e.setCancelled(true);tell(p,"Мэр ограничил пополнение склада.");
+        }
+    } }
     private void mirror(org.bukkit.entity.HumanEntity viewer,Inventory inventory,View view){ru.neverland.core.SuiteScheduler.entity(plugin,viewer,()->{
         if(data.ownsStorage(view.town,view.project,view.session))write(data.town(view.town),view.project,inventory.getContents());
     });}

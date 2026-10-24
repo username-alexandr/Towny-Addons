@@ -13,6 +13,7 @@ import ru.neverland.core.MenuStyle;
 public final class CouncilMenus implements Listener {
     record Holder(UUID viewer, UUID town, Inventory back) implements InventoryHolder { public Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { return null; } } }
     private final NeverLandTownyCouncil plugin; private final CouncilService service;
+    private AccessMenus access;public void access(AccessMenus value){access=value;}
     private static final int[] SLOTS = {19, 21, 23, 25};
     public CouncilMenus(NeverLandTownyCouncil plugin, CouncilService service) { this.plugin = plugin; this.service = service; }
     static String name(UUID id) { var r = TownyAPI.getInstance().getResident(id); return r == null ? id.toString() : r.getName(); }
@@ -34,6 +35,7 @@ public final class CouncilMenus implements Listener {
             lore.add("&7Доступ ограничен своим городом."); lore.add(""); lore.add("&fНажмите — права и команда назначения.");
             menu.setItem(SLOTS[index++], item(switch (role) { case ECONOMY -> Material.GOLD_INGOT; case DEFENSE -> Material.SHIELD; case CONSTRUCTION -> Material.BRICKS; case FOREIGN -> Material.WRITABLE_BOOK; }, "&f" + role.title(), lore));
         }
+        if(service.mayEditAccess(viewer,town)){menu.setItem(37,item(Material.PLAYER_HEAD,"&eДоступ жителей",List.of("&7Разрешения для каждого жителя")));menu.setItem(38,item(Material.WRITABLE_BOOK,"&eДоступ должностей",List.of("&7Настроить действия министров")));}
         menu.setItem(36, item(Material.ARROW, back == null ? "&fЗакрыть" : "&fНазад", List.of("&7Вернуться к предыдущему меню.")));
         if (org.bukkit.Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyDiplomacy") && viewer.hasPermission("neverlandtownydiplomacy.use"))
             menu.setItem(42, item(Material.COMPASS, "&eДипломатия", List.of("&7Договоры, вассалитет и гарантии.", "&fНажмите — отношения городов.")));
@@ -50,12 +52,15 @@ public final class CouncilMenus implements Listener {
         if (!(e.getWhoClicked() instanceof Player p) || !p.getUniqueId().equals(h.viewer()) || !p.hasPermission("neverlandtownycouncil.use")) return;
         var town = TownyAPI.getInstance().getTown(h.town());
         if (e.getRawSlot() == 36) ru.neverland.core.SuiteScheduler.entity(plugin, p, () -> MenuStyle.returnTo(p, h.back()));
+        else if ((e.getRawSlot()==37||e.getRawSlot()==38)&&service.mayEditAccess(p,town)) {boolean roles=e.getRawSlot()==38;ru.neverland.core.SuiteScheduler.entity(plugin,p,()->access.open(p,town,roles,0));}
         else if (e.getRawSlot() == 40) CouncilCommand.help(p);
         else if (e.getRawSlot() == 42 && p.hasPermission("neverlandtownydiplomacy.use")) ru.neverland.core.SuiteScheduler.entity(plugin, p, () -> p.performCommand("townydiplomacy"));
         else if (e.getRawSlot() == 44 && town != null) ru.neverland.core.SuiteScheduler.entity(plugin, p, () -> open(p, town));
         else for (int i = 0; i < SLOTS.length; i++) if (e.getRawSlot() == SLOTS[i]) {
-            var role = MinisterRole.values()[i]; CouncilCommand.tell(p, "&e" + role.title() + " • Права:");
-            service.permissions(role.id()).stream().sorted().forEach(node -> CouncilCommand.tell(p, "&7• &f" + node));
+            var role = MinisterRole.values()[i];
+            if(service.mayEditAccess(p,town)){ru.neverland.core.SuiteScheduler.entity(plugin,p,()->access.actions(p,town,role.id(),null,null,0));return;}
+            CouncilCommand.tell(p,"&e"+role.title()+" • Доступ должности в городе:");
+            if(town!=null){var modes=service.roleActions(town.getUUID(),role.id());for(var a:TownAction.values())CouncilCommand.tell(p,"&f"+a.title()+": &7"+switch(modes.get(a.id())){case "ALLOW"->"разрешено";case "DENY"->"запрещено";default->"по умолчанию";});}
             if (service.manages(p, town)) {
                 CouncilCommand.tell(p, "&e/council appoint " + role.id() + " <игрок>");
                 CouncilCommand.tell(p, "&e/council dismiss " + role.id());

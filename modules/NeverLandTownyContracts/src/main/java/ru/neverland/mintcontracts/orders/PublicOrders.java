@@ -164,6 +164,33 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
             }
         }catch(Exception ex){sender.sendMessage("§c"+ex.getMessage());}return true;
     }}
+    /** Public UI integration. Real board, own orders only, no private-field reflection. */
+    public Map<String,Object> uiSnapshot(Player p)throws Exception { synchronized(SuiteState.lock()) {
+        if(!p.hasPermission("neverland.orders.use"))throw new IllegalArgumentException("Нет прав на заказы");
+        var board=boardSnapshot();var rows=new ArrayList<Map<String,Object>>();
+        long count=orders.values().stream().filter(o->o.player().equals(p.getUniqueId())&&open(o)).count();
+        for(var t:visibleTemplates(p.getUniqueId(),board)){
+            String reason=!active()?"Заказы временно приостановлены":count>=maximum?"Достигнут лимит активных заказов":
+                orders.values().stream().anyMatch(o->o.player().equals(p.getUniqueId())&&o.template().equals(t.id())&&o.boardDay().equals(board.day().toString()))?"Уже принят сегодня":"";
+            var row=new LinkedHashMap<String,Object>();row.put("id",t.id());row.put("title",t.title());row.put("type",t.type().name());row.put("target",t.target());row.put("goal",t.amount());row.put("cents",t.cents());row.put("rarity",t.rarity().name());row.put("duration",t.duration());row.put("reason",reason);row.put("quote",board.day()+"/"+t.toString());rows.add(row);
+        }
+        var mine=new ArrayList<Map<String,Object>>();
+        for(var o:orders.values())if(o.player().equals(p.getUniqueId())&&open(o)){
+            var row=new LinkedHashMap<String,Object>();row.put("id",o.id().toString());row.put("title",o.title());row.put("type",o.type().name());row.put("target",o.target());row.put("goal",o.goal());row.put("progress",o.progress());row.put("cents",o.cents());row.put("rarity",o.rarity().name());row.put("remaining",o.remaining());row.put("quote",o.id()+"/"+o.state()+"/"+o.progress()+"/"+o.cents()+"/"+o.goal());mine.add(row);
+        }
+        return Map.of("day",board.day().toString(),"offers",List.copyOf(rows),"mine",List.copyOf(mine),"active",active());
+    } }
+    /** Checks the same quote under the same suite lock as the mutation. */
+    @SuppressWarnings("unchecked") public void uiExecute(Player p,String action,String id,String quote)throws Exception { synchronized(SuiteState.lock()) {
+        var data=uiSnapshot(p);var rows=(List<Map<String,Object>>)data.get(action.equals("accept")?"offers":"mine");
+        var row=rows.stream().filter(v->v.get("id").equals(id)&&v.get("quote").equals(quote)).findFirst().orElseThrow(()->new IllegalArgumentException("Условия заказа изменились. Откройте его заново."));
+        switch(action){
+            case "accept" -> {if(!row.get("reason").equals(""))throw new IllegalArgumentException(row.get("reason").toString());accept(p,id,LocalDate.parse(data.get("day").toString()));}
+            case "claim" -> claim(p,UUID.fromString(id));
+            case "cancel" -> {Order o=orders.get(UUID.fromString(id));orders.put(o.id(),o.state("CANCELLED"));save();p.sendMessage("Отменён без штрафа.");}
+            default -> throw new IllegalArgumentException("Неизвестное действие");
+        }
+    } }
     private record Board(LocalDate day,Map<Integer,String> slots) implements InventoryHolder{public Inventory getInventory(){return null;}}
     private void menu(Player p)throws IOException{
         Map<Integer,String> slots=new HashMap<>();var snapshot=boardSnapshot();var board=visibleTemplates(p.getUniqueId(),snapshot);

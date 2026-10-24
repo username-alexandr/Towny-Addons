@@ -18,14 +18,15 @@ public final class CouncilService implements TownyCouncilApi {
     private final Plugin plugin;
     private final CouncilRepository repository;
     private CouncilSettings settings;
+    private final AccessRepository access;
     private final Map<UUID, Grant> grants = new HashMap<>();
-    public CouncilService(Plugin plugin, CouncilRepository repository, CouncilSettings settings) {
-        this.plugin = plugin; this.repository = repository; this.settings = settings;
+    public CouncilService(Plugin plugin, CouncilRepository repository, CouncilSettings settings, AccessRepository access) {
+        this.plugin = plugin; this.repository = repository; this.settings = settings; this.access=access;
     }
     private void primary() { if (!ru.neverland.core.SuiteState.held()) throw new IllegalStateException("Нужен основной поток сервера"); }
     public CouncilRepository repository() { synchronized (ru.neverland.core.SuiteState.lock()) { return repository; } }
     public void settings(CouncilSettings value) { synchronized (ru.neverland.core.SuiteState.lock()) { primary(); settings = value; refreshAll(); } }
-    @Override public boolean healthy() { synchronized (ru.neverland.core.SuiteState.lock()) { primary(); return repository.writable() && CitizensAccess.available(); } }
+    @Override public boolean healthy() { synchronized (ru.neverland.core.SuiteState.lock()) { primary(); return repository.writable() && access.writable() && CitizensAccess.available(); } }
     public Town ownTown(UUID resident) { synchronized (ru.neverland.core.SuiteState.lock()) { var r = TownyAPI.getInstance().getResident(resident); return r == null ? null : r.getTownOrNull(); } }
     private boolean sameTerm(Appointment a) {
         var t = TownyAPI.getInstance().getTown(a.town());
@@ -46,8 +47,78 @@ public final class CouncilService implements TownyCouncilApi {
     } }
     @Override public Set<String> permissions(String role) { synchronized (ru.neverland.core.SuiteState.lock()) { primary(); return settings.permissions().get(MinisterRole.parse(role)); } }
     @Override public boolean allows(UUID town, UUID resident, String permission) { synchronized (ru.neverland.core.SuiteState.lock()) {
-        primary(); String role = role(town, resident); return !role.isEmpty() && permissions(role).contains(permission);
+        primary();
+        if (!healthy() || !Objects.equals(ownTown(resident),TownyAPI.getInstance().getTown(town)) || ownTown(resident)==null) return false;
+        try {return decision(town,resident,permission).equals("ALLOW");}catch(IllegalArgumentException ex){
+            String role=role(town,resident);return !role.isEmpty()&&permissions(role).contains(permission);
+        }
     } }
+    /** Editing access is deliberately mayor-only; OP, wildcard and console do not substitute for the mayor. */
+    public boolean mayEditAccess(CommandSender actor,Town town) { synchronized(ru.neverland.core.SuiteState.lock()) {
+        return actor instanceof Player p && town!=null && town.getMayor()!=null && town.equals(ownTown(p.getUniqueId()))
+                && town.getMayor().getUUID().equals(p.getUniqueId());
+    } }
+    public AccessRules rules(Town town) { synchronized(ru.neverland.core.SuiteState.lock()) {
+        if(town==null||town.getMayor()==null)throw new IllegalArgumentException("Город или мэр недоступен");
+        var rules=access.cities().get(town.getUUID());return rules!=null&&rules.mayor().equals(town.getMayor().getUUID())?rules:AccessRules.empty(town.getMayor().getUUID());
+    } }
+    private boolean roleDefault(String role,TownAction action){
+        if(role.isEmpty())return false;var nodes=permissions(role);
+        return nodes.contains(action.permission())||!action.parent().isEmpty()&&nodes.contains(TownAction.PREFIX+action.parent());
+    }
+    @Override public String decision(UUID townId,UUID resident,String actionId) { synchronized(ru.neverland.core.SuiteState.lock()) {
+        primary();TownAction action=TownAction.parse(actionId);Town town=TownyAPI.getInstance().getTown(townId);
+        if(town==null||!town.equals(ownTown(resident)))return "DENY";
+        if(town.getMayor()!=null&&town.getMayor().getUUID().equals(resident))return "ALLOW";
+        if(!healthy())return "DENY";
+        String role=role(townId,resident);Boolean override=rules(town).override(resident,role,action);
+        if(override!=null)return override?"ALLOW":"DENY";
+        return roleDefault(role,action)?"ALLOW":"DEFAULT";
+    } }
+    @Override public Map<String,String> actions(){ synchronized(ru.neverland.core.SuiteState.lock()) {
+        var result=new LinkedHashMap<String,String>();for(var a:TownAction.values())result.put(a.id(),a.title());return Map.copyOf(result);
+    } }
+    @Override public Map<String,String> roleActions(UUID town,String role){ synchronized(ru.neverland.core.SuiteState.lock()) {
+        MinisterRole.parse(role);var overrides=rules(TownyAPI.getInstance().getTown(town)).roles().getOrDefault(role,Map.of());return modes(overrides);
+    } }
+    @Override public Map<String,String> residentActions(UUID town,UUID resident){ synchronized(ru.neverland.core.SuiteState.lock()) {
+        var t=TownyAPI.getInstance().getTown(town);if(t==null||!t.equals(ownTown(resident)))return Map.of();return modes(rules(t).residents().getOrDefault(resident,Map.of()));
+    } }
+    private static Map<String,String> modes(Map<String,Boolean> overrides){var result=new TreeMap<String,String>();for(var a:TownAction.values()){
+        Boolean value=overrides.get(a.id());result.put(a.id(),value==null?"DEFAULT":value?"ALLOW":"DENY");}return Map.copyOf(result);
+    }
+    public void changeAccess(Player actor,Town town,UUID mayor,long revision,String role,UUID resident,String action,String mode)throws IOException { synchronized(ru.neverland.core.SuiteState.lock()) {
+        primary();if(ru.neverland.core.SuiteState.frozen(plugin.getName())||!mayEditAccess(actor,town))throw new IllegalArgumentException("Менять доступ может только действующий мэр своего города");
+        if(!healthy())throw new IOException("Права временно недоступны; изменения не сохранены");
+        var current=rules(town);if(!current.mayor().equals(mayor)||current.revision()!=revision)throw new IllegalArgumentException("Настройки изменились. Откройте меню заново");
+        if(resident!=null){if(!town.equals(ownTown(resident))||resident.equals(mayor))throw new IllegalArgumentException("Выберите другого жителя своего города");}
+        else MinisterRole.parse(role);
+        TownAction kind=TownAction.parse(action);Boolean value=switch(mode.toLowerCase(Locale.ROOT)){case "allow"->true;case "deny"->false;case "default"->null;default->throw new IllegalArgumentException("Режим: allow, deny, default");};
+        var next=current.change(role,resident,kind,value);var cities=new HashMap<>(access.cities());cities.put(town.getUUID(),next);
+        String detail=town.getUUID()+" / "+actor.getUniqueId()+" / "+(resident==null?"role:"+role:"resident:"+resident)+" / "+kind.id()+" / "+mode;
+        var operation=UUID.randomUUID().toString();
+        ru.neverland.core.AuditTrail.require(ru.neverland.core.AuditTrail.record(plugin,"ACCESS_CHANGE",operation,"COUNCIL_ACCESS","REQUESTED",
+            new ru.neverland.core.AuditRecord.Party("MAYOR",actor.getUniqueId().toString(),actor.getName(),""),ru.neverland.core.AuditRecord.Party.unknown(),ru.neverland.core.AuditTrail.town(town.getUUID()),"",0,"0",detail));
+        try{access.commit(cities,System.currentTimeMillis()+" "+detail);}catch(IOException e){clearGrants();throw e;}
+        ru.neverland.core.AuditTrail.record(plugin,"ACCESS_SAVED",operation,"COUNCIL_ACCESS","DONE",
+            new ru.neverland.core.AuditRecord.Party("MAYOR",actor.getUniqueId().toString(),actor.getName(),""),ru.neverland.core.AuditRecord.Party.unknown(),ru.neverland.core.AuditTrail.town(town.getUUID()),"",0,"0",detail);
+        refreshAll();
+    } }
+    public List<String> accessHistory(){return access.history();}
+    public void clearAccess(UUID town,UUID resident,String reason)throws IOException { synchronized(ru.neverland.core.SuiteState.lock()) {
+        var current=access.cities().get(town);if(current==null)return;
+        if(resident!=null&&!current.residents().containsKey(resident))return;
+        var next=new HashMap<>(access.cities());if(resident==null)next.remove(town);else next.put(town,current.without(resident));
+        access.commit(next,System.currentTimeMillis()+" "+town+" SYSTEM "+reason);refreshAll();
+    } }
+    private Set<String> effectiveNodes(Town town,UUID resident){
+        if(town==null||!healthy())return Set.of();String role=role(town.getUUID(),resident);var nodes=new HashSet<String>();
+        if(!role.isEmpty())nodes.addAll(permissions(role));nodes.removeIf(n->n.startsWith(TownAction.PREFIX));
+        // Mayors already have their normal authority and must not acquire delegated attachments.
+        if(town.getMayor()!=null&&town.getMayor().getUUID().equals(resident))return Set.copyOf(nodes);
+        var rules=rules(town);for(var a:TownAction.values()){Boolean override=rules.override(resident,role,a);if(override!=null?override:roleDefault(role,a))nodes.add(a.permission());}
+        return Set.copyOf(nodes);
+    }
     public boolean manages(CommandSender sender, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         primary(); if (town == null) return false;
         if (sender.hasPermission("neverlandtownycouncil.admin")) return true;
@@ -85,15 +156,19 @@ public final class CouncilService implements TownyCouncilApi {
         try { repository.commit(next, audit); }
         catch (IOException ex) { clearGrants(); throw ex; }
     }
-    public void prune() throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) { remove(a -> !sameTerm(a), "SYSTEM", "TERM_OR_MEMBERSHIP_ENDED"); } }
+    public void prune() throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) { remove(a -> !sameTerm(a), "SYSTEM", "TERM_OR_MEMBERSHIP_ENDED");
+        for(var entry:List.copyOf(access.cities().entrySet())){
+            var town=TownyAPI.getInstance().getTown(entry.getKey());
+            if(town==null||town.getMayor()==null||!town.getMayor().getUUID().equals(entry.getValue().mayor()))clearAccess(entry.getKey(),null,"TERM_ENDED");
+            else for(UUID resident:entry.getValue().residents().keySet())if(!town.equals(ownTown(resident)))clearAccess(entry.getKey(),resident,"LEFT_TOWN");
+        } } }
     private static CouncilRepository.Audit audit(UUID town, String actor, String detail) { return new CouncilRepository.Audit(town, System.currentTimeMillis(), actor, detail); }
     private static String actorId(CommandSender sender) { return sender instanceof Player p ? p.getUniqueId().toString() : "CONSOLE:" + sender.getName(); }
     /** Called on join and every second. Only this plugin's attachment is ever removed. */
     public void refresh(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!ru.neverland.core.SuiteScheduler.owns(player)){ru.neverland.core.SuiteScheduler.player(plugin,player,this::refresh);return;}
         primary(); var town = ownTown(player.getUniqueId());
-        String role = town == null ? "" : role(town.getUUID(), player.getUniqueId());
-        var nodes = role.isEmpty() ? Set.<String>of() : permissions(role);
+        var nodes = effectiveNodes(town,player.getUniqueId());
         var old = grants.get(player.getUniqueId());
         if (old != null && old.player() == player && old.permissions().equals(nodes)) return;
         release(player.getUniqueId());

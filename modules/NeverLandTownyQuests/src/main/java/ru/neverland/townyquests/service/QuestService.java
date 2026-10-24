@@ -33,7 +33,7 @@ public final class QuestService implements TownyQuestsApi {
     public Town town(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) { var r = TownyAPI.getInstance().getResident(player); return r == null ? null : r.getTownOrNull(); } }
     public boolean manager(Player player, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         var r = TownyAPI.getInstance().getResident(player);
-        return r != null && town.equals(r.getTownOrNull()) && (town.isMayor(r) || player.hasPermission("neverlandtownyquests.manage"));
+        return r != null && town.equals(r.getTownOrNull()) && (town.isMayor(r) || ru.neverland.core.CouncilAccess.check(player,town.getUUID(),"quests",player.hasPermission("neverlandtownyquests.manage")));
     } }
     public void start() { synchronized (ru.neverland.core.SuiteState.lock()) { ApiServices.primaryThread(); schedule(); } }
     private void schedule() { task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::tick, 20L, settings.interval() * 20L); }

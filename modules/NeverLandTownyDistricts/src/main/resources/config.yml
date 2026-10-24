@@ -3,6 +3,8 @@ limits:
   cells-per-district: 256
   selection-cells: 128
 mob-farms:
+  # Раздатчики действуют на враждебных мобов, когда оба участка разрешают мобов.
+  dispenser-effects: true
   # Выключает меню и подсказки; сохранённые правила Towny остаются, фермы продолжают работать.
   enabled: true
   entry-notifications: true

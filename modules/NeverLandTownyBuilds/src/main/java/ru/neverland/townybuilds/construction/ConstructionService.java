@@ -327,6 +327,9 @@ public final class ConstructionService implements Listener {
             return;
         }
         if(!ru.neverland.integration.SpecializationAccess.allowed(located.townId(),located.site().projectId())){event.setCancelled(true);messages.send(event.getPlayer(),"specialization-required",Map.of("specialization",ru.neverland.integration.SpecializationAccess.requirement(located.site().projectId())));return;}
+        if(!towny.isMayor(event.getPlayer(),playerTown)&&!ru.neverland.core.CouncilAccess.check(event.getPlayer(),playerTown.getUUID(),"build_place",true)){
+            event.setCancelled(true);event.getPlayer().sendMessage("§eМэр ограничил участие в этой стройке.");return;
+        }
         BlueprintBlock expected = located.expected();
         ConstructionSite site = located.site();
         if(site.adminPaused()||refundBlocked(located.townId(),site.projectId())){event.setCancelled(true);event.getPlayer().sendMessage("§eСтройка приостановлена или ожидает возврата. Средства сохранены.");return;}

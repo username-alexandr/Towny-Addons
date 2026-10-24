@@ -39,7 +39,7 @@ public final class DistrictService implements TownyDistrictsApi,Listener {
     public DistrictSettings settings(){ synchronized (ru.neverland.core.SuiteState.lock()) {return settings;} }public int cellSize(){ synchronized (ru.neverland.core.SuiteState.lock()) {return cellSize;} }
     public Town town(Player player){ synchronized (ru.neverland.core.SuiteState.lock()) {var resident=TownyAPI.getInstance().getResident(player);return resident==null?null:resident.getTownOrNull();} }
     public boolean manager(Player player,Town town){ synchronized (ru.neverland.core.SuiteState.lock()) {var resident=TownyAPI.getInstance().getResident(player);return resident!=null&&town.equals(resident.getTownOrNull())
-            &&(town.isMayor(resident)||resident.hasTownRank("assistant")||player.hasPermission("neverlandtownydistricts.manage"));} }
+            &&(town.isMayor(resident)||ru.neverland.core.CouncilAccess.check(player,town.getUUID(),"districts",resident.hasTownRank("assistant")||player.hasPermission("neverlandtownydistricts.manage")));} }
     public Cell cell(Player player){ synchronized (ru.neverland.core.SuiteState.lock()) {var coord=WorldCoord.parseWorldCoord(player.getLocation().getBlock());return new Cell(player.getWorld().getUID(),coord.getX(),coord.getZ());} }
     public Set<Cell> owned(Town town){ synchronized (ru.neverland.core.SuiteState.lock()) {Set<Cell> cells=new HashSet<>();for(TownBlock block:town.getTownBlocks()){
         var coord=block.getWorldCoord();World world=Bukkit.getWorld(coord.getWorldName());if(world!=null)cells.add(new Cell(world.getUID(),coord.getX(),coord.getZ()));}return cells;} }

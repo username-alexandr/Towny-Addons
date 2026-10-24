@@ -33,7 +33,7 @@ public final class AchievementService implements TownyAchievementsApi {
     } }
     public boolean manager(Player player, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         var r = TownyAPI.getInstance().getResident(player);
-        return r != null && town.equals(r.getTownOrNull()) && (town.isMayor(r) || player.hasPermission("neverlandtownyachievements.manage"));
+        return r != null && town.equals(r.getTownOrNull()) && (town.isMayor(r) || ru.neverland.core.CouncilAccess.check(player,town.getUUID(),"achievements",player.hasPermission("neverlandtownyachievements.manage")));
     } }
     public String detail(UUID town, String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return state(town).paused() ? "Проверки приостановлены администратором" : details.getOrDefault(town, Map.of()).getOrDefault(id, "Ожидается автоматическая проверка"); } }
     public Map<String, Progress> catalogue(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {

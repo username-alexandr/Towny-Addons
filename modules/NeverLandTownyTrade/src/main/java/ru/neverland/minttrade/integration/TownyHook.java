@@ -23,13 +23,11 @@ public final class TownyHook {
     public Town town(String name) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getTown(name); } }
     public Town townAt(Location location) { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getTown(location); } }
     public Collection<Town> towns() { synchronized (ru.neverland.core.SuiteState.lock()) { return TownyAPI.getInstance().getTowns(); } }
-    public boolean isManager(Player player, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
-        Resident resident = resident(player);
-        if (resident == null || town == null || !town.equals(resident.getTownOrNull())) return false;
-        if (plugin.getConfig().getBoolean("management.mayor", true) && town.isMayor(resident)) return true;
-        List<String> ranks = plugin.getConfig().getStringList("management.allowed-town-ranks");
-        for (String rank : ranks) if (resident.hasTownRank(rank)) return true;
-        return ru.neverland.core.CouncilAccess.allows(player, town.getUUID(), "trade");
+    public boolean isManager(Player player,Town town){ synchronized(ru.neverland.core.SuiteState.lock()) {
+        Resident resident=resident(player);if(resident==null||town==null||!town.equals(resident.getTownOrNull()))return false;
+        boolean legacy=plugin.getConfig().getStringList("management.allowed-town-ranks").stream().anyMatch(resident::hasTownRank);
+        if(town.isMayor(resident))return plugin.getConfig().getBoolean("management.mayor",true)||legacy;
+        return ru.neverland.core.CouncilAccess.check(player,town.getUUID(),"trade",legacy);
     } }
     public boolean register(String name, CommandExecutor executor) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.TOWN, name, executor);

@@ -29,7 +29,7 @@ public final class MarketService {
     public boolean available(){ synchronized (ru.neverland.core.SuiteState.lock()) {return !broken&&repo.writable();} }
     private void writable(){if(!ru.neverland.core.SuiteState.held()||!available())throw new IllegalStateException("Рынок остановлен после ошибки. Обратитесь к администратору");}
     public boolean manage(Player p,Town t){ synchronized (ru.neverland.core.SuiteState.lock()) {var resident=TownyAPI.getInstance().getResident(p);if(t==null||resident==null||!t.equals(resident.getTownOrNull()))return false;
-        return t.isMayor(resident)||p.hasPermission("neverlandtownymarket.manage")&&plugin.getConfig().getStringList("management.allowed-town-ranks").stream().anyMatch(resident::hasTownRank);} }
+        return t.isMayor(resident)||ru.neverland.core.CouncilAccess.check(p,t.getUUID(),"market",p.hasPermission("neverlandtownymarket.manage")&&plugin.getConfig().getStringList("management.allowed-town-ranks").stream().anyMatch(resident::hasTownRank));} }
     public void requireManager(Player p,Town t){ synchronized (ru.neverland.core.SuiteState.lock()) {if(!manage(p,t))throw new IllegalArgumentException("Управлять предложениями и казной может мэр или уполномоченный заместитель");} }
     public void requireUse(Player p){ synchronized (ru.neverland.core.SuiteState.lock()) {if(!p.hasPermission("neverlandtownymarket.use"))throw new IllegalArgumentException("Нет права на просмотр рынка");} }
     public int limit(UUID town,Scope scope){ synchronized (ru.neverland.core.SuiteState.lock()) {return scope==Scope.LOCAL?4*bridge.level(town,"market"):4*bridge.level(town,"merchant_guild");} }

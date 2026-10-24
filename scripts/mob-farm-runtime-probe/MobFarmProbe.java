@@ -20,13 +20,14 @@ import java.util.*;
 /** Real Towny persistence, event handlers and entities; player identity/menus use a strict proxy. */
 public final class MobFarmProbe extends JavaPlugin {
     static final UUID TOWN=UUID.fromString("00000000-0000-0000-0000-00000000fa01"),MAYOR=UUID.fromString("00000000-0000-0000-0000-00000000fa02");
-    int checks;List<String> results=new ArrayList<>();Inventory opened;boolean op=true,cancelSpawns;
+    int checks;List<String> results=new ArrayList<>();Inventory opened;boolean op=true,cancelSpawns,denyDispenser;
     void check(boolean b,String label){checks++;if(!b)throw new AssertionError(label);results.add("PASS "+label);}
     void deny(Runnable action,String label){try{action.run();throw new AssertionError(label);}catch(IllegalStateException expected){check(true,label);}}
     Object field(Object o,String name)throws Exception{var f=o.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(o);}
     @Override public void onEnable(){
         if(!Files.isRegularFile(Path.of("ALLOW_DISPOSABLE_MOB_FARM_PROBE"))){Bukkit.getPluginManager().disablePlugin(this);return;}
         Bukkit.getPluginManager().registerEvents(new Listener(){@EventHandler(priority=EventPriority.HIGHEST) public void spawn(CreatureSpawnEvent e){if(cancelSpawns)e.setCancelled(true);}},this);
+        Bukkit.getPluginManager().registerEvents(new Listener(){@EventHandler(priority=EventPriority.HIGHEST) public void damage(com.palmergames.bukkit.towny.event.damage.TownyDispenserDamageEntityEvent e){if(denyDispenser)e.setCancelled(true);}},this);
         Bukkit.getPluginManager().registerEvents(new Listener(){@EventHandler(priority=EventPriority.MONITOR) public void trace(CreatureSpawnEvent e){if(e.getEntityType()==EntityType.ZOMBIE)getLogger().info("Spawn check: "+e.getLocation()+" cancelled="+e.isCancelled());}},this);
         Bukkit.getGlobalRegionScheduler().runDelayed(this,t->{var w=Bukkit.getWorlds().get(0);
             w.getChunkAtAsync(0,0).thenCompose(c->w.getChunkAtAsync(1,0)).whenComplete((c,error)->{
@@ -55,8 +56,8 @@ public final class MobFarmProbe extends JavaPlugin {
             check(api.mobFarmPlots(TOWN).size()==1&&api.mobProtectionAt(w.getUID(),1,1).orElseThrow().protectionDisabled(),"map API reports persisted zone");
             check(api.mobProtectionAt(w.getUID(),17,1).orElseThrow().status().equals("PROTECTED"),"map API reports protected neighbor");return true;
         }
-        tw.setUsingTowny(true);tw.setWorldMobs(true);tw.setForceTownMobs(false);tw.save();
-        check(u.getTown(TOWN)==null,"fresh disposable town");u.newTownInternal("FarmProbeTown",TOWN);var town=u.getTown(TOWN);
+        tw.setUsingTowny(true);tw.setWorldMobs(true);tw.setForceTownMobs(false);tw.setForcePVP(false);tw.save();
+        check(u.getTown(TOWN)==null,"fresh disposable town");u.newTownInternal("FarmProbeTown",TOWN);var town=u.getTown(TOWN);town.setPVP(false);
         var resident=u.getDataSource().newResident("FarmProbeMayor",MAYOR);resident.setTown(town);town.setMayor(resident);
         for(int x=0;x<=1;x++){var b=new TownBlock(x,0,tw);u.addTownBlock(b);b.setTown(town);b.getPermissions().mobs=false;
             b.getPermissions().pvp=false;b.getPermissions().fire=false;b.getPermissions().explosion=false;b.setChanged(true);if(x==0)town.setHomeBlock(b);b.save();}
@@ -101,8 +102,50 @@ public final class MobFarmProbe extends JavaPlugin {
         check(opened.getItem(23).getType()==Material.LIME_STAINED_GLASS_PANE,"map marks neighboring protected chunk green");
         menu.open(p,true,0);check(opened.getItem(0).getType()==Material.ORANGE_STAINED_GLASS_PANE&&opened.getItem(1)==null,"farm list shows allowed zone only");
         check(api.mobFarmPlots(TOWN).size()==1,"future client map API contains one explicit farm");
+        potions(w,owner,b,neighbor,p);
         b.save();neighbor.save();tw.save();resident.save();citizen.save();town.save();u.getDataSource().saveAll();u.getDataSource().saveQueues();
         getDataFolder().mkdirs();Files.writeString(getDataFolder().toPath().resolve("phase1"),"ready");
+    }
+    void potions(World w,JavaPlugin owner,TownBlock farm,TownBlock neighbor,Player player){
+        var source=w.getBlockAt(3,90,3);source.setType(Material.DISPENSER);
+        var shooter=((org.bukkit.block.Dispenser)source.getState()).getBlockProjectileSource();
+        var zombie=(Zombie)w.spawnEntity(new Location(w,5,90,3),EntityType.ZOMBIE);zombie.setAI(false);
+        var cow=(Cow)w.spawnEntity(new Location(w,5,90,4),EntityType.COW);cow.setAI(false);
+        var potion=(ThrownPotion)w.spawnEntity(new Location(w,5,90,3),EntityType.SPLASH_POTION);
+        var item=new org.bukkit.inventory.ItemStack(Material.SPLASH_POTION);var meta=(org.bukkit.inventory.meta.PotionMeta)item.getItemMeta();
+        meta.setBasePotionType(org.bukkit.potion.PotionType.WEAKNESS);item.setItemMeta(meta);potion.setItem(item);potion.setShooter(shooter);
+        var cause=org.bukkit.event.entity.EntityDamageEvent.DamageCause.MAGIC;
+        owner.getConfig().set("mob-farms.dispenser-effects",false);
+        check(com.palmergames.bukkit.towny.utils.CombatUtil.preventDamageCall(potion,zombie,cause),"reproduced Towny PvP blocking dispenser potion against farm zombie");
+        owner.getConfig().set("mob-farms.dispenser-effects",true);
+        check(!com.palmergames.bukkit.towny.utils.CombatUtil.preventDamageCall(potion,zombie,cause),"native Towny hook permits farm zombie damage");
+        var splash=new org.bukkit.event.entity.PotionSplashEvent(potion,new HashMap<>(Map.of(zombie,1.0,cow,1.0)));
+        Bukkit.getPluginManager().callEvent(splash);
+        check(splash.getIntensity(zombie)==1&&splash.getIntensity(cow)==0,"Towny splash listener keeps hostile intensity and protects passive mob");
+        var playerEvent=new com.palmergames.bukkit.towny.event.damage.TownyDispenserDamageEntityEvent(player.getLocation(),player,cause,farm,true,source);
+        Bukkit.getPluginManager().callEvent(playerEvent);check(playerEvent.isCancelled(),"farm exception never releases player protection");
+        farm.getPermissions().mobs=false;
+        check(com.palmergames.bukkit.towny.utils.CombatUtil.preventDamageCall(potion,zombie,cause),"protected plot keeps dispenser block");farm.getPermissions().mobs=true;
+        var otherSource=w.getBlockAt(18,90,3);otherSource.setType(Material.DISPENSER);
+        potion.setShooter(((org.bukkit.block.Dispenser)otherSource.getState()).getBlockProjectileSource());
+        check(com.palmergames.bukkit.towny.utils.CombatUtil.preventDamageCall(potion,zombie,cause),"protected source cannot fire into farm exception");
+        neighbor.getPermissions().mobs=true;
+        check(!com.palmergames.bukkit.towny.utils.CombatUtil.preventDamageCall(potion,zombie,cause),"adjacent allowed plot in same town works");
+        var own=neighbor.getTownOrNull();neighbor.setTown(new Town("DispenserForeign",UUID.randomUUID()));
+        check(com.palmergames.bukkit.towny.utils.CombatUtil.preventDamageCall(potion,zombie,cause),"foreign town cannot use farm exception");neighbor.setTown(own);neighbor.getPermissions().mobs=false;
+        potion.setShooter(shooter);denyDispenser=true;
+        check(com.palmergames.bukkit.towny.utils.CombatUtil.preventDamageCall(potion,zombie,cause),"later plugin cancellation respected");denyDispenser=false;
+        owner.getConfig().set("mob-farms.enabled",false);
+        check(com.palmergames.bukkit.towny.utils.CombatUtil.preventDamageCall(potion,zombie,cause),"disabled feature does not change damage rules");owner.getConfig().set("mob-farms.enabled",true);
+        var arrow=(Arrow)w.spawnEntity(new Location(w,5,90,3),EntityType.ARROW);arrow.setShooter(shooter);
+        check(!com.palmergames.bukkit.towny.utils.CombatUtil.preventDamageCall(arrow,zombie,org.bukkit.event.entity.EntityDamageEvent.DamageCause.PROJECTILE),"arrows use the same farm exception");arrow.remove();
+        var cloud=(AreaEffectCloud)w.spawnEntity(new Location(w,5,90,3),EntityType.AREA_EFFECT_CLOUD);cloud.setBasePotionType(org.bukkit.potion.PotionType.WEAKNESS);
+        var cloudEvent=new org.bukkit.event.entity.AreaEffectCloudApplyEvent(cloud,new ArrayList<>(List.of(zombie)));Bukkit.getPluginManager().callEvent(cloudEvent);
+        check(!cloudEvent.isCancelled()&&cloudEvent.getAffectedEntities().contains(zombie),"vanilla ownerless lingering cloud remains effective on hostile mob");cloud.remove();
+        potion.splash();
+        check(zombie.hasPotionEffect(org.bukkit.potion.PotionEffectType.WEAKNESS),"real potion splash applies weakness to live zombie");
+        check(!cow.hasPotionEffect(org.bukkit.potion.PotionEffectType.WEAKNESS),"real potion splash leaves protected cow unchanged");
+        zombie.remove();cow.remove();if(potion.isValid())potion.remove();source.setType(Material.AIR);otherSource.setType(Material.AIR);
     }
     void finish(Throwable error){try{getDataFolder().mkdirs();if(error!=null){getLogger().log(java.util.logging.Level.SEVERE,"Mob farm probe failed",error);results.add("ERROR "+error);}
         results.add("checks="+checks);results.add("failed="+(error==null?0:1));Files.writeString(getDataFolder().toPath().resolve("result.txt"),String.join("\n",results)+"\n");

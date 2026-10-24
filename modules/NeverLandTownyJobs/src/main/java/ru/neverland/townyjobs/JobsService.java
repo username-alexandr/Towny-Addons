@@ -26,7 +26,7 @@ public final class JobsService implements TownyJobsApi {
     public void reload(JobsSettings next)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {primary();bridge.verify();stop();settings=next;fault=false;start();} }
     public Town town(Player p){ synchronized (ru.neverland.core.SuiteState.lock()) {return town(p.getUniqueId());} }
     public Town town(UUID actor){ synchronized (ru.neverland.core.SuiteState.lock()) {var resident=TownyAPI.getInstance().getResident(actor);return resident==null?null:resident.getTownOrNull();} }
-    public boolean manager(Player p,Town t){ synchronized (ru.neverland.core.SuiteState.lock()) {var r=TownyAPI.getInstance().getResident(p.getUniqueId());return t!=null&&r!=null&&t.equals(r.getTownOrNull())&&(t.isMayor(r)||r.hasTownRank("assistant")||p.hasPermission("neverlandtownyjobs.manage"));} }
+    public boolean manager(Player p,Town t){ synchronized (ru.neverland.core.SuiteState.lock()) {var r=TownyAPI.getInstance().getResident(p.getUniqueId());return t!=null&&r!=null&&t.equals(r.getTownOrNull())&&(t.isMayor(r)||ru.neverland.core.CouncilAccess.check(p,t.getUUID(),"jobs",r.hasTownRank("assistant")||p.hasPermission("neverlandtownyjobs.manage")));} }
     private Town user(Player p){ready();if(!p.hasPermission("neverlandtownyjobs.use"))throw new IllegalArgumentException("Нет прав на профессии");Town t=town(p);if(t==null)throw new IllegalArgumentException("Нужно состоять в городе");return t;}
     public Career career(UUID actor){ synchronized (ru.neverland.core.SuiteState.lock()) {return repository.get(actor);} }
     public void choose(Player p,Profession profession,long revision,JobsSettings quoted)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {

@@ -139,16 +139,14 @@ public final class GovernanceService {
         return Result.SUCCESS;
     } }
 
-    public boolean mayPropose(Player player, Town town, LawCategory category) { synchronized (ru.neverland.core.SuiteState.lock()) {
-        if (!ru.neverland.core.CitizensAccess.allows(town.getUUID(), player.getUniqueId(), "HOLD_OFFICE")) return false;
-        if (player.hasPermission("townygovernance.bypass") || towny.isManager(player, town)) return true;
-        if (ru.neverland.core.CouncilAccess.allows(player, town.getUUID(), "law_" + category.name().toLowerCase(java.util.Locale.ROOT))) return true;
-        TownGovernanceData data = data(town);
-        for (Map.Entry<String, List<OfficeHolder>> entry : data.offices().entrySet()) {
-            OfficeDefinition office = definitions.office(entry.getKey()); if (office == null || !office.mayPropose(category)) continue;
-            if (entry.getValue().stream().anyMatch(value -> value.residentId().equals(player.getUniqueId()))) return true;
+    public boolean mayPropose(Player player,Town town,LawCategory category){ synchronized(ru.neverland.core.SuiteState.lock()) {
+        if(town==null||!town.equals(towny.town(player))||!ru.neverland.core.CitizensAccess.allows(town.getUUID(),player.getUniqueId(),"HOLD_OFFICE"))return false;
+        if(town.getMayor()!=null&&town.getMayor().getUUID().equals(player.getUniqueId()))return true;
+        boolean legacy=player.hasPermission("townygovernance.bypass")||towny.isManager(player,town);
+        for(var entry:data(town).offices().entrySet()){
+            var office=definitions.office(entry.getKey());if(office!=null&&office.mayPropose(category)&&entry.getValue().stream().anyMatch(v->v.residentId().equals(player.getUniqueId())))legacy=true;
         }
-        return false;
+        return ru.neverland.core.CouncilAccess.check(player,town.getUUID(),"law_"+category.name().toLowerCase(java.util.Locale.ROOT),legacy);
     } }
 
     public Set<UUID> council(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
