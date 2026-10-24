@@ -1,0 +1,6 @@
+name: GovernanceMenuRuntimeProbe
+version: 1.0
+main: ru.neverland.runtime.GovernanceMenuRuntimeProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyGovernance]

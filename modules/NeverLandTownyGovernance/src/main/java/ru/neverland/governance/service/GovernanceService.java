@@ -105,34 +105,65 @@ public final class GovernanceService {
         return new VoteResult(Result.SUCCESS, proposal);
     } }
 
-    public Result appoint(Player actor, String officeId, String residentName) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    /** Read-only previews share the exact checks used by commands and menu confirmations. */
+    public Result officeAccess(Player actor, String officeId) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = towny.town(actor); if (town == null) return Result.NO_TOWN;
         if (!actor.hasPermission("townygovernance.offices") || !towny.isManager(actor, town)
                 || !ru.neverland.core.CitizensAccess.allows(town.getUUID(), actor.getUniqueId(), "HOLD_OFFICE")) return Result.NO_PERMISSION;
         OfficeDefinition office = definitions.office(officeId); if (office == null) return Result.UNKNOWN_OFFICE;
         if (data(town).electedOffices().contains(office.id()) && elective(town) && !actor.hasPermission("townygovernance.bypass")) return Result.CHANGE_DISABLED;
-        Resident resident = towny.resident(residentName); if (resident == null) return Result.UNKNOWN_PLAYER;
+        return Result.SUCCESS;
+    } }
+
+    public Result appointmentStatus(Player actor, String officeId, UUID residentId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        Result access = officeAccess(actor, officeId); if (access != Result.SUCCESS) return access;
+        Town town = towny.town(actor); OfficeDefinition office = definitions.office(officeId);
+        Resident resident = residentId == null ? null : towny.resident(residentId); if (resident == null) return Result.UNKNOWN_PLAYER;
         if (!town.equals(resident.getTownOrNull())) return Result.NOT_RESIDENT;
         if (!ru.neverland.core.CitizensAccess.allows(town.getUUID(), resident.getUUID(), "HOLD_OFFICE")) return Result.NOT_ELIGIBLE;
-        TownGovernanceData data = data(town); List<OfficeHolder> holders = data.offices().computeIfAbsent(office.id(), key -> new ArrayList<>());
+        TownGovernanceData data = data(town); List<OfficeHolder> holders = data.offices().getOrDefault(office.id(), List.of());
         if (holders.stream().anyMatch(value -> value.residentId().equals(resident.getUUID()))) return Result.ALREADY_APPOINTED;
         if (holders.size() >= office.maxHolders()) return Result.OFFICE_FULL;
         if (!plugin.getConfig().getBoolean("management.allow-multiple-offices", true) && holdsAnyOffice(data, resident.getUUID())) return Result.MULTIPLE_OFFICES;
-        holders.add(new OfficeHolder(resident.getUUID(), resident.getName(), System.currentTimeMillis(), actor.getUniqueId())); repository.changed();
+        return Result.SUCCESS;
+    } }
+
+    public Result appoint(Player actor, String officeId, String residentName) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        Result access = officeAccess(actor, officeId); if (access != Result.SUCCESS) return access;
+        Resident resident = towny.resident(residentName);
+        return appoint(actor, officeId, resident == null ? null : resident.getUUID());
+    } }
+
+    /** UUID is selected from the server-owned resident list, not accepted from a client command. */
+    public Result appoint(Player actor, String officeId, UUID residentId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        Result result = appointmentStatus(actor, officeId, residentId); if (result != Result.SUCCESS) return result;
+        Town town = towny.town(actor); OfficeDefinition office = definitions.office(officeId); Resident resident = towny.resident(residentId);
+        TownGovernanceData data = data(town);
+        data.offices().computeIfAbsent(office.id(), key -> new ArrayList<>()).add(new OfficeHolder(resident.getUUID(), resident.getName(), System.currentTimeMillis(), actor.getUniqueId()));
+        repository.changed();
         repository.history(data, new HistoryEntry(System.currentTimeMillis(), "APPOINT", resident.getName() + " назначен: "
                 + ColorUtil.strip(office.name()), actor.getUniqueId(), actor.getName()));
         return Result.SUCCESS;
     } }
 
+    public Result dismissalStatus(Player actor, String officeId, UUID residentId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        Result access = officeAccess(actor, officeId); if (access != Result.SUCCESS) return access;
+        return data(towny.town(actor)).offices().getOrDefault(definitions.office(officeId).id(), List.of()).stream()
+                .anyMatch(holder -> holder.residentId().equals(residentId)) ? Result.SUCCESS : Result.NOT_APPOINTED;
+    } }
+
     public Result dismiss(Player actor, String officeId, String residentName) { synchronized (ru.neverland.core.SuiteState.lock()) {
-        Town town = towny.town(actor); if (town == null) return Result.NO_TOWN;
-        if (!actor.hasPermission("townygovernance.offices") || !towny.isManager(actor, town)
-                || !ru.neverland.core.CitizensAccess.allows(town.getUUID(), actor.getUniqueId(), "HOLD_OFFICE")) return Result.NO_PERMISSION;
-        OfficeDefinition office = definitions.office(officeId); if (office == null) return Result.UNKNOWN_OFFICE;
-        if (data(town).electedOffices().contains(office.id()) && elective(town) && !actor.hasPermission("townygovernance.bypass")) return Result.CHANGE_DISABLED;
-        TownGovernanceData data = data(town); List<OfficeHolder> holders = data.offices().getOrDefault(office.id(), new ArrayList<>());
-        OfficeHolder holder = holders.stream().filter(value -> value.residentName().equalsIgnoreCase(residentName)).findFirst().orElse(null);
-        if (holder == null) return Result.NOT_APPOINTED;
+        Result access = officeAccess(actor, officeId); if (access != Result.SUCCESS) return access;
+        OfficeHolder holder = data(towny.town(actor)).offices().getOrDefault(definitions.office(officeId).id(), List.of()).stream()
+                .filter(value -> value.residentName().equalsIgnoreCase(residentName)).findFirst().orElse(null);
+        return holder == null ? Result.NOT_APPOINTED : dismiss(actor, officeId, holder.residentId());
+    } }
+
+    public Result dismiss(Player actor, String officeId, UUID residentId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        Result result = dismissalStatus(actor, officeId, residentId); if (result != Result.SUCCESS) return result;
+        TownGovernanceData data = data(towny.town(actor)); OfficeDefinition office = definitions.office(officeId);
+        List<OfficeHolder> holders = data.offices().get(office.id());
+        OfficeHolder holder = holders.stream().filter(value -> value.residentId().equals(residentId)).findFirst().orElseThrow();
         holders.remove(holder); repository.changed();
         repository.history(data, new HistoryEntry(System.currentTimeMillis(), "DISMISS", holder.residentName() + " снят: "
                 + ColorUtil.strip(office.name()), actor.getUniqueId(), actor.getName()));
