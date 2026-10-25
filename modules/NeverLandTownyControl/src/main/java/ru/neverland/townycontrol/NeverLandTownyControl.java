@@ -46,6 +46,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             var router=new AdminRouter(this,graph);var audit=new AuditCommand(this);
             adminMenu=new AdminMenu(this,router,audit);router.register(adminMenu);bankAudit=new BankAudit(this);
             saveDefaultConfig();townDeletion=new TownDeletionService(this);
+            new PersonalHistoryMenu(this);
             getServer().getPluginManager().registerEvents(new VillagerTradeProtection(this),this);
             getServer().getPluginManager().registerEvents(this,this);
             getLogger().info("Управление модулями: "+graph.modules().size()+"; отключено с зависимостями: "+blocked.size());

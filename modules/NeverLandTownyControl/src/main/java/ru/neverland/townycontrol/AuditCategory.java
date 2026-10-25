@@ -12,7 +12,7 @@ enum AuditCategory implements Predicate<AuditRecord> {
     MARKETS("Рынок и магазины","EMERALD",Set.of("MARKET_DEAL","SHOP_DEAL","MARKET_DELIVERY","SHOP_DELIVERY")),
     STORAGE("Ресурсы и склады","CHEST",Set.of("WAREHOUSE_TRADE","WAREHOUSE_LEG","STORAGE_PLAYER")),
     COMPANIES("Компании","IRON_INGOT",Set.of("COMPANY_PAYMENT","COMPANY_CONTRACT")),
-    CONSTRUCTION("Стройки и возвраты","BRICKS",Set.of("CONSTRUCTION_REFUND")),
+    CONSTRUCTION("Стройки и возвраты","BRICKS",Set.of("CONSTRUCTION_REFUND","BUILD_CONTRIBUTION")),
     FIRE_REPAIRS("Ремонт после пожара","ANVIL",Set.of("FIRE_REPAIR")),
     MOB_FARMS("Участки и фермы мобов","SPAWNER",Set.of("MOB_FARM_ZONE")),
     CONTRACTS("Контракты","WRITABLE_BOOK",Set.of("CONTRACT_PAYMENT","CONTRACT_DELIVERY")),
@@ -31,6 +31,7 @@ enum AuditCategory implements Predicate<AuditRecord> {
     static String kind(String kind){return switch(kind){
         case "FIRE_REPAIR"->"Подтверждение ремонта участка";
         case "MOB_FARM_ZONE"->"Защита участка от мобов";
+        case "BUILD_CONTRIBUTION"->"Материалы для строительства";
         case "CONSTRUCTION_REFUND"->"Оплата и возврат строительства";
         case "ADMIN_TOWN_DELETE"->"Удаление города и откат территории";
         case "PUBLIC_ORDER_REWARD"->"Награда государственного заказа";case "JOB_SALARY"->"Зарплата профессии";case "ADMIN_INCOME"->"Сверка денежной выплаты";case "BANK_TRANSFER"->"Перевод между счетами";case "BANK_COMMAND"->"Банковская команда";case "BANK_LEG"->"Изменение счёта";

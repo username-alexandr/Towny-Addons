@@ -297,6 +297,68 @@ public final class BuildService {
         return Math.min(required.getAmount(), fund.count(required));
     } }
 
+    public List<String> unavailableReasons(Player player,ProjectDefinition project) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        var town=towny.town(player);if(town==null)return List.of("Вступите в город, чтобы строить городские здания.");
+        if(!dataStore.writable())return List.of("Сохранение построек временно недоступно. Попробуйте позже.");
+        var state=dataStore.town(town.getUUID());var reasons=new ArrayList<String>();
+        var active=state.constructionSite(project.id());if(active!=null&&active.active())return List.of("Строительство уже идёт. Завершите текущую постройку.");
+        if(!towny.isMayor(player,town)&&!ru.neverland.core.CouncilAccess.check(player,town.getUUID(),"build",false))reasons.add("Попросите мэра разрешить вам строительство.");
+        if(refunds!=null&&refunds.blocks(town.getUUID(),project.id()))reasons.add("Дождитесь завершения возврата за предыдущую стройку.");
+        int next=state.level(project.id())+1;var level=project.level(next);
+        if(level==null){if(!needsPhysicalPlacement(town,project))reasons.add("Здание уже достигло максимального уровня.");return reasons;}
+        reasons.addAll(missingPrerequisites(town,project).stream().map(x->"Сначала выполните условие: "+ColorUtil.plain(x)).toList());
+        var fund=state.existingResourceFund(project.id());
+        for(var required:level.resources()){
+            int have=fund!=null&&fund.targetLevel()==next?fund.count(required):0;
+            if(have<required.getAmount())reasons.add("Сдайте материалы: "+itemNames.name(required)+" ×"+(required.getAmount()-have));
+        }
+        if(project.type()==ProjectType.WONDER)reasons.addAll(archaeology.missingLines(town.getUUID(),project.id()).stream().map(x->"Передайте в музей: "+ColorUtil.plain(x)).toList());
+        // A blueprint can be obtained before payment; money is checked when its position is confirmed.
+        if(!usesConstruction(project,next)&&level.money()>0){
+            if(!ru.neverland.townybuilds.construction.ConstructionRefunds.economyReady())reasons.add("Банк временно недоступен. Деньги пока не списываются.");
+            else if(!town.getAccount().canPayFromHoldings(level.money()))reasons.add("Пополните казну: для здания нужно "+level.money()+" монет.");
+            else if(!ru.neverland.integration.TreasuryAccess.canSpend(town,"construction",level.money()))reasons.add("Попросите мэра выделить деньги на строительство в бюджете города.");
+        }
+        return List.copyOf(reasons);
+    } }
+
+    public ContributionPreview previewContribution(Player player,ProjectDefinition project,boolean warehouse) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        var town=towny.town(player);var lines=new ArrayList<ContributionPreview.Line>();String reason="";int target=0;
+        String signature="";
+        if(town==null)reason="Вступите в город, чтобы сдавать материалы для его зданий.";
+        else if(!dataStore.writable())reason="Сохранение материалов временно недоступно. Попробуйте позже.";
+        else {
+            var state=dataStore.town(town.getUUID());target=state.level(project.id())+1;var level=project.level(target);var site=state.constructionSite(project.id());
+            if(!ru.neverland.integration.SpecializationAccess.allowed(town.getUUID(),project.id()))reason=ru.neverland.integration.SpecializationAccess.reason(project.id());
+            else if(warehouse&&!towny.isMayor(player,town)&&!ru.neverland.core.CouncilAccess.check(player,town.getUUID(),"build_resources",false))reason="Попросите мэра разрешить вам сдачу материалов со склада города.";
+            else if(site!=null&&site.active()||refunds!=null&&refunds.blocks(town.getUUID(),project.id()))reason="Сначала завершите стройку или дождитесь возврата за её отмену.";
+            else if(level==null)reason="Здание уже достигло максимального уровня.";
+            else if(warehouse&&dataStore.storageBusy(town.getUUID(),"warehouse"))reason="Закройте склад города перед сдачей материалов.";
+            var personal=cloneContents(player.getInventory().getStorageContents());var stored=cloneContents(state.storage());
+            var available=cloneContents(warehouse?stored:personal);var fund=state.existingResourceFund(project.id());
+            var fingerprint=new StringBuilder(player.getUniqueId()+":"+town.getUUID()+":"+project.id()+":"+target+":"+warehouse);
+            if(level!=null)for(var required:level.resources()){
+                int have=fund!=null&&fund.targetLevel()==target?fund.count(required):0;
+                int needed=Math.max(0,required.getAmount()-have),taking=Math.min(needed,ResourceTransfer.count(available,required));
+                ResourceTransfer.remove(available,required,taking);
+                lines.add(new ContributionPreview.Line(required,itemNames.name(required),needed,ResourceTransfer.count(personal,required),ResourceTransfer.count(stored,required),taking));
+                fingerprint.append(':').append(java.util.Base64.getEncoder().encodeToString(required.serializeAsBytes())).append(':').append(have).append(':').append(taking);
+            }
+            for(var item:warehouse?stored:personal)fingerprint.append('|').append(item==null?"-":java.util.Base64.getEncoder().encodeToString(item.serializeAsBytes()));
+            signature=java.util.UUID.nameUUIDFromBytes(fingerprint.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+            if(reason.isEmpty()&&lines.stream().allMatch(x->x.needed()==0))reason="Все необходимые материалы уже собраны.";
+            else if(reason.isEmpty()&&lines.stream().allMatch(x->x.taking()==0))reason=warehouse?"На складе нет подходящих материалов из списка.":"В вашем инвентаре нет подходящих материалов из списка.";
+        }
+        return new ContributionPreview(player.getUniqueId(),town==null?null:town.getUUID(),project.id(),target,warehouse,signature,reason,lines);
+    } }
+
+    public ContributionResult confirmContribution(Player player,ProjectDefinition project,ContributionPreview quote) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        if(!quote.player().equals(player.getUniqueId())||!quote.project().equals(project.id()))return ContributionResult.of(ContributionResult.Status.PREVIEW_CHANGED);
+        var fresh=previewContribution(player,project,quote.warehouse());
+        if(!fresh.ready()||!fresh.signature().equals(quote.signature()))return ContributionResult.of(ContributionResult.Status.PREVIEW_CHANGED);
+        return quote.warehouse()?contributeFromStorage(player,project):contributeFromPlayer(player,project);
+    } }
+
     public ContributionResult contributeFromPlayer(Player player, ProjectDefinition project) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = towny.town(player);
         if (town == null) return ContributionResult.of(ContributionResult.Status.NO_TOWN);
@@ -355,6 +417,8 @@ public final class BuildService {
             } catch (RuntimeException exception) {
                 plugin.getLogger().warning("Не удалось синхронизировать взнос игрока " + player.getName()
                         + ": " + exception.getMessage());
+                try { player.getInventory().setStorageContents(originalContents); }
+                catch(RuntimeException restore){plugin.getLogger().severe("Не удалось восстановить инвентарь после ошибки взноса: "+restore.getMessage());}
                 return ContributionResult.of(ContributionResult.Status.INVENTORY_SYNC_FAILED);
             }
             ItemStack[] actual = player.getInventory().getStorageContents();
@@ -379,7 +443,7 @@ public final class BuildService {
         }
         dataStore.markDirty();
         try { dataStore.saveOrThrow(); }
-        catch (java.io.IOException failure) {
+        catch (java.io.IOException | RuntimeException failure) {
             data.clearResourceFund(project.id());
             ResourceFund restored=data.resourceFund(project.id(),targetLevel);
             originalFund.forEach(entry->restored.add(entry.template(),entry.amount()));
@@ -389,6 +453,9 @@ public final class BuildService {
             player.sendMessage("§eРесурсы возвращены: сервер не смог сохранить взнос. Сообщите администратору.");
             return ContributionResult.of(ContributionResult.Status.INVENTORY_SYNC_FAILED);
         }
+        String receipt=java.util.UUID.randomUUID().toString();var person=ru.neverland.core.AuditTrail.player(player.getUniqueId());var city=ru.neverland.core.AuditTrail.town(town.getUUID());
+        int line=0;for(var contribution:pending)ru.neverland.core.AuditTrail.record(plugin,"contribution:"+(line++),receipt,"BUILD_CONTRIBUTION","COMPLETED",person,cityStorage?city:person,city,
+            ru.neverland.core.AuditTrail.item(contribution.template()),contribution.amount(),"",ColorUtil.plain(project.name())+" • уровень "+targetLevel+" • "+(cityStorage?"Со склада города":"Из инвентаря"));
         if(placements!=null&&usesConstruction(project,targetLevel)&&missing(level.resources(),fund).isEmpty()) {
             try {placements.issue(player,town,project,targetLevel);}catch(RuntimeException e){plugin.getLogger().warning("Ресурсы сохранены, выдача чертежа отложена: "+e.getMessage());player.sendMessage("§eРесурсы сохранены. Чертёж можно получить в меню здания.");}
         }

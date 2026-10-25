@@ -1,0 +1,6 @@
+name: PlayerExperienceProbe
+version: 1.0
+main: ru.neverland.probe.PlayerExperienceProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyControl, CraftoUI]
