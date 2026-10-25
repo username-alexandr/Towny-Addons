@@ -129,7 +129,8 @@ public final class ConstructionService implements Listener {
     } }
 
     public ConstructionPreparation prepare(Player player, Town town, ProjectDefinition project,
-                                           int currentLevel, int targetLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
+                                           int currentLevel, int targetLevel) { return prepare(player,town,project,currentLevel,targetLevel,null); }
+    public ConstructionPreparation prepare(Player player,Town town,ProjectDefinition project,int currentLevel,int targetLevel,PlacementChoice choice) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if(!ru.neverland.integration.SpecializationAccess.allowed(town.getUUID(),project.id()))return ConstructionPreparation.failed(ConstructionPreparation.Status.UNKNOWN_BLUEPRINT,ru.neverland.integration.SpecializationAccess.reason(project.id()));
         obstructionPreviews.remove(player.getUniqueId());
         if (!supports(project.id(), targetLevel)) {
@@ -147,14 +148,12 @@ public final class ConstructionService implements Listener {
 
         ConstructionSite site;
         if (existing == null) {
-            Block target = player.getTargetBlockExact(Math.max(6, plugin.getConfig().getInt("settings.construction.target-distance", 16)),
-                    FluidCollisionMode.NEVER);
-            if (target == null || !target.getType().isSolid()) {
-                return ConstructionPreparation.failed(ConstructionPreparation.Status.NO_GROUND_TARGET, "Наведитесь на твёрдый блок земли");
+            if(choice==null) {
+                Block target=player.getTargetBlockExact(Math.max(6,plugin.getConfig().getInt("settings.construction.target-distance",16)),FluidCollisionMode.NEVER);
+                if(target==null||!target.getType().isSolid())return ConstructionPreparation.failed(ConstructionPreparation.Status.NO_GROUND_TARGET,"Наведитесь на твёрдый блок земли");
+                choice=new PlacementChoice(target.getWorld().getUID(),target.getX(),target.getY()+1,target.getZ(),player.getFacing());
             }
-            BlockFace facing = ConstructionSite.cardinal(player.getFacing());
-            site = new ConstructionSite(project.id(), target.getWorld().getUID(), target.getX(), target.getY() + 1,
-                    target.getZ(), facing, 0, targetLevel, 1, true);
+            site=new ConstructionSite(project.id(),choice.world(),choice.x(),choice.y(),choice.z(),choice.facing(),0,targetLevel,1,true);
         } else {
             site = new ConstructionSite(existing.projectId(), existing.worldId(), existing.originX(), existing.originY(),
                     existing.originZ(), existing.facing(), existing.completedStage(), targetLevel, targetLevel, true);
@@ -172,6 +171,7 @@ public final class ConstructionService implements Listener {
             return ConstructionPreparation.failed(ConstructionPreparation.Status.NO_GROUND_TARGET,
                     "Площадка находится в мире " + world.getName() + " на " + coordinates(site.location(world, new BlockOffset(0, 0, 0))));
         }
+        for(var offset:plan.blocks().keySet()) {int y=site.originY()+offset.y();if(y<=world.getMinHeight()||y>=world.getMaxHeight())return new ConstructionPreparation(ConstructionPreparation.Status.OBSTRUCTED,town.getUUID(),site,plan,List.of("Здание выходит за пределы высоты мира"));}
         if (!ownsPlan(world,site,plan)) return ConstructionPreparation.failed(ConstructionPreparation.Status.OBSTRUCTED,"Подойдите к площадке: её чанки ещё не готовы");
         int firstStage = existing == null ? 1 : targetLevel;
         List<Obstruction> obstacles = new ArrayList<>();
@@ -437,6 +437,7 @@ public final class ConstructionService implements Listener {
         for (BlockOffset offset : plan.blocks().keySet()) if (!ru.neverland.core.SuiteScheduler.owns(site.location(world,offset))) return false;
         return true;
     }
+    public BlueprintPlan previewPlan(String project,int level,ConstructionSite existing){synchronized(ru.neverland.core.SuiteState.lock()){return existing==null?generator.generate(project,level):planForSite(existing,level);}}
     private BlueprintPlan planForSite(ConstructionSite site, int level) {
         return generator.generateForArchitecture(site.projectId(), level, site.architectureVersion());
     }

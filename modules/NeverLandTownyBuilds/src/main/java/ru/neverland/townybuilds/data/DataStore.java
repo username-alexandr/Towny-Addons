@@ -98,6 +98,11 @@ public final class DataStore {
                     if (receipt == null) throw new IOException("Повреждена квитанция стройки");
                     data.receipt(project, ru.neverland.townybuilds.construction.ConstructionReceipt.load(receipt));
                 }
+                var drafts=ru.neverland.core.SafeYaml.section(section,"placement-drafts");
+                if(drafts!=null)for(String project:drafts.getKeys(false)){
+                    var draft=drafts.getConfigurationSection(project);if(draft==null)throw new IOException("Повреждён чертёж размещения");
+                    data.placement(project,new ru.neverland.townybuilds.construction.PlacementDraft(UUID.fromString(ru.neverland.core.SafeYaml.stringValue(draft,"id")),ru.neverland.core.SafeYaml.intValue(draft,"level")));
+                }
                 Map<String, ResourceFund> funds = new HashMap<>();
                 ConfigurationSection fundSection = section == null ? null : section.getConfigurationSection("resource-funds");
                 if (fundSection != null) {
@@ -193,6 +198,9 @@ public final class DataStore {
                 yaml.set(root + ".build-from-stage", site.buildFromStage());yaml.set(root+".admin-paused",site.adminPaused());
                 yaml.set(root + ".active", site.active());
                 yaml.set(root + ".architecture-version", site.architectureVersion());
+            }
+            for(var draft:data.placements().entrySet()){
+                String root=path+".placement-drafts."+draft.getKey();yaml.set(root+".id",draft.getValue().id().toString());yaml.set(root+".level",draft.getValue().level());
             }
             for (var receipt : data.constructionReceipts().entrySet())
                 receipt.getValue().save(yaml.createSection(path + ".construction-receipts." + receipt.getKey()));

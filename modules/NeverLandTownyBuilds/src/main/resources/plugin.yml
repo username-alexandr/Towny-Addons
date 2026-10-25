@@ -1,5 +1,5 @@
 name: NeverLandTownyBuilds
-version: 0.8.31
+version: 0.8.32
 main: ru.neverland.townybuilds.NeverLandTownyBuilds
 folia-supported: true
 api-version: '26.2'
@@ -9,6 +9,10 @@ description: Городские здания, Чудеса Света, скла�
 depend: [Towny]
 softdepend: [ItemsAdder, PlaceholderAPI]
 commands:
+  townybuildplace:
+    aliases: [nltplace]
+    description: Предпросмотр и подтверждение размещения здания
+    usage: /townybuildplace [menu|confirm|rotate|close]
   townyarmy:
     description: Состав армии и мобилизация граждан с 18 лет персонажа
     usage: /townyarmy [list|mobilize|release|age]

@@ -1,0 +1,6 @@
+name: PlacementRuntimeProbe
+version: 1.0
+main: ru.neverland.runtime.PlacementRuntimeProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, CraftoUI]

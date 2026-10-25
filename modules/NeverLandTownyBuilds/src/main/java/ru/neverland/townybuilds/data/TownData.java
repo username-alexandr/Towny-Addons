@@ -35,6 +35,9 @@ public final class TownData {
     public Map<UUID,ru.neverland.townybuilds.api.CargoShipment> shipments(){ synchronized (ru.neverland.core.SuiteState.lock()) {return Map.copyOf(shipments);} }
     public void putShipment(ru.neverland.townybuilds.api.CargoShipment value){ synchronized (ru.neverland.core.SuiteState.lock()) {shipments.put(value.id(),value);} }
     public void removeShipment(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {shipments.remove(id);} }
+    private final Map<String,ru.neverland.townybuilds.construction.PlacementDraft> placements=new HashMap<>();
+    public Map<String,ru.neverland.townybuilds.construction.PlacementDraft> placements(){synchronized(ru.neverland.core.SuiteState.lock()){return Map.copyOf(placements);}}
+    public void placement(String project,ru.neverland.townybuilds.construction.PlacementDraft draft){synchronized(ru.neverland.core.SuiteState.lock()){if(draft==null)placements.remove(project);else placements.put(project,draft);}}
     private final Map<String, Integer> levels = new HashMap<>();
     private final Map<String, ConstructionSite> constructionSites = new HashMap<>();
     private final Map<String, ru.neverland.townybuilds.construction.ConstructionReceipt> constructionReceipts = new HashMap<>();

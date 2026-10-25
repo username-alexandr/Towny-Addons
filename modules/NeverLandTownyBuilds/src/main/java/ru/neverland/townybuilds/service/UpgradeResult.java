@@ -5,6 +5,7 @@ import java.util.List;
 public record UpgradeResult(Status status, double requiredMoney, List<String> missingResources, int newLevel) {
     public enum Status {
         SUCCESS,
+        PLACEMENT_READY,
         CONSTRUCTION_STARTED,
         CONSTRUCTION_IN_PROGRESS,
         CONSTRUCTION_NO_TARGET,

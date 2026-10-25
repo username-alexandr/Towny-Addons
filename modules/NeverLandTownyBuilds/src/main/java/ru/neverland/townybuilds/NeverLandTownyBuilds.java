@@ -41,7 +41,9 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
     private DataStore dataStore;
     private EffectService effects;
     private RussianItemNames itemNames;
+    private ru.neverland.townybuilds.construction.BlueprintThumbnail thumbnails;
     private ConstructionService construction;
+    private ru.neverland.townybuilds.construction.PlacementService placements;
     private CivicService civic;
     private ru.neverland.townybuilds.storage.ProductionService production;
     private ru.neverland.townybuilds.storage.BuildingStorageService storage;
@@ -85,8 +87,13 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         constructionCancelMenu = new ru.neverland.townybuilds.construction.ConstructionCancelMenu(this,constructionRefunds,towny);
         getServer().getPluginManager().registerEvents(constructionCancelMenu,this);
         builds.setConstruction(construction);
+        placements=new ru.neverland.townybuilds.construction.PlacementService(this,towny,dataStore,definitions,construction,builds);
+        builds.placements(placements);getServer().getPluginManager().registerEvents(placements,this);
+        placements.start();
+        var placementCommand=getCommand("townybuildplace");if(placementCommand!=null)placementCommand.setExecutor(placements);
         MenuManager menus = new MenuManager(this, definitions, dataStore, towny, itemsAdder, builds, messages, itemNames);
         uiMenus = menus;
+        thumbnails=new ru.neverland.townybuilds.construction.BlueprintThumbnail(this);
         EditorManager editor = new EditorManager(this, definitions, messages);
         civic = new CivicService(this, towny, dataStore, messages, itemNames);
 
@@ -115,6 +122,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         effects.start();
         ru.neverland.core.ActivityAdmin.attach(this,"townybuilds","neverlandtownybuilds.admin",construction::adminTargets);
         construction.start();
+        if(placements!=null)placements.start();
         constructionRefunds.start();
         civic.start();
         if(production==null)production=new ru.neverland.townybuilds.storage.ProductionService(this,dataStore,storage);
@@ -130,6 +138,8 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (effects != null) effects.stop();
+        if(thumbnails!=null)thumbnails.clear();
+        if (placements != null) placements.stop();
         if (construction != null) construction.stop();
         if (constructionRefunds != null) constructionRefunds.stop();
         if (civic != null) civic.stop();
@@ -141,14 +151,20 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         for (String command : TOWN_COMMANDS) towny.unregisterTownCommand(command);
     } }
 
+    public java.util.concurrent.CompletableFuture<java.util.Map<String,String>> buildingPreview(org.bukkit.entity.Player player,org.bukkit.inventory.Inventory inventory){synchronized(ru.neverland.core.SuiteState.lock()){
+        if(!isEnabled()||ru.neverland.core.SuiteState.frozen(getName())||uiMenus==null||thumbnails==null)return java.util.concurrent.CompletableFuture.completedFuture(java.util.Map.of());
+        var plan=uiMenus.preview(player,inventory);return plan==null?java.util.concurrent.CompletableFuture.completedFuture(java.util.Map.of()):thumbnails.preview(plan);
+    }}
     public void reloadPlugin() { synchronized (ru.neverland.core.SuiteState.lock()) {
         reloadConfig();
         messages.reload();
         itemsAdder.reload();
         itemNames.reload();
         definitions.reload();
+        if(thumbnails!=null)thumbnails.clear();
         effects.start();
         construction.start();
+        if(placements!=null)placements.start();
         constructionRefunds.start();
         civic.start();
         if(production==null)production=new ru.neverland.townybuilds.storage.ProductionService(this,dataStore,storage);

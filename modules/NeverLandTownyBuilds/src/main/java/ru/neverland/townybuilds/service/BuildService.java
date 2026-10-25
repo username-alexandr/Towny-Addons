@@ -38,6 +38,9 @@ public final class BuildService {
     private final RussianItemNames itemNames;
     private final DefinitionRegistry definitions;
     private ConstructionService construction;
+    private ru.neverland.townybuilds.construction.PlacementService placements;
+    public void placements(ru.neverland.townybuilds.construction.PlacementService value){placements=value;}
+
     private ru.neverland.townybuilds.construction.ConstructionRefunds refunds;
     public void refunds(ru.neverland.townybuilds.construction.ConstructionRefunds value) { refunds=value; }
 
@@ -53,11 +56,13 @@ public final class BuildService {
         this.definitions = definitions;
     }
 
+    public ru.neverland.townybuilds.construction.BlueprintPlan previewPlan(String project,int level,ru.neverland.townybuilds.construction.ConstructionSite site){return construction==null?null:construction.previewPlan(project,level,site);}
     public void setConstruction(ConstructionService construction) { synchronized (ru.neverland.core.SuiteState.lock()) {
         this.construction = construction;
     } }
 
-    public UpgradeResult upgrade(Player player, ProjectDefinition project) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public UpgradeResult upgrade(Player player,ProjectDefinition project){return upgradeAt(player,project,null);}
+    public UpgradeResult upgradeAt(Player player, ProjectDefinition project, ru.neverland.townybuilds.construction.PlacementChoice choice) { synchronized (ru.neverland.core.SuiteState.lock()) {
         Town town = towny.town(player);
         if (town == null) {
             return UpgradeResult.of(UpgradeResult.Status.NO_TOWN);
@@ -68,7 +73,7 @@ public final class BuildService {
         TownData data = dataStore.town(town.getUUID());
         int current = data.level(project.id());
         if (current >= project.maxLevel()) {
-            return placePreviouslyUnlockedWonder(player, town, data, project, current);
+            return placePreviouslyUnlockedWonder(player, town, data, project, current, choice);
         }
         int next = current + 1;
         LevelDefinition level = project.level(next);
@@ -82,27 +87,29 @@ public final class BuildService {
         }
         ConstructionPreparation preparation = null;
         boolean procedural = usesConstruction(project, next);
-        if (procedural) {
-            preparation = construction.prepare(player, town, project, current, next);
-            UpgradeResult constructionFailure = constructionFailure(preparation, level.money(), next);
-            if (constructionFailure != null) return constructionFailure;
-        }
         if (project.type() == ProjectType.WONDER) {
             List<String> missingArtifacts = archaeology.missingLines(town.getUUID(), project.id());
             if (!missingArtifacts.isEmpty()) {
                 return new UpgradeResult(UpgradeResult.Status.NOT_ENOUGH_ARTIFACTS, level.money(), missingArtifacts, next);
             }
         }
+        ResourceFund fund = data.resourceFund(project.id(), next);
+        List<String> missing = missing(level.resources(), fund);
+        if (!missing.isEmpty()) return new UpgradeResult(UpgradeResult.Status.NOT_ENOUGH_RESOURCES, level.money(), missing, next);
+        if (procedural) {
+            if(choice==null && placements!=null){
+                if(data.constructionSite(project.id())!=null&&data.constructionSite(project.id()).active())return UpgradeResult.of(UpgradeResult.Status.CONSTRUCTION_IN_PROGRESS);
+                placements.issue(player,town,project,next);
+                return new UpgradeResult(UpgradeResult.Status.PLACEMENT_READY,level.money(),List.of(),next);
+            }
+            preparation=construction.prepare(player,town,project,current,next,choice);
+            UpgradeResult failure=constructionFailure(preparation,level.money(),next);if(failure!=null)return failure;
+        }
         if (!ru.neverland.townybuilds.construction.ConstructionRefunds.economyReady()) return UpgradeResult.of(UpgradeResult.Status.ECONOMY_ERROR);
         if (!town.getAccount().canPayFromHoldings(level.money())) {
             return new UpgradeResult(UpgradeResult.Status.NOT_ENOUGH_MONEY, level.money(), List.of(), next);
         }
         if (!ru.neverland.integration.TreasuryAccess.canSpend(town,"construction",level.money())) return UpgradeResult.of(UpgradeResult.Status.BUDGET_UNAVAILABLE);
-        ResourceFund fund = data.resourceFund(project.id(), next);
-        List<String> missing = missing(level.resources(), fund);
-        if (!missing.isEmpty()) {
-            return new UpgradeResult(UpgradeResult.Status.NOT_ENOUGH_RESOURCES, level.money(), missing, next);
-        }
         String reason = plugin.getConfig().getString("settings.economy.withdraw-reason", "Городская постройка")
                 .replace("{project}", ColorUtil.plain(project.name())).replace("{level}", String.valueOf(next));
         if (procedural && refunds != null) {
@@ -210,7 +217,7 @@ public final class BuildService {
     } }
 
     private UpgradeResult placePreviouslyUnlockedWonder(Player player, Town town, TownData data,
-                                                        ProjectDefinition project, int current) {
+                                                        ProjectDefinition project, int current, ru.neverland.townybuilds.construction.PlacementChoice choice) {
         if (project.type() != ProjectType.WONDER || !usesConstruction(project)) {
             return UpgradeResult.of(UpgradeResult.Status.MAX_LEVEL);
         }
@@ -219,7 +226,8 @@ public final class BuildService {
             return UpgradeResult.of(existing.active()
                     ? UpgradeResult.Status.CONSTRUCTION_IN_PROGRESS : UpgradeResult.Status.MAX_LEVEL);
         }
-        ConstructionPreparation preparation = construction.prepare(player, town, project, 0, current);
+        if(choice==null&&placements!=null){placements.issue(player,town,project,current);return new UpgradeResult(UpgradeResult.Status.PLACEMENT_READY,0,List.of(),current);}
+        ConstructionPreparation preparation = construction.prepare(player, town, project, 0, current, choice);
         UpgradeResult failure = constructionFailure(preparation, 0, current);
         if (failure != null) return failure;
         try {
@@ -307,11 +315,16 @@ public final class BuildService {
         if(cityStorage&&dataStore.storageBusy(town.getUUID(),"warehouse"))return ContributionResult.of(ContributionResult.Status.STORAGE_BUSY);
         TownData data = dataStore.town(town.getUUID());
         int targetLevel = data.level(project.id()) + 1;
+        var activeSite=data.constructionSite(project.id());
+        if(activeSite!=null&&activeSite.active()||refunds!=null&&refunds.blocks(town.getUUID(),project.id()))
+            return ContributionResult.of(ContributionResult.Status.CONSTRUCTION_ACTIVE);
         LevelDefinition level = project.level(targetLevel);
         if (level == null) return ContributionResult.of(ContributionResult.Status.MAX_LEVEL);
         if (level.resources().isEmpty()) return ContributionResult.of(ContributionResult.Status.NOTHING_NEEDED);
 
         ResourceFund fund = data.resourceFund(project.id(), targetLevel);
+        List<ResourceFund.Snapshot> originalFund = fund.entries();
+        ItemStack[] originalContents = cloneContents(cityStorage ? data.storage() : player.getInventory().getStorageContents());
         ItemStack[] contents = cityStorage
                 ? data.storage()
                 : cloneContents(player.getInventory().getStorageContents());
@@ -365,7 +378,20 @@ public final class BuildService {
             details.add(itemNames.name(contribution.template()) + " x" + contribution.amount());
         }
         dataStore.markDirty();
-        dataStore.save();
+        try { dataStore.saveOrThrow(); }
+        catch (java.io.IOException failure) {
+            data.clearResourceFund(project.id());
+            ResourceFund restored=data.resourceFund(project.id(),targetLevel);
+            originalFund.forEach(entry->restored.add(entry.template(),entry.amount()));
+            if(cityStorage)data.setStorage(originalContents,plugin.getConfig().getInt("settings.storage.size",54));
+            else player.getInventory().setStorageContents(originalContents);
+            plugin.getLogger().severe("Взнос отменён: не удалось сохранить фонд; предметы возвращены. "+failure.getMessage());
+            player.sendMessage("§eРесурсы возвращены: сервер не смог сохранить взнос. Сообщите администратору.");
+            return ContributionResult.of(ContributionResult.Status.INVENTORY_SYNC_FAILED);
+        }
+        if(placements!=null&&usesConstruction(project,targetLevel)&&missing(level.resources(),fund).isEmpty()) {
+            try {placements.issue(player,town,project,targetLevel);}catch(RuntimeException e){plugin.getLogger().warning("Ресурсы сохранены, выдача чертежа отложена: "+e.getMessage());player.sendMessage("§eРесурсы сохранены. Чертёж можно получить в меню здания.");}
+        }
         return new ContributionResult(ContributionResult.Status.SUCCESS, total, details);
     }
 

@@ -181,10 +181,10 @@ public final class MenuManager implements Listener {
             lore.add("&7Чудо уже открыто городом, но его");
             lore.add("&7физическая постройка ещё не размещена.");
             lore.add("");
-            lore.add("&#63E6BEНаведитесь на ровную землю и нажмите.");
+            lore.add("&#63E6BEПолучите чертёж, затем нажмите им по земле.");
             lore.add("&aПовторная оплата и артефакты не требуются.");
             inventory.setItem(15, actionItem("upgrade", upgradeItem(),
-                    "&#63E6BE&lРАЗМЕСТИТЬ ЧУДО", lore));
+                    "&#63E6BE&lПОЛУЧИТЬ ЧЕРТЁЖ ЧУДА", lore));
         } else if (current >= project.maxLevel()) {
             inventory.setItem(15, actionItem("upgrade", lockedItem(), "&a&lМАКСИМАЛЬНЫЙ УРОВЕНЬ",
                     List.of("&7Эта постройка полностью развита.")));
@@ -225,10 +225,10 @@ public final class MenuManager implements Listener {
             boolean procedural = builds.usesConstruction(project, current + 1);
             boolean upgrading = current > 0 && !procedural;
             lore.add(procedural
-                    ? "&#63E6BEНаведитесь на землю и начните стройку"
+                    ? "&#63E6BEПолучите чертёж и выберите место здания"
                     : upgrading ? "&#63E6BEНажмите, чтобы улучшить" : "&#63E6BEНажмите, чтобы построить");
             inventory.setItem(15, actionItem("upgrade", upgradeItem(),
-                    procedural ? "&#63E6BE&lНАЧАТЬ СТРОИТЕЛЬСТВО"
+                    procedural ? "&#63E6BE&lПОЛУЧИТЬ ЧЕРТЁЖ"
                             : upgrading ? "&#63E6BE&lУЛУЧШИТЬ" : "&#63E6BE&lПОСТРОИТЬ", lore));
             if (!next.resources().isEmpty()) {
                 List<String> contributionLore = new ArrayList<>();
@@ -380,6 +380,7 @@ public final class MenuManager implements Listener {
                 messages.send(player, "upgrade-success", Map.of("project", project.name(), "level", result.newLevel()));
                 openDetails(player, project, page, category);
             }
+            case PLACEMENT_READY -> { player.closeInventory(); }
             case CONSTRUCTION_STARTED -> {
                 messages.send(player, "construction-layer-started", Map.of("project", project.name(), "level", result.newLevel()));
                 openDetails(player, project, page, category);
@@ -421,6 +422,7 @@ public final class MenuManager implements Listener {
             case NOTHING_NEEDED -> messages.send(player, "contribution-not-needed");
             case NOTHING_MATCHED -> messages.send(player, "contribution-nothing-matched");
             case STORAGE_BUSY -> player.sendMessage("Склад города открыт другим игроком. Закройте склад перед взносом.");
+            case CONSTRUCTION_ACTIVE -> player.sendMessage("§eСначала завершите текущую стройку или дождитесь возврата за её отмену. Ресурсы остались у вас.");
             case SPECIALIZATION_LOCKED -> messages.send(player,"specialization-required",Map.of("specialization",ru.neverland.integration.SpecializationAccess.requirement(project.id())));
             case INVENTORY_SYNC_FAILED -> messages.send(player, "contribution-sync-failed");
         }
@@ -567,6 +569,12 @@ public final class MenuManager implements Listener {
         }
     }
 
+    public ru.neverland.townybuilds.construction.BlueprintPlan preview(Player player,Inventory inventory){synchronized(ru.neverland.core.SuiteState.lock()){
+        if(player.getOpenInventory().getTopInventory()!=inventory||!(inventory.getHolder() instanceof DetailsHolder holder)||!player.hasPermission("neverlandtownybuilds.use"))return null;
+        var town=towny.town(player);var project=definitions.project(holder.projectId());if(town==null||project==null)return null;
+        var state=dataStore.town(town.getUUID());int level=Math.min(project.maxLevel(),state.level(project.id())+1);
+        return builds.previewPlan(project.id(),level,state.constructionSite(project.id()));
+    }}
     private record CategoryHolder() implements MenuHolder { }
     private record ProjectListHolder(ProjectType type, ProjectCategory category, int page) implements MenuHolder { }
     private record DetailsHolder(String projectId, int page, ProjectCategory category) implements MenuHolder { }

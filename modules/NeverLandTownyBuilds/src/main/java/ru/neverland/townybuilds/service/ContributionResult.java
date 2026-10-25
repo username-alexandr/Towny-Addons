@@ -20,6 +20,7 @@ public record ContributionResult(Status status, int totalItems, List<String> det
         NOTHING_NEEDED,
         NOTHING_MATCHED,
         STORAGE_BUSY,
+        CONSTRUCTION_ACTIVE,
         INVENTORY_SYNC_FAILED
     }
 }
