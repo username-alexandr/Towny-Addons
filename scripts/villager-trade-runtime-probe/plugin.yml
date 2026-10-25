@@ -1,0 +1,6 @@
+name: VillagerTradeProbe
+version: 1.0
+main: ru.neverland.probe.VillagerTradeProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyControl, NeverLandTownyDiplomacy]

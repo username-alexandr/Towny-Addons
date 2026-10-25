@@ -1,0 +1,7 @@
+# Villager trade integration probe
+
+Only use a disposable Folia 26.2 server bound to `127.0.0.1`, with fresh Towny 0.103.2.0 data, Control 0.4.12 and Diplomacy 0.1.11. Add the marker `ALLOW_DISPOSABLE_VILLAGER_TRADE_PROBE` in its root. Do not install this probe on a player server: it creates towns, residents, claims and treaties, spawns entities and shuts down the server.
+
+Compile with `python3 build.py --server-dir /absolute/test-server --java-home /absolute/jdk25`. Run with the same arguments to `run.py`; this starts the server twice and saves numbered logs and assertion lists. The server must already have Folia libraries and an initialized world. Keep stdout/stdin attached as the script does. Use a new fixture after a failed run; do not hide a failure by rerunning against partial Towny data.
+
+The probe uses actual Folia regions, villagers, Towny records, mutual town/nation alliances, the real Diplomacy service and Bukkit event dispatch. Player identity and merchant inventory views are simulated. It covers entry and final-exchange cancellation, main/off hand, own/neutral/townless residents, OP, wilderness and town borders, changed ownership, pending/active/ended diplomatic alliances, embargo/sanctions, paused diplomacy, another plugin's existing cancellation, standalone plugin merchants, configuration defaults and persisted rules after restart. Physical player clicks and item exchange in a connected client remain a deployment playtest.

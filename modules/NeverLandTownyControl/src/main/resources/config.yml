@@ -5,3 +5,9 @@ town-removal:
   maximum-plots: 256
   maximum-column-removals: 32
   maximum-changed-blocks: 1000000
+
+# В городе торгуют с NPC-жителями и странствующими торговцами только свои и союзники.
+# Союз: взаимный Towny (включая одну нацию) или действующий ALLIANCE из Diplomacy.
+# Эмбарго и торговые санкции сохраняются. Вне городов торговля не ограничивается.
+villager-trading:
+  enabled: true
