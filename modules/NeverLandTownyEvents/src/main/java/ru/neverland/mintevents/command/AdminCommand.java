@@ -95,6 +95,12 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         ActiveEvent event=events.active(town.getUUID());
         sender.sendMessage("§b"+town.getName()+" §7· Щит новичка: §f"+TimeUtil.format((events.shieldRemainingMillis(town.getUUID())+999)/1000));
         sender.sendMessage(event==null ? "§7Активного события нет." : "§f"+event.eventId()+" §7· "+(event.paused()?"§eПауза":"§aАктивно")+" §7· "+event.progress()+"/"+event.goal()+" · осталось "+TimeUtil.format(event.secondsLeft(System.currentTimeMillis())));
+        if (event == null || event.raid() != null) {
+            var profile = event == null ? events.raidPreview(town) : event.raid().profile();
+            sender.sendMessage(event == null ? "§eСледующий набег при текущем развитии:" : "§eПараметры текущего набега:");
+            for (String line : profile.description()) sender.sendMessage("§7" + line);
+            sender.sendMessage("§7Очки развития: §f" + profile.score());
+        }
     }
     private void help(CommandSender sender) {
         sender.sendMessage("§frepairmenu §7— выбрать город и подтвердить ремонт участка");

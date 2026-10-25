@@ -16,6 +16,7 @@ event-start-town: "\n&#B65CFF&l%event%\n&#FFFFFF%description%\n&#AAAAAAОткр�
 event-success-town: "\n&#55FF55&lСОБЫТИЕ ЗАВЕРШЕНО\n&#FFFFFFГород %town% успешно справился: %event%.\n"
 event-failed-town: "\n&#FF5555&lСОБЫТИЕ ПРОВАЛЕНО\n&#FFFFFFГород %town% не успел справиться: %event%.\n"
 raid-wave-town: "&cВолна %wave%/%waves% напала на город %town%: %count% врагов."
+raid-difficulty-town: "&eСила набега: &f%difficulty%&e. Подробности: &f/t events&e → «Сила набега»."
 raid-wave-forced: "&#55FF55Волна набега создана. Разбойников: &#FFFFFF%count%&#55FF55."
 raid-wave-failed: "&#FF5555Не удалось создать волну: проверьте активное событие набега и территорию города."
 admin-help:

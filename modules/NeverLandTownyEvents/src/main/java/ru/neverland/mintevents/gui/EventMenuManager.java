@@ -92,6 +92,8 @@ public final class EventMenuManager implements Listener {
                         "&#FFD45AShift + ЛКМ — внести всё")));
             }
             inventory.setItem(40, protectionItem(town, definition, active));
+            if (active.raid() != null) inventory.setItem(41, item(Material.IRON_SWORD, "&eСила набега",
+                    active.raid().profile().description().stream().map(line -> "&7" + line).toList()));
         }
         inventory.setItem(49, item(Material.BOOK, "&#65B8FFИстория событий", List.of("&7Показать последние результаты города.")));
         int damaged = events.fires().damage(town.getUUID()).size();

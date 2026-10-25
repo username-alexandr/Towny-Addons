@@ -17,6 +17,38 @@ import java.util.UUID;
 public final class DevelopmentService {
     private final JavaPlugin plugin;
     private final Map<String, CachedYaml> cache = new HashMap<>();
+    private long raidReadWarning;
+
+    public record BuildingSnapshot(Map<String, Integer> levels, boolean available) {
+        public BuildingSnapshot { levels = Map.copyOf(levels); }
+    }
+
+    /** Physical completed levels from the live Builds API, irrespective of upkeep/power state. */
+    public BuildingSnapshot completedBuildings(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        try {
+            var api = ru.neverland.core.ApiServices.connect("NeverLandTownyBuilds",
+                    "ru.neverland.townybuilds.api.TownyBuildsApi", 1, "supportedProjects", "projectLevel");
+            if (!api.ready()) return new BuildingSnapshot(Map.of(), false);
+            Object ids = api.invoke("supportedProjects", new Class<?>[0]);
+            if (!(ids instanceof java.util.Set<?> projects) || projects.isEmpty() || projects.size() > 4096)
+                throw new IllegalStateException("Неверный список зданий Builds");
+            Map<String, Integer> levels = new HashMap<>();
+            for (Object value : projects) {
+                if (!(value instanceof String id) || id.isBlank()) throw new IllegalStateException("Неверный ID здания");
+                Object raw = api.invoke("projectLevel", new Class<?>[]{UUID.class, String.class}, townId, id);
+                if (!(raw instanceof Integer level) || level < 0) throw new IllegalStateException("Неверный уровень здания");
+                if (level > 0) levels.put(id, level);
+            }
+            return new BuildingSnapshot(levels, true);
+        } catch (ReflectiveOperationException | RuntimeException | LinkageError ex) {
+            long now = System.currentTimeMillis();
+            if (now - raidReadWarning >= 60_000) {
+                raidReadWarning = now;
+                plugin.getLogger().warning("Набег: не удалось прочитать развитие города; используется обычная сложность: " + ex.getMessage());
+            }
+            return new BuildingSnapshot(Map.of(), false);
+        }
+    } }
 
     public DevelopmentService(JavaPlugin plugin) {
         this.plugin = plugin;

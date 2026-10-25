@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-25",
+  "plugin": "NeverLandTownyEvents",
+  "version": "0.4.10",
+  "sha256": "14d68c183f7def384440564e850f8115f15189d1c8544bbf97298349d9ac1f7a",
+  "java": "Zulu 25.0.2",
+  "server": "Folia 26.2 build 7, 14b7fee",
+  "server_sha256": "128a634192261cd38bb4a5dc54075018a0f896fd6c6f529e37dca6e99e32b3b3",
+  "towny": "0.103.2.0",
+  "builds": "0.8.34",
+  "smoke": {
+    "tests": [
+      "ru.neverland.mintevents.EventMathSmoke",
+      "ru.neverland.mintevents.EventPauseSmoke",
+      "ru.neverland.mintevents.FireDamageSmoke",
+      "ru.neverland.mintevents.LinkageSmoke",
+      "ru.neverland.mintevents.RaidKillAndMessagesSmoke",
+      "ru.neverland.mintevents.RaidScalingSmoke",
+      "ru.neverland.mintevents.RaidSpawnPlannerSmoke",
+      "ru.neverland.mintevents.RaidVictoriesSmoke",
+      "ru.neverland.mintevents.RaidWavesSmoke",
+      "ru.neverland.mintevents.WeatherEconomySmoke"
+    ],
+    "passed": 10
+  },
+  "native": {
+    "initial": "PASS",
+    "restart": "PASS",
+    "uses_real_mobs": true,
+    "uses_player_clients": false
+  },
+  "environment_messages": [
+    "Mojang public-key lookup unavailable in isolated offline fixture (UnknownHostException).",
+    "Folia OSHI process-metrics warnings in container on restart; tests and plugin lifecycle completed."
+  ],
+  "limits": [
+    "No load test, player-client visual test or ItemsAdder/ModelEngine test.",
+    "Only Events rebuilt; full suite/API audit not run."
+  ]
+}

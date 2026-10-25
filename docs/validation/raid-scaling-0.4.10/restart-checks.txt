@@ -1,0 +1,19 @@
+PASS Events and Builds enabled on actual Folia
+PASS release 0.4.10 loaded
+PASS real Builds public API available
+PASS active paused raid restored after full server restart
+PASS changed Buildings data persisted
+PASS raid retained original city development snapshot [200.0]
+PASS defeated enemy not recreated after process restart
+PASS unstarted tenth wave survives full restart
+PASS persisted raid resumes
+PASS raid remains active
+PASS raid remains active
+PASS raid remains active
+PASS raid remains active
+PASS native mob health includes stored scaling and city defense [40.0]
+PASS native melee damage scaled [4.5]
+PASS native ranged multiplier stored [1.5]
+PASS concurrent enemy cap retained
+PASS resume spawns only saved survivors
+PASS fixture pauses after restart check

@@ -1,0 +1,29 @@
+PASS Events and Builds enabled on actual Folia
+PASS release 0.4.10 loaded
+PASS real Builds public API available
+PASS empty city uses baseline through live API
+PASS new city count [1.0]
+PASS forty actual ordinary building definitions available
+PASS completed building levels read without disk refresh [50.0]
+PASS medium city health factor [1.25]
+PASS developed city score [200.0]
+PASS developed city count factor [2.5]
+PASS developed city health factor [2.0]
+PASS developed city damage factor [1.5]
+PASS paused Builds safely falls back to baseline
+PASS real raid starts
+PASS start snapshots exact development profile
+PASS raid remains active
+PASS native mob health includes stored scaling and city defense [27.199999999999996]
+PASS native melee damage scaled [3.0599999999999996]
+PASS native ranged multiplier stored [1.02]
+PASS concurrent enemy cap retained
+PASS first native wave expands from four to ten enemies
+PASS real death removes exactly one enemy
+PASS next raid responds to changed building levels
+PASS reload and changed buildings preserve active raid profile
+PASS future tenth wave stays in frozen plan
+PASS pause persists remaining enemies
+PASS administrator timer restart succeeds
+PASS admin restart preserves kills and difficulty
+PASS raid stored paused before process restart

@@ -1,5 +1,5 @@
 name: NeverLandTownyEvents
-version: 0.4.9
+version: 0.4.10
 main: ru.neverland.mintevents.MintTownyEvents
 folia-supported: true
 api-version: '26.2'

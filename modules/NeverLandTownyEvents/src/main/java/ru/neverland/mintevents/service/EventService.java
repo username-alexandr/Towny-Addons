@@ -58,6 +58,7 @@ public final class EventService implements MintTownyEventsApi {
     private final Map<UUID, BossBar> bars = new HashMap<>();
     private final Map<UUID, Long> raidFailureWarnings = new HashMap<>();
     private RaidCatalog raidCatalog;
+    private RaidScaling raidScaling;
     private final ru.neverland.mintevents.integration.CustomRaidMobs customMobs;
     private final NamespacedKey raidGenerationKey;
     private final NamespacedKey raidPointsKey;
@@ -87,6 +88,7 @@ public final class EventService implements MintTownyEventsApi {
         this.raidRangedMultiplierKey = new NamespacedKey(plugin, "raid_ranged_multiplier");
         this.customMobs = new ru.neverland.mintevents.integration.CustomRaidMobs(plugin);
         this.raidCatalog = new RaidCatalog(plugin);
+        this.raidScaling = new RaidScaling(plugin);
         this.legacyRaidMobKey = NamespacedKey.fromString("minttownyevents:raid_town");
     }
 
@@ -146,13 +148,19 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         double protection = development.protection(town.getUUID(), definition);
         ActiveEvent active = new ActiveEvent(town.getUUID(), definition.id(), now,
                 now + definition.durationSeconds() * 1000, 0, goal, protection, 0);
-        if (definition.mode() == EventMode.RAID) active.raid(new ru.neverland.mintevents.model.RaidState());
+        if (definition.mode() == EventMode.RAID) {
+            var profile = raidPreview(town);
+            active.raid(new ru.neverland.mintevents.model.RaidState(profile, raidScaling.plan(raidCatalog, profile)));
+        }
         repository.put(active);
         repository.save();
         announce(town, "event-start-town", definition, active);
         updateBossBar(town, definition, active);
         if (definition.mode() == EventMode.RAID) {
             Location anchor = raidAnchor(town);
+            if (plugin.getConfig().getBoolean("runtime.announce-to-town", true))
+                for (Player player : onlineResidents(town)) messages.send(player, "raid-difficulty-town",
+                        Map.of("difficulty", active.raid().profile().label()));
             if (anchor != null) maybeRaidWave(town, anchor, active, 1.0 - active.protection(), now, false);
         }
         return true;
@@ -385,7 +393,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         long interval = Math.max(1, plugin.getConfig().getLong("gameplay.raid-wave-interval-seconds", 60)) * 1000;
         if (state.clear()) {
             if (!ignoreInterval && state.wave() > 0 && now - event.lastRaidWave() < interval) return 0;
-            state.begin(raidCatalog.wave(state.wave() + 1).mobs());
+            state.begin(state.waveDefinition(state.wave() + 1, raidCatalog).mobs());
             repository.changed();
             if (plugin.getConfig().getBoolean("gameplay.raid-announce-wave", true)) {
                 String text = messages.formatText(messages.raw("raid-wave-town"), Map.of("town", town.getName(),
@@ -425,7 +433,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
                 entity.getPersistentDataContainer().set(raidGenerationKey, PersistentDataType.STRING, event.raid().generation().toString());
                 entity.getPersistentDataContainer().set(raidPointsKey, PersistentDataType.INTEGER, spec.points());
                 entity.getPersistentDataContainer().set(raidRangedMultiplierKey, PersistentDataType.DOUBLE,
-                        raidCatalog.wave(event.raid().wave()).damageMultiplier() * (1 - event.protection() * .4));
+                        event.raid().waveDefinition(event.raid().wave(), raidCatalog).damageMultiplier() * (1 - event.protection() * .4));
                 entity.setCustomName(ColorUtil.color("&#FF5E6C" + spec.name()));
                 entity.setCustomNameVisible(false);
                 entity.setPersistent(true);
@@ -436,7 +444,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
                 return false;
             }
             if (blockedBody(living)) { living.remove(); return false; }
-            customMobs.apply(living, spec, raidCatalog.wave(event.raid().wave()), event.protection());
+            customMobs.apply(living, spec, event.raid().waveDefinition(event.raid().wave(), raidCatalog), event.protection());
             if (blockedBody(living)) { living.remove(); return false; }
             if (living instanceof Mob mob) {
                 Player target = nearestTownPlayer(town, location);
@@ -722,6 +730,11 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
     private String raidOwner(Entity entity) { if (entity == null) return null; String value = entity.getPersistentDataContainer().get(raidMobKey, PersistentDataType.STRING); return value != null || legacyRaidMobKey == null ? value : entity.getPersistentDataContainer().get(legacyRaidMobKey, PersistentDataType.STRING); }
     public EventRegistry registry() { synchronized (ru.neverland.core.SuiteState.lock()) { return registry; } }
     public DevelopmentService development() { synchronized (ru.neverland.core.SuiteState.lock()) { return development; } }
+    public RaidScaling.Profile raidPreview(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        if (!raidScaling.enabled()) return raidScaling.profile(Map.of(), false);
+        var snapshot = development.completedBuildings(town.getUUID());
+        return raidScaling.profile(snapshot.levels(), snapshot.available());
+    } }
     public FireService fires() { synchronized (ru.neverland.core.SuiteState.lock()) { return fires; } }
     public boolean fireActive(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
         EventDefinition definition = definition(active(townId));
@@ -758,7 +771,10 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
 
     public void reloadRuntime() { synchronized (ru.neverland.core.SuiteState.lock()) {
         fires.reload();
-        raidCatalog = new RaidCatalog(plugin);
+        var nextCatalog = new RaidCatalog(plugin);
+        var nextScaling = new RaidScaling(plugin);
+        raidCatalog = nextCatalog;
+        raidScaling = nextScaling;
         development.clearCache();
         start();
     } }
