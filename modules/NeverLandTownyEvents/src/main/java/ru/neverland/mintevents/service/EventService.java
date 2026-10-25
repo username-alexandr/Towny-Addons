@@ -727,11 +727,22 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         EventDefinition definition = definition(active(townId));
         return definition != null && !active(townId).paused() && definition.mode() == EventMode.FIRE;
     } }
+    public boolean fireUnfinished(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        EventDefinition definition = definition(active(townId));
+        return definition != null && definition.mode() == EventMode.FIRE;
+    } }
     @Override public boolean requiresRepair(UUID world, int x, int y, int z) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return !fires.repository().writable() || fires.requiresRepair(world, x, y, z);
     } }
     @Override public boolean hasFireDamage(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
         return !fires.repository().writable() || !fires.damage(town).isEmpty();
+    } }
+    @Override public boolean hasFireDamageInArea(UUID town, UUID world, int minX, int minZ, int maxX, int maxZ) { synchronized (ru.neverland.core.SuiteState.lock()) {
+        if (!fires.repository().writable()) return true;
+        int size=com.palmergames.bukkit.towny.TownySettings.getTownBlockSize();
+        return fires.damage(town).stream().anyMatch(d->d.world().equals(world)
+            && Math.floorDiv(d.x(),size)>=Math.floorDiv(minX,size) && Math.floorDiv(d.x(),size)<=Math.floorDiv(maxX,size)
+            && Math.floorDiv(d.z(),size)>=Math.floorDiv(minZ,size) && Math.floorDiv(d.z(),size)<=Math.floorDiv(maxZ,size));
     } }
     public void extinguish(Player player, Location water) { synchronized (ru.neverland.core.SuiteState.lock()) {
         if (!player.hasPermission("mintevents.contribute")) return;

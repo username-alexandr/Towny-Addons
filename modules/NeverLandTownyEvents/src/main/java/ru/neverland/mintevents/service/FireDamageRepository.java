@@ -48,7 +48,15 @@ public final class FireDamageRepository {
         if(!FireMaterials.combustible(damage.material()))throw new IllegalArgumentException("Материал не поддерживает пожар");
         Map<UUID,FireDamage> next=new LinkedHashMap<>(records);next.put(damage.id(),damage);save(next);return true;
     } }
-    /** Caller has verified placed materials and saved the affected worlds first. */
+    /** Atomically close exactly the selected snapshot; no world or inventory operations. */
+    public int confirm(ru.neverland.mintevents.model.FireRepairPlot plot) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+        requireWritable();
+        var current = records.values().stream().filter(plot::contains).collect(java.util.stream.Collectors.toSet());
+        if (!current.equals(Set.copyOf(plot.damage()))) throw new IllegalArgumentException("Список ремонта изменился. Откройте участок заново.");
+        confirm(current.stream().map(FireDamage::id).collect(java.util.stream.Collectors.toSet()));
+        return current.size();
+    } }
+    /** Low-level ledger operation. Player confirmation must use an immutable plot snapshot. */
     public void confirm(Set<UUID> repaired) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
         requireWritable();Map<UUID,FireDamage> next=new LinkedHashMap<>(records);repaired.forEach(next::remove);if(next.size()!=records.size())save(next);
     } }

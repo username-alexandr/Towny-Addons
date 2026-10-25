@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface MintTownyEventsApi extends ru.neverland.core.ApiContract {
-    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("raidVictories", "activeEvent", "addProgress", "protection", "requiresRepair", "hasFireDamage", "productionMultiplier", "paused", "shieldRemainingMillis"); }
+    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("raidVictories", "activeEvent", "addProgress", "protection", "requiresRepair", "hasFireDamage", "hasFireDamageInArea", "productionMultiplier", "paused", "shieldRemainingMillis"); }
     default boolean paused(UUID townId) { return false; }
     default long shieldRemainingMillis(UUID townId) { return 0; }
     /** Durable count of completed raid victories. Forced resolutions do not increment it. */
@@ -16,5 +16,7 @@ public interface MintTownyEventsApi extends ru.neverland.core.ApiContract {
     default double productionMultiplier(UUID townId, String building) { return 1; }
     /** True also when the damage ledger is unavailable: automatic repair must stop. */
     default boolean requiresRepair(UUID world, int x, int y, int z) { return true; }
+    /** Plot-scoped guard. Older providers conservatively block the whole town. */
+    default boolean hasFireDamageInArea(UUID townId, UUID world, int minX, int minZ, int maxX, int maxZ) { return hasFireDamage(townId); }
     default boolean hasFireDamage(UUID townId) { return true; }
 }

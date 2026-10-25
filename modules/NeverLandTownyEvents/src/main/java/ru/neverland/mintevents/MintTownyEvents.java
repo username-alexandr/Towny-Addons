@@ -46,7 +46,7 @@ public final class MintTownyEvents extends JavaPlugin {
         EventMenuManager menus = new EventMenuManager(this, towny, events, messages);
         getServer().getPluginManager().registerEvents(menus, this);
         getServer().getPluginManager().registerEvents(new EventGameplayListener(this, towny, events), this);
-        AdminCommand adminExecutor = new AdminCommand(this, towny, events, messages);
+        AdminCommand adminExecutor = new AdminCommand(this, towny, events, messages, menus);
         towny.registerTownCommand("events", new TownEventsCommand(towny, menus, messages, adminExecutor));
 
         PluginCommand admin = getCommand("townyevents");

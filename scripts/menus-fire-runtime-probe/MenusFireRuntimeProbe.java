@@ -204,7 +204,7 @@ public final class MenusFireRuntimeProbe extends JavaPlugin {
         check(fires.ignite(town,active,damaged,true)&&damaged.getType()==Material.AIR,"wood damage creates a hole");
         check(fires.damage(TOWN).size()==1&&fires.damage(TOWN).getFirst().blockData().equals(original),"exact original block persisted");
         check(!fires.ignite(town,active,damaged,true),"same location cannot burn twice");
-        fails(()->fires.confirmRepairs(player,true),"repair confirmation blocked during active fire");
+        fails(()->repairService().confirm(player,repairService().plots(TOWN).getFirst(),false),"repair confirmation blocked during active fire");
         events.resolve(town,true);check(damaged.getType()==Material.AIR&&fires.damage(TOWN).size()==1,"successful event leaves mandatory repairs");
         check(!events.startEvent(town,events.registry().get("fire")),"new fire waits for repairs");
         check(FireRepairAccess.blocked(TOWN),"Builds reads public repair debt");invokePrivate(construction,"repairCompletedSites");check(damaged.getType()==Material.AIR,"Builds automatic repair preserves fire hole");
@@ -212,7 +212,7 @@ public final class MenusFireRuntimeProbe extends JavaPlugin {
         site.setArchitectureVersion(5);invokePrivate(construction,"migrateLegacySites");
         check(site.architectureVersion()==5&&damaged.getType()==Material.AIR,"legacy architecture migration waits for fire repairs");
         site.setArchitectureVersion(ConstructionSite.CURRENT_ARCHITECTURE_VERSION);data.markDirty();data.save();
-        command("events repairs");styled("fire repairs");check(top.getItem(0)!=null&&top.getItem(0).getType()==Material.OAK_STAIRS,"repair menu shows required material");
+        command("events repairs");styled("fire repairs");check(top.getItem(0)!=null&&top.getItem(0).getType()==Material.BRICKS,"repair menu shows affected plot");
         var receipt=fires.damage(TOWN).getFirst();getConfig().set("damage.x",receipt.x());getConfig().set("damage.y",receipt.y());getConfig().set("damage.z",receipt.z());getConfig().set("damage.original",receipt.blockData());saveConfig();
         Path file=plugin("Events").getDataFolder().toPath().resolve("fire-damage.yml"),backup=file.resolveSibling("fire-damage.fixture-backup");
         Files.move(file,backup);Files.createDirectory(file);Files.writeString(file.resolve("blocker"),"intentional fault");
@@ -222,14 +222,14 @@ public final class MenusFireRuntimeProbe extends JavaPlugin {
         Files.delete(file.resolve("blocker"));Files.delete(file);Files.move(backup,file);fires.reload();
         check(fires.damage(TOWN).size()==1,"ledger recovers without losing debt");
     }
+    private ru.neverland.mintevents.service.FireRepairService repairService(){return new ru.neverland.mintevents.service.FireRepairService(plugin("Events"),new ru.neverland.mintevents.integration.TownyHook(),events);}
     private void restartFire()throws Exception{
         int x=getConfig().getInt("damage.x"),y=getConfig().getInt("damage.y"),z=getConfig().getInt("damage.z");world.getChunkAt(x>>4,z>>4).load();damaged=world.getBlockAt(x,y,z);original=getConfig().getString("damage.original");
         check(damaged.getType()==Material.AIR,"hard restart and Builds startup retain hole");check(fires.damage(TOWN).size()==1&&events.hasFireDamage(TOWN),"hard restart retains repair journal");
-        damaged.setType(Material.STONE,false);check(fires.confirmRepairs(player,false)==0&&fires.damage(TOWN).size()==1,"wrong replacement cannot clear debt");
-        var expected=Bukkit.createBlockData(original);damaged.setType(expected.getMaterial(),false);
-        permissions.put("mintevents.repair",false);fails(()->fires.confirmRepairs(player,false),"repair permission enforced");
-        permissions.put("mintevents.repair",true);check(fires.confirmRepairs(player,false)==1,"manual material placement confirms repair");
-        check(damaged.getBlockData().getAsString().equals(original),"original block orientation restored");fires.reload();
+        damaged.setType(Material.STONE,false);check(fires.damage(TOWN).size()==1,"changing material alone does not close repair");
+        permissions.put("mintevents.repair",false);fails(()->repairService().confirm(player,repairService().plots(TOWN).getFirst(),false),"repair permission enforced");
+        permissions.put("mintevents.repair",true);check(repairService().confirm(player,repairService().plots(TOWN).getFirst(),false)==1,"owner can acknowledge redesigned plot");
+        check(damaged.getType()==Material.STONE,"confirmation preserves player replacement");fires.reload();
         check(fires.damage(TOWN).isEmpty()&&!FireRepairAccess.blocked(TOWN),"confirmed repair persisted and unblocks Builds");
         check(events.startEvent(town,events.registry().get("fire")),"new fire allowed after repair");events.resolve(town,true);
     }

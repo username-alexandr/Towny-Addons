@@ -31,6 +31,27 @@ public final class FireDamageSmoke {
         Files.delete(file.resolve("blocker")); Files.delete(file); Files.move(backup,file); restart.load();
         restart.confirm(Set.of(damage.id()));
         FireDamageRepository repaired = new FireDamageRepository(file); repaired.load(); check(repaired.town(town).isEmpty(), "confirmed repairs survive restart");
+        // Confirm one plot by trust: no server/world implementation is present in this JVM.
+        var a=new FireDamage(town,world,-1,70,-1,"minecraft:oak_planks",200);
+        var b=new FireDamage(town,world,0,70,-1,"minecraft:oak_planks",200);
+        var foreign=new FireDamage(UUID.randomUUID(),world,-2,70,-1,"minecraft:oak_planks",200);
+        repaired.prepare(a);repaired.prepare(b);repaired.prepare(foreign);
+        var selection=new ru.neverland.mintevents.model.FireRepairPlot(town,world,-1,-1,32,java.util.List.of(a));
+        check(repaired.confirm(selection)==1,"trust confirmation accepts selected plot without any world access");
+        check(repaired.get(b.id())!=null&&repaired.get(foreign.id())!=null,"neighbour and foreign town preserved");
+        try {repaired.confirm(selection);throw new AssertionError("duplicate confirmation accepted");}catch(IllegalArgumentException expected){}
+        var newer=new FireDamage(town,world,-1,70,-1,"minecraft:oak_planks",201);repaired.prepare(newer);
+        try {repaired.confirm(selection);throw new AssertionError("stale menu cleared new incident");}catch(IllegalArgumentException expected){}
+        var fresh=new ru.neverland.mintevents.model.FireRepairPlot(town,world,-1,-1,32,java.util.List.of(newer));
+        var extra=new FireDamage(town,world,-3,71,-1,"minecraft:oak_planks",201);repaired.prepare(extra);
+        try {repaired.confirm(fresh);throw new AssertionError("stale subset accepted");}catch(IllegalArgumentException expected){}
+        var both=new ru.neverland.mintevents.model.FireRepairPlot(town,world,-1,-1,32,java.util.List.of(newer,extra));
+        Files.move(file,backup);Files.createDirectory(file);Files.writeString(file.resolve("blocker"),"keep");
+        try {repaired.confirm(both);throw new AssertionError("confirmation write failure swallowed");}catch(java.io.IOException expected){}
+        check(repaired.get(newer.id())!=null&&repaired.get(extra.id())!=null,"failed confirmation retains all damage");
+        Files.delete(file.resolve("blocker"));Files.delete(file);Files.move(backup,file);repaired.load();repaired.confirm(both);
+        repaired.load();check(repaired.get(newer.id())==null&&repaired.get(b.id())!=null,"plot confirmation survives reload without clearing neighbour");
+        repaired.confirm(Set.of(b.id(),foreign.id()));
         repaired.prepare(damage); String valid=Files.readString(file);
         Files.writeString(file,valid.replace("minecraft:oak_stairs", "minecraft:bogus_stairs")); String corrupt=Files.readString(file);
         try { repaired.load(); throw new AssertionError("corrupt material accepted"); } catch (java.io.IOException expected) { }

@@ -13,6 +13,7 @@ enum AuditCategory implements Predicate<AuditRecord> {
     STORAGE("Ресурсы и склады","CHEST",Set.of("WAREHOUSE_TRADE","WAREHOUSE_LEG","STORAGE_PLAYER")),
     COMPANIES("Компании","IRON_INGOT",Set.of("COMPANY_PAYMENT","COMPANY_CONTRACT")),
     CONSTRUCTION("Стройки и возвраты","BRICKS",Set.of("CONSTRUCTION_REFUND")),
+    FIRE_REPAIRS("Ремонт после пожара","ANVIL",Set.of("FIRE_REPAIR")),
     MOB_FARMS("Участки и фермы мобов","SPAWNER",Set.of("MOB_FARM_ZONE")),
     CONTRACTS("Контракты","WRITABLE_BOOK",Set.of("CONTRACT_PAYMENT","CONTRACT_DELIVERY")),
     PUBLIC_ORDERS("Государственные заказы","WRITABLE_BOOK",Set.of("PUBLIC_ORDER_REWARD")),
@@ -28,6 +29,7 @@ enum AuditCategory implements Predicate<AuditRecord> {
     AuditCategory(String title,String icon,Set<String> kinds){this.title=title;this.icon=icon;this.kinds=kinds;}
     @Override public boolean test(AuditRecord record){return this==ALL||this==OTHER?this==ALL||Arrays.stream(values()).filter(c->c!=ALL&&c!=OTHER).noneMatch(c->c.kinds.contains(record.kind())):kinds.contains(record.kind());}
     static String kind(String kind){return switch(kind){
+        case "FIRE_REPAIR"->"Подтверждение ремонта участка";
         case "MOB_FARM_ZONE"->"Защита участка от мобов";
         case "CONSTRUCTION_REFUND"->"Оплата и возврат строительства";
         case "ADMIN_TOWN_DELETE"->"Удаление города и откат территории";

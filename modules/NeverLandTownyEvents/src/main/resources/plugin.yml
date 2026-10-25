@@ -1,5 +1,5 @@
 name: NeverLandTownyEvents
-version: 0.4.8
+version: 0.4.9
 main: ru.neverland.mintevents.MintTownyEvents
 folia-supported: true
 api-version: '26.2'
@@ -12,7 +12,7 @@ softdepend: [NeverLandTownySeasons, NeverLandTownyReputation, ModelEngine, Items
 commands:
   townyevents:
     description: Административное управление городскими событиями
-    usage: /townyevents <start|stop|cancel|restart|pause|resume|extend|shield|success|fail|status|list|raidwave|reload>
+    usage: /townyevents <start|stop|cancel|restart|pause|resume|extend|shield|success|fail|status|list|raidwave|repairmenu|reload>
     aliases: [mintevents, mevents, neverlandtownyevents, nltevents]
     permission: mintevents.admin
 permissions:
@@ -26,5 +26,8 @@ permissions:
     description: Административное управление событиями
     default: op
   mintevents.repair:
-    description: Подтверждение вручную восстановленных блоков после пожара
+    description: Подтверждение ремонта своего участка или участка своего города мэром
     default: true
+  mintevents.repair.manage:
+    description: Подтверждение ремонта любого участка своего города
+    default: false

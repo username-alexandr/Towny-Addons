@@ -57,6 +57,13 @@ final class AdminMenu implements Listener {
         button(s,15,Material.CLOCK,"Перезапуск задач",List.of("Новый таймер активной задачи","Прогресс и квитанции сохраняются"),()->activityModules(player,"restart"));
         button(s,29,Material.REPEATER,"Пауза и время",List.of("Приостановить, продолжить или продлить"),()->time(player));
         button(s,31,Material.LEVER,"Управление модулями",List.of("Состояние и безопасное отключение","Предпросмотр зависимых аддонов"),()->modules(player,1,false));
+        button(s,22,Material.ANVIL,"Ремонт после пожара",List.of("Выбрать город и участок","Отметить ремонт завершённым"),()->{
+            var addon=Bukkit.getPluginManager().getPlugin("NeverLandTownyEvents");
+            if(!(addon instanceof org.bukkit.plugin.java.JavaPlugin owner)||!owner.isEnabled()) throw new IllegalArgumentException("События временно недоступны");
+            var command=owner.getCommand("townyevents");
+            if(command==null) throw new IllegalArgumentException("Обновите плагин событий");
+            player.closeInventory(); command.getExecutor().onCommand(player,command,"townyevents",new String[]{"repairmenu"});
+        });
         button(s,24,Material.GRASS_BLOCK,"Удаление городов",List.of("Предупреждение и подтверждение","Режим сохранения обычных баз"),()->towns(player,1));
         button(s,42,Material.GOLD_INGOT,"Серверные выплаты",List.of("Заказы и зарплаты: диагностика и сверка"),()->income(player));
         button(s,40,Material.COMMAND_BLOCK,"Команды наград",List.of("Очередь выдачи и спорные результаты","Сверка перед повторным выполнением"),()->rewardCommands(player,1));

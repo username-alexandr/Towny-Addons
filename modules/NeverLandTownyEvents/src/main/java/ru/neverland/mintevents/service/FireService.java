@@ -147,25 +147,6 @@ public final class FireService {
     } }
     public boolean near(Player player){ synchronized (ru.neverland.core.SuiteState.lock()) {return hotspots.values().stream().anyMatch(h->h.world().equals(player.getWorld().getUID())&&new Location(player.getWorld(),h.x()+.5,h.y()+.5,h.z()+.5).distanceSquared(player.getLocation())<=25);} }
     public boolean placed(FireDamage d){ synchronized (ru.neverland.core.SuiteState.lock()) {World world=loaded(d.world(),d.x(),d.y(),d.z());return world!=null&&world.getBlockAt(d.x(),d.y(),d.z()).getType().name().equals(d.material());} }
-    public int confirmRepairs(Player player,boolean fireActive) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
-        if(!ru.neverland.core.SuiteState.held())throw new IllegalStateException("Ремонт требует основного потока");
-        if(!player.hasPermission("mintevents.repair"))throw new IllegalArgumentException("Нет права подтверждать ремонт");
-        Town town=towny.town(player);if(town==null)throw new IllegalArgumentException("Сначала вступите в город");
-        if(fireActive)throw new IllegalArgumentException("Сначала потушите городской пожар");
-        if(!damage.writable())throw new IOException("Журнал ремонта заблокирован");
-        Set<UUID> repaired=new HashSet<>();Set<World> worlds=new HashSet<>();
-        for(FireDamage d:damage(town.getUUID())){
-            World world=loaded(d.world(),d.x(),d.y(),d.z());if(world==null)continue;
-            Block b=world.getBlockAt(d.x(),d.y(),d.z());Town owner=towny.townAt(b.getLocation());
-            if(owner==null||!owner.getUUID().equals(town.getUUID())||!placed(d))continue;
-            b.setBlockData(Bukkit.createBlockData(d.blockData()),false);worlds.add(world);repaired.add(d.id());
-        }
-        if(!repaired.isEmpty()){
-            player.saveData();
-            ru.neverland.core.SuiteScheduler.get().runTask(plugin,()->{ try { for(World world:worlds)world.save(); damage.confirm(repaired); }catch(Exception ex){warn(ex);} });
-        }
-        return repaired.size();
-    } }
     public void highlight(Player player,UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {
         FireDamage d=damage.get(id);Town town=towny.town(player);
         if(d==null||town==null||!d.town().equals(town.getUUID()))return;

@@ -14,19 +14,25 @@ import java.util.*;
 
 /** Town names may contain spaces; numeric parameters precede the complete town name. */
 public final class AdminCommand implements CommandExecutor, TabCompleter {
-    public static final Set<String> ACTIONS = Set.of("start", "stop", "cancel", "restart", "pause", "resume", "success", "fail", "extend", "shield", "status", "list", "raidwave", "reload");
+    public static final Set<String> ACTIONS = Set.of("repairmenu", "start", "stop", "cancel", "restart", "pause", "resume", "success", "fail", "extend", "shield", "status", "list", "raidwave", "reload");
     private final MintTownyEvents plugin;
     private final TownyHook towny;
     private final EventService events;
     private final MessageService messages;
-    public AdminCommand(MintTownyEvents plugin, TownyHook towny, EventService events, MessageService messages) {
-        this.plugin=plugin; this.towny=towny; this.events=events; this.messages=messages;
+    private final ru.neverland.mintevents.gui.EventMenuManager menus;
+    public AdminCommand(MintTownyEvents plugin, TownyHook towny, EventService events, MessageService messages, ru.neverland.mintevents.gui.EventMenuManager menus) {
+        this.plugin=plugin; this.towny=towny; this.events=events; this.messages=messages; this.menus=menus;
     }
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEvents")){return true;}
-        if(!sender.hasPermission("mintevents.admin")) { messages.send(sender,"no-permission"); return true; }
+        if(!sender.isOp() && !sender.hasPermission("mintevents.admin") && !(args.length==1 && args[0].equalsIgnoreCase("repairmenu") && sender.hasPermission("neverlandtownycontrol.admin"))) { messages.send(sender,"no-permission"); return true; }
         if(args.length == 0) { help(sender); return true; }
         String action=args[0].toLowerCase(Locale.ROOT);
         try {
+            if(action.equals("repairmenu") && args.length==1) {
+                if(sender instanceof org.bukkit.entity.Player player) menus.openAdminRepairs(player);
+                else messages.send(sender,"only-player");
+                return true;
+            }
             if(action.equals("reload") && args.length==1) { plugin.reloadPlugin(); messages.send(sender,"reload"); return true; }
             if(action.equals("list") && args.length==1) {
                 sender.sendMessage("§bГородские события:");
@@ -91,6 +97,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(event==null ? "§7Активного события нет." : "§f"+event.eventId()+" §7· "+(event.paused()?"§eПауза":"§aАктивно")+" §7· "+event.progress()+"/"+event.goal()+" · осталось "+TimeUtil.format(event.secondsLeft(System.currentTimeMillis())));
     }
     private void help(CommandSender sender) {
+        sender.sendMessage("§frepairmenu §7— выбрать город и подтвердить ремонт участка");
         // Code-owned usage also upgrades servers with an existing messages.yml.
         sender.sendMessage("§bСобытия — команды администратора (/t events или /townyevents)");
         sender.sendMessage("§fstart <событие> <город> [--force] §7— запуск; force обходит щит");
@@ -108,7 +115,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         if(args.length==1) options=ACTIONS.stream().sorted().toList();
         else if(args.length==2 && action.equals("start")) options=events.registry().all().stream().map(EventDefinition::id).toList();
         else if(args.length==2 && (action.equals("extend") || action.equals("shield"))) options=action.equals("shield")?List.of("0","24","48"):List.of("15","30","60");
-        else if(args.length==2 && !Set.of("start","reload","list").contains(action) || args.length==3 && Set.of("start","extend","shield").contains(action)) options=towny.towns().stream().map(Town::getName).toList();
+        else if(args.length==2 && !Set.of("repairmenu", "start","reload","list").contains(action) || args.length==3 && Set.of("start","extend","shield").contains(action)) options=towny.towns().stream().map(Town::getName).toList();
         String prefix=args[args.length-1].toLowerCase(Locale.ROOT);
         return options.stream().filter(v->v.toLowerCase(Locale.ROOT).startsWith(prefix)).toList();
     } }

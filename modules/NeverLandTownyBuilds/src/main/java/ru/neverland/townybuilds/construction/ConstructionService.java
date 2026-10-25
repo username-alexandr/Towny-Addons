@@ -140,10 +140,6 @@ public final class ConstructionService implements Listener {
         if (plan == null) return ConstructionPreparation.failed(ConstructionPreparation.Status.UNKNOWN_BLUEPRINT, project.id());
         TownData data = dataStore.town(town.getUUID());
         ConstructionSite existing = data.constructionSite(project.id());
-        if (existing != null && ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.getUUID())) {
-            return ConstructionPreparation.failed(ConstructionPreparation.Status.OBSTRUCTED,
-                    "Сначала подтвердите ремонт после пожара: /t events repairs. Если список пуст, проверьте доступность Events.");
-        }
         if (existing != null && existing.active()) {
             return new ConstructionPreparation(ConstructionPreparation.Status.ALREADY_ACTIVE, town.getUUID(),
                     existing, plan, List.of());
@@ -167,6 +163,9 @@ public final class ConstructionService implements Listener {
 
         plan = planForSite(site, targetLevel);
         if (plan == null) return ConstructionPreparation.failed(ConstructionPreparation.Status.UNKNOWN_BLUEPRINT, project.id());
+        if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.getUUID(),site,plan)) {
+            return ConstructionPreparation.failed(ConstructionPreparation.Status.OBSTRUCTED,"Сначала завершите ремонт участка: /t events repairs");
+        }
         World world = Bukkit.getWorld(site.worldId());
         if (world == null) return ConstructionPreparation.failed(ConstructionPreparation.Status.NO_GROUND_TARGET, "Мир строительной площадки не загружен");
         if (!player.getWorld().getUID().equals(site.worldId())) {
@@ -198,8 +197,7 @@ public final class ConstructionService implements Listener {
         }
         if(!ru.neverland.integration.SpecializationAccess.allowed(preparation.townId(),preparation.site().projectId()))throw new IllegalStateException(ru.neverland.integration.SpecializationAccess.reason(preparation.site().projectId()));
         TownData data = dataStore.town(preparation.townId());
-        if (data.constructionSite(preparation.site().projectId()) != null
-                && ru.neverland.townybuilds.integration.FireRepairAccess.blocked(preparation.townId())) {
+        if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(preparation.townId(),preparation.site(),preparation.plan())) {
             throw new IllegalStateException("Сначала завершите ремонт после пожара: /t events repairs");
         }
         if (!ownsPlan(Bukkit.getWorld(preparation.site().worldId()),preparation.site(),preparation.plan())) throw new IllegalStateException("Площадка сейчас недоступна");
@@ -508,7 +506,6 @@ public final class ConstructionService implements Listener {
         boolean changed = false;
         for (TownData town : dataStore.towns().values()) {
             if (towny.town(town.townId()) == null) continue;
-            if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId())) continue;
             for (ConstructionSite site : town.constructionSites().values()) {
                 if (site.architectureVersion() >= ConstructionSite.CURRENT_ARCHITECTURE_VERSION) continue;
                 World world = Bukkit.getWorld(site.worldId());
@@ -518,6 +515,7 @@ public final class ConstructionService implements Listener {
                 BlueprintPlan modern = visibleLevel <= 0 ? null : generator.generate(site.projectId(), visibleLevel);
                 if (world == null || (visibleLevel > 0 && (legacy == null || modern == null))) continue;
 
+                if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId(),site,legacy) || ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId(),site,modern)) continue;
                 if (legacy != null && !ownsPlan(world,site,legacy) || modern != null && !ownsPlan(world,site,modern)) continue;
                 if (legacy != null && modern != null) {
                     for (Map.Entry<BlockOffset, BlueprintBlock> entry : legacy.blocks().entrySet()) {
@@ -576,12 +574,12 @@ public final class ConstructionService implements Listener {
         int repaired = 0;
         for (TownData town : dataStore.towns().values()) {
             if (towny.town(town.townId()) == null) continue;
-            if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId())) continue;
             for (ConstructionSite site : town.constructionSites().values()) {
                 if (site.active() || site.completedStage() <= 0) continue;
                 World world = Bukkit.getWorld(site.worldId());
                 BlueprintPlan plan = planForSite(site, site.completedStage());
                 if (world == null || plan == null || !ownsPlan(world,site,plan)) continue;
+                if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId(),site,plan)) continue;
                 for (Map.Entry<BlockOffset, BlueprintBlock> entry : orderedEntries(plan)) {
                     BlueprintBlock expected = entry.getValue();
                     if (expected.stage() > site.completedStage()) continue;

@@ -1,0 +1,6 @@
+name: FireRepairRuntimeProbe
+version: 1.0
+main: ru.neverland.runtime.FireRepairRuntimeProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyEvents, NeverLandTownyControl]
