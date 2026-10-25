@@ -155,6 +155,8 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         if(!isEnabled()||ru.neverland.core.SuiteState.frozen(getName())||uiMenus==null||thumbnails==null)return java.util.concurrent.CompletableFuture.completedFuture(java.util.Map.of());
         var plan=uiMenus.preview(player,inventory);return plan==null?java.util.concurrent.CompletableFuture.completedFuture(java.util.Map.of()):thumbnails.preview(plan);
     }}
+    public java.util.Map<String,String> placementControls(org.bukkit.entity.Player player){return placements==null?java.util.Map.of():placements.controls(player);}
+    public boolean nudgePlacement(org.bukkit.entity.Player player,String key,long sequence,String action){return placements!=null&&placements.nudge(player,key,sequence,action);}
     public void reloadPlugin() { synchronized (ru.neverland.core.SuiteState.lock()) {
         reloadConfig();
         messages.reload();

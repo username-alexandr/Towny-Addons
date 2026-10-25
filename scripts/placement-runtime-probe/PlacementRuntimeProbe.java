@@ -45,14 +45,14 @@ public final class PlacementRuntimeProbe extends JavaPlugin {
     }
     Object session(Actor actor)throws Exception{return ((Map<?,?>)field(placement,"sessions")).get(actor.id);}
     Object projection(Actor actor)throws Exception{return field(session(actor),"projection");}
-    void render(Actor actor)throws Exception{Object p=projection(actor);call(p,"render",new Class[]{int.class},30000);check((boolean)call(p,"complete",new Class[0]),"whole building display completed");}
+    void render(Actor actor)throws Exception{Object p=projection(actor);for(int pass=0;pass<100&&!(boolean)call(p,"complete",new Class[0]);pass++)call(p,"render",new Class[]{int.class},30000);check((boolean)call(p,"complete",new Class[0]),"whole building display completed");}
     ItemStack token(Actor actor){for(var item:actor.contents.getContents())if(item!=null&&item.getType()==Material.STRUCTURE_VOID)return item;throw new AssertionError("no blueprint item");}
     int tokens(Actor actor){return Arrays.stream(actor.contents.getContents()).filter(i->i!=null&&i.getType()==Material.STRUCTURE_VOID).mapToInt(ItemStack::getAmount).sum();}
     void select(Actor actor)throws Exception{placement.interact(new PlayerInteractEvent(actor.player,Action.RIGHT_CLICK_BLOCK,token(actor),world.getBlockAt(0,159,0),BlockFace.UP,EquipmentSlot.HAND));}
     void command(Actor actor,String... args){placement.onCommand(actor.player,Bukkit.getPluginCommand("nltplace"),"nltplace",args);}
     void click(Actor actor,int slot){var e=new InventoryClickEvent(actor.view,InventoryType.SlotType.CONTAINER,slot,ClickType.LEFT,InventoryAction.PICKUP_ALL);placement.click(e);if(!e.isCancelled())throw new AssertionError("unsafe menu click");}
     @SuppressWarnings("unchecked") void setup()throws Exception{
-        owner=(JavaPlugin)Bukkit.getPluginManager().getPlugin("NeverLandTownyBuilds");check(owner.isEnabled(),"Builds 0.8.32 enabled on native Folia");
+        owner=(JavaPlugin)Bukkit.getPluginManager().getPlugin("NeverLandTownyBuilds");check(owner.isEnabled(),"Builds 0.8.33 enabled on native Folia");
         data=(DataStore)field(owner,"dataStore");definitions=(DefinitionRegistry)field(owner,"definitions");placement=(PlacementService)field(owner,"placements");builds=(BuildService)field(placement,"builds");construction=(ConstructionService)field(owner,"construction");placement.stop();
         if(Files.exists(proof.resolve("first-passed.txt"))){
             var state=data.town(TOWN);check(state.placements().get("town_hall").id().toString().equals(Files.readString(proof.resolve("draft-id"))),"unplaced blueprint survives native restart");
@@ -85,6 +85,7 @@ public final class PlacementRuntimeProbe extends JavaPlugin {
         check(displays.stream().allMatch(d->d.isValid()&&!d.isPersistent()&&!d.isVisibleByDefault()),"all real BlockDisplays temporary and private");
         check(displays.stream().mapToDouble(d->d.getTransformation().getTranslation().y).max().orElse(0)>3,"projection includes roof before construction starts");
         check(world.getBlockAt(0,160,0).getType().isAir(),"projection leaves actual world blocks untouched");
+        controlsCheck();
         command(mayor,"rotate");check(((PlacementChoice)field(session(mayor),"choice")).facing()==BlockFace.EAST,"blueprint rotates clockwise");render(mayor);
         var before=data.town(TOWN).existingResourceFund(project.id()).count(new ItemStack(Material.STONE));command(mayor,"close");
         check(session(mayor)==null&&displays.stream().noneMatch(Entity::isValid),"closing preview removes real entities");check(data.town(TOWN).existingResourceFund(project.id()).count(new ItemStack(Material.STONE))==before,"preview cancellation keeps all resources");
@@ -115,9 +116,31 @@ public final class PlacementRuntimeProbe extends JavaPlugin {
             var active=definitions.project("forge");check(builds.contributeFromPlayer(mayor.player,active).status()==ContributionResult.Status.CONSTRUCTION_ACTIVE,"active construction cannot collect a second fund for the same level");
             data.saveOrThrow();universe.getDataSource().saveAll();startUiProbe();});
     }
+    void rateReset()throws Exception{var controls=field(session(mayor),"controls");var f=controls.getClass().getDeclaredField("nextInput");f.setAccessible(true);f.setLong(controls,0);}
+    @SuppressWarnings("unchecked") void controlsCheck()throws Exception{
+        var state=placement.controls(mayor.player);String key=state.get("key");check(key!=null,"held blueprint exposes live control key");
+        Object existing=projection(mayor);var entities=(List<BlockDisplay>)field(existing,"entities");var first=entities.getFirst();float x=first.getTransformation().getTranslation().x;
+        var choice=(PlacementChoice)field(session(mayor),"choice");
+        check(placement.nudge(mayor.player,key,1,"right"),"arrow moves preview through server API");
+        check(((PlacementChoice)field(session(mayor),"choice")).x()==choice.x()+1,"right is relative to north-facing player's view");
+        check(projection(mayor)==existing&&entities.getFirst()==first,"moving reuses all existing displays");
+        check(!(boolean)call(existing,"complete",new Class[0]),"confirmation waits for repositioned displays");render(mayor);
+        check(Math.abs(first.getTransformation().getTranslation().x-x-1)<.001,"real display translation follows chosen position");
+        check(!placement.nudge(mayor.player,key,1,"right"),"replayed move sequence rejected");
+        rateReset();mayor.facing=BlockFace.EAST;check(placement.nudge(mayor.player,key,2,"forward"),"movement follows changed viewing direction");
+        check(((PlacementChoice)field(session(mayor),"choice")).x()==choice.x()+2,"east-facing forward moves east");
+        check(!placement.nudge(mayor.player,key,3,"up"),"burst movement rate limited");rateReset();
+        check(placement.nudge(mayor.player,key,4,"up"),"wheel raises preview");check(((PlacementChoice)field(session(mayor),"choice")).y()==choice.y()+1,"wheel changes only one height step");rateReset();
+        check(placement.nudge(mayor.player,key,5,"down"),"wheel lowers preview");render(mayor);
+        check(!placement.nudge(mayor.player,UUID.randomUUID().toString(),6,"up"),"foreign control key rejected");check(!placement.nudge(mayor.player,key,6,"confirm"),"movement channel cannot start or pay for construction");
+        ItemStack held=token(mayor).clone();mayor.contents.clear();check(placement.controls(mayor.player).isEmpty()&&!placement.nudge(mayor.player,key,6,"up"),"changing held item immediately disables movement");mayor.contents.setItem(0,held);
+        check(placement.controls(mayor.player).get("sequence").equals("5"),"control acknowledgement survives temporary item switch");
+        command(mayor);rateReset();check(!placement.nudge(mayor.player,key,6,"up"),"open inventory blocks movement input");mayor.player.closeInventory();mayor.facing=BlockFace.NORTH;
+        check(data.town(TOWN).constructionReceipts().isEmpty()&&data.town(TOWN).constructionSite("town_hall")==null,"moving does not charge or start construction");
+    }
     Object uiConnection;JavaPlugin uiPlugin;java.lang.reflect.Method loadPreview;
     @SuppressWarnings("unchecked") void startUiProbe()throws Exception{
-        uiPlugin=(JavaPlugin)Bukkit.getPluginManager().getPlugin("CraftoUI");check(uiPlugin!=null&&uiPlugin.isEnabled(),"CraftoUI 0.8.0 enables alongside Builds on Folia");
+        uiPlugin=(JavaPlugin)Bukkit.getPluginManager().getPlugin("CraftoUI");check(uiPlugin!=null&&uiPlugin.isEnabled(),"CraftoUI 0.8.1 enables alongside Builds on Folia");
         var type=Class.forName("cc.crafto.ui.server.CraftoUIPlugin$Connection",true,uiPlugin.getClass().getClassLoader());var ctor=type.getDeclaredConstructor(Player.class);ctor.setAccessible(true);uiConnection=ctor.newInstance(mayor.player);
         for(String field:List.of("ready","buildingPreview")){var f=type.getDeclaredField(field);f.setAccessible(true);f.set(uiConnection,true);}
         ((Map<UUID,Object>)field(uiPlugin,"connections")).put(MAYOR,uiConnection);
@@ -131,25 +154,38 @@ public final class PlacementRuntimeProbe extends JavaPlugin {
         check(angles.equals(Set.of(0,1,2,3)),"four preview rotations delivered through CraftoUI");mayor.packets.clear();
         var f=uiConnection.getClass().getDeclaredField("buildingPreview");f.setAccessible(true);f.set(uiConnection,false);loadPreview.invoke(null,uiPlugin,mayor.player,mayor.top,"old-client");
         steps.add(()->{check(mayor.packets.isEmpty(),"clients without preview capability receive no new packet kind");f.set(uiConnection,true);loadPreview.invoke(null,uiPlugin,mayor.player,mayor.top,"stale-menu");mayor.player.closeInventory();});
-        steps.add(()->{check(mayor.packets.isEmpty(),"closing menu prevents delayed preview delivery");Files.writeString(proof.resolve("first-passed.txt"),"PASS "+checks+" checks\n");Bukkit.shutdown();});
+        steps.add(()->{check(mayor.packets.isEmpty(),"closing menu prevents delayed preview delivery");controlBridgeCheck();Files.writeString(proof.resolve("first-passed.txt"),"PASS "+checks+" checks\n");Bukkit.shutdown();});
+    }
+    void controlBridgeCheck()throws Exception{
+        mayor.contents.clear();placement.issue(mayor.player,town,definitions.project("town_hall"),1);select(mayor);
+        var key=placement.controls(mayor.player).get("key");var choice=(PlacementChoice)field(session(mayor),"choice");
+        var handler=uiPlugin.getClass().getDeclaredMethod("handle",uiConnection.getClass(),Protocol.Message.class);handler.setAccessible(true);
+        var feature=uiConnection.getClass().getDeclaredField("placementControls");feature.setAccessible(true);
+        var packet=Protocol.decode(Protocol.encode(Protocol.Kind.PLACEMENT,Protocol.object("op","move","key",key,"sequence",1,"action","right")));
+        handler.invoke(uiPlugin,uiConnection,packet);check(((PlacementChoice)field(session(mayor),"choice")).equals(choice),"old client without control capability cannot move preview");
+        feature.set(uiConnection,true);handler.invoke(uiPlugin,uiConnection,packet);check(((PlacementChoice)field(session(mayor),"choice")).x()==choice.x()+1,"CraftoUI movement packet reaches Builds on owning region");
+        check(mayor.packets.stream().map(Protocol::decode).anyMatch(m->m.kind()==Protocol.Kind.PLACEMENT&&m.body().get("active").getAsBoolean()&&m.body().get("sequence").getAsLong()==1),"server sends control state with acknowledged sequence");
+        handler.invoke(uiPlugin,uiConnection,packet);check(((PlacementChoice)field(session(mayor),"choice")).x()==choice.x()+1,"network replay does not repeat movement");
+        mayor.allowed=false;rateReset();var other=Protocol.decode(Protocol.encode(Protocol.Kind.PLACEMENT,Protocol.object("op","move","key",key,"sequence",2,"action","right")));handler.invoke(uiPlugin,uiConnection,other);check(((PlacementChoice)field(session(mayor),"choice")).x()==choice.x()+1,"revoked permissions stop network movement");mayor.allowed=true;
+        command(mayor,"close");handler.invoke(uiPlugin,uiConnection,other);check(session(mayor)==null,"closed placement cannot be resurrected by late input");
     }
     void checkOwned(int x,int z){if(!Bukkit.isOwnedByCurrentRegion(world,x>>4,z>>4))throw new AssertionError("region not owned "+x+","+z);}
     void schedule(){if(steps.isEmpty())return;Bukkit.getRegionScheduler().runDelayed(this,new Location(world,0,160,0),t->SuiteState.run(()->{try{steps.removeFirst().run();schedule();}catch(Throwable e){fail(e);}}),4);}
     void fail(Throwable e){getLogger().log(java.util.logging.Level.SEVERE,"PROBE_FAIL",e);try{Files.createDirectories(proof);Files.writeString(proof.resolve("failed.txt"),e.toString());}catch(Exception ignored){}Bukkit.shutdown();}
     final class Actor {
-        final UUID id;final Player player;final Inventory contents=Bukkit.createInventory(null,36);Inventory top=Bukkit.createInventory(null,9);final InventoryView view;final PlayerInventory inventory;final List<String> messages=new ArrayList<>();final List<byte[]> packets=new ArrayList<>();
+        final UUID id;final Player player;final Inventory contents=Bukkit.createInventory(null,36);Inventory top=Bukkit.createInventory(null,9);final InventoryView view;final PlayerInventory inventory;final List<String> messages=new ArrayList<>();final List<byte[]> packets=new ArrayList<>();boolean inWorld=true,allowed=true;BlockFace facing=BlockFace.NORTH;
         Actor(UUID id){this.id=id;
             inventory=(PlayerInventory)Proxy.newProxyInstance(PlayerInventory.class.getClassLoader(),new Class[]{PlayerInventory.class},(p,m,a)->switch(m.getName()){
                 case "getStorageContents","getContents"->contents.getContents();case "setStorageContents","setContents"->{contents.setContents((ItemStack[])a[0]);yield null;}case "getSize"->36;case "firstEmpty"->contents.firstEmpty();case "getItem"->contents.getItem((Integer)a[0]);case "setItem"->{contents.setItem((Integer)a[0],(ItemStack)a[1]);yield null;}case "addItem"->contents.addItem((ItemStack[])a[0]);case "getHeldItemSlot"->0;case "getItemInMainHand"->contents.getItem(0);default->null;});
             EntityScheduler scheduler=(EntityScheduler)Proxy.newProxyInstance(EntityScheduler.class.getClassLoader(),new Class[]{EntityScheduler.class},(p,m,a)->{
                 if(m.getName().equals("run"))return Bukkit.getRegionScheduler().run((org.bukkit.plugin.Plugin)a[0],new Location(world,0,160,0),(Consumer<ScheduledTask>)a[1]);if(m.getName().equals("runDelayed"))return Bukkit.getRegionScheduler().runDelayed((org.bukkit.plugin.Plugin)a[0],new Location(world,0,160,0),(Consumer<ScheduledTask>)a[1],(Long)a[3]);throw new UnsupportedOperationException(m.getName());});
             player=(Player)Proxy.newProxyInstance(Player.class.getClassLoader(),new Class[]{Player.class},(p,m,a)->switch(m.getName()){
-                case "getUniqueId"->id;case "getName"->TownyAPI.getInstance().getResident(id).getName();case "getServer"->Bukkit.getServer();case "isOnline","hasPermission"->true;case "isOp","isSneaking"->false;
-                case "getWorld"->world;case "getLocation","getEyeLocation"->new Location(world,1,162,1);case "getFacing"->BlockFace.NORTH;case "getGameMode"->GameMode.SURVIVAL;
-                case "getScheduler"->scheduler;case "getInventory"->inventory;case "getOpenInventory"->getView();case "openInventory"->{top=(Inventory)a[0];yield getView();}case "closeInventory"->{top=Bukkit.createInventory(null,9);yield null;}
+                case "getUniqueId"->id;case "getName"->TownyAPI.getInstance().getResident(id).getName();case "getServer"->Bukkit.getServer();case "isOnline"->true;case "hasPermission"->allowed;case "isOp","isSneaking"->false;
+                case "getWorld"->world;case "getLocation","getEyeLocation"->new Location(world,1,162,1);case "getFacing"->facing;case "getGameMode"->GameMode.SURVIVAL;
+                case "getScheduler"->scheduler;case "getInventory"->inventory;case "getOpenInventory"->getView();case "openInventory"->{inWorld=false;top=(Inventory)a[0];yield getView();}case "closeInventory"->{inWorld=true;top=Bukkit.createInventory(null,9);yield null;}
                 case "sendMessage"->{if(a!=null&&a.length>0)messages.add(String.valueOf(a[a.length-1]));yield null;}case "sendPluginMessage"->{packets.add(((byte[])a[2]).clone());yield null;}case "showEntity","sendActionBar","playSound"->null;case "hashCode"->id.hashCode();case "equals"->p==a[0];case "toString"->"Simulated player "+id;default->null;});
             view=(InventoryView)Proxy.newProxyInstance(InventoryView.class.getClassLoader(),new Class[]{InventoryView.class},(p,m,a)->switch(m.getName()){
-                case "getTopInventory"->top;case "getBottomInventory"->inventory;case "getPlayer"->player;case "getType"->InventoryType.CHEST;case "getCursor"->new ItemStack(Material.AIR);case "countSlots"->top.getSize()+36;case "getTitle","getOriginalTitle"->"Fixture";case "title"->Component.text("Fixture");case "getSlotType"->InventoryType.SlotType.CONTAINER;case "convertSlot"->a[0];case "getInventory"->(Integer)a[0]<top.getSize()?top:inventory;default->null;});
+                case "getTopInventory"->top;case "getBottomInventory"->inventory;case "getPlayer"->player;case "getType"->inWorld?InventoryType.CRAFTING:InventoryType.CHEST;case "getCursor"->new ItemStack(Material.AIR);case "countSlots"->top.getSize()+36;case "getTitle","getOriginalTitle"->"Fixture";case "title"->Component.text("Fixture");case "getSlotType"->InventoryType.SlotType.CONTAINER;case "convertSlot"->a[0];case "getInventory"->(Integer)a[0]<top.getSize()?top:inventory;default->null;});
         }
         InventoryView getView(){return view;}
     }

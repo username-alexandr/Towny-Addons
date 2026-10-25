@@ -26,10 +26,11 @@ public final class PlacementService implements Listener,CommandExecutor {
     private final JavaPlugin plugin;private final TownyHook towny;private final DataStore data;private final DefinitionRegistry definitions;
     private final ConstructionService construction;private final BuildService builds;private final NamespacedKey token,townKey,projectKey;
     private final Map<UUID,Session> sessions=new HashMap<>();private BukkitTask timer;
+    private static final class Controls {final UUID id=UUID.randomUUID();long sequence,nextInput;}
     private static final class Session {
         final UUID town;final String project;final PlacementDraft draft;final PlacementChoice choice;final ConstructionPreparation check;
-        final PlacementProjection projection;final long expires=System.currentTimeMillis()+300_000;boolean notified;
-        Session(UUID town,String project,PlacementDraft draft,PlacementChoice choice,ConstructionPreparation check,PlacementProjection projection){this.town=town;this.project=project;this.draft=draft;this.choice=choice;this.check=check;this.projection=projection;}
+        final Controls controls;final PlacementProjection projection;final long expires=System.currentTimeMillis()+300_000;boolean notified;
+        Session(UUID town,String project,PlacementDraft draft,PlacementChoice choice,ConstructionPreparation check,PlacementProjection projection,Controls controls){this.controls=controls;this.town=town;this.project=project;this.draft=draft;this.choice=choice;this.check=check;this.projection=projection;}
     }
     public static final class PlacementMenu implements InventoryHolder {
         final UUID viewer;final Session session;final Map<Integer,Runnable> actions=new HashMap<>();Inventory inventory;boolean used;
@@ -80,7 +81,8 @@ public final class PlacementService implements Listener,CommandExecutor {
         if(clicked==null){if(old!=null)menu(p,old);else throw new IllegalArgumentException("Нажмите чертежом на землю");return;}
         select(p,town,project,draft,new PlacementChoice(clicked.getWorld().getUID(),clicked.getBlockX(),clicked.getBlockY()+1,clicked.getBlockZ(),p.getFacing()));
     }
-    private void select(Player p,Town town,String projectId,PlacementDraft draft,PlacementChoice choice){
+    private void select(Player p,Town town,String projectId,PlacementDraft draft,PlacementChoice choice){select(p,town,projectId,draft,choice,new Controls(),true);}
+    private void select(Player p,Town town,String projectId,PlacementDraft draft,PlacementChoice choice,Controls controls,boolean announce){
         var project=definitions.project(projectId);if(project==null)throw new IllegalArgumentException("Здание больше не доступно");
         var state=data.town(town.getUUID());if(!draft.equals(state.placements().get(projectId)))throw new IllegalArgumentException("Чертёж изменился");
         if(!resources(state,project,draft.level()))throw new IllegalArgumentException("В фонде не хватает ресурсов");
@@ -93,16 +95,43 @@ public final class PlacementService implements Listener,CommandExecutor {
         var site=new ConstructionSite(projectId,choice.world(),choice.x(),choice.y(),choice.z(),choice.facing(),state.level(projectId),draft.level(),old==null?1:draft.level(),true,old==null?ConstructionSite.CURRENT_ARCHITECTURE_VERSION:old.architectureVersion());
         int current=free(state,project,draft.level())?0:state.level(projectId);
         var checked=construction.prepare(p,town,project,current,draft.level(),choice);
-        var projection=new PlacementProjection(plugin,p,site,plan,checked.status()==ConstructionPreparation.Status.READY);
+        var previous=sessions.get(p.getUniqueId());boolean reuse=previous!=null&&previous.controls==controls;
+        var projection=reuse?previous.projection:new PlacementProjection(plugin,p,site,plan,checked.status()==ConstructionPreparation.Status.READY);
         int perPlayer=Math.max(128,Math.min(30000,plugin.getConfig().getInt("settings.construction.placement.max-displays-per-player",8000)));
         int global=Math.max(perPlayer,Math.min(60000,plugin.getConfig().getInt("settings.construction.placement.max-displays-total",16000)));
         int reserved=sessions.entrySet().stream().filter(e->!e.getKey().equals(p.getUniqueId())).mapToInt(e->e.getValue().projection.required()).sum();
         if(projection.required()>perPlayer)throw new IllegalArgumentException("Это здание превышает разрешённый размер предпросмотра. Сообщите администратору.");
         if(reserved+projection.required()>global)throw new IllegalArgumentException("Сейчас открыто много проекций. Повторите немного позже.");
-        close(p.getUniqueId());var session=new Session(town.getUUID(),projectId,draft,choice,checked,projection);sessions.put(p.getUniqueId(),session);
-        p.sendMessage("§bПоказываю здание целиком. /nltplace — настройка и подтверждение. Для другого места снова нажмите по земле.");
-        if(checked.status()!=ConstructionPreparation.Status.READY)p.sendMessage("§eМесто пока не подходит: "+String.join("; ",checked.details()));
+        if(reuse)projection.retarget(site,checked.status()==ConstructionPreparation.Status.READY);else close(p.getUniqueId());
+        var session=new Session(town.getUUID(),projectId,draft,choice,checked,projection,controls);session.notified=!announce;sessions.put(p.getUniqueId(),session);
+        if(announce)p.sendMessage("§bПоказываю здание целиком. /nltplace — настройка и подтверждение. Для другого места снова нажмите по земле.");
+        if(announce&&checked.status()!=ConstructionPreparation.Status.READY)p.sendMessage("§eМесто пока не подходит: "+String.join("; ",checked.details()));
     }
+    /** Optional CraftoUI bridge. Called only on the player's owning region. */
+    public Map<String,String> controls(Player p){synchronized(SuiteState.lock()){
+        var s=controlled(p);if(s==null)return Map.of();
+        boolean fixed=data.town(s.town).constructionSite(s.project)!=null;
+        return Map.of("sequence",Long.toString(s.controls.sequence),"key",s.controls.id.toString(),"slot",Integer.toString(p.getInventory().getHeldItemSlot()),
+            "x",Integer.toString(s.choice.x()),"y",Integer.toString(s.choice.y()),"z",Integer.toString(s.choice.z()),
+            "fixed",Boolean.toString(fixed),"ready",Boolean.toString(s.projection.complete()));
+    }}
+    private Session controlled(Player p){
+        var s=sessions.get(p.getUniqueId());if(s==null)return null;
+        try{
+            if(!p.isOnline()||!resident(p).getUUID().equals(s.town)||System.currentTimeMillis()>s.expires||!s.projection.near()
+                ||!s.draft.equals(data.town(s.town).placements().get(s.project))||!matches(p.getInventory().getItemInMainHand(),s.draft.id()))return null;
+            return s;
+        }catch(RuntimeException error){return null;}
+    }
+    public boolean nudge(Player p,String key,long sequence,String action){synchronized(SuiteState.lock()){
+        var s=controlled(p);if(s==null||!s.controls.id.toString().equals(key)||data.town(s.town).constructionSite(s.project)!=null
+            ||p.getOpenInventory().getType()!=InventoryType.CRAFTING)return false;
+        final PlacementNudge move;try{move=PlacementNudge.of(action,p.getFacing());}catch(RuntimeException invalid){return false;}
+        if(sequence<=s.controls.sequence||sequence-s.controls.sequence>1000)return false;
+        s.controls.sequence=sequence;long now=System.nanoTime();if(now<s.controls.nextInput)return false;s.controls.nextInput=now+180_000_000L;
+        try{select(p,resident(p),s.project,s.draft,s.choice.move(move.x(),move.y(),move.z()),s.controls,false);return true;}
+        catch(RuntimeException blocked){p.sendActionBar(net.kyori.adventure.text.Component.text(blocked.getMessage()==null?"Не удалось сдвинуть здание":blocked.getMessage()));return false;}
+    }}
     private void tick(){
         for(var entry:List.copyOf(sessions.entrySet())){
             Player p=Bukkit.getPlayer(entry.getKey());Session s=entry.getValue();if(p==null){close(entry.getKey());continue;}

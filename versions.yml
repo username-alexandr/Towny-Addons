@@ -6,7 +6,7 @@ platform:
   bytecode_java: 17
 addons:
   NeverLandTownyArchaeology: 0.1.21
-  NeverLandTownyBuilds: 0.8.32
+  NeverLandTownyBuilds: 0.8.33
   NeverLandTownyCamps: 0.1.21
   NeverLandTownyChronicles: 0.1.18
   NeverLandTownyContracts: 0.3.24

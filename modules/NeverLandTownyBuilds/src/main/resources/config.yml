@@ -22,6 +22,8 @@ settings:
       max-displays-per-player: 8000
       max-displays-total: 16000
       displays-per-tick: 96
+      # Перемещение переиспользует существующие проекции, без создания новых сущностей.
+      moves-per-tick: 512
     # Для улучшения существующего здания сохраняется прежняя площадка.
     target-distance: 16
     validation-max-errors: 5
