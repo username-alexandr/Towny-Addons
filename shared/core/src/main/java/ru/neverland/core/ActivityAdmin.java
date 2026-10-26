@@ -20,7 +20,7 @@ public final class ActivityAdmin implements TabExecutor {
     private ActivityAdmin(JavaPlugin plugin, String permission, Supplier<List<Target>> targets, CommandExecutor original, TabCompleter completions) {
         this.plugin=plugin; this.permission=permission; this.targets=targets; this.original=original; this.completions=completions;
     }
-    public static void attach(JavaPlugin plugin, String command, String permission, Supplier<List<Target>> targets) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void attach(JavaPlugin plugin, String command, String permission, Supplier<List<Target>> targets) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var direct=Objects.requireNonNull(plugin.getCommand(command), "Нет команды " + command);
         if (direct.getExecutor() instanceof ActivityAdmin) throw new IllegalStateException("Администрирование уже подключено");
         var control=new ActivityAdmin(plugin,permission,targets,direct.getExecutor(),direct.getTabCompleter());
@@ -28,13 +28,13 @@ public final class ActivityAdmin implements TabExecutor {
     } }
     private boolean allowed(CommandSender sender) { return sender.isOp() || sender.hasPermission(permission); }
     /** Public, class-loader-neutral menu protocol. The owner always checks permissions and current state. */
-    public int adminMenuVersion() { synchronized (ru.neverland.core.SuiteState.lock()) { return 1; } }
-    public List<Map<String,Object>> adminMenuTargets(CommandSender sender) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int adminMenuVersion() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return 1; } }
+    public List<Map<String,Object>> adminMenuTargets(CommandSender sender) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread();
         if (!plugin.isEnabled() || !allowed(sender)) throw new IllegalArgumentException("Нет доступа к задачам аддона");
         return targets.get().stream().map(t -> Map.<String,Object>of("id",t.id(),"name",t.name(),"actions",t.actions().stream().sorted().toList())).toList();
     } }
-    public String adminMenuAction(CommandSender sender, String id, String expectedName, String action, long minutes) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String adminMenuAction(CommandSender sender, String id, String expectedName, String action, long minutes) throws Exception { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread();
         if (!plugin.isEnabled() || !allowed(sender)) throw new IllegalArgumentException("Нет доступа к задачам аддона");
         var target=targets.get().stream().filter(t->t.id().equals(id)).findFirst().orElseThrow(()->new IllegalArgumentException("Задача уже завершена или заменена. Обновите меню"));
@@ -51,14 +51,14 @@ public final class ActivityAdmin implements TabExecutor {
             sender instanceof org.bukkit.entity.Player p?AuditTrail.player(p.getUniqueId()):new AuditRecord.Party("CONSOLE","",sender.getName(),""),
             AuditRecord.Party.unknown(),new AuditRecord.Party("ACTIVITY",target.id(),target.name(),""),"",0,"",action+" +"+minutes+" мин.; "+result);
     }
-    public static Target find(List<Target> targets, String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Target find(List<Target> targets, String id) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         var exact=targets.stream().filter(t->t.id().equalsIgnoreCase(id)).toList();
         var found=exact.isEmpty()?targets.stream().filter(t->t.id().toLowerCase(Locale.ROOT).startsWith(id.toLowerCase(Locale.ROOT))).toList():exact;
         if (id.isBlank() || found.isEmpty()) throw new IllegalArgumentException("Активная задача не найдена. Используйте admin list");
         if (found.size()!=1) throw new IllegalArgumentException("Неоднозначный ID: укажите полный идентификатор");
         return found.get(0);
     } }
-    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         if (args.length==0 || !args[0].equalsIgnoreCase("admin")) return original.onCommand(sender,command,label,args);
         if (!allowed(sender)) { sender.sendMessage("§cНет разрешения " + permission); return true; }
         try {
@@ -86,7 +86,7 @@ public final class ActivityAdmin implements TabExecutor {
         } catch(Exception ex) { sender.sendMessage("§cОперация остановлена: "+ex.getMessage()); }
         return true;
     } }
-    @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         if (!allowed(sender)) return args.length>0&&args[0].equalsIgnoreCase("admin")?List.of():completions==null?List.of():completions.onTabComplete(sender,command,alias,args);
         if(args.length==1) {
             var values=new ArrayList<String>(); if(completions!=null){var old=completions.onTabComplete(sender,command,alias,args);if(old!=null)values.addAll(old);}values.add("admin");return filter(values,args[0]);

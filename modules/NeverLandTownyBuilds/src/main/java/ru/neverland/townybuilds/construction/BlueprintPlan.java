@@ -9,13 +9,13 @@ public record BlueprintPlan(String projectId, int level, String stageName,
         blocks = Map.copyOf(new LinkedHashMap<>(blocks));
     }
 
-    public long residentBlocks(int fromStage) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public long residentBlocks(int fromStage) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return blocks.values().stream()
                 .filter(block -> block.role() == BlockRole.RESIDENT && block.stage() >= fromStage)
                 .count();
     } }
 
-    public long decorationBlocks(int fromStage) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public long decorationBlocks(int fromStage) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return blocks.values().stream()
                 .filter(block -> block.role() == BlockRole.DECORATION && block.stage() >= fromStage)
                 .count();

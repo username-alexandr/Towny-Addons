@@ -12,7 +12,7 @@ public final class CommandOutbox {
     public record Entry(String id,String command,String state,long created){}
     private CommandOutbox(){}
     private static Path file(Plugin plugin){return plugin.getDataFolder().toPath().resolve("command-outbox.yml");}
-    public static List<Entry> entries(Plugin plugin) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) { synchronized(SuiteState.lock()) {
+    public static List<Entry> entries(Plugin plugin) throws IOException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         Path file=file(plugin);if(!Files.exists(file))return List.of();
         try {
             var y=new YamlConfiguration();y.load(file.toFile());
@@ -29,7 +29,7 @@ public final class CommandOutbox {
     private static void save(Plugin plugin,List<Entry> entries)throws IOException {
         AtomicFiles.write(file(plugin),()->{var y=new YamlConfiguration();y.set("schema",1);y.createSection("commands");for(var e:entries){String key="commands."+e.id()+".";y.set(key+"command",e.command());y.set(key+"state",e.state());y.set(key+"created",e.created());}return y.saveToString();});
     }
-    public static void enqueue(Plugin plugin,String operation,List<String> commands){ synchronized (ru.neverland.core.SuiteState.lock()) { synchronized(SuiteState.lock()) {
+    public static void enqueue(Plugin plugin,String operation,List<String> commands){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if(commands.isEmpty())return;
         try {
             var entries=new ArrayList<>(entries(plugin));
@@ -44,8 +44,8 @@ public final class CommandOutbox {
             SuiteScheduler.get().runTask(plugin,()->drain(plugin));
         }catch(IOException ex){throw new UncheckedIOException(ex);}
     }} }
-    public static void start(Plugin plugin){ synchronized (ru.neverland.core.SuiteState.lock()) {SuiteScheduler.get().runTask(plugin,()->drain(plugin));} }
-    public static void drain(Plugin plugin){ synchronized (ru.neverland.core.SuiteState.lock()) { synchronized(SuiteState.lock()) {
+    public static void start(Plugin plugin){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {SuiteScheduler.get().runTask(plugin,()->drain(plugin));} }
+    public static void drain(Plugin plugin){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         if(SuiteState.frozen(plugin.getName())||!plugin.isEnabled())return;
         try {
             var entries=new ArrayList<>(entries(plugin));
@@ -61,7 +61,7 @@ public final class CommandOutbox {
             }
         }catch(IOException ex){plugin.getLogger().log(java.util.logging.Level.SEVERE,"Очередь команд остановлена",ex);}
     }} }
-    public static void resolve(Plugin plugin,String id,String decision)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) { synchronized(SuiteState.lock()) {
+    public static void resolve(Plugin plugin,String id,String decision)throws IOException { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         if(!Set.of("done","retry").contains(decision))throw new IllegalArgumentException("Нужны done или retry после сверки результата");
         var entries=new ArrayList<>(entries(plugin));boolean found=false;
         for(int i=0;i<entries.size();i++){var e=entries.get(i);if(e.id().equals(id)&&e.state().equals("REVIEW")){entries.set(i,new Entry(e.id(),e.command(),decision.equals("done")?"DONE":"QUEUED",e.created()));found=true;}}

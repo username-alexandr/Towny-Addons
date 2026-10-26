@@ -14,8 +14,8 @@ public record CitizenshipRecord(UUID town, UUID resident, CitizenshipStatus stat
         if ((status == CitizenshipStatus.TEMPORARY) != (expiresAt > 0))
             throw new IllegalArgumentException("Срок обязателен только для временного жителя");
     }
-    public String key() { synchronized (ru.neverland.core.SuiteState.lock()) { return town + "/" + resident; } }
-    public CitizenshipStatus effective(boolean member, long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String key() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return town + "/" + resident; } }
+    public CitizenshipStatus effective(boolean member, long now) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (status == CitizenshipStatus.TEMPORARY && now >= expiresAt) return CitizenshipStatus.FOREIGNER;
         if (!member && (status == CitizenshipStatus.CITIZEN || status == CitizenshipStatus.TEMPORARY))
             return CitizenshipStatus.FOREIGNER;

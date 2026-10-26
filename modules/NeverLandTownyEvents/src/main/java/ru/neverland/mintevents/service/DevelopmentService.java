@@ -24,7 +24,7 @@ public final class DevelopmentService {
     }
 
     /** Physical completed levels from the live Builds API, irrespective of upkeep/power state. */
-    public BuildingSnapshot completedBuildings(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public BuildingSnapshot completedBuildings(UUID townId) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         try {
             var api = ru.neverland.core.ApiServices.connect("NeverLandTownyBuilds",
                     "ru.neverland.townybuilds.api.TownyBuildsApi", 1, "supportedProjects", "projectLevel");
@@ -54,7 +54,7 @@ public final class DevelopmentService {
         this.plugin = plugin;
     }
 
-    public double protection(UUID townId, EventDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public double protection(UUID townId, EventDefinition definition) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         double result = 0;
         for (Map.Entry<String, Double> entry : definition.buildingModifiers().entrySet()) {
             result += buildingLevel(townId, entry.getKey()) * entry.getValue();
@@ -65,13 +65,13 @@ public final class DevelopmentService {
         return Math.min(definition.mitigationCap(), Math.max(0, result));
     } }
 
-    public Map<String, Integer> buildingLevels(UUID townId, EventDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Map<String, Integer> buildingLevels(UUID townId, EventDefinition definition) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         Map<String, Integer> result = new HashMap<>();
         for (String id : definition.buildingModifiers().keySet()) result.put(id, buildingLevel(townId, id));
         return result;
     } }
 
-    public Map<String, Integer> ideologyLevels(UUID townId, EventDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Map<String, Integer> ideologyLevels(UUID townId, EventDefinition definition) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         Map<String, Integer> result = new HashMap<>();
         for (String id : definition.ideologyModifiers().keySet()) result.put(id, ideologyLevel(townId, id));
         return result;
@@ -138,7 +138,7 @@ public final class DevelopmentService {
         return null;
     }
 
-    public void clearCache() { synchronized (ru.neverland.core.SuiteState.lock()) { cache.clear(); } }
+    public void clearCache() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { cache.clear(); } }
 
     private interface LevelCall { int level(); }
     private record CachedYaml(YamlConfiguration yaml, long modified, long loadedAt) {}

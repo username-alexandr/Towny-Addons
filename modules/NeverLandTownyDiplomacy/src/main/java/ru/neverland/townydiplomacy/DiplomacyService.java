@@ -15,14 +15,14 @@ public final class DiplomacyService implements TownyDiplomacyApi {
     private final DiplomacyRepository repository;private DiplomacySettings settings;private boolean configured;
     public DiplomacyService(DiplomacyRepository repository,DiplomacySettings settings,boolean configured) { this.repository=repository;this.settings=settings;this.configured=configured; }
     private void primary() { if(!ru.neverland.core.SuiteState.held())throw new IllegalStateException("Нужен основной поток сервера"); }
-    @Override public boolean healthy() { synchronized (ru.neverland.core.SuiteState.lock()) { primary();return configured&&repository.writable(); } }
+    @Override public boolean healthy() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { primary();return configured&&repository.writable(); } }
     private void ready()throws IOException { if(!healthy())throw new IOException("Реестр дипломатии недоступен; действия остановлены"); }
-    public DiplomacyRepository repository() { synchronized (ru.neverland.core.SuiteState.lock()) { return repository; } }
-    public DiplomacySettings settings() { synchronized (ru.neverland.core.SuiteState.lock()) { return settings; } }
-    public void settings(DiplomacySettings value) { synchronized (ru.neverland.core.SuiteState.lock()) { primary();settings=value;configured=true; } }
-    public Town ownTown(UUID player) { synchronized (ru.neverland.core.SuiteState.lock()) { var r=TownyAPI.getInstance().getResident(player);return r==null?null:r.getTownOrNull(); } }
+    public DiplomacyRepository repository() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return repository; } }
+    public DiplomacySettings settings() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return settings; } }
+    public void settings(DiplomacySettings value) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { primary();settings=value;configured=true; } }
+    public Town ownTown(UUID player) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { var r=TownyAPI.getInstance().getResident(player);return r==null?null:r.getTownOrNull(); } }
     private boolean exists(UUID id) { return id!=null&&TownyAPI.getInstance().getTown(id)!=null; }
-    public boolean manages(CommandSender sender,Town town,TreatyType type) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean manages(CommandSender sender,Town town,TreatyType type) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         primary();if(town==null)return false;
         if(sender.hasPermission("neverlandtownydiplomacy.admin"))return true;
         if(!(sender instanceof Player p)||!sender.hasPermission("neverlandtownydiplomacy.manage")||!town.equals(ownTown(p.getUniqueId()))
@@ -35,7 +35,7 @@ public final class DiplomacyService implements TownyDiplomacyApi {
         if(!manages(sender,town,type))throw new IllegalArgumentException("Доступно мэру или министру внешней политики своего города");
     }
     private DiplomacyRepository.Audit audit(Treaty t,String actor,String action,long now) { return new DiplomacyRepository.Audit(t.id(),t.first(),t.second(),now,actor,action); }
-    public Treaty offer(CommandSender sender,Town first,Town second,TreatyType type,int days,SanctionScope sanction,String reason)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Treaty offer(CommandSender sender,Town first,Town second,TreatyType type,int days,SanctionScope sanction,String reason)throws IOException { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         primary();requireManager(sender,first,type);ready();maintain(System.currentTimeMillis());
         if(second==null||first.equals(second)||first.getMayor()==null||second.getMayor()==null)throw new IllegalArgumentException("Выберите другой существующий город с мэром");
         if(days<1||days>settings.maximumDays())throw new IllegalArgumentException("Срок: от 1 до "+settings.maximumDays()+" дней");
@@ -50,7 +50,7 @@ public final class DiplomacyService implements TownyDiplomacyApi {
         var next=new LinkedHashMap<>(repository.all());next.put(treaty.id(),treaty);
         repository.commit(next,List.of(audit(treaty,actor(sender),type.bilateral()?"OFFER":"IMPOSE",now)),List.of());return treaty;
     } }
-    public Treaty change(CommandSender sender,Town town,UUID id,String action)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Treaty change(CommandSender sender,Town town,UUID id,String action)throws IOException { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         primary();ready();maintain(System.currentTimeMillis());
         var t=repository.all().get(id);if(t==null)throw new IllegalArgumentException("Договор не найден; укажите полный ID");
         requireManager(sender,town,t.type());if(!t.party(town.getUUID()))throw new IllegalArgumentException("Город не является стороной договора");
@@ -75,7 +75,7 @@ public final class DiplomacyService implements TownyDiplomacyApi {
         var a=TownyAPI.getInstance().getTown(t.first());var b=TownyAPI.getInstance().getTown(t.second());
         return a!=null&&b!=null&&a.getMayor()!=null&&b.getMayor()!=null&&a.getMayor().getUUID().equals(t.firstMayor())&&b.getMayor().getUUID().equals(t.secondMayor());
     }
-    public void maintain(long now)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void maintain(long now)throws IOException { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         primary();ready();repository.flushReputation();var values=new LinkedHashMap<>(repository.all());var audit=new ArrayList<DiplomacyRepository.Audit>();var outcomes=new ArrayList<ReputationOutcome>();
         for(var t:repository.all().values())if(t.phase()!=Phase.ENDED) {
             String reason=!exists(t.first())||!exists(t.second())?"TOWN_DELETED":t.phase()==Phase.PENDING&&!sameMayors(t)?"MAYOR_CHANGED":!t.open(now)?"EXPIRED":null;
@@ -90,16 +90,16 @@ public final class DiplomacyService implements TownyDiplomacyApi {
     private List<Treaty> live() {
         long now=System.currentTimeMillis();return repository.all().values().stream().filter(t->t.active(now)&&exists(t.first())&&exists(t.second())).toList();
     }
-    @Override public boolean tradeBlocked(UUID a,UUID b) { synchronized (ru.neverland.core.SuiteState.lock()) { primary();if(a==null||b==null||a.equals(b))return false;return !healthy()||DiplomacyRules.tradeBlocked(live(),a,b,System.currentTimeMillis()); } }
-    @Override public boolean hostileBlocked(UUID a,UUID b) { synchronized (ru.neverland.core.SuiteState.lock()) { primary();if(a==null||b==null||a.equals(b))return false;return !healthy()||DiplomacyRules.hostileBlocked(live(),a,b,System.currentTimeMillis()); } }
-    @Override public double tariffMultiplier(UUID a,UUID b,UUID tariffTown) { synchronized (ru.neverland.core.SuiteState.lock()) { primary();if(!healthy())throw new IllegalStateException("Дипломатия недоступна");return DiplomacyRules.tariffMultiplier(live(),a,b,tariffTown,System.currentTimeMillis()); } }
-    @Override public UUID overlord(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { primary();if(!healthy())throw new IllegalStateException("Дипломатия недоступна");return DiplomacyRules.overlord(live(),town,System.currentTimeMillis()); } }
-    @Override public Set<UUID> defenders(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { primary();if(!healthy())throw new IllegalStateException("Дипломатия недоступна");return DiplomacyRules.defenders(live(),town,System.currentTimeMillis()); } }
-    @Override public Set<String> relations(UUID a,UUID b) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public boolean tradeBlocked(UUID a,UUID b) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) { primary();if(a==null||b==null||a.equals(b))return false;return !healthy()||DiplomacyRules.tradeBlocked(live(),a,b,System.currentTimeMillis()); } }
+    @Override public boolean hostileBlocked(UUID a,UUID b) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) { primary();if(a==null||b==null||a.equals(b))return false;return !healthy()||DiplomacyRules.hostileBlocked(live(),a,b,System.currentTimeMillis()); } }
+    @Override public double tariffMultiplier(UUID a,UUID b,UUID tariffTown) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) { primary();if(!healthy())throw new IllegalStateException("Дипломатия недоступна");return DiplomacyRules.tariffMultiplier(live(),a,b,tariffTown,System.currentTimeMillis()); } }
+    @Override public UUID overlord(UUID town) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) { primary();if(!healthy())throw new IllegalStateException("Дипломатия недоступна");return DiplomacyRules.overlord(live(),town,System.currentTimeMillis()); } }
+    @Override public Set<UUID> defenders(UUID town) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) { primary();if(!healthy())throw new IllegalStateException("Дипломатия недоступна");return DiplomacyRules.defenders(live(),town,System.currentTimeMillis()); } }
+    @Override public Set<String> relations(UUID a,UUID b) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
         primary();if(!healthy())return Set.of("UNAVAILABLE");var result=new TreeSet<String>();
         for(var t:live())if(t.pair(a,b))result.add(t.type().name());return Set.copyOf(result);
     } }
-    @Override public List<Map<String,String>> treaties(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<Map<String,String>> treaties(UUID town) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
         primary();return repository.all().values().stream().filter(t->t.party(town)).sorted(Comparator.comparingLong(Treaty::created).reversed().thenComparing(Treaty::id)).map(t->{
             var m=new TreeMap<String,String>();m.put("id",t.id().toString());m.put("type",t.type().id());m.put("first",t.first().toString());m.put("second",t.second().toString());
             m.put("phase",t.phase().name());m.put("effective",String.valueOf(healthy()&&t.active(System.currentTimeMillis())&&exists(t.first())&&exists(t.second())));
@@ -108,7 +108,7 @@ public final class DiplomacyService implements TownyDiplomacyApi {
         }).toList();
     } }
     /** Record an allowed attack once per pair/cooldown; does not create a war or money transfer. */
-    public Set<UUID> recordAttack(UUID attacker,UUID victim,String location)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Set<UUID> recordAttack(UUID attacker,UUID victim,String location)throws IOException { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
         primary();ready();if(!exists(attacker)||!exists(victim)||attacker.equals(victim)||hostileBlocked(attacker,victim))return Set.of();
         var helpers=new HashSet<>(defenders(victim));helpers.remove(attacker);if(helpers.isEmpty())return Set.of();
         long now=System.currentTimeMillis();

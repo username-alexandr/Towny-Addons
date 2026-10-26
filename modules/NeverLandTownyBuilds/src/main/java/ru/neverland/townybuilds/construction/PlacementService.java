@@ -54,7 +54,7 @@ public final class PlacementService implements Listener,CommandExecutor {
         if(free(state,p,level))return true;var next=p.level(level);if(next==null)return false;
         var fund=state.existingResourceFund(p.id());return next.resources().stream().allMatch(i->fund!=null&&fund.targetLevel()==level&&fund.count(i)>=i.getAmount());
     }
-    public void issue(Player player,Town town,ProjectDefinition project,int level){synchronized(SuiteState.lock()){
+    public void issue(Player player,Town town,ProjectDefinition project,int level){try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){
         if(!resident(player).getUUID().equals(town.getUUID()))throw new IllegalArgumentException("Город изменился");
         var state=data.town(town.getUUID());var site=state.constructionSite(project.id());
         if(site!=null&&site.active())throw new IllegalArgumentException("Это здание уже строится");
@@ -108,7 +108,7 @@ public final class PlacementService implements Listener,CommandExecutor {
         if(announce&&checked.status()!=ConstructionPreparation.Status.READY)p.sendMessage("§eМесто пока не подходит: "+String.join("; ",checked.details()));
     }
     /** Optional CraftoUI bridge. Called only on the player's owning region. */
-    public Map<String,String> controls(Player p){synchronized(SuiteState.lock()){
+    public Map<String,String> controls(Player p){try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){
         var s=controlled(p);if(s==null)return Map.of();
         boolean fixed=data.town(s.town).constructionSite(s.project)!=null;
         return Map.of("sequence",Long.toString(s.controls.sequence),"key",s.controls.id.toString(),"slot",Integer.toString(p.getInventory().getHeldItemSlot()),
@@ -123,7 +123,7 @@ public final class PlacementService implements Listener,CommandExecutor {
             return s;
         }catch(RuntimeException error){return null;}
     }
-    public boolean nudge(Player p,String key,long sequence,String action){synchronized(SuiteState.lock()){
+    public boolean nudge(Player p,String key,long sequence,String action){try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()){
         var s=controlled(p);if(s==null||!s.controls.id.toString().equals(key)||data.town(s.town).constructionSite(s.project)!=null
             ||p.getOpenInventory().getType()!=InventoryType.CRAFTING)return false;
         final PlacementNudge move;try{move=PlacementNudge.of(action,p.getFacing());}catch(RuntimeException invalid){return false;}
@@ -176,21 +176,21 @@ public final class PlacementService implements Listener,CommandExecutor {
         close(p.getUniqueId());p.closeInventory();p.sendMessage("§aМесто подтверждено. Стройка началась; устанавливайте подсвеченные блоки по слоям.");
     }
     private void button(PlacementMenu h,int slot,Material material,String title,List<String> lore,Runnable action){var item=new ItemStack(material);var m=item.getItemMeta();m.displayName(MenuStyle.nameComponent(MenuStyle.decode(title)));m.lore(MenuStyle.loreComponents(lore.stream().map(MenuStyle::decode).toList()));m.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);item.setItemMeta(m);h.inventory.setItem(slot,item);if(action!=null)h.actions.put(slot,action);}
-    @EventHandler(priority=EventPriority.HIGHEST) public void interact(PlayerInteractEvent e){synchronized(SuiteState.lock()){
+    @EventHandler(priority=EventPriority.HIGHEST) public void interact(PlayerInteractEvent e){try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()){
         var item=e.getItem();if(item==null||!item.hasItemMeta()||!item.getItemMeta().getPersistentDataContainer().has(token,PersistentDataType.STRING))return;
         e.setCancelled(true);if(e.getHand()!=EquipmentSlot.HAND||!(e.getAction()==Action.RIGHT_CLICK_AIR||e.getAction()==Action.RIGHT_CLICK_BLOCK))return;
         try{use(e.getPlayer(),item,e.getClickedBlock()==null?null:e.getClickedBlock().getLocation());}catch(RuntimeException ex){e.getPlayer().sendMessage("§e"+ex.getMessage());}
     }}
-    @EventHandler public void click(InventoryClickEvent e){synchronized(SuiteState.lock()){
+    @EventHandler public void click(InventoryClickEvent e){try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()){
         if(!(e.getView().getTopInventory().getHolder() instanceof PlacementMenu h))return;e.setCancelled(true);
         if(!(e.getWhoClicked() instanceof Player p)||!p.getUniqueId().equals(h.viewer)||h.used||!e.isLeftClick()||e.isShiftClick())return;
         var action=h.actions.get(e.getRawSlot());if(action==null)return;h.used=true;
         SuiteScheduler.entity(plugin,p,()->{if(!p.isOnline()||p.getOpenInventory().getTopInventory()!=h.inventory||sessions.get(p.getUniqueId())!=h.session)return;try{resident(p);action.run();}catch(RuntimeException ex){p.closeInventory();p.sendMessage("§e"+ex.getMessage());}});
     }}
     @EventHandler public void drag(InventoryDragEvent e){if(e.getView().getTopInventory().getHolder() instanceof PlacementMenu)e.setCancelled(true);}
-    @EventHandler public void quit(PlayerQuitEvent e){synchronized(SuiteState.lock()){close(e.getPlayer().getUniqueId());}}
-    @EventHandler public void world(PlayerChangedWorldEvent e){synchronized(SuiteState.lock()){close(e.getPlayer().getUniqueId());}}
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){synchronized(SuiteState.lock()){
+    @EventHandler public void quit(PlayerQuitEvent e){try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()){close(e.getPlayer().getUniqueId());}}
+    @EventHandler public void world(PlayerChangedWorldEvent e){try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()){close(e.getPlayer().getUniqueId());}}
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()){
         if(!(sender instanceof Player p)){sender.sendMessage("Команда доступна в игре");return true;}
         try{Town t=resident(p);var s=sessions.get(p.getUniqueId());if(s==null)throw new IllegalArgumentException("Сначала нажмите чертежом по земле. Получить его можно в меню здания после сдачи ресурсов.");
             String action=args.length==0?"menu":args[0].toLowerCase(Locale.ROOT);

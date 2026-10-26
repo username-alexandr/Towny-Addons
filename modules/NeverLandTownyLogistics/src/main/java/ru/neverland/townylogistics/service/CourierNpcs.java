@@ -27,19 +27,19 @@ public final class CourierNpcs implements Listener {
     private record Request(CourierJob job,Position target,boolean moving,int level){}
     private final Consumer<Map.Entry<UUID,Position>> checkpoint;
     public CourierNpcs(JavaPlugin plugin,LogisticsSettings settings,Consumer<Map.Entry<UUID,Position>> checkpoint){this.plugin=plugin;this.key=new NamespacedKey(plugin,"courier");this.settings=settings;this.checkpoint=checkpoint;}
-    public void start(){ synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.WorldTasks.eachEntity(plugin,e->{if(ours(e))e.remove();});Bukkit.getPluginManager().registerEvents(this,plugin);} }
-    public void settings(LogisticsSettings value){ synchronized (ru.neverland.core.SuiteState.lock()) {settings=value;for(UUID id:List.copyOf(live.keySet()))if(live.size()>settings.active())remove(id);} }
-    public void beginTick(){ synchronized (ru.neverland.core.SuiteState.lock()) {budget=settings.pathBudget();} }
-    public int count(){ synchronized (ru.neverland.core.SuiteState.lock()) {return live.size();} }
-    public static Position position(Location l){ synchronized (ru.neverland.core.SuiteState.lock()) {return new Position(l.getWorld().getUID(),l.getX(),l.getY(),l.getZ());} }
-    public static Location location(Position p){ synchronized (ru.neverland.core.SuiteState.lock()) {World w=Bukkit.getWorld(p.world());return w==null?null:new Location(w,p.x(),p.y(),p.z());} }
-    public static boolean loaded(Position p){ synchronized (ru.neverland.core.SuiteState.lock()) {World w=Bukkit.getWorld(p.world());return w!=null&&w.isChunkLoaded(Math.floorDiv((int)Math.floor(p.x()),16),Math.floorDiv((int)Math.floor(p.z()),16));} }
-    public static boolean owned(UUID town,Position p){ synchronized (ru.neverland.core.SuiteState.lock()) {var l=location(p);if(l==null)return false;var t=TownyAPI.getInstance().getTown(l);return t!=null&&town.equals(t.getUUID());} }
-    public static boolean standable(Position p){ synchronized (ru.neverland.core.SuiteState.lock()) {if(!loaded(p))return false;var l=location(p);if(!ru.neverland.core.WorldTasks.ownsBox(l,1))return false;var feet=l.getBlock();var head=feet.getRelative(0,1,0);var ground=feet.getRelative(0,-1,0);
+    public void start(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {ru.neverland.core.WorldTasks.eachEntity(plugin,e->{if(ours(e))e.remove();});Bukkit.getPluginManager().registerEvents(this,plugin);} }
+    public void settings(LogisticsSettings value){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {settings=value;for(UUID id:List.copyOf(live.keySet()))if(live.size()>settings.active())remove(id);} }
+    public void beginTick(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {budget=settings.pathBudget();} }
+    public int count(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return live.size();} }
+    public static Position position(Location l){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {return new Position(l.getWorld().getUID(),l.getX(),l.getY(),l.getZ());} }
+    public static Location location(Position p){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {World w=Bukkit.getWorld(p.world());return w==null?null:new Location(w,p.x(),p.y(),p.z());} }
+    public static boolean loaded(Position p){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {World w=Bukkit.getWorld(p.world());return w!=null&&w.isChunkLoaded(Math.floorDiv((int)Math.floor(p.x()),16),Math.floorDiv((int)Math.floor(p.z()),16));} }
+    public static boolean owned(UUID town,Position p){ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {var l=location(p);if(l==null)return false;var t=TownyAPI.getInstance().getTown(l);return t!=null&&town.equals(t.getUUID());} }
+    public static boolean standable(Position p){ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {if(!loaded(p))return false;var l=location(p);if(!ru.neverland.core.WorldTasks.ownsBox(l,1))return false;var feet=l.getBlock();var head=feet.getRelative(0,1,0);var ground=feet.getRelative(0,-1,0);
         boolean feetClear=feet.isPassable()||feet.getBoundingBox().getMaxY()<=p.y()+0.03;
         var support=feet.getType().isSolid()&&!feet.isPassable()?feet:ground;
         return feetClear&&head.isPassable()&&!DANGER.contains(feet.getType())&&!DANGER.contains(support.getType())&&support.getType().isSolid();} }
-    public boolean near(Position point){ synchronized (ru.neverland.core.SuiteState.lock()) {World w=Bukkit.getWorld(point.world());if(w==null)return false;double r=settings.radius();return Bukkit.getOnlinePlayers().stream().map(ru.neverland.core.WorldTasks::position).filter(Objects::nonNull).anyMatch(p->position(p).distance(point)<=r);} }
+    public boolean near(Position point){ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {World w=Bukkit.getWorld(point.world());if(w==null)return false;double r=settings.radius();return Bukkit.getOnlinePlayers().stream().map(ru.neverland.core.WorldTasks::position).filter(Objects::nonNull).anyMatch(p->position(p).distance(point)<=r);} }
     private boolean searchLoaded(Position a,Position z){if(!a.world().equals(z.world()))return false;World w=Bukkit.getWorld(a.world());if(w==null)return false;
         int minX=Math.floorDiv((int)Math.floor(Math.min(a.x(),z.x())-48),16),maxX=Math.floorDiv((int)Math.floor(Math.max(a.x(),z.x())+48),16);
         int minZ=Math.floorDiv((int)Math.floor(Math.min(a.z(),z.z())-48),16),maxZ=Math.floorDiv((int)Math.floor(Math.max(a.z(),z.z())+48),16);
@@ -58,7 +58,7 @@ public final class CourierNpcs implements Listener {
         });
         if(!npc.isValid()){npc.remove();return null;}Live value=new Live(npc,job.position(),now);live.put(job.id(),value);return value;
     }
-    public Motion tick(CourierJob job,Position target,boolean moving,int level) { synchronized (ru.neverland.core.SuiteState.lock()) { synchronized(ru.neverland.core.SuiteState.lock()) {
+    public Motion tick(CourierJob job,Position target,boolean moving,int level) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         requests.put(job.id(),new Request(job,target,moving,level));
         if(pending.add(job.id())) {
             Runnable advance=()->{try{Request r=requests.get(job.id());if(r!=null)motions.put(job.id(),move(r.job(),r.target(),r.moving(),r.level()));}finally{pending.remove(job.id());}};
@@ -68,7 +68,7 @@ public final class CourierNpcs implements Listener {
         }
         return motions.getOrDefault(job.id(),new Motion(job.position(),false,"Ожидает регион курьера"));
     }} }
-    private Motion move(CourierJob job,Position target,boolean moving,int level){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    private Motion move(CourierJob job,Position target,boolean moving,int level){ try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
         long now=System.currentTimeMillis();Live value=live.get(job.id());
         if(value!=null&&!value.npc.isValid()){live.remove(job.id());value=null;}
         if(!near(job.position())||!loaded(job.position())){remove(job.id());return new Motion(job.position(),false,"Ожидает загрузки территории и игроков");}
@@ -94,18 +94,35 @@ public final class CourierNpcs implements Listener {
         }
         return new Motion(safePosition,true,"");
     } }
-    public void remove(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {requests.remove(id);motions.remove(id);Live v=live.remove(id);if(v!=null){checkpoint.accept(Map.entry(id,v.safe));ru.neverland.core.WorldTasks.remove(plugin,v.npc);} }}
-    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {for(UUID id:List.copyOf(live.keySet()))remove(id);} }
+    public void remove(UUID id){ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {requests.remove(id);motions.remove(id);Live v=live.remove(id);if(v!=null){checkpoint.accept(Map.entry(id,v.safe));ru.neverland.core.WorldTasks.remove(plugin,v.npc);} }}
+    public void stop(){ try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {for(UUID id:List.copyOf(live.keySet()))remove(id);} }
     private boolean ours(Entity e){return e!=null&&e.getPersistentDataContainer().has(key,PersistentDataType.STRING);}
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void damage(EntityDamageEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getEntity()))e.setCancelled(true);} }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void interact(PlayerInteractEntityEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getRightClicked()))e.setCancelled(true);} }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void leash(PlayerLeashEntityEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getEntity()))e.setCancelled(true);} }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void pickup(EntityPickupItemEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getEntity()))e.setCancelled(true);} }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void target(EntityTargetLivingEntityEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getTarget())||ours(e.getEntity()))e.setCancelled(true);} }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void teleport(EntityTeleportEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getEntity()))e.setCancelled(true);} }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void portal(EntityPortalEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getEntity()))e.setCancelled(true);} }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void transform(EntityTransformEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getEntity()))e.setCancelled(true);} }
-    @EventHandler public void death(EntityDeathEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getEntity())){e.getDrops().clear();e.setDroppedExp(0);}} }
-    @EventHandler public void load(EntitiesLoadEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}for(Entity entity:e.getEntities())if(ours(entity))entity.remove();} }
-    @EventHandler public void unload(EntitiesUnloadEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}for(Entity entity:e.getEntities())if(ours(entity)){try{remove(UUID.fromString(entity.getPersistentDataContainer().get(key,PersistentDataType.STRING)));}catch(IllegalArgumentException ignored){}entity.remove();}} }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void damage(EntityDamageEvent e){ try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getEntity()))e.setCancelled(true);} }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void interact(PlayerInteractEntityEvent e){ try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getRightClicked()))e.setCancelled(true);} }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void leash(PlayerLeashEntityEvent e){ try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getEntity()))e.setCancelled(true);} }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void pickup(EntityPickupItemEvent e){ try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getEntity()))e.setCancelled(true);} }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void target(EntityTargetLivingEntityEvent e){ try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getTarget())||ours(e.getEntity()))e.setCancelled(true);} }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void teleport(EntityTeleportEvent e){ try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getEntity()))e.setCancelled(true);} }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void portal(EntityPortalEvent e){ try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getEntity()))e.setCancelled(true);} }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void transform(EntityTransformEvent e){ try (var suiteGuard23 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getEntity()))e.setCancelled(true);} }
+    @EventHandler public void death(EntityDeathEvent e){ try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getEntity())){e.getDrops().clear();e.setDroppedExp(0);}} }
+    @EventHandler public void load(EntitiesLoadEvent e){
+        if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics"))return;
+        // Removal of stale, nonpersistent NPCs touches only entities owned by this region.
+        for(Entity entity:e.getEntities())if(ours(entity))entity.remove();
+    }
+    @EventHandler public void unload(EntitiesUnloadEvent e){
+        if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics"))return;
+        for(Entity entity:e.getEntities())if(ours(entity)){
+            try{
+                UUID id=UUID.fromString(entity.getPersistentDataContainer().get(key,PersistentDataType.STRING));
+                ru.neverland.core.SuiteScheduler.get().runTask(plugin,()->{
+                    Live current=live.get(id);
+                    // A later spawn of the same delivery must not be removed by stale cleanup.
+                    if(current!=null&&current.npc==entity)remove(id);
+                });
+            }catch(IllegalArgumentException ignored){}
+            entity.remove();
+        }
+    }
 }

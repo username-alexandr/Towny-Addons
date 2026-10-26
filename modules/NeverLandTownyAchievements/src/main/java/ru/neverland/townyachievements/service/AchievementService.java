@@ -25,28 +25,28 @@ public final class AchievementService implements TownyAchievementsApi {
     public AchievementService(Plugin plugin, AchievementRepository repository, AchievementSettings settings, CityMetrics metrics) {
         this.plugin = plugin; this.repository = repository; this.settings = settings; this.metrics = metrics;
     }
-    public AchievementSettings settings() { synchronized (ru.neverland.core.SuiteState.lock()) { return settings; } }
-    public CityAchievements state(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { return repository.get(town); } }
-    public Town town(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) { var r = TownyAPI.getInstance().getResident(player); return r == null ? null : r.getTownOrNull(); } }
-    public Town requireTown(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public AchievementSettings settings() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return settings; } }
+    public CityAchievements state(UUID town) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return repository.get(town); } }
+    public Town town(Player player) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { var r = TownyAPI.getInstance().getResident(player); return r == null ? null : r.getTownOrNull(); } }
+    public Town requireTown(Player player) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         var city = town(player); if (city == null || !player.hasPermission("neverlandtownyachievements.use")) throw new IllegalArgumentException("Нужен свой город и доступ к достижениям"); return city;
     } }
-    public boolean manager(Player player, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean manager(Player player, Town town) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         var r = TownyAPI.getInstance().getResident(player);
         return r != null && town.equals(r.getTownOrNull()) && (town.isMayor(r) || ru.neverland.core.CouncilAccess.check(player,town.getUUID(),"achievements",player.hasPermission("neverlandtownyachievements.manage")));
     } }
-    public String detail(UUID town, String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return state(town).paused() ? "Проверки приостановлены администратором" : details.getOrDefault(town, Map.of()).getOrDefault(id, "Ожидается автоматическая проверка"); } }
-    public Map<String, Progress> catalogue(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String detail(UUID town, String id) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { return state(town).paused() ? "Проверки приостановлены администратором" : details.getOrDefault(town, Map.of()).getOrDefault(id, "Ожидается автоматическая проверка"); } }
+    public Map<String, Progress> catalogue(UUID town) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         var result = new LinkedHashMap<String, Progress>(); settings.definitions().forEach((id, a) -> result.put(id, Progress.begin(a)));
         result.putAll(state(town).progress()); return Collections.unmodifiableMap(result);
     } }
-    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void start() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::tick, 20, settings.interval() * 20L);
         cosmeticTask = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::cosmetics, 20, 20);
     } }
-    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) { if (task != null) task.cancel(); if (cosmeticTask != null) cosmeticTask.cancel(); placeholders = Map.of(); } }
-    public void reload(AchievementSettings next) { synchronized (ru.neverland.core.SuiteState.lock()) { ApiServices.primaryThread(); stop(); settings = next; start(); } }
-    public void tick() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void stop() { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) { if (task != null) task.cancel(); if (cosmeticTask != null) cosmeticTask.cancel(); placeholders = Map.of(); } }
+    public void reload(AchievementSettings next) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) { ApiServices.primaryThread(); stop(); settings = next; start(); } }
+    public void tick() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread();
         for (Town town : List.copyOf(TownyAPI.getInstance().getTowns())) {
             try { check(town); warnings.remove(town.getUUID()); }
@@ -59,7 +59,7 @@ public final class AchievementService implements TownyAchievementsApi {
         }
         publishPlaceholders();
     } }
-    public void check(Town town) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void check(Town town) throws Exception { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); UUID id = town.getUUID(); var old = state(id); var next = old;
         Map<String, String> observed = new HashMap<>();
         if (!old.paused()) for (var entry : catalogue(id).entrySet()) {
@@ -79,17 +79,17 @@ public final class AchievementService implements TownyAchievementsApi {
                 ru.neverland.core.SuiteScheduler.players(plugin, player -> {if (town.equals(town(player))) player.sendMessage("§6Достижение города: §f" + p.definition().name() + "§6! Награды: §e/t achievements");});
         }
     } }
-    public Progress reward(Player player, String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Progress reward(Player player, String id) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); var city = requireTown(player); var p = state(city.getUUID()).progress().get(id);
         if (p == null || !p.earned()) throw new IllegalArgumentException("Город ещё не открыл эту награду"); return p;
     } }
-    public void selectTitle(Player player, String id) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void selectTitle(Player player, String id) throws Exception { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); var city = requireTown(player);
         if (!manager(player, city)) throw new IllegalArgumentException("Титул города выбирает мэр или уполномоченный");
         if (!id.equals("none")) reward(player, id);
         repository.put(city.getUUID(), state(city.getUUID()).title(id.equals("none") ? "" : id)); publishPlaceholders();
     } }
-    public void selectCosmetic(Player player, String id) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void selectCosmetic(Player player, String id) throws Exception { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); var city = requireTown(player);
         if (id.equals("none")) { repository.cosmetic(player.getUniqueId(), null); return; }
         if (reward(player, id).definition().reward().cosmetic().isEmpty()) throw new IllegalArgumentException("У достижения нет эффекта частиц");
@@ -122,8 +122,8 @@ public final class AchievementService implements TownyAchievementsApi {
         }
         placeholders = Map.copyOf(values);
     }
-    public String placeholder(UUID player, String key) { synchronized (ru.neverland.core.SuiteState.lock()) { return placeholders.getOrDefault(player, Map.of()).getOrDefault(key, ""); } }
-    public List<ActivityAdmin.Target> adminTargets() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String placeholder(UUID player, String key) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) { return placeholders.getOrDefault(player, Map.of()).getOrDefault(key, ""); } }
+    public List<ActivityAdmin.Target> adminTargets() { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); var result = new ArrayList<ActivityAdmin.Target>();
         for (Town town : TownyAPI.getInstance().getTowns()) {
             var city = state(town.getUUID());
@@ -132,7 +132,7 @@ public final class AchievementService implements TownyAchievementsApi {
         }
         return List.copyOf(result);
     } }
-    public String control(UUID townId, String action) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String control(UUID townId, String action) throws Exception { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); Town town = TownyAPI.getInstance().getTown(townId); if (town == null) throw new IllegalArgumentException("Город удалён");
         var city = state(townId);
         switch (action) {
@@ -144,11 +144,11 @@ public final class AchievementService implements TownyAchievementsApi {
         }
         return town.getName() + ": открыто " + state(townId).progress().values().stream().filter(Progress::earned).count() + "; " + (state(townId).paused() ? "пауза" : "учёт включён") + "; награды сохранены";
     } }
-    @Override public boolean unlocked(UUID town, String id) { synchronized (ru.neverland.core.SuiteState.lock()) { ApiServices.primaryThread(); var p = valid(town) ? state(town).progress().get(id) : null; return p != null && p.earned(); } }
-    @Override public String title(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { ApiServices.primaryThread(); if (!valid(town)) return ""; var city = state(town); var p = city.progress().get(city.title()); return p == null ? "" : p.definition().reward().title(); } }
-    @Override public double bonus(UUID town, String effect) { synchronized (ru.neverland.core.SuiteState.lock()) { ApiServices.primaryThread(); return valid(town) && "happiness".equals(effect) ? state(town).happiness() : 0; } }
+    @Override public boolean unlocked(UUID town, String id) { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) { ApiServices.primaryThread(); var p = valid(town) ? state(town).progress().get(id) : null; return p != null && p.earned(); } }
+    @Override public String title(UUID town) { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) { ApiServices.primaryThread(); if (!valid(town)) return ""; var city = state(town); var p = city.progress().get(city.title()); return p == null ? "" : p.definition().reward().title(); } }
+    @Override public double bonus(UUID town, String effect) { try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) { ApiServices.primaryThread(); return valid(town) && "happiness".equals(effect) ? state(town).happiness() : 0; } }
     private boolean valid(UUID town) { return town != null && TownyAPI.getInstance().getTown(town) != null; }
-    @Override public List<Map<String, Object>> achievements(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<Map<String, Object>> achievements(UUID town) { try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); if (!valid(town)) return List.of();
         return catalogue(town).values().stream().map(p -> Map.<String, Object>of("id", p.definition().id(), "name", p.definition().name(), "progress", p.best(), "target", p.definition().target(), "earned", p.earned(), "earnedAt", p.earnedAt(), "paused", state(town).paused(), "title", p.definition().reward().title())).toList();
     } }

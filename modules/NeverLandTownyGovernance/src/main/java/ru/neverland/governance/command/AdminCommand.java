@@ -20,7 +20,7 @@ import java.util.Map;
 public final class AdminCommand implements TabExecutor {
     private final TownyGovernance plugin; private final TownyHook towny; private final GovernanceService governance; private final MessageService messages;
     public AdminCommand(TownyGovernance plugin, TownyHook towny, GovernanceService governance, MessageService messages) { this.plugin = plugin; this.towny = towny; this.governance = governance; this.messages = messages; }
-    @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyGovernance")){return true;}
+    @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyGovernance")){return true;}
         if (!sender.hasPermission("townygovernance.admin")) { messages.send(sender, "no-permission"); return true; }
         if (args.length == 0) { sender.sendMessage(ColorUtil.color("&#FFFFFF/townygovernance reload|resolve <ID>|enact <город> <закон>|repeal <город> <закон>|info <город>")); return true; }
         switch (args[0].toLowerCase(Locale.ROOT)) {
@@ -46,7 +46,7 @@ public final class AdminCommand implements TabExecutor {
                 + "\n&7Голосований: &f" + governance.open(town).size() + "\n&7Строительство: &f" + Math.round(governance.constructionCost(town.getUUID()) * 100) + "%"
                 + "\n&7Идеология: &f" + Math.round(governance.ideologyCost(town.getUUID()) * 100) + "%"));
     }
-    @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (args.length == 1) return List.of("reload", "resolve", "enact", "repeal", "info").stream().filter(value -> value.startsWith(args[0].toLowerCase(Locale.ROOT))).toList();
         if (args.length == 2 && List.of("enact", "repeal", "info").contains(args[0].toLowerCase(Locale.ROOT))) return towny.towns().stream().map(Town::getName).filter(value -> value.toLowerCase(Locale.ROOT).startsWith(args[1].toLowerCase(Locale.ROOT))).toList();
         if (args.length == 3 && List.of("enact", "repeal").contains(args[0].toLowerCase(Locale.ROOT))) return governance.laws().stream().map(LawDefinition::id).filter(value -> value.startsWith(args[2].toLowerCase(Locale.ROOT))).toList();

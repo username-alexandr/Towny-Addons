@@ -13,7 +13,7 @@ public final class BuildBridge {
     public record Defense(double successPenalty,double detectionBonus,Map<String,Integer> levels){}
     private final JavaPlugin plugin;
     public BuildBridge(JavaPlugin plugin){this.plugin=plugin;}
-    public Defense defense(UUID townId){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Defense defense(UUID townId){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         double army=ArmyAccess.defense(townId);
         ConfigurationSection section=plugin.getConfig().getConfigurationSection("buildings.defense");if(section==null)return new Defense(army,army,Map.of());
         Map<String,Integer> levels=new LinkedHashMap<>();double penalty=army,detection=army;
@@ -22,7 +22,7 @@ public final class BuildBridge {
         }
         return new Defense(penalty,detection,Map.copyOf(levels));
     } }
-    public Map<String,Integer> knownLevels(UUID townId){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Map<String,Integer> knownLevels(UUID townId){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         String[] projects={"town_hall","forge","barracks","market","miners_guild","temple","great_library","agrarian_complex"};
         Map<String,Integer> result=new LinkedHashMap<>();for(String project:projects)result.put(project,level(townId,project));return result;
     } }

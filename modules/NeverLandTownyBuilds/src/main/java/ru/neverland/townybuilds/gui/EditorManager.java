@@ -56,7 +56,7 @@ public final class EditorManager implements Listener {
         effectKey = new NamespacedKey(plugin, "editor_effect");
     }
 
-    public void openIndex(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void openIndex(Player player) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new EditorIndexHolder(), 54,
                 ColorUtil.component("&#B65CFFРедактор городских проектов"));
         fill(inventory);
@@ -77,7 +77,7 @@ public final class EditorManager implements Listener {
         player.openInventory(inventory);
     } }
 
-    public void openProject(Player player, ProjectDefinition project, int levelNumber) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void openProject(Player player, ProjectDefinition project, int levelNumber) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         int level = Math.max(1, Math.min(project.maxLevel(), levelNumber));
         Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new ProjectEditorHolder(project.id(), level), 54,
                 ColorUtil.component("&#B65CFFРедактор: " + project.name()));
@@ -155,7 +155,7 @@ public final class EditorManager implements Listener {
     }
 
     @EventHandler
-    public void onClick(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onClick(InventoryClickEvent event) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getWhoClicked() instanceof Player player)) return;
         Inventory top = event.getView().getTopInventory();
         InventoryHolder holder = top.getHolder(false);
@@ -289,21 +289,21 @@ public final class EditorManager implements Listener {
     } }
 
     @EventHandler
-    public void onDrag(InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onDrag(InventoryDragEvent event) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (event.getView().getTopInventory().getHolder(false) instanceof ResourceEditorHolder) {
             event.setCancelled(true);
         }
     } }
 
     @EventHandler
-    public void onClose(InventoryCloseEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void onClose(InventoryCloseEvent event) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if (event.getInventory().getHolder(false) instanceof ResourceEditorHolder) {
             resourceSave.remove(event.getPlayer().getUniqueId());
         }
     } }
 
     @EventHandler
-    public void onChat(AsyncChatEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onChat(AsyncChatEvent event) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         InputRequest request = requests.remove(event.getPlayer().getUniqueId());
         if (request == null) return;
         event.setCancelled(true);
@@ -312,7 +312,7 @@ public final class EditorManager implements Listener {
     } }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void onQuit(PlayerQuitEvent event) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         requests.remove(event.getPlayer().getUniqueId());
         resourceSave.remove(event.getPlayer().getUniqueId());
     } }

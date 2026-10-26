@@ -4,7 +4,7 @@ import java.util.function.BooleanSupplier;
 public final class BudgetDebit {
     public interface Journal {CityLedger get();void put(CityLedger value)throws Exception;void flush()throws Exception;void fault(Exception error);}
     private BudgetDebit(){}
-    public static boolean execute(Journal journal,CityLedger.Pending pending,BooleanSupplier bank,BooleanSupplier observed){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean execute(Journal journal,CityLedger.Pending pending,BooleanSupplier bank,BooleanSupplier observed){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if(!LedgerEngine.canSpend(journal.get(),pending.category(),pending.amount()))return false;
         try{journal.put(LedgerEngine.prepare(journal.get(),pending));}catch(Exception ex){journal.fault(ex);return false;}
         boolean returned=false;RuntimeException failure=null;

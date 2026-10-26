@@ -2,7 +2,7 @@ package ru.neverland.minttrade.util;
 
 public final class TimeUtil {
     private TimeUtil() {}
-    public static String format(long millis) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String format(long millis) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         long seconds = Math.max(0, (millis + 999) / 1000);
         long hours = seconds / 3600; seconds %= 3600;
         long minutes = seconds / 60; seconds %= 60;

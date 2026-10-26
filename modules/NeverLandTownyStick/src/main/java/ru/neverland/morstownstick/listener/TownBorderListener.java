@@ -15,12 +15,12 @@ public final class TownBorderListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onClaim(TownClaimEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onClaim(TownClaimEvent event) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (event.getTownBlock().getTownOrNull() != null) cache.invalidate(event.getTownBlock().getTownOrNull().getUUID());
     } }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onUnclaim(TownUnclaimEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onUnclaim(TownUnclaimEvent event) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (event.getTown() != null) cache.invalidate(event.getTown().getUUID());
     } }
 }

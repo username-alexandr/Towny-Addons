@@ -7,7 +7,7 @@ import ru.neverland.mintcontracts.model.MunicipalPayment;
 import ru.neverland.mintcontracts.service.MunicipalPayments;
 
 public final class MunicipalBank implements MunicipalPayments.Bank {
-    public boolean transfer(MunicipalPayment p){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean transfer(MunicipalPayment p){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if(!TownyEconomyHandler.isActive())return false;
         boolean reserve=p.kind()==MunicipalPayment.Kind.RESERVE,player=p.kind()==MunicipalPayment.Kind.REWARD;
         var town=player?null:TownyAPI.getInstance().getTown(p.town());var resident=player?TownyAPI.getInstance().getResident(p.account()):null;

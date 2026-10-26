@@ -6,7 +6,7 @@ import ru.neverland.townyresources.model.ResourceEngine.Building;
 import java.util.*;
 
 public final class CityBridge {
-    public Map<String,Building> buildings(UUID town)throws ReflectiveOperationException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Map<String,Building> buildings(UUID town)throws ReflectiveOperationException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Map<?,?> values=(Map<?,?>)ru.neverland.core.ApiServices.call("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","buildingFootprints",new Class<?>[]{UUID.class},town);Map<String,Building> result=new HashMap<>();
         for(var entry:values.entrySet()){
             Object b=entry.getValue();String id=entry.getKey().toString();int completed=integer(b,"completedLevel");
@@ -23,7 +23,7 @@ public final class CityBridge {
         for(int x=minX;x<=maxX;x++)for(int z=minZ;z<=maxZ;z++){var owner=TownyAPI.getInstance().getTown(new Location(w,(double)x*size,w.getMinHeight(),(double)z*size));if(owner==null||!town.equals(owner.getUUID()))return false;}
         return true; // Towny's territory metadata does not load Minecraft chunks.
     }
-    public int population(Town town)throws ReflectiveOperationException{ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int population(Town town)throws ReflectiveOperationException{ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         var api=ru.neverland.core.ApiServices.connect("NeverLandTownyPopulation","ru.neverland.townypopulation.api.TownyPopulationApi",1,"population");
         if(api.state()==ru.neverland.core.ApiServices.State.NOT_INSTALLED)return town.getResidents().size();
         var value=(Optional<?>)api.invoke("population",new Class<?>[]{UUID.class},town.getUUID());if(value.isEmpty())throw new IllegalStateException("Ожидается перепись населения");

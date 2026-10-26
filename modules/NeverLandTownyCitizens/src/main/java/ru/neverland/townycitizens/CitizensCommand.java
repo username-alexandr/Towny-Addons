@@ -13,8 +13,8 @@ public final class CitizensCommand implements TabExecutor {
     private final CitizensService service;
     private final CitizensMenus menus;
     public CitizensCommand(NeverLandTownyCitizens plugin, CitizensService service, CitizensMenus menus) { this.plugin = plugin; this.service = service; this.menus = menus; }
-    public static void tell(CommandSender sender, String text) { synchronized (ru.neverland.core.SuiteState.lock()) { sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', "&aNeverLand &f• Гражданство &7» &f" + text)); } }
-    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCitizens")){return true;}
+    public static void tell(CommandSender sender, String text) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', "&aNeverLand &f• Гражданство &7» &f" + text)); } }
+    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCitizens")){return true;}
         if (!sender.hasPermission("neverlandtownycitizens.use")) { tell(sender, "&cНет права на просмотр гражданства."); return true; }
         try {
             String action = args.length == 0 ? "info" : args[0].toLowerCase(Locale.ROOT);
@@ -66,7 +66,7 @@ public final class CitizensCommand implements TabExecutor {
         }
         return true;
     } }
-    public static void help(CommandSender sender) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void help(CommandSender sender) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         tell(sender, "&e/t citizens &7— ваша карточка гражданства.");
         tell(sender, "&e/t citizens info <игрок> [город] &7— статус в городе.");
         tell(sender, "&e/t citizens list [страница] [город] &7— реестр для мэра.");
@@ -74,7 +74,7 @@ public final class CitizensCommand implements TabExecutor {
         tell(sender, "&7Статусы: &fcitizen, temporary, foreigner, honorary.");
         tell(sender, "&7Для temporary укажите срок в днях; для остальных — 0.");
     } }
-    @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         List<String> values = args.length == 1 ? List.of("info", "help", "list", "set", "reload")
                 : args.length == 3 && args[0].equalsIgnoreCase("set") ? List.of("citizen", "temporary", "foreigner", "honorary") : List.of();
         return values.stream().filter(v -> v.startsWith(args[args.length - 1].toLowerCase(Locale.ROOT))).toList();

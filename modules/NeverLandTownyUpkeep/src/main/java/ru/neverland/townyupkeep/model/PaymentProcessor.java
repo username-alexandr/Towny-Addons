@@ -14,7 +14,7 @@ public final class PaymentProcessor {
     }
     private final Store store;private final Gateway gateway;
     public PaymentProcessor(Store store,Gateway gateway){this.store=store;this.gateway=gateway;}
-    public void process(Key key,long clock,int retry)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void process(Key key,long clock,int retry)throws Exception{ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Entry entry=store.get(key);if(entry==null||entry.invoice()==null)return;
         Invoice bill=entry.invoice();
         if(bill.phase()==Phase.MONEY_PENDING)return; // Administrator must reconcile the Towny transaction log.
@@ -41,8 +41,8 @@ public final class PaymentProcessor {
         // The completed payment is already durable. Cleanup failures must not undo it or charge it again.
         try{gateway.forget(bill.id());}catch(Exception ignored){}
     } }
-    public void cancel(Key key,String reason)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {var e=store.get(key);store.put(key,new Entry(false,e.due(),reason,e.invoice().phase(Phase.CANCELLED)));} }
-    public void resolve(Key key,boolean paid)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void cancel(Key key,String reason)throws Exception{ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {var e=store.get(key);store.put(key,new Entry(false,e.due(),reason,e.invoice().phase(Phase.CANCELLED)));} }
+    public void resolve(Key key,boolean paid)throws Exception{ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         var e=store.get(key);if(e==null||e.invoice()==null||e.invoice().phase()!=Phase.MONEY_PENDING)throw new IllegalArgumentException("Счёт не требует сверки");
         store.put(key,new Entry(false,e.due(),paid?"Оплата подтверждена администратором":"Списание не произошло — возврат резерва",e.invoice().phase(paid?Phase.MONEY_PAID:Phase.CANCELLED)));
     } }

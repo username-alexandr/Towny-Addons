@@ -21,7 +21,7 @@ public final class ExportRegistry {
     private final ItemsAdderHook itemsAdder;
     private final Map<String, ExportDefinition> exports = new LinkedHashMap<>();
     public ExportRegistry(JavaPlugin plugin, ItemsAdderHook itemsAdder) { this.plugin = plugin; this.itemsAdder = itemsAdder; reload(); }
-    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         exports.clear();
         MaterialNameConfig.reload(plugin, itemNames);
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "exports.yml"));
@@ -43,17 +43,17 @@ public final class ExportRegistry {
                     item, Math.max(1, yaml.getInt(path + "amount", 64)), Math.max(0, yaml.getDouble(path + "price", 100))));
         }
     } }
-    public String itemName(ItemStack item) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String itemName(ItemStack item) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (item == null || item.getType().isAir()) return "Пусто";
         String custom = MaterialNameConfig.customName(item.getItemMeta());
         return custom == null ? itemNames.name(item.getType().name()) : custom;
     } }
-    public ItemStack parseItem(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ItemStack parseItem(String key) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         ItemStack custom = itemsAdder.item(key);
         if (custom != null) { custom.setAmount(1); return custom; }
         Material material = MaterialNameConfig.matchMaterial(key);
         return material == null || !material.isItem() || material.isAir() ? null : new ItemStack(material);
     } }
-    public ExportDefinition get(String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return id == null ? null : exports.get(id.toLowerCase(Locale.ROOT)); } }
-    public Collection<ExportDefinition> all() { synchronized (ru.neverland.core.SuiteState.lock()) { return exports.values(); } }
+    public ExportDefinition get(String id) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return id == null ? null : exports.get(id.toLowerCase(Locale.ROOT)); } }
+    public Collection<ExportDefinition> all() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { return exports.values(); } }
 }

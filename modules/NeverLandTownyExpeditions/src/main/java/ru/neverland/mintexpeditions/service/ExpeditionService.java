@@ -78,7 +78,7 @@ public final class ExpeditionService {
       this.returnTickets = new ReturnTickets(plugin);
    }
 
-   public void startTasks() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void startTasks() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       this.stopTasks();
       long period = Math.max(20L, this.plugin.getConfig().getLong("expeditions.expiry-check-seconds", 10L) * 20L);
       this.task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(this.plugin, this::tick, period, period);
@@ -103,7 +103,7 @@ public final class ExpeditionService {
       }
    } }
 
-   public void stopTasks() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void stopTasks() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
       if (this.task != null) {
          this.task.cancel();
       }
@@ -122,7 +122,7 @@ public final class ExpeditionService {
       this.shieldWarnings.clear();
    } }
 
-   public ExpeditionService.StartResult start(Player leader, ExpeditionDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public ExpeditionService.StartResult start(Player leader, ExpeditionDefinition definition) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
       CampView camp = this.camps.owned(leader);
       if (camp == null) {
          return ExpeditionService.StartResult.NO_CAMP;
@@ -212,7 +212,7 @@ public final class ExpeditionService {
       }
    } }
 
-   public boolean objective(Player player, BlockPos position) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean objective(Player player, BlockPos position) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
       ActiveExpedition expedition = this.at(position, player.getWorld());
       if (expedition == null || expedition.timer().paused() || !expedition.objectives().contains(position) || expedition.completed().contains(position)) {
          return false;
@@ -231,7 +231,7 @@ public final class ExpeditionService {
       }
    } }
 
-   public void mobDied(LivingEntity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void mobDied(LivingEntity entity) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
       ActiveExpedition expedition = this.sites.expeditionForMob(entity);
       if (expedition != null && !expedition.timer().paused() && expedition.status() == ExpeditionStatus.ACTIVE) {
          if(!expedition.spawnedMobs().remove(entity.getUniqueId()))return;
@@ -258,27 +258,27 @@ public final class ExpeditionService {
       }
    } }
 
-   public ActiveExpedition expeditionForMob(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public ActiveExpedition expeditionForMob(Entity entity) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
       return this.sites.expeditionForMob(entity);
    } }
 
-   public boolean insideMobArea(ActiveExpedition expedition, Location location) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean insideMobArea(ActiveExpedition expedition, Location location) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
       return this.sites.insideMobArea(expedition, location);
    } }
 
-   public boolean preventMobTeleportOutside() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean preventMobTeleportOutside() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
       return this.plugin.getConfig().getBoolean("combat.prevent-teleport-outside", true);
    } }
 
-   public boolean protectMobFromEnvironment() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean protectMobFromEnvironment() { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
       return this.plugin.getConfig().getBoolean("combat.protect-from-fall-and-suffocation", true);
    } }
 
-   public boolean relocateMob(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean relocateMob(Entity entity) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
       return this.sites.relocateMob(entity);
    } }
 
-   public void relocateMobNextTick(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void relocateMobNextTick(Entity entity) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
       UUID entityId = entity.getUniqueId();
       ru.neverland.core.SuiteScheduler.entity(this.plugin, entity, () -> {
          Entity current = ru.neverland.core.WorldTasks.find(entityId);
@@ -294,7 +294,7 @@ public final class ExpeditionService {
       }
    }
 
-   public void finish(ActiveExpedition expedition, ExpeditionStatus status) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void finish(ActiveExpedition expedition, ExpeditionStatus status) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
       if (!this.repository.writable()) {
          throw new IllegalStateException("Хранилище экспедиций недоступно");
       } else if (expedition.status() == ExpeditionStatus.ACTIVE) {
@@ -367,7 +367,7 @@ public final class ExpeditionService {
       }
    } }
 
-   public void claim(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void claim(Player player) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
       if (!ru.neverland.core.SuiteState.held()) {
          throw new IllegalStateException("Награды требуют основного потока");
       } else if (!this.repository.hasReward(player.getUniqueId())) {
@@ -440,7 +440,7 @@ public final class ExpeditionService {
       }
    } }
 
-   public void returnToCamp(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void returnToCamp(Player player) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
       if (!this.canReturn(player)) {
          this.messages.send(player, "return-denied");
       } else {
@@ -477,11 +477,11 @@ public final class ExpeditionService {
       }
    } }
 
-   public boolean canReturn(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean canReturn(Player player) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
       return ExpeditionPermissions.canReturn(player);
    } }
 
-   public boolean hasReturnTarget(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean hasReturnTarget(Player player) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
       return this.returnCampOwner(player) != null;
    } }
 
@@ -495,11 +495,11 @@ public final class ExpeditionService {
       }
    }
 
-   public boolean shieldDenied(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean shieldDenied(Player player) { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
       return ExpeditionPermissions.shieldDenied(player, this.at(BlockPos.of(player.getLocation()), player.getWorld()) != null);
    } }
 
-   public void warnShield(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void warnShield(Player player) { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {
       long now = System.currentTimeMillis();
       if (now - this.shieldWarnings.getOrDefault(player.getUniqueId(), 0L) >= 3000L) {
          this.shieldWarnings.put(player.getUniqueId(), now);
@@ -507,7 +507,7 @@ public final class ExpeditionService {
       }
    } }
 
-   public void sendTarget(Player player, ActiveExpedition expedition) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void sendTarget(Player player, ActiveExpedition expedition) { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {
       Location target = expedition.siteLocation();
       if (target != null) {
          long distance = player.getWorld().equals(target.getWorld()) ? Math.round(player.getLocation().distance(target)) : -1L;
@@ -552,7 +552,7 @@ public final class ExpeditionService {
       this.repository.saveIfDirty();
    }
 
-   public ActiveExpedition at(BlockPos position, World world) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public ActiveExpedition at(BlockPos position, World world) { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {
       int radius = this.plugin.getConfig().getInt("generation.protected-radius", 16);
 
       for (ActiveExpedition expedition : this.repository.active()) {
@@ -568,7 +568,7 @@ public final class ExpeditionService {
       return null;
    } }
 
-   public boolean participant(Player player, ActiveExpedition expedition) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean participant(Player player, ActiveExpedition expedition) { try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {
       return expedition != null && expedition.participants().contains(player.getUniqueId());
    } }
 
@@ -627,11 +627,11 @@ public final class ExpeditionService {
       }
    }
 
-   public ExpeditionRepository repository() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public ExpeditionRepository repository() { try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) {
       return this.repository;
    } }
 
-   public ExpeditionRegistry registry() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public ExpeditionRegistry registry() { try (var suiteGuard23 = ru.neverland.core.SuiteState.guard()) {
       return this.registry;
    } }
 
@@ -647,7 +647,7 @@ public final class ExpeditionService {
       WORLD_BLOCKED;
    }
 
-    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() { try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) {
         ru.neverland.core.ApiServices.primaryThread();
         return repository.active().stream().map(c -> new ru.neverland.core.ActivityAdmin.Target(c.id().toString(),c.definitionId()+" / "+c.leaderId(),
                 c.status()==ExpeditionStatus.ACTIVE ? ru.neverland.core.ActivityAdmin.TIMED : java.util.Set.of("status"), (action,minutes) -> {

@@ -42,36 +42,36 @@ public final class ProjectDefinition {
         this.levels = new LinkedHashMap<>(levels);
     }
 
-    public String id() { synchronized (ru.neverland.core.SuiteState.lock()) { return id; } }
-    public ProjectType type() { synchronized (ru.neverland.core.SuiteState.lock()) { return type; } }
-    public ProjectCategory category() { synchronized (ru.neverland.core.SuiteState.lock()) { return category; } }
-    public String name() { synchronized (ru.neverland.core.SuiteState.lock()) { return name; } }
-    public Material icon() { synchronized (ru.neverland.core.SuiteState.lock()) { return icon; } }
-    public String itemsAdderIcon() { synchronized (ru.neverland.core.SuiteState.lock()) { return itemsAdderIcon; } }
-    public int slot() { synchronized (ru.neverland.core.SuiteState.lock()) { return slot; } }
-    public int order() { synchronized (ru.neverland.core.SuiteState.lock()) { return order; } }
-    public List<String> description() { synchronized (ru.neverland.core.SuiteState.lock()) { return description; } }
-    public Map<String, Integer> requirements() { synchronized (ru.neverland.core.SuiteState.lock()) { return requirements; } }
-    public Map<Integer, LevelDefinition> levels() { synchronized (ru.neverland.core.SuiteState.lock()) { return Collections.unmodifiableMap(levels); } }
-    public int maxLevel() { synchronized (ru.neverland.core.SuiteState.lock()) { return levels.keySet().stream().mapToInt(Integer::intValue).max().orElse(1); } }
-    public LevelDefinition level(int level) { synchronized (ru.neverland.core.SuiteState.lock()) { return levels.get(level); } }
-    public ItemStack editorIcon() { synchronized (ru.neverland.core.SuiteState.lock()) { return editorIcon == null ? null : editorIcon.clone(); } }
-    public boolean custom() { synchronized (ru.neverland.core.SuiteState.lock()) { return custom; } }
+    public String id() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return id; } }
+    public ProjectType type() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return type; } }
+    public ProjectCategory category() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return category; } }
+    public String name() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return name; } }
+    public Material icon() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { return icon; } }
+    public String itemsAdderIcon() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { return itemsAdderIcon; } }
+    public int slot() { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { return slot; } }
+    public int order() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) { return order; } }
+    public List<String> description() { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) { return description; } }
+    public Map<String, Integer> requirements() { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) { return requirements; } }
+    public Map<Integer, LevelDefinition> levels() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) { return Collections.unmodifiableMap(levels); } }
+    public int maxLevel() { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) { return levels.keySet().stream().mapToInt(Integer::intValue).max().orElse(1); } }
+    public LevelDefinition level(int level) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) { return levels.get(level); } }
+    public ItemStack editorIcon() { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) { return editorIcon == null ? null : editorIcon.clone(); } }
+    public boolean custom() { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) { return custom; } }
 
-    public void setName(String name) { synchronized (ru.neverland.core.SuiteState.lock()) { this.name = name; } }
-    public void setCategory(ProjectCategory category) { synchronized (ru.neverland.core.SuiteState.lock()) { this.category = category == null ? ProjectCategory.OTHER : category; } }
-    public void setIcon(Material icon) { synchronized (ru.neverland.core.SuiteState.lock()) { this.icon = icon; } }
-    public void setItemsAdderIcon(String itemsAdderIcon) { synchronized (ru.neverland.core.SuiteState.lock()) { this.itemsAdderIcon = itemsAdderIcon; } }
-    public void setSlot(int slot) { synchronized (ru.neverland.core.SuiteState.lock()) { this.slot = slot; } }
-    public void setOrder(int order) { synchronized (ru.neverland.core.SuiteState.lock()) { this.order = order; } }
-    public void setDescription(List<String> description) { synchronized (ru.neverland.core.SuiteState.lock()) { this.description = List.copyOf(description); } }
-    public void setRequirements(Map<String, Integer> requirements) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void setName(String name) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) { this.name = name; } }
+    public void setCategory(ProjectCategory category) { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) { this.category = category == null ? ProjectCategory.OTHER : category; } }
+    public void setIcon(Material icon) { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) { this.icon = icon; } }
+    public void setItemsAdderIcon(String itemsAdderIcon) { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) { this.itemsAdderIcon = itemsAdderIcon; } }
+    public void setSlot(int slot) { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) { this.slot = slot; } }
+    public void setOrder(int order) { try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) { this.order = order; } }
+    public void setDescription(List<String> description) { try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) { this.description = List.copyOf(description); } }
+    public void setRequirements(Map<String, Integer> requirements) { try (var suiteGuard23 = ru.neverland.core.SuiteState.guard()) {
         this.requirements = Collections.unmodifiableMap(new LinkedHashMap<>(requirements));
     } }
-    public void setEditorIcon(ItemStack editorIcon) { synchronized (ru.neverland.core.SuiteState.lock()) { this.editorIcon = editorIcon == null ? null : editorIcon.clone(); } }
-    public void setCustom(boolean custom) { synchronized (ru.neverland.core.SuiteState.lock()) { this.custom = custom; } }
+    public void setEditorIcon(ItemStack editorIcon) { try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) { this.editorIcon = editorIcon == null ? null : editorIcon.clone(); } }
+    public void setCustom(boolean custom) { try (var suiteGuard25 = ru.neverland.core.SuiteState.guard()) { this.custom = custom; } }
 
-    public void setLevel(LevelDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void setLevel(LevelDefinition definition) { try (var suiteGuard26 = ru.neverland.core.SuiteState.guard()) {
         levels.put(definition.level(), definition);
     } }
 }

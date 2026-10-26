@@ -13,11 +13,11 @@ public final class CompanyRepository implements CompanyLedger.Store {
     private CompanyLedger.State state=CompanyLedger.State.empty();
     private boolean writable;
     private java.util.function.BiConsumer<CompanyLedger.State,CompanyLedger.State> audit=(a,b)->{};
-    public void audit(java.util.function.BiConsumer<CompanyLedger.State,CompanyLedger.State> observer){ synchronized (ru.neverland.core.SuiteState.lock()) {audit=Objects.requireNonNull(observer);} }
+    public void audit(java.util.function.BiConsumer<CompanyLedger.State,CompanyLedger.State> observer){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {audit=Objects.requireNonNull(observer);} }
     public CompanyRepository(Path file){this.file=file;}
-    public CompanyLedger.State state(){ synchronized (ru.neverland.core.SuiteState.lock()) {return state;} }
-    public boolean writable(){ synchronized (ru.neverland.core.SuiteState.lock()) {return writable&&ru.neverland.core.AtomicFiles.writable(file);} }
-    public void load()throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public CompanyLedger.State state(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return state;} }
+    public boolean writable(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return writable&&ru.neverland.core.AtomicFiles.writable(file);} }
+    public void load()throws IOException { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         writable=false;
         try {
             var cs=new LinkedHashMap<UUID,Company>();var ps=new LinkedHashMap<UUID,Payment>();var rs=new LinkedHashMap<UUID,Receipt>();
@@ -38,7 +38,7 @@ public final class CompanyRepository implements CompanyLedger.Store {
             state=new CompanyLedger.State(cs,ps,rs);ru.neverland.core.AtomicFiles.loaded(file);writable=true;
         }catch(Exception ex){throw new IOException("companies.yml повреждён; операции остановлены",ex);}
     } }
-    public void save(CompanyLedger.State next)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void save(CompanyLedger.State next)throws IOException { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if(!writable)throw new IOException("Запись компаний остановлена. Проверьте companies.yml и перезапустите сервер");
         var previous=state;
         try {
@@ -54,7 +54,7 @@ public final class CompanyRepository implements CompanyLedger.Store {
         }catch(IOException|RuntimeException ex){writable=false;throw new IOException("Не удалось сохранить компании; денежные операции остановлены",ex);}
         audit.accept(previous,next);
     } }
-    public static void atomic(YamlConfiguration y,Path path)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.AtomicFiles.write(path,y::saveToString);
+    public static void atomic(YamlConfiguration y,Path path)throws IOException { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {ru.neverland.core.AtomicFiles.write(path,y::saveToString);
     } }
     private static ConfigurationSection section(ConfigurationSection s,String k)throws IOException{var v=s.getConfigurationSection(k);if(v==null)throw new IOException("Нет раздела "+k);return v;}
     private static String text(ConfigurationSection s,String k)throws IOException{if(!s.isString(k))throw new IOException("Нет строки "+k);return s.getString(k);}

@@ -18,12 +18,12 @@ public final class PopulationMenu implements Listener {
         final UUID town; final boolean buildings; final int page;
         Inventory inventory;
         View(UUID town, boolean buildings, int page) { this.town=town; this.buildings=buildings; this.page=page; }
-        @Override public Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { return inventory; } }
+        @Override public Inventory getInventory() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return inventory; } }
     }
     public PopulationMenu(org.bukkit.plugin.Plugin plugin, PopulationService service, Messages messages) {
         this.plugin=plugin; this.service=service; this.messages=messages;
     }
-    public void open(Player player, UUID townId, boolean buildings, int requestedPage) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void open(Player player, UUID townId, boolean buildings, int requestedPage) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!player.hasPermission("neverlandtownypopulation.use")) { messages.send(player,"no-permission"); return; }
         service.refreshView();
         var s=service.population(townId).orElse(null);
@@ -93,7 +93,7 @@ public final class PopulationMenu implements Listener {
         meta.setLore(ru.neverland.core.MenuStyle.loreStrings(Arrays.stream(lore).map(line->Messages.color("&7"+line)).toList())); item.setItemMeta(meta); return item;
     }
     private static String signed(double n) { return (n>0?"+":"")+number(n); }
-    @EventHandler public void click(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyPopulation")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    @EventHandler public void click(InventoryClickEvent event) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyPopulation")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getView().getTopInventory().getHolder() instanceof View view)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot()<0 || event.getRawSlot()>=54) return;
@@ -108,7 +108,7 @@ public final class PopulationMenu implements Listener {
             else if(view.buildings && slot==53) open(player,view.town,true,view.page+1);
         });
     } }
-    @EventHandler public void drag(InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyPopulation")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    @EventHandler public void drag(InventoryDragEvent event) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyPopulation")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if(event.getView().getTopInventory().getHolder() instanceof View) event.setCancelled(true);
     } }
 }

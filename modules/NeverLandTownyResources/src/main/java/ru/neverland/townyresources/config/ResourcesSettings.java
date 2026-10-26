@@ -13,7 +13,7 @@ public record ResourcesSettings(int interval,boolean populationLinked,long foodP
         if(display.size()!=8||buildings.isEmpty()||buildings.size()>512)throw new IllegalArgumentException("Нужны восемь ресурсов и 1..512 профилей зданий");
         for(var r:Resource.values())if(initial.get(r)>baseCapacity.get(r))throw new IllegalArgumentException("Начальный запас больше базовой вместимости: "+r.title);
     }
-    public static ResourcesSettings load(ConfigurationSection c,ConfigurationSection projects) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static ResourcesSettings load(ConfigurationSection c,ConfigurationSection projects) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Map<Resource,Display> display=new EnumMap<>(Resource.class);
         for(var r:Resource.values())display.put(r,new Display(c.getString("resources."+r.id()+".name",r.title),c.getString("resources."+r.id()+".icon",r.icon)));
         Map<String,BuildingProfile> profiles=new LinkedHashMap<>();var root=projects.getConfigurationSection("buildings");if(root==null)throw new IllegalArgumentException("Нет buildings");
@@ -29,7 +29,7 @@ public record ResourcesSettings(int interval,boolean populationLinked,long foodP
     private static int integer(ConfigurationSection c,String key,int fallback) {
         Object raw=c.get(key,fallback);try { return new java.math.BigDecimal(String.valueOf(raw)).intValueExact(); }catch(Exception ex){throw new IllegalArgumentException("Требуется целое число: "+key);}
     }
-    public static Map<Resource,Long> amounts(ConfigurationSection c,String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Map<Resource,Long> amounts(ConfigurationSection c,String key) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         Object raw=c.get(key);if(raw!=null&&!(raw instanceof ConfigurationSection))throw new IllegalArgumentException("Ожидается список ресурсов: "+key);
         var p=c.getConfigurationSection(key);var out=new EnumMap<Resource,Long>(Resource.class);
         if(p!=null)for(String id:p.getKeys(false)){Resource r=Resource.parse(id);if(out.put(r,Amounts.parse(p.get(id)))!=null)throw new IllegalArgumentException("Повтор ресурса "+id);}

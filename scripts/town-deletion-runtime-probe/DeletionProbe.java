@@ -21,7 +21,7 @@ public final class DeletionProbe extends JavaPlugin {
     private final List<String> results=new ArrayList<>();private int failed;private Object service,protection;
     private World world;private JavaPlugin control;private TownyBuildsApi builds;private int nextChunk=40;
     private void check(String text,boolean ok){results.add((ok?"PASS ":"FAIL ")+text);if(!ok)failed++;}
-    private void safe(Step action){synchronized(SuiteState.lock()){try{action.run();}catch(Throwable ex){getLogger().log(java.util.logging.Level.SEVERE,"Deletion probe",ex);check(ex.toString(),false);finish();}}}
+    private void safe(Step action){try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){try{action.run();}catch(Throwable ex){getLogger().log(java.util.logging.Level.SEVERE,"Deletion probe",ex);check(ex.toString(),false);finish();}}}
     private void global(Step action){Bukkit.getGlobalRegionScheduler().runDelayed(this,t->safe(action),2);}
     private void region(int cx,Step action){Bukkit.getRegionScheduler().runDelayed(this,world,cx,0,t->safe(action),2);}
     private Object field(Object target,String name)throws Exception{var f=target.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(target);}

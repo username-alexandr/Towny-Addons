@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 
 public final class TimeUtil {
     private static final DateTimeFormatter DATE=DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withZone(ZoneId.systemDefault());private TimeUtil(){}
-    public static String date(long timestamp){ synchronized (ru.neverland.core.SuiteState.lock()) {return DATE.format(Instant.ofEpochMilli(timestamp));} }
-    public static long normalizedEpoch(long raw){ synchronized (ru.neverland.core.SuiteState.lock()) {if(raw<=0)return System.currentTimeMillis();return raw<10_000_000_000L?raw*1000L:raw;} }
-    public static long days(long since){ synchronized (ru.neverland.core.SuiteState.lock()) {return Math.max(0,(System.currentTimeMillis()-since)/86_400_000L);} }
+    public static String date(long timestamp){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return DATE.format(Instant.ofEpochMilli(timestamp));} }
+    public static long normalizedEpoch(long raw){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(raw<=0)return System.currentTimeMillis();return raw<10_000_000_000L?raw*1000L:raw;} }
+    public static long days(long since){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return Math.max(0,(System.currentTimeMillis()-since)/86_400_000L);} }
 }

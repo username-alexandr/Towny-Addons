@@ -62,20 +62,20 @@ public final class BonusService implements Listener {
         this.healthKey = new NamespacedKey(plugin, "health_bonus");
     }
 
-    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void start() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         stopTask();
         long refresh = Math.max(20L, plugin.getConfig().getLong("settings.effects.refresh-ticks", 40L));
         task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::refreshPlayers, 1L, refresh);
     } }
 
-    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void stop() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         stopTask();
         ru.neverland.core.SuiteScheduler.cleanupPlayers(plugin, player -> {removeHealthBonus(player);});
         combatUntil.clear();
     } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onGrow(BlockGrowEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onGrow(BlockGrowEvent event) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         Town town = towny.townAt(event.getBlock().getLocation());
         TownIdeology ideology = current(town, "agriculture");
         if (ideology == null) return;
@@ -92,7 +92,7 @@ public final class BonusService implements Listener {
     } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onSmelt(FurnaceStartSmeltEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onSmelt(FurnaceStartSmeltEvent event) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         Town town = towny.townAt(event.getBlock().getLocation());
         TownIdeology ideology = current(town, "industry");
         if (ideology == null) return;
@@ -101,7 +101,7 @@ public final class BonusService implements Listener {
     } }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlace(BlockPlaceEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onPlace(BlockPlaceEvent event) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!ideologies.active(event.getPlayer(), "infrastructure", true)) return;
         TownIdeology ideology = ideologies.get(event.getPlayer()).orElse(null);
         if (ideology == null) return;
@@ -113,7 +113,7 @@ public final class BonusService implements Listener {
     } }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onMinecartEnter(VehicleEnterEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onMinecartEnter(VehicleEnterEvent event) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getVehicle() instanceof Minecart minecart) || !(event.getEntered() instanceof Player player)) return;
         if (!ideologies.active(player, "infrastructure", true)) return;
         TownIdeology ideology = ideologies.get(player).orElse(null);
@@ -127,7 +127,7 @@ public final class BonusService implements Listener {
     } }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onMinecartExit(VehicleExitEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onMinecartExit(VehicleExitEvent event) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getVehicle() instanceof Minecart minecart)) return;
         ru.neverland.core.SuiteScheduler.entity(plugin,minecart, () -> {
             boolean infrastructurePassenger = minecart.getPassengers().stream()
@@ -138,7 +138,7 @@ public final class BonusService implements Listener {
     } }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onCombat(EntityDamageByEntityEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onCombat(EntityDamageByEntityEvent event) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         long seconds = Math.max(1L, plugin.getConfig().getLong("settings.effects.defense-combat-seconds", 15L));
         long until = System.currentTimeMillis() + seconds * 1000L;
         if (event.getEntity() instanceof Player victim && ideologies.active(victim, "defense", true)) {
@@ -151,7 +151,7 @@ public final class BonusService implements Listener {
     } }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onTrade(PlayerTradeEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onTrade(PlayerTradeEvent event) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         Player player = event.getPlayer();
         if (!ideologies.active(player, "trade", true)) return;
         TownIdeology ideology = ideologies.get(player).orElse(null);
@@ -168,7 +168,7 @@ public final class BonusService implements Listener {
     } }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void onQuit(PlayerQuitEvent event) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         combatUntil.remove(event.getPlayer().getUniqueId());
         removeHealthBonus(event.getPlayer());
     } }

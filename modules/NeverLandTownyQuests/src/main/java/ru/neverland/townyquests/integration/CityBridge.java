@@ -20,7 +20,7 @@ public final class CityBridge {
         return (Map<?, ?>) ApiServices.call("NeverLandTownyBuilds", "ru.neverland.townybuilds.api.TownyBuildsApi",
                 "buildingFootprints", new Class<?>[]{UUID.class}, town);
     }
-    public static Set<Cell> owned(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Set<Cell> owned(Town town) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Set<Cell> result = new HashSet<>();
         for (var block : town.getTownBlocks()) {
             var coord = block.getWorldCoord(); var world = Bukkit.getWorld(coord.getWorldName());
@@ -41,7 +41,7 @@ public final class CityBridge {
         for (int x = x0; x <= x1; x++) for (int z = z0; z <= z1; z++) result.add(new Cell(world, x, z));
         return Set.copyOf(result);
     }
-    public Observation observe(Town town, Project.Stage stage, int maxAge, long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Observation observe(Town town, Project.Stage stage, int maxAge, long now) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         try {
             UUID id = town.getUUID(); var land = owned(town); var buildings = footprints(id);
             if (stage.kind() == Project.Kind.BUILDING) {

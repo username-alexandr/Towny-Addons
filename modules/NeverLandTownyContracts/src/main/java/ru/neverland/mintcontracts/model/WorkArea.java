@@ -10,10 +10,10 @@ public record WorkArea(UUID world,int minX,int y,int minZ,int maxX,int maxZ,Set<
             throw new IllegalArgumentException("Недопустимый размер участка");
         for(String cell:required){int[] p=point(cell);if(p[0]<minX||p[0]>maxX||p[1]<minZ||p[1]>maxZ)throw new IllegalArgumentException("Точка вне участка");}
     }
-    public boolean contains(int x,int z){ synchronized (ru.neverland.core.SuiteState.lock()) {return x>=minX&&x<=maxX&&z>=minZ&&z<=maxZ;} }
-    public static String key(int x,int z){ synchronized (ru.neverland.core.SuiteState.lock()) {return x+":"+z;} }
-    public static int[] point(String key){ synchronized (ru.neverland.core.SuiteState.lock()) {String[] p=key.split(":",-1);if(p.length!=2)throw new IllegalArgumentException("Некорректная точка");int x=Integer.parseInt(p[0]),z=Integer.parseInt(p[1]);if(!key(x,z).equals(key))throw new IllegalArgumentException("Неканоническая точка");return new int[]{x,z};} }
-    public static Set<String> rectangle(int x1,int z1,int x2,int z2,int limit){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean contains(int x,int z){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return x>=minX&&x<=maxX&&z>=minZ&&z<=maxZ;} }
+    public static String key(int x,int z){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return x+":"+z;} }
+    public static int[] point(String key){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {String[] p=key.split(":",-1);if(p.length!=2)throw new IllegalArgumentException("Некорректная точка");int x=Integer.parseInt(p[0]),z=Integer.parseInt(p[1]);if(!key(x,z).equals(key))throw new IllegalArgumentException("Неканоническая точка");return new int[]{x,z};} }
+    public static Set<String> rectangle(int x1,int z1,int x2,int z2,int limit){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         int a=Math.min(x1,x2),b=Math.max(x1,x2),c=Math.min(z1,z2),d=Math.max(z1,z2);long size=((long)b-a+1)*((long)d-c+1);
         if(size<1||size>limit)throw new IllegalArgumentException("Участок слишком большой: максимум "+limit+" точек");
         Set<String> keys=new LinkedHashSet<>();for(int x=a;x<=b;x++)for(int z=c;z<=d;z++)keys.add(key(x,z));return keys;

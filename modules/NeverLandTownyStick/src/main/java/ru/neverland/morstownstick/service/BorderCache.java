@@ -22,7 +22,7 @@ public final class BorderCache {
         this.towny = towny;
     }
 
-    public List<BorderEdge> edges(Town town, long currentTick) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<BorderEdge> edges(Town town, long currentTick) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         long lifetime = Math.max(1L, plugin.getConfig().getLong("particles.town-border-cache-interval", 200L));
         Entry current = cache.get(town.getUUID());
         if (current != null && current.expiresAt >= currentTick) return current.edges;
@@ -31,11 +31,11 @@ public final class BorderCache {
         return edges;
     } }
 
-    public void invalidate(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void invalidate(UUID townId) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (townId != null) cache.remove(townId);
     } }
 
-    public void clear() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void clear() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         cache.clear();
     } }
 }

@@ -19,7 +19,7 @@ public final class NeverLandTownyPopulation extends JavaPlugin {
     private Messages messages;
     private Runnable unregisterPlaceholder;
     private boolean townCommandRegistered;
-    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         try {
@@ -53,7 +53,7 @@ public final class NeverLandTownyPopulation extends JavaPlugin {
             if(expansion.register()) unregisterPlaceholder=expansion::unregister;
         } catch(LinkageError ex) { getLogger().warning("PlaceholderAPI несовместим: "+ex.getMessage()); }
     }
-    public boolean reloadPopulation() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean reloadPopulation() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         try {
             var settings=readSettings(); var newMessages=read("messages.yml");
             service.reload(settings); messages.reload(newMessages); return true;
@@ -71,7 +71,7 @@ public final class NeverLandTownyPopulation extends JavaPlugin {
         result.options().copyDefaults(true);
         return result;
     }
-    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onDisable() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if(service!=null) service.stop();

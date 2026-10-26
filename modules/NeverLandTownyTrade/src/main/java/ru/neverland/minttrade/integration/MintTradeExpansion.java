@@ -13,11 +13,11 @@ import ru.neverland.minttrade.util.TimeUtil;
 public final class MintTradeExpansion extends PlaceholderExpansion {
     private final MintTownyTrade plugin; private final TownyHook towny; private final TradeService trade;
     public MintTradeExpansion(MintTownyTrade plugin, TownyHook towny, TradeService trade) { this.plugin = plugin; this.towny = towny; this.trade = trade; }
-    @Override public @NotNull String getIdentifier() { synchronized (ru.neverland.core.SuiteState.lock()) { return "minttrade"; } }
-    @Override public @NotNull String getAuthor() { synchronized (ru.neverland.core.SuiteState.lock()) { return "Alexander Sokolov"; } }
-    @Override public @NotNull String getVersion() { synchronized (ru.neverland.core.SuiteState.lock()) { return plugin.getPluginMeta().getVersion(); } }
-    @Override public boolean persist() { synchronized (ru.neverland.core.SuiteState.lock()) { return true; } }
-    @Override public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public @NotNull String getIdentifier() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return "minttrade"; } }
+    @Override public @NotNull String getAuthor() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return "Alexander Sokolov"; } }
+    @Override public @NotNull String getVersion() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return plugin.getPluginMeta().getVersion(); } }
+    @Override public boolean persist() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return true; } }
+    @Override public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if (!(offline instanceof Player player)) return ""; Town town = towny.town(player);
         return switch (params.toLowerCase()) {
             case "town" -> town == null ? "" : town.getName(); case "market_level" -> String.valueOf(trade.marketLevel(town));

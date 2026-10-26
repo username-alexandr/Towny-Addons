@@ -27,7 +27,7 @@ public final class DataStore {
         this.file = new File(plugin.getDataFolder(), "towns.yml");
     }
 
-    public void load() { synchronized (ru.neverland.core.SuiteState.lock()) {ready=false;
+    public void load() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {ready=false;
         towns.clear();
 
         YamlConfiguration yaml = ru.neverland.core.SafeYaml.load(file.toPath());ru.neverland.core.SafeYaml.keys(yaml,"towns");
@@ -54,24 +54,24 @@ public final class DataStore {
         dirty = false;
     loaded();} }
 
-    public Optional<TownIdeology> get(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
+    public Optional<TownIdeology> get(UUID townId) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {gate();
         return Optional.ofNullable(towns.get(townId));
     } }
 
-    public void set(TownIdeology ideology) { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
+    public void set(TownIdeology ideology) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {gate();
         towns.put(ideology.townId(), ideology);
         dirty = true;
     } }
 
-    public void remove(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
+    public void remove(UUID townId) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {gate();
         if (towns.remove(townId) != null) dirty = true;
     } }
 
-    public void saveIfDirty() { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
+    public void saveIfDirty() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {gate();
         if (dirty) save();
     } }
 
-    public void save() { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
+    public void save() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {gate();
         YamlConfiguration yaml = new YamlConfiguration();
         for (TownIdeology data : towns.values()) {
             String path = "towns." + data.townId() + ".";

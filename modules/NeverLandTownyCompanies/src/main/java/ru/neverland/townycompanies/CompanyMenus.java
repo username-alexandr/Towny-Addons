@@ -15,10 +15,10 @@ import static ru.neverland.townycompanies.CompanyService.message;
 public final class CompanyMenus implements Listener {
     private final JavaPlugin plugin;private final CompanyService service;private final CompanyCommand command;
     private static final DateTimeFormatter DATE=DateTimeFormatter.ofPattern("dd.MM HH:mm 'UTC'").withZone(ZoneOffset.UTC);
-    public static String date(long time){ synchronized (ru.neverland.core.SuiteState.lock()) {return DATE.format(Instant.ofEpochMilli(time));} }
+    public static String date(long time){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return DATE.format(Instant.ofEpochMilli(time));} }
     private static final class View implements InventoryHolder {
         final UUID player;final Map<Integer,CompanyCommand.Action> actions=new HashMap<>();Inventory inventory;
-        View(UUID player){this.player=player;}public Inventory getInventory(){ synchronized (ru.neverland.core.SuiteState.lock()) {return inventory;} }
+        View(UUID player){this.player=player;}public Inventory getInventory(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return inventory;} }
     }
     public CompanyMenus(JavaPlugin plugin,CompanyService service,CompanyCommand command){this.plugin=plugin;this.service=service;this.command=command;}
     private View view(Player p,String title){service.requireUse(p);var v=new View(p.getUniqueId());v.inventory=ru.neverland.core.MenuStyle.inventory(plugin, v,54,"§6"+title);return v;}
@@ -31,7 +31,7 @@ public final class CompanyMenus implements Listener {
         put(v,49,Material.BOOK,"Моё предприятие",List.of("Страница "+(page+1)),()->open(p));
         if((page+1)*45<size)put(v,53,Material.ARROW,"Следующая страница",List.of(),()->open.accept(page+1));
     }
-    public void open(Player p){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void open(Player p){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         service.requireUse(p);Company c=service.ledger.membership(p.getUniqueId());View v=view(p,"Предприятия города");
         if(c==null){put(v,13,Material.WRITABLE_BOOK,"Зарегистрировать предприятие",List.of("Магазин, шахта, ферма или транспорт","Общий счёт, участники и городские заказы"),()->registration(p));}
         else {
@@ -49,13 +49,13 @@ public final class CompanyMenus implements Listener {
         put(v,53,Material.KNOWLEDGE_BOOK,"Помощь",List.of("Команды предприятия"),()->command.onCommand(p,null,"company",new String[]{"help"}));show(p,v);
     } }
     private void registration(Player p){View v=view(p,"Регистрация предприятия");int slot=10;for(Kind k:Kind.values())put(v,slot+=2,Material.valueOf(k.icon),k.label,List.of("Регистрация бесплатная","Налог: "+format(service.rate(k))+" / "+service.interval()/3_600_000+" ч","Нажмите, чтобы задать название"),()->{p.closeInventory();message(p,"/company create "+k.name().toLowerCase(Locale.ROOT)+" <название>");});pages(p,v,0,0,n->open(p));show(p,v);}
-    public void confirm(Player p,String description){ synchronized (ru.neverland.core.SuiteState.lock()) {View v=view(p,"Подтверждение");put(v,13,Material.PAPER,"Условия",wrap(description),null);put(v,20,Material.LIME_DYE,"Подтвердить",List.of("Подтверждение действует 30 секунд"),()->command.confirm(p));put(v,24,Material.RED_DYE,"Отмена",List.of(),()->command.onCommand(p,null,"company",new String[]{"cancel"}));show(p,v);} }
+    public void confirm(Player p,String description){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {View v=view(p,"Подтверждение");put(v,13,Material.PAPER,"Условия",wrap(description),null);put(v,20,Material.LIME_DYE,"Подтвердить",List.of("Подтверждение действует 30 секунд"),()->command.confirm(p));put(v,24,Material.RED_DYE,"Отмена",List.of(),()->command.onCommand(p,null,"company",new String[]{"cancel"}));show(p,v);} }
     private List<String> wrap(String text){List<String> lines=new ArrayList<>();String line="";for(String word:text.split(" ")){if(line.length()+word.length()>48){lines.add(line);line="";}line+=(line.isEmpty()?"":" ")+word;}if(!line.isEmpty())lines.add(line);return lines;}
-    public void directory(Player p,int requested){ synchronized (ru.neverland.core.SuiteState.lock()) {var town=CompanyService.town(p.getUniqueId());if(town==null)throw new IllegalArgumentException("Вы не состоите в городе");
+    public void directory(Player p,int requested){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {var town=CompanyService.town(p.getUniqueId());if(town==null)throw new IllegalArgumentException("Вы не состоите в городе");
         List<Company> list=service.ledger.state().companies().values().stream().filter(c->!c.closed()&&c.town().equals(town.getUUID())).sorted(Comparator.comparing(Company::name)).toList();int page=page(requested,list.size());View v=view(p,"Компании: "+town.getName());
         for(int i=page*45;i<Math.min(list.size(),(page+1)*45);i++){Company c=list.get(i);put(v,i%45,Material.valueOf(c.kind().icon),c.name(),List.of(c.kind().label,"Владелец: "+service.residentName(c.owner()),"Участники: "+c.members().size(),"ID: "+c.id()),null);}pages(p,v,page,list.size(),n->directory(p,n));show(p,v);
     } }
-    public void members(Player p,int requested){ synchronized (ru.neverland.core.SuiteState.lock()) {Company c=service.own(p);var list=c.members().entrySet().stream().sorted(Comparator.comparing(e->service.residentName(e.getKey()))).toList();int page=page(requested,list.size());View v=view(p,"Участники компании");
+    public void members(Player p,int requested){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {Company c=service.own(p);var list=c.members().entrySet().stream().sorted(Comparator.comparing(e->service.residentName(e.getKey()))).toList();int page=page(requested,list.size());View v=view(p,"Участники компании");
         for(int i=page*45;i<Math.min(list.size(),(page+1)*45);i++){var e=list.get(i);put(v,i%45,Material.PLAYER_HEAD,service.residentName(e.getKey()),List.of(e.getValue().label),()->member(p,e.getKey()));}pages(p,v,page,list.size(),n->members(p,n));show(p,v);
     } }
     private void member(Player p,UUID target){Company c=service.own(p);if(!c.members().containsKey(target))throw new IllegalArgumentException("Участник вышел из компании");View v=view(p,"Участник: "+service.residentName(target));
@@ -67,23 +67,23 @@ public final class CompanyMenus implements Listener {
             put(v,31,Material.NAME_TAG,"Предложить владение",List.of("Получатель должен принять предложение"),()->command.quote(p,"Передать компанию игроку "+service.residentName(target),()->service.offerOwnership(p,target)));
         }pages(p,v,0,0,n->members(p,0));show(p,v);
     }
-    public void invitations(Player p,int requested){ synchronized (ru.neverland.core.SuiteState.lock()) {long now=System.currentTimeMillis();var list=service.ledger.state().companies().values().stream().filter(c->!c.closed()&&c.invitations().getOrDefault(p.getUniqueId(),0L)>now).sorted(Comparator.comparing(Company::name)).toList();int page=page(requested,list.size());View v=view(p,"Приглашения в компании");
+    public void invitations(Player p,int requested){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {long now=System.currentTimeMillis();var list=service.ledger.state().companies().values().stream().filter(c->!c.closed()&&c.invitations().getOrDefault(p.getUniqueId(),0L)>now).sorted(Comparator.comparing(Company::name)).toList();int page=page(requested,list.size());View v=view(p,"Приглашения в компании");
         for(int i=page*45;i<Math.min(list.size(),(page+1)*45);i++){Company c=list.get(i);put(v,i%45,Material.PAPER,c.name(),List.of(c.kind().label,"Принять приглашение"),()->command.quote(p,"Вступить в «"+c.name()+"»",()->service.join(p,c)));}pages(p,v,page,list.size(),n->invitations(p,n));show(p,v);
     } }
-    public void contracts(Player p,int requested){ synchronized (ru.neverland.core.SuiteState.lock()) {Company c=service.own(p);var list=service.contracts.offers(c.town());int page=page(requested,list.size());View v=view(p,"Заказы для компании");
+    public void contracts(Player p,int requested){ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {Company c=service.own(p);var list=service.contracts.offers(c.town());int page=page(requested,list.size());View v=view(p,"Заказы для компании");
         for(int i=page*45;i<Math.min(list.size(),(page+1)*45);i++){var o=list.get(i);String assigned=(String)o.get("company");boolean mine=c.id().toString().equals(assigned);UUID id=UUID.fromString((String)o.get("id"));
             put(v,i%45,mine?Material.WRITABLE_BOOK:Material.PAPER,(String)o.get("name"),List.of("Цель: "+o.get("target"),"Прогресс: "+o.get("progress")+"/"+o.get("goal"),"Награда компании: "+o.get("reward"),"Срок: "+date(((Number)o.get("expires")).longValue()),"Исполнитель: "+o.get("assignee"),mine?"Нажмите: выполнение / освобождение":"Нажмите: принять свободный заказ"),()->{if(mine)contract(p,id);else command.takeQuote(p,id);});}
         pages(p,v,page,list.size(),n->contracts(p,n));show(p,v);
     } }
     private void contract(Player p,UUID id){service.own(p);View v=view(p,"Выполнение заказа");put(v,20,Material.CHEST,"Доска городских заказов",List.of("Поставка: нажмите заказ на доске","Остальные цели учитываются при игре"),()->{p.closeInventory();p.performCommand("t contracts");});put(v,24,Material.ARROW,"Освободить заказ",List.of("Только с нулевым прогрессом"),()->{service.release(p,id);contracts(p,0);});pages(p,v,0,0,n->contracts(p,0));show(p,v);}
-    public void payments(Player p,int requested){ synchronized (ru.neverland.core.SuiteState.lock()) {Company c=service.own(p);var list=service.ledger.state().payments().values().stream().filter(t->t.company().equals(c.id())).sorted(Comparator.comparingLong(Payment::created).reversed()).toList();int page=page(requested,list.size());View v=view(p,"Платежи компании");
+    public void payments(Player p,int requested){ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {Company c=service.own(p);var list=service.ledger.state().payments().values().stream().filter(t->t.company().equals(c.id())).sorted(Comparator.comparingLong(Payment::created).reversed()).toList();int page=page(requested,list.size());View v=view(p,"Платежи компании");
         for(int i=page*45;i<Math.min(list.size(),(page+1)*45);i++){Payment pay=list.get(i);put(v,i%45,pay.phase()==Phase.DONE?Material.LIME_DYE:Material.PAPER,purpose(pay.purpose()),List.of("Сумма: "+format(pay.amount()),"Статус: "+phase(pay.phase()),"Дата: "+date(pay.created()),"ID: "+pay.id()),null);}pages(p,v,page,list.size(),n->payments(p,n));show(p,v);
     } }
     private int page(int n,int size){return Math.max(0,Math.min(n,Math.max(0,(size-1)/45)));}
     private String purpose(Purpose p){return switch(p){case DEPOSIT->"Пополнение";case WITHDRAW->"Вывод владельцу";case TAX->"Налог в городскую казну";case REFUND->"Возврат остатка награды городу";};}
     private String phase(Phase p){return switch(p){case READY->"В очереди";case PENDING->"Нужна банковская сверка";case DONE->"Выполнен";case REJECTED->"Отклонён банком";};}
-    @EventHandler public void click(InventoryClickEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCompanies")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(!(e.getView().getTopInventory().getHolder() instanceof View v))return;e.setCancelled(true);if(!(e.getWhoClicked() instanceof Player p)||!v.player.equals(p.getUniqueId())||e.getRawSlot()<0||e.getRawSlot()>=v.inventory.getSize())return;
+    @EventHandler public void click(InventoryClickEvent e){ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCompanies")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(!(e.getView().getTopInventory().getHolder() instanceof View v))return;e.setCancelled(true);if(!(e.getWhoClicked() instanceof Player p)||!v.player.equals(p.getUniqueId())||e.getRawSlot()<0||e.getRawSlot()>=v.inventory.getSize())return;
         var action=v.actions.get(e.getRawSlot());if(action==null)return;ru.neverland.core.SuiteScheduler.entity(plugin, p,()->{if(p.isOnline()&&p.getOpenInventory().getTopInventory()==v.inventory)command.safe(p,action);});} }
-    @EventHandler public void drag(InventoryDragEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCompanies")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(e.getView().getTopInventory().getHolder() instanceof View)e.setCancelled(true);} }
-    public void close(){ synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.SuiteScheduler.players(plugin, p -> {if(p.getOpenInventory().getTopInventory().getHolder() instanceof View)p.closeInventory();});} }
+    @EventHandler public void drag(InventoryDragEvent e){ try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCompanies")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(e.getView().getTopInventory().getHolder() instanceof View)e.setCancelled(true);} }
+    public void close(){ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {ru.neverland.core.SuiteScheduler.players(plugin, p -> {if(p.getOpenInventory().getTopInventory().getHolder() instanceof View)p.closeInventory();});} }
 }

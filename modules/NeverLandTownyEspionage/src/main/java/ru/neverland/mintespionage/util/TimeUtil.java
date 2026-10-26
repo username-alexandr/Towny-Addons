@@ -2,7 +2,7 @@ package ru.neverland.mintespionage.util;
 
 public final class TimeUtil {
     private TimeUtil() { }
-    public static String format(long milliseconds) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String format(long milliseconds) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         long seconds = Math.max(0, (milliseconds + 999) / 1000);
         long days = seconds / 86400; seconds %= 86400;
         long hours = seconds / 3600; seconds %= 3600;

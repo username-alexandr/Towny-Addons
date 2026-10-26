@@ -6,6 +6,6 @@ public enum ReputationAspect {
     DIPLOMATIC("Дипломатическая"), TRADE("Торговая"), MILITARY("Военная");
     private final String title;
     ReputationAspect(String title) { this.title = title; }
-    public String title() { synchronized (ru.neverland.core.SuiteState.lock()) { return title; } }
-    public static ReputationAspect parse(String value) { synchronized (ru.neverland.core.SuiteState.lock()) { return valueOf(value.toUpperCase(Locale.ROOT)); } }
+    public String title() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return title; } }
+    public static ReputationAspect parse(String value) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return valueOf(value.toUpperCase(Locale.ROOT)); } }
 }

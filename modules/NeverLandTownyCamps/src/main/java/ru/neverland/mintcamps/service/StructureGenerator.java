@@ -14,7 +14,7 @@ import java.util.Map;
 public final class StructureGenerator {
     public static final BlockPos CAMPFIRE_RELATIVE = new BlockPos(0, 0, 0);
 
-    public List<Placement> generate(int level, StyleDefinition style) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<Placement> generate(int level, StyleDefinition style) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Builder builder = new Builder();
         addCommon(builder, style);
         switch (Math.max(1, Math.min(3, level))) {
@@ -26,7 +26,7 @@ public final class StructureGenerator {
         return builder.values();
     } }
 
-    public BlockPos stashRelative(int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public BlockPos stashRelative(int level) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return switch (Math.max(1, Math.min(3, level))) {
             case 1 -> new BlockPos(1, 1, 5);
             case 2 -> new BlockPos(2, 1, 6);

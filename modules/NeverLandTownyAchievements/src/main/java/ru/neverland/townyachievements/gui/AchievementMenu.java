@@ -17,7 +17,7 @@ public final class AchievementMenu implements Listener {
     private static final class View implements InventoryHolder {
         final UUID player, town; final Map<Integer, Action> buttons = new HashMap<>(); Inventory inventory;
         View(UUID player, UUID town) { this.player = player; this.town = town; }
-        @Override public Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { return inventory; } }
+        @Override public Inventory getInventory() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return inventory; } }
     }
     private View view(Player p, String title) {
         var town = service.requireTown(p); var v = new View(p.getUniqueId(), town.getUUID()); v.inventory = Bukkit.createInventory(v, 54, title);
@@ -30,8 +30,8 @@ public final class AchievementMenu implements Listener {
         meta.setLore(lore.stream().map(line -> "§7" + line).toList()); item.setItemMeta(meta); v.inventory.setItem(slot, item);
         if (action != null) v.buttons.put(slot, action);
     }
-    public void home(Player p) { synchronized (ru.neverland.core.SuiteState.lock()) { list(p, false, 0); } }
-    public void rewards(Player p) { synchronized (ru.neverland.core.SuiteState.lock()) { list(p, true, 0); } }
+    public void home(Player p) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { list(p, false, 0); } }
+    public void rewards(Player p) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { list(p, true, 0); } }
     private void list(Player p, boolean rewards, int requested) {
         var v = view(p, rewards ? "Награды города" : "Достижения города"); var city = service.state(v.town);
         var entries = service.catalogue(v.town).values().stream().filter(a -> !rewards || a.earned()).toList();
@@ -50,7 +50,7 @@ public final class AchievementMenu implements Listener {
         if ((page + 1) * 45 < entries.size()) button(v, 53, "ARROW", "Следующая страница", List.of(), () -> list(p, rewards, page + 1));
         p.openInventory(v.inventory);
     }
-    public void achievement(Player p, String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void achievement(Player p, String id) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         var v = view(p, "Достижение и награды"); var progress = service.catalogue(v.town).get(id);
         if (progress == null) throw new IllegalArgumentException("Достижение отсутствует"); var a = progress.definition();
         button(v, 4, a.icon(), a.name(), List.of(a.description(), progress.earned() ? "§aОткрыто навсегда" : "Лучший прогресс: " + progress.best() + "/" + a.target(), service.detail(v.town, id)), null);
@@ -78,13 +78,13 @@ public final class AchievementMenu implements Listener {
         button(v, 53, "BARRIER", "Снять титул города", List.of("Для мэра или уполномоченного"), () -> { service.selectTitle(p, "none"); achievement(p, id); });
         p.openInventory(v.inventory);
     } }
-    @EventHandler public void click(InventoryClickEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyAchievements")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler public void click(InventoryClickEvent e) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyAchievements")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         if (!(e.getView().getTopInventory().getHolder() instanceof View v)) return; e.setCancelled(true);
         if (!(e.getWhoClicked() instanceof Player p) || !v.player.equals(p.getUniqueId())) return;
         var town = service.town(p);
         if (town == null || !v.town.equals(town.getUUID()) || !p.hasPermission("neverlandtownyachievements.use")) { p.closeInventory(); return; }
         var action = v.buttons.get(e.getRawSlot()); if (action != null) try { action.run(); } catch (Exception ex) { p.sendMessage("§c" + ex.getMessage()); }
     } }
-    @EventHandler public void drag(InventoryDragEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyAchievements")){ru.neverland.core.ModuleGate.stopEvent(e);return;} if (e.getView().getTopInventory().getHolder() instanceof View) e.setCancelled(true); } }
-    public void close() { synchronized (ru.neverland.core.SuiteState.lock()) { ru.neverland.core.SuiteScheduler.cleanupPlayers(plugin,p->{if(p.getOpenInventory().getTopInventory().getHolder() instanceof View)p.closeInventory();}); } }
+    @EventHandler public void drag(InventoryDragEvent e) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyAchievements")){ru.neverland.core.ModuleGate.stopEvent(e);return;} if (e.getView().getTopInventory().getHolder() instanceof View) e.setCancelled(true); } }
+    public void close() { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { ru.neverland.core.SuiteScheduler.cleanupPlayers(plugin,p->{if(p.getOpenInventory().getTopInventory().getHolder() instanceof View)p.closeInventory();}); } }
 }

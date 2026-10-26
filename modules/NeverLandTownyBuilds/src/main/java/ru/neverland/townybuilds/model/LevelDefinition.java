@@ -26,27 +26,27 @@ public final class LevelDefinition {
         this.commands = List.copyOf(commands);
     }
 
-    public int level() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int level() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return level;
     } }
 
-    public double money() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public double money() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return money;
     } }
 
-    public int bonusBlocks() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int bonusBlocks() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         return bonusBlocks;
     } }
 
-    public List<ItemStack> resources() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<ItemStack> resources() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         return resources.stream().map(ItemStack::clone).toList();
     } }
 
-    public Map<PotionEffectType, Integer> effects() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Map<PotionEffectType, Integer> effects() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         return effects;
     } }
 
-    public List<String> commands() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<String> commands() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         return commands;
     } }
 }

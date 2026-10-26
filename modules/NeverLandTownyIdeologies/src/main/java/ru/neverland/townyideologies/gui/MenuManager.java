@@ -58,7 +58,7 @@ public final class MenuManager implements Listener {
         this.actionKey = new NamespacedKey(plugin, "action");
     }
 
-    public void openList(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void openList(Player player) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Town town = towny.town(player);
         if (town == null) {
             messages.send(player, "town-required");
@@ -74,7 +74,7 @@ public final class MenuManager implements Listener {
         player.openInventory(inventory);
     } }
 
-    public void openDetails(Player player, String ideologyId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void openDetails(Player player, String ideologyId) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         Town town = towny.town(player);
         IdeologyDefinition definition = registry.find(ideologyId).orElse(null);
         if (town == null || definition == null) {
@@ -112,7 +112,7 @@ public final class MenuManager implements Listener {
     }
 
     @EventHandler
-    public void onClick(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onClick(InventoryClickEvent event) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         InventoryHolder holder = event.getView().getTopInventory().getHolder(false);
         if (!(holder instanceof MenuHolder) || !(event.getWhoClicked() instanceof Player player)) return;
         event.setCancelled(true);
@@ -150,7 +150,7 @@ public final class MenuManager implements Listener {
     } }
 
     @EventHandler
-    public void onDrag(InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onDrag(InventoryDragEvent event) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (event.getView().getTopInventory().getHolder(false) instanceof MenuHolder) event.setCancelled(true);
     } }
 

@@ -14,13 +14,13 @@ import ru.neverland.integration.TreasuryAccess;
 public final class SupplyGateway implements SupplyProcessor.Gateway {
     private final JavaPlugin plugin;private final TownyHook towny;private final TradeService trade;private final TaxesBridge taxes;
     public SupplyGateway(JavaPlugin plugin,TownyHook towny,TradeService trade,TaxesBridge taxes){this.plugin=plugin;this.towny=towny;this.trade=trade;this.taxes=taxes;}
-    public boolean available(){ synchronized (ru.neverland.core.SuiteState.lock()) {try{access();return true;}catch(Exception ex){return false;}} }
+    public boolean available(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {try{access();return true;}catch(Exception ex){return false;}} }
     private ru.neverland.core.ApiServices.Connection access(){return ru.neverland.core.ApiServices.require(plugin.getConfig().getString("warehouse.plugin","NeverLandTownyBuilds"),"ru.neverland.townybuilds.api.BuildingStorageApi","reserveTrade","settleTrade","acknowledgeTrade");}
     private Object call(String method,Class<?>[] signature,Object... args)throws Exception {
         try{return access().invoke(method,signature,args);}
         catch(InvocationTargetException ex){if(ex.getCause() instanceof Exception e)throw e;throw new IllegalStateException(ex.getCause());}
     }
-    public String termsReady(SupplyContract c){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String termsReady(SupplyContract c){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         Town seller=towny.town(c.terms().seller()),buyer=towny.town(c.terms().buyer());
         if(seller==null||buyer==null)return "Один из городов удалён";
         if(!available())return "Для автопоставок нужен NeverLandTownyBuilds 0.8.7 или новее";
@@ -28,7 +28,7 @@ public final class SupplyGateway implements SupplyProcessor.Gateway {
         if(!TradeService.importsAllowed(buyer,seller))return "Импорт ограничен политикой покупателя";
         return taxes.supplyRestriction(seller.getUUID(),buyer.getUUID());
     } }
-    @Override public String ready(SupplyContract c){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public String ready(SupplyContract c){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if(!plugin.getConfig().getBoolean("contracts.enabled",true))return "Автопоставки отключены администратором";
         String blocked=termsReady(c);if(blocked!=null)return blocked;
         Town buyer=towny.town(c.terms().buyer());
@@ -37,13 +37,13 @@ public final class SupplyGateway implements SupplyProcessor.Gateway {
         catch(RuntimeException ex){return "Бюджет инфраструктуры недоступен";}
         return null;
     } }
-    public static ItemStack decode(String data){ synchronized (ru.neverland.core.SuiteState.lock()) {return ItemStack.deserializeBytes(Base64.getDecoder().decode(data));} }
-    @Override public String reserve(SupplyContract c)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {return (String)call("reserveTrade",new Class<?>[]{UUID.class,UUID.class,UUID.class,ItemStack.class,int.class},c.terms().seller(),c.terms().buyer(),c.attempt().id(),decode(c.terms().itemData()),c.terms().amount());} }
-    @Override public String settle(SupplyContract c,boolean deliver)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {return (String)call("settleTrade",new Class<?>[]{UUID.class,UUID.class,boolean.class},c.terms().seller(),c.attempt().id(),deliver);} }
-    public boolean audit(SupplyContract c){ synchronized (ru.neverland.core.SuiteState.lock()) {if(c.attempt()==null)return true;var t=c.terms();return ru.neverland.core.AuditTrail.record(plugin,c.attempt().phase().name(),c.attempt().id().toString(),"SUPPLY_DEAL",c.attempt().phase().name(),ru.neverland.core.AuditRecord.Party.system(),ru.neverland.core.AuditTrail.town(t.seller()),ru.neverland.core.AuditTrail.town(t.buyer()),ru.neverland.core.AuditTrail.item(decode(t.itemData())),t.amount(),ru.neverland.core.AuditTrail.cents(t.cents()),"contract="+t.id()+"; "+c.note());} }
-    @Override public void acknowledge(SupplyContract c)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.AuditTrail.require(audit(c));call("acknowledgeTrade",new Class<?>[]{UUID.class,UUID.class},c.terms().seller(),c.attempt().id());} }
-    @Override public boolean debit(SupplyContract c)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {return payment(c,false);} }
-    @Override public boolean credit(SupplyContract c)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {return payment(c,true);} }
+    public static ItemStack decode(String data){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return ItemStack.deserializeBytes(Base64.getDecoder().decode(data));} }
+    @Override public String reserve(SupplyContract c)throws Exception { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {return (String)call("reserveTrade",new Class<?>[]{UUID.class,UUID.class,UUID.class,ItemStack.class,int.class},c.terms().seller(),c.terms().buyer(),c.attempt().id(),decode(c.terms().itemData()),c.terms().amount());} }
+    @Override public String settle(SupplyContract c,boolean deliver)throws Exception { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {return (String)call("settleTrade",new Class<?>[]{UUID.class,UUID.class,boolean.class},c.terms().seller(),c.attempt().id(),deliver);} }
+    public boolean audit(SupplyContract c){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {if(c.attempt()==null)return true;var t=c.terms();return ru.neverland.core.AuditTrail.record(plugin,c.attempt().phase().name(),c.attempt().id().toString(),"SUPPLY_DEAL",c.attempt().phase().name(),ru.neverland.core.AuditRecord.Party.system(),ru.neverland.core.AuditTrail.town(t.seller()),ru.neverland.core.AuditTrail.town(t.buyer()),ru.neverland.core.AuditTrail.item(decode(t.itemData())),t.amount(),ru.neverland.core.AuditTrail.cents(t.cents()),"contract="+t.id()+"; "+c.note());} }
+    @Override public void acknowledge(SupplyContract c)throws Exception { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {ru.neverland.core.AuditTrail.require(audit(c));call("acknowledgeTrade",new Class<?>[]{UUID.class,UUID.class},c.terms().seller(),c.attempt().id());} }
+    @Override public boolean debit(SupplyContract c)throws Exception { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {return payment(c,false);} }
+    @Override public boolean credit(SupplyContract c)throws Exception { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {return payment(c,true);} }
     private boolean payment(SupplyContract c,boolean deposit)throws Exception {
         Town town=towny.town(deposit?c.terms().seller():c.terms().buyer());if(town==null)return false;
         Account account=town.getAccount();String token="[supply:"+c.attempt().id()+"]";

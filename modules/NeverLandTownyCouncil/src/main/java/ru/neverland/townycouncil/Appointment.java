@@ -9,5 +9,5 @@ public record Appointment(UUID town, MinisterRole role, UUID resident, UUID mayo
         if (appointedAt < 0 || actor == null || actor.isBlank() || actor.length() > 200 || resident.equals(mayor))
             throw new IllegalArgumentException("Повреждено назначение министра");
     }
-    public String key() { synchronized (ru.neverland.core.SuiteState.lock()) { return town + "/" + role.id(); } }
+    public String key() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return town + "/" + role.id(); } }
 }

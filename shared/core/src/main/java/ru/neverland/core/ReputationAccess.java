@@ -6,7 +6,7 @@ import java.util.UUID;
 public final class ReputationAccess {
     private static final String PLUGIN = "NeverLandTownyReputation", API = "ru.neverland.reputation.api.TownyReputationApi";
     private ReputationAccess() { }
-    public static boolean deliver(ReputationOutcome outcome) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean deliver(ReputationOutcome outcome) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var c = ApiServices.connect(PLUGIN, API, 1, "recordOutcome", "healthy");
         if (c.state() == ApiServices.State.NOT_INSTALLED) return true;
         if (!c.ready()) return false;
@@ -17,7 +17,7 @@ public final class ReputationAccess {
             return "APPLIED".equals(result) || "DUPLICATE".equals(result);
         } catch (ReflectiveOperationException | RuntimeException | LinkageError ex) { return false; }
     } }
-    public static double tradeFeeMultiplier(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static double tradeFeeMultiplier(UUID town) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         var c = ApiServices.connect(PLUGIN, API, 1, "tradeFeeMultiplier", "healthy");
         if (c.state() == ApiServices.State.NOT_INSTALLED) return 1;
         if (!c.ready()) throw new IllegalStateException("Репутация недоступна; новый расчёт отложен");

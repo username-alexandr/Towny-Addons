@@ -57,19 +57,19 @@ import java.util.concurrent.ThreadLocalRandom;
 /** Trade menus and stall settings; ShopService owns every stock/money mutation of a purchase. */
 public final class CivicShopMenus implements Listener {
     private record Offer(Material material,long cents){}
-    private record ShopHolder(UUID viewer,UUID townId,Map<Integer,Offer> displayed) implements InventoryHolder {public Inventory getInventory(){ synchronized (ru.neverland.core.SuiteState.lock()) {return null;} }}
-    private record PurchasesHolder(UUID viewer,Map<Integer,UUID> orders,int page,Inventory back) implements InventoryHolder {public Inventory getInventory(){ synchronized (ru.neverland.core.SuiteState.lock()) {return null;} }}
+    private record ShopHolder(UUID viewer,UUID townId,Map<Integer,Offer> displayed) implements InventoryHolder {public Inventory getInventory(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return null;} }}
+    private record PurchasesHolder(UUID viewer,Map<Integer,UUID> orders,int page,Inventory back) implements InventoryHolder {public Inventory getInventory(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return null;} }}
     private static final DecimalFormat MONEY=new DecimalFormat("#,##0.##",DecimalFormatSymbols.getInstance(Locale.forLanguageTag("ru-RU")));
     private final JavaPlugin plugin;private final TownyHook towny;private final DataStore dataStore;private final MessageService messages;private final RussianItemNames itemNames;private final CivicService civic;
     private final ru.neverland.townybuilds.shop.ShopService service;
     public CivicShopMenus(JavaPlugin plugin,TownyHook towny,DataStore data,MessageService messages,RussianItemNames names,CivicService civic){this.plugin=plugin;this.towny=towny;dataStore=data;this.messages=messages;itemNames=names;this.civic=civic;service=new ru.neverland.townybuilds.shop.ShopService(plugin,data);Bukkit.getPluginManager().registerEvents(this,plugin);}
-    public ru.neverland.townybuilds.shop.ShopService service(){ synchronized (ru.neverland.core.SuiteState.lock()) {return service;} }
-    public void start(){ synchronized (ru.neverland.core.SuiteState.lock()) {service.start();} }public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {service.stop();} }
+    public ru.neverland.townybuilds.shop.ShopService service(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return service;} }
+    public void start(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {service.start();} }public void stop(){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {service.stop();} }
     private Town requireTown(Player p){return civic.requireTown(p);}
     private boolean requireMayor(Player p,Town t){return civic.requireMayor(p,t);}
     private boolean requireProject(Player p,TownData d,String id){return civic.requireProject(p,d,id);}
     private void openCivicStorage(Player p,Town town,TownData d,String id){((ru.neverland.townybuilds.NeverLandTownyBuilds)plugin).storage().openStorage(p,id);}
-    public void setStall(Player player, String rawId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void setStall(Player player, String rawId) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         String id = normalizeId(rawId);
         if (id.isBlank()) {
             messages.send(player, "civic-invalid-stall");
@@ -86,7 +86,7 @@ public final class CivicShopMenus implements Listener {
         messages.send(player, "civic-stall-set", Map.of("stall", id));
     } }
 
-    public void removeStall(org.bukkit.command.CommandSender sender, String rawId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void removeStall(org.bukkit.command.CommandSender sender, String rawId) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         String id = normalizeId(rawId);
         if (stallLocation(id) == null) {
             messages.send(sender, "civic-stall-missing", Map.of("stall", id));
@@ -102,12 +102,12 @@ public final class CivicShopMenus implements Listener {
         messages.send(sender, "civic-stall-removed", Map.of("stall", id));
     } }
 
-    public List<String> stallIds() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<String> stallIds() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         var section = plugin.getConfig().getConfigurationSection("settings.civic.spawn-shops.stalls");
         return section == null ? List.of() : section.getKeys(false).stream().sorted().toList();
     } }
 
-    public void shop(Player player, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void shop(Player player, String[] args) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         if (args.length == 1 || args[1].equalsIgnoreCase("browse")) {
             openNearestShop(player);
             return;
@@ -317,7 +317,7 @@ public final class CivicShopMenus implements Listener {
         return raw == null ? "" : raw.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_-]", "");
     }
 
-    public void purchases(Player player,int page){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void purchases(Player player,int page){ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         var list=service.journal().all().stream().filter(o->o.buyer().equals(player.getUniqueId())&&!o.finalized()).sorted(java.util.Comparator.comparingLong(ru.neverland.townybuilds.shop.ShopOrder::created)).toList();
         page=Math.max(0,Math.min(Math.max(0,(list.size()-1)/45),page));
         var previous=player.getOpenInventory().getTopInventory();var back=previous.getHolder() instanceof PurchasesHolder old?old.back():ru.neverland.core.MenuStyle.previousMenu(player);
@@ -335,7 +335,7 @@ public final class CivicShopMenus implements Listener {
         player.openInventory(inventory);
     } }
     private ItemStack menuButton(Material material,String title,List<String> lines){var item=new ItemStack(material);var meta=item.getItemMeta();meta.displayName(ru.neverland.core.MenuStyle.nameComponent(ColorUtil.component(title)));meta.lore(ru.neverland.core.MenuStyle.loreComponents(lines.stream().map(ColorUtil::component).toList()));item.setItemMeta(meta);return item;}
-    @EventHandler public void click(InventoryClickEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    @EventHandler public void click(InventoryClickEvent event){ try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         Inventory inventory=event.getView().getTopInventory();var holder=inventory.getHolder();if(!(holder instanceof ShopHolder)&&!(holder instanceof PurchasesHolder))return;event.setCancelled(true);
         if(!(event.getWhoClicked() instanceof Player player)||event.getRawSlot()<0||event.getRawSlot()>=inventory.getSize())return;
         UUID viewer=holder instanceof ShopHolder shop?shop.viewer():((PurchasesHolder)holder).viewer();int slot=event.getRawSlot();boolean stack=event.isShiftClick();
@@ -348,8 +348,8 @@ public final class CivicShopMenus implements Listener {
             }catch(Exception ex){player.sendMessage(ColorUtil.component("&c"+ex.getMessage()+". Проверьте «Мои покупки»: /t shop purchases"));player.closeInventory();}
         });
     } }
-    @EventHandler public void drag(InventoryDragEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}var holder=event.getView().getTopInventory().getHolder();if(holder instanceof ShopHolder||holder instanceof PurchasesHolder)event.setCancelled(true);} }
-    public void admin(org.bukkit.command.CommandSender sender,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {try{
+    @EventHandler public void drag(InventoryDragEvent event){ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}var holder=event.getView().getTopInventory().getHolder();if(holder instanceof ShopHolder||holder instanceof PurchasesHolder)event.setCancelled(true);} }
+    public void admin(org.bukkit.command.CommandSender sender,String[] args){ try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {try{
         if(args.length==2&&args[1].equalsIgnoreCase("payments")){var pending=service.journal().all().stream().filter(o->!o.finalized()).toList();sender.sendMessage("Незавершённые покупки: "+pending.size());pending.stream().limit(50).forEach(o->sender.sendMessage(o.id()+" — "+o.title()+" — "+MONEY.format(o.total()/100.0)));return;}
         if(args.length==5&&args[1].equalsIgnoreCase("resolve")&&args[4].equalsIgnoreCase("confirm")){UUID id=UUID.fromString(args[2]);service.resolve(id,args[3]);plugin.getLogger().warning(sender.getName()+" сверил лавку "+id+": "+args[3]);sender.sendMessage("Решение сохранено; операция продолжится автоматически.");return;}
         sender.sendMessage("/townybuilds shop payments | /townybuilds shop resolve <UUID> <debit-paid|debit-unpaid|credit-paid|credit-unpaid|claim-received|claim-not-received> confirm");

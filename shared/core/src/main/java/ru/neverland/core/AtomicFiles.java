@@ -12,11 +12,11 @@ public final class AtomicFiles {
     private static final Map<Path,Metrics> metrics=new HashMap<>();
     private static final Set<Path> blocked=new HashSet<>();
     private AtomicFiles() {}
-    public static List<Metrics> metrics() { synchronized (ru.neverland.core.SuiteState.lock()) { return List.copyOf(metrics.values()); } }
+    public static List<Metrics> metrics() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return List.copyOf(metrics.values()); } }
     /** Called only after a repository has successfully validated its file on load. */
-    public static void loaded(Path file) { synchronized (ru.neverland.core.SuiteState.lock()) { blocked.remove(file.toAbsolutePath().normalize()); } }
-    public static boolean writable(Path file) { synchronized (ru.neverland.core.SuiteState.lock()) { return !blocked.contains(file.toAbsolutePath().normalize()); } }
-    public static void write(Path file,Snapshot snapshot)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void loaded(Path file) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { blocked.remove(file.toAbsolutePath().normalize()); } }
+    public static boolean writable(Path file) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return !blocked.contains(file.toAbsolutePath().normalize()); } }
+    public static void write(Path file,Snapshot snapshot)throws IOException { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         Path target=file.toAbsolutePath().normalize();if(!writable(target))throw new IOException("Запись остановлена после ошибки: "+target.getFileName());
         long start=System.nanoTime(),size=0;boolean success=false;Path temp=null;
         try {

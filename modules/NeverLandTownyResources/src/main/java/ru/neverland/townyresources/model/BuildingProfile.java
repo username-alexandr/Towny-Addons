@@ -7,5 +7,5 @@ public record BuildingProfile(String id,String name,String icon,boolean enabled,
         if(minimumLevel<1||maximumLevel<minimumLevel||maximumLevel>5||priority<0||priority>100) throw new IllegalArgumentException("Уровень или приоритет профиля "+id);
         produces=Amounts.copy(produces);consumes=Amounts.copy(consumes);capacity=Amounts.copy(capacity);
     }
-    public int levels(int completed) { synchronized (ru.neverland.core.SuiteState.lock()) { return enabled&&completed>=minimumLevel ? Math.min(completed,maximumLevel)-minimumLevel+1 : 0; } }
+    public int levels(int completed) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return enabled&&completed>=minimumLevel ? Math.min(completed,maximumLevel)-minimumLevel+1 : 0; } }
 }

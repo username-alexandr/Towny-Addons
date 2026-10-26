@@ -26,7 +26,7 @@ public final class RewardLedger {
         if(playerLimit<=0||serverLimit<playerLimit)throw new IllegalArgumentException("Лимиты выплат должны быть положительными; серверный >= личного");
         this.directory=directory;this.playerLimit=playerLimit;this.serverLimit=serverLimit;this.clock=clock;
     }
-    public void load() throws IOException { synchronized(ru.neverland.core.SuiteState.lock()) {
+    public void load() throws IOException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         entries.clear();pending.clear();fault=true;Files.createDirectories(directory);
         try(var files=Files.list(directory)) {
             for(Path file:files.filter(p->p.toString().endsWith(".properties")).sorted().toList()) {
@@ -42,10 +42,10 @@ public final class RewardLedger {
         fault=false;
         for(Entry e:List.copyOf(entries.values()))if(e.state()==State.SENDING)change(e,State.REVIEW,"restart: outcome unknown",0);
     } }
-    public Entry get(UUID id) { synchronized(ru.neverland.core.SuiteState.lock()){return entries.get(id);} }
-    public List<Entry> all() { synchronized(ru.neverland.core.SuiteState.lock()){return List.copyOf(entries.values());} }
+    public Entry get(UUID id) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){return entries.get(id);} }
+    public List<Entry> all() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()){return List.copyOf(entries.values());} }
     /** Rotate attempts, including unavailable recipients, so one account cannot starve others. */
-    public List<Entry> pendingBatch(int maximum) { synchronized(ru.neverland.core.SuiteState.lock()) {
+    public List<Entry> pendingBatch(int maximum) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if(maximum<1)throw new IllegalArgumentException("Positive batch size required");
         List<Entry> batch=new ArrayList<>();int count=Math.min(maximum,pending.size());
         for(int i=0;i<count;i++){
@@ -55,21 +55,21 @@ public final class RewardLedger {
         return List.copyOf(batch);
     } }
     public boolean fault(){return fault;}
-    public long used(UUID player) { synchronized(ru.neverland.core.SuiteState.lock()) {
+    public long used(UUID player) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         long after=clock.getAsLong()-DAY,total=0;
         for(Entry e:entries.values())if((player==null||e.player().equals(player))&&e.state()!=State.VOID&&(e.state()!=State.PAID||e.paidAt()>after))total=Math.addExact(total,e.cents());
         return total;
     } }
-    public long remaining(UUID player){synchronized(ru.neverland.core.SuiteState.lock()){return Math.max(0,Math.min(playerLimit-used(player),serverLimit-used(null)));}}
-    public Entry reserve(UUID id,UUID player,long cents,String source,boolean held)throws IOException { synchronized(ru.neverland.core.SuiteState.lock()) {
+    public long remaining(UUID player){try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()){return Math.max(0,Math.min(playerLimit-used(player),serverLimit-used(null)));}}
+    public Entry reserve(UUID id,UUID player,long cents,String source,boolean held)throws IOException { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         check();Entry old=entries.get(id);if(old!=null){if(!old.player().equals(player)||old.cents()!=cents||!old.source().equals(source))throw new IllegalArgumentException("Конфликт ID начисления");return old;}
         if(cents>remaining(player))throw new IllegalArgumentException("Лимит серверных выплат за 24 часа исчерпан; награда не списана");
         var e=new Entry(id,player,cents,source,clock.getAsLong(),0,held?State.HELD:State.PENDING,List.of(clock.getAsLong()+" reserve "+source));save(e);return e;
     } }
-    public void release(UUID id,String proof)throws IOException { synchronized(ru.neverland.core.SuiteState.lock()) {
+    public void release(UUID id,String proof)throws IOException { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         Entry e=require(id);if(e.state()==State.HELD)change(e,State.PENDING,"inventory receipt: "+proof,0);
     } }
-    public void submit(UUID id,Bank bank)throws IOException { synchronized(ru.neverland.core.SuiteState.lock()) {
+    public void submit(UUID id,Bank bank)throws IOException { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         check();Entry e=require(id);if(e.state()!=State.PENDING||!bank.ready(e.player()))return;
         change(e,State.SENDING,"bank call prepared",0);
         boolean paid=false;String reason="provider rejected; reconciliation required";
@@ -77,7 +77,7 @@ public final class RewardLedger {
         // Persisted SENDING is sufficient to prevent replay if the following write fails.
         change(require(id),paid?State.PAID:State.REVIEW,paid?"Towny account receipt":reason,paid?clock.getAsLong():0);
     } }
-    public void resolve(UUID id,String decision,String actor,String reason)throws IOException { synchronized(ru.neverland.core.SuiteState.lock()) {
+    public void resolve(UUID id,String decision,String actor,String reason)throws IOException { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         check();Entry e=require(id);if(reason==null||reason.trim().length()<8)throw new IllegalArgumentException("Укажите основание сверки (не менее 8 символов)");
         State next=switch(decision){
             case "paid" -> {if(e.state()!=State.REVIEW)throw new IllegalArgumentException("Только REVIEW");yield State.PAID;}

@@ -88,7 +88,7 @@ public final class ConstructionService implements Listener {
         this.blockDisplays = new ConstructionBlockDisplays(plugin);
     }
 
-    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void start() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         stop();
         running = true;
         // Events registers its public repair API after Builds enables. Wait until all plugins are ready.
@@ -104,7 +104,7 @@ public final class ConstructionService implements Listener {
         renderTask = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::renderMissingBlocks, interval, interval);
     } }
 
-    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void stop() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         running = false;
         previewGeneration++;
         if (restorationTask != null) restorationTask.cancel();
@@ -119,18 +119,18 @@ public final class ConstructionService implements Listener {
         obstructionPreviews.clear();
     } }
 
-    public boolean supports(String projectId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean supports(String projectId) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         return generator.supportedProjects().contains(projectId);
     } }
 
-    public boolean supports(String projectId, int targetLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean supports(String projectId, int targetLevel) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         return supports(projectId) && ConstructionStagePolicy.requiresConstruction(
                 generator.maximumStage(projectId), targetLevel);
     } }
 
     public ConstructionPreparation prepare(Player player, Town town, ProjectDefinition project,
                                            int currentLevel, int targetLevel) { return prepare(player,town,project,currentLevel,targetLevel,null); }
-    public ConstructionPreparation prepare(Player player,Town town,ProjectDefinition project,int currentLevel,int targetLevel,PlacementChoice choice) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ConstructionPreparation prepare(Player player,Town town,ProjectDefinition project,int currentLevel,int targetLevel,PlacementChoice choice) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if(!ru.neverland.integration.SpecializationAccess.allowed(town.getUUID(),project.id()))return ConstructionPreparation.failed(ConstructionPreparation.Status.UNKNOWN_BLUEPRINT,ru.neverland.integration.SpecializationAccess.reason(project.id()));
         obstructionPreviews.remove(player.getUniqueId());
         if (!supports(project.id(), targetLevel)) {
@@ -191,7 +191,7 @@ public final class ConstructionService implements Listener {
         return new ConstructionPreparation(ConstructionPreparation.Status.READY, town.getUUID(), site, plan, List.of());
     } }
 
-    public void commit(ConstructionPreparation preparation, Player player, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void commit(ConstructionPreparation preparation, Player player, Town town) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         if (preparation.status() != ConstructionPreparation.Status.READY || preparation.site() == null) {
             throw new IllegalStateException("Попытка активировать неподготовленный чертёж");
         }
@@ -213,7 +213,7 @@ public final class ConstructionService implements Listener {
 
     public ConstructionReceipt captureReceipt(ConstructionPreparation preparation, double money,
                                                List<ConstructionReceipt.Item> resources) {
-        synchronized (ru.neverland.core.SuiteState.lock()) {
+        try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
             ConstructionSite site = preparation.site(); World world = Bukkit.getWorld(site.worldId());
             BlueprintPlan plan = preparation.plan();
             if (!ownsPlan(world, site, plan)) throw new IllegalStateException("Подойдите к строительной площадке");
@@ -237,7 +237,7 @@ public final class ConstructionService implements Listener {
 
     /** Legacy costs require explicit administrator verification. Only registered blueprint cells are removed. */
     public ConstructionReceipt legacyReceipt(ConstructionSite site, double money, List<ConstructionReceipt.Item> resources) {
-        synchronized (ru.neverland.core.SuiteState.lock()) {
+        try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
             BlueprintPlan plan = planForSite(site, site.targetStage());
             BlueprintPlan previous = site.completedStage() == 0 ? null : planForSite(site, site.completedStage());
             if (plan == null) throw new IllegalStateException("Чертёж недоступен");
@@ -265,7 +265,7 @@ public final class ConstructionService implements Listener {
 
     /** Called on the site region; restart-safe because already-restored cells are skipped. */
     public boolean restoreCancelled(ConstructionSite site, ConstructionReceipt receipt) {
-        synchronized (ru.neverland.core.SuiteState.lock()) {
+        try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
             World world = Bukkit.getWorld(site.worldId()); if (world == null) return false;
             for (var entry : receipt.changes().entrySet()) {
                 Location at = site.location(world,entry.getKey());
@@ -295,7 +295,7 @@ public final class ConstructionService implements Listener {
         }
     }
 
-    public ConstructionProgress progress(Town town, String projectId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ConstructionProgress progress(Town town, String projectId) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         if (town == null) return new ConstructionProgress(false, 0, 0, 0, "");
         ConstructionSite site = dataStore.town(town.getUUID()).constructionSite(projectId);
         if (site == null || !site.active()) return new ConstructionProgress(false, 0, 0, 0, "");
@@ -315,7 +315,7 @@ public final class ConstructionService implements Listener {
     } }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPlace(BlockPlaceEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onPlace(BlockPlaceEvent event) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         LocatedBlock located = locate(event.getBlockPlaced().getLocation(), true);
         if (located == null) return;
         Town playerTown = towny.town(event.getPlayer());
@@ -368,7 +368,7 @@ public final class ConstructionService implements Listener {
     } }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onBreak(BlockBreakEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onBreak(BlockBreakEvent event) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         LocatedBlock located = locate(event.getBlock().getLocation(), false);
         if (located == null || event.getPlayer().hasPermission("neverlandtownybuilds.admin.bypass")) return;
         event.setCancelled(true);
@@ -437,7 +437,7 @@ public final class ConstructionService implements Listener {
         for (BlockOffset offset : plan.blocks().keySet()) if (!ru.neverland.core.SuiteScheduler.owns(site.location(world,offset))) return false;
         return true;
     }
-    public BlueprintPlan previewPlan(String project,int level,ConstructionSite existing){synchronized(ru.neverland.core.SuiteState.lock()){return existing==null?generator.generate(project,level):planForSite(existing,level);}}
+    public BlueprintPlan previewPlan(String project,int level,ConstructionSite existing){try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()){return existing==null?generator.generate(project,level):planForSite(existing,level);}}
     private BlueprintPlan planForSite(ConstructionSite site, int level) {
         return generator.generateForArchitecture(site.projectId(), level, site.architectureVersion());
     }
@@ -790,11 +790,11 @@ public final class ConstructionService implements Listener {
     }
 
     @EventHandler public void onQuit(org.bukkit.event.player.PlayerQuitEvent event) {
-        synchronized (ru.neverland.core.SuiteState.lock()) { removePreview(event.getPlayer().getUniqueId()); obstructionPreviews.remove(event.getPlayer().getUniqueId()); }
+        try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) { removePreview(event.getPlayer().getUniqueId()); obstructionPreviews.remove(event.getPlayer().getUniqueId()); }
     }
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTeleport(org.bukkit.event.player.PlayerTeleportEvent event) {
-        synchronized (ru.neverland.core.SuiteState.lock()) { removePreview(event.getPlayer().getUniqueId()); }
+        try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) { removePreview(event.getPlayer().getUniqueId()); }
     }
 
     private void renderGuideDisplay(Player player, PreviewTarget target) {
@@ -870,7 +870,7 @@ public final class ConstructionService implements Listener {
     private record LocatedBlock(UUID townId, ConstructionSite site, BlueprintBlock expected) { }
     private record PreviewTarget(Location location, BlueprintBlock expected, double distanceSquared,
                                  ConstructionSite site, ConstructionLayers.Layer layer, String remaining) { }
-    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets(){ try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
         ru.neverland.core.ApiServices.primaryThread();var result=new java.util.ArrayList<ru.neverland.core.ActivityAdmin.Target>();
         dataStore.towns().forEach((id,town)->town.constructionSites().values().stream().filter(ConstructionSite::active).forEach(site->result.add(new ru.neverland.core.ActivityAdmin.Target(id+"/"+site.projectId(),site.projectId()+" / этап "+site.targetStage(),java.util.Set.of("status","pause","resume","cancel"),(action,minutes)->{
             ru.neverland.core.ApiServices.primaryThread();if(!site.active())throw new IllegalStateException("Строительство уже завершено");

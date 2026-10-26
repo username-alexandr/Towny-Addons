@@ -12,11 +12,11 @@ public final class TradeApiService implements MintTownyTradeApi {
     private final ru.neverland.minttrade.contract.SupplyService supplies;
     private final TownyHook towny; private final TradeService trade;
     public TradeApiService(TownyHook towny, TradeService trade,ru.neverland.minttrade.contract.SupplyService supplies) { this.supplies=supplies; this.towny = towny; this.trade = trade; }
-    @Override public List<TradeSnapshot> activeRoutes(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { return trade.repository().caravans().stream()
+    @Override public List<TradeSnapshot> activeRoutes(UUID townId) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return trade.repository().caravans().stream()
             .filter(value -> value.sellerId().equals(townId) || value.buyerId().equals(townId))
             .map(value -> new TradeSnapshot(value.id(), value.sellerId(), value.buyerId(), value.exportId(), value.totalCargo(),
                     value.basePrice(), value.arrivesAt(), value.progress(System.currentTimeMillis()), value.campStops())).toList(); } }
-    @Override public List<ru.neverland.minttrade.api.SupplySnapshot> supplyContracts(UUID townId){ synchronized (ru.neverland.core.SuiteState.lock()) {return supplies.town(townId).stream().map(c->{var t=c.terms();return new ru.neverland.minttrade.api.SupplySnapshot(t.id(),t.seller(),t.buyer(),t.itemName(),t.amount(),t.cents(),t.days(),c.status().name(),c.pausedBy(),c.nextDue(),c.deliveries(),c.attempt()==null?"":c.attempt().phase().name(),c.note());}).toList();} }
-    @Override public int marketLevel(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { Town town = towny.town(townId); return trade.marketLevel(town); } }
-    @Override public double tariffPercent(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { Town town = towny.town(townId); return town == null ? 0 : trade.tariff(town); } }
+    @Override public List<ru.neverland.minttrade.api.SupplySnapshot> supplyContracts(UUID townId){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return supplies.town(townId).stream().map(c->{var t=c.terms();return new ru.neverland.minttrade.api.SupplySnapshot(t.id(),t.seller(),t.buyer(),t.itemName(),t.amount(),t.cents(),t.days(),c.status().name(),c.pausedBy(),c.nextDue(),c.deliveries(),c.attempt()==null?"":c.attempt().phase().name(),c.note());}).toList();} }
+    @Override public int marketLevel(UUID townId) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { Town town = towny.town(townId); return trade.marketLevel(town); } }
+    @Override public double tariffPercent(UUID townId) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { Town town = towny.town(townId); return town == null ? 0 : trade.tariff(town); } }
 }

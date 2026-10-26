@@ -7,7 +7,7 @@ public final class DirectionUtil {
     private DirectionUtil() {
     }
 
-    public static BlockFace cardinal(float yaw) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static BlockFace cardinal(float yaw) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         int index = Math.floorMod(Math.round(yaw / 90.0F), 4);
         return switch (index) {
             case 0 -> BlockFace.SOUTH;
@@ -17,7 +17,7 @@ public final class DirectionUtil {
         };
     } }
 
-    public static BlockPos rotate(BlockPos anchor, BlockFace forward, BlockPos relative) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static BlockPos rotate(BlockPos anchor, BlockFace forward, BlockPos relative) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         int fx = forward.getModX();
         int fz = forward.getModZ();
         int rx = -fz;
@@ -29,7 +29,7 @@ public final class DirectionUtil {
         );
     } }
 
-    public static BlockFace relative(BlockFace forward, int quarterTurnsRight) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static BlockFace relative(BlockFace forward, int quarterTurnsRight) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         BlockFace value = forward;
         for (int index = 0; index < Math.floorMod(quarterTurnsRight, 4); index++) {
             value = switch (value) {

@@ -7,7 +7,7 @@ public final class RoadAudit {
     public enum Cell { UNKNOWN, INVALID, VALID }
     public interface Inspector { Cell inspect(int x,int y,int z); }
     public record Result(Map<UUID,Integer> contributions,Set<String> invalidProofs,boolean complete) {}
-    public static Result inspect(WorkArea area,Map<String,WorkProof> proofs,long now,long stableMillis,Inspector inspector){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Result inspect(WorkArea area,Map<String,WorkProof> proofs,long now,long stableMillis,Inspector inspector){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Map<UUID,Integer> counts=new LinkedHashMap<>();Set<String> invalid=new HashSet<>();boolean complete=true;
         for(int x=area.minX();x<=area.maxX();x++)for(int z=area.minZ();z<=area.maxZ();z++){
             String key=WorkArea.key(x,z);Cell cell=inspector.inspect(x,area.y(),z);WorkProof proof=proofs.get(key);

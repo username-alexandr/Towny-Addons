@@ -2,5 +2,5 @@ package ru.neverland.townytaxes.model;
 import java.util.UUID;
 public final class MunicipalTaxes {
     private MunicipalTaxes(){}
-    public static boolean matches(TaxPolicy p,UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return town!=null&&p.enabled()&&Double.isFinite(p.value())&&p.value()>0&&p.scope()==Domain.Scope.TOWN&&town.equals(p.targetId())&&p.destinationScope()==Domain.Scope.TOWN&&town.equals(p.destinationId());} }
+    public static boolean matches(TaxPolicy p,UUID town){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return town!=null&&p.enabled()&&Double.isFinite(p.value())&&p.value()>0&&p.scope()==Domain.Scope.TOWN&&town.equals(p.targetId())&&p.destinationScope()==Domain.Scope.TOWN&&town.equals(p.destinationId());} }
 }

@@ -17,21 +17,21 @@ public final class TownGovernanceData {
     private long lastProposalAt;
     private String electionReceipt = "";
     private final java.util.Set<String> electedOffices = new java.util.LinkedHashSet<>();
-    public String electionReceipt() { synchronized (ru.neverland.core.SuiteState.lock()) { return electionReceipt; } }
-    public void electionReceipt(String value) { synchronized (ru.neverland.core.SuiteState.lock()) { electionReceipt = value; } }
-    public java.util.Set<String> electedOffices() { synchronized (ru.neverland.core.SuiteState.lock()) { return electedOffices; } }
+    public String electionReceipt() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return electionReceipt; } }
+    public void electionReceipt(String value) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { electionReceipt = value; } }
+    public java.util.Set<String> electedOffices() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return electedOffices; } }
 
     public TownGovernanceData(UUID townId, String townName) { this.townId = townId; this.townName = townName; }
-    public UUID townId() { synchronized (ru.neverland.core.SuiteState.lock()) { return townId; } }
-    public String townName() { synchronized (ru.neverland.core.SuiteState.lock()) { return townName; } }
-    public void townName(String townName) { synchronized (ru.neverland.core.SuiteState.lock()) { this.townName = townName; } }
-    public Map<String, ActiveLaw> activeLaws() { synchronized (ru.neverland.core.SuiteState.lock()) { return activeLaws; } }
-    public Map<String, List<OfficeHolder>> offices() { synchronized (ru.neverland.core.SuiteState.lock()) { return offices; } }
-    public List<HistoryEntry> history() { synchronized (ru.neverland.core.SuiteState.lock()) { return history; } }
-    public Double baselineTax() { synchronized (ru.neverland.core.SuiteState.lock()) { return baselineTax; } }
-    public Boolean baselineTaxPercentage() { synchronized (ru.neverland.core.SuiteState.lock()) { return baselineTaxPercentage; } }
-    public void baselineTax(Double amount, Boolean percentage) { synchronized (ru.neverland.core.SuiteState.lock()) { baselineTax = amount; baselineTaxPercentage = percentage; } }
-    public void clearBaselineTax() { synchronized (ru.neverland.core.SuiteState.lock()) { baselineTax = null; baselineTaxPercentage = null; } }
-    public long lastProposalAt() { synchronized (ru.neverland.core.SuiteState.lock()) { return lastProposalAt; } }
-    public void lastProposalAt(long value) { synchronized (ru.neverland.core.SuiteState.lock()) { lastProposalAt = value; } }
+    public UUID townId() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return townId; } }
+    public String townName() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { return townName; } }
+    public void townName(String townName) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { this.townName = townName; } }
+    public Map<String, ActiveLaw> activeLaws() { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { return activeLaws; } }
+    public Map<String, List<OfficeHolder>> offices() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) { return offices; } }
+    public List<HistoryEntry> history() { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) { return history; } }
+    public Double baselineTax() { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) { return baselineTax; } }
+    public Boolean baselineTaxPercentage() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) { return baselineTaxPercentage; } }
+    public void baselineTax(Double amount, Boolean percentage) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) { baselineTax = amount; baselineTaxPercentage = percentage; } }
+    public void clearBaselineTax() { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) { baselineTax = null; baselineTaxPercentage = null; } }
+    public long lastProposalAt() { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) { return lastProposalAt; } }
+    public void lastProposalAt(long value) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) { lastProposalAt = value; } }
 }

@@ -14,11 +14,11 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 public final class MaterialNameConfig {
     private MaterialNameConfig() {}
 
-    public static Material matchMaterial(String name) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Material matchMaterial(String name) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return Material.matchMaterial(MaterialLabels.canonicalKey(name));
     } }
 
-    public static String customName(ItemMeta meta) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String customName(ItemMeta meta) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (meta == null) return null;
         if (meta.hasCustomName() && meta.customName() != null) {
             return PlainTextComponentSerializer.plainText().serialize(meta.customName());
@@ -29,7 +29,7 @@ public final class MaterialNameConfig {
         return null;
     } }
 
-    public static void reload(JavaPlugin plugin, MaterialLabels names) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void reload(JavaPlugin plugin, MaterialLabels names) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         names.reset();
         try (var stream = plugin.getResource("item-names.yml")) {
             if (stream != null) apply(names, YamlConfiguration.loadConfiguration(
@@ -41,7 +41,7 @@ public final class MaterialNameConfig {
         if (file.exists()) apply(names, YamlConfiguration.loadConfiguration(file));
     } }
 
-    public static void apply(MaterialLabels names, ConfigurationSection yaml) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void apply(MaterialLabels names, ConfigurationSection yaml) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         for (String key : yaml.getKeys(false)) {
             String name = yaml.getString(key);
             if (MaterialLabels.canonicalKey(key).equals("DEEPSLATE_TILES")

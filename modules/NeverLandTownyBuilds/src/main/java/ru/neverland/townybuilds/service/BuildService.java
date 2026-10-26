@@ -57,12 +57,12 @@ public final class BuildService {
     }
 
     public ru.neverland.townybuilds.construction.BlueprintPlan previewPlan(String project,int level,ru.neverland.townybuilds.construction.ConstructionSite site){return construction==null?null:construction.previewPlan(project,level,site);}
-    public void setConstruction(ConstructionService construction) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void setConstruction(ConstructionService construction) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         this.construction = construction;
     } }
 
     public UpgradeResult upgrade(Player player,ProjectDefinition project){return upgradeAt(player,project,null);}
-    public UpgradeResult upgradeAt(Player player, ProjectDefinition project, ru.neverland.townybuilds.construction.PlacementChoice choice) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public UpgradeResult upgradeAt(Player player, ProjectDefinition project, ru.neverland.townybuilds.construction.PlacementChoice choice) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         Town town = towny.town(player);
         if (town == null) {
             return UpgradeResult.of(UpgradeResult.Status.NO_TOWN);
@@ -171,22 +171,22 @@ public final class BuildService {
         return new UpgradeResult(UpgradeResult.Status.SUCCESS, level.money(), List.of(), next);
     } }
 
-    public ConstructionProgress constructionProgress(Town town, ProjectDefinition project) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ConstructionProgress constructionProgress(Town town, ProjectDefinition project) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!usesConstruction(project)) {
             return new ConstructionProgress(false, 0, 0, 0, "");
         }
         return construction.progress(town, project.id());
     } }
 
-    public boolean usesConstruction(ProjectDefinition project) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean usesConstruction(ProjectDefinition project) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         return project != null && construction != null && construction.supports(project.id());
     } }
 
-    public boolean usesConstruction(ProjectDefinition project, int targetLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean usesConstruction(ProjectDefinition project, int targetLevel) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         return project != null && construction != null && construction.supports(project.id(), targetLevel);
     } }
 
-    public boolean needsPhysicalPlacement(Town town, ProjectDefinition project) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean needsPhysicalPlacement(Town town, ProjectDefinition project) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         if (town == null || project == null || project.type() != ProjectType.WONDER || !usesConstruction(project)) {
             return false;
         }
@@ -194,7 +194,7 @@ public final class BuildService {
         return data.level(project.id()) >= project.maxLevel() && data.constructionSite(project.id()) == null;
     } }
 
-    public void completeConstruction(Player player, Town town, String projectId, int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void completeConstruction(Player player, Town town, String projectId, int level) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         ProjectDefinition project = definitions.project(projectId);
         if (project == null || town == null) return;
         TownData data = dataStore.town(town.getUUID());
@@ -255,12 +255,12 @@ public final class BuildService {
         };
     }
 
-    public List<String> artifactRequirements(Town town, ProjectDefinition project) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<String> artifactRequirements(Town town, ProjectDefinition project) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         if (town == null || project == null || project.type() != ProjectType.WONDER) return List.of();
         return archaeology.requirementLines(town.getUUID(), project.id());
     } }
 
-    public List<String> prerequisiteRequirements(Town town, ProjectDefinition project) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<String> prerequisiteRequirements(Town town, ProjectDefinition project) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         if (town == null || project == null) return List.of();
         TownData data = dataStore.town(town.getUUID());
         List<String> lines = new ArrayList<>();
@@ -289,7 +289,7 @@ public final class BuildService {
         return missing;
     }
 
-    public int contributed(Town town, ProjectDefinition project, int targetLevel, ItemStack required) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int contributed(Town town, ProjectDefinition project, int targetLevel, ItemStack required) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         if (town == null || project == null || required == null) return 0;
         TownData data = dataStore.town(town.getUUID());
         ResourceFund fund = data.existingResourceFund(project.id());
@@ -297,7 +297,7 @@ public final class BuildService {
         return Math.min(required.getAmount(), fund.count(required));
     } }
 
-    public List<String> unavailableReasons(Player player,ProjectDefinition project) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<String> unavailableReasons(Player player,ProjectDefinition project) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
         var town=towny.town(player);if(town==null)return List.of("Вступите в город, чтобы строить городские здания.");
         if(!dataStore.writable())return List.of("Сохранение построек временно недоступно. Попробуйте позже.");
         var state=dataStore.town(town.getUUID());var reasons=new ArrayList<String>();
@@ -322,7 +322,7 @@ public final class BuildService {
         return List.copyOf(reasons);
     } }
 
-    public ContributionPreview previewContribution(Player player,ProjectDefinition project,boolean warehouse) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ContributionPreview previewContribution(Player player,ProjectDefinition project,boolean warehouse) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         var town=towny.town(player);var lines=new ArrayList<ContributionPreview.Line>();String reason="";int target=0;
         String signature="";
         if(town==null)reason="Вступите в город, чтобы сдавать материалы для его зданий.";
@@ -352,20 +352,20 @@ public final class BuildService {
         return new ContributionPreview(player.getUniqueId(),town==null?null:town.getUUID(),project.id(),target,warehouse,signature,reason,lines);
     } }
 
-    public ContributionResult confirmContribution(Player player,ProjectDefinition project,ContributionPreview quote) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ContributionResult confirmContribution(Player player,ProjectDefinition project,ContributionPreview quote) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
         if(!quote.player().equals(player.getUniqueId())||!quote.project().equals(project.id()))return ContributionResult.of(ContributionResult.Status.PREVIEW_CHANGED);
         var fresh=previewContribution(player,project,quote.warehouse());
         if(!fresh.ready()||!fresh.signature().equals(quote.signature()))return ContributionResult.of(ContributionResult.Status.PREVIEW_CHANGED);
         return quote.warehouse()?contributeFromStorage(player,project):contributeFromPlayer(player,project);
     } }
 
-    public ContributionResult contributeFromPlayer(Player player, ProjectDefinition project) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ContributionResult contributeFromPlayer(Player player, ProjectDefinition project) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         Town town = towny.town(player);
         if (town == null) return ContributionResult.of(ContributionResult.Status.NO_TOWN);
         return contribute(player, town, project, false);
     } }
 
-    public ContributionResult contributeFromStorage(Player player, ProjectDefinition project) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ContributionResult contributeFromStorage(Player player, ProjectDefinition project) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
         Town town = towny.town(player);
         if (town == null) return ContributionResult.of(ContributionResult.Status.NO_TOWN);
         if (!towny.isMayor(player, town) && !ru.neverland.core.CouncilAccess.check(player, town.getUUID(), "build_resources",false)) return ContributionResult.of(ContributionResult.Status.NOT_MAYOR);

@@ -17,14 +17,14 @@ public final class ResearchService implements TownyResearchApi {
     private record Cache(Map<UUID,ResearchSnapshot> towns,Map<UUID,UUID> residents){Cache{towns=Map.copyOf(towns);residents=Map.copyOf(residents);}}
     private volatile Cache cache=new Cache(Map.of(),Map.of());
     public ResearchService(Plugin plugin,ResearchRepository repository,ResearchSettings settings){this.plugin=plugin;this.repository=repository;this.settings=settings;processor=new ResearchProcessor(repository,bridge);}
-    public ResearchSettings settings(){ synchronized (ru.neverland.core.SuiteState.lock()) {return settings;} }
+    public ResearchSettings settings(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return settings;} }
     private void primary(){if(!ru.neverland.core.SuiteState.held())throw new IllegalStateException("Нужен основной поток сервера");}
-    public void start()throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {primary();bridge.verify();refresh(0);schedule();} }
+    public void start()throws Exception{ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {primary();bridge.verify();refresh(0);schedule();} }
     private void schedule(){task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,()->refresh(settings.interval()),20L*settings.interval(),20L*settings.interval());}
-    public void reload(ResearchSettings next){ synchronized (ru.neverland.core.SuiteState.lock()) {primary();settings=next;if(task!=null)task.cancel();refresh(0);schedule();} }
-    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(task!=null)task.cancel();cache=new Cache(Map.of(),Map.of());} }
+    public void reload(ResearchSettings next){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {primary();settings=next;if(task!=null)task.cancel();refresh(0);schedule();} }
+    public void stop(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(task!=null)task.cancel();cache=new Cache(Map.of(),Map.of());} }
     private void warn(Exception ex){long now=System.currentTimeMillis();if(now-warned>=60000){warned=now;plugin.getLogger().log(java.util.logging.Level.WARNING,"Исследование приостановлено; журнал и знания сохранены",ex);}}
-    public void refresh(int seconds){ synchronized (ru.neverland.core.SuiteState.lock()) {primary();Map<UUID,ResearchSnapshot> towns=new HashMap<>();Map<UUID,UUID> residents=new HashMap<>();
+    public void refresh(int seconds){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {primary();Map<UUID,ResearchSnapshot> towns=new HashMap<>();Map<UUID,UUID> residents=new HashMap<>();
         try{for(Town town:List.copyOf(TownyAPI.getInstance().getTowns())){
             UUID id=town.getUUID();for(var resident:town.getResidents())residents.put(resident.getUUID(),id);
             Map<String,Integer> buildings=Map.of();long knowledge=0,reserve=0;boolean paused=false;String status="Нет текущего исследования";
@@ -39,17 +39,17 @@ public final class ResearchService implements TownyResearchApi {
         cache=new Cache(towns,residents);
         }catch(Exception ex){cache=new Cache(Map.of(),Map.of());warn(ex);}
     } }
-    public Town town(Player player){ synchronized (ru.neverland.core.SuiteState.lock()) {var resident=TownyAPI.getInstance().getResident(player);return resident==null?null:resident.getTownOrNull();} }
-    public boolean manager(Player p,Town town){ synchronized (ru.neverland.core.SuiteState.lock()) {var resident=TownyAPI.getInstance().getResident(p);return resident!=null&&town.equals(resident.getTownOrNull())&&(town.isMayor(resident)||resident.hasTownRank("assistant")||p.hasPermission("neverlandtownyresearch.manage"));} }
-    public void begin(UUID town,String id)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {primary();var technology=settings.technologies().get(id);if(technology==null)throw new IllegalArgumentException("Неизвестная технология");if(TownyAPI.getInstance().getTown(town)==null)throw new IllegalArgumentException("Город не найден");try{processor.begin(town,technology,bridge.buildings(town));}finally{refresh(0);}} }
-    public void cancel(UUID town)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {primary();try{processor.cancel(town);}finally{refresh(0);}} }
-    @Override public String name(String id){ synchronized (ru.neverland.core.SuiteState.lock()) {var t=settings.technologies().get(id);return t==null?"Исследование":t.name();} }
-    @Override public int level(UUID town,String id){ synchronized (ru.neverland.core.SuiteState.lock()) {var snapshot=cache.towns().get(town);return snapshot==null?0:snapshot.state().learned().getOrDefault(id,0);} }
-    @Override public double bonus(UUID town,String id){ synchronized (ru.neverland.core.SuiteState.lock()) {var technology=settings.technologies().get(id);int level=level(town,id);return technology==null||!technology.enabled()||level<=0?0:technology.levels().get(Math.min(level,technology.levels().size())-1).bonus();} }
-    @Override public Optional<ResearchSnapshot> research(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return Optional.ofNullable(cache.towns().get(town));} }
-    @Override public Optional<ResearchSnapshot> residentResearch(UUID resident){ synchronized (ru.neverland.core.SuiteState.lock()) {var current=cache;UUID town=current.residents().get(resident);return Optional.ofNullable(town==null?null:current.towns().get(town));} }
-    @Override public Collection<ResearchSnapshot> towns(){ synchronized (ru.neverland.core.SuiteState.lock()) {return cache.towns().values();} }
-    public List<ru.neverland.core.ActivityAdmin.Target> adminTargets(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Town town(Player player){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {var resident=TownyAPI.getInstance().getResident(player);return resident==null?null:resident.getTownOrNull();} }
+    public boolean manager(Player p,Town town){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {var resident=TownyAPI.getInstance().getResident(p);return resident!=null&&town.equals(resident.getTownOrNull())&&(town.isMayor(resident)||resident.hasTownRank("assistant")||p.hasPermission("neverlandtownyresearch.manage"));} }
+    public void begin(UUID town,String id)throws Exception{ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {primary();var technology=settings.technologies().get(id);if(technology==null)throw new IllegalArgumentException("Неизвестная технология");if(TownyAPI.getInstance().getTown(town)==null)throw new IllegalArgumentException("Город не найден");try{processor.begin(town,technology,bridge.buildings(town));}finally{refresh(0);}} }
+    public void cancel(UUID town)throws Exception{ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {primary();try{processor.cancel(town);}finally{refresh(0);}} }
+    @Override public String name(String id){ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {var t=settings.technologies().get(id);return t==null?"Исследование":t.name();} }
+    @Override public int level(UUID town,String id){ try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {var snapshot=cache.towns().get(town);return snapshot==null?0:snapshot.state().learned().getOrDefault(id,0);} }
+    @Override public double bonus(UUID town,String id){ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {var technology=settings.technologies().get(id);int level=level(town,id);return technology==null||!technology.enabled()||level<=0?0:technology.levels().get(Math.min(level,technology.levels().size())-1).bonus();} }
+    @Override public Optional<ResearchSnapshot> research(UUID town){ try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {return Optional.ofNullable(cache.towns().get(town));} }
+    @Override public Optional<ResearchSnapshot> residentResearch(UUID resident){ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {var current=cache;UUID town=current.residents().get(resident);return Optional.ofNullable(town==null?null:current.towns().get(town));} }
+    @Override public Collection<ResearchSnapshot> towns(){ try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {return cache.towns().values();} }
+    public List<ru.neverland.core.ActivityAdmin.Target> adminTargets(){ try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
         primary();return repository.towns().entrySet().stream().filter(e->e.getValue().active()!=null).map(e->{var s=e.getValue().active();return new ru.neverland.core.ActivityAdmin.Target(s.invoice().toString(),e.getKey()+" / "+name(s.technology())+" / "+s.phase(),
             Set.of(CityStudy.Phase.PREPARED,CityStudy.Phase.RUNNING,CityStudy.Phase.PAUSED).contains(s.phase())?Set.of("status","pause","resume","cancel"):Set.of("status"),(action,minutes)->{
                 primary();var state=repository.get(e.getKey());var active=state.active();if(active==null||!active.invoice().equals(s.invoice()))throw new IllegalStateException("Исследование изменилось");

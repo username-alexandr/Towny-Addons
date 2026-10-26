@@ -17,10 +17,12 @@ public final class FoliaProbe extends JavaPlugin {
     private final Set<String> regionThreads=ConcurrentHashMap.newKeySet();
     private Plugin control;
     private Class<?> scheduler,state,worldTasks;
-    private Object lock;
     private final AtomicInteger guarded=new AtomicInteger(),awards=new AtomicInteger();
     private Class<?> outbox;
+    private final String runId=System.getProperty("neverland.probe.run","legacy");
+    private final String operation="probe-dedup-"+runId;
     @Override public void onEnable(){
+        if(!java.nio.file.Files.exists(java.nio.file.Path.of("ALLOW_DISPOSABLE_LEDGER_PROBE"))||!getServer().getIp().equals("127.0.0.1")){getServer().getPluginManager().disablePlugin(this);return;}
         getCommand("nltprobeaward").setExecutor((sender,cmd,label,args)->{check("reward runs on global scheduler",Bukkit.isGlobalTickThread());awards.incrementAndGet();return true;});
         Bukkit.getGlobalRegionScheduler().runDelayed(this,t->begin(),60);
         Bukkit.getGlobalRegionScheduler().runDelayed(this,t->finish(),500);
@@ -36,18 +38,19 @@ public final class FoliaProbe extends JavaPlugin {
         scheduler=Class.forName("ru.neverland.core.SuiteScheduler",true,control.getClass().getClassLoader());
         state=Class.forName("ru.neverland.core.SuiteState",true,control.getClass().getClassLoader());
         worldTasks=Class.forName("ru.neverland.core.WorldTasks",true,control.getClass().getClassLoader());
-        lock=invoke(state,"lock",new Class<?>[0]);
-        for(Plugin p:plugins){Class<?> copy=Class.forName("ru.neverland.core.SuiteState",true,p.getClass().getClassLoader());check(p.getName()+" shares ledger",invoke(copy,"lock",new Class<?>[0])==lock);}
+        try(var guard=(AutoCloseable)invoke(state,"guard",new Class<?>[0])) {
+            for(Plugin p:plugins){Class<?> copy=Class.forName("ru.neverland.core.SuiteState",true,p.getClass().getClassLoader());check(p.getName()+" shares ledger",Boolean.TRUE.equals(invoke(copy,"held",new Class<?>[0])));}
+        }
         outbox=Class.forName("ru.neverland.core.CommandOutbox",true,control.getClass().getClassLoader());
         List<String> commands=List.of("nltprobeaward","nlt_probe_missing_command");
-        invoke(outbox,"enqueue",new Class<?>[]{Plugin.class,String.class,List.class},this,"probe-dedup",commands);
-        invoke(outbox,"enqueue",new Class<?>[]{Plugin.class,String.class,List.class},this,"probe-dedup",commands);
+        invoke(outbox,"enqueue",new Class<?>[]{Plugin.class,String.class,List.class},this,operation,commands);
+        invoke(outbox,"enqueue",new Class<?>[]{Plugin.class,String.class,List.class},this,operation,commands);
         check("global owner",Bukkit.isGlobalTickThread());
         World world=Bukkit.getWorlds().get(0);
         try{world.save();check("world save from global scheduler",true);}catch(Throwable e){error("world save from global scheduler",e);}
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"nltmodules list");
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"nltaudit status");
-        // Schedule through the shaded scheduler from two regions and verify every callback holds the common monitor.
+        // Schedule through the shaded scheduler from two regions and verify every callback holds the common guard.
         for(int i=0;i<2;i++){
             final int n=i;Location location=new Location(world,i*8192+8,70,i*8192+8);
             world.getChunkAtAsync(location).whenComplete((chunk,ex)->{
@@ -71,7 +74,7 @@ public final class FoliaProbe extends JavaPlugin {
     private void region(int number,Location at){try{
         check("region "+number+" owns location",Bukkit.isOwnedByCurrentRegion(at));
         check("region "+number+" is not global",!Bukkit.isGlobalTickThread());
-        check("region "+number+" holds ledger",Thread.holdsLock(lock));
+        check("region "+number+" holds ledger",Boolean.TRUE.equals(invoke(state,"held",new Class<?>[0])));
         regionThreads.add(Thread.currentThread().getName());
         at.getBlock().setType(Material.STONE);
         check("region "+number+" block mutation",at.getBlock().getType()==Material.STONE);
@@ -79,7 +82,7 @@ public final class FoliaProbe extends JavaPlugin {
         invoke(scheduler,"entityLater",new Class<?>[]{Plugin.class,Entity.class,Runnable.class,Runnable.class,long.class},control,entity,(Runnable)()->{
             try{
                 check("entity "+number+" owner",Bukkit.isOwnedByCurrentRegion(entity));
-                check("entity "+number+" holds ledger",Thread.holdsLock(lock));
+                check("entity "+number+" holds ledger",Boolean.TRUE.equals(invoke(state,"held",new Class<?>[0])));
                 Location target=at.clone().add(number==0?8192:-8192,0,number==0?8192:-8192);
                 entity.teleportAsync(target).whenComplete((ok,err)->{
                     if(err!=null||!Boolean.TRUE.equals(ok)){error("async teleport "+number,err==null?new IllegalStateException("declined"):err);remaining.decrementAndGet();return;}
@@ -112,12 +115,13 @@ public final class FoliaProbe extends JavaPlugin {
         check("reward command is issued once",awards.get()==1);
         try{
             var entries=(List<?>)invoke(outbox,"entries",new Class<?>[]{Plugin.class},this);int done=0,review=0;
-            for(var e:entries){String status=(String)e.getClass().getMethod("state").invoke(e);if(status.equals("DONE"))done++;if(status.equals("REVIEW"))review++;}
+            var ids=Set.of(UUID.nameUUIDFromBytes((operation+":0").getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString(),UUID.nameUUIDFromBytes((operation+":1").getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString());
+            for(var e:entries){if(!ids.contains(e.getClass().getMethod("id").invoke(e)))continue;String status=(String)e.getClass().getMethod("state").invoke(e);if(status.equals("DONE"))done++;if(status.equals("REVIEW"))review++;}
             check("durable reward outcome",done==1&&review==1);
         }catch(Throwable e){error("reward receipts",e);}
         check("both region chains completed",remaining.get()==0);
         check("region worker observed",!regionThreads.isEmpty());
-        try{getDataFolder().mkdirs();String data="passed="+passed.size()+"\nfailed="+failed.size()+"\n"+String.join("\n",failed)+"\n";Files.writeString(getDataFolder().toPath().resolve("result.txt"),data);getLogger().info("FOLIA_PROBE_COMPLETE "+data.replace('\n',' '));}
+        try{Path folder=getDataFolder().toPath();if(!runId.equals("legacy"))folder=folder.resolve("runs").resolve(runId);Files.createDirectories(folder);String data="run_id="+runId+"\npassed="+passed.size()+"\nfailed="+failed.size()+"\n"+String.join("\n",failed)+"\n";Files.writeString(folder.resolve("result.txt"),data);getLogger().info("FOLIA_PROBE_COMPLETE "+data.replace('\n',' '));}
         catch(Exception e){error("write result",e);}
     }
 }

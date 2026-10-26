@@ -11,9 +11,9 @@ public final class JobsAccess {
         return method.equals("supports")?connection.invoke(method,new Class<?>[]{String.class},id):connection.invoke(method,new Class<?>[]{UUID.class,String.class},town,id);
     }
     private static double value(String method,UUID town,String id){if(town==null||id==null)return 0;try{Object v=query(method,town,id);return v instanceof Number n?JobsEffects.bonus(n.doubleValue()):0;}catch(ReflectiveOperationException|RuntimeException|LinkageError ex){return 0;}}
-    public static double bonus(UUID town,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {return value("bonus",town,project);} }
-    public static double townBonus(UUID town,String effect){ synchronized (ru.neverland.core.SuiteState.lock()) {return value("townBonus",town,effect);} }
-    public static double multiplier(UUID town,String project,double current){ synchronized (ru.neverland.core.SuiteState.lock()) {return JobsEffects.multiplier(current,bonus(town,project));} }
-    public static int workers(UUID town,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {try{Object v=query("workers",town,project);return v instanceof Number n?Math.max(0,Math.min(20,n.intValue())):0;}catch(ReflectiveOperationException|RuntimeException|LinkageError ex){return 0;}} }
-    public static boolean supports(String project){ synchronized (ru.neverland.core.SuiteState.lock()) {try{return Boolean.TRUE.equals(query("supports",null,project));}catch(ReflectiveOperationException|RuntimeException|LinkageError ex){return false;}} }
+    public static double bonus(UUID town,String project){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return value("bonus",town,project);} }
+    public static double townBonus(UUID town,String effect){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return value("townBonus",town,effect);} }
+    public static double multiplier(UUID town,String project,double current){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return JobsEffects.multiplier(current,bonus(town,project));} }
+    public static int workers(UUID town,String project){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {try{Object v=query("workers",town,project);return v instanceof Number n?Math.max(0,Math.min(20,n.intValue())):0;}catch(ReflectiveOperationException|RuntimeException|LinkageError ex){return 0;}} }
+    public static boolean supports(String project){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {try{return Boolean.TRUE.equals(query("supports",null,project));}catch(ReflectiveOperationException|RuntimeException|LinkageError ex){return false;}} }
 }

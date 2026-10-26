@@ -21,7 +21,7 @@ import java.util.List;
 public final class AdminCommand implements CommandExecutor, TabCompleter {
     private final MintTownyTrade plugin; private final TownyHook towny; private final TradeService trade; private final MessageService messages;
     public AdminCommand(MintTownyTrade plugin, TownyHook towny, TradeService trade, MessageService messages) { this.plugin = plugin; this.towny = towny; this.trade = trade; this.messages = messages; }
-    @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyTrade")){return true;}
+    @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyTrade")){return true;}
         if (!sender.hasPermission("minttrade.admin")) { messages.send(sender, "no-permission"); return true; }
         if (args.length == 0) { messages.list("admin-help").forEach(sender::sendMessage); return true; }
         switch (args[0].toLowerCase()) {
@@ -76,7 +76,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         switch (result) { case SUCCESS -> messages.send(sender, "admin-cancelled"); case PAYMENT_PENDING -> sender.sendMessage("Возврат ожидает сверки платежа: /townytrade payments"); case NOT_FOUND -> messages.send(sender, "caravan-not-found", java.util.Map.of("caravan", args[1])); case WAREHOUSE_BUSY -> messages.send(sender, "warehouse-busy"); default -> messages.send(sender, "warehouse-unavailable"); }
     }
     private String name(Town town) { return town == null ? "Удалённый город" : town.getName(); }
-    @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(!sender.hasPermission("minttrade.admin"))return List.of();
         if (args.length == 1) return filter(List.of("list", "complete", "cancel", "reload", "contracts", "contract", "resolve", "payments", "resolve-payment", "legacy"), args[0]);
         if (args.length == 2 && (args[0].equalsIgnoreCase("complete") || args[0].equalsIgnoreCase("cancel"))) return filter(trade.repository().caravans().stream().map(Caravan::shortId).toList(), args[1]);

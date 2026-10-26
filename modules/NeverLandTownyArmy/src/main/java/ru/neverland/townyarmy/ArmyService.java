@@ -34,23 +34,23 @@ public final class ArmyService implements TownyArmyApi {
         this.plugin = plugin; this.repository = repository; this.settings = settings;
     }
     static void mainThread() { if (!ru.neverland.core.SuiteState.held()) throw new IllegalStateException("Army API требует основной поток сервера"); }
-    public ArmyRepository repository() { synchronized (ru.neverland.core.SuiteState.lock()) { return repository; } }
-    public ArmySettings settings() { synchronized (ru.neverland.core.SuiteState.lock()) { return settings; } }
-    public void reload(ArmySettings next) { synchronized (ru.neverland.core.SuiteState.lock()) { mainThread(); settings = next; repository.auditLimit(next.auditLimit()); training.clear(); refresh(); } }
-    public void migrate() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) { mainThread(); ArmyMigration.resume(repository, bridge, System.currentTimeMillis()); } }
-    @Override public boolean healthy() { synchronized (ru.neverland.core.SuiteState.lock()) { mainThread(); return repository.writable() && repository.state().handoff(); } }
+    public ArmyRepository repository() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return repository; } }
+    public ArmySettings settings() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return settings; } }
+    public void reload(ArmySettings next) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { mainThread(); settings = next; repository.auditLimit(next.auditLimit()); training.clear(); refresh(); } }
+    public void migrate() throws Exception { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { mainThread(); ArmyMigration.resume(repository, bridge, System.currentTimeMillis()); } }
+    @Override public boolean healthy() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { mainThread(); return repository.writable() && repository.state().handoff(); } }
     private void writable() { if (!healthy()) throw new IllegalStateException("Армия приостановлена: проверьте хранилище и перенос состава"); }
-    public Town ownTown(Player p) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Town ownTown(Player p) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         var r = TownyAPI.getInstance().getResident(p.getUniqueId()); var t = r == null ? null : r.getTownOrNull();
         if (t == null) throw new IllegalArgumentException("Вы не состоите в городе"); return t;
     } }
-    public boolean executive(Player p, UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean executive(Player p, UUID town) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         var r = TownyAPI.getInstance().getResident(p.getUniqueId()); var t = TownyAPI.getInstance().getTown(town);
         return p.hasPermission("neverlandtownyarmy.manage") && r != null && t != null && r.getTownOrNull() == t
                 && !r.isJailed() && (t.getMayor() == r || CouncilAccess.allows(p, town, "army"));
     } }
     private boolean eligible(Soldier s, long now) throws Exception { return s.suspendedUntil() <= now && bridge.eligible(s.town(), s.resident()); }
-    public boolean officer(Player p, UUID town, Rank minimum) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean officer(Player p, UUID town, Rank minimum) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         if (executive(p, town)) return true;
         var s = repository.state().soldiers().get(p.getUniqueId());
         try { return p.hasPermission("neverlandtownyarmy.manage") && s != null && s.town().equals(town) && s.serving() && s.oath()
@@ -91,7 +91,7 @@ public final class ArmyService implements TownyArmyApi {
         City c = repository.state().cities().getOrDefault(town, City.empty(town));
         return ArmyRules.calculate(roster, valid, duty.keySet(), bridge.levels(town, settings), now < c.suppliedUntil(), settings);
     }
-    public void apply(Player p, Unit unit) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void apply(Player p, Unit unit) throws Exception { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         writable(); UUID town = ownTown(p).getUUID(); var old = repository.state().soldiers().get(p.getUniqueId());
         if (old != null && old.status() != Status.DISCHARGED) throw new IllegalArgumentException("Заявка или служба уже существует");
         if (!bridge.eligible(town, p.getUniqueId())) throw new IllegalArgumentException("Нужны гражданские права на должность и подтверждённый RP-возраст от 18 лет");
@@ -101,17 +101,17 @@ public final class ArmyService implements TownyArmyApi {
         room(old == null ? 2 : 1); var d = repository.draft(); d.soldier(Soldier.applicant(p.getUniqueId(), town, unit, System.currentTimeMillis()));
         save(d, town, p.getUniqueId(), p.getUniqueId(), "APPLICATION", "Заявка на службу: " + unit.id());
     } }
-    public void approve(Player p, UUID id) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void approve(Player p, UUID id) throws Exception { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         UUID town = manage(p, Rank.LIEUTENANT); var s = target(town, id); superior(p, s);
         if (s.status() != Status.APPLICANT || !eligible(s, System.currentTimeMillis())) throw new IllegalArgumentException("Заявка не готова к приёму");
         var d = repository.draft(); d.soldier(s.status(Status.RECRUIT)); save(d, town, p.getUniqueId(), id, "ADMISSION", "Заявка одобрена командованием");
     } }
-    public void oath(Player p) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void oath(Player p) throws Exception { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
         var s = self(p); if (s.status() != Status.RECRUIT) throw new IllegalArgumentException("Присяга доступна принятому рекруту");
         if (!atBase(s.town(), p.getLocation())) throw new IllegalArgumentException("Для присяги прибудьте на военную базу города");
         var d = repository.draft(); d.soldier(s.swear()); save(d, s.town(), s.resident(), s.resident(), "OATH", "Военнослужащий принял присягу");
     } }
-    public void commission(Player p, UUID id, String reason) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void commission(Player p, UUID id, String reason) throws Exception { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         UUID town = manage(p, Rank.GENERAL); if (!executive(p, town)) throw new IllegalArgumentException("Генерала назначает мэр или министр обороны");
         var s = target(town, id); superior(p, s);
         if (!s.serving() || !s.oath() || !eligible(s, System.currentTimeMillis())) throw new IllegalArgumentException("Назначить можно действующего военнослужащего после присяги");
@@ -119,7 +119,7 @@ public final class ArmyService implements TownyArmyApi {
         for (var old : members(town)) if (old.serving() && old.rank() == Rank.GENERAL && !old.resident().equals(id)) d.soldier(old.rank(Rank.COLONEL, now));
         d.soldier(s.rank(Rank.GENERAL, now)); save(d, town, p.getUniqueId(), id, "COMMANDER", reason);
     } }
-    public void promote(Player p, UUID id, String reason) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void promote(Player p, UUID id, String reason) throws Exception { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
         UUID town = manage(p, Rank.CAPTAIN); var s = target(town, id); superior(p, s);
         if (!eligible(s, System.currentTimeMillis()) || s.rank() == Rank.GENERAL) throw new IllegalArgumentException("Повышение недоступно");
         Rank next = Rank.values()[s.rank().ordinal() + 1];
@@ -128,7 +128,7 @@ public final class ArmyService implements TownyArmyApi {
         }
         var d = repository.draft(); d.soldier(s.rank(next, System.currentTimeMillis())); save(d, town, p.getUniqueId(), id, "PROMOTION", reason);
     } }
-    public void personnel(Player p, UUID id, String action, String reason) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void personnel(Player p, UUID id, String action, String reason) throws Exception { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         UUID town = manage(p, Rank.CAPTAIN); var s = target(town, id); superior(p, s); long now = System.currentTimeMillis();
         if (s.status() == Status.DISCHARGED) throw new IllegalArgumentException("Военнослужащий уже уволен");
         var next = switch (action) {
@@ -141,14 +141,14 @@ public final class ArmyService implements TownyArmyApi {
         var d = repository.draft(); d.soldier(next); save(d, town, p.getUniqueId(), id, action.toUpperCase(Locale.ROOT), reason);
         if (!next.serving() || next.suspendedUntil() > now) endSession(id);
     } }
-    public void assign(Player p, UUID id, Unit unit, String reason) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void assign(Player p, UUID id, Unit unit, String reason) throws Exception { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
         UUID town = manage(p, Rank.CAPTAIN); var s = target(town, id); superior(p, s);
         if (!s.serving() || !eligible(s, System.currentTimeMillis()) || s.unit() == unit) throw new IllegalArgumentException("Перевод недоступен");
         if (ArmyRules.capacity(unit, bridge.levels(town, settings), settings) == 0) throw new IllegalArgumentException("Инфраструктура подразделения не готова");
         var d = repository.draft(); d.soldier(s.unit(unit).status(s.oath() ? Status.RESERVE : Status.RECRUIT));
         save(d, town, p.getUniqueId(), id, "TRANSFER", reason); endSession(id);
     } }
-    public void mobilize(Player p, UUID id, boolean active) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void mobilize(Player p, UUID id, boolean active) throws Exception { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
         UUID town = manage(p, Rank.LIEUTENANT); var s = target(town, id);
         if (!s.serving() || !s.oath() || !eligible(s, System.currentTimeMillis())) throw new IllegalArgumentException("Военнослужащий недоступен для мобилизации");
         if (!s.resident().equals(p.getUniqueId())) superior(p, s);
@@ -159,7 +159,7 @@ public final class ArmyService implements TownyArmyApi {
         save(d, town, p.getUniqueId(), id, active ? "MOBILIZE" : "RESERVE", active ? "Приказ о мобилизации" : "Перевод в военный резерв");
         if (!active) endSession(id);
     } }
-    public int alert(Player p, boolean enabled) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int alert(Player p, boolean enabled) throws Exception { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
         UUID town = manage(p, Rank.GENERAL); var d = repository.draft(); d.cities.put(town, d.city(town).alert(enabled)); int changed = 0;
         var levels = bridge.levels(town, settings); var valid = new HashSet<UUID>(); long now = System.currentTimeMillis();
         for (var s : members(town)) if (s.serving() && s.oath() && eligible(s, now)) {
@@ -171,21 +171,21 @@ public final class ArmyService implements TownyArmyApi {
         save(d, town, p.getUniqueId(), SYSTEM, "ALERT", enabled ? "Общая мобилизация по вместимости гарнизона" : "Отбой общей мобилизации");
         if (!enabled) for (UUID id : valid) endSession(id); return changed;
     } }
-    public void base(Player p) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void base(Player p) throws Exception { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {
         UUID town = manage(p, Rank.GENERAL); var loc = p.getLocation(); var block = TownyAPI.getInstance().getTownBlock(loc);
         if (block == null || block.getTownOrNull() == null || !town.equals(block.getTownOrNull().getUUID()) || block.hasResident()) throw new IllegalArgumentException("База должна находиться на муниципальном участке вашего города");
         if (bridge.levels(town, settings).getOrDefault("army", 0) < 1) throw new IllegalArgumentException("Нужен работающий штаб армии");
         var d = repository.draft(); d.cities.put(town, d.city(town).base(new Base(loc.getWorld().getUID(), loc.getX(), loc.getY(), loc.getZ())));
         save(d, town, p.getUniqueId(), SYSTEM, "BASE", "Назначена точка военной базы"); training.clear();
     } }
-    public boolean atBase(UUID town, Location loc) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean atBase(UUID town, Location loc) { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {
         var city = repository.state().cities().get(town); var b = city == null ? null : city.base();
         if (b == null || loc.getWorld() == null || !loc.getWorld().getUID().equals(b.world())) return false;
         var block = TownyAPI.getInstance().getTownBlock(loc);
         return block != null && block.getTownOrNull() != null && town.equals(block.getTownOrNull().getUUID()) && !block.hasResident()
                 && new Location(loc.getWorld(), b.x(), b.y(), b.z()).distanceSquared(loc) <= settings.baseRadius() * settings.baseRadius();
     } }
-    public UUID supply(Player p, String resource, long amount) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public UUID supply(Player p, String resource, long amount) throws Exception { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {
         UUID town = manage(p, Rank.SERGEANT); if (!RESOURCES.contains(resource) || amount <= 0 || amount > settings.maxTransfer()) throw new IllegalArgumentException("Укажите ресурс и количество в пределах лимита поставки");
         bridge.resourceReady(town); room(2); var stock = repository.state().cities().getOrDefault(town, City.empty(town)).stock();
         for (var tx : repository.state().transfers().values()) if (tx.town().equals(town) && tx.phase() == Phase.PLANNED) stock = add(stock, tx.amounts());
@@ -194,29 +194,29 @@ public final class ArmyService implements TownyArmyApi {
         save(d, town, p.getUniqueId(), p.getUniqueId(), "SUPPLY_ORDER", "Перевод городских ресурсов: " + id);
         process(id); return id;
     } }
-    public void process(UUID id) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) { writable(); ArmySupplies.resume(id, repository, bridge); ArmySupplies.resume(id, repository, bridge); } }
-    public void equip(Player p, UUID id) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void process(UUID id) throws Exception { try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) { writable(); ArmySupplies.resume(id, repository, bridge); ArmySupplies.resume(id, repository, bridge); } }
+    public void equip(Player p, UUID id) throws Exception { try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) {
         UUID town = manage(p, Rank.SERGEANT); var s = target(town, id);
         if (!s.serving() || !eligible(s, System.currentTimeMillis()) || s.equipment() == 100) throw new IllegalArgumentException("Снабжение бойца недоступно или уже полное");
         var d = repository.draft(); var city = d.city(town); d.cities.put(town, city.stock(subtract(city.stock(), settings.units().get(s.unit()).kit()))); d.soldier(s.equipment(100));
         save(d, town, p.getUniqueId(), id, "EQUIPMENT", "Выделено штатное снабжение подразделения");
     } }
-    public boolean onDuty(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return duty.containsKey(id); } }
-    public void duty(Player p, boolean enabled) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean onDuty(UUID id) { try (var suiteGuard23 = ru.neverland.core.SuiteState.guard()) { return duty.containsKey(id); } }
+    public void duty(Player p, boolean enabled) throws Exception { try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) {
         var s = self(p); UUID id = p.getUniqueId();
         if (!enabled) { account(id, System.currentTimeMillis()); endSession(id); refresh(); return; }
         if (duty.containsKey(id)) throw new IllegalArgumentException("Вы уже на дежурстве");
         if (!atBase(s.town(), p.getLocation())) throw new IllegalArgumentException("Заступить на дежурство можно на базе");
         duty.put(id, new Duty(p, System.currentTimeMillis())); refresh();
     } }
-    public void train(Player p) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void train(Player p) throws Exception { try (var suiteGuard25 = ru.neverland.core.SuiteState.guard()) {
         var s = self(p); long now = System.currentTimeMillis();
         if (!onDuty(s.resident()) || !atBase(s.town(), p.getLocation())) throw new IllegalArgumentException("Тренировка доступна на базе во время дежурства");
         if (training.containsKey(s.resident()) || s.training() == 100 || now - s.lastTraining() < settings.trainingCooldown()) throw new IllegalArgumentException("Тренировка уже идёт, подготовка максимальна или ещё действует перерыв");
         if (!covers(repository.state().cities().get(s.town()).stock(), settings.trainingCost())) throw new IllegalArgumentException("Не хватает запасов для тренировки");
         training.put(s.resident(), new Training(now));
     } }
-    public void moved(Player p, Location from, Location to) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void moved(Player p, Location from, Location to) { try (var suiteGuard26 = ru.neverland.core.SuiteState.guard()) {
         if (to == null || from.getWorld() != to.getWorld()) { training.remove(p.getUniqueId()); return; }
         double distance = from.distance(to); if (distance < .05) return;
         var session = duty.get(p.getUniqueId()); if (session == null) return;
@@ -224,7 +224,7 @@ public final class ArmyService implements TownyArmyApi {
         var t = training.get(p.getUniqueId()); var s = repository.state().soldiers().get(p.getUniqueId());
         if (t != null) { if (s == null || !atBase(s.town(), to) || distance > 8) training.remove(p.getUniqueId()); else t.movement += distance; }
     } }
-    public void teleported(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { training.remove(id); } }
+    public void teleported(UUID id) { try (var suiteGuard27 = ru.neverland.core.SuiteState.guard()) { training.remove(id); } }
     private void account(UUID id, long now) throws Exception {
         var session = duty.get(id); var s = repository.state().soldiers().get(id);
         if (session == null || s == null || !s.serving()) return;
@@ -232,9 +232,9 @@ public final class ArmyService implements TownyArmyApi {
         if (millis > 0 && eligible(s, now)) { var d = repository.draft(); d.soldier(s.duty(millis)); repository.commit(d.freeze()); }
         session.accounted = now;
     }
-    public void leave(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { try { if (healthy()) account(id, System.currentTimeMillis()); } catch (Exception e) { report(e); } finally { endSession(id); removePermissions(id); } } }
+    public void leave(UUID id) { try (var suiteGuard28 = ru.neverland.core.SuiteState.guard()) { try { if (healthy()) account(id, System.currentTimeMillis()); } catch (Exception e) { report(e); } finally { endSession(id); removePermissions(id); } } }
     private void endSession(UUID id) { duty.remove(id); training.remove(id); }
-    public void pulse() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void pulse() { try (var suiteGuard29 = ru.neverland.core.SuiteState.guard()) {
         mainThread(); if (!healthy()) { clearPermissions(); duty.clear(); training.clear(); return; }
         try {
             long now = System.currentTimeMillis(); var d = repository.draft(); boolean changed = false;
@@ -286,7 +286,7 @@ public final class ArmyService implements TownyArmyApi {
     private void report(Throwable e) { long now = System.currentTimeMillis(); if (now - lastError > 60000) { lastError = now; plugin.getLogger().log(java.util.logging.Level.WARNING, "Армия: действие приостановлено, данные сохранены", e); } }
     private void removePermissions(UUID id) { var attachment = permissions.remove(id); grants.remove(id); if (attachment != null) {var player=Bukkit.getPlayer(id);if(player!=null) ru.neverland.core.SuiteScheduler.cleanupPlayer(plugin,player,p->{try{attachment.remove();}catch(IllegalArgumentException ignored){}});} }
     private void clearPermissions() { for (UUID id : List.copyOf(permissions.keySet())) removePermissions(id); }
-    public void refresh() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void refresh() { try (var suiteGuard30 = ru.neverland.core.SuiteState.guard()) {
         if (!healthy()) { clearPermissions(); return; }
         var effective = new HashMap<UUID, Set<UUID>>(); long now = System.currentTimeMillis();
         ru.neverland.core.SuiteScheduler.players(plugin, p -> {{
@@ -303,16 +303,16 @@ public final class ArmyService implements TownyArmyApi {
         }});
         for (UUID id : List.copyOf(permissions.keySet())) if (Bukkit.getPlayer(id) == null) removePermissions(id);
     } }
-    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) { for (UUID id : List.copyOf(duty.keySet())) leave(id); clearPermissions(); training.clear(); } }
-    @Override public boolean isMobilized(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { mainThread(); if (id == null || !healthy()) return false; var s = repository.state().soldiers().get(id); if (s == null || s.status() != Status.ACTIVE) return false; try { return result(s.town()).active().contains(id); } catch (Exception e) { throw new IllegalStateException("Гарнизон недоступен", e); } } }
-    @Override public Set<UUID> soldiers(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { mainThread(); writable(); if (town == null) return Set.of(); try { var active = result(town).active(); var out = new HashSet<UUID>(); for (var s : members(town)) if (s.status() == Status.ACTIVE && active.contains(s.resident())) out.add(s.resident()); return Set.copyOf(out); } catch (Exception e) { throw new IllegalStateException("Гарнизон недоступен", e); } } }
+    public void stop() { try (var suiteGuard31 = ru.neverland.core.SuiteState.guard()) { for (UUID id : List.copyOf(duty.keySet())) leave(id); clearPermissions(); training.clear(); } }
+    @Override public boolean isMobilized(UUID id) { try (var suiteGuard32 = ru.neverland.core.SuiteState.guard()) { mainThread(); if (id == null || !healthy()) return false; var s = repository.state().soldiers().get(id); if (s == null || s.status() != Status.ACTIVE) return false; try { return result(s.town()).active().contains(id); } catch (Exception e) { throw new IllegalStateException("Гарнизон недоступен", e); } } }
+    @Override public Set<UUID> soldiers(UUID town) { try (var suiteGuard33 = ru.neverland.core.SuiteState.guard()) { mainThread(); writable(); if (town == null) return Set.of(); try { var active = result(town).active(); var out = new HashSet<UUID>(); for (var s : members(town)) if (s.status() == Status.ACTIVE && active.contains(s.resident())) out.add(s.resident()); return Set.copyOf(out); } catch (Exception e) { throw new IllegalStateException("Гарнизон недоступен", e); } } }
     private Map<String, Object> record(Soldier s) {
         var out = new LinkedHashMap<String, Object>(); out.put("resident", s.resident()); out.put("town", s.town()); out.put("unit", s.unit().id()); out.put("rank", s.rank().id()); out.put("status", s.status().name()); out.put("oath", s.oath()); out.put("training", s.training()); out.put("equipment", s.equipment()); out.put("dutyMillis", s.dutyMillis()); out.put("onDuty", duty.containsKey(s.resident())); out.put("warnings", s.warnings()); out.put("suspendedUntil", s.suspendedUntil()); return Map.copyOf(out);
     }
-    @Override public Optional<Map<String, Object>> serviceRecord(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { mainThread(); writable(); return id == null ? Optional.empty() : Optional.ofNullable(repository.state().soldiers().get(id)).map(this::record); } }
-    @Override public Collection<Map<String, Object>> roster(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { mainThread(); writable(); return members(town).stream().map(this::record).toList(); } }
-    @Override public Map<String, Long> reserves(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { mainThread(); writable(); return town == null ? Map.of() : repository.state().cities().getOrDefault(town, City.empty(town)).stock(); } }
-    @Override public Optional<Map<String, Object>> garrison(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public Optional<Map<String, Object>> serviceRecord(UUID id) { try (var suiteGuard34 = ru.neverland.core.SuiteState.guard()) { mainThread(); writable(); return id == null ? Optional.empty() : Optional.ofNullable(repository.state().soldiers().get(id)).map(this::record); } }
+    @Override public Collection<Map<String, Object>> roster(UUID town) { try (var suiteGuard35 = ru.neverland.core.SuiteState.guard()) { mainThread(); writable(); return members(town).stream().map(this::record).toList(); } }
+    @Override public Map<String, Long> reserves(UUID town) { try (var suiteGuard36 = ru.neverland.core.SuiteState.guard()) { mainThread(); writable(); return town == null ? Map.of() : repository.state().cities().getOrDefault(town, City.empty(town)).stock(); } }
+    @Override public Optional<Map<String, Object>> garrison(UUID town) { try (var suiteGuard37 = ru.neverland.core.SuiteState.guard()) {
         mainThread(); writable(); if (town == null || TownyAPI.getInstance().getTown(town) == null) return Optional.empty();
         try { var r = result(town); var c = repository.state().cities().getOrDefault(town, City.empty(town)); var out = new LinkedHashMap<String, Object>();
             out.put("town", town); out.put("active", r.active().size()); out.put("capacity", r.totalCapacity()); out.put("score", r.score()); out.put("readiness", r.readiness()); out.put("defenseBonus", r.defense()); out.put("alert", c.alert()); out.put("suppliedUntil", c.suppliedUntil());
@@ -320,5 +320,5 @@ public final class ArmyService implements TownyArmyApi {
             var units = new TreeMap<String, Object>(); for (Unit unit : Unit.values()) units.put(unit.id(), Map.of("active", r.count().get(unit), "capacity", r.capacity().get(unit))); out.put("units", Map.copyOf(units)); return Optional.of(Map.copyOf(out));
         } catch (Exception e) { throw new IllegalStateException("Расчёт гарнизона приостановлен", e); }
     } }
-    @Override public Collection<Map<String, Object>> history(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { mainThread(); writable(); return repository.state().audit().stream().filter(a -> a.town().equals(town)).map(a -> Map.<String, Object>of("id", a.id(), "actor", a.actor(), "subject", a.subject(), "action", a.action(), "reason", a.reason(), "time", a.time())).toList(); } }
+    @Override public Collection<Map<String, Object>> history(UUID town) { try (var suiteGuard38 = ru.neverland.core.SuiteState.guard()) { mainThread(); writable(); return repository.state().audit().stream().filter(a -> a.town().equals(town)).map(a -> Map.<String, Object>of("id", a.id(), "actor", a.actor(), "subject", a.subject(), "action", a.action(), "reason", a.reason(), "time", a.time())).toList(); } }
 }

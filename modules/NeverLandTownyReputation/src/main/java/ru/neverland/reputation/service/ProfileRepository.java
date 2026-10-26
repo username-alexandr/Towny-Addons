@@ -16,9 +16,9 @@ public final class ProfileRepository {
     private volatile State state = State.empty();
     private boolean ready;
     public ProfileRepository(Path path) { this.path = path; }
-    public boolean healthy() { synchronized (ru.neverland.core.SuiteState.lock()) { return ready && AtomicFiles.writable(path); } }
-    public State state() { synchronized (ru.neverland.core.SuiteState.lock()) { return state; } }
-    public void load(Collection<ReputationRecord> legacy) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean healthy() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return ready && AtomicFiles.writable(path); } }
+    public State state() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return state; } }
+    public void load(Collection<ReputationRecord> legacy) throws IOException { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         ready = false;
         try {
             State next;
@@ -64,7 +64,7 @@ public final class ProfileRepository {
         totals.forEach((subject,total) -> profiles.put(subject, new Profile((int)Math.max(MIN, Math.min(MAX, Math.round((double)total[0] / total[1]))), 0, 0, List.of())));
         return new State(profiles, Map.of(), Map.of());
     }
-    public void commit(State next) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void commit(State next) throws IOException { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if (!healthy()) throw new IOException("Хранилище профилей остановлено");
         try {
             var y = new YamlConfiguration(); y.set("schema",1);

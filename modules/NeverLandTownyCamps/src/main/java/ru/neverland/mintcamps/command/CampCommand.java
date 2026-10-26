@@ -35,7 +35,7 @@ public final class CampCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){return true;}
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){return true;}
         if (!(sender instanceof Player player)) {
             messages.send(sender, "players-only");
             return true;
@@ -82,7 +82,7 @@ public final class CampCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (args.length == 1) return filter(List.of("create", "spawn", "trust", "untrust", "pack", "storage", "barrier"), args[0]);
         if (args.length == 2 && List.of("spawn", "tp", "home").contains(args[0].toLowerCase(Locale.ROOT))) {
             List<String> owners = repository.all().stream().map(Camp::ownerName).toList();

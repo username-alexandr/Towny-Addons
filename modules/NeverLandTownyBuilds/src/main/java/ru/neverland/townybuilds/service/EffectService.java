@@ -31,13 +31,13 @@ public final class EffectService {
         this.definitions = definitions;
     }
 
-    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void start() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         stop();
         long period = Math.max(20L, plugin.getConfig().getLong("settings.effects.refresh-ticks", 200L));
         task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::refresh, 20L, period);
     } }
 
-    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void stop() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (task != null) {
             task.cancel();
             task = null;

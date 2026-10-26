@@ -13,7 +13,7 @@ public final class SeasonRepository {
     private Map<UUID,Season> overrides=Map.of();
     private boolean loaded;
     public SeasonRepository(Path file) { this.file=file; }
-    public void load(long now) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void load(long now) throws IOException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         loaded=false;
         if(!Files.exists(file)) { if(now<1)throw new IllegalArgumentException("Неверная дата"); write(now,Map.of()); }
         else {
@@ -26,10 +26,10 @@ public final class SeasonRepository {
         }
         AtomicFiles.loaded(file);loaded=true;
     } }
-    public boolean healthy() { synchronized (ru.neverland.core.SuiteState.lock()) { return loaded&&AtomicFiles.writable(file); } }
-    public long epoch() { synchronized (ru.neverland.core.SuiteState.lock()) { require();return epoch; } }
-    public Map<UUID,Season> overrides() { synchronized (ru.neverland.core.SuiteState.lock()) { require();return overrides; } }
-    public void set(UUID world,Season season) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean healthy() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return loaded&&AtomicFiles.writable(file); } }
+    public long epoch() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { require();return epoch; } }
+    public Map<UUID,Season> overrides() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { require();return overrides; } }
+    public void set(UUID world,Season season) throws IOException { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         require();Objects.requireNonNull(world);var next=new HashMap<>(overrides);
         if(season==null)next.remove(world);else next.put(world,season);
         write(epoch,next);

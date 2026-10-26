@@ -46,7 +46,7 @@ public final class TradeMenuManager implements Listener {
         this.plugin = plugin; this.towny = towny; this.trade = trade; this.messages = messages;
         offerKey = new NamespacedKey(plugin, "offer"); actionKey = new NamespacedKey(plugin, "action");
     }
-    public void open(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void open(Player player) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Town town = towny.town(player); if (town == null) { messages.send(player, "no-town"); return; }
         TradeMenuHolder holder = new TradeMenuHolder(town.getUUID(), TradeMenuHolder.Type.BOARD);
         Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, holder, 54, ColorUtil.color(plugin.getConfig().getString("gui.title", "Городская торговля")));
@@ -76,7 +76,7 @@ public final class TradeMenuManager implements Listener {
         inventory.setItem(8, actionItem("contracts",Material.CLOCK,"&#63E6BEРегулярные договоры",List.of("&7Поставки между складами по расписанию.")));
         player.openInventory(inventory);
     } }
-    public void openHistory(Player player, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void openHistory(Player player, Town town) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         TradeMenuHolder holder = new TradeMenuHolder(town.getUUID(), TradeMenuHolder.Type.HISTORY);
         Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, holder, 54, ColorUtil.color(plugin.getConfig().getString("gui.history-title", "История торговли")));
         holder.inventory(inventory); fill(inventory); int slot = 0;
@@ -95,7 +95,7 @@ public final class TradeMenuManager implements Listener {
         inventory.setItem(49, actionItem("back", Material.ARROW, "&fНазад", List.of("&7Вернуться к торговле.")));
         player.openInventory(inventory);
     } }
-    @EventHandler public void onClick(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyTrade")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    @EventHandler public void onClick(InventoryClickEvent event) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyTrade")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getInventory().getHolder() instanceof TradeMenuHolder holder)) return;
         event.setCancelled(true); if (!(event.getWhoClicked() instanceof Player player)) return;
         Town town = towny.town(player); if (town == null || !town.getUUID().equals(holder.townId())) { player.closeInventory(); return; }
@@ -121,8 +121,8 @@ public final class TradeMenuManager implements Listener {
         }
         open(player);
     } }
-    @EventHandler public void onDrag(org.bukkit.event.inventory.InventoryDragEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(event.getView().getTopInventory().getHolder() instanceof TradeMenuHolder)event.setCancelled(true);} }
-    public void sendAccept(Player player, TradeService.AcceptOutcome outcome) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @EventHandler public void onDrag(org.bukkit.event.inventory.InventoryDragEvent event){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(event.getView().getTopInventory().getHolder() instanceof TradeMenuHolder)event.setCancelled(true);} }
+    public void sendAccept(Player player, TradeService.AcceptOutcome outcome) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         switch (outcome.result()) {
             case SUCCESS -> messages.send(player, "caravan-departed", Map.of("export", ColorUtil.strip(trade.definitionOf(outcome.caravan()).name()),
                     "time", TimeUtil.format(outcome.caravan().arrivesAt() - System.currentTimeMillis())));

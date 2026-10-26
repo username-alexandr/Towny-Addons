@@ -8,7 +8,7 @@ import ru.neverland.townyelections.api.TownyElectionsApi;
 
 public final class NeverLandTownyElections extends JavaPlugin {
     private ElectionsService service; private BukkitTask ticker; private boolean townCommand;
-    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         try {
@@ -25,10 +25,10 @@ public final class NeverLandTownyElections extends JavaPlugin {
         } catch(Exception | LinkageError ex){getLogger().log(java.util.logging.Level.SEVERE,"Elections не загружен; журнал оставлен для восстановления",ex);getServer().getPluginManager().disablePlugin(this);}
     } }
     private ElectionsSettings readSettings() throws Exception {var y=new YamlConfiguration();y.load(getDataFolder().toPath().resolve("config.yml").toFile());return ElectionsSettings.load(y);}
-    public void reloadSettings() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {var next=readSettings();service.settings(next);reloadConfig();schedule();} }
+    public void reloadSettings() throws Exception { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {var next=readSettings();service.settings(next);reloadConfig();schedule();} }
     private void schedule(){if(ticker!=null)ticker.cancel();ticker=ru.neverland.core.SuiteScheduler.get().runTaskTimer(this,service::tick,20,service.settings().checkTicks());}
-    public ElectionsService elections(){ synchronized (ru.neverland.core.SuiteState.lock()) {return service;} }
-    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ElectionsService elections(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return service;} }
+    @Override public void onDisable(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 if(ticker!=null)ticker.cancel();getServer().getServicesManager().unregisterAll(this);
         if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"elections");

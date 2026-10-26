@@ -17,7 +17,7 @@ public final class ItemsAdderHook {
         reload();
     }
 
-    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         available = false;
         if (!plugin.getConfig().getBoolean("settings.itemsadder.enabled", true)
                 || Bukkit.getPluginManager().getPlugin("ItemsAdder") == null) {
@@ -34,11 +34,11 @@ public final class ItemsAdderHook {
         }
     } }
 
-    public boolean available() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean available() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return available;
     } }
 
-    public ItemStack item(String namespacedId, int amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ItemStack item(String namespacedId, int amount) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!available || namespacedId == null || namespacedId.isBlank()) {
             return null;
         }

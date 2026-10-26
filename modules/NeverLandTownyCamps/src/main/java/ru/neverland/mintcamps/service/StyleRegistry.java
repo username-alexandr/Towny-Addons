@@ -27,7 +27,7 @@ public final class StyleRegistry {
         reload();
     }
 
-    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         styles.clear();
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "styles.yml"));
         ConfigurationSection root = yaml.getConfigurationSection("styles");
@@ -48,11 +48,11 @@ public final class StyleRegistry {
         plugin.getLogger().info("Загружено биомных стилей лагеря: " + styles.size() + ".");
     } }
 
-    public Optional<StyleDefinition> find(String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Optional<StyleDefinition> find(String id) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return id == null ? Optional.empty() : Optional.ofNullable(styles.get(id.toLowerCase(Locale.ROOT)));
     } }
 
-    public StyleDefinition detect(World world, Biome biome) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public StyleDefinition detect(World world, Biome biome) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (world.getEnvironment() == World.Environment.NETHER) return fallback("nether");
         String key = biome.getKey().getKey().toLowerCase(Locale.ROOT);
         if (containsAny(key, "desert", "badlands", "eroded_badlands", "wooded_badlands")) return fallback("desert");

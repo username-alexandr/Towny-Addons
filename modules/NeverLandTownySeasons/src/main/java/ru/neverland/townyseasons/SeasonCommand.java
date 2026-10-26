@@ -11,7 +11,7 @@ public final class SeasonCommand implements TabExecutor {
     private final NeverLandTownySeasons plugin;private final SeasonService service;private final SeasonMenu menu;
     public SeasonCommand(NeverLandTownySeasons plugin,SeasonService service,SeasonMenu menu) { this.plugin=plugin;this.service=service;this.menu=menu; }
     private static void tell(CommandSender p,String text) { p.sendMessage(MenuStyle.decode("&6[Сезоны] &f"+text)); }
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySeasons")){return true;}
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySeasons")){return true;}
         try {
             if(!sender.hasPermission("neverlandtownyseasons.use"))throw new IllegalArgumentException("Недостаточно прав");
             String action=args.length==0?"menu":args[0].toLowerCase(Locale.ROOT);
@@ -50,7 +50,7 @@ public final class SeasonCommand implements TabExecutor {
         } catch(Exception|LinkageError e) { tell(sender,"&c"+e.getMessage()); }
         return true;
     } }
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(!sender.hasPermission("neverlandtownyseasons.use"))return List.of();var out=new ArrayList<String>();boolean admin=sender.hasPermission("neverlandtownyseasons.admin");
         if(args.length==1){out.addAll(List.of("menu","help"));if(admin)out.addAll(List.of("set","resume","status","reload"));}
         if(args.length==2&&(args[0].equalsIgnoreCase("menu")||admin&&Set.of("set","resume").contains(args[0].toLowerCase(Locale.ROOT))))Bukkit.getWorlds().forEach(w->out.add(w.getName()));

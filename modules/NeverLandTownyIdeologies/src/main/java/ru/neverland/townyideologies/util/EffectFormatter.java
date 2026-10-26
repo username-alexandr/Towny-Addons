@@ -44,7 +44,7 @@ public final class EffectFormatter {
     private EffectFormatter() {
     }
 
-    public static String format(String specification, Function<String, String> configuredName) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String format(String specification, Function<String, String> configuredName) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         String value = specification == null ? "" : specification.trim();
         int amplifier = 0;
         int separator = value.lastIndexOf(':');

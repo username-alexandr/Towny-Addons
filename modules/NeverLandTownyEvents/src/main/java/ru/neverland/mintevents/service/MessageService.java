@@ -25,7 +25,7 @@ public final class MessageService {
         reload();
     }
 
-    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "messages.yml"));
         try (InputStream stream = plugin.getResource("messages.yml")) {
             if (stream != null) {
@@ -38,7 +38,7 @@ public final class MessageService {
         }
     } }
 
-    public static boolean migrateLegacy(YamlConfiguration yaml, YamlConfiguration defaults) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean migrateLegacy(YamlConfiguration yaml, YamlConfiguration defaults) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         boolean changed = false;
         for (String key : yaml.getKeys(true)) {
             Object value = yaml.get(key);
@@ -66,20 +66,20 @@ public final class MessageService {
         return value;
     }
 
-    public String raw(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String raw(String key) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         return template(yaml, key);
     } }
 
-    public static String template(YamlConfiguration yaml, String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String template(YamlConfiguration yaml, String key) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         String value = yaml.getString(key);
         return value == null ? key : value;
     } }
 
-    public String format(String key, Map<String, ?> placeholders) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String format(String key, Map<String, ?> placeholders) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         return formatText(raw(key), placeholders, true);
     } }
 
-    public String formatText(String value, Map<String, ?> placeholders, boolean prefix) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String formatText(String value, Map<String, ?> placeholders, boolean prefix) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         String text = value == null ? "" : value;
         for (Map.Entry<String, ?> entry : placeholders.entrySet()) {
             text = text.replace("%" + entry.getKey() + "%", String.valueOf(entry.getValue()));
@@ -88,15 +88,15 @@ public final class MessageService {
         return ColorUtil.color(base);
     } }
 
-    public void send(CommandSender sender, String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void send(CommandSender sender, String key) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         send(sender, key, Map.of());
     } }
 
-    public void send(CommandSender sender, String key, Map<String, ?> placeholders) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void send(CommandSender sender, String key, Map<String, ?> placeholders) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         sender.sendMessage(format(key, placeholders));
     } }
 
-    public List<String> list(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<String> list(String key) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         List<String> values = yaml.getStringList(key);
         List<String> result = new ArrayList<>(values.size());
         for (String value : values) result.add(ColorUtil.color(value));

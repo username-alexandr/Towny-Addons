@@ -9,7 +9,7 @@ import ru.neverland.townyenvironment.gui.EnvironmentMenu;
 public final class EnvironmentCommand implements TabExecutor {
     private final NeverLandTownyEnvironment plugin; private final EnvironmentMenu menu;
     public EnvironmentCommand(NeverLandTownyEnvironment plugin, EnvironmentMenu menu) { this.plugin = plugin; this.menu = menu; }
-    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEnvironment")){return true;}
+    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEnvironment")){return true;}
         try {
             if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
                 if (!sender.isOp() && !sender.hasPermission("neverlandtownyenvironment.admin")) throw new IllegalArgumentException("Нет прав администратора");
@@ -22,7 +22,7 @@ public final class EnvironmentCommand implements TabExecutor {
             else sender.sendMessage("§e/t environment [menu|sources|cleaning]");
         } catch (Exception ex) { sender.sendMessage("§c" + ex.getMessage()); } return true;
     } }
-    @Override public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (args.length != 1) return List.of(); var values = new ArrayList<String>();
         if (sender.isOp() || sender.hasPermission("neverlandtownyenvironment.use")) values.addAll(List.of("menu", "sources", "cleaning"));
         if (sender.isOp() || sender.hasPermission("neverlandtownyenvironment.admin")) values.add("reload");

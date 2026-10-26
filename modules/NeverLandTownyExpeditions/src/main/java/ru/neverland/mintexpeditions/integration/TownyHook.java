@@ -15,17 +15,17 @@ import org.bukkit.entity.Player;
 import ru.neverland.core.PaymentEvidence;
 
 public final class TownyHook {
-   public UUID townId(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public UUID townId(Player player) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       Resident resident = TownyAPI.getInstance().getResident(player);
       Town town = resident == null ? null : resident.getTownOrNull();
       return town == null ? null : town.getUUID();
    } }
 
-   public boolean wilderness(Location location) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean wilderness(Location location) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
       return TownyAPI.getInstance().getTown(location) == null;
    } }
 
-   public boolean reward(Player player, double amount, UUID operation) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean reward(Player player, double amount, UUID operation) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
       if (amount <= 0.0) {
          return true;
       } else {
@@ -69,11 +69,11 @@ public final class TownyHook {
       }
    } }
 
-   public boolean register(String name, CommandExecutor executor) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean register(String name, CommandExecutor executor) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
       return TownyCommandAddonAPI.addSubCommand(CommandType.TOWN, name, executor);
    } }
 
-   public void unregister(String name) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void unregister(String name) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
       TownyCommandAddonAPI.removeSubCommand(CommandType.TOWN, name);
    } }
 }

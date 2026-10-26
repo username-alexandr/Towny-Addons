@@ -29,7 +29,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         this.plugin = plugin; this.towny = towny; this.contracts = contracts; this.messages = messages;
     }
     @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                                       @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyContracts"))return true;
+                                       @NotNull String label, @NotNull String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyContracts"))return true;
         if (!sender.hasPermission("mintcontracts.admin")) { messages.send(sender, "no-permission"); return true; }
         if (args.length == 0) { messages.list("admin-help").forEach(sender::sendMessage); return true; }
         switch (args[0].toLowerCase()) {
@@ -90,7 +90,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     }
     private String join(String[] args, int start) { return String.join(" ", Arrays.copyOfRange(args, start, args.length)); }
     @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
-                                                           @NotNull String alias, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+                                                           @NotNull String alias, @NotNull String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(!sender.hasPermission("mintcontracts.admin"))return List.of();
         if (args.length == 1) return filter(List.of("start", "cancel", "list", "reload", "payments", "deliveries", "resolve", "resolve-delivery"), args[0]);
         if (args.length == 2 && args[0].equalsIgnoreCase("start")) return filter(contracts.registry().all().stream().map(ContractDefinition::id).toList(), args[1]);

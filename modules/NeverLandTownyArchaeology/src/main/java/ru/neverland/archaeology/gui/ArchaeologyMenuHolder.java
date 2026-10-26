@@ -8,5 +8,5 @@ import java.util.UUID;
 
 public record ArchaeologyMenuHolder(Type type, UUID owner) implements InventoryHolder {
     public enum Type { MAIN, JOURNAL, MUSEUM, COLLECTIONS, WONDERS }
-    @Override public @NotNull Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { throw new UnsupportedOperationException(); } }
+    @Override public @NotNull Inventory getInventory() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { throw new UnsupportedOperationException(); } }
 }

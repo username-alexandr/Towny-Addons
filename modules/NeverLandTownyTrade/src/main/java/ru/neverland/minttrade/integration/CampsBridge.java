@@ -20,7 +20,7 @@ public final class CampsBridge {
     private final TownyHook towny;
     private boolean warned;
     public CampsBridge(JavaPlugin plugin, TownyHook towny) { this.plugin = plugin; this.towny = towny; }
-    public List<CampStop> activeStops() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<CampStop> activeStops() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Plugin source = resolveCampPlugin();
         if (source == null) return List.of();
         try {

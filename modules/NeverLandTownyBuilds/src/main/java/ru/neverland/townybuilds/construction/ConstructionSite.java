@@ -44,47 +44,47 @@ public final class ConstructionSite {
         this.architectureVersion = Math.max(1, architectureVersion);
     }
 
-    public String projectId() { synchronized (ru.neverland.core.SuiteState.lock()) { return projectId; } }
-    public UUID worldId() { synchronized (ru.neverland.core.SuiteState.lock()) { return worldId; } }
-    public int originX() { synchronized (ru.neverland.core.SuiteState.lock()) { return originX; } }
-    public int originY() { synchronized (ru.neverland.core.SuiteState.lock()) { return originY; } }
-    public int originZ() { synchronized (ru.neverland.core.SuiteState.lock()) { return originZ; } }
-    public BlockFace facing() { synchronized (ru.neverland.core.SuiteState.lock()) { return facing; } }
-    public int completedStage() { synchronized (ru.neverland.core.SuiteState.lock()) { return completedStage; } }
-    public int targetStage() { synchronized (ru.neverland.core.SuiteState.lock()) { return targetStage; } }
-    public int buildFromStage() { synchronized (ru.neverland.core.SuiteState.lock()) { return buildFromStage; } }
-    public boolean active() { synchronized (ru.neverland.core.SuiteState.lock()) { return active; } }
-    public int architectureVersion() { synchronized (ru.neverland.core.SuiteState.lock()) { return architectureVersion; } }
+    public String projectId() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return projectId; } }
+    public UUID worldId() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return worldId; } }
+    public int originX() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return originX; } }
+    public int originY() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return originY; } }
+    public int originZ() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { return originZ; } }
+    public BlockFace facing() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { return facing; } }
+    public int completedStage() { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { return completedStage; } }
+    public int targetStage() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) { return targetStage; } }
+    public int buildFromStage() { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) { return buildFromStage; } }
+    public boolean active() { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) { return active; } }
+    public int architectureVersion() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) { return architectureVersion; } }
 
-    public void setArchitectureVersion(int version) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void setArchitectureVersion(int version) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         architectureVersion = Math.max(1, version);
     } }
 
-    public void activate(int targetStage, int buildFromStage) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void activate(int targetStage, int buildFromStage) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
         this.targetStage = targetStage;
         this.buildFromStage = buildFromStage;
         this.active = true;
     } }
 
-    public void complete() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void complete() { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         completedStage = targetStage;
         buildFromStage = targetStage + 1;
         active = false;
     } }
 
-    public Location location(World world, BlockOffset offset) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Location location(World world, BlockOffset offset) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
         int[] rotated = rotate(offset.x(), offset.z());
         return new Location(world, originX + rotated[0], originY + offset.y(), originZ + rotated[1]);
     } }
 
-    public BlockOffset offset(Location location) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public BlockOffset offset(Location location) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
         int dx = location.getBlockX() - originX;
         int dz = location.getBlockZ() - originZ;
         int[] local = inverse(dx, dz);
         return new BlockOffset(local[0], location.getBlockY() - originY, local[1]);
     } }
 
-    public BlockFace worldFace(BlockFace localFace) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public BlockFace worldFace(BlockFace localFace) { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
         if (localFace == null || localFace == BlockFace.UP || localFace == BlockFace.DOWN) return localFace;
         return switch (facing) {
             case EAST -> switch (localFace) {
@@ -112,7 +112,7 @@ public final class ConstructionSite {
         };
     } }
 
-    public Axis worldAxis(Axis localAxis) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Axis worldAxis(Axis localAxis) { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {
         if (localAxis == null || localAxis == Axis.Y) return localAxis;
         if (facing == BlockFace.EAST || facing == BlockFace.WEST) {
             return localAxis == Axis.X ? Axis.Z : Axis.X;
@@ -138,11 +138,11 @@ public final class ConstructionSite {
         };
     }
 
-    public static BlockFace cardinal(BlockFace face) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static BlockFace cardinal(BlockFace face) { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {
         if (face == BlockFace.EAST || face == BlockFace.SOUTH || face == BlockFace.WEST) return face;
         return BlockFace.NORTH;
     } }
     private boolean adminPaused;
-    public boolean adminPaused(){ synchronized (ru.neverland.core.SuiteState.lock()) {return adminPaused;} }
-    public void adminPaused(boolean value){ synchronized (ru.neverland.core.SuiteState.lock()) {adminPaused=value;} }
+    public boolean adminPaused(){ try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {return adminPaused;} }
+    public void adminPaused(boolean value){ try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {adminPaused=value;} }
 }

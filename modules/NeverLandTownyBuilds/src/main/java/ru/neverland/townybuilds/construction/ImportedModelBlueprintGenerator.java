@@ -64,28 +64,28 @@ public final class ImportedModelBlueprintGenerator {
     private final Map<String, List<BlueprintPlan>> cache = new ConcurrentHashMap<>();
     private final Map<String, List<BlueprintPlan>> originalCache = new ConcurrentHashMap<>();
 
-    public Set<String> supportedProjects() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Set<String> supportedProjects() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return Set.copyOf(PROJECTS);
     } }
 
-    public boolean isLinear(String rawId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean isLinear(String rawId) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return rawId != null && LINEAR_PROJECTS.contains(rawId.toLowerCase(Locale.ROOT));
     } }
 
-    public BlueprintPlan generate(String rawId, int rawLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public BlueprintPlan generate(String rawId, int rawLevel) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         String id = rawId == null ? "" : rawId.toLowerCase(Locale.ROOT);
         if (!PROJECTS.contains(id)) return null;
         int level = Math.max(1, Math.min(5, rawLevel));
         return cache.computeIfAbsent(id, key -> loadPlans(key, true)).get(level - 1);
     } }
 
-    public BlueprintPlan generateOriginal(String id, int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public BlueprintPlan generateOriginal(String id, int level) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if (!PROJECTS.contains(id)) return null;
         return originalCache.computeIfAbsent(id, key -> loadPlans(key, false))
                 .get(Math.max(1, Math.min(5, level)) - 1);
     } }
 
-    public String stageName(String rawId, int rawLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String stageName(String rawId, int rawLevel) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         int level = Math.max(1, Math.min(5, rawLevel));
         if (isLinear(rawId)) {
             return ("roads".equalsIgnoreCase(rawId) ? "Участок дороги " : "Участок моста ") + level;

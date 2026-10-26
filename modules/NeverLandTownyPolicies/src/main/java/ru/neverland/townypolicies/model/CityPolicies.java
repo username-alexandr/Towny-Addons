@@ -5,7 +5,7 @@ public record CityPolicies(long revision,Map<String,Choice> choices,List<Change>
     public record Choice(String mode,long chosenAt,long nextChangeAt){public Choice{if(mode==null||!mode.matches("[a-z_]{1,32}")||chosenAt<1||nextChangeAt<chosenAt)throw new IllegalArgumentException("Неверный сохранённый указ");}}
     public record Change(long at,String group,String before,String after,UUID actor,String actorName){public Change{if(at<1||!PolicyEffects.GROUPS.contains(group)||before==null||after==null||actor==null||actorName==null||actorName.isBlank())throw new IllegalArgumentException("Неверная история указов");}}
     public CityPolicies{choices=Map.copyOf(choices);history=List.copyOf(history);if(revision<0||history.size()>30||!PolicyEffects.GROUPS.containsAll(choices.keySet())||(revision==0&&!choices.isEmpty()))throw new IllegalArgumentException("Неверная база политик");}
-    public static CityPolicies empty(){ synchronized (ru.neverland.core.SuiteState.lock()) {return new CityPolicies(0,Map.of(),List.of());} }
-    public String mode(PolicyGroup group){ synchronized (ru.neverland.core.SuiteState.lock()) {var c=choices.get(group.id());return c==null?group.standard():c.mode();} }
-    public long next(String group){ synchronized (ru.neverland.core.SuiteState.lock()) {var c=choices.get(group);return c==null?0:c.nextChangeAt();} }
+    public static CityPolicies empty(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return new CityPolicies(0,Map.of(),List.of());} }
+    public String mode(PolicyGroup group){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {var c=choices.get(group.id());return c==null?group.standard():c.mode();} }
+    public long next(String group){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {var c=choices.get(group);return c==null?0:c.nextChangeAt();} }
 }

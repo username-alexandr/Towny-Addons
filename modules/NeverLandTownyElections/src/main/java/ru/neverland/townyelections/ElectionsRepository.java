@@ -13,10 +13,10 @@ public final class ElectionsRepository {
     private Map<UUID,Election> towns = Map.of();
     private boolean ready;
     public ElectionsRepository(Path file) { this.file = file; }
-    public boolean healthy() { synchronized (ru.neverland.core.SuiteState.lock()) { return ready && AtomicFiles.writable(file); } }
-    public Election get(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { var e = towns.get(town); return e == null ? null : e.copy(); } }
-    public Set<UUID> towns() { synchronized (ru.neverland.core.SuiteState.lock()) { return Set.copyOf(towns.keySet()); } }
-    public void load() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean healthy() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return ready && AtomicFiles.writable(file); } }
+    public Election get(UUID town) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { var e = towns.get(town); return e == null ? null : e.copy(); } }
+    public Set<UUID> towns() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return Set.copyOf(towns.keySet()); } }
+    public void load() throws Exception { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         ready = false; var next = new LinkedHashMap<UUID,Election>();
         if (Files.exists(file)) {
             var y = new YamlConfiguration(); y.load(file.toFile()); SafeYaml.keys(y,"schema","towns");
@@ -29,7 +29,7 @@ public final class ElectionsRepository {
         }
         towns = Map.copyOf(next); AtomicFiles.loaded(file); ready = true;
     } }
-    public void put(Election election) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void put(Election election) throws IOException { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if (!healthy()) throw new IOException("Журнал выборов заблокирован после ошибки записи; нужен перезапуск после восстановления.");
         election.validate(); var next = new LinkedHashMap<>(towns); next.put(election.town, election.copy());
         var y = new YamlConfiguration(); y.set("schema",1); var root = y.createSection("towns");

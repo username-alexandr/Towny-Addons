@@ -16,7 +16,7 @@ public final class BfsPlanner {
 
     private BfsPlanner() { }
 
-    public static Plan plan(Collection<CellKey> selectedCells, Collection<CellKey> townCells) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Plan plan(Collection<CellKey> selectedCells, Collection<CellKey> townCells) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         LinkedHashSet<CellKey> selected = new LinkedHashSet<>(selectedCells);
         Set<CellKey> town = new HashSet<>(townCells);
         Set<CellKey> visited = new HashSet<>();

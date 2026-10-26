@@ -11,8 +11,8 @@ public record CityProject(UUID run, Project definition, int stage, int heldSecon
                 || (status == Status.COMPLETED ? heldSeconds != 0 : heldSeconds > definition.stages().get(stage).holdSeconds()))
             throw new IllegalArgumentException("Повреждён прогресс городского проекта");
     }
-    public static CityProject start(Project definition) { synchronized (ru.neverland.core.SuiteState.lock()) { return new CityProject(UUID.randomUUID(), definition, 0, 0, Status.ACTIVE); } }
-    public CityProject control(String action) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static CityProject start(Project definition) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return new CityProject(UUID.randomUUID(), definition, 0, 0, Status.ACTIVE); } }
+    public CityProject control(String action) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (status == Status.COMPLETED) throw new IllegalArgumentException("Проект завершён; результат уже открыт");
         return switch (action) {
             case "pause" -> new CityProject(run, definition, stage, heldSeconds, Status.PAUSED);

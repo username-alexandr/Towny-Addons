@@ -19,11 +19,11 @@ import java.util.UUID;
 public final class ReputationExpansion extends PlaceholderExpansion {
     private final TownyReputation plugin; private final TownyHook towny; private final ReputationService reputation;
     public ReputationExpansion(TownyReputation plugin, TownyHook towny, ReputationService reputation) { this.plugin = plugin; this.towny = towny; this.reputation = reputation; }
-    @Override public @NotNull String getIdentifier() { synchronized (ru.neverland.core.SuiteState.lock()) { return "townyreputation"; } }
-    @Override public @NotNull String getAuthor() { synchronized (ru.neverland.core.SuiteState.lock()) { return "Alexander Sokolov"; } }
-    @Override public @NotNull String getVersion() { synchronized (ru.neverland.core.SuiteState.lock()) { return plugin.getPluginMeta().getVersion(); } }
-    @Override public boolean persist() { synchronized (ru.neverland.core.SuiteState.lock()) { return true; } }
-    @Override public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public @NotNull String getIdentifier() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return "townyreputation"; } }
+    @Override public @NotNull String getAuthor() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return "Alexander Sokolov"; } }
+    @Override public @NotNull String getVersion() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return plugin.getPluginMeta().getVersion(); } }
+    @Override public boolean persist() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return true; } }
+    @Override public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if (!(offline instanceof Player player)) return ""; String key = params.toLowerCase(Locale.ROOT);
         if(key.matches("(player|town|nation)_(diplomatic|trade|military|trade_fee_multiplier)")) {
             if(!ru.neverland.core.SuiteState.held() || !reputation.profiles().healthy())return "";

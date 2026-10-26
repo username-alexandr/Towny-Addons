@@ -6,7 +6,7 @@ import ru.neverland.townycompanies.api.CompaniesApi;
 
 public final class NeverLandTownyCompanies extends JavaPlugin {
     private CompanyService service;private CompanyMenus menus;
-    @Override public void onEnable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         saveDefaultConfig();
@@ -22,8 +22,8 @@ public final class NeverLandTownyCompanies extends JavaPlugin {
             getLogger().info("Предприятия города включены: "+repo.state().companies().size());
         }catch(Exception ex){getLogger().severe("Предприятия не запущены: "+ex.getMessage());getServer().getPluginManager().disablePlugin(this);}
     } }
-    public CompaniesApi companies(){ synchronized (ru.neverland.core.SuiteState.lock()) {return service;} }
-    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public CompaniesApi companies(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return service;} }
+    @Override public void onDisable(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 if(menus!=null)menus.close();TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"companies");getServer().getServicesManager().unregisterAll(this);} }
 }

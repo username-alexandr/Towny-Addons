@@ -16,8 +16,8 @@ import java.util.UUID;
 
 public final class EventRepository {
     private final ru.neverland.core.ReputationOutbox reputation = new ru.neverland.core.ReputationOutbox();
-    public boolean writable(){ synchronized (ru.neverland.core.SuiteState.lock()) {return ready && ru.neverland.core.AtomicFiles.writable(file.toPath());} }
-    public void flushReputation(){ synchronized (ru.neverland.core.SuiteState.lock()) {reputation.flush(this::writable,this::save);} }
+    public boolean writable(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return ready && ru.neverland.core.AtomicFiles.writable(file.toPath());} }
+    public void flushReputation(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {reputation.flush(this::writable,this::save);} }
     private boolean ready;
     private void loaded(){ru.neverland.core.AtomicFiles.loaded(file.toPath());ready=true;}
     private void gate(){if(!ready||!ru.neverland.core.AtomicFiles.writable(file.toPath()))throw new IllegalStateException("Хранилище заблокировано: восстановите данные и перезапустите сервер");}
@@ -36,7 +36,7 @@ public final class EventRepository {
         this.file = new File(plugin.getDataFolder(), "events-data.yml");
     }
 
-    public void load() { synchronized (ru.neverland.core.SuiteState.lock()) {ready=false;
+    public void load() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {ready=false;
         active.clear();
         history.clear();
         raidVictories.clear();
@@ -99,15 +99,15 @@ public final class EventRepository {
     private String text(Object value) { return value == null ? "" : String.valueOf(value); }
     private long number(Object value) { return value instanceof Number n ? n.longValue() : 0; }
 
-    public Map<UUID, ActiveEvent> active() { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); return new LinkedHashMap<>(active); } }
-    public ActiveEvent active(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); return active.get(townId); } }
-    public void put(ActiveEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); active.put(event.townId(), event); dirty = true; } }
-    public ActiveEvent remove(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); ActiveEvent old = active.remove(townId); dirty |= old != null; return old; } }
-    public List<HistoryEntry> history(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); return List.copyOf(history.getOrDefault(townId, List.of())); } }
-    public long lastEventAt(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); return cooldowns.getOrDefault(townId, 0L); } }
-    public void changed() { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); dirty = true; } }
+    public Map<UUID, ActiveEvent> active() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {gate(); return new LinkedHashMap<>(active); } }
+    public ActiveEvent active(UUID townId) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {gate(); return active.get(townId); } }
+    public void put(ActiveEvent event) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {gate(); active.put(event.townId(), event); dirty = true; } }
+    public ActiveEvent remove(UUID townId) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {gate(); ActiveEvent old = active.remove(townId); dirty |= old != null; return old; } }
+    public List<HistoryEntry> history(UUID townId) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {gate(); return List.copyOf(history.getOrDefault(townId, List.of())); } }
+    public long lastEventAt(UUID townId) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {gate(); return cooldowns.getOrDefault(townId, 0L); } }
+    public void changed() { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {gate(); dirty = true; } }
 
-    public void complete(ActiveEvent event, boolean success, int limit, long now) { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
+    public void complete(ActiveEvent event, boolean success, int limit, long now) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {gate();
         if(active.get(event.townId())!=event)throw new IllegalArgumentException("Событие уже завершено или заменено");
         if(event.raid()!=null)reputation.add(ru.neverland.core.ReputationOutcome.town("raid:"+event.eventId()+":"+event.startedAt(),event.townId(),success?"RAID_VICTORY":"RAID_DEFEAT",now,"Набег на город"));
         if (event.raid() != null && success && event.completed())
@@ -121,7 +121,7 @@ public final class EventRepository {
     } }
 
     /** Import only identifiable wins still present in the legacy bounded history, once. */
-    public void initializeRaidVictories(java.util.Set<String> raidIds) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void initializeRaidVictories(java.util.Set<String> raidIds) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         gate(); boolean changed = false;
         for (var city : history.entrySet()) if (!raidVictories.containsKey(city.getKey())) {
             long count = city.getValue().stream().filter(h -> h.success() && raidIds.contains(h.eventId()))
@@ -130,10 +130,10 @@ public final class EventRepository {
         }
         if (changed) save();
     } }
-    public long raidVictories(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { gate(); return raidVictories.getOrDefault(town, 0L); } }
+    public long raidVictories(UUID town) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) { gate(); return raidVictories.getOrDefault(town, 0L); } }
 
     /** Commit before removing entities or reporting administrative success. */
-    public void replace(ActiveEvent expected, ActiveEvent replacement, long cancelledAt) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void replace(ActiveEvent expected, ActiveEvent replacement, long cancelledAt) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         gate();
         UUID id = expected.townId();
         if(active.get(id) != expected) throw new IllegalStateException("Событие изменилось");
@@ -149,16 +149,16 @@ public final class EventRepository {
             dirty = wasDirty; throw e;
         }
     } }
-    public Long shield(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { gate(); return shields.get(town); } }
-    public void shield(UUID town, long until) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Long shield(UUID town) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) { gate(); return shields.get(town); } }
+    public void shield(UUID town, long until) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
         gate(); if(until < 0) throw new IllegalArgumentException("Некорректный щит");
         Long previous = shields.put(town, until);
         try { save(); } catch(RuntimeException e) { if(previous == null) shields.remove(town); else shields.put(town, previous); throw e; }
     } }
 
-    public void saveIfDirty() { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); if (dirty) save(); } }
+    public void saveIfDirty() { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {gate(); if (dirty) save(); } }
 
-    public void save() { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
+    public void save() { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {gate();
         YamlConfiguration yaml = new YamlConfiguration();reputation.write(yaml);
         for (ActiveEvent event : active.values()) {
             String path = "active." + event.townId() + ".";

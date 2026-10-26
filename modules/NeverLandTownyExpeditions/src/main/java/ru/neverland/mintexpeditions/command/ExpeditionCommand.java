@@ -32,7 +32,7 @@ public final class ExpeditionCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){return true;}
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){return true;}
         if (!(sender instanceof Player player)) {
             messages.send(sender, "only-player");
             return true;
@@ -114,7 +114,7 @@ public final class ExpeditionCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command,
-                                      String alias, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+                                      String alias, String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (args.length == 1) {
             return List.of("start", "status", "return", "claim", "history").stream()
                     .filter(value -> !value.equals("return") || sender.hasPermission("neverlandtownyexpeditions.return"))

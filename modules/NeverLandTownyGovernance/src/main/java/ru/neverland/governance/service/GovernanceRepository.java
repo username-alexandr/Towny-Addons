@@ -36,7 +36,7 @@ public final class GovernanceRepository {
 
     public GovernanceRepository(JavaPlugin plugin) { this.plugin = plugin; this.file = new File(plugin.getDataFolder(), "data.yml"); }
 
-    public void load() { synchronized (ru.neverland.core.SuiteState.lock()) {ready=false;
+    public void load() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {ready=false;
         towns.clear(); proposals.clear();
 
         YamlConfiguration yaml = ru.neverland.core.SafeYaml.load(file.toPath());ru.neverland.core.SafeYaml.keys(yaml,"towns","proposals");
@@ -47,18 +47,18 @@ public final class GovernanceRepository {
         dirty = false;
     loaded();} }
 
-    public TownGovernanceData town(UUID id, String name) { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
+    public TownGovernanceData town(UUID id, String name) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {gate();
         TownGovernanceData data = towns.computeIfAbsent(id, key -> new TownGovernanceData(key, name));
         if (name != null && !name.equals(data.townName())) data.townName(name);
         return data;
     } }
-    public TownGovernanceData town(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); return towns.get(id); } }
-    public Collection<TownGovernanceData> towns() { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); return towns.values(); } }
-    public void add(Proposal proposal) { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); proposals.put(proposal.id(), proposal); changed(); } }
-    public void remove(Proposal proposal) { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); proposals.remove(proposal.id()); changed(); } }
-    public List<Proposal> open(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); return proposals.values().stream().filter(value -> value.townId().equals(townId) && value.status() == ProposalStatus.OPEN).sorted(Comparator.comparingLong(Proposal::endsAt)).toList(); } }
-    public Collection<Proposal> open() { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); return proposals.values().stream().filter(value -> value.status() == ProposalStatus.OPEN).toList(); } }
-    public Proposal findOpen(UUID townId, String prefix) { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
+    public TownGovernanceData town(UUID id) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {gate(); return towns.get(id); } }
+    public Collection<TownGovernanceData> towns() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {gate(); return towns.values(); } }
+    public void add(Proposal proposal) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {gate(); proposals.put(proposal.id(), proposal); changed(); } }
+    public void remove(Proposal proposal) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {gate(); proposals.remove(proposal.id()); changed(); } }
+    public List<Proposal> open(UUID townId) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {gate(); return proposals.values().stream().filter(value -> value.townId().equals(townId) && value.status() == ProposalStatus.OPEN).sorted(Comparator.comparingLong(Proposal::endsAt)).toList(); } }
+    public Collection<Proposal> open() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {gate(); return proposals.values().stream().filter(value -> value.status() == ProposalStatus.OPEN).toList(); } }
+    public Proposal findOpen(UUID townId, String prefix) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {gate();
         if (prefix == null || prefix.isBlank()) return null;
         String normalized = prefix.toLowerCase(Locale.ROOT);
         Proposal result = null;
@@ -67,16 +67,16 @@ public final class GovernanceRepository {
         }
         return result;
     } }
-    public void history(TownGovernanceData data, HistoryEntry entry) { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
+    public void history(TownGovernanceData data, HistoryEntry entry) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {gate();
         data.history().add(0, entry);
         int limit = Math.max(1, plugin.getConfig().getInt("storage.history-limit", 50));
         while (data.history().size() > limit) data.history().remove(data.history().size() - 1);
         changed();
     } }
-    public void changed() { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); dirty = true; } }
-    public void saveIfDirty() { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); if (dirty) save(); } }
+    public void changed() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {gate(); dirty = true; } }
+    public void saveIfDirty() { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {gate(); if (dirty) save(); } }
 
-    public void save() { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
+    public void save() { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {gate();
         YamlConfiguration yaml = new YamlConfiguration();
         for (TownGovernanceData data : towns.values()) saveTown(yaml, data);
         for (Proposal proposal : proposals.values()) if (proposal.status() == ProposalStatus.OPEN) saveProposal(yaml, proposal);

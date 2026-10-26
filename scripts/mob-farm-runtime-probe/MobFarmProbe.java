@@ -32,7 +32,7 @@ public final class MobFarmProbe extends JavaPlugin {
         Bukkit.getGlobalRegionScheduler().runDelayed(this,t->{var w=Bukkit.getWorlds().get(0);
             w.getChunkAtAsync(0,0).thenCompose(c->w.getChunkAtAsync(1,0)).whenComplete((c,error)->{
                 if(error!=null){finish(error);return;}
-                Bukkit.getRegionScheduler().execute(this,w,0,0,()->{synchronized(SuiteState.lock()){try{if(run(w))finish(null);}catch(Throwable e){finish(e);}}});
+                Bukkit.getRegionScheduler().execute(this,w,0,0,()->{try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){try{if(run(w))finish(null);}catch(Throwable e){finish(e);}}});
             });
         },40);
     }
@@ -73,7 +73,7 @@ public final class MobFarmProbe extends JavaPlugin {
         var protectedEntity=w.spawnEntity(new Location(w,17,90,1),EntityType.ZOMBIE,CreatureSpawnEvent.SpawnReason.NATURAL,e->{});
         check(!protectedEntity.isInWorld(),"real Towny rejects natural zombie in protected adjacent plot");
         var entity=w.spawnEntity(new Location(w,1,90,1),EntityType.ZOMBIE,CreatureSpawnEvent.SpawnReason.NATURAL,e->((LivingEntity)e).setRemoveWhenFarAway(false));
-        Bukkit.getRegionScheduler().runDelayed(this,new Location(w,1,90,1),t->{synchronized(SuiteState.lock()){try{continueFirst(w,entity);finish(null);}catch(Throwable error){finish(error);}}},10);
+        Bukkit.getRegionScheduler().runDelayed(this,new Location(w,1,90,1),t->{try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){try{continueFirst(w,entity);finish(null);}catch(Throwable error){finish(error);}}},10);
         return false;
     }
     void continueFirst(World w,Entity entity)throws Exception{

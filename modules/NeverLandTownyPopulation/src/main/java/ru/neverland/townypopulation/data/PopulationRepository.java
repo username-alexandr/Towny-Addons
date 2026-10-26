@@ -13,7 +13,7 @@ public final class PopulationRepository {
     private boolean dirty,ready;
     private void gate(){if(!ready||!ru.neverland.core.AtomicFiles.writable(file))throw new IllegalStateException("Хранилище населения недоступно");}
     public PopulationRepository(Path file) { this.file = file; }
-    public void load() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {ready=false;
+    public void load() throws Exception { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {ready=false;
         Map<UUID, PopulationState> loaded = new HashMap<>();
         if (Files.exists(file)) {
             YamlConfiguration yaml = new YamlConfiguration(); yaml.load(file.toFile());
@@ -33,12 +33,12 @@ public final class PopulationRepository {
         }
         states.clear(); states.putAll(loaded); dirty = false;ru.neverland.core.AtomicFiles.loaded(file);ready=true;
     } }
-    public PopulationState get(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return states.get(id); } }
-    public Set<UUID> ids() { synchronized (ru.neverland.core.SuiteState.lock()) { return Set.copyOf(states.keySet()); } }
-    public void put(UUID id, PopulationState state) { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); if (!state.equals(states.put(id,state))) dirty = true; } }
-    public void retain(Set<UUID> ids) { synchronized (ru.neverland.core.SuiteState.lock()) {gate(); if (states.keySet().retainAll(ids)) dirty = true; } }
-    public void rebase(long now) { synchronized (ru.neverland.core.SuiteState.lock()) { for (UUID id : ids()) put(id,states.get(id).rebase(now)); } }
-    public void save() throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {gate();
+    public PopulationState get(UUID id) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return states.get(id); } }
+    public Set<UUID> ids() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return Set.copyOf(states.keySet()); } }
+    public void put(UUID id, PopulationState state) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {gate(); if (!state.equals(states.put(id,state))) dirty = true; } }
+    public void retain(Set<UUID> ids) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {gate(); if (states.keySet().retainAll(ids)) dirty = true; } }
+    public void rebase(long now) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { for (UUID id : ids()) put(id,states.get(id).rebase(now)); } }
+    public void save() throws IOException { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {gate();
         if (!dirty) return;
         Files.createDirectories(file.toAbsolutePath().getParent());
         YamlConfiguration yaml = new YamlConfiguration(); yaml.set("schema",1); yaml.createSection("towns");

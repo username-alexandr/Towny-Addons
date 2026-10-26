@@ -17,11 +17,11 @@ public record WarehouseMovement(UUID id, ItemStack sample, int amount, boolean i
       }
    }
 
-   public ItemStack sample() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public ItemStack sample() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       return this.sample.clone();
    } }
 
-   public boolean matches(ItemStack item, int count, boolean deposit) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean matches(ItemStack item, int count, boolean deposit) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
       return this.amount == count && this.incoming == deposit && this.sample.isSimilar(item);
    } }
 }

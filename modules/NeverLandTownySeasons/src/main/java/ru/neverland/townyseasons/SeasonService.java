@@ -18,20 +18,20 @@ public final class SeasonService implements TownySeasonsApi {
     public SeasonService(JavaPlugin plugin,SeasonRepository repository,SeasonSettings settings) {
         this.plugin=plugin;this.repository=repository;this.settings=settings;
     }
-    public SeasonSettings settings() { synchronized (ru.neverland.core.SuiteState.lock()) { return settings; } }
-    public void reload(SeasonSettings next) { synchronized (ru.neverland.core.SuiteState.lock()) { ApiServices.primaryThread();settings=next;observed.clear();failures.clear(); } }
-    public void override(UUID world,Season season) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public SeasonSettings settings() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return settings; } }
+    public void reload(SeasonSettings next) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { ApiServices.primaryThread();settings=next;observed.clear();failures.clear(); } }
+    public void override(UUID world,Season season) throws IOException { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread();World w=world(world);
         if(!enabled(w))throw new IllegalArgumentException("Сезоны отключены в этом мире");
         repository.set(world,season);pulse();
     } }
-    @Override public boolean healthy() { synchronized (ru.neverland.core.SuiteState.lock()) { ApiServices.primaryThread();return repository.healthy(); } }
+    @Override public boolean healthy() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { ApiServices.primaryThread();return repository.healthy(); } }
     private World world(UUID id) {
         if(id==null)throw new IllegalArgumentException("Мир не задан");
         World w=Bukkit.getWorld(id);if(w==null)throw new IllegalArgumentException("Мир не загружен");return w;
     }
     private boolean enabled(World w) { return w.getEnvironment()==World.Environment.NORMAL&&(settings.worlds().isEmpty()||settings.worlds().contains(w.getName())); }
-    public UUID townWorld(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public UUID townWorld(UUID id) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread();var town=id==null?null:TownyAPI.getInstance().getTown(id);
         if(town==null)throw new IllegalArgumentException("Город не найден");
         var home=town.getHomeBlockOrNull();
@@ -39,7 +39,7 @@ public final class SeasonService implements TownySeasonsApi {
         var w=Bukkit.getWorld(home.getWorld().getName());
         if(w==null)throw new IllegalStateException("Мир города не загружен");return w.getUID();
     } }
-    @Override public Map<String,Object> calendar(UUID worldId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public Map<String,Object> calendar(UUID worldId) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread();World w=world(worldId);
         if(!healthy())throw new IllegalStateException("Ошибка хранения календаря");
         boolean active=enabled(w);Season season=null;long year=0,remaining=0;int day=0;
@@ -62,15 +62,15 @@ public final class SeasonService implements TownySeasonsApi {
         var effect=season==null?new SeasonSettings.Effects(Map.of(),Map.of()):settings.effects().get(season);
         out.put("production",effect.production());out.put("eventWeights",effect.events());return Map.copyOf(out);
     } }
-    @Override public Map<String,Object> townCalendar(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { return calendar(townWorld(town)); } }
-    @Override public double productionMultiplier(UUID town,String building) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public Map<String,Object> townCalendar(UUID town) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { return calendar(townWorld(town)); } }
+    @Override public double productionMultiplier(UUID town,String building) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         Objects.requireNonNull(building);return coefficient(townCalendar(town),"production",building.toLowerCase(Locale.ROOT));
     } }
-    @Override public double eventWeight(UUID town,String eventMode) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public double eventWeight(UUID town,String eventMode) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         Objects.requireNonNull(eventMode);return coefficient(townCalendar(town),"eventWeights",eventMode.toLowerCase(Locale.ROOT));
     } }
     private double coefficient(Map<String,Object> view,String key,String id) { Object value=((Map<?,?>)view.get(key)).get(id);return value==null?1:((Number)value).doubleValue(); }
-    public void pulse() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void pulse() { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         for(World w:Bukkit.getWorlds())try {
             var view=calendar(w.getUID());String current=(String)view.get("season");String old=observed.put(w.getUID(),current);failures.remove(w.getUID());
             if(old!=null&&!old.equals(current)&&settings.announce())for(var player:w.getPlayers())
@@ -79,5 +79,5 @@ public final class SeasonService implements TownySeasonsApi {
             String error=e.getMessage();if(!Objects.equals(failures.put(w.getUID(),error),error))plugin.getLogger().warning(w.getName()+": "+error);
         }
     } }
-    public String providerStatus() { synchronized (ru.neverland.core.SuiteState.lock()) { return external.status(); } }
+    public String providerStatus() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) { return external.status(); } }
 }

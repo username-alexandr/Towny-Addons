@@ -7,6 +7,6 @@ public record DeliveryIntent(UUID id,UUID contract,UUID town,UUID actor,String s
         Objects.requireNonNull(id);Objects.requireNonNull(contract);Objects.requireNonNull(town);Objects.requireNonNull(actor);Objects.requireNonNull(phase);
         if(sample==null||sample.isEmpty()||sample.length()>1_000_000||amount<1||amount>1_000_000||created<0||acknowledged&&phase!=Phase.COMPLETE)throw new IllegalArgumentException("Некорректная поставка");
     }
-    public DeliveryIntent phase(Phase value){ synchronized (ru.neverland.core.SuiteState.lock()) {return new DeliveryIntent(id,contract,town,actor,sample,amount,value,created,acknowledged);} }
-    public DeliveryIntent acknowledge(){ synchronized (ru.neverland.core.SuiteState.lock()) {return new DeliveryIntent(id,contract,town,actor,sample,amount,phase,created,true);} }
+    public DeliveryIntent phase(Phase value){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return new DeliveryIntent(id,contract,town,actor,sample,amount,value,created,acknowledged);} }
+    public DeliveryIntent acknowledge(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return new DeliveryIntent(id,contract,town,actor,sample,amount,phase,created,true);} }
 }

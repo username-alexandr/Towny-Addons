@@ -21,7 +21,15 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
     private AdminMenu adminMenu;
     private TownDeletionService townDeletion;
     TownDeletionService townDeletion(){return townDeletion;}
-    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
+        try { SuiteProtocol.verify(this); }
+        catch (IllegalStateException ex) { getLogger().severe(ex.getMessage());getServer().getPluginManager().disablePlugin(this);return; }
+        // Intentionally outside the ledger: diagnostics must never wait for the occupied lock.
+        getCommand("nltlock").setExecutor((sender,command,label,args)->{
+            if(!AdminAccess.admin(sender)){sender.sendMessage("§cНет прав.");return true;}
+            for(String line:SuiteState.diagnostics())sender.sendMessage("§7"+line);
+            return true;
+        });
         try(var stream=getResource("module-dependencies.yml")) {
             if(stream==null)throw new IOException("Нет схемы зависимостей");
             var y=new YamlConfiguration();y.load(new InputStreamReader(stream,StandardCharsets.UTF_8));
@@ -34,7 +42,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             if(!graph.modules().containsAll(state.modules().keySet()))throw new IOException("В состоянии есть неизвестные модули");
             var blocked=graph.closure(state.requests());
             ModulePauseStore.save(stateFile,ModulePauseStore.request(state,state.requests(),blocked,System.currentTimeMillis()));
-            getCommand("nltoutbox").setExecutor((sender,command,label,args)->{synchronized(SuiteState.lock()){
+            getCommand("nltoutbox").setExecutor((sender,command,label,args)->{try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){
                 if(!AdminAccess.admin(sender)){sender.sendMessage("§cНет прав.");return true;}
                 try{if(args.length<1){sender.sendMessage("§f/nltoutbox <модуль> [UUID done|retry]");return true;}
                     Plugin target=Bukkit.getPluginManager().getPlugin(graph.resolve(args[0]));if(target==null)throw new IllegalArgumentException("Модуль не найден");
@@ -55,8 +63,8 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             getServer().getPluginManager().disablePlugin(this);
         }
     } }
-    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(townDeletion!=null)townDeletion.stop();if(adminMenu!=null)adminMenu.shutdown();if(bankAudit!=null)bankAudit.stop();SuiteScheduler.get().cancelTasks(this);} }
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onDisable(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(townDeletion!=null)townDeletion.stop();if(adminMenu!=null)adminMenu.shutdown();if(bankAudit!=null)bankAudit.stop();SuiteScheduler.get().cancelTasks(this);} }
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if(!AdminAccess.admin(sender)){sender.sendMessage("§cНет прав.");return true;}
         try {
             if(graph==null)throw new IllegalStateException("Управление недоступно");
@@ -115,7 +123,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
         },acknowledged,1);
         acknowledged.run();
     }
-    @EventHandler(priority=EventPriority.MONITOR) public void onDisable(PluginDisableEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @EventHandler(priority=EventPriority.MONITOR) public void onDisable(PluginDisableEvent event) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if(applying||graph==null||!isEnabled()||!graph.modules().contains(event.getPlugin().getName())||Bukkit.isStopping())return;
         String name=event.getPlugin().getName();
         try {
@@ -141,15 +149,16 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
         }
         return false;
     }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void damage(org.bukkit.event.entity.EntityDamageEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void damage(org.bukkit.event.entity.EntityDamageEvent e) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         if(dormant(e.getEntity()) || e instanceof org.bukkit.event.entity.EntityDamageByEntityEvent hit && dormant(hit.getDamager()))e.setCancelled(true);
     } }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void target(org.bukkit.event.entity.EntityTargetLivingEntityEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(dormant(e.getEntity()))e.setCancelled(true);} }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void explode(org.bukkit.event.entity.EntityExplodeEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(dormant(e.getEntity()))e.setCancelled(true);} }
-    @EventHandler public void loaded(org.bukkit.event.world.EntitiesLoadEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void target(org.bukkit.event.entity.EntityTargetLivingEntityEvent e) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {if(dormant(e.getEntity()))e.setCancelled(true);} }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void explode(org.bukkit.event.entity.EntityExplodeEvent e) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {if(dormant(e.getEntity()))e.setCancelled(true);} }
+    @EventHandler public void loaded(org.bukkit.event.world.EntitiesLoadEvent e) {
+        // Only owner-region entity metadata is accessed; no suite ledger state.
         if(getServer().getPluginManager().isPluginEnabled("NeverLandTownyEvents"))return;
         for(var entity:e.getEntities())for(var key:entity.getPersistentDataContainer().getKeys())if(key.getKey().equals("raid_town")&&Set.of("neverlandtownyevents","minttownyevents").contains(key.getNamespace())){entity.remove();break;}
-    } }
+    }
     String moduleStatus(String name){try{return describe(name,ModulePauseStore.load(stateFile));}catch(Exception ex){return "§cСостояние не прочитано: "+ex.getMessage();}}
     List<String> modulePlan(String name){return graph.closure(Set.of(graph.resolve(name))).stream().map(n->n.substring("NeverLandTowny".length())).sorted().toList();}
     private String describe(String name,ModulePauseStore.State state) {
@@ -158,7 +167,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
         return "§f"+name.substring("NeverLandTowny".length())+" §7— "+status+(state.requests().contains(name)?" §7(по запросу)":"");
     }
     private static String shortNames(Set<String> names){return String.join(", ",names.stream().map(n->n.substring("NeverLandTowny".length())).sorted().toList());}
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         if(!AdminAccess.admin(sender)||graph==null)return List.of();
         List<String> options=args.length==1?List.of("list","status","plan","disable","enable"):args.length==2?java.util.stream.Stream.concat(java.util.stream.Stream.of("all"),graph.modules().stream().map(n->n.substring("NeverLandTowny".length()))).sorted().toList():List.of();
         String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return options.stream().filter(s->s.toLowerCase(Locale.ROOT).startsWith(prefix)).toList();

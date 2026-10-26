@@ -1,5 +1,5 @@
 name: NeverLandTownyResearch
-version: 0.1.16
+version: 0.1.17
 main: ru.neverland.townyresearch.NeverLandTownyResearch
 folia-supported: true
 api-version: '26.2'

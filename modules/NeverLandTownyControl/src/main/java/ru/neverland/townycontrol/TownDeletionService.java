@@ -62,7 +62,7 @@ final class TownDeletionService implements Listener,TabExecutor {
         var owner=Bukkit.getPluginManager().getPlugin("Towny");if(!(owner instanceof org.bukkit.plugin.java.JavaPlugin java))throw new IllegalStateException("Towny недоступен");
         var command=Objects.requireNonNull(java.getCommand(name));var delegate=command.getExecutor();original.put(command,delegate);
         CommandExecutor wrapper=(sender,cmd,label,args)->{
-            synchronized(SuiteState.lock()){
+            try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){
                 try{
                     if(name.equals("town")&&args.length>=1&&Set.of("delete","del").contains(args[0].toLowerCase(Locale.ROOT))){
                         if(args.length>2)throw new IllegalArgumentException("/town delete [город]");
@@ -199,26 +199,26 @@ final class TownDeletionService implements Listener,TabExecutor {
             audit(job,"REQUESTED");
         }catch(Exception ex){boolean removed=TownyAPI.getInstance().getTown(job.town)==null;fail(job,ex.getMessage(),removed);tell(sender,sender instanceof Player?(removed?"§cГород удалён, но изменение территории остановлено. Обратитесь к администрации.":"§cУдаление остановлено. Город и постройки сохранены. Обратитесь к администрации."):"§cУдаление остановлено: "+ex.getMessage());}
     }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void before(PreDeleteTownEvent event){synchronized(SuiteState.lock()){
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void before(PreDeleteTownEvent event){try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){
         if(event.getCause().isCommand()&&!executing.contains(event.getTown().getUUID())){event.setCancelled(true);event.setCancelMessage("Удаление требует предупреждения: используйте /town delete заново.");}
     }}
-    @EventHandler(priority=EventPriority.MONITOR) public void deleted(DeleteTownEvent event){synchronized(SuiteState.lock()){
+    @EventHandler(priority=EventPriority.MONITOR) public void deleted(DeleteTownEvent event){try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()){
         for(var job:jobs.values())if(job.town.equals(event.getTownUUID())&&job.state.equals("WAITING_DELETE"))try{job.state="APPLYING";save(job);apply(job);}catch(Exception ex){fail(job,ex.getMessage(),true);}
     }}
-    @EventHandler(priority=EventPriority.MONITOR) public void reclaimed(com.palmergames.bukkit.towny.event.town.TownReclaimedEvent event){synchronized(SuiteState.lock()){
+    @EventHandler(priority=EventPriority.MONITOR) public void reclaimed(com.palmergames.bukkit.towny.event.town.TownReclaimedEvent event){try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()){
         for(var job:jobs.values())if(job.town.equals(event.getTown().getUUID())&&job.state.equals("WAITING_DELETE"))try{job.state="CANCELLED";job.error="Город восстановлен из руин";save(job);audit(job,"CANCELLED");}catch(Exception ex){fail(job,ex.getMessage(),true);}
     }}
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void beforeRuins(com.palmergames.bukkit.towny.event.town.TownPreRuinedEvent event){synchronized(SuiteState.lock()){
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void beforeRuins(com.palmergames.bukkit.towny.event.town.TownPreRuinedEvent event){try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()){
         // Towny falls through to PreDeleteTownEvent after cancelling ruin creation.
         if(event.getCause()==DeleteTownEvent.Cause.COMMAND&&!executing.contains(event.getTown().getUUID()))event.setCancelled(true);
     }}
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void preClaim(TownPreClaimEvent event){synchronized(SuiteState.lock()){
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void preClaim(TownPreClaimEvent event){try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()){
         Plot plot=TerrainProtection.plot(event.getTownBlock());if(jobs.values().stream().anyMatch(j->j.reserves()&&j.plots.contains(plot))){event.setCancelled(true);event.setCancelMessage("Участок ожидает завершения удаления города (%s/%s). Обратитесь к администратору.");}
     }}
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void preUnclaim(TownPreUnclaimEvent event){synchronized(SuiteState.lock()){
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void preUnclaim(TownPreUnclaimEvent event){try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()){
         if(event.getTown()!=null&&jobs.values().stream().anyMatch(j->j.town.equals(event.getTown().getUUID())&&j.reserves())){event.setCancelled(true);event.setCancelMessage("Готовится удаление города; изменение границ временно остановлено.");}
     }}
-    @EventHandler public void quit(PlayerQuitEvent event){synchronized(SuiteState.lock()){
+    @EventHandler public void quit(PlayerQuitEvent event){try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()){
         String actor=actor(event.getPlayer());offers.remove(actor);
         for(var job:jobs.values())if(job.actor.equals(actor)&&job.state.equals("PREPARING"))fail(job,"Инициатор вышел из игры до удаления города",false);
     }}
@@ -290,7 +290,7 @@ final class TownDeletionService implements Listener,TabExecutor {
             AtomicFiles.loaded(file);jobs.put(j.id,j);save(j);
         }}
     }
-    @Override public boolean onCommand(CommandSender sender,Command cmd,String label,String[] args){synchronized(SuiteState.lock()){
+    @Override public boolean onCommand(CommandSender sender,Command cmd,String label,String[] args){try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()){
         try{
             if(args.length==1&&args[0].equalsIgnoreCase("cancel")){var removed=offers.remove(actor(sender));sender.sendMessage(removed!=null?"§aУдаление отменено. Город сохранён.":"§eНет удаления, которое можно отменить этой кнопкой. Посмотреть состояние: /nltdelete status");return true;}
             if(args.length==2&&args[0].equalsIgnoreCase("confirm")){confirm(sender,UUID.fromString(args[1]));return true;}
@@ -304,7 +304,7 @@ final class TownDeletionService implements Listener,TabExecutor {
             sender.sendMessage(administrator(sender)?"§fМэр: /town delete. Администратор: /nltdelete <город> <full|registered>. /nltdelete status | cancel | confirm <код> | resume|abandon <ID>":"§fУдалить свой город: /town delete. Посмотреть состояние удаления: /nltdelete status.");
         }catch(Exception ex){sender.sendMessage("§c"+ex.getMessage());}return true;
     }}
-    @Override public List<String> onTabComplete(CommandSender sender,Command cmd,String label,String[] args){synchronized(SuiteState.lock()){
+    @Override public List<String> onTabComplete(CommandSender sender,Command cmd,String label,String[] args){try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()){
         if(!administrator(sender))return args.length==1?List.of("confirm","cancel","status"):List.of();
         if(args.length==1){var values=new ArrayList<>(towns());values.addAll(List.of("status","confirm","cancel","resume","abandon"));return values.stream().filter(v->v.toLowerCase(Locale.ROOT).startsWith(args[0].toLowerCase(Locale.ROOT))).toList();}
         return args.length==2&&TownyAPI.getInstance().getTown(args[0])!=null?List.of("full","registered"):List.of();

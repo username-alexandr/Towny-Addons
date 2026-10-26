@@ -14,11 +14,11 @@ public final class MintContractsExpansion extends PlaceholderExpansion {
     public MintContractsExpansion(MintTownyContracts plugin, TownyHook towny, ContractService contracts) {
         this.plugin = plugin; this.towny = towny; this.contracts = contracts;
     }
-    @Override public @NotNull String getIdentifier() { synchronized (ru.neverland.core.SuiteState.lock()) { return "mintcontracts"; } }
-    @Override public @NotNull String getAuthor() { synchronized (ru.neverland.core.SuiteState.lock()) { return "Alexander Sokolov"; } }
-    @Override public @NotNull String getVersion() { synchronized (ru.neverland.core.SuiteState.lock()) { return plugin.getPluginMeta().getVersion(); } }
-    @Override public boolean persist() { synchronized (ru.neverland.core.SuiteState.lock()) { return true; } }
-    @Override public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public @NotNull String getIdentifier() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return "mintcontracts"; } }
+    @Override public @NotNull String getAuthor() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return "Alexander Sokolov"; } }
+    @Override public @NotNull String getVersion() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return plugin.getPluginMeta().getVersion(); } }
+    @Override public boolean persist() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return true; } }
+    @Override public @Nullable String onRequest(OfflinePlayer offline, @NotNull String params) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if (!(offline instanceof Player player)) return "";
         Town town = towny.town(player);
         return switch (params.toLowerCase()) {

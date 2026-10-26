@@ -7,7 +7,7 @@ public record ContributionResult(Status status, int totalItems, List<String> det
         details = List.copyOf(details);
     }
 
-    public static ContributionResult of(Status status) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static ContributionResult of(Status status) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return new ContributionResult(status, 0, List.of());
     } }
 

@@ -18,14 +18,14 @@ public final class SupplyMenus implements Listener {
     private final JavaPlugin plugin;private final TownyHook towny;private final SupplyService supply;private final MessageService messages;
     private static final class View implements InventoryHolder {
         final UUID town;final Map<Integer,Runnable> actions=new HashMap<>();Inventory inventory;
-        View(UUID town){this.town=town;}public Inventory getInventory(){ synchronized (ru.neverland.core.SuiteState.lock()) {return inventory;} }
+        View(UUID town){this.town=town;}public Inventory getInventory(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return inventory;} }
     }
     public SupplyMenus(JavaPlugin plugin,TownyHook towny,SupplyService supply,MessageService messages){this.plugin=plugin;this.towny=towny;this.supply=supply;this.messages=messages;}
-    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.SuiteScheduler.cleanupPlayers(plugin,p->{var holder=p.getOpenInventory().getTopInventory().getHolder();if(holder instanceof View||holder instanceof ru.neverland.minttrade.gui.TradeMenuHolder)p.closeInventory();});} }
-    public boolean access(Player player){ synchronized (ru.neverland.core.SuiteState.lock()) {if(!player.hasPermission("minttrade.use")||!player.hasPermission("minttrade.contracts.use")){messages.send(player,"no-permission");return false;}return true;} }
-    public boolean manage(Player player,Town town){ synchronized (ru.neverland.core.SuiteState.lock()) {if(!access(player))return false;if(!player.hasPermission("minttrade.manage")||!player.hasPermission("minttrade.contracts.manage")||!towny.isManager(player,town)){messages.send(player,"only-manager");return false;}return true;} }
+    public void stop(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {ru.neverland.core.SuiteScheduler.cleanupPlayers(plugin,p->{var holder=p.getOpenInventory().getTopInventory().getHolder();if(holder instanceof View||holder instanceof ru.neverland.minttrade.gui.TradeMenuHolder)p.closeInventory();});} }
+    public boolean access(Player player){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(!player.hasPermission("minttrade.use")||!player.hasPermission("minttrade.contracts.use")){messages.send(player,"no-permission");return false;}return true;} }
+    public boolean manage(Player player,Town town){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(!access(player))return false;if(!player.hasPermission("minttrade.manage")||!player.hasPermission("minttrade.contracts.manage")||!towny.isManager(player,town)){messages.send(player,"only-manager");return false;}return true;} }
     private View view(Player player,String title){var town=towny.town(player);if(town==null||!access(player))throw new IllegalArgumentException("Вы не состоите в городе или нет права доступа");var v=new View(town.getUUID());v.inventory=ru.neverland.core.MenuStyle.inventory(plugin, v,54,ColorUtil.color(title));return v;}
-    public void open(Player p,int requested){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void open(Player p,int requested){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         var v=view(p,"&2Регулярные торговые договоры");var list=supply.town(v.town);int pages=Math.max(1,(list.size()+44)/45),page=Math.max(0,Math.min(pages-1,requested));
         for(int slot=0;slot<45&&page*45+slot<list.size();slot++){var c=list.get(page*45+slot);button(v,slot,icon(c),c.terms().itemName(),summary(c),()->detail(p,c.terms().id().toString(),page));}
         button(v,45,Material.ARROW,"&fПредыдущая страница",List.of(),()->open(p,page-1));
@@ -34,7 +34,7 @@ public final class SupplyMenus implements Listener {
         button(v,52,Material.EMERALD,"&fТорговая доска",List.of(),()->p.performCommand("t trade"));
         button(v,53,Material.ARROW,"&fСледующая страница",List.of(),()->open(p,page+1));p.openInventory(v.inventory);
     } }
-    public void detail(Player p,String id,int page){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void detail(Player p,String id,int page){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         var v=view(p,"&2Условия торгового договора");var c=supply.find(id);if(c==null||!c.terms().party(v.town))throw new IllegalArgumentException("Договор не найден");
         button(v,13,icon(c),c.terms().itemName(),summary(c),()->{});
         List<String> history=new ArrayList<>();history.add("&7Завершено поставок: &f"+c.deliveries());
@@ -46,7 +46,7 @@ public final class SupplyMenus implements Listener {
         if(c.status()==Status.PROPOSED||c.status()==Status.ACTIVE)button(v,33,Material.RED_DYE,"&cОтменить договор",List.of("&7Будущие поставки прекращаются.","&7Начатый расчёт будет завершён.",c.status()==Status.ACTIVE?"&cРасторжение снижает торговую репутацию.":"&7Отказ от предложения не даёт штрафа."),()->confirm(p,id,"cancel",page));
         button(v,49,Material.ARROW,"&fНазад",List.of(),()->open(p,page));p.openInventory(v.inventory);
     } }
-    public void confirm(Player p,String id,String action,int page){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void confirm(Player p,String id,String action,int page){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         var v=view(p,"&2Подтверждение договора");var town=towny.town(p);if(!manage(p,town))return;
         var c=supply.find(id);if(c==null||!c.terms().party(v.town))throw new IllegalArgumentException("Договор не найден");
         button(v,13,icon(c),c.terms().itemName(),summary(c),()->{});
@@ -57,10 +57,10 @@ public final class SupplyMenus implements Listener {
         });
         button(v,33,Material.RED_CONCRETE,"&cНазад",List.of(),()->detail(p,id,page));p.openInventory(v.inventory);
     } }
-    public void error(Player p,Exception ex){ synchronized (ru.neverland.core.SuiteState.lock()) {messages.send(p,"contract-error",Map.of("reason",ex.getMessage()==null?"Не удалось выполнить действие":ex.getMessage()));} }
+    public void error(Player p,Exception ex){ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {messages.send(p,"contract-error",Map.of("reason",ex.getMessage()==null?"Не удалось выполнить действие":ex.getMessage()));} }
     private Material icon(SupplyContract c){try{return SupplyGateway.decode(c.terms().itemData()).getType();}catch(RuntimeException ex){return Material.BARRIER;}}
     private String name(UUID id){var town=towny.town(id);return town==null?"Удалённый город":town.getName();}
-    public List<String> summary(SupplyContract c){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<String> summary(SupplyContract c){ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         var t=c.terms();List<String> lines=new ArrayList<>(List.of("&7ID: &f"+t.shortId(),"&7Продавец: &f"+name(t.seller()),"&7Покупатель: &f"+name(t.buyer()),
             "&7Партия: &f"+t.amount()+" шт.","&7Цена партии: &e"+money(t.cents())+" монет","&7Период: &f"+t.days()+" дн.","&7Статус: &f"+state(c),
             "&7Следующая поставка: &f"+(!c.open()?"Не планируется":c.nextDue()==0?"После подписания":date(c.nextDue())),"&7Состояние: &f"+c.note()));
@@ -69,16 +69,16 @@ public final class SupplyMenus implements Listener {
         if(c.attempt()!=null){lines.add("&7Расчёт: &f"+phase(c.attempt().phase()));lines.add("&7Поставка: &f"+c.attempt().id());}
         return lines;
     } }
-    public static String state(SupplyContract c){ synchronized (ru.neverland.core.SuiteState.lock()) {return switch(c.status()){case PROPOSED->"Ожидает покупателя";case ACTIVE->c.pausedBy().isEmpty()?"Действует":"Приостановлен";case CANCELLED->c.attempt()==null?"Отменён":"Завершается начатый расчёт";case EXPIRED->"Предложение истекло";};} }
-    public static String phase(Phase p){ synchronized (ru.neverland.core.SuiteState.lock()) {return switch(p){case PREPARED->"Подготовка";case DEBIT_PENDING->"Сверка списания";case PAID->"Оплата зарезервирована";case DELIVERED->"Ожидает оплаты продавцу";case CREDIT_PENDING->"Сверка зачисления";case RETURNING->"Возврат резерва";case COMPLETE->"Завершён";case RETURNED->"Резерв возвращён";};} }
-    public static String date(long at){ synchronized (ru.neverland.core.SuiteState.lock()) {return DATE.format(Instant.ofEpochMilli(at));} }
+    public static String state(SupplyContract c){ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {return switch(c.status()){case PROPOSED->"Ожидает покупателя";case ACTIVE->c.pausedBy().isEmpty()?"Действует":"Приостановлен";case CANCELLED->c.attempt()==null?"Отменён":"Завершается начатый расчёт";case EXPIRED->"Предложение истекло";};} }
+    public static String phase(Phase p){ try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {return switch(p){case PREPARED->"Подготовка";case DEBIT_PENDING->"Сверка списания";case PAID->"Оплата зарезервирована";case DELIVERED->"Ожидает оплаты продавцу";case CREDIT_PENDING->"Сверка зачисления";case RETURNING->"Возврат резерва";case COMPLETE->"Завершён";case RETURNED->"Резерв возвращён";};} }
+    public static String date(long at){ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {return DATE.format(Instant.ofEpochMilli(at));} }
     private void button(View v,int slot,Material material,String name,List<String> lore,Runnable action){var item=new ItemStack(material);var meta=item.getItemMeta();meta.setDisplayName(ru.neverland.core.MenuStyle.nameLegacy(ColorUtil.color(name)));meta.setLore(ru.neverland.core.MenuStyle.loreStrings(lore.stream().map(ColorUtil::color).toList()));item.setItemMeta(meta);v.inventory.setItem(slot,item);v.actions.put(slot,action);}
-    @EventHandler public void click(InventoryClickEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyTrade")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler public void click(InventoryClickEvent e){ try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyTrade")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         if(!(e.getView().getTopInventory().getHolder() instanceof View v))return;e.setCancelled(true);
         if(!(e.getWhoClicked() instanceof Player p)||e.getRawSlot()<0||e.getRawSlot()>=v.inventory.getSize())return;
         Runnable action=v.actions.get(e.getRawSlot());if(action==null)return;
         ru.neverland.core.SuiteScheduler.entity(plugin,p,()->{var town=towny.town(p);if(!p.isOnline()||p.getOpenInventory().getTopInventory()!=v.inventory)return;
             if(town==null||!town.getUUID().equals(v.town)||!access(p)){p.closeInventory();return;}try{action.run();}catch(Exception ex){error(p,ex);}});
     } }
-    @EventHandler public void drag(InventoryDragEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyTrade")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(e.getView().getTopInventory().getHolder() instanceof View)e.setCancelled(true);} }
+    @EventHandler public void drag(InventoryDragEvent e){ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyTrade")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(e.getView().getTopInventory().getHolder() instanceof View)e.setCancelled(true);} }
 }

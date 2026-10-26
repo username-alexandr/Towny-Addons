@@ -19,7 +19,7 @@ public final class FireRepairService {
     private final EventService events;
     public FireRepairService(JavaPlugin plugin, TownyHook towny, EventService events) { this.plugin=plugin; this.towny=towny; this.events=events; }
     public static boolean admin(Player p) { return p.isOp() || p.hasPermission("mintevents.admin") || p.hasPermission("neverlandtownycontrol.admin"); }
-    public List<FireRepairPlot> plots(UUID town) { synchronized (SuiteState.lock()) {
+    public List<FireRepairPlot> plots(UUID town) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         int size=TownySettings.getTownBlockSize();
         record Key(UUID world,int x,int z) {}
         Map<Key,List<FireDamage>> groups=new LinkedHashMap<>();
@@ -27,7 +27,7 @@ public final class FireRepairService {
         return groups.entrySet().stream().map(e->new FireRepairPlot(town,e.getKey().world(),e.getKey().x(),e.getKey().z(),size,e.getValue()))
             .sorted(Comparator.comparing((FireRepairPlot p)->p.world().toString()).thenComparingInt(FireRepairPlot::x).thenComparingInt(FireRepairPlot::z)).toList();
     } }
-    public boolean allowed(Player player, FireRepairPlot plot, boolean administrative) { synchronized (SuiteState.lock()) {
+    public boolean allowed(Player player, FireRepairPlot plot, boolean administrative) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(administrative) return admin(player);
         if(!player.hasPermission("mintevents.use") || !player.hasPermission("mintevents.repair")) return false;
         Resident resident=towny.resident(player); Town town=towny.town(player);
@@ -37,7 +37,7 @@ public final class FireRepairService {
         if(block==null || block.getTownOrNull()==null || !block.getTownOrNull().getUUID().equals(plot.town())) return false;
         return resident.equals(town.getMayor()) || resident.equals(block.getResidentOrNull()) || player.hasPermission("mintevents.repair.manage");
     } }
-    public int confirm(Player player, FireRepairPlot plot, boolean administrative) throws IOException { synchronized (SuiteState.lock()) {
+    public int confirm(Player player, FireRepairPlot plot, boolean administrative) throws IOException { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if(!plugin.isEnabled() || SuiteState.frozen(plugin.getName())) throw new IllegalArgumentException("Ремонт временно недоступен");
         if(!allowed(player,plot,administrative)) throw new IllegalArgumentException("Подтвердить ремонт может владелец участка, мэр или управляющий.");
         if(plot.size()!=TownySettings.getTownBlockSize()) throw new IllegalArgumentException("Границы участка изменились. Откройте меню заново.");

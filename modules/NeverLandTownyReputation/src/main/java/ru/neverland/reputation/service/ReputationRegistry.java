@@ -23,7 +23,7 @@ public final class ReputationRegistry {
     private final List<ReputationTier> tiers = new ArrayList<>();
     private final Map<String, FeatureDefinition> features = new LinkedHashMap<>();
     public ReputationRegistry(JavaPlugin plugin) { this.plugin = plugin; reload(); }
-    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         tiers.clear(); features.clear();
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "levels.yml"));
         ConfigurationSection levels = yaml.getConfigurationSection("levels");
@@ -42,13 +42,13 @@ public final class ReputationRegistry {
             features.put(id.toLowerCase(Locale.ROOT), new FeatureDefinition(id.toLowerCase(Locale.ROOT), Set.copyOf(scopes), featureSection.getInt(id + ".minimum-score")));
         }
     } }
-    public ReputationTier tier(int score) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ReputationTier tier(int score) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         ReputationTier selected = tiers.isEmpty() ? new ReputationTier("neutral", "Нейтральная", 0, Material.PAPER, "", List.of(), Set.of(), 0, 1) : tiers.get(0);
         for (ReputationTier tier : tiers) if (score >= tier.minimumScore()) selected = tier; else break;
         return selected;
     } }
-    public FeatureDefinition feature(String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return id == null ? null : features.get(id.toLowerCase(Locale.ROOT)); } }
-    public List<ReputationTier> tiers() { synchronized (ru.neverland.core.SuiteState.lock()) { return List.copyOf(tiers); } }
-    public Map<String, FeatureDefinition> features() { synchronized (ru.neverland.core.SuiteState.lock()) { return Map.copyOf(features); } }
+    public FeatureDefinition feature(String id) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return id == null ? null : features.get(id.toLowerCase(Locale.ROOT)); } }
+    public List<ReputationTier> tiers() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return List.copyOf(tiers); } }
+    public Map<String, FeatureDefinition> features() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { return Map.copyOf(features); } }
     private Set<String> lowerSet(List<String> values) { Set<String> result = new LinkedHashSet<>(); values.forEach(value -> result.add(value.toLowerCase(Locale.ROOT))); return Set.copyOf(result); }
 }

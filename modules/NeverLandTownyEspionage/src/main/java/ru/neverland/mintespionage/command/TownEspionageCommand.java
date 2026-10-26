@@ -20,7 +20,7 @@ import java.util.Map;
 public final class TownEspionageCommand implements CommandExecutor,TabCompleter {
     private final TownyHook towny;private final EspionageService service;private final EspionageMenuManager menus;private final MessageService messages;
     public TownEspionageCommand(TownyHook towny,EspionageService service,EspionageMenuManager menus,MessageService messages){this.towny=towny;this.service=service;this.menus=menus;this.messages=messages;}
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEspionage")){return true;}
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEspionage")){return true;}
         if(!(sender instanceof Player player)){messages.send(sender,"players-only");return true;}if(!player.hasPermission("mintespionage.use")){messages.send(player,"no-permission");return true;}Town own=towny.town(player);if(own==null){messages.send(player,"no-town");return true;}
         if(args.length==0){menus.open(player);return true;}switch(args[0].toLowerCase(Locale.ROOT)){
             case "help","помощь"->messages.help(player);case "targets","цели"->menus.openTargets(player);case "reports","report","отчёты"->{if(service.repository().reports(own.getUUID()).isEmpty())messages.send(player,"no-reports");menus.openReports(player);}case "active","активные"->{if(service.repository().active(own.getUUID()).isEmpty())messages.send(player,"no-active");menus.openActive(player);}
@@ -34,7 +34,7 @@ public final class TownEspionageCommand implements CommandExecutor,TabCompleter 
         if(!manager(player,town))return;if(args.length<2){messages.send(player,"invalid-upgrade");return;}String type=args[1].toLowerCase(Locale.ROOT);boolean network=type.equals("network")||type.equals("сеть");boolean defense=type.equals("defense")||type.equals("counterintelligence")||type.equals("защита");if(!network&&!defense){messages.send(player,"invalid-upgrade");return;}menus.sendUpgrade(player,service.upgrade(town,network),network);
     }
     private boolean manager(Player player,Town town){if(!player.hasPermission("mintespionage.manage")||!towny.isManager(player,town)){messages.send(player,"only-manager");return false;}return true;}
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(args.length==1)return filter(List.of("start","reports","active","targets","upgrade","help"),args[0]);
         if(args.length==2&&args[0].equalsIgnoreCase("start"))return filter(towny.towns().stream().map(Town::getName).toList(),args[1]);
         if(args.length==3&&args[0].equalsIgnoreCase("start"))return filter(service.registry().all().stream().map(OperationDefinition::id).toList(),args[2]);

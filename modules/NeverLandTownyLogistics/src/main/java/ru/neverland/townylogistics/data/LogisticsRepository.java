@@ -10,7 +10,7 @@ public final class LogisticsRepository {
     public record Snapshot(Map<UUID,Network> networks,Map<UUID,CourierJob> jobs){public Snapshot{networks=Map.copyOf(networks);jobs=Map.copyOf(jobs);}}
     private final Path file;private Snapshot last;private boolean ready;
     public LogisticsRepository(Path file){this.file=file;}
-    public Snapshot load()throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {ready=false;
+    public Snapshot load()throws Exception{ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {ready=false;
         if(!Files.exists(file)){ru.neverland.core.AtomicFiles.loaded(file);ready=true;return new Snapshot(Map.of(),Map.of());}var c=new YamlConfiguration();c.load(file.toFile());
         if(c.getInt("schema")!=1||c.getConfigurationSection("towns")==null||c.getConfigurationSection("jobs")==null)throw new IOException("Повреждена база логистики");
         Map<UUID,Network> towns=new HashMap<>();var root=c.getConfigurationSection("towns");
@@ -33,7 +33,7 @@ public final class LogisticsRepository {
     } }
     private ConfigurationSection required(ConfigurationSection c,String key)throws IOException{var value=c.getConfigurationSection(key);if(value==null)throw new IOException("Нет раздела "+key);return value;}
     private List<Position> positions(ConfigurationSection c,String key){return c.getStringList(key).stream().map(Position::decode).toList();}
-    public void save(Map<UUID,Network> networks,Map<UUID,CourierJob> jobs)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {if(!ready||!ru.neverland.core.AtomicFiles.writable(file))throw new IOException("База логистики недоступна");
+    public void save(Map<UUID,Network> networks,Map<UUID,CourierJob> jobs)throws IOException{ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(!ready||!ru.neverland.core.AtomicFiles.writable(file))throw new IOException("База логистики недоступна");
         var proposed=new Snapshot(networks,jobs);if(proposed.equals(last))return;
         var c=new YamlConfiguration();c.set("schema",1);c.createSection("towns");c.createSection("jobs");
         for(var n:networks.values()){

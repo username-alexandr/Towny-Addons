@@ -24,7 +24,7 @@ import java.util.List;
 public final class MintTownyEspionage extends JavaPlugin {
     private static final List<String> TOWN_COMMANDS=List.of("spy","espionage","intelligence");
     private TownyHook towny;private ItemsAdderHook itemsAdder;private MessageService messages;private DefinitionRegistry definitions;private EspionageRepository repository;private EspionageService service;
-    @Override public void onEnable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         ru.neverland.mintespionage.util.LegacyDataMigrator.migrate(this,"MintTownyEspionage");saveDefaultConfig();copy("messages.yml");copy("operations.yml");towny=new TownyHook(this);itemsAdder=new ItemsAdderHook();messages=new MessageService(this);definitions=new DefinitionRegistry(this);repository=new EspionageRepository(this);repository.load();
@@ -35,9 +35,9 @@ public final class MintTownyEspionage extends JavaPlugin {
 service.startScheduler();long autosave=Math.max(20,getConfig().getLong("scheduler.autosave-seconds",60)*20);ru.neverland.core.SuiteScheduler.get().runTaskTimer(this,repository::saveIfDirty,autosave,autosave);
         getLogger().info("NeverLandTownyEspionage 0.1.2 включён: операций "+definitions.all().size()+", активных "+repository.operations().stream().filter(v->v.status().name().equals("ACTIVE")).count()+", PlaceholderAPI="+papi+".");
     } }
-    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onDisable(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 if(service!=null)service.shutdown();if(towny!=null)for(String name:TOWN_COMMANDS)towny.unregister(name);getServer().getServicesManager().unregisterAll(this);} }
-    public void reloadPlugin(){ synchronized (ru.neverland.core.SuiteState.lock()) {reloadConfig();messages.reload();itemsAdder.reload();definitions.reload();service.startScheduler();} }
+    public void reloadPlugin(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {reloadConfig();messages.reload();itemsAdder.reload();definitions.reload();service.startScheduler();} }
     private void copy(String name){if(!new File(getDataFolder(),name).exists())saveResource(name,false);}
 }

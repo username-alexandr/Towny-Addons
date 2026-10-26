@@ -53,7 +53,7 @@ public final class GovernanceService {
         this.plugin = plugin; this.towny = towny; this.definitions = definitions; this.repository = repository; this.messages = messages;
     }
 
-    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void start() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         stopTasks();
         long resolvePeriod = Math.max(20L, plugin.getConfig().getLong("voting.resolution-interval-seconds", 20) * 20L);
         long savePeriod = Math.max(20L, plugin.getConfig().getLong("storage.autosave-seconds", 60) * 20L);
@@ -61,10 +61,10 @@ public final class GovernanceService {
         autosave = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, repository::saveIfDirty, savePeriod, savePeriod);
     } }
 
-    public void shutdown() { synchronized (ru.neverland.core.SuiteState.lock()) { stopTasks(); repository.save(); } }
+    public void shutdown() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { stopTasks(); repository.save(); } }
     private void stopTasks() { if (resolver != null) resolver.cancel(); if (autosave != null) autosave.cancel(); resolver = autosave = null; }
 
-    public ProposalResult propose(Player player, String lawId, ProposalAction action) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ProposalResult propose(Player player, String lawId, ProposalAction action) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         Town town = towny.town(player); if (town == null) return new ProposalResult(Result.NO_TOWN, null, 0);
         LawDefinition law = definitions.law(lawId); if (law == null) return new ProposalResult(Result.UNKNOWN_LAW, null, 0);
         if (!player.hasPermission("townygovernance.propose") || !mayPropose(player, town, law.category()))
@@ -91,7 +91,7 @@ public final class GovernanceService {
         return new ProposalResult(Result.SUCCESS, proposal, duration);
     } }
 
-    public VoteResult vote(Player player, String proposalId, VoteChoice choice) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public VoteResult vote(Player player, String proposalId, VoteChoice choice) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         Town town = towny.town(player); if (town == null) return new VoteResult(Result.NO_TOWN, null);
         if (!player.hasPermission("townygovernance.vote")) return new VoteResult(Result.NO_PERMISSION, null);
         Proposal proposal = repository.findOpen(town.getUUID(), proposalId);
@@ -106,7 +106,7 @@ public final class GovernanceService {
     } }
 
     /** Read-only previews share the exact checks used by commands and menu confirmations. */
-    public String officeAccessReason(Player actor,String officeId) { synchronized(ru.neverland.core.SuiteState.lock()) {
+    public String officeAccessReason(Player actor,String officeId) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         Town town=towny.town(actor);if(town==null)return "Сначала вступите в город.";
         if(!actor.hasPermission("townygovernance.offices"))return "Назначение на должности для вас отключено администрацией сервера.";
         if(!towny.isManager(actor,town))return "Назначения доступны мэру и уполномоченным им управляющим.";
@@ -115,13 +115,13 @@ public final class GovernanceService {
         if(data(town).electedOffices().contains(officeId)&&elective(town)&&!actor.hasPermission("townygovernance.bypass"))return "Эту должность занимают по результатам выборов.";
         return "";
     } }
-    public String proposalAccessReason(Player player,Town town,LawCategory category) { synchronized(ru.neverland.core.SuiteState.lock()) {
+    public String proposalAccessReason(Player player,Town town,LawCategory category) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         if(town==null||!town.equals(towny.town(player)))return "Сначала вступите в этот город.";
         if(!player.hasPermission("townygovernance.propose"))return "Предложение законов для вас отключено администрацией сервера.";
         if(!ru.neverland.core.CitizensAccess.allows(town.getUUID(),player.getUniqueId(),"HOLD_OFFICE"))return "Ваш статус жителя не позволяет предлагать законы.";
         return mayPropose(player,town,category)?"":"У вас нет права предлагать законы этой категории. Обратитесь к мэру.";
     } }
-    public String voteAccessReason(Player player,Town town,Proposal proposal) { synchronized(ru.neverland.core.SuiteState.lock()) {
+    public String voteAccessReason(Player player,Town town,Proposal proposal) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         if(proposal==null)return "Голосование уже завершено.";
         if(!player.hasPermission("townygovernance.vote"))return "Голосование для вас отключено администрацией сервера.";
         if(proposal.timer().paused())return "Голосование приостановлено. Можно проголосовать после возобновления.";
@@ -130,7 +130,7 @@ public final class GovernanceService {
         if(proposal.voteOf(player.getUniqueId())!=null&&!plugin.getConfig().getBoolean("voting.allow-change",true))return "Вы уже проголосовали. Изменение голоса отключено.";
         return "";
     } }
-    public Result officeAccess(Player actor, String officeId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Result officeAccess(Player actor, String officeId) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         Town town = towny.town(actor); if (town == null) return Result.NO_TOWN;
         if (!actor.hasPermission("townygovernance.offices") || !towny.isManager(actor, town)
                 || !ru.neverland.core.CitizensAccess.allows(town.getUUID(), actor.getUniqueId(), "HOLD_OFFICE")) return Result.NO_PERMISSION;
@@ -139,7 +139,7 @@ public final class GovernanceService {
         return Result.SUCCESS;
     } }
 
-    public Result appointmentStatus(Player actor, String officeId, UUID residentId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Result appointmentStatus(Player actor, String officeId, UUID residentId) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         Result access = officeAccess(actor, officeId); if (access != Result.SUCCESS) return access;
         Town town = towny.town(actor); OfficeDefinition office = definitions.office(officeId);
         Resident resident = residentId == null ? null : towny.resident(residentId); if (resident == null) return Result.UNKNOWN_PLAYER;
@@ -152,14 +152,14 @@ public final class GovernanceService {
         return Result.SUCCESS;
     } }
 
-    public Result appoint(Player actor, String officeId, String residentName) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Result appoint(Player actor, String officeId, String residentName) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         Result access = officeAccess(actor, officeId); if (access != Result.SUCCESS) return access;
         Resident resident = towny.resident(residentName);
         return appoint(actor, officeId, resident == null ? null : resident.getUUID());
     } }
 
     /** UUID is selected from the server-owned resident list, not accepted from a client command. */
-    public Result appoint(Player actor, String officeId, UUID residentId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Result appoint(Player actor, String officeId, UUID residentId) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
         Result result = appointmentStatus(actor, officeId, residentId); if (result != Result.SUCCESS) return result;
         Town town = towny.town(actor); OfficeDefinition office = definitions.office(officeId); Resident resident = towny.resident(residentId);
         TownGovernanceData data = data(town);
@@ -170,20 +170,20 @@ public final class GovernanceService {
         return Result.SUCCESS;
     } }
 
-    public Result dismissalStatus(Player actor, String officeId, UUID residentId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Result dismissalStatus(Player actor, String officeId, UUID residentId) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         Result access = officeAccess(actor, officeId); if (access != Result.SUCCESS) return access;
         return data(towny.town(actor)).offices().getOrDefault(definitions.office(officeId).id(), List.of()).stream()
                 .anyMatch(holder -> holder.residentId().equals(residentId)) ? Result.SUCCESS : Result.NOT_APPOINTED;
     } }
 
-    public Result dismiss(Player actor, String officeId, String residentName) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Result dismiss(Player actor, String officeId, String residentName) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
         Result access = officeAccess(actor, officeId); if (access != Result.SUCCESS) return access;
         OfficeHolder holder = data(towny.town(actor)).offices().getOrDefault(definitions.office(officeId).id(), List.of()).stream()
                 .filter(value -> value.residentName().equalsIgnoreCase(residentName)).findFirst().orElse(null);
         return holder == null ? Result.NOT_APPOINTED : dismiss(actor, officeId, holder.residentId());
     } }
 
-    public Result dismiss(Player actor, String officeId, UUID residentId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Result dismiss(Player actor, String officeId, UUID residentId) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         Result result = dismissalStatus(actor, officeId, residentId); if (result != Result.SUCCESS) return result;
         TownGovernanceData data = data(towny.town(actor)); OfficeDefinition office = definitions.office(officeId);
         List<OfficeHolder> holders = data.offices().get(office.id());
@@ -194,7 +194,7 @@ public final class GovernanceService {
         return Result.SUCCESS;
     } }
 
-    public boolean mayPropose(Player player,Town town,LawCategory category){ synchronized(ru.neverland.core.SuiteState.lock()) {
+    public boolean mayPropose(Player player,Town town,LawCategory category){ try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
         if(town==null||!town.equals(towny.town(player))||!ru.neverland.core.CitizensAccess.allows(town.getUUID(),player.getUniqueId(),"HOLD_OFFICE"))return false;
         if(town.getMayor()!=null&&town.getMayor().getUUID().equals(player.getUniqueId()))return true;
         boolean legacy=player.hasPermission("townygovernance.bypass")||towny.isManager(player,town);
@@ -204,7 +204,7 @@ public final class GovernanceService {
         return ru.neverland.core.CouncilAccess.check(player,town.getUUID(),"law_"+category.name().toLowerCase(java.util.Locale.ROOT),legacy);
     } }
 
-    public Set<UUID> council(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Set<UUID> council(Town town) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
         Set<UUID> result = new LinkedHashSet<>(towny.townRankCouncil(town));
         TownGovernanceData data = data(town);
         boolean electedCouncil = data.electedOffices().contains("councillor") && elective(town);
@@ -221,7 +221,7 @@ public final class GovernanceService {
         return result;
     } }
 
-    public Set<UUID> electorate(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Set<UUID> electorate(Town town) { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
         if (plugin.getConfig().getString("voting.electorate", "COUNCIL").equalsIgnoreCase("ALL_RESIDENTS")) {
             Set<UUID> result = new LinkedHashSet<>(); town.getResidents().forEach(resident -> result.add(resident.getUUID()));
             result.removeIf(id -> !ru.neverland.core.CitizensAccess.allows(town.getUUID(), id, "VOTE")); return result;
@@ -238,20 +238,20 @@ public final class GovernanceService {
         try { return Boolean.TRUE.equals(connection.invoke("elective", new Class<?>[]{UUID.class}, town.getUUID())); }
         catch (ReflectiveOperationException | RuntimeException ex) { return true; } // Keep elected seats protected while an installed API is unavailable.
     }
-    public Map<String, Integer> officeCatalog() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Map<String, Integer> officeCatalog() { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {
         electionThread(); Map<String, Integer> result = new java.util.LinkedHashMap<>();
         offices().forEach(o -> result.put(o.id(), o.maxHolders())); return Map.copyOf(result);
     } }
-    public Map<String, List<UUID>> officeHolders(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Map<String, List<UUID>> officeHolders(UUID id) { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {
         electionThread(); Town town = towny.town(id); if (town == null) throw new IllegalArgumentException("Unknown town");
         Map<String, List<UUID>> result = new java.util.LinkedHashMap<>();
         data(town).offices().forEach((key, holders) -> result.put(key, holders.stream().map(OfficeHolder::residentId).toList()));
         return Map.copyOf(result);
     } }
-    public String electionReceipt(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String electionReceipt(UUID id) { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {
         electionThread(); Town town = towny.town(id); if (town == null) throw new IllegalArgumentException("Unknown town"); return data(town).electionReceipt();
     } }
-    public void applyElection(UUID id, UUID election, Map<String, List<UUID>> winners) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void applyElection(UUID id, UUID election, Map<String, List<UUID>> winners) { try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {
         electionThread(); java.util.Objects.requireNonNull(election);
         Town town = towny.town(id); if (town == null) throw new IllegalArgumentException("Unknown town");
         TownGovernanceData data = data(town);
@@ -284,20 +284,20 @@ public final class GovernanceService {
         }
     } }
 
-    public TownGovernanceData data(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) { return repository.town(town.getUUID(), town.getName()); } }
-    public List<Proposal> open(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) { return town == null ? List.of() : repository.open(town.getUUID()); } }
-    public Proposal find(Town town, String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return town == null ? null : repository.findOpen(town.getUUID(), id); } }
-    public Collection<LawDefinition> laws() { synchronized (ru.neverland.core.SuiteState.lock()) { return definitions.laws(); } }
-    public Collection<OfficeDefinition> offices() { synchronized (ru.neverland.core.SuiteState.lock()) { return definitions.offices(); } }
-    public LawDefinition law(String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return definitions.law(id); } }
-    public OfficeDefinition office(String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return definitions.office(id); } }
-    public boolean hasLaw(UUID townId, String lawId) { synchronized (ru.neverland.core.SuiteState.lock()) { TownGovernanceData data = repository.town(townId); return data != null && data.activeLaws().containsKey(lawId.toLowerCase(Locale.ROOT)); } }
+    public TownGovernanceData data(Town town) { try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) { return repository.town(town.getUUID(), town.getName()); } }
+    public List<Proposal> open(Town town) { try (var suiteGuard23 = ru.neverland.core.SuiteState.guard()) { return town == null ? List.of() : repository.open(town.getUUID()); } }
+    public Proposal find(Town town, String id) { try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) { return town == null ? null : repository.findOpen(town.getUUID(), id); } }
+    public Collection<LawDefinition> laws() { try (var suiteGuard25 = ru.neverland.core.SuiteState.guard()) { return definitions.laws(); } }
+    public Collection<OfficeDefinition> offices() { try (var suiteGuard26 = ru.neverland.core.SuiteState.guard()) { return definitions.offices(); } }
+    public LawDefinition law(String id) { try (var suiteGuard27 = ru.neverland.core.SuiteState.guard()) { return definitions.law(id); } }
+    public OfficeDefinition office(String id) { try (var suiteGuard28 = ru.neverland.core.SuiteState.guard()) { return definitions.office(id); } }
+    public boolean hasLaw(UUID townId, String lawId) { try (var suiteGuard29 = ru.neverland.core.SuiteState.guard()) { TownGovernanceData data = repository.town(townId); return data != null && data.activeLaws().containsKey(lawId.toLowerCase(Locale.ROOT)); } }
 
-    public double constructionCost(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { return multiplier(townId, Multiplier.CONSTRUCTION); } }
-    public double ideologyCost(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { return multiplier(townId, Multiplier.IDEOLOGY_COST); } }
-    public double ideologyExperience(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { return multiplier(townId, Multiplier.IDEOLOGY_EXPERIENCE); } }
+    public double constructionCost(UUID townId) { try (var suiteGuard30 = ru.neverland.core.SuiteState.guard()) { return multiplier(townId, Multiplier.CONSTRUCTION); } }
+    public double ideologyCost(UUID townId) { try (var suiteGuard31 = ru.neverland.core.SuiteState.guard()) { return multiplier(townId, Multiplier.IDEOLOGY_COST); } }
+    public double ideologyExperience(UUID townId) { try (var suiteGuard32 = ru.neverland.core.SuiteState.guard()) { return multiplier(townId, Multiplier.IDEOLOGY_EXPERIENCE); } }
 
-    public boolean enact(Town town, LawDefinition law, UUID actorId, String actorName) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean enact(Town town, LawDefinition law, UUID actorId, String actorName) { try (var suiteGuard33 = ru.neverland.core.SuiteState.guard()) {
         if (town == null || law == null) return false; TownGovernanceData data = data(town);
         if (data.activeLaws().containsKey(law.id())) return false;
         if (!law.exclusiveGroup().isBlank()) {
@@ -313,7 +313,7 @@ public final class GovernanceService {
         return true;
     } }
 
-    public boolean repeal(Town town, LawDefinition law, UUID actorId, String actorName) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean repeal(Town town, LawDefinition law, UUID actorId, String actorName) { try (var suiteGuard34 = ru.neverland.core.SuiteState.guard()) {
         if (town == null || law == null) return false; TownGovernanceData data = data(town);
         if (!data.activeLaws().containsKey(law.id())) return false;
         removeLaw(town, data, law, true); town.save(); repository.changed();
@@ -321,7 +321,7 @@ public final class GovernanceService {
         return true;
     } }
 
-    public boolean resolveNow(String proposalPrefix) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean resolveNow(String proposalPrefix) { try (var suiteGuard35 = ru.neverland.core.SuiteState.guard()) {
         Proposal match = null;
         for (Proposal proposal : repository.open()) if (proposal.id().toString().startsWith(proposalPrefix.toLowerCase(Locale.ROOT))) {
             if (match != null) return false; match = proposal;
@@ -392,10 +392,10 @@ public final class GovernanceService {
     private boolean isResident(Town town, UUID resident) { return town != null && town.hasResident(resident); }
     private void broadcast(Town town, String path, Map<String, ?> replacements) { towny.online(town).forEach(player -> messages.send(player, path, replacements)); }
     private String actionText(ProposalAction action) { return ColorUtil.strip(messages.raw(action == ProposalAction.ENACT ? "action-enact" : "action-repeal")); }
-    public String choiceText(VoteChoice choice) { synchronized (ru.neverland.core.SuiteState.lock()) { return ColorUtil.strip(messages.raw(switch (choice) { case YES -> "choice-yes"; case NO -> "choice-no"; case ABSTAIN -> "choice-abstain"; })); } }
+    public String choiceText(VoteChoice choice) { try (var suiteGuard36 = ru.neverland.core.SuiteState.guard()) { return ColorUtil.strip(messages.raw(switch (choice) { case YES -> "choice-yes"; case NO -> "choice-no"; case ABSTAIN -> "choice-abstain"; })); } }
     private enum Multiplier { CONSTRUCTION, IDEOLOGY_COST, IDEOLOGY_EXPERIENCE }
 
-    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() { try (var suiteGuard37 = ru.neverland.core.SuiteState.guard()) {
         ru.neverland.core.ApiServices.primaryThread();
         return repository.open().stream().map(c -> new ru.neverland.core.ActivityAdmin.Target(c.id().toString(),c.townName()+" / "+c.lawId()+" / голосов "+c.votes().size(),
                 c.status()==ProposalStatus.OPEN ? ru.neverland.core.ActivityAdmin.TIMED : java.util.Set.of("status"), (action,minutes) -> {

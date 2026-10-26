@@ -33,7 +33,7 @@ public final class TownCommandInterceptor implements CommandExecutor {
         this.stickCommand = stickCommand;
     }
 
-    public boolean install() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean install() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         PluginCommand command = plugin.getServer().getPluginCommand("town");
         if (command == null || command.getExecutor() == null) return false;
         this.townCommand = command;
@@ -42,7 +42,7 @@ public final class TownCommandInterceptor implements CommandExecutor {
         return true;
     } }
 
-    public void uninstall() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void uninstall() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (townCommand != null && townCommand.getExecutor() == this && originalExecutor != null)
             townCommand.setExecutor(originalExecutor);
         townCommand = null;
@@ -51,7 +51,7 @@ public final class TownCommandInterceptor implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick"))return true;
+                             @NotNull String label, @NotNull String[] args) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick"))return true;
         if (isStickCommand(args)) {
             return stickCommand.onCommand(sender, command, label + " stick", stickArguments(args));
         }
@@ -63,15 +63,15 @@ public final class TownCommandInterceptor implements CommandExecutor {
         return originalExecutor != null && originalExecutor.onCommand(sender, command, label, args);
     } }
 
-    public static boolean isPlainClaim(String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean isPlainClaim(String[] args) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         return args.length == 1 && args[0].equalsIgnoreCase("claim");
     } }
 
-    public static boolean isStickCommand(String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean isStickCommand(String[] args) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         return args.length >= 1 && args[0].equalsIgnoreCase("stick");
     } }
 
-    public static String[] stickArguments(String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String[] stickArguments(String[] args) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         return args.length <= 1 ? new String[0] : Arrays.copyOfRange(args, 1, args.length);
     } }
 }

@@ -15,5 +15,5 @@ public record ContractDefinition(String id, String name, ContractType type, Mate
         description=List.copyOf(description);deliveryItem=deliveryItem==null?null:deliveryItem.clone();
         if(type==ContractType.DELIVERY&&(deliveryItem==null||deliveryItem.getType().isAir()))throw new IllegalArgumentException("Не задан предмет поставки");
     }
-    @Override public ItemStack deliveryItem(){ synchronized (ru.neverland.core.SuiteState.lock()) {return deliveryItem==null?null:deliveryItem.clone();} }
+    @Override public ItemStack deliveryItem(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return deliveryItem==null?null:deliveryItem.clone();} }
 }

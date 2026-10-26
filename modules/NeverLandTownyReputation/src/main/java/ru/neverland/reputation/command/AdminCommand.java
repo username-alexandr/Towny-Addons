@@ -28,7 +28,7 @@ import java.util.UUID;
 public final class AdminCommand implements TabExecutor {
     private final TownyReputation plugin; private final TownyHook towny; private final ReputationService reputation; private final MessageService messages;
     public AdminCommand(TownyReputation plugin, TownyHook towny, ReputationService reputation, MessageService messages) { this.plugin = plugin; this.towny = towny; this.reputation = reputation; this.messages = messages; }
-    @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyReputation")){return true;}
+    @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyReputation")){return true;}
         if (!sender.hasPermission("townyreputation.admin")) { messages.send(sender, "no-permission"); return true; }
         if (args.length == 0) { messages.send(sender, "usage-admin"); return true; }
         switch (args[0].toLowerCase(Locale.ROOT)) {
@@ -67,7 +67,7 @@ public final class AdminCommand implements TabExecutor {
     private Side resolve(ReputationScope scope, String value) { try { UUID id = UUID.fromString(value); if (scope == ReputationScope.PLAYER) { Resident resident = towny.resident(id); return resident == null ? new Side(id, value) : new Side(id, resident.getName()); } if (scope == ReputationScope.TOWN) { Town town = towny.town(id); return town == null ? new Side(id, value) : new Side(id, town.getName()); } Nation nation = towny.nation(id); return nation == null ? new Side(id, value) : new Side(id, nation.getName()); } catch (IllegalArgumentException ignored) { if (scope == ReputationScope.PLAYER) { Resident resident = towny.resident(value); return resident == null ? null : new Side(resident.getUUID(), resident.getName()); } if (scope == ReputationScope.TOWN) { Town town = towny.town(value); return town == null ? null : new Side(town.getUUID(), town.getName()); } Nation nation = towny.nation(value); return nation == null ? null : new Side(nation.getUUID(), nation.getName()); } }
     private String unknown(ReputationScope scope) { return switch (scope) { case PLAYER -> "unknown-player"; case TOWN -> "unknown-town"; case NATION -> "unknown-nation"; }; }
     private String signed(int value) { return value > 0 ? "+" + value : String.valueOf(value); }
-    @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) { if (!sender.hasPermission("townyreputation.admin")) return List.of();
+    @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { if (!sender.hasPermission("townyreputation.admin")) return List.of();
         if(args.length>1 && args[0].equalsIgnoreCase("profile")) {
             if(args.length==2)return filter(List.of("set","add"),args[1]);
             if(args.length==3)return filter(List.of("player","town","nation"),args[2]);

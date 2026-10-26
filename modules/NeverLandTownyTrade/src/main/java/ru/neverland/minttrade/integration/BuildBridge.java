@@ -10,10 +10,10 @@ public final class BuildBridge {
     private final JavaPlugin plugin;
 
     public BuildBridge(JavaPlugin plugin) { this.plugin = plugin; }
-    public int marketLevel(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int marketLevel(UUID townId) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return projectLevel(townId, plugin.getConfig().getString("market.project-id", "market"));
     } }
-    public int projectLevel(UUID townId,String project) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int projectLevel(UUID townId,String project) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(townId==null||project==null||project.isBlank())return 0;
         var api=ru.neverland.core.ApiServices.connect(plugin.getConfig().getString("warehouse.plugin","NeverLandTownyBuilds"),"ru.neverland.townybuilds.api.TownyBuildsApi",1,"operationalLevel");
         if(!api.ready())return 0;

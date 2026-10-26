@@ -28,13 +28,13 @@ public final class ParticleService {
         this.borderCache = borderCache;
     }
 
-    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void start() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         stop();
         elapsedTicks = 0L;
         task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::render, 1L, 1L);
     } }
 
-    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void stop() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (task != null) task.cancel();
         task = null;
     } }

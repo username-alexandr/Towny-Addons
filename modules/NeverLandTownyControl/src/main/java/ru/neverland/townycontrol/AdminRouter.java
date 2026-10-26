@@ -44,7 +44,7 @@ final class AdminRouter implements TabExecutor {
         sender.sendMessage("§f/nltadmin "+name+" native <штатные аргументы команды>");
         if(e.activities())sender.sendMessage("§f/nltadmin "+name+" list | status|pause|resume|restart|cancel <ID> | extend <минуты> <ID> §7— list показывает поддерживаемые действия");
     }
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if(!allowed(sender)){sender.sendMessage("§cНет прав.");return true;}
         try {
             if(args.length>0&&args[0].equalsIgnoreCase("towns")){
@@ -76,7 +76,7 @@ final class AdminRouter implements TabExecutor {
         }catch(Exception ex){sender.sendMessage("§cОперация остановлена: "+ex.getMessage());}
         return true;
     } }
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(!allowed(sender))return List.of();
         try {
             if(args.length<=1){var names=new ArrayList<>(entries.keySet());names.addAll(List.of("list","menu","logs","towns"));return filter(names,args.length==0?"":args[0]);}

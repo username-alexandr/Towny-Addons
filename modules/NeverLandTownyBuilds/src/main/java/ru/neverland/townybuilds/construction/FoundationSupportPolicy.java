@@ -5,7 +5,7 @@ public final class FoundationSupportPolicy {
     private FoundationSupportPolicy() {
     }
 
-    public static boolean hasPlannedSupport(BlueprintPlan plan, BlockOffset foundation, int fromStage) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean hasPlannedSupport(BlueprintPlan plan, BlockOffset foundation, int fromStage) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (plan == null || foundation == null || foundation.y() != 0) return false;
         BlueprintBlock support = plan.blocks().get(new BlockOffset(
                 foundation.x(), foundation.y() - 1, foundation.z()));

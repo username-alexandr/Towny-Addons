@@ -36,7 +36,7 @@ public final class MintTownyExpeditions extends JavaPlugin {
    private ExpeditionService service;
    private TownyHook towny;
 
-   public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
       LegacyDataMigrator.migrate(this, "MintTownyExpeditions");
@@ -88,7 +88,7 @@ ru.neverland.core.ActivityAdmin.attach(this,"townyexpeditions","mintexpeditions.
          );
    } }
 
-   public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void onDisable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
       if (this.service != null) {
@@ -106,7 +106,7 @@ ru.neverland.core.ActivityAdmin.attach(this,"townyexpeditions","mintexpeditions.
       }
    } }
 
-   public void reloadAll() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void reloadAll() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
       this.reloadConfig();
       this.messages.reload();
       this.itemsAdder.reload();
@@ -131,11 +131,11 @@ ru.neverland.core.ActivityAdmin.attach(this,"townyexpeditions","mintexpeditions.
       }
    }
 
-   public MessageService messages() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public MessageService messages() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
       return this.messages;
    } }
 
-   public ExpeditionService service() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public ExpeditionService service() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
       return this.service;
    } }
 }

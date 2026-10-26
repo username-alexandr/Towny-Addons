@@ -17,11 +17,11 @@ public final class ApiServices {
    }
 
    /** For APIs that access live Bukkit/Towny state or mutate data. */
-   public static void primaryThread() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public static void primaryThread() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       if (!ru.neverland.core.SuiteState.held()) throw new IllegalStateException("API требует основного потока сервера");
    } }
 
-   public static ApiServices.Connection require(String plugin, String contract, String... capabilities) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public static ApiServices.Connection require(String plugin, String contract, String... capabilities) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
       ApiServices.Connection connection = connect(plugin, contract, 1, capabilities);
       if (!connection.ready()) {
          throw new IllegalStateException(plugin + ": " + connection.state() + " " + connection.detail());
@@ -30,11 +30,11 @@ public final class ApiServices {
       }
    } }
 
-   public static Object call(String plugin, String contract, String method, Class<?>[] signature, Object... args) throws ReflectiveOperationException { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public static Object call(String plugin, String contract, String method, Class<?>[] signature, Object... args) throws ReflectiveOperationException { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
       return require(plugin, contract, method).invoke(method, signature, args);
    } }
 
-   public static List<ApiServices.Status> statuses() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public static List<ApiServices.Status> statuses() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
       return List.copyOf(statuses.values());
    } }
 
@@ -61,7 +61,7 @@ public final class ApiServices {
       }
    }
 
-   public static ApiServices.Connection connect(String pluginName, String contractName, int major, String... required) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public static ApiServices.Connection connect(String pluginName, String contractName, int major, String... required) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
       String detail = "";
       Class<?> type = null;
       Object service = null;
@@ -106,11 +106,11 @@ public final class ApiServices {
    } }
 
    public record Connection(String plugin, Class<?> contract, Object service, ApiServices.State state, String detail) {
-      public boolean ready() { synchronized (ru.neverland.core.SuiteState.lock()) {
+      public boolean ready() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
          return this.state == ApiServices.State.READY;
       } }
 
-      public Object invoke(String method, Class<?>[] signature, Object... args) throws ReflectiveOperationException { synchronized (ru.neverland.core.SuiteState.lock()) {
+      public Object invoke(String method, Class<?>[] signature, Object... args) throws ReflectiveOperationException { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
          if (!this.ready()) {
             throw new IllegalStateException(this.plugin + ": " + this.state + " — " + this.detail);
          } else {

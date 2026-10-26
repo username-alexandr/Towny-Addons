@@ -23,7 +23,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     public AdminCommand(MintTownyEvents plugin, TownyHook towny, EventService events, MessageService messages, ru.neverland.mintevents.gui.EventMenuManager menus) {
         this.plugin=plugin; this.towny=towny; this.events=events; this.messages=messages; this.menus=menus;
     }
-    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEvents")){return true;}
+    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEvents")){return true;}
         if(!sender.isOp() && !sender.hasPermission("mintevents.admin") && !(args.length==1 && args[0].equalsIgnoreCase("repairmenu") && sender.hasPermission("neverlandtownycontrol.admin"))) { messages.send(sender,"no-permission"); return true; }
         if(args.length == 0) { help(sender); return true; }
         String action=args[0].toLowerCase(Locale.ROOT);
@@ -115,7 +115,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§fshield <часы> <город> §7— 0 снять; 1–720 выдать щит");
         sender.sendMessage("§fstatus <город> §7· §flist §7· §fraidwave <город> §7· §freload");
     }
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(!sender.hasPermission("mintevents.admin") || args.length==0) return List.of();
         List<String> options=List.of(); String action=args[0].toLowerCase(Locale.ROOT);
         if(args.length==1) options=ACTIONS.stream().sorted().toList();

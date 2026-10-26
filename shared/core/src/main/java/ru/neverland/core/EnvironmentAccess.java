@@ -5,12 +5,12 @@ import java.util.UUID;
 /** Disabling ecology explicitly removes its penalties. A broken live API suspends its consumer. */
 public final class EnvironmentAccess {
     private EnvironmentAccess() { }
-    public static double happiness(UUID town) throws ReflectiveOperationException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static double happiness(UUID town) throws ReflectiveOperationException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var c = ApiServices.connect("NeverLandTownyEnvironment", "ru.neverland.townyenvironment.api.TownyEnvironmentApi", 1, "happiness");
         if (neutral(c)) return 0;
         return number(c.invoke("happiness", new Class<?>[]{UUID.class}, town), -30, 0);
     } }
-    public static double agriculture(UUID town, String building) throws ReflectiveOperationException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static double agriculture(UUID town, String building) throws ReflectiveOperationException { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         var c = ApiServices.connect("NeverLandTownyEnvironment", "ru.neverland.townyenvironment.api.TownyEnvironmentApi", 1, "agricultureMultiplier");
         if (neutral(c)) return 1;
         return number(c.invoke("agricultureMultiplier", new Class<?>[]{UUID.class, String.class}, town, building), .2, 1);

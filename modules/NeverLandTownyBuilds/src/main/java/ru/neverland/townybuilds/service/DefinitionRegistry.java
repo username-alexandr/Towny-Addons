@@ -44,7 +44,7 @@ public final class DefinitionRegistry {
         reload();
     }
 
-    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         projects.clear();
         // Сначала читаем встроенный каталог. Так обновление добавляет новые проекты даже
         // при сохранённом старом projects.yml, а значения администратора загружаются поверх.
@@ -237,25 +237,25 @@ public final class DefinitionRegistry {
         return explicitlyConfigured || inherited.isEmpty() ? configured : inherited;
     }
 
-    public ProjectDefinition project(String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ProjectDefinition project(String id) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return projects.get(id.toLowerCase(Locale.ROOT));
     } }
 
-    public Collection<ProjectDefinition> all() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Collection<ProjectDefinition> all() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         return projects.values().stream().sorted(Comparator.comparing(ProjectDefinition::type)
                 .thenComparingInt(ProjectDefinition::order)
                 .thenComparingInt(ProjectDefinition::slot)
                 .thenComparing(ProjectDefinition::id)).toList();
     } }
 
-    public List<ProjectDefinition> type(ProjectType type) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<ProjectDefinition> type(ProjectType type) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         return projects.values().stream().filter(project -> project.type() == type)
                 .sorted(Comparator.comparingInt(ProjectDefinition::order)
                         .thenComparingInt(ProjectDefinition::slot)
                 .thenComparing(ProjectDefinition::id)).toList();
     } }
 
-    public List<ProjectDefinition> category(ProjectCategory category) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<ProjectDefinition> category(ProjectCategory category) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         return projects.values().stream().filter(project -> project.type() == ProjectType.BUILDING)
                 .filter(project -> project.category() == category)
                 .sorted(Comparator.comparingInt(ProjectDefinition::order)
@@ -263,7 +263,7 @@ public final class DefinitionRegistry {
                         .thenComparing(ProjectDefinition::id)).toList();
     } }
 
-    public ProjectDefinition create(String id, ProjectType type) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ProjectDefinition create(String id, ProjectType type) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         String normalized = id.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_-]", "_");
         if (normalized.isBlank() || projects.containsKey(normalized)) {
             return null;
@@ -278,7 +278,7 @@ public final class DefinitionRegistry {
         return project;
     } }
 
-    public void ensureCustom(ProjectDefinition project) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void ensureCustom(ProjectDefinition project) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         project.setCustom(true);
     } }
 
@@ -293,7 +293,7 @@ public final class DefinitionRegistry {
         return 10;
     }
 
-    public void saveCustomProjects() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void saveCustomProjects() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         YamlConfiguration yaml = new YamlConfiguration();
         for (ProjectDefinition project : projects.values()) {
             if (!project.custom()) {

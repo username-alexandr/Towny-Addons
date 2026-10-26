@@ -4,7 +4,7 @@ package ru.neverland.townyseasons;
 public final class SeasonClock {
     private SeasonClock() { }
     public record Date(Season season, long year, int day, long remaining) { }
-    public static Date at(long elapsed, long dayLength, int days, Season first) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Date at(long elapsed, long dayLength, int days, Season first) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (elapsed < 0 || dayLength < 1 || days < 1 || days > 365 || first == null)
             throw new IllegalArgumentException("Неверный календарь");
         long totalDays = elapsed / dayLength;

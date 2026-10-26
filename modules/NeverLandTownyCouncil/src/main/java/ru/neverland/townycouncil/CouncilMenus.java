@@ -11,7 +11,7 @@ import org.bukkit.inventory.*;
 import ru.neverland.core.MenuStyle;
 
 public final class CouncilMenus implements Listener {
-    record Holder(UUID viewer, UUID town, Inventory back) implements InventoryHolder { public Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { return null; } } }
+    record Holder(UUID viewer, UUID town, Inventory back) implements InventoryHolder { public Inventory getInventory() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return null; } } }
     private final NeverLandTownyCouncil plugin; private final CouncilService service;
     private MinisterMenus ministers; public void ministers(MinisterMenus value){ministers=value;}
     public void office(Player p,Town town,MinisterRole role){ministers.open(p,town,role);}
@@ -19,7 +19,7 @@ public final class CouncilMenus implements Listener {
     private static final int[] SLOTS = {19, 21, 23, 25};
     public CouncilMenus(NeverLandTownyCouncil plugin, CouncilService service) { this.plugin = plugin; this.service = service; }
     static String name(UUID id) { var r = TownyAPI.getInstance().getResident(id); return r == null ? id.toString() : r.getName(); }
-    public void open(Player viewer, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void open(Player viewer, Town town) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!viewer.hasPermission("neverlandtownycouncil.use")) return;
         if(town.equals(service.ownTown(viewer.getUniqueId())) && org.bukkit.Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyGovernance") && !ru.neverland.core.SuiteState.frozen("NeverLandTownyGovernance") && viewer.hasPermission("townygovernance.use")){
             viewer.performCommand("governance council");return;
@@ -51,7 +51,7 @@ public final class CouncilMenus implements Listener {
     private static ItemStack item(Material material, String name, List<String> lore) {
         var item = new ItemStack(material); var meta = item.getItemMeta(); meta.setDisplayName(MenuStyle.nameLegacy(name)); meta.setLore(MenuStyle.loreStrings(lore)); item.setItemMeta(meta); return item;
     }
-    @EventHandler public void click(InventoryClickEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCouncil")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler public void click(InventoryClickEvent e) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCouncil")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         if (!(e.getView().getTopInventory().getHolder() instanceof Holder h)) return;
         e.setCancelled(true);
         if (!(e.getWhoClicked() instanceof Player p) || !p.getUniqueId().equals(h.viewer()) || !p.hasPermission("neverlandtownycouncil.use")) return;
@@ -66,5 +66,5 @@ public final class CouncilMenus implements Listener {
             ru.neverland.core.SuiteScheduler.entity(plugin,p,()->ministers.open(p,town,role));
         }
     } }
-    @EventHandler public void drag(InventoryDragEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCouncil")){ru.neverland.core.ModuleGate.stopEvent(e);return;} if (e.getView().getTopInventory().getHolder() instanceof Holder) e.setCancelled(true); } }
+    @EventHandler public void drag(InventoryDragEvent e) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCouncil")){ru.neverland.core.ModuleGate.stopEvent(e);return;} if (e.getView().getTopInventory().getHolder() instanceof Holder) e.setCancelled(true); } }
 }

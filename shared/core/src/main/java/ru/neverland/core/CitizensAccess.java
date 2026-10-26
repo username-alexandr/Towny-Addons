@@ -7,21 +7,21 @@ public final class CitizensAccess {
     private static final String PLUGIN = "NeverLandTownyCitizens";
     private static final String API = "ru.neverland.townycitizens.api.TownyCitizensApi";
     private CitizensAccess() { }
-    public static boolean available() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean available() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var c = ApiServices.connect(PLUGIN, API, 1, "healthy", "allows", "taxMultiplier");
         if (c.state() == ApiServices.State.NOT_INSTALLED) return true;
         if (!c.ready()) return false;
         try { return Boolean.TRUE.equals(c.invoke("healthy", new Class<?>[0])); }
         catch (ReflectiveOperationException | RuntimeException | LinkageError ex) { return false; }
     } }
-    public static boolean allows(UUID town, UUID player, String right) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean allows(UUID town, UUID player, String right) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         var c = ApiServices.connect(PLUGIN, API, 1, "allows");
         if (c.state() == ApiServices.State.NOT_INSTALLED) return true;
         if (!c.ready()) return false;
         try { return Boolean.TRUE.equals(c.invoke("allows", new Class<?>[]{UUID.class, UUID.class, String.class}, town, player, right)); }
         catch (ReflectiveOperationException | RuntimeException | LinkageError ex) { return false; }
     } }
-    public static double tax(UUID town, UUID player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static double tax(UUID town, UUID player) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         var c = ApiServices.connect(PLUGIN, API, 1, "taxMultiplier");
         if (c.state() == ApiServices.State.NOT_INSTALLED) return 1;
         if (!c.ready()) return Double.NaN;

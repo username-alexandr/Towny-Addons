@@ -56,19 +56,19 @@ public final class CivicBlueprintGenerator {
                     Material.STRIPPED_DARK_OAK_LOG, Material.CUT_COPPER, Material.IRON_DOOR, Material.CRAFTER))
     );
 
-    public Set<String> supportedProjects() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Set<String> supportedProjects() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return Set.copyOf(PROJECTS);
     } }
 
-    public boolean isArea(String projectId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean isArea(String projectId) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return projectId != null && AREA_PROJECTS.contains(projectId.toLowerCase(Locale.ROOT));
     } }
 
-    public boolean isLinear(String projectId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean isLinear(String projectId) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         return projectId != null && LINE_PROJECTS.contains(projectId.toLowerCase(Locale.ROOT));
     } }
 
-    public BlueprintPlan generate(String rawId, int rawLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public BlueprintPlan generate(String rawId, int rawLevel) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         String id = rawId == null ? "" : rawId.toLowerCase(Locale.ROOT);
         if (!PROJECTS.contains(id)) return null;
         int level = Math.max(1, Math.min(5, rawLevel));
@@ -86,7 +86,7 @@ public final class CivicBlueprintGenerator {
         return new BlueprintPlan(id, level, stageName(id, level), builder.blocks);
     } }
 
-    public String stageName(String id, int rawLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String stageName(String id, int rawLevel) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         int level = Math.max(1, Math.min(5, rawLevel));
         String[][] common = {
                 {"Площадка и фундамент", "Служебный корпус", "Крыша и проходимый вход", "Рабочее оснащение", "Полная городская отделка"},

@@ -11,14 +11,14 @@ public final class ReputationRecord {
     private long lastChanged;
     private final List<ReputationHistory> history = new ArrayList<>();
     public ReputationRecord(RelationKey key, String firstName, String secondName) { this.key = key; this.firstName = firstName; this.secondName = secondName; }
-    public RelationKey key() { synchronized (ru.neverland.core.SuiteState.lock()) { return key; } }
-    public String firstName() { synchronized (ru.neverland.core.SuiteState.lock()) { return firstName; } }
-    public String secondName() { synchronized (ru.neverland.core.SuiteState.lock()) { return secondName; } }
-    public void names(String first, String second) { synchronized (ru.neverland.core.SuiteState.lock()) { if (first != null && !first.isBlank()) firstName = first; if (second != null && !second.isBlank()) secondName = second; } }
-    public int score() { synchronized (ru.neverland.core.SuiteState.lock()) { return score; } }
-    public void score(int value) { synchronized (ru.neverland.core.SuiteState.lock()) { score = value; } }
-    public long lastChanged() { synchronized (ru.neverland.core.SuiteState.lock()) { return lastChanged; } }
-    public void lastChanged(long value) { synchronized (ru.neverland.core.SuiteState.lock()) { lastChanged = value; } }
-    public List<ReputationHistory> history() { synchronized (ru.neverland.core.SuiteState.lock()) { return history; } }
-    public String nameOf(java.util.UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return key.first().equals(id) ? firstName : secondName; } }
+    public RelationKey key() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return key; } }
+    public String firstName() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return firstName; } }
+    public String secondName() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return secondName; } }
+    public void names(String first, String second) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { if (first != null && !first.isBlank()) firstName = first; if (second != null && !second.isBlank()) secondName = second; } }
+    public int score() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { return score; } }
+    public void score(int value) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { score = value; } }
+    public long lastChanged() { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { return lastChanged; } }
+    public void lastChanged(long value) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) { lastChanged = value; } }
+    public List<ReputationHistory> history() { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) { return history; } }
+    public String nameOf(java.util.UUID id) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) { return key.first().equals(id) ? firstName : secondName; } }
 }

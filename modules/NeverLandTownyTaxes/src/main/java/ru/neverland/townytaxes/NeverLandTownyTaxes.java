@@ -20,7 +20,7 @@ import java.util.UUID;
 public final class NeverLandTownyTaxes extends JavaPlugin {
     private static final List<String> TOWN_COMMANDS=List.of("taxes","tax","sanctions","agreements","deals");private static final List<String>NATION_COMMANDS=List.of("taxes","tax","sanctions","agreements","deals");
     private TownyHook towny;private MessageService messages;private CivicRepository repository;private FiscalService fiscal;
-    @Override public void onEnable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 saveDefaultConfig();copy("messages.yml");towny=new TownyHook(this);messages=new MessageService(this);repository=new CivicRepository(this);repository.load();fiscal=new FiscalService(this,towny,repository,messages);
         TownTaxesCommand taxes=new TownTaxesCommand(towny,fiscal,messages);TownSanctionsCommand sanctions=new TownSanctionsCommand(towny,fiscal,messages);TownAgreementsCommand agreements=new TownAgreementsCommand(towny,fiscal,messages);
@@ -30,11 +30,11 @@ saveDefaultConfig();copy("messages.yml");towny=new TownyHook(this);messages=new 
         getServer().getPluginManager().registerEvents(new EconomyListener(fiscal),this);getServer().getPluginManager().registerEvents(new RestrictionListener(towny,fiscal,messages),this);
         getServer().getServicesManager().register(NeverLandTownyTaxesApi.class,fiscal,this,ServicePriority.Normal);boolean papi=PlaceholderHook.register(this,towny,fiscal);fiscal.start();long autosave=Math.max(20,getConfig().getLong("scheduler.autosave-seconds",60)*20);ru.neverland.core.SuiteScheduler.get().runTaskTimer(this,repository::saveIfDirty,autosave,autosave);
         getLogger().info("NeverLandTownyTaxes "+getPluginMeta().getVersion()+" включён: налоговых политик "+repository.policies().size()+", санкций "+repository.sanctions().size()+", соглашений "+repository.agreements().size()+", PlaceholderAPI="+papi+".");} }
-    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onDisable(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 if(fiscal!=null)fiscal.shutdown();if(towny!=null){for(String name:TOWN_COMMANDS)towny.unregister(name);for(String name:NATION_COMMANDS)towny.unregisterNation(name);}getServer().getServicesManager().unregisterAll(this);} }
-    public void reloadPlugin(){ synchronized (ru.neverland.core.SuiteState.lock()) {reloadConfig();messages.reload();fiscal.start();} }
-    public boolean isTradeBlocked(UUID firstTown,UUID secondTown){ synchronized (ru.neverland.core.SuiteState.lock()) {return fiscal!=null&&fiscal.isTradeBlocked(firstTown,secondTown);} }public double tradePreferenceMultiplier(UUID firstTown,UUID secondTown){ synchronized (ru.neverland.core.SuiteState.lock()) {return fiscal==null?1:fiscal.tradePreferenceMultiplier(firstTown,secondTown);} }
+    public void reloadPlugin(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {reloadConfig();messages.reload();fiscal.start();} }
+    public boolean isTradeBlocked(UUID firstTown,UUID secondTown){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return fiscal!=null&&fiscal.isTradeBlocked(firstTown,secondTown);} }public double tradePreferenceMultiplier(UUID firstTown,UUID secondTown){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {return fiscal==null?1:fiscal.tradePreferenceMultiplier(firstTown,secondTown);} }
     private void register(String name,org.bukkit.command.CommandExecutor executor){if(!towny.register(name,executor))getLogger().severe("Не удалось зарегистрировать /t "+name+".");}
     private void registerNation(String name,org.bukkit.command.CommandExecutor executor){if(!towny.registerNation(name,executor))getLogger().severe("Не удалось зарегистрировать /n "+name+".");}
     private void copy(String name){if(!new File(getDataFolder(),name).exists())saveResource(name,false);}

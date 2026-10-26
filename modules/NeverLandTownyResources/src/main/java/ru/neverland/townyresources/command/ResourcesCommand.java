@@ -13,7 +13,7 @@ public final class ResourcesCommand implements CommandExecutor,TabCompleter {
     private final NeverLandTownyResources plugin;private final ResourcesService service;private final ResourcesMenu menu;
     public ResourcesCommand(NeverLandTownyResources plugin,ResourcesService service,ResourcesMenu menu){this.plugin=plugin;this.service=service;this.menu=menu;}
     private static void count(String[] args,int count,String usage){if(args.length!=count)throw new IllegalArgumentException(usage);}
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyResources")){return true;}
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyResources")){return true;}
         try{execute(sender,args);}catch(IOException ex){plugin.getLogger().warning("Операция ресурсов не сохранена: "+ex.getMessage());Ui.tell(sender,"&cОшибка записи данных; проверьте консоль.");}
         catch(NumberFormatException ex){Ui.tell(sender,"&cОжидается целое число.");}
         catch(IllegalArgumentException|IllegalStateException|ArithmeticException ex){Ui.tell(sender,"&c"+(ex.getMessage()==null?"Проверьте аргументы команды":ex.getMessage()));}return true;
@@ -42,7 +42,7 @@ public final class ResourcesCommand implements CommandExecutor,TabCompleter {
         }
         Ui.tell(player,"&aНастройки города сохранены.");menu.open(player,id,"menu",null,0);
     }
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         List<String> options=new ArrayList<>();boolean admin=sender.hasPermission("neverlandtownyresources.admin");
         if(args.length==1){if(admin)options.addAll(List.of("reload","set","add","take","town"));if(sender.hasPermission("neverlandtownyresources.use"))options.addAll(List.of("menu","buildings","info","help","pause","resume","priority","keep"));}
         else if(args.length==2&&Set.of("info","pause","resume","priority").contains(args[0]))options.addAll(service.settings().buildings().keySet());

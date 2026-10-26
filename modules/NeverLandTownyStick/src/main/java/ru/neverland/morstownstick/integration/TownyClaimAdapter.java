@@ -45,7 +45,7 @@ public final class TownyClaimAdapter {
     }
 
     @SuppressWarnings("unchecked")
-    public List<WorldCoord> validateAndCharge(Player player, Town town, List<WorldCoord> requested) throws TownyException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<WorldCoord> validateAndCharge(Player player, Town town, List<WorldCoord> requested) throws TownyException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         invoke(catchRuined, player);
         invoke(catchBankrupt, town);
         List<WorldCoord> accepted = (List<WorldCoord>) invoke(vetSelection, player, town, new ArrayList<>(requested));
@@ -55,14 +55,14 @@ public final class TownyClaimAdapter {
         return new ArrayList<>(accepted);
     } }
 
-    public boolean canAfford(Town town, int count) throws TownyException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean canAfford(Town town, int count) throws TownyException { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!TownyEconomyHandler.isActive()) return true;
         if (town.getAccount() == null) return false;
         double cost = count == 1 ? town.getTownBlockCost() : town.getTownBlockCostN(count);
         return town.getAccount().canPayFromHoldings(cost);
     } }
 
-    public void claimAsync(Player player, Town town, List<WorldCoord> accepted, Consumer<List<WorldCoord>> callback) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void claimAsync(Player player, Town town, List<WorldCoord> accepted, Consumer<List<WorldCoord>> callback) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         List<WorldCoord> mutable = new ArrayList<>(accepted);
         ru.neverland.core.SuiteScheduler.get().runTaskAsynchronously(plugin, () -> {
             new TownClaim(Towny.getPlugin(), player, town, mutable, false, true, false).run();

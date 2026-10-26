@@ -34,7 +34,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){return true;}
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){return true;}
         if (!sender.hasPermission("mintcamps.admin")) {
             messages.send(sender, "no-permission");
             return true;
@@ -70,7 +70,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     } }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (args.length == 1) return List.of("edit", "reload", "info", "pack").stream()
                 .filter(value -> value.startsWith(args[0].toLowerCase(Locale.ROOT))).toList();
         if (args.length == 2 && (args[0].equalsIgnoreCase("info") || args[0].equalsIgnoreCase("pack"))) {

@@ -11,8 +11,8 @@ import static ru.neverland.townydiplomacy.Treaty.*;
 public final class DiplomacyCommand implements TabExecutor {
     private final NeverLandTownyDiplomacy plugin;private final DiplomacyService service;private final DiplomacyMenus menus;
     public DiplomacyCommand(NeverLandTownyDiplomacy plugin,DiplomacyService service,DiplomacyMenus menus) { this.plugin=plugin;this.service=service;this.menus=menus; }
-    public static void tell(CommandSender sender,String text) { synchronized (ru.neverland.core.SuiteState.lock()) { sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&',"&aNeverLand &f• Дипломатия &7» &f"+text)); } }
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] original) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDiplomacy")){return true;}
+    public static void tell(CommandSender sender,String text) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&',"&aNeverLand &f• Дипломатия &7» &f"+text)); } }
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] original) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDiplomacy")){return true;}
         if(!sender.hasPermission("neverlandtownydiplomacy.use")){tell(sender,"&cНет права на просмотр дипломатии");return true;}
         try {
             String[] args=original;Town own=sender instanceof Player p?service.ownTown(p.getUniqueId()):null;
@@ -81,7 +81,7 @@ public final class DiplomacyCommand implements TabExecutor {
     private void announce(CommandSender sender,Treaty t,String message) {
         tell(sender,"&a"+message+" • &f"+t.id());plugin.announce(t,"&e"+t.type().title()+" &7• &f"+DiplomacyMenus.name(t.first())+" ↔ "+DiplomacyMenus.name(t.second())+" &7• "+DiplomacyMenus.phase(t)+". /diplomacy");
     }
-    public static void help(CommandSender sender) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void help(CommandSender sender) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         tell(sender,"&e/diplomacy &7— ваши договоры; &e/diplomacy list <город>");
         tell(sender,"&e/diplomacy offer <тип> <город> [дни] [причина]");
         tell(sender,"&7Типы: &falliance, trade, nonaggression, vassalage, guarantee");
@@ -92,7 +92,7 @@ public final class DiplomacyCommand implements TabExecutor {
         tell(sender,"&e/diplomacy history|incidents [страница] &7— для руководства.");
         if(sender.hasPermission("neverlandtownydiplomacy.admin")){tell(sender,"&e/diplomacy as <город> <команда> ...");tell(sender,"&e/diplomacy reload &7— новые настройки.");}
     } }
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if(!sender.hasPermission("neverlandtownydiplomacy.use")||args.length==0)return List.of();
         var own=sender instanceof Player p?service.ownTown(p.getUniqueId()):null;boolean manager=sender.hasPermission("neverlandtownydiplomacy.admin")||service.manages(sender,own,TreatyType.ALLIANCE);
         var values=new ArrayList<String>();String action=args[0].toLowerCase(Locale.ROOT);

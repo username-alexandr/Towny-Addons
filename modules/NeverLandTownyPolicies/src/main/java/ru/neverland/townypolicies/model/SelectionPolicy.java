@@ -2,8 +2,8 @@ package ru.neverland.townypolicies.model;
 import java.util.*;
 public final class SelectionPolicy {
     private SelectionPolicy(){}
-    public static boolean manager(boolean own,boolean mayor,boolean delegate){ synchronized (ru.neverland.core.SuiteState.lock()) {return own&&(mayor||delegate);} }
-    public static CityPolicies choose(CityPolicies state,PolicyGroup group,String mode,long now,long cooldown,long revision,UUID actor,String actorName,boolean admin,boolean ready){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean manager(boolean own,boolean mayor,boolean delegate){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return own&&(mayor||delegate);} }
+    public static CityPolicies choose(CityPolicies state,PolicyGroup group,String mode,long now,long cooldown,long revision,UUID actor,String actorName,boolean admin,boolean ready){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(now<1||cooldown<0||state.revision()!=revision)throw new IllegalArgumentException("Выбор устарел. Откройте меню заново.");
         if(!group.options().containsKey(mode)||(!group.enabled()&&!mode.equals(group.standard())))throw new IllegalArgumentException("Режим отключён или не найден");
         if(state.mode(group).equals(mode))throw new IllegalArgumentException("Этот режим уже выбран");

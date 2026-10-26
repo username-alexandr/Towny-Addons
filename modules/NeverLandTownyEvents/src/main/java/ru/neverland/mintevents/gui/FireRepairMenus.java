@@ -49,14 +49,14 @@ public final class FireRepairMenus implements Listener {
         button(s,48,Material.PAPER,"Страница "+(page+1),List.of("Всего: "+count),null);
         if((page+1L)*45<count)button(s,51,Material.ARROW,"Следующая страница",List.of(),()->go.accept(page+1));
     }
-    public void towns(Player p,int requested){ synchronized(SuiteState.lock()) {
+    public void towns(Player p,int requested){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         authorize(p,true);var all=towny.towns().stream().filter(t->!repairs.plots(t.getUUID()).isEmpty()).sorted(Comparator.comparing(t->t.getName())).toList();
         int page=page(requested,all.size());var s=screen(p,"Ремонт • Города",true);int slot=0;
         for(var town:all.stream().skip(page*45L).limit(45).toList())button(s,slot++,Material.GRASS_BLOCK,town.getName(),List.of("Участков с незавершённым ремонтом: "+repairs.plots(town.getUUID()).size(),"Нажмите, чтобы выбрать участок"),()->open(p,town.getUUID(),true,0));
         if(all.isEmpty())button(s,22,Material.LIME_DYE,"Ремонт не требуется",List.of("В городах нет незакрытых повреждений пожара"),null);
         pages(s,page,all.size(),n->towns(p,n));button(s,45,Material.ARROW,"В админ-меню",List.of(),()->{p.closeInventory();p.performCommand("nltadmin");});p.openInventory(s.inventory);
     } }
-    public void open(Player p,UUID town,boolean admin,int requested){ synchronized(SuiteState.lock()) {
+    public void open(Player p,UUID town,boolean admin,int requested){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         authorize(p,admin);
         if(!admin&&(towny.town(p)==null||!towny.town(p).getUUID().equals(town)))throw new IllegalArgumentException("Вы больше не состоите в этом городе");
         var all=repairs.plots(town);int page=page(requested,all.size());var s=screen(p,"Ремонт • Участки",admin);int slot=0;
@@ -82,7 +82,7 @@ public final class FireRepairMenus implements Listener {
         });
         button(s,45,Material.ARROW,"К списку участков",List.of(),()->open(p,plot.town(),admin,page));p.openInventory(s.inventory);
     }
-    @EventHandler public void click(InventoryClickEvent e){ synchronized(SuiteState.lock()) {
+    @EventHandler public void click(InventoryClickEvent e){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if(!(e.getView().getTopInventory().getHolder() instanceof Screen s))return;e.setCancelled(true);
         if(!(e.getWhoClicked() instanceof Player p)||!p.getUniqueId().equals(s.viewer)||s.used||!e.isLeftClick()||e.isShiftClick())return;
         Runnable action=s.actions.get(e.getRawSlot());if(action==null)return;s.used=true;

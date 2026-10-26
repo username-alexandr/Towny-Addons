@@ -6,7 +6,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import ru.neverland.townyspecialization.service.SpecializationService;
 public final class FortressProtection implements Listener {
     private final SpecializationService service;public FortressProtection(SpecializationService service){this.service=service;}
-    @EventHandler(priority=EventPriority.HIGH,ignoreCancelled=true)public void damage(EntityDamageByEntityEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySpecialization")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    @EventHandler(priority=EventPriority.HIGH,ignoreCancelled=true)public void damage(EntityDamageByEntityEvent event){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySpecialization")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if(!(event.getEntity() instanceof Player player))return;Entity source=event.getDamager();if(source instanceof Projectile projectile){if(!(projectile.getShooter() instanceof Entity shooter))return;source=shooter;}if(!(source instanceof Enemy))return;
         var town=service.town(player);if(town==null)return;var local=TownyAPI.getInstance().getTown(player.getLocation());if(local==null||!town.getUUID().equals(local.getUUID()))return;
         double bonus=service.bonus(town.getUUID(),"mob_defense");if(bonus<=0)return;

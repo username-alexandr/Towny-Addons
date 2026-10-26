@@ -19,11 +19,11 @@ public final class ResourceFund {
         this.targetLevel = targetLevel;
     }
 
-    public int targetLevel() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int targetLevel() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return targetLevel;
     } }
 
-    public int count(ItemStack template) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int count(ItemStack template) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (template == null) return 0;
         template = ru.neverland.townybuilds.service.ConstructionSupply.migrate(template);
         for (Entry entry : entries) {
@@ -34,7 +34,7 @@ public final class ResourceFund {
         return 0;
     } }
 
-    public void add(ItemStack template, int amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void add(ItemStack template, int amount) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (template == null || amount <= 0) return;
         template = ru.neverland.townybuilds.service.ConstructionSupply.migrate(template);
         for (Entry entry : entries) {
@@ -48,7 +48,7 @@ public final class ResourceFund {
         entries.add(new Entry(stored, amount));
     } }
 
-    public List<Snapshot> entries() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<Snapshot> entries() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         List<Snapshot> result = new ArrayList<>(entries.size());
         for (Entry entry : entries) {
             result.add(new Snapshot(entry.template.clone(), entry.amount));
@@ -56,7 +56,7 @@ public final class ResourceFund {
         return List.copyOf(result);
     } }
 
-    public List<Snapshot> surplus(List<ItemStack> requirements) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<Snapshot> surplus(List<ItemStack> requirements) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         List<Snapshot> result = new ArrayList<>();
         for (Entry entry : entries) {
             int needed = requirements.stream().filter(r -> ResourceMatcher.matches(entry.template, r))
@@ -82,7 +82,7 @@ public final class ResourceFund {
         }
 
         @Override
-        public ItemStack template() { synchronized (ru.neverland.core.SuiteState.lock()) {
+        public ItemStack template() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
             return template.clone();
         } }
     }

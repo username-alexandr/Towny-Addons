@@ -22,7 +22,7 @@ public final class MessageService {
         reload();
     }
 
-    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         File file = new File(plugin.getDataFolder(), "messages.yml");
         messages = YamlConfiguration.loadConfiguration(file);
         try (InputStream stream = plugin.getResource("messages.yml")) {
@@ -37,11 +37,11 @@ public final class MessageService {
         }
     } }
 
-    public Component component(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Component component(String key) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return component(key, Map.of());
     } }
 
-    public Component component(String key, Map<String, ?> replacements) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Component component(String key, Map<String, ?> replacements) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         String value = value(key);
         for (Map.Entry<String, ?> replacement : replacements.entrySet()) {
             value = value.replace("{" + replacement.getKey() + "}", String.valueOf(replacement.getValue()));
@@ -49,11 +49,11 @@ public final class MessageService {
         return ColorUtil.component(value);
     } }
 
-    public void send(CommandSender sender, String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void send(CommandSender sender, String key) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         send(sender, key, Map.of());
     } }
 
-    public void send(CommandSender sender, String key, Map<String, ?> replacements) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void send(CommandSender sender, String key, Map<String, ?> replacements) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         String prefix = messages.getString("prefix", "");
         String value = value(key);
         for (Map.Entry<String, ?> replacement : replacements.entrySet()) {

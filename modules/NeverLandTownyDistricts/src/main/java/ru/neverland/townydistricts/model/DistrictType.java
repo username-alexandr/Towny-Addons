@@ -7,8 +7,8 @@ public enum DistrictType {
     ADMINISTRATIVE("Административный","BELL");
     public final String title,icon;
     DistrictType(String title,String icon){this.title=title;this.icon=icon;}
-    public String id(){ synchronized (ru.neverland.core.SuiteState.lock()) {return name().toLowerCase(Locale.ROOT);} }
-    public static DistrictType parse(String raw){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String id(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return name().toLowerCase(Locale.ROOT);} }
+    public static DistrictType parse(String raw){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         for(var type:values()) if(type.id().equalsIgnoreCase(raw)||type.title.equalsIgnoreCase(raw))return type;
         throw new IllegalArgumentException("Неизвестный тип района");
     } }

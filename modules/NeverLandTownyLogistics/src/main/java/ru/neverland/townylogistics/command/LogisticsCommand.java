@@ -14,9 +14,9 @@ import java.io.IOException;
 public final class LogisticsCommand implements CommandExecutor,TabCompleter {
     private final NeverLandTownyLogistics plugin;private final LogisticsService service;private LogisticsMenu menu;
     public LogisticsCommand(NeverLandTownyLogistics plugin,LogisticsService service){this.plugin=plugin;this.service=service;}
-    public void menu(LogisticsMenu menu){ synchronized (ru.neverland.core.SuiteState.lock()) {this.menu=menu;} }
-    public static void tell(CommandSender sender,String text){ synchronized (ru.neverland.core.SuiteState.lock()) {sender.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&aNeverLand &8• &fЛогистика&8] &r"+text));} }
-    @Override public boolean onCommand(CommandSender sender,Command c,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){return true;}
+    public void menu(LogisticsMenu menu){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {this.menu=menu;} }
+    public static void tell(CommandSender sender,String text){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {sender.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&aNeverLand &8• &fЛогистика&8] &r"+text));} }
+    @Override public boolean onCommand(CommandSender sender,Command c,String label,String[] args){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){return true;}
         try{execute(sender,args);}catch(NumberFormatException ex){tell(sender,"&cОжидается целое число.");}catch(IllegalArgumentException|IllegalStateException ex){tell(sender,"&c"+(ex.getMessage()==null?"Проверьте аргументы команды":ex.getMessage()));}
         catch(IOException ex){plugin.getLogger().warning("Операция логистики не завершена: "+ex.getMessage());tell(sender,"&cОшибка доступа к данным. Груз остаётся в журнале; проверьте консоль.");}return true;
     } }
@@ -76,7 +76,7 @@ public final class LogisticsCommand implements CommandExecutor,TabCompleter {
         }
         service.change(new Network(id,n.nodes(),n.links(),routes),topology);tell(p,"&aМаршрут обновлён.");menu.open(p,"routes",null,0);
     }
-    public static List<String> helpLines(){ synchronized (ru.neverland.core.SuiteState.lock()) {return List.of(
+    public static List<String> helpLines(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return List.of(
         "&6&lСоздание логистической сети",
         "&f/t logistics node <id> <здание>",
         "&7  Точка погрузки в вашем текущем положении.",
@@ -105,7 +105,7 @@ public final class LogisticsCommand implements CommandExecutor,TabCompleter {
             if(v.distance(CourierNpcs.position(p.getLocation()))<=64){p.spawnParticle(Particle.DUST,v.x(),v.y(),v.z(),1,0,0,0,0,new Particle.DustOptions(Color.AQUA,1.4f));points++;}}
         if(points>=300)break;
     }}
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if(!(sender instanceof Player p)||!p.hasPermission("neverlandtownylogistics.use"))return List.of();var town=service.town(p);if(town==null)return List.of();var n=service.network(town.getUUID());List<String> values=new ArrayList<>();
         try{
             if(args.length==1){values.addAll(List.of("routes","nodes","depots","couriers","cargo","info","storage","map","help"));if(service.manager(p,town))values.addAll(List.of("node","waypoint","link","unlink","remove","route","filter","limit","keep","pause","resume","dismiss","delete"));if(p.hasPermission("neverlandtownylogistics.admin"))values.addAll(List.of("reload","recover"));}

@@ -14,7 +14,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 public final class NeverLandTownySpecialization extends JavaPlugin {
     private SpecializationService service;private boolean townCommand;private SpecializationExpansion expansion;
-    @Override public void onEnable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 try{
         saveDefaultConfig();if(!new File(getDataFolder(),"specializations.yml").exists())saveResource("specializations.yml",false);
@@ -27,8 +27,8 @@ try{
     }catch(Exception|LinkageError ex){getLogger().log(java.util.logging.Level.SEVERE,"Специализации не загружены; проверьте настройки и сохранённую базу.",ex);getServer().getPluginManager().disablePlugin(this);}} }
     private YamlConfiguration read(String name)throws Exception{var y=new YamlConfiguration();y.load(new File(getDataFolder(),name));try(var input=getResource(name)){if(input!=null)y.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(input,StandardCharsets.UTF_8)));}y.options().copyDefaults(true);return y;}
     private SpecializationSettings settings()throws Exception{return SpecializationSettings.load(read("config.yml"),read("specializations.yml"));}
-    public boolean reloadSpecialization(){ synchronized (ru.neverland.core.SuiteState.lock()) {try{service.reload(settings());return true;}catch(Exception ex){getLogger().warning("Настройки специализаций не применены: "+ex.getMessage());return false;}} }
-    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean reloadSpecialization(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {try{service.reload(settings());return true;}catch(Exception ex){getLogger().warning("Настройки специализаций не применены: "+ex.getMessage());return false;}} }
+    @Override public void onDisable(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 if(expansion!=null)expansion.unregister();if(service!=null)service.stop();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"specialization");} }
 }

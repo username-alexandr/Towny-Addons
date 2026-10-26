@@ -50,17 +50,17 @@ final class VillagerTradeProtection implements Listener {
         return true;
     }
     @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
-    public void interact(PlayerInteractEntityEvent event){synchronized(SuiteState.lock()){
+    public void interact(PlayerInteractEntityEvent event){try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){
         if(event.getRightClicked() instanceof AbstractVillager merchant&&block(event.getPlayer(),merchant))event.setCancelled(true);
     }}
     @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
-    public void open(InventoryOpenEvent event){synchronized(SuiteState.lock()){
+    public void open(InventoryOpenEvent event){try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){
         if(event.getPlayer() instanceof Player player&&event.getInventory() instanceof MerchantInventory inventory
             &&inventory.getMerchant() instanceof AbstractVillager merchant&&block(player,merchant))event.setCancelled(true);
     }}
     @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
-    public void trade(PlayerTradeEvent event){synchronized(SuiteState.lock()){
+    public void trade(PlayerTradeEvent event){try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()){
         if(block(event.getPlayer(),event.getVillager()))event.setCancelled(true);
     }}
-    @EventHandler public void quit(PlayerQuitEvent event){synchronized(SuiteState.lock()){notices.remove(event.getPlayer().getUniqueId());}}
+    @EventHandler public void quit(PlayerQuitEvent event){try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()){notices.remove(event.getPlayer().getUniqueId());}}
 }

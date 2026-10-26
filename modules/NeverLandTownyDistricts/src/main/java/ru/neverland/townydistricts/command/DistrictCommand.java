@@ -16,17 +16,17 @@ public final class DistrictCommand implements CommandExecutor,TabCompleter,org.b
     private ru.neverland.townydistricts.gui.MobFarmMenu farms;
     public void farmMenu(ru.neverland.townydistricts.gui.MobFarmMenu value){farms=value;}
     public DistrictCommand(NeverLandTownyDistricts plugin,DistrictService service,BorderPreview borders){this.plugin=plugin;this.service=service;this.borders=borders;}
-    @org.bukkit.event.EventHandler public void quit(org.bukkit.event.player.PlayerQuitEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {selections.remove(event.getPlayer().getUniqueId());} }
-    public void menu(DistrictMenu menu){ synchronized (ru.neverland.core.SuiteState.lock()) {this.menu=menu;} }
-    public String selection(Player player){ synchronized (ru.neverland.core.SuiteState.lock()) {var s=selections.get(player.getUniqueId());return s==null?"Текущий участок":s.second()==null?"Первая точка задана; укажите pos2":"Прямоугольник между pos1 и pos2";} }
+    @org.bukkit.event.EventHandler public void quit(org.bukkit.event.player.PlayerQuitEvent event){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {selections.remove(event.getPlayer().getUniqueId());} }
+    public void menu(DistrictMenu menu){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {this.menu=menu;} }
+    public String selection(Player player){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {var s=selections.get(player.getUniqueId());return s==null?"Текущий участок":s.second()==null?"Первая точка задана; укажите pos2":"Прямоугольник между pos1 и pos2";} }
     private Set<Cell> selected(Player player,UUID town){var s=selections.get(player.getUniqueId());
         if(s==null)return Set.of(service.cell(player));
         if(!s.town().equals(town))throw new IllegalArgumentException("Город изменился: сбросьте выделение /t district clear");
         if(s.second()==null)throw new IllegalArgumentException("Задайте вторую точку /t district pos2 или сбросьте выделение");
         return Cell.rectangle(s.first(),s.second(),service.settings().maxSelection());
     }
-    public static void tell(CommandSender sender,String text){ synchronized (ru.neverland.core.SuiteState.lock()) {sender.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&aNeverLand &8• &fРайоны&8] &r"+text));} }
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDistricts")){return true;}
+    public static void tell(CommandSender sender,String text){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {sender.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&aNeverLand &8• &fРайоны&8] &r"+text));} }
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDistricts")){return true;}
         try{execute(sender,args);}catch(IllegalArgumentException|IllegalStateException ex){tell(sender,"&c"+ex.getMessage());}
         catch(IOException ex){plugin.getLogger().warning("Ошибка сохранения районов: "+ex.getMessage());tell(sender,"&cНе удалось сохранить изменение. Проверьте консоль.");}
         return true;
@@ -72,7 +72,7 @@ public final class DistrictCommand implements CommandExecutor,TabCompleter,org.b
         }
         tell(player,"&aРайон обновлён.");menu.open(player,townId,old.id(),0);
     }
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         if(!(sender instanceof Player player)||!player.hasPermission("neverlandtownydistricts.use"))return List.of();
         var town=service.town(player);if(town==null)return List.of();List<String> options=new ArrayList<>();
         if(args.length==1){options.addAll(List.of("list","info","map","help"));if(service.manager(player,town))options.addAll(List.of("create","claim","unclaim","delete","rename","pos1","pos2","clear"));if(player.hasPermission("neverlandtownydistricts.admin"))options.add("reload");}

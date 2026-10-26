@@ -21,7 +21,7 @@ public final class AccessProbe extends JavaPlugin {
     void deny(Work work,String name)throws Exception{try{work.run();}catch(IllegalArgumentException e){check(true,name);return;}throw new AssertionError(name);}
     @Override public void onEnable(){
         if(!Files.exists(Path.of("ALLOW_DISPOSABLE_MOB_FARM_PROBE"))||!"127.0.0.1".equals(getServer().getIp())){getServer().getPluginManager().disablePlugin(this);return;}
-        Bukkit.getGlobalRegionScheduler().runDelayed(this,t->{synchronized(SuiteState.lock()){try{run();finish(null);}catch(Throwable e){finish(e);}}},40);
+        Bukkit.getGlobalRegionScheduler().runDelayed(this,t->{try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){try{run();finish(null);}catch(Throwable e){finish(e);}}},40);
     }
     Player actor(UUID id){return (Player)Proxy.newProxyInstance(Player.class.getClassLoader(),new Class<?>[]{Player.class},(proxy,m,a)->switch(m.getName()){
         case "getUniqueId"->id;case "getName"->TownyAPI.getInstance().getResident(id).getName();

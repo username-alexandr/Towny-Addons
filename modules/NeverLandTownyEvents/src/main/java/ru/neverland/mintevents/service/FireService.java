@@ -42,15 +42,15 @@ public final class FireService {
     public FireService(JavaPlugin plugin,TownyHook towny){
         this.plugin=plugin;this.towny=towny;damage=new FireDamageRepository(plugin.getDataFolder().toPath().resolve("fire-damage.yml"));reload();
     }
-    public void reload(){ synchronized (ru.neverland.core.SuiteState.lock()) {try{damage.load();}catch(IOException e){throw new IllegalStateException("Журнал последствий пожара не загружен",e);}hotspots.clear();cooled.clear();} }
-    public FireDamageRepository repository(){ synchronized (ru.neverland.core.SuiteState.lock()) {return damage;} }
-    public List<FireDamage> damage(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return damage.town(town);} }
-    public boolean requiresRepair(UUID world,int x,int y,int z){ synchronized (ru.neverland.core.SuiteState.lock()) {return damage.pending(world,x,y,z);} }
-    public int burning(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return (int)hotspots.values().stream().filter(h->h.town().equals(town)).count();} }
-    public void finish(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {finished.put(town,System.currentTimeMillis());hotspots.values().removeIf(h->h.town().equals(town));} }
-    public void clearVisuals(){ synchronized (ru.neverland.core.SuiteState.lock()) {hotspots.clear();cooled.clear();} }
+    public void reload(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {try{damage.load();}catch(IOException e){throw new IllegalStateException("Журнал последствий пожара не загружен",e);}hotspots.clear();cooled.clear();} }
+    public FireDamageRepository repository(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return damage;} }
+    public List<FireDamage> damage(UUID town){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return damage.town(town);} }
+    public boolean requiresRepair(UUID world,int x,int y,int z){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return damage.pending(world,x,y,z);} }
+    public int burning(UUID town){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {return (int)hotspots.values().stream().filter(h->h.town().equals(town)).count();} }
+    public void finish(UUID town){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {finished.put(town,System.currentTimeMillis());hotspots.values().removeIf(h->h.town().equals(town));} }
+    public void clearVisuals(){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {hotspots.clear();cooled.clear();} }
 
-    public void tick(Town town,ActiveEvent event,boolean ignite,List<Player> residents){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void tick(Town town,ActiveEvent event,boolean ignite,List<Player> residents){ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         long now=System.currentTimeMillis();hotspots.values().removeIf(h->h.expires()<now);cooled.values().removeIf(until->until<now);
         if(!plugin.getConfig().getBoolean("gameplay.fire.enabled",true))return;
         if(ignite&&damage.writable()&&!residents.isEmpty()) ru.neverland.core.SuiteScheduler.entity(plugin,residents.get(0),()->{
@@ -81,7 +81,7 @@ public final class FireService {
     } }
 
     /** Used by the scheduler and the disposable runtime probe; ownership is always checked here. */
-    public boolean ignite(Town town,ActiveEvent event,Block block,boolean destroy) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean ignite(Town town,ActiveEvent event,Block block,boolean destroy) throws IOException { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         if(!ru.neverland.core.SuiteState.held())throw new IllegalStateException("Пожар требует основного потока");
         if(!damage.writable())throw new IOException("Журнал пожара недоступен");
         if(town==null||event==null||!town.getUUID().equals(event.townId())||!eligible(town,block))return false;
@@ -136,7 +136,7 @@ public final class FireService {
         }
         return null;
     }
-    public int extinguish(Player player,Location water){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int extinguish(Player player,Location water){ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         Town town=towny.town(player);if(town==null||water.getWorld()==null)return 0;
         int count=0;for(Hotspot h:new ArrayList<>(hotspots.values())){
             if(!h.town().equals(town.getUUID())||!h.world().equals(water.getWorld().getUID()))continue;
@@ -145,9 +145,9 @@ public final class FireService {
         }
         return count;
     } }
-    public boolean near(Player player){ synchronized (ru.neverland.core.SuiteState.lock()) {return hotspots.values().stream().anyMatch(h->h.world().equals(player.getWorld().getUID())&&new Location(player.getWorld(),h.x()+.5,h.y()+.5,h.z()+.5).distanceSquared(player.getLocation())<=25);} }
-    public boolean placed(FireDamage d){ synchronized (ru.neverland.core.SuiteState.lock()) {World world=loaded(d.world(),d.x(),d.y(),d.z());return world!=null&&world.getBlockAt(d.x(),d.y(),d.z()).getType().name().equals(d.material());} }
-    public void highlight(Player player,UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean near(Player player){ try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {return hotspots.values().stream().anyMatch(h->h.world().equals(player.getWorld().getUID())&&new Location(player.getWorld(),h.x()+.5,h.y()+.5,h.z()+.5).distanceSquared(player.getLocation())<=25);} }
+    public boolean placed(FireDamage d){ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {World world=loaded(d.world(),d.x(),d.y(),d.z());return world!=null&&world.getBlockAt(d.x(),d.y(),d.z()).getType().name().equals(d.material());} }
+    public void highlight(Player player,UUID id){ try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
         FireDamage d=damage.get(id);Town town=towny.town(player);
         if(d==null||town==null||!d.town().equals(town.getUUID()))return;
         World w=loaded(d.world(),d.x(),d.y(),d.z());

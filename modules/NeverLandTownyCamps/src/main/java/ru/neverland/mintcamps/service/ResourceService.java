@@ -9,7 +9,7 @@ import java.util.List;
 public final class ResourceService {
     public record Missing(ItemStack item, int required, int available) { }
 
-    public List<Missing> missing(Player player, List<ItemStack> costs) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<Missing> missing(Player player, List<ItemStack> costs) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         List<Missing> missing = new ArrayList<>();
         for (ItemStack cost : costs) {
             int available = count(player, cost);
@@ -18,7 +18,7 @@ public final class ResourceService {
         return missing;
     } }
 
-    public boolean withdraw(Player player, List<ItemStack> costs) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean withdraw(Player player, List<ItemStack> costs) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!missing(player, costs).isEmpty()) return false;
         for (ItemStack cost : costs) {
             int remaining = cost.getAmount();
@@ -35,7 +35,7 @@ public final class ResourceService {
         return true;
     } }
 
-    public void refund(Player player, List<ItemStack> items) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void refund(Player player, List<ItemStack> items) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         for (ItemStack item : items) {
             for (ItemStack leftover : player.getInventory().addItem(item.clone()).values()) {
                 player.getWorld().dropItemNaturally(player.getLocation(), leftover);
@@ -43,7 +43,7 @@ public final class ResourceService {
         }
     } }
 
-    public int count(Player player, ItemStack sample) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int count(Player player, ItemStack sample) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         int count = 0;
         for (ItemStack item : player.getInventory().getStorageContents()) {
             if (item != null && item.isSimilar(sample)) count += item.getAmount();

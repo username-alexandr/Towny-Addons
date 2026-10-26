@@ -17,7 +17,7 @@ public final class PopulationCommand implements CommandExecutor, TabCompleter {
     public PopulationCommand(NeverLandTownyPopulation plugin, PopulationService service, PopulationMenu menu, Messages messages) {
         this.plugin=plugin; this.service=service; this.menu=menu; this.messages=messages;
     }
-    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyPopulation")){return true;}
+    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyPopulation")){return true;}
         String action=args.length==0?"menu":args[0].toLowerCase(Locale.ROOT);
         if(action.equals("reload") || action.equals("set")) {
             if(!sender.hasPermission("neverlandtownypopulation.admin")) { messages.send(sender,"no-permission"); return true; }
@@ -61,7 +61,7 @@ public final class PopulationCommand implements CommandExecutor, TabCompleter {
         } else menu.open((Player)sender,town.getUUID(),action.equals("buildings"),0);
         return true;
     } }
-    @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         List<String> options=new ArrayList<>();
         if(args.length==1) {
             if(sender.hasPermission("neverlandtownypopulation.use")) options.addAll(List.of("info","buildings"));

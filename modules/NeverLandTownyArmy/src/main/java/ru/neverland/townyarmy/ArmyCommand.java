@@ -19,7 +19,7 @@ public final class ArmyCommand implements CommandExecutor, TabCompleter {
         var r = TownyAPI.getInstance().getResident(name); if (r == null) throw new IllegalArgumentException("Игрок не найден в Towny"); return r.getUUID();
     }
     private boolean officer(Player p, Rank rank) { try { return service.officer(p, service.ownTown(p).getUUID(), rank); } catch (IllegalArgumentException e) { return false; } }
-    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyArmy")){return true;}
+    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyArmy")){return true;}
         try {
             String action = args.length == 0 ? "menu" : args[0].toLowerCase(Locale.ROOT);
             if (action.equals("list")) action = "roster";
@@ -99,7 +99,7 @@ public final class ArmyCommand implements CommandExecutor, TabCompleter {
             if (service.executive(player, service.ownTown(player).getUUID())) say(p, "&b/army commission <игрок> <причина> &f— назначить генерала");
         }
     }
-    @Override public List<String> onTabComplete(CommandSender s, Command command, String alias, String[] a) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender s, Command command, String alias, String[] a) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         var choices = new ArrayList<String>();
         if (a.length == 1) {
             if (s.hasPermission("neverlandtownyarmy.use")) choices.addAll(List.of("menu", "help", "apply", "oath", "duty", "train", "roster", "record", "stock", "units", "ranks", "radio"));

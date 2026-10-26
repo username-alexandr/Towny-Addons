@@ -54,11 +54,11 @@ public enum ProjectCategory {
         this.color = color;
     }
 
-    public String displayName() { synchronized (ru.neverland.core.SuiteState.lock()) { return displayName; } }
-    public Material icon() { synchronized (ru.neverland.core.SuiteState.lock()) { return icon; } }
-    public String color() { synchronized (ru.neverland.core.SuiteState.lock()) { return color; } }
+    public String displayName() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return displayName; } }
+    public Material icon() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return icon; } }
+    public String color() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return color; } }
 
-    public static ProjectCategory parse(String raw, String projectId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static ProjectCategory parse(String raw, String projectId) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if (raw != null && !raw.isBlank()) {
             try { return valueOf(raw.toUpperCase(Locale.ROOT)); }
             catch (IllegalArgumentException ignored) { }

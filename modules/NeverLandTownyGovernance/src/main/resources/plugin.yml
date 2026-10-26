@@ -1,5 +1,5 @@
 name: NeverLandTownyGovernance
-version: 0.1.25
+version: 0.1.26
 main: ru.neverland.governance.TownyGovernance
 folia-supported: true
 api-version: '26.2'

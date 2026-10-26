@@ -13,7 +13,7 @@ public record CitizensSettings(Map<CitizenshipStatus, Policy> policies, int maxi
         public Policy { rights = Set.copyOf(rights); if (!Double.isFinite(tax) || tax < 0 || tax > 10) throw new IllegalArgumentException("Множитель налога: от 0 до 10"); }
     }
     public CitizensSettings { policies = Map.copyOf(policies); }
-    public static CitizensSettings load(ConfigurationSection config) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static CitizensSettings load(ConfigurationSection config) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var policies = new EnumMap<CitizenshipStatus, Policy>(CitizenshipStatus.class);
         for (var status : CitizenshipStatus.values()) {
             String key = "statuses." + status.name().toLowerCase(java.util.Locale.ROOT);

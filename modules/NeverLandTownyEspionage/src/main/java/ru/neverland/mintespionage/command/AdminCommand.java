@@ -20,7 +20,7 @@ import java.util.UUID;
 public final class AdminCommand implements CommandExecutor,TabCompleter {
     private final MintTownyEspionage plugin;private final TownyHook towny;private final EspionageService service;private final MessageService messages;
     public AdminCommand(MintTownyEspionage plugin,TownyHook towny,EspionageService service,MessageService messages){this.plugin=plugin;this.towny=towny;this.service=service;this.messages=messages;}
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEspionage")){return true;}
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEspionage")){return true;}
         if(!sender.hasPermission("mintespionage.admin")){messages.send(sender,"no-permission");return true;}if(args.length==0){sender.sendMessage("/townyespionage <list|complete|cancel|set|reload>");return true;}
         switch(args[0].toLowerCase(Locale.ROOT)){
             case "reload"->{plugin.reloadPlugin();messages.send(sender,"reload");}
@@ -31,7 +31,7 @@ public final class AdminCommand implements CommandExecutor,TabCompleter {
         }return true;
     } }
     private SpyOperation find(String input){for(SpyOperation operation:service.repository().operations())if(operation.id().toString().equalsIgnoreCase(input)||operation.id().toString().startsWith(input.toLowerCase(Locale.ROOT)))return operation;try{return service.repository().operation(UUID.fromString(input));}catch(IllegalArgumentException ignored){return null;}}
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(!sender.hasPermission("mintespionage.admin"))return List.of();if(args.length==1)return filter(List.of("list","complete","cancel","set","reload"),args[0]);if(args.length==2&&(args[0].equalsIgnoreCase("complete")||args[0].equalsIgnoreCase("cancel")))return filter(service.repository().operations().stream().map(SpyOperation::shortId).toList(),args[1]);if(args.length==2&&args[0].equalsIgnoreCase("set"))return filter(towny.towns().stream().map(Town::getName).toList(),args[1]);if(args.length==3&&args[0].equalsIgnoreCase("set"))return filter(List.of("network","defense"),args[2]);return List.of();} }
     private List<String> filter(List<String> values,String input){String lower=input.toLowerCase(Locale.ROOT);return values.stream().filter(v->v.toLowerCase(Locale.ROOT).startsWith(lower)).toList();}
 }

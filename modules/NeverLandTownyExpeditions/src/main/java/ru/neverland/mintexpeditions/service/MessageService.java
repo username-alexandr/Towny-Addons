@@ -7,18 +7,18 @@ import java.io.*; import java.nio.charset.StandardCharsets; import java.util.*;
 public final class MessageService {
     private final JavaPlugin plugin; private YamlConfiguration yaml;
     public MessageService(JavaPlugin plugin){this.plugin=plugin;reload();}
-    public void reload(){ synchronized (ru.neverland.core.SuiteState.lock()) {yaml=YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(),"messages.yml")); try(InputStream in=plugin.getResource("messages.yml")){if(in!=null)yaml.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8)));}catch(IOException e){plugin.getLogger().warning(e.getMessage());}} }
-    public static String template(YamlConfiguration yaml, String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {yaml=YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(),"messages.yml")); try(InputStream in=plugin.getResource("messages.yml")){if(in!=null)yaml.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8)));}catch(IOException e){plugin.getLogger().warning(e.getMessage());}} }
+    public static String template(YamlConfiguration yaml, String key) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         // An explicit getString(path, fallback) bypasses the bundled YAML defaults.
         String value = yaml.getString(key);
         return value == null ? key : value;
     } }
-    public static String render(YamlConfiguration yaml, String key, Map<String, ?> vars) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String render(YamlConfiguration yaml, String key, Map<String, ?> vars) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         String value = template(yaml, key);
         for (var entry : vars.entrySet()) value = value.replace("%" + entry.getKey() + "%", String.valueOf(entry.getValue()));
         return value;
     } }
-    public String text(String key,Map<String,?> vars,boolean prefix){ synchronized (ru.neverland.core.SuiteState.lock()) {String s=render(yaml,key,vars); return ColorUtil.color((prefix?Objects.toString(yaml.getString("prefix"),""):"")+s);} }
-    public void send(CommandSender to,String key){ synchronized (ru.neverland.core.SuiteState.lock()) {send(to,key,Map.of());} } public void send(CommandSender to,String key,Map<String,?> vars){ synchronized (ru.neverland.core.SuiteState.lock()) {to.sendMessage(text(key,vars,true));} }
-    public List<String> list(String key){ synchronized (ru.neverland.core.SuiteState.lock()) {return yaml.getStringList(key).stream().map(ColorUtil::color).toList();} }
+    public String text(String key,Map<String,?> vars,boolean prefix){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {String s=render(yaml,key,vars); return ColorUtil.color((prefix?Objects.toString(yaml.getString("prefix"),""):"")+s);} }
+    public void send(CommandSender to,String key){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {send(to,key,Map.of());} } public void send(CommandSender to,String key,Map<String,?> vars){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {to.sendMessage(text(key,vars,true));} }
+    public List<String> list(String key){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {return yaml.getStringList(key).stream().map(ColorUtil::color).toList();} }
 }

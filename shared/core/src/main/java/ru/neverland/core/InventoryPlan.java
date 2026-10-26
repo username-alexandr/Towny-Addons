@@ -6,7 +6,7 @@ public final class InventoryPlan {
    private InventoryPlan() {
    }
 
-   public static ItemStack[] insert(ItemStack[] contents, ItemStack cargo) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public static ItemStack[] insert(ItemStack[] contents, ItemStack cargo) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       ItemStack[] result = new ItemStack[contents.length];
 
       for (int i = 0; i < contents.length; i++) {

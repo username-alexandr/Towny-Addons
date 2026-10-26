@@ -13,7 +13,7 @@ public final class MaterialLabels {
     private static final Map<String, String> BUILTIN = loadBuiltin();
     private final Map<String, String> names = new HashMap<>(BUILTIN);
 
-    public static String canonicalKey(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String canonicalKey(String key) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (key == null) return "";
         String normalized = key.trim().toUpperCase(Locale.ROOT);
         if (normalized.startsWith("MINECRAFT:")) normalized = normalized.substring(10);
@@ -21,20 +21,20 @@ public final class MaterialLabels {
         return normalized.equals("CHAIN") ? "IRON_CHAIN" : normalized;
     } }
 
-    public static boolean automaticLabel(String key, String label) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean automaticLabel(String key, String label) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (label == null || label.isBlank()) return true;
         String plain = label.replaceAll("(?i)[&§]#[0-9a-f]{6}|[&§][0-9a-fk-orx]", "").trim();
         return canonicalKey(plain).equals(canonicalKey(key));
     } }
 
-    public static String canonicalBlockData(String data) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String canonicalBlockData(String data) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (data == null) return null;
         return data.replaceFirst("^(?:minecraft:)?chain(?=\\[|$)", "minecraft:iron_chain");
     } }
 
-    public void reset() { synchronized (ru.neverland.core.SuiteState.lock()) { names.clear(); names.putAll(BUILTIN); } }
+    public void reset() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { names.clear(); names.putAll(BUILTIN); } }
 
-    public void override(String key, String label) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void override(String key, String label) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         String normalized = canonicalKey(key);
         if (label == null || label.isBlank()) return;
         // Old generated English fallbacks must not hide the bundled Russian translation.
@@ -42,15 +42,15 @@ public final class MaterialLabels {
         names.put(normalized, label);
     } }
 
-    public String name(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String name(String key) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         return names.getOrDefault(canonicalKey(key), "Неизвестный материал");
     } }
 
-    public String configuredName(String key, String label) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String configuredName(String key, String label) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         return automaticLabel(key, label) ? name(key) : label;
     } }
 
-    public static boolean hasBuiltin(String key) { synchronized (ru.neverland.core.SuiteState.lock()) { return BUILTIN.containsKey(canonicalKey(key)); } }
+    public static boolean hasBuiltin(String key) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) { return BUILTIN.containsKey(canonicalKey(key)); } }
 
     private static Map<String, String> loadBuiltin() {
         Properties properties = new Properties();

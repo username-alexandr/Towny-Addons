@@ -16,24 +16,24 @@ public final class CitizensService implements TownyCitizensApi {
     private final CitizensRepository repository;
     private CitizensSettings settings;
     public CitizensService(CitizensRepository repository, CitizensSettings settings) { this.repository = repository; this.settings = settings; }
-    public CitizensRepository repository() { synchronized (ru.neverland.core.SuiteState.lock()) { return repository; } }
-    @Override public boolean healthy() { synchronized (ru.neverland.core.SuiteState.lock()) { return ru.neverland.core.SuiteState.held() && repository.writable(); } }
-    public CitizensSettings settings() { synchronized (ru.neverland.core.SuiteState.lock()) { return settings; } }
-    public void settings(CitizensSettings settings) { synchronized (ru.neverland.core.SuiteState.lock()) { this.settings = settings; } }
+    public CitizensRepository repository() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return repository; } }
+    @Override public boolean healthy() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return ru.neverland.core.SuiteState.held() && repository.writable(); } }
+    public CitizensSettings settings() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return settings; } }
+    public void settings(CitizensSettings settings) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { this.settings = settings; } }
     private void ready() {
         if (!ru.neverland.core.SuiteState.held()) throw new IllegalStateException("Гражданство доступно в основном потоке");
         if (!repository.writable()) throw new IllegalStateException("Реестр гражданства недоступен; обратитесь к администратору");
     }
-    public Town ownTown(UUID player) { synchronized (ru.neverland.core.SuiteState.lock()) { var r = TownyAPI.getInstance().getResident(player); return r == null ? null : r.getTownOrNull(); } }
+    public Town ownTown(UUID player) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { var r = TownyAPI.getInstance().getResident(player); return r == null ? null : r.getTownOrNull(); } }
     private boolean member(UUID town, UUID player) { Town own = ownTown(player); return own != null && own.getUUID().equals(town); }
-    public CitizenshipStatus effective(UUID town, UUID player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public CitizenshipStatus effective(UUID town, UUID player) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         ready(); if (town == null || player == null || TownyAPI.getInstance().getTown(town) == null) return CitizenshipStatus.FOREIGNER;
         var record = repository.get(town, player); boolean member = member(town, player);
         return record == null ? (member ? CitizenshipStatus.CITIZEN : CitizenshipStatus.FOREIGNER) : record.effective(member, System.currentTimeMillis());
     } }
-    @Override public String status(UUID town, UUID resident) { synchronized (ru.neverland.core.SuiteState.lock()) { return effective(town, resident).name(); } }
-    @Override public long expiresAt(UUID town, UUID resident) { synchronized (ru.neverland.core.SuiteState.lock()) { ready(); var r = repository.get(town, resident); return r == null ? 0 : r.expiresAt(); } }
-    @Override public boolean allows(UUID town, UUID resident, String right) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public String status(UUID town, UUID resident) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { return effective(town, resident).name(); } }
+    @Override public long expiresAt(UUID town, UUID resident) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) { ready(); var r = repository.get(town, resident); return r == null ? 0 : r.expiresAt(); } }
+    @Override public boolean allows(UUID town, UUID resident, String right) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         CitizenRight parsed; try { parsed = CitizenRight.valueOf(right); } catch (IllegalArgumentException | NullPointerException ex) { return false; }
         var status = effective(town, resident);
         if (town == null || TownyAPI.getInstance().getTown(town) == null) return false;
@@ -42,11 +42,11 @@ public final class CitizensService implements TownyCitizensApi {
                 && !member(town, resident)) return false;
         return settings.policies().get(status).rights().contains(parsed);
     } }
-    @Override public double taxMultiplier(UUID town, UUID resident) { synchronized (ru.neverland.core.SuiteState.lock()) { return settings.policies().get(effective(town, resident)).tax(); } }
-    @Override public Map<String, String> passport(UUID resident) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public double taxMultiplier(UUID town, UUID resident) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) { return settings.policies().get(effective(town, resident)).tax(); } }
+    @Override public Map<String, String> passport(UUID resident) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
         ready(); var town = ownTown(resident); return passportFields(town == null ? null : town.getUUID(), resident);
     } }
-    @Override public Map<String, String> passportFields(UUID town, UUID resident) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public Map<String, String> passportFields(UUID town, UUID resident) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         var status = effective(town, resident); long expiry = expiresAt(town, resident);
         return Map.of("citizenship", status.title(), "citizenship_id", status.name(), "citizenship_town", town == null ? "" : town.toString(),
                 "citizenship_town_name", town == null || TownyAPI.getInstance().getTown(town) == null ? "Нет города" : TownyAPI.getInstance().getTown(town).getName(),
@@ -54,13 +54,13 @@ public final class CitizensService implements TownyCitizensApi {
                 "citizenship_tax_multiplier", Double.toString(taxMultiplier(town, resident)),
                 "citizenship_vote", allows(town, resident, "VOTE") ? "Да" : "Нет");
     } }
-    public boolean manages(CommandSender actor, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean manages(CommandSender actor, Town town) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
         if (actor.hasPermission("neverlandtownycitizens.admin")) return true;
         if (!(actor instanceof Player player) || !actor.hasPermission("neverlandtownycitizens.manage")) return false;
         var r = TownyAPI.getInstance().getResident(player);
         return r != null && town != null && town.equals(r.getTownOrNull()) && town.isMayor(r);
     } }
-    public void assign(CommandSender actor, Town town, UUID target, CitizenshipStatus status, int days, String reason) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void assign(CommandSender actor, Town town, UUID target, CitizenshipStatus status, int days, String reason) throws IOException { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         ready(); if (town == null || !manages(actor, town)) throw new IllegalArgumentException("Назначать статус может мэр своего города или администратор");
         if (TownyAPI.getInstance().getResident(target) == null) throw new IllegalArgumentException("Игрок не зарегистрирован в Towny");
         if ((status == CitizenshipStatus.CITIZEN || status == CitizenshipStatus.TEMPORARY) && !member(town.getUUID(), target))

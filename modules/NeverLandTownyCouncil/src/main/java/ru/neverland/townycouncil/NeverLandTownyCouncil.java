@@ -13,7 +13,7 @@ import ru.neverland.townycouncil.api.TownyCouncilApi;
 public final class NeverLandTownyCouncil extends JavaPlugin implements Listener {
     private CouncilService service;
     private boolean townCommand;
-    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         try {
@@ -40,8 +40,8 @@ public final class NeverLandTownyCouncil extends JavaPlugin implements Listener 
     private CouncilSettings readSettings() throws Exception {
         var y = new YamlConfiguration(); y.load(getDataFolder().toPath().resolve("config.yml").toFile()); return CouncilSettings.load(y);
     }
-    public void reloadSettings() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) { var next = readSettings(); service.settings(next); reloadConfig(); } }
-    public CouncilService council() { synchronized (ru.neverland.core.SuiteState.lock()) { return service; } }
+    public void reloadSettings() throws Exception { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { var next = readSettings(); service.settings(next); reloadConfig(); } }
+    public CouncilService council() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return service; } }
     @FunctionalInterface private interface Action { void run() throws Exception; }
     private boolean failureReported;
     private void guarded(Action action) {
@@ -51,16 +51,16 @@ public final class NeverLandTownyCouncil extends JavaPlugin implements Listener 
             if (!failureReported) { failureReported = true; getLogger().log(java.util.logging.Level.SEVERE, "Права совета отозваны: проверьте реестр и перезапустите сервер", ex); }
         }
     }
-    @EventHandler public void join(PlayerJoinEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCouncil")){ru.neverland.core.ModuleGate.stopEvent(e);return;} guarded(() -> service.refresh(e.getPlayer())); } }
-    @EventHandler public void quit(PlayerQuitEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) { service.release(e.getPlayer().getUniqueId()); } }
-    @EventHandler(priority = EventPriority.MONITOR) public void leave(TownRemoveResidentEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCouncil")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler public void join(PlayerJoinEvent e) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCouncil")){ru.neverland.core.ModuleGate.stopEvent(e);return;} guarded(() -> service.refresh(e.getPlayer())); } }
+    @EventHandler public void quit(PlayerQuitEvent e) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { service.release(e.getPlayer().getUniqueId()); } }
+    @EventHandler(priority = EventPriority.MONITOR) public void leave(TownRemoveResidentEvent e) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCouncil")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         guarded(() -> {service.clearAccess(e.getTown().getUUID(),e.getResident().getUUID(),"LEFT_TOWN");service.remove(a -> a.town().equals(e.getTown().getUUID()) && a.resident().equals(e.getResident().getUUID()), "SYSTEM", "LEFT_TOWN");});
     } }
-    @EventHandler(priority = EventPriority.MONITOR) public void mayor(TownMayorChangedEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCouncil")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler(priority = EventPriority.MONITOR) public void mayor(TownMayorChangedEvent e) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCouncil")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         if (e.getTown() == null || e.getOldMayor() == e.getNewMayor()) return;
         guarded(() -> {service.clearAccess(e.getTown().getUUID(),null,"MAYOR_CHANGED");service.remove(a -> a.town().equals(e.getTown().getUUID()), "SYSTEM", "MAYOR_CHANGED");});
     } }
-    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onDisable() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         ru.neverland.core.SuiteScheduler.get().cancelTasks(this);

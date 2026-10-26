@@ -32,20 +32,20 @@ public final class ReturnTickets {
         }
     }
 
-    public Ticket get(UUID player, long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Ticket get(UUID player, long now) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Ticket ticket = tickets.get(player);
         return ticket != null && ticket.expiresAt() > now ? ticket : null;
     } }
 
-    public void grant(Iterable<UUID> players, UUID camp, long expiresAt) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void grant(Iterable<UUID> players, UUID camp, long expiresAt) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(!ru.neverland.core.AtomicFiles.writable(file.toPath()))throw new IllegalStateException("Хранилище возвратов недоступно");
         for (UUID player : players) tickets.put(player, new Ticket(camp, expiresAt));
         save();
     } }
 
-    public void remove(UUID player) { synchronized (ru.neverland.core.SuiteState.lock()) { if (tickets.remove(player) != null) save(); } }
+    public void remove(UUID player) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { if (tickets.remove(player) != null) save(); } }
 
-    public void prune(long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void prune(long now) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if (tickets.values().removeIf(ticket -> ticket.expiresAt() <= now)) save();
     } }
 

@@ -16,7 +16,7 @@ public final class PopulationMath {
                           double change, List<String> reasons) {
         public Metrics { reasons = List.copyOf(reasons); }
     }
-    public static Metrics evaluate(int population, Capacity c, Rules r) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Metrics evaluate(int population, Capacity c, Rules r) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         int workers = (int)Math.ceil(population * r.workforce());
         int employed = Math.min(workers, c.jobs());
         double unemployment = workers == 0 ? 0 : (workers - employed) / (double)workers;
@@ -52,7 +52,7 @@ public final class PopulationMath {
         if (reasons.isEmpty()) reasons.add(change > 0 ? "Условия для роста выполнены" : "Население стабильно");
         return new Metrics(workers, employed, workers-employed, unemployment, food, water, happiness, change, reasons);
     } }
-    public static Metrics evaluate(int population,Capacity capacity,Rules rules,double medicineBonus){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Metrics evaluate(int population,Capacity capacity,Rules rules,double medicineBonus){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         var base=evaluate(population,capacity,rules);if(base.change()<=0)return base;
         double sustainable=Math.min(capacity.housing(),Math.min(capacity.food()/rules.foodDemand(),capacity.water()/rules.waterDemand()));
         double headroom=Math.max(0,Math.floor(Math.min(rules.maximum(),sustainable))-population);
@@ -60,10 +60,10 @@ public final class PopulationMath {
         return new Metrics(base.workforce(),base.employed(),base.unemployed(),base.unemployment(),base.foodCoverage(),base.waterCoverage(),base.happiness(),change,base.reasons());
     } }
     private static double coverage(double supply, double demand) { return demand <= 0 ? 1 : Math.min(1, supply/demand); }
-    public static PopulationState advance(PopulationState state, Capacity capacity, Rules rules, long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static PopulationState advance(PopulationState state, Capacity capacity, Rules rules, long now) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         return advance(state,capacity,rules,now,0);
     } }
-    public static PopulationState advance(PopulationState state,Capacity capacity,Rules rules,long now,double medicineBonus){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static PopulationState advance(PopulationState state,Capacity capacity,Rules rules,long now,double medicineBonus){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         double change = evaluate(state.population(), capacity, rules,medicineBonus).change();
         double remainder = state.remainder();
         if (change == 0 || Math.signum(change) != Math.signum(remainder)) remainder = 0;

@@ -2,7 +2,7 @@ package ru.neverland.townydistricts.model;
 import java.util.*;
 public final class DistrictRules {
     private DistrictRules(){}
-    public static void validate(District proposed,Collection<District> existing,Set<Cell> owned,int maxCells){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void validate(District proposed,Collection<District> existing,Set<Cell> owned,int maxCells){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if(proposed.cells().size()>maxCells)throw new IllegalArgumentException("Превышен предел участков района: "+maxCells);
         if(!owned.containsAll(proposed.cells()))throw new IllegalArgumentException("Все участки должны принадлежать вашему городу");
         if(!Cell.connected(proposed.cells()))throw new IllegalArgumentException("Участки района должны соединяться сторонами");
@@ -10,20 +10,20 @@ public final class DistrictRules {
                 && !Collections.disjoint(other.cells(),proposed.cells()))throw new IllegalArgumentException("Участки уже заняты другим районом");
     } }
     public record Building(String id,UUID world,int minX,int minZ,int maxX,int maxZ,int level,int requiredLevel) {
-        public Optional<Set<Cell>> cells(int cellSize,int limit){ synchronized (ru.neverland.core.SuiteState.lock()) {
+        public Optional<Set<Cell>> cells(int cellSize,int limit){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
             if(cellSize<1||minX>maxX||minZ>maxZ)return Optional.empty();
             try{return Optional.of(Cell.rectangle(new Cell(world,Math.floorDiv(minX,cellSize),Math.floorDiv(minZ,cellSize)),
                     new Cell(world,Math.floorDiv(maxX,cellSize),Math.floorDiv(maxZ,cellSize)),limit));}
             catch(IllegalArgumentException ex){return Optional.empty();}
         } }
-        public boolean completed(){ synchronized (ru.neverland.core.SuiteState.lock()) {return requiredLevel>0&&level>=requiredLevel;} }
+        public boolean completed(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return requiredLevel>0&&level>=requiredLevel;} }
     }
     public record Evaluation(Map<String,Double> multipliers,Map<String,String> districts,Set<String> industrialCombinations) {
         public Evaluation {multipliers=Map.copyOf(multipliers);districts=Map.copyOf(districts);industrialCombinations=Set.copyOf(industrialCombinations);}
     }
     public static Evaluation evaluate(Collection<District> districts,Collection<Building> buildings,
             Map<String,DistrictType> expected,Set<Cell> owned,int cellSize,double matching,double combination,
-            double maximum,Set<String> requires){ synchronized (ru.neverland.core.SuiteState.lock()) {
+            double maximum,Set<String> requires){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         Map<String,Double> multipliers=new HashMap<>();Map<String,String> assigned=new HashMap<>();Set<String> combos=new HashSet<>();
         for(District district:districts){
             if(!owned.containsAll(district.cells())||!Cell.connected(district.cells()))continue;
@@ -42,7 +42,7 @@ public final class DistrictRules {
         return new Evaluation(multipliers,assigned,combos);
     } }
     /** Fractional bonus is a probability; never exceed available output space. */
-    public static int output(int base,double multiplier,double roll,int space){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static int output(int base,double multiplier,double roll,int space){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if(base<=0||!Double.isFinite(multiplier)||multiplier<=1)return base;
         double extra=base*(Math.min(3,multiplier)-1);int add=(int)extra;
         if(roll<extra-add)add++;

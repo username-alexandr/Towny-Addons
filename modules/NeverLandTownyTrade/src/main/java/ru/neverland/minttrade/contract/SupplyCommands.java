@@ -8,7 +8,7 @@ import ru.neverland.minttrade.util.ColorUtil;
 public final class SupplyCommands {
     private final TownyHook towny;private final TradeService trade;private final SupplyService service;private final SupplyMenus menus;
     public SupplyCommands(TownyHook towny,TradeService trade,SupplyService service,SupplyMenus menus){this.towny=towny;this.trade=trade;this.service=service;this.menus=menus;}
-    public void execute(Player p,Town town,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void execute(Player p,Town town,String[] args){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if(!menus.access(p))return;
         try{
             if(args.length==0||args[0].equalsIgnoreCase("list")){menus.open(p,args.length>1?Math.max(0,Integer.parseInt(args[1])-1):0);return;}

@@ -32,7 +32,7 @@ public final class TeleportService implements Listener {
         this.messages = messages;
     }
 
-    public void teleport(Player player, String ownerName) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void teleport(Player player, String ownerName) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Camp camp = ownerName == null || ownerName.isBlank()
                 ? repository.get(player.getUniqueId()).orElse(null)
                 : repository.getByOwnerName(ownerName).orElse(null);
@@ -76,13 +76,13 @@ public final class TeleportService implements Listener {
         pending.put(player.getUniqueId(), new Pending(player.getLocation().clone(), task));
     } }
 
-    public void cancelAll() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void cancelAll() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         for (Pending value : pending.values()) value.task().cancel();
         pending.clear();
     } }
 
     @EventHandler(ignoreCancelled = true)
-    public void onMove(PlayerMoveEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onMove(PlayerMoveEvent event) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         Pending value = pending.get(event.getPlayer().getUniqueId());
         if (value == null || !plugin.getConfig().getBoolean("settings.teleport.cancel-on-move", true)) return;
         Location to = event.getTo();
@@ -93,7 +93,7 @@ public final class TeleportService implements Listener {
     } }
 
     @EventHandler(ignoreCancelled = true)
-    public void onDamage(EntityDamageEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onDamage(EntityDamageEvent event) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (event.getEntity() instanceof Player player && pending.containsKey(player.getUniqueId())) {
             cancel(player, "teleport.cancelled-damage");
         }

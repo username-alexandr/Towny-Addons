@@ -8,8 +8,8 @@ import java.util.*;
 public final class BorderPreview {
     private final Plugin plugin;private final DistrictService service;private final Map<UUID,Long> players=new HashMap<>();private final BukkitTask task;
     public BorderPreview(Plugin plugin,DistrictService service){this.plugin=plugin;this.service=service;task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::render,20,20);}
-    public void show(Player player){ synchronized (ru.neverland.core.SuiteState.lock()) {players.put(player.getUniqueId(),System.currentTimeMillis()+30000);render();} }
-    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {players.clear();task.cancel();} }
+    public void show(Player player){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {players.put(player.getUniqueId(),System.currentTimeMillis()+30000);render();} }
+    public void stop(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {players.clear();task.cancel();} }
     private void render(){long now=System.currentTimeMillis();for(var entry:new ArrayList<>(players.entrySet())){
         Player p=Bukkit.getPlayer(entry.getKey());if(p==null||entry.getValue()<now){players.remove(entry.getKey());continue;}
         ru.neverland.core.SuiteScheduler.player(plugin,p,current->{

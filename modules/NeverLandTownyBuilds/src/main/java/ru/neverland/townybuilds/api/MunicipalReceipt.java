@@ -3,5 +3,5 @@ import java.util.UUID;
 import org.bukkit.inventory.ItemStack;
 public record MunicipalReceipt(UUID id,ItemStack sample,int amount) {
     public MunicipalReceipt{if(id==null||!ru.neverland.townybuilds.storage.StockMath.present(sample)||amount<1||amount>1_000_000)throw new IllegalArgumentException("Некорректная поставка");sample=sample.clone();sample.setAmount(1);}
-    @Override public ItemStack sample(){ synchronized (ru.neverland.core.SuiteState.lock()) {return sample.clone();} }
+    @Override public ItemStack sample(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return sample.clone();} }
 }

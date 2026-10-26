@@ -11,10 +11,10 @@ public final class ResourceEngine {
     public record Result(TownState state,Map<Resource,Long> capacity,Map<Resource,Long> demand,Map<String,Activity> activity) {
         public Result { capacity=Amounts.copy(capacity);demand=Amounts.copy(demand);activity=Collections.unmodifiableMap(new LinkedHashMap<>(activity)); }
     }
-    public static Result calculate(TownState state,Map<String,Building> built,int people,ResourcesSettings config,long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Result calculate(TownState state,Map<String,Building> built,int people,ResourcesSettings config,long now) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return calculate(state,built,people,config,now,Map.of());
     } }
-    public static Result calculate(TownState state,Map<String,Building> built,int people,ResourcesSettings config,long now,Map<Resource,Long> held) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Result calculate(TownState state,Map<String,Building> built,int people,ResourcesSettings config,long now,Map<Resource,Long> held) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(people<0||people>10_000_000)throw new IllegalArgumentException("Некорректное население");
         var stock=Amounts.mutable(state.balances());var cap=Amounts.mutable(config.baseCapacity());var income=Amounts.mutable(Map.of());var expense=Amounts.mutable(Map.of());
         var demand=Amounts.mutable(Map.of());if(config.populationLinked()){demand.put(Resource.FOOD,Amounts.multiply(config.foodPerPerson(),people));demand.put(Resource.WATER,Amounts.multiply(config.waterPerPerson(),people));}

@@ -23,12 +23,12 @@ public final class EventMenuHolder implements InventoryHolder {
         this.type = type;
     }
 
-    public UUID townId() { synchronized (ru.neverland.core.SuiteState.lock()) { return townId; } }
-    public Type type() { synchronized (ru.neverland.core.SuiteState.lock()) { return type; } }
-    public Map<Integer, ContributionRule> rules() { synchronized (ru.neverland.core.SuiteState.lock()) { return rules; } }
-    public Map<Integer, UUID> repairs() { synchronized (ru.neverland.core.SuiteState.lock()) { return repairs; } }
-    public int page() { synchronized (ru.neverland.core.SuiteState.lock()) { return page; } }
-    public void page(int value) { synchronized (ru.neverland.core.SuiteState.lock()) { page = value; } }
-    public void inventory(Inventory value) { synchronized (ru.neverland.core.SuiteState.lock()) { inventory = value; } }
-    @Override public Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { return inventory; } }
+    public UUID townId() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return townId; } }
+    public Type type() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return type; } }
+    public Map<Integer, ContributionRule> rules() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return rules; } }
+    public Map<Integer, UUID> repairs() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return repairs; } }
+    public int page() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { return page; } }
+    public void page(int value) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { page = value; } }
+    public void inventory(Inventory value) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { inventory = value; } }
+    @Override public Inventory getInventory() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) { return inventory; } }
 }

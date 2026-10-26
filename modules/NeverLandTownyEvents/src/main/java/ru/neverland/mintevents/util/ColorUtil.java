@@ -10,7 +10,7 @@ public final class ColorUtil {
 
     private ColorUtil() {}
 
-    public static String color(String input) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String color(String input) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (input == null) return "";
         Matcher matcher = HEX.matcher(input);
         StringBuffer output = new StringBuffer();
@@ -24,7 +24,7 @@ public final class ColorUtil {
         return ChatColor.translateAlternateColorCodes('&', output.toString());
     } }
 
-    public static String strip(String input) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String strip(String input) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return ChatColor.stripColor(color(input));
     } }
 }

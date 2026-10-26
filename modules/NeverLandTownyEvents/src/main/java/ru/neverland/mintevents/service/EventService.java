@@ -92,7 +92,7 @@ public final class EventService implements MintTownyEventsApi {
         this.legacyRaidMobKey = NamespacedKey.fromString("minttownyevents:raid_town");
     }
 
-    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void start() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         stopTasks();
         repository.initializeRaidVictories(registry.all().stream().filter(d -> d.mode() == EventMode.RAID)
                 .map(EventDefinition::id).collect(java.util.stream.Collectors.toSet()));
@@ -117,7 +117,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         }
     } }
 
-    public void shutdown() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void shutdown() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         stopTasks();
         fires.clearVisuals();
         bars.values().forEach(BossBar::removeAll);
@@ -137,8 +137,8 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         tickTask = randomTask = saveTask = null;
     }
 
-    public boolean startEvent(Town town, EventDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) { return startEvent(town, definition, false); } }
-    public boolean startEvent(Town town, EventDefinition definition, boolean force) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean startEvent(Town town, EventDefinition definition) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return startEvent(town, definition, false); } }
+    public boolean startEvent(Town town, EventDefinition definition, boolean force) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if (town == null || definition == null || repository.active(town.getUUID()) != null) return false;
         if (!force && hostile(definition) && shieldRemainingMillis(town.getUUID()) > 0) return false;
         if (definition.mode() == EventMode.FIRE && hasFireDamage(town.getUUID())) return false;
@@ -167,7 +167,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
     } }
 
     private static boolean hostile(EventDefinition definition) { return definition.mode() != EventMode.FESTIVAL; }
-    @Override public long shieldRemainingMillis(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public long shieldRemainingMillis(UUID townId) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         ru.neverland.core.ApiServices.primaryThread();
         Town city = town(townId); if(city == null) return 0;
         Long explicit = repository.shield(townId);
@@ -176,7 +176,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         long until = explicit != null ? explicit : registered > 0 ? Math.addExact(registered, 86_400_000L) : 0;
         return Math.max(0, until - System.currentTimeMillis());
     } }
-    public void townCreated(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void townCreated(Town town) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         if(repository.shield(town.getUUID()) != null) return;
         long registered = town.getRegistered();
         if(registered > 0 && registered < 100_000_000_000L) registered *= 1000;
@@ -184,12 +184,12 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         repository.shield(town.getUUID(), until);
         for(Player player : onlineResidents(town)) player.sendMessage("§bЩит новичка: город защищён от неблагоприятных городских событий на 24 часа.");
     } }
-    public void shield(Town town, long hours) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void shield(Town town, long hours) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         if(hours < 0 || hours > 720) throw new IllegalArgumentException("Щит: от 0 до 720 часов");
         repository.shield(town.getUUID(), hours == 0 ? 0 : System.currentTimeMillis() + hours * 3_600_000L);
     } }
-    @Override public boolean paused(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { ru.neverland.core.ApiServices.primaryThread(); ActiveEvent event = active(townId); return event != null && event.paused(); } }
-    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public boolean paused(UUID townId) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) { ru.neverland.core.ApiServices.primaryThread(); ActiveEvent event = active(townId); return event != null && event.paused(); } }
+    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         ru.neverland.core.ApiServices.primaryThread();
         var targets=new java.util.ArrayList<ru.neverland.core.ActivityAdmin.Target>();
         for(Town town:towny.towns()) {
@@ -207,7 +207,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         }
         return java.util.List.copyOf(targets);
     } }
-    public boolean cancel(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean cancel(Town town) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         ActiveEvent event = town == null ? null : active(town.getUUID()); if(event == null) return false;
         repository.replace(event, null, System.currentTimeMillis());
         clearRuntime(event);
@@ -215,7 +215,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         plugin.getLogger().info("Нейтральная отмена: " + town.getName() + " / " + event.eventId());
         return true;
     } }
-    public boolean pause(Town town, boolean pause) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean pause(Town town, boolean pause) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
         ActiveEvent old = town == null ? null : active(town.getUUID());
         if(old == null || old.paused() == pause) return false;
         long now = System.currentTimeMillis();
@@ -223,13 +223,13 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         replaceRuntime(old, next); return true;
     } }
     /** Restart keeps contributions and defeated raid enemies; only the timer is restarted. */
-    public boolean restart(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean restart(Town town) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         ActiveEvent old = town == null ? null : active(town.getUUID()); EventDefinition definition = definition(old);
         if(old == null || definition == null) return false;
         ActiveEvent next = old.reschedule(Math.addExact(System.currentTimeMillis(), definition.durationSeconds()*1000L), 0);
         next.lastRaidWave(0); replaceRuntime(old, next); return true;
     } }
-    public boolean extend(Town town, long minutes) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean extend(Town town, long minutes) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
         if(minutes < 1 || minutes > 10080) throw new IllegalArgumentException("Продление: от 1 до 10080 минут");
         ActiveEvent old = town == null ? null : active(town.getUUID()); if(old == null) return false;
         repository.replace(old, old.reschedule(Math.addExact(old.endsAt(), minutes*60_000L), old.pausedAt()), 0);
@@ -248,7 +248,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         BossBar bar = bars.remove(event.townId()); if(bar != null) bar.removeAll();
     }
 
-    public boolean resolve(Town town, boolean success) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean resolve(Town town, boolean success) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         if (town == null) return false;
         ActiveEvent active = repository.active(town.getUUID());
         if (active == null) return false;
@@ -278,7 +278,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         saveNow();
     }
 
-    public int contribute(Town town, int points) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int contribute(Town town, int points) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
         ActiveEvent event = town == null ? null : repository.active(town.getUUID());
         if (event == null || event.paused()) return -1;
         int value = event.addProgress(points);
@@ -291,7 +291,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         return value;
     } }
 
-    public void creditRaidKill(LivingEntity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void creditRaidKill(LivingEntity entity) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
         String owner = raidOwner(entity);
         if (owner == null) return;
         entity.getPersistentDataContainer().remove(raidMobKey);
@@ -320,7 +320,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
     } }
 
     /** Removes stale raid bodies even if their chunk was unloaded during shutdown/cleanup. */
-    public void validateLoadedRaidEntity(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void validateLoadedRaidEntity(Entity entity) { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
         String owner = raidOwner(entity);
         if (owner == null) return;
         ActiveEvent active = null;
@@ -460,7 +460,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         }
     }
 
-    public double raidRangedMultiplier(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public double raidRangedMultiplier(Entity entity) { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {
         return isRaidMob(entity) ? entity.getPersistentDataContainer().getOrDefault(raidRangedMultiplierKey, PersistentDataType.DOUBLE, 1.0) : 1.0;
     } }
 
@@ -616,7 +616,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         return nearest;
     }
 
-    public int forceRaidWave(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int forceRaidWave(Town town) { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {
         ActiveEvent event = town == null ? null : repository.active(town.getUUID());
         EventDefinition definition = event == null ? null : registry.get(event.eventId());
         if (event == null || event.paused() || definition == null || definition.mode() != EventMode.RAID) return -1;
@@ -629,7 +629,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
 
     private void cleanupRaidMobs(UUID townId) {ru.neverland.core.WorldTasks.eachEntityCleanup(plugin,entity->{if(townId.toString().equals(raidOwner(entity)))entity.remove();});}
 
-    @Override public double productionMultiplier(UUID townId,String building) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public double productionMultiplier(UUID townId,String building) { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {
         ru.neverland.core.ApiServices.primaryThread();
         if(townId==null||building==null)throw new IllegalArgumentException("Город и постройка обязательны");
         if(!building.equals("agrarian_complex"))return 1;
@@ -706,7 +706,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
                 "protection", Math.round(event.protection() * 100));
     }
 
-    public Collection<Player> onlineResidents(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Collection<Player> onlineResidents(Town town) { try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {
         List<Player> result = new ArrayList<>();
         for (Player player : Bukkit.getOnlinePlayers()) {
             Town playerTown = towny.town(player);
@@ -715,49 +715,49 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         return result;
     } }
 
-    public Town town(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Town town(UUID id) { try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) {
         for (Town town : towny.towns()) if (town.getUUID().equals(id)) return town;
         return null;
     } }
 
-    public ActiveEvent active(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { return repository.active(townId); } }
-    public EventDefinition definition(ActiveEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) { return event == null ? null : registry.get(event.eventId()); } }
-    @Override public long raidVictories(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { ru.neverland.core.ApiServices.primaryThread(); return repository.raidVictories(townId); } }
+    public ActiveEvent active(UUID townId) { try (var suiteGuard23 = ru.neverland.core.SuiteState.guard()) { return repository.active(townId); } }
+    public EventDefinition definition(ActiveEvent event) { try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) { return event == null ? null : registry.get(event.eventId()); } }
+    @Override public long raidVictories(UUID townId) { try (var suiteGuard25 = ru.neverland.core.SuiteState.guard()) { ru.neverland.core.ApiServices.primaryThread(); return repository.raidVictories(townId); } }
 
-    public List<HistoryEntry> history(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { return repository.history(townId); } }
-    public NamespacedKey raidMobKey() { synchronized (ru.neverland.core.SuiteState.lock()) { return raidMobKey; } }
-    public boolean isRaidMob(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) { return raidOwner(entity) != null; } }
+    public List<HistoryEntry> history(UUID townId) { try (var suiteGuard26 = ru.neverland.core.SuiteState.guard()) { return repository.history(townId); } }
+    public NamespacedKey raidMobKey() { try (var suiteGuard27 = ru.neverland.core.SuiteState.guard()) { return raidMobKey; } }
+    public boolean isRaidMob(Entity entity) { try (var suiteGuard28 = ru.neverland.core.SuiteState.guard()) { return raidOwner(entity) != null; } }
     private String raidOwner(Entity entity) { if (entity == null) return null; String value = entity.getPersistentDataContainer().get(raidMobKey, PersistentDataType.STRING); return value != null || legacyRaidMobKey == null ? value : entity.getPersistentDataContainer().get(legacyRaidMobKey, PersistentDataType.STRING); }
-    public EventRegistry registry() { synchronized (ru.neverland.core.SuiteState.lock()) { return registry; } }
-    public DevelopmentService development() { synchronized (ru.neverland.core.SuiteState.lock()) { return development; } }
-    public RaidScaling.Profile raidPreview(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public EventRegistry registry() { try (var suiteGuard29 = ru.neverland.core.SuiteState.guard()) { return registry; } }
+    public DevelopmentService development() { try (var suiteGuard30 = ru.neverland.core.SuiteState.guard()) { return development; } }
+    public RaidScaling.Profile raidPreview(Town town) { try (var suiteGuard31 = ru.neverland.core.SuiteState.guard()) {
         if (!raidScaling.enabled()) return raidScaling.profile(Map.of(), false);
         var snapshot = development.completedBuildings(town.getUUID());
         return raidScaling.profile(snapshot.levels(), snapshot.available());
     } }
-    public FireService fires() { synchronized (ru.neverland.core.SuiteState.lock()) { return fires; } }
-    public boolean fireActive(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public FireService fires() { try (var suiteGuard32 = ru.neverland.core.SuiteState.guard()) { return fires; } }
+    public boolean fireActive(UUID townId) { try (var suiteGuard33 = ru.neverland.core.SuiteState.guard()) {
         EventDefinition definition = definition(active(townId));
         return definition != null && !active(townId).paused() && definition.mode() == EventMode.FIRE;
     } }
-    public boolean fireUnfinished(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean fireUnfinished(UUID townId) { try (var suiteGuard34 = ru.neverland.core.SuiteState.guard()) {
         EventDefinition definition = definition(active(townId));
         return definition != null && definition.mode() == EventMode.FIRE;
     } }
-    @Override public boolean requiresRepair(UUID world, int x, int y, int z) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public boolean requiresRepair(UUID world, int x, int y, int z) { try (var suiteGuard35 = ru.neverland.core.SuiteState.guard()) {
         return !fires.repository().writable() || fires.requiresRepair(world, x, y, z);
     } }
-    @Override public boolean hasFireDamage(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public boolean hasFireDamage(UUID town) { try (var suiteGuard36 = ru.neverland.core.SuiteState.guard()) {
         return !fires.repository().writable() || !fires.damage(town).isEmpty();
     } }
-    @Override public boolean hasFireDamageInArea(UUID town, UUID world, int minX, int minZ, int maxX, int maxZ) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public boolean hasFireDamageInArea(UUID town, UUID world, int minX, int minZ, int maxX, int maxZ) { try (var suiteGuard37 = ru.neverland.core.SuiteState.guard()) {
         if (!fires.repository().writable()) return true;
         int size=com.palmergames.bukkit.towny.TownySettings.getTownBlockSize();
         return fires.damage(town).stream().anyMatch(d->d.world().equals(world)
             && Math.floorDiv(d.x(),size)>=Math.floorDiv(minX,size) && Math.floorDiv(d.x(),size)<=Math.floorDiv(maxX,size)
             && Math.floorDiv(d.z(),size)>=Math.floorDiv(minZ,size) && Math.floorDiv(d.z(),size)<=Math.floorDiv(maxZ,size));
     } }
-    public void extinguish(Player player, Location water) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void extinguish(Player player, Location water) { try (var suiteGuard38 = ru.neverland.core.SuiteState.guard()) {
         if (!player.hasPermission("mintevents.contribute")) return;
         Town town = towny.town(player);
         if (town == null || !fireActive(town.getUUID())) return;
@@ -769,7 +769,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         }
     } }
 
-    public void reloadRuntime() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reloadRuntime() { try (var suiteGuard39 = ru.neverland.core.SuiteState.guard()) {
         fires.reload();
         var nextCatalog = new RaidCatalog(plugin);
         var nextScaling = new RaidScaling(plugin);
@@ -784,7 +784,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
     }
 
     @Override
-    public Optional<EventSnapshot> activeEvent(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();
+    public Optional<EventSnapshot> activeEvent(UUID townId) { try (var suiteGuard40 = ru.neverland.core.SuiteState.guard()) {ru.neverland.core.ApiServices.primaryThread();
         ActiveEvent event = repository.active(townId);
         EventDefinition definition = definition(event);
         if (event == null || event.paused() || definition == null) return Optional.empty();
@@ -794,13 +794,13 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
     } }
 
     @Override
-    public boolean addProgress(UUID townId, int points, String source) { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();
+    public boolean addProgress(UUID townId, int points, String source) { try (var suiteGuard41 = ru.neverland.core.SuiteState.guard()) {ru.neverland.core.ApiServices.primaryThread();
         Town town = town(townId);
         return town != null && points > 0 && contribute(town, points) >= 0;
     } }
 
     @Override
-    public double protection(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.ApiServices.primaryThread();
+    public double protection(UUID townId) { try (var suiteGuard42 = ru.neverland.core.SuiteState.guard()) {ru.neverland.core.ApiServices.primaryThread();
         ActiveEvent event = repository.active(townId);
         return event == null || event.paused() ? 0 : event.protection();
     } }

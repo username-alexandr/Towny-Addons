@@ -8,7 +8,7 @@ import ru.neverland.townybuilds.data.TownData;
 public final class TradeStorageTransactions {
     public interface Access {ItemStack[] read(UUID town);void write(UUID town,ItemStack[] items);boolean busy(UUID town);void commit()throws IOException;}
     private TradeStorageTransactions(){}
-    public static String reserve(TownData seller,Access access,UUID buyer,UUID id,ItemStack sample,int amount)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String reserve(TownData seller,Access access,UUID buyer,UUID id,ItemStack sample,int amount)throws IOException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if(seller.townId().equals(buyer)||!StockMath.present(sample)||amount<1||amount>3456)throw new IllegalArgumentException("Условия поставки");
         var old=seller.tradeCargo().get(id);
         if(old!=null){if(!old.buyer().equals(buyer)||old.amount()!=amount||!old.sample().isSimilar(sample))throw new IllegalArgumentException("ID поставки занят");return old.status();}
@@ -22,7 +22,7 @@ public final class TradeStorageTransactions {
         try{access.commit();}catch(IOException|RuntimeException ex){access.write(seller.townId(),before);seller.removeTradeCargo(id);throw ex;}
         return "RESERVED";
     } }
-    public static String settle(TownData seller,Access access,UUID id,boolean deliver)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String settle(TownData seller,Access access,UUID id,boolean deliver)throws IOException { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         var old=seller.tradeCargo().get(id);if(old==null)return "MISSING";
         if(!old.status().equals("RESERVED"))return old.status();
         UUID target=deliver?old.buyer():seller.townId();if(access.busy(target))return "BUSY";
@@ -31,7 +31,7 @@ public final class TradeStorageTransactions {
         try{access.commit();}catch(IOException|RuntimeException ex){access.write(target,before);seller.putTradeCargo(old);throw ex;}
         return deliver?"DELIVERED":"RETURNED";
     } }
-    public static void acknowledge(TownData seller,Access access,UUID id)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void acknowledge(TownData seller,Access access,UUID id)throws IOException { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         var old=seller.tradeCargo().get(id);if(old==null)return;if(old.status().equals("RESERVED"))throw new IllegalArgumentException("Поставка ещё зарезервирована");
         seller.removeTradeCargo(id);try{access.commit();}catch(IOException|RuntimeException ex){seller.putTradeCargo(old);throw ex;}
     } }

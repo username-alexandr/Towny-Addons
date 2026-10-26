@@ -25,7 +25,7 @@ public final class PlayerSaveReceipt {
       this.before = before;
    }
 
-   public static PlayerSaveReceipt before(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public static PlayerSaveReceipt before(Player player) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       if (!SuiteScheduler.owns(player)) {
          throw new IllegalStateException("Сохранение игрока требует потока его региона");
       } else {
@@ -46,7 +46,7 @@ public final class PlayerSaveReceipt {
       }
    } }
 
-   public void save(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void save(Player player) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
       if (!SuiteScheduler.owns(player)) {
          throw new IllegalStateException("Сохранение игрока требует потока его региона");
       } else {

@@ -7,8 +7,8 @@ import java.lang.reflect.Method;
 public final class ItemsAdderHook {
     private boolean available;
     public ItemsAdderHook() { reload(); }
-    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) { available = Bukkit.getPluginManager().isPluginEnabled("ItemsAdder"); } }
-    public ItemStack item(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { available = Bukkit.getPluginManager().isPluginEnabled("ItemsAdder"); } }
+    public ItemStack item(String key) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!available || key == null || !key.toLowerCase().startsWith("itemsadder:")) return null;
         try {
             String namespaced = key.substring("itemsadder:".length());

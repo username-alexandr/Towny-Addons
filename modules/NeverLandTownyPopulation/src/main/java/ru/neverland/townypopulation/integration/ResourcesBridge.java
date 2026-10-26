@@ -4,7 +4,7 @@ import ru.neverland.townypopulation.model.StrategicSupply;
 import java.util.*;
 public final class ResourcesBridge {
     private ResourcesBridge() {}
-    public static Optional<StrategicSupply> supply(UUID town)throws ReflectiveOperationException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Optional<StrategicSupply> supply(UUID town)throws ReflectiveOperationException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var api=ru.neverland.core.ApiServices.connect("NeverLandTownyResources","ru.neverland.townyresources.api.TownyResourcesApi",1,"resources");
         if(api.state()==ru.neverland.core.ApiServices.State.NOT_INSTALLED)return Optional.empty();
         if(!api.ready())return Optional.of(new StrategicSupply(1,1,true));

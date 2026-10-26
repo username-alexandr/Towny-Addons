@@ -34,19 +34,19 @@ public final class CampRepository {
     private final Map<UUID, Camp> camps = new LinkedHashMap<>();
     private final Map<UUID, Map<Long, Set<UUID>>> chunkIndex = new HashMap<>();
     private final Map<UUID,org.bukkit.inventory.Inventory> storageSessions = new HashMap<>();
-    public boolean stashBusy(UUID owner) { synchronized (ru.neverland.core.SuiteState.lock()) { return storageSessions.containsKey(owner); } }
-    public boolean openStash(UUID owner,org.bukkit.inventory.Inventory inventory) { synchronized (ru.neverland.core.SuiteState.lock()) { return storageSessions.putIfAbsent(owner,inventory)==null; } }
-    public boolean closeStash(UUID owner,org.bukkit.inventory.Inventory inventory) { synchronized (ru.neverland.core.SuiteState.lock()) { return storageSessions.remove(owner,inventory); } }
+    public boolean stashBusy(UUID owner) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return storageSessions.containsKey(owner); } }
+    public boolean openStash(UUID owner,org.bukkit.inventory.Inventory inventory) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return storageSessions.putIfAbsent(owner,inventory)==null; } }
+    public boolean closeStash(UUID owner,org.bukkit.inventory.Inventory inventory) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return storageSessions.remove(owner,inventory); } }
     private boolean dirty;
     private boolean writable;
-    public boolean writable(){ synchronized (ru.neverland.core.SuiteState.lock()) {return writable&&ru.neverland.core.AtomicFiles.writable(file.toPath());} }
+    public boolean writable(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return writable&&ru.neverland.core.AtomicFiles.writable(file.toPath());} }
 
     public CampRepository(JavaPlugin plugin) {
         this.plugin = plugin;
         this.file = new File(plugin.getDataFolder(), "camps.yml");
     }
 
-    public void load() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void load() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         writable=false;
         camps.clear();
         chunkIndex.clear();
@@ -96,36 +96,36 @@ public final class CampRepository {
         plugin.getLogger().info("Загружено активных лагерей: " + camps.size() + ".");
     } }
 
-    public Collection<Camp> all() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Collection<Camp> all() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         return Collections.unmodifiableCollection(camps.values());
     } }
 
-    public Optional<Camp> get(UUID ownerId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Optional<Camp> get(UUID ownerId) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         return Optional.ofNullable(camps.get(ownerId));
     } }
 
-    public Optional<Camp> getByOwnerName(String name) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Optional<Camp> getByOwnerName(String name) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         return camps.values().stream().filter(camp -> camp.ownerName().equalsIgnoreCase(name)).findFirst();
     } }
 
-    public void put(Camp camp) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void put(Camp camp) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         Camp old = camps.put(camp.ownerId(), camp);
         if (old != null) unindex(old);
         index(camp);
         dirty = true;
     } }
 
-    public void remove(Camp camp) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void remove(Camp camp) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         camps.remove(camp.ownerId());
         unindex(camp);
         dirty = true;
     } }
 
-    public void markDirty() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void markDirty() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
         dirty = true;
     } }
 
-    public Optional<Camp> findAt(Location location) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Optional<Camp> findAt(Location location) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         if (location.getWorld() == null) return Optional.empty();
         Map<Long, Set<UUID>> worldIndex = chunkIndex.get(location.getWorld().getUID());
         if (worldIndex == null) return Optional.empty();
@@ -144,7 +144,7 @@ public final class CampRepository {
         return Optional.empty();
     } }
 
-    public boolean isTooClose(Location location, int minimumDistance) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean isTooClose(Location location, int minimumDistance) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
         if (location.getWorld() == null) return true;
         double squared = (double) minimumDistance * minimumDistance;
         for (Camp camp : camps.values()) {
@@ -156,15 +156,15 @@ public final class CampRepository {
         return false;
     } }
 
-    public void saveIfDirty() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void saveIfDirty() { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         if (dirty) save();
     } }
 
-    public void save() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void save() { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
         if(!writable())throw new IllegalStateException("Хранилище лагерей недоступно");
         try{saveOrThrow();}catch(IOException ex){writable=false;throw new java.io.UncheckedIOException(ex);}
     } }
-    public void saveOrThrow()throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void saveOrThrow()throws IOException { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
         if(!writable())throw new IOException("Хранилище лагерей недоступно");
         YamlConfiguration yaml = new YamlConfiguration();
         for (Camp camp : camps.values()) {

@@ -12,7 +12,7 @@ public final class RaidSpawnPlanner {
     public record Column(int x, int z) { }
 
     public static List<Integer> verticalCandidates(int highestY, int minHeight, int maxHeight,
-                                                   int scanDown, int scanUp) { synchronized (ru.neverland.core.SuiteState.lock()) {
+                                                   int scanDown, int scanUp) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         int base = highestY + 1;
         int down = Math.max(1, scanDown);
         int up = Math.max(1, scanUp);
@@ -27,7 +27,7 @@ public final class RaidSpawnPlanner {
         return result;
     } }
 
-    public static List<Column> blockProbes(int minX, int maxX, int minZ, int maxZ) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static List<Column> blockProbes(int minX, int maxX, int minZ, int maxZ) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         int lowX = Math.min(minX, maxX);
         int highX = Math.max(minX, maxX);
         int lowZ = Math.min(minZ, maxZ);

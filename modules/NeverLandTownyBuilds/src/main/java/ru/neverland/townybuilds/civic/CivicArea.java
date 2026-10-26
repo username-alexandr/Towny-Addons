@@ -9,12 +9,12 @@ public record CivicArea(UUID worldId, int minX, int maxX, int minZ, int maxZ) {
         if (minX > maxX || minZ > maxZ) throw new IllegalArgumentException("Перепутаны границы территории");
     }
 
-    public int chunkCount() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int chunkCount() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return (Math.floorDiv(maxX, 16) - Math.floorDiv(minX, 16) + 1)
                 * (Math.floorDiv(maxZ, 16) - Math.floorDiv(minZ, 16) + 1);
     } }
 
-    public boolean contains(int x, int z) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean contains(int x, int z) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return x >= minX && x <= maxX && z >= minZ && z <= maxZ;
     } }
 }

@@ -6,7 +6,7 @@ import ru.neverland.mintevents.model.EventMode;
 public final class RaidKillCredit {
     private RaidKillCredit() {}
 
-    public static int points(ActiveEvent event, EventMode mode, boolean playerKill, int configured, long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static int points(ActiveEvent event, EventMode mode, boolean playerKill, int configured, long now) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (event == null || mode != EventMode.RAID || !playerKill
                 || event.endsAt() <= now || event.completed()) return 0;
         return event.raid() != null ? Math.max(0, configured) : Math.min(Math.max(0, configured), event.goal() - event.progress());

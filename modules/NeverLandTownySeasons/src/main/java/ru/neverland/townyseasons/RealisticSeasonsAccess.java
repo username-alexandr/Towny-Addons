@@ -9,8 +9,8 @@ public final class RealisticSeasonsAccess {
     private Plugin provider;
     private Method instance, season;
     private String status="NOT_QUERIED";
-    public String status() { synchronized (ru.neverland.core.SuiteState.lock()) { return status; } }
-    public Season read(World world) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String status() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return status; } }
+    public Season read(World world) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         var current=Bukkit.getPluginManager().getPlugin("RealisticSeasons");
         if(current==null)throw failure("NOT_INSTALLED",null);
         if(!current.isEnabled())throw failure("DISABLED",null);

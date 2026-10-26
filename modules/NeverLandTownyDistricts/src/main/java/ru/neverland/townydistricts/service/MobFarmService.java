@@ -62,7 +62,7 @@ public final class MobFarmService implements Listener {
         if(b.getTownOrNull().isRuined())throw new IllegalStateException("Город находится в руинах");
         var w=b.getWorld();MobFarmPolicy.validate(w.isUsingTowny(),w.hasWorldMobs(),w.isForceTownMobs()||b.getTownOrNull().isAdminEnabledMobs(),b.hasPlotObjectGroup(),allow);
     }
-    public void apply(Player p,Confirmation expected){ synchronized(SuiteState.lock()){
+    public void apply(Player p,Confirmation expected){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){
         requireEnabled();TownBlock b=block(expected.world(),expected.x(),expected.z());
         if(b!=expected.block()||b.getTownOrNull()==null||!expected.town().equals(b.getTownOrNull().getUUID())||expected.size()!=Coord.getCellSize()
                 ||!expected.permissions().equals(b.getPermissions().toString()))throw new IllegalStateException("Участок изменился. Откройте подтверждение заново");
@@ -118,7 +118,7 @@ public final class MobFarmService implements Listener {
     /** Towny's native hook is also used by splash/lingering potions and dispenser arrows. */
     @EventHandler(priority=EventPriority.LOWEST)
     public void dispenser(com.palmergames.bukkit.towny.event.damage.TownyDispenserDamageEntityEvent e){
-        synchronized(SuiteState.lock()){
+        try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){
             if(!e.isCancelled()||SuiteState.frozen(plugin.getName())||!enabled()
                     ||!plugin.getConfig().getBoolean("mob-farms.dispenser-effects",true))return;
             if(!(e.getEntity() instanceof org.bukkit.entity.Enemy)||e.getEntity() instanceof Player)return;
@@ -134,5 +134,5 @@ public final class MobFarmService implements Listener {
                     &&snapshot(to).map(MobFarmPlot::protectionDisabled).orElse(false))e.setCancelled(false);
         }
     }
-    @EventHandler public void quit(PlayerQuitEvent e){synchronized(SuiteState.lock()){entered.remove(e.getPlayer().getUniqueId());previews.remove(e.getPlayer().getUniqueId());}}
+    @EventHandler public void quit(PlayerQuitEvent e){try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()){entered.remove(e.getPlayer().getUniqueId());previews.remove(e.getPlayer().getUniqueId());}}
 }

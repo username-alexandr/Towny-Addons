@@ -10,7 +10,7 @@ public final class ResourceBudget {
     private ResourceBudget() {}
 
     public static List<Cost> balance(BuildingBlueprintGenerator generator, String project, int level,
-                                     boolean wonder, List<Cost> original) { synchronized (ru.neverland.core.SuiteState.lock()) {
+                                     boolean wonder, List<Cost> original) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         int stage = Math.min(level, generator.maximumStage(project));
         var plan = generator.generate(project, stage);
         if (plan == null || original.isEmpty()) return original;
@@ -20,7 +20,7 @@ public final class ResourceBudget {
         return scale(original, budget);
     } }
 
-    public static List<Cost> scale(List<Cost> original, double budget) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static List<Cost> scale(List<Cost> original, double budget) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         double previous = original.stream().mapToDouble(c -> (double) c.amount() * weight(c.material())).sum();
         if (previous <= 0) return original;
         List<Cost> result = new ArrayList<>();
@@ -34,7 +34,7 @@ public final class ResourceBudget {
         return List.copyOf(result);
     } }
 
-    public static int weight(String material) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static int weight(String material) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         return switch (material) {
             case "NETHER_STAR", "CONDUIT" -> 1024;
             case "NETHERITE_BLOCK" -> 2304;

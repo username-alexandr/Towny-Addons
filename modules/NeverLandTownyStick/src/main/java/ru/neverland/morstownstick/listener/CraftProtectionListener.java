@@ -31,27 +31,27 @@ public final class CraftProtectionListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onCraft(PrepareItemCraftEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onCraft(PrepareItemCraftEvent event) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (containsSelector(event.getInventory())) event.getInventory().setResult(null);
     } }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onAnvil(PrepareAnvilEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onAnvil(PrepareAnvilEvent event) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (containsSelector(event.getInventory())) event.setResult(null);
     } }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onSmithing(PrepareSmithingEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onSmithing(PrepareSmithingEvent event) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (containsSelector(event.getInventory())) event.setResult(null);
     } }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onGrindstone(PrepareGrindstoneEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onGrindstone(PrepareGrindstoneEvent event) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (containsSelector(event.getInventory())) event.setResult(null);
     } }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onClick(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onClick(InventoryClickEvent event) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         Inventory top = event.getView().getTopInventory();
         if (!PROTECTED.contains(top.getType())) return;
         boolean pointsAtTop = event.getRawSlot() >= 0 && event.getRawSlot() < top.getSize();
@@ -62,19 +62,19 @@ public final class CraftProtectionListener implements Listener {
     } }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onDrag(InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onDrag(InventoryDragEvent event) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!PROTECTED.contains(event.getView().getTopInventory().getType()) || !sticks.isSelector(event.getOldCursor())) return;
         int topSize = event.getView().getTopInventory().getSize();
         if (event.getRawSlots().stream().anyMatch(slot -> slot < topSize)) event.setCancelled(true);
     } }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onFuel(FurnaceBurnEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onFuel(FurnaceBurnEvent event) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (sticks.isSelector(event.getFuel())) event.setCancelled(true);
     } }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onAutomation(InventoryMoveItemEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onAutomation(InventoryMoveItemEvent event) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (sticks.isSelector(event.getItem())) event.setCancelled(true);
     } }
 

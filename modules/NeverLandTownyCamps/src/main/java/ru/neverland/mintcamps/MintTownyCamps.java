@@ -47,7 +47,7 @@ public final class MintTownyCamps extends JavaPlugin {
     private MintCampsExpansion expansion;
 
     @Override
-    public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         ru.neverland.mintcamps.util.LegacyDataMigrator.migrate(this, "MintTownyCamps");
@@ -106,7 +106,7 @@ public final class MintTownyCamps extends JavaPlugin {
     } }
 
     @Override
-    public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void onDisable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         Bukkit.getServicesManager().unregisterAll(this);
@@ -118,7 +118,7 @@ public final class MintTownyCamps extends JavaPlugin {
         if (expansion != null) expansion.unregister();
     } }
 
-    public void reloadAll() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reloadAll() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         reloadConfig();
         messages.reload();
         styles.reload();
@@ -171,7 +171,7 @@ public final class MintTownyCamps extends JavaPlugin {
      * Стабильная точка интеграции для аддонов NeverLand.
      * Репозиторий остаётся владельцем живых объектов лагерей; вызывающий плагин не должен их кэшировать.
      */
-    public CampRepository repository() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public CampRepository repository() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         return repository;
     } }
 }

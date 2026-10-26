@@ -10,7 +10,7 @@ import ru.neverland.townyenvironment.config.EnvironmentSettings;
 
 /** Ecological pressure of operational structures, not a resource-production accounting ledger. */
 public class EnvironmentMetrics {
-    public Map<String, Integer> active(UUID town, EnvironmentSettings settings) throws ReflectiveOperationException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Map<String, Integer> active(UUID town, EnvironmentSettings settings) throws ReflectiveOperationException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var builds = ApiServices.require("NeverLandTownyBuilds", "ru.neverland.townybuilds.api.TownyBuildsApi", "buildingFootprints");
         // Distinguish missing optional addons from an installed provider outage before reading building flags.
         requireOptional(ApiServices.connect("NeverLandTownyUpkeep", "ru.neverland.townyupkeep.api.TownyUpkeepApi", 1, "active"));

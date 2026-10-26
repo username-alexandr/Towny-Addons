@@ -25,29 +25,29 @@ public final class Proposal {
         this.createdAt = createdAt; this.timer=ru.neverland.core.ActivityTimer.running(createdAt,endsAt); this.status = status;
     }
 
-    public UUID id() { synchronized (ru.neverland.core.SuiteState.lock()) { return id; } }
-    public String shortId() { synchronized (ru.neverland.core.SuiteState.lock()) { return id.toString().substring(0, 8); } }
-    public UUID townId() { synchronized (ru.neverland.core.SuiteState.lock()) { return townId; } }
-    public String townName() { synchronized (ru.neverland.core.SuiteState.lock()) { return townName; } }
-    public String lawId() { synchronized (ru.neverland.core.SuiteState.lock()) { return lawId; } }
-    public ProposalAction action() { synchronized (ru.neverland.core.SuiteState.lock()) { return action; } }
-    public UUID proposerId() { synchronized (ru.neverland.core.SuiteState.lock()) { return proposerId; } }
-    public String proposerName() { synchronized (ru.neverland.core.SuiteState.lock()) { return proposerName; } }
-    public long createdAt() { synchronized (ru.neverland.core.SuiteState.lock()) { return createdAt; } }
-    public long endsAt() { synchronized (ru.neverland.core.SuiteState.lock()) { return timer.deadline(); } }
-    public ProposalStatus status() { synchronized (ru.neverland.core.SuiteState.lock()) { return status; } }
-    public void status(ProposalStatus status) { synchronized (ru.neverland.core.SuiteState.lock()) { this.status = status; } }
-    public Map<UUID, VoteChoice> votes() { synchronized (ru.neverland.core.SuiteState.lock()) { return Map.copyOf(votes); } }
-    public VoteChoice voteOf(UUID player) { synchronized (ru.neverland.core.SuiteState.lock()) { return votes.get(player); } }
-    public void vote(UUID player, VoteChoice choice) { synchronized (ru.neverland.core.SuiteState.lock()) { votes.put(player, choice); } }
-    public void loadVotes(Map<UUID, VoteChoice> loaded) { synchronized (ru.neverland.core.SuiteState.lock()) { votes.clear(); votes.putAll(loaded); } }
+    public UUID id() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return id; } }
+    public String shortId() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return id.toString().substring(0, 8); } }
+    public UUID townId() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return townId; } }
+    public String townName() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return townName; } }
+    public String lawId() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { return lawId; } }
+    public ProposalAction action() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { return action; } }
+    public UUID proposerId() { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { return proposerId; } }
+    public String proposerName() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) { return proposerName; } }
+    public long createdAt() { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) { return createdAt; } }
+    public long endsAt() { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) { return timer.deadline(); } }
+    public ProposalStatus status() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) { return status; } }
+    public void status(ProposalStatus status) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) { this.status = status; } }
+    public Map<UUID, VoteChoice> votes() { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) { return Map.copyOf(votes); } }
+    public VoteChoice voteOf(UUID player) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) { return votes.get(player); } }
+    public void vote(UUID player, VoteChoice choice) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) { votes.put(player, choice); } }
+    public void loadVotes(Map<UUID, VoteChoice> loaded) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) { votes.clear(); votes.putAll(loaded); } }
 
-    public Map<VoteChoice, Integer> counts() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Map<VoteChoice, Integer> counts() { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
         Map<VoteChoice, Integer> result = new EnumMap<>(VoteChoice.class);
         for (VoteChoice choice : VoteChoice.values()) result.put(choice, 0);
         votes.values().forEach(choice -> result.merge(choice, 1, Integer::sum));
         return result;
     } }
-    public ru.neverland.core.ActivityTimer timer(){ synchronized (ru.neverland.core.SuiteState.lock()) {return timer;} }
-    public void timer(ru.neverland.core.ActivityTimer value){ synchronized (ru.neverland.core.SuiteState.lock()) {timer=java.util.Objects.requireNonNull(value);} }
+    public ru.neverland.core.ActivityTimer timer(){ try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {return timer;} }
+    public void timer(ru.neverland.core.ActivityTimer value){ try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {timer=java.util.Objects.requireNonNull(value);} }
 }

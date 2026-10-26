@@ -31,7 +31,7 @@ public final class NeverLandTownyIdeologies extends JavaPlugin {
     private IdeologyExpansion placeholders;
 
     @Override
-    public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         saveDefaultConfig();
@@ -79,7 +79,7 @@ public final class NeverLandTownyIdeologies extends JavaPlugin {
     } }
 
     @Override
-    public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void onDisable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         Bukkit.getServicesManager().unregisterAll(this);
@@ -89,7 +89,7 @@ public final class NeverLandTownyIdeologies extends JavaPlugin {
         if (towny != null) for (String name : TOWN_COMMANDS) towny.unregisterTownCommand(name);
     } }
 
-    public void reloadPlugin() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reloadPlugin() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         reloadConfig();
         messages.reload();
         itemsAdder.reload();
@@ -97,11 +97,11 @@ public final class NeverLandTownyIdeologies extends JavaPlugin {
         bonuses.start();
     } }
 
-    public IdeologyService ideologyService() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public IdeologyService ideologyService() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         return ideologies;
     } }
 
-    public IdeologyRegistry ideologyRegistry() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public IdeologyRegistry ideologyRegistry() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         return registry;
     } }
 

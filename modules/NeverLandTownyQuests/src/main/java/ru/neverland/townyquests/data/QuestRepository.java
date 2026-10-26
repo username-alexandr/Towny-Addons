@@ -13,9 +13,9 @@ public final class QuestRepository {
     private boolean writable;
     private Map<UUID, Map<String, CityProject>> towns = Map.of();
     public QuestRepository(Path file) { this.file = file; }
-    public Map<UUID, Map<String, CityProject>> towns() { synchronized (ru.neverland.core.SuiteState.lock()) { return towns; } }
-    public Map<String, CityProject> get(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { return towns.getOrDefault(town, Map.of()); } }
-    public void load() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Map<UUID, Map<String, CityProject>> towns() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return towns; } }
+    public Map<String, CityProject> get(UUID town) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return towns.getOrDefault(town, Map.of()); } }
+    public void load() throws Exception { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         writable = false;
         if (!Files.exists(file)) { towns = Map.of(); AtomicFiles.loaded(file); writable = true; return; }
         var y = new YamlConfiguration(); y.load(file.toFile());
@@ -39,7 +39,7 @@ public final class QuestRepository {
             throw new IllegalArgumentException("В городе уже есть текущий проект");
         runs.forEach((id, run) -> { if (!id.equals(run.definition().id())) throw new IllegalArgumentException("ID проекта не совпадает"); });
     }
-    public void put(UUID town, CityProject run) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void put(UUID town, CityProject run) throws IOException { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if (!writable || !AtomicFiles.writable(file)) throw new IOException("База проектов недоступна для записи");
         if (run.equals(get(town).get(run.definition().id()))) return;
         var city = new LinkedHashMap<>(get(town)); city.put(run.definition().id(), run); validate(city);

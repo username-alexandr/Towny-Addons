@@ -43,24 +43,24 @@ public final class BuildingBlueprintGenerator {
             "Основание", "Расширение", "Городской корпус", "Вертикальный акцент", "Монументальное завершение"
     };
 
-    public Set<String> supportedProjects() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Set<String> supportedProjects() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return SUPPORTED;
     } }
 
-    public Set<String> supportedBuildings() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Set<String> supportedBuildings() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return BUILDINGS;
     } }
 
-    public Set<String> supportedWonders() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Set<String> supportedWonders() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         return WONDERS;
     } }
 
-    public int maximumStage(String rawProjectId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int maximumStage(String rawProjectId) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         String projectId = rawProjectId == null ? "" : rawProjectId.toLowerCase(Locale.ROOT);
         return WONDERS.contains(projectId) ? 1 : BUILDINGS.contains(projectId) ? 5 : 0;
     } }
 
-    public BlueprintPlan generate(String rawProjectId, int rawLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public BlueprintPlan generate(String rawProjectId, int rawLevel) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         return generateCurrent(rawProjectId, rawLevel, ConstructionSite.CURRENT_ARCHITECTURE_VERSION);
     } }
 
@@ -107,7 +107,7 @@ public final class BuildingBlueprintGenerator {
     }
 
     /** План первой ванильной архитектуры 0.3.0–0.3.1 нужен для безопасного обновления площадок. */
-    public BlueprintPlan generateArchitecture2(String rawProjectId, int rawLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public BlueprintPlan generateArchitecture2(String rawProjectId, int rawLevel) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         String projectId = rawProjectId == null ? "" : rawProjectId.toLowerCase(Locale.ROOT);
         int level = Math.max(1, Math.min(5, rawLevel));
         if (!CORE_BUILDINGS.contains(projectId)) return null;
@@ -127,7 +127,7 @@ public final class BuildingBlueprintGenerator {
     } }
 
     /** План архитектуры 0.3.2 нужен для безопасного обновления существующих площадок. */
-    public BlueprintPlan generateArchitecture3(String rawProjectId, int rawLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public BlueprintPlan generateArchitecture3(String rawProjectId, int rawLevel) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         String projectId = rawProjectId == null ? "" : rawProjectId.toLowerCase(Locale.ROOT);
         int level = Math.max(1, Math.min(5, rawLevel));
         if (!CORE_BUILDINGS.contains(projectId)) return null;
@@ -146,7 +146,7 @@ public final class BuildingBlueprintGenerator {
         return new BlueprintPlan(projectId, level, stageName(projectId, level), builder.blocks);
     } }
 
-    public BlueprintPlan generateForArchitecture(String projectId, int level, int architectureVersion) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public BlueprintPlan generateForArchitecture(String projectId, int level, int architectureVersion) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         String normalized = projectId == null ? "" : projectId.toLowerCase(Locale.ROOT);
         if (WONDERS.contains(normalized)) return generateCurrent(normalized, level, architectureVersion);
         if (IMPORTED_BUILDINGS.contains(normalized)) return architectureVersion < 6
@@ -165,7 +165,7 @@ public final class BuildingBlueprintGenerator {
     } }
 
     /** План архитектуры 0.2.x используется только для безопасного обновления существующих площадок. */
-    public BlueprintPlan generateLegacy(String rawProjectId, int rawLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public BlueprintPlan generateLegacy(String rawProjectId, int rawLevel) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         String projectId = rawProjectId == null ? "" : rawProjectId.toLowerCase(Locale.ROOT);
         int level = Math.max(1, Math.min(5, rawLevel));
         if (!CORE_BUILDINGS.contains(projectId)) return null;
@@ -184,7 +184,7 @@ public final class BuildingBlueprintGenerator {
         return new BlueprintPlan(projectId, level, stageName(projectId, level), builder.blocks);
     } }
 
-    public String stageName(String projectId, int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String stageName(String projectId, int level) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         if(projectId!=null&&SpecializationBlueprintGenerator.PROJECTS.contains(projectId.toLowerCase(Locale.ROOT)))return SPECIALIZATION_GENERATOR.stageName(level);
         if(projectId!=null&&PowerBlueprintGenerator.PROJECTS.contains(projectId.toLowerCase(Locale.ROOT)))return POWER_GENERATOR.stageName(level);
         if (projectId != null && EXPANSION_BUILDINGS.contains(projectId.toLowerCase(Locale.ROOT))) {

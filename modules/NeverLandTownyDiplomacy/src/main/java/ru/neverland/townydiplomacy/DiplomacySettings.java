@@ -8,8 +8,8 @@ public record DiplomacySettings(int defaultDays,int maximumDays,long proposalMil
                 ||noticeMillis<0||noticeMillis>30L*86_400_000||tradeDiscountBasisPoints<0||tradeDiscountBasisPoints>10000||maxOpen<1||maxOpen>1000
                 ||incidentCooldown<10_000||incidentCooldown>86_400_000)throw new IllegalArgumentException("Некорректные сроки или ограничения дипломатии");
     }
-    public static DiplomacySettings defaults() { synchronized (ru.neverland.core.SuiteState.lock()) { return new DiplomacySettings(30,365,72*3_600_000L,24*3_600_000L,2500,64,300_000); } }
-    public static DiplomacySettings load(ConfigurationSection y) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static DiplomacySettings defaults() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return new DiplomacySettings(30,365,72*3_600_000L,24*3_600_000L,2500,64,300_000); } }
+    public static DiplomacySettings load(ConfigurationSection y) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return new DiplomacySettings(integer(y,"default-days"),integer(y,"maximum-days"),Math.multiplyExact(integer(y,"proposal-hours"),3_600_000L),
                 Math.multiplyExact(integer(y,"termination-notice-hours"),3_600_000L),Math.multiplyExact(integer(y,"trade-discount-percent"),100),
                 integer(y,"maximum-open-per-town"),Math.multiplyExact(integer(y,"incident-cooldown-seconds"),1000L));

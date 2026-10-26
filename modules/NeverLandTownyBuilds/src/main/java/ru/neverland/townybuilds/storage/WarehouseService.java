@@ -24,22 +24,22 @@ public final class WarehouseService implements WarehouseApi {
    }
 
    @Override
-   public Map<String, Object> take(UUID town, ItemStack sample, int amount) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public Map<String, Object> take(UUID town, ItemStack sample, int amount) throws IOException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       return this.change(null, town, sample, amount, false);
    } }
 
    @Override
-   public Map<String, Object> deposit(UUID town, ItemStack sample, int amount) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public Map<String, Object> deposit(UUID town, ItemStack sample, int amount) throws IOException { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
       return this.change(null, town, sample, amount, true);
    } }
 
    @Override
-   public Map<String, Object> transfer(UUID operation, UUID town, ItemStack sample, int amount, boolean incoming) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public Map<String, Object> transfer(UUID operation, UUID town, ItemStack sample, int amount, boolean incoming) throws IOException { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
       return this.change(Objects.requireNonNull(operation), town, sample, amount, incoming);
    } }
 
    @Override
-   public boolean transferred(UUID operation, UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean transferred(UUID operation, UUID town) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
       if (!ru.neverland.core.SuiteState.held()) {
          throw new IllegalStateException("Нужен основной поток");
       } else {
@@ -48,7 +48,7 @@ public final class WarehouseService implements WarehouseApi {
    } }
 
    @Override
-   public void acknowledgeMovement(UUID operation, UUID town) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void acknowledgeMovement(UUID operation, UUID town) throws IOException { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
       if (!ru.neverland.core.SuiteState.held()) {
          throw new IllegalStateException("Нужен основной поток");
       } else {

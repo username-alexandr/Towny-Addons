@@ -25,13 +25,13 @@ public final class PopulationService implements TownyPopulationApi {
     public PopulationService(JavaPlugin plugin, PopulationRepository repository, PopulationSettings settings) {
         this.plugin=plugin; this.repository=repository; this.settings=settings;
     }
-    public PopulationSettings settings() { synchronized (ru.neverland.core.SuiteState.lock()) { return settings; } }
-    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public PopulationSettings settings() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return settings; } }
+    public void start() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         repository.rebase(System.currentTimeMillis());
         pulse();
         task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::pulse,200,200);
     } }
-    public void reload(PopulationSettings settings) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload(PopulationSettings settings) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         PopulationSettings previous=this.settings;
         try { this.settings=settings; refresh(false); }
         catch(RuntimeException ex) { this.settings=previous; throw ex; }
@@ -88,14 +88,14 @@ public final class PopulationService implements TownyPopulationApi {
         repository.retain(existing);
         cache = new Cache(Map.copyOf(towns),Map.copyOf(residents));
     }
-    public boolean setPopulation(UUID townId, int amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean setPopulation(UUID townId, int amount) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.SuiteState.held()) throw new IllegalStateException("Изменение населения требует основного потока");
         if (amount < 0 || amount > settings.rules().maximum() || TownyAPI.getInstance().getTown(townId) == null) return false;
         repository.put(townId,new PopulationState(amount,0,0,System.currentTimeMillis()));
         refresh(false); save(); return true;
     } }
-    public void refreshView() { synchronized (ru.neverland.core.SuiteState.lock()) { refresh(false); } }
-    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) { if (task != null) task.cancel(); save(); } }
+    public void refreshView() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { refresh(false); } }
+    public void stop() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { if (task != null) task.cancel(); save(); } }
     private void save() {
         try { repository.save(); }
         catch (java.io.IOException ex) { warn("Не удалось сохранить population-data.yml: "+ex.getMessage()); }
@@ -104,10 +104,10 @@ public final class PopulationService implements TownyPopulationApi {
         long now = System.currentTimeMillis();
         if (now-lastWarning >= 60000) { lastWarning=now; plugin.getLogger().warning(message); }
     }
-    @Override public Optional<PopulationSnapshot> population(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return Optional.ofNullable(id == null ? null : cache.towns().get(id)); } }
-    @Override public Optional<PopulationSnapshot> residentPopulation(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public Optional<PopulationSnapshot> population(UUID id) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { return Optional.ofNullable(id == null ? null : cache.towns().get(id)); } }
+    @Override public Optional<PopulationSnapshot> residentPopulation(UUID id) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         Cache current = cache; UUID town = id == null ? null : current.residents().get(id);
         return Optional.ofNullable(town == null ? null : current.towns().get(town));
     } }
-    @Override public Collection<PopulationSnapshot> populations() { synchronized (ru.neverland.core.SuiteState.lock()) { return List.copyOf(cache.towns().values()); } }
+    @Override public Collection<PopulationSnapshot> populations() { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) { return List.copyOf(cache.towns().values()); } }
 }

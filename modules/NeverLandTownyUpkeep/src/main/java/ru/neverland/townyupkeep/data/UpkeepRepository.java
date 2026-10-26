@@ -11,8 +11,8 @@ import java.io.IOException;
 public final class UpkeepRepository {
     private final Path file;private boolean writable;private long clock;private Map<Key,Entry> entries=Map.of();
     public UpkeepRepository(Path file){this.file=file;}
-    public long clock(){ synchronized (ru.neverland.core.SuiteState.lock()) {return clock;} }public Map<Key,Entry> entries(){ synchronized (ru.neverland.core.SuiteState.lock()) {return entries;} }
-    public void load()throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public long clock(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return clock;} }public Map<Key,Entry> entries(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return entries;} }
+    public void load()throws Exception{ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         writable=false;if(!Files.exists(file)){ru.neverland.core.AtomicFiles.loaded(file);writable=true;return;}var y=new YamlConfiguration();y.load(file.toFile());
         if(number(y,"schema")!=1||!y.isConfigurationSection("towns"))throw new IOException("Неверная схема upkeep-data.yml");long time=number(y,"online-seconds");if(time<0)throw new IOException("Неверные часы обслуживания");
         Map<Key,Entry> next=new HashMap<>();Set<UUID> invoices=new HashSet<>();var towns=y.getConfigurationSection("towns");
@@ -24,7 +24,7 @@ public final class UpkeepRepository {
         entries=Map.copyOf(next);clock=time;ru.neverland.core.AtomicFiles.loaded(file);writable=true;
     } }
     private static long number(org.bukkit.configuration.ConfigurationSection y,String key)throws IOException{try{return new java.math.BigDecimal(String.valueOf(y.get(key))).longValueExact();}catch(Exception ex){throw new IOException("Неверное число: "+key,ex);}}
-    public void save(long time,Map<Key,Entry> next)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void save(long time,Map<Key,Entry> next)throws IOException{ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if(!writable||!ru.neverland.core.AtomicFiles.writable(file))throw new IOException("База не загружена; запись запрещена");if(time<clock)throw new IllegalArgumentException("Часы не могут идти назад");next=Map.copyOf(next);if(time==clock&&next.equals(entries))return;
         var y=new YamlConfiguration();y.set("schema",1);y.set("online-seconds",time);y.createSection("towns");
         for(var e:next.entrySet()){String k="towns."+e.getKey().town()+"."+e.getKey().project()+".";var v=e.getValue();y.set(k+"active",v.active());y.set(k+"due",v.due());y.set(k+"reason",v.reason());

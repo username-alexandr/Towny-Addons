@@ -21,7 +21,7 @@ import java.io.File;
 
 public final class TownyReputation extends JavaPlugin {
     private TownyHook towny; private ItemsAdderHook itemsAdder; private MessageService messages; private ReputationRegistry registry; private ReputationRepository repository; private ReputationService reputation;
-    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         ru.neverland.reputation.util.LegacyDataMigrator.migrate(this, "TownyReputation");
@@ -39,9 +39,9 @@ public final class TownyReputation extends JavaPlugin {
         getServer().getServicesManager().register(TownyReputationApi.class, new ReputationApiService(this, reputation), this, ServicePriority.Normal); boolean placeholders = PlaceholderHook.register(this, towny, reputation); reputation.start();
         getLogger().info("NeverLandTownyReputation " + getPluginMeta().getVersion() + " включён: связей " + repository.all().size() + ", уровней " + registry.tiers().size() + ", /t=" + townCommand + ", /n=" + nationCommand + ", PlaceholderAPI=" + placeholders + ".");
     } }
-    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onDisable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
  if (reputation != null) reputation.shutdown(); if (towny != null) { towny.unregisterTown("reputation"); towny.unregisterNation("reputation"); } getServer().getServicesManager().unregisterAll(this); } }
-    public void reloadPlugin() { synchronized (ru.neverland.core.SuiteState.lock()) { reloadConfig(); messages.reload(); itemsAdder.reload(); registry.reload(); reputation.profiles().reload(getConfig()); reputation.start(); } }
+    public void reloadPlugin() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { reloadConfig(); messages.reload(); itemsAdder.reload(); registry.reload(); reputation.profiles().reload(getConfig()); reputation.start(); } }
     private void copy(String name) { if (!new File(getDataFolder(), name).exists()) saveResource(name, false); }
 }

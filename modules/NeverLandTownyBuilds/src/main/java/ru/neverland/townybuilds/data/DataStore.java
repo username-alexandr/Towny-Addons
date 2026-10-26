@@ -25,10 +25,10 @@ public final class DataStore {
     private boolean dirty;
     private boolean writable = true;
     private final ru.neverland.townybuilds.storage.StorageSessions storageLocks=new ru.neverland.townybuilds.storage.StorageSessions();
-    public boolean storageBusy(UUID town,String project){ synchronized (ru.neverland.core.SuiteState.lock()) {return storageLocks.busy(town,project);} }
-    public boolean lockStorage(UUID town,String project,UUID session){ synchronized (ru.neverland.core.SuiteState.lock()) {return storageLocks.acquire(town,project,session);} }
-    public boolean ownsStorage(UUID town,String project,UUID session){ synchronized (ru.neverland.core.SuiteState.lock()) {return storageLocks.owns(town,project,session);} }
-    public void unlockStorage(UUID town,String project,UUID session){ synchronized (ru.neverland.core.SuiteState.lock()) {storageLocks.release(town,project,session);} }
+    public boolean storageBusy(UUID town,String project){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return storageLocks.busy(town,project);} }
+    public boolean lockStorage(UUID town,String project,UUID session){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return storageLocks.acquire(town,project,session);} }
+    public boolean ownsStorage(UUID town,String project,UUID session){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return storageLocks.owns(town,project,session);} }
+    public void unlockStorage(UUID town,String project,UUID session){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {storageLocks.release(town,project,session);} }
 
 
     public DataStore(JavaPlugin plugin, int storageSize) {
@@ -37,7 +37,7 @@ public final class DataStore {
         this.file = new File(plugin.getDataFolder(), "town-data.yml");
     }
 
-    public void load() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void load() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         writable = false;
         towns.clear();
         if (!file.exists()) {
@@ -145,9 +145,9 @@ public final class DataStore {
         dirty = false;
     } }
 
-    public boolean writable() { synchronized (ru.neverland.core.SuiteState.lock()) {return writable && ru.neverland.core.AtomicFiles.writable(file.toPath());} }
+    public boolean writable() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {return writable && ru.neverland.core.AtomicFiles.writable(file.toPath());} }
 
-    public TownData town(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public TownData town(UUID townId) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         if(!writable())throw new IllegalStateException("Хранилище построек остановлено после ошибки записи");
         return towns.computeIfAbsent(townId, id -> {
             dirty = true;
@@ -155,26 +155,26 @@ public final class DataStore {
         });
     } }
 
-    public void markDirty() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void markDirty() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         dirty = true;
     } }
 
-    public Map<UUID, TownData> towns() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Map<UUID, TownData> towns() { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         return Map.copyOf(towns);
     } }
 
-    public void saveIfDirty() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void saveIfDirty() { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         if (dirty) {
             save();
         }
     } }
 
-    public void save() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void save() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
         if (!writable) return;
         try { saveOrThrow(); } catch (IOException ex) { writable=false; plugin.getLogger().severe("Не удалось сохранить town-data.yml: " + ex.getMessage()); throw new java.io.UncheckedIOException(ex); }
     } }
 
-    public void saveOrThrow() throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void saveOrThrow() throws IOException { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         if (!writable()) throw new IOException("Запись повреждённой базы запрещена");
         YamlConfiguration yaml = new YamlConfiguration();
         for (TownData data : towns.values()) {

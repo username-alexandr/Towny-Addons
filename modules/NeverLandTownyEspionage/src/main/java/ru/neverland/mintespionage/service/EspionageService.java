@@ -38,10 +38,10 @@ public final class EspionageService {
     public EspionageService(JavaPlugin plugin,TownyHook towny,DefinitionRegistry registry,EspionageRepository repository,BuildBridge builds,EconomyService economy,MessageService messages){
         this.plugin=plugin;this.towny=towny;this.registry=registry;this.repository=repository;this.builds=builds;this.economy=economy;this.messages=messages;
     }
-    public void startScheduler(){ synchronized (ru.neverland.core.SuiteState.lock()) {stopScheduler();long ticks=Math.max(20,plugin.getConfig().getLong("scheduler.update-ticks",100));task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::tick,20,ticks);} }
-    public void stopScheduler(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(task!=null){task.cancel();task=null;}} }
-    public void shutdown(){ synchronized (ru.neverland.core.SuiteState.lock()) {stopScheduler();repository.save();} }
-    public StartOutcome start(Player actor,Town target,OperationDefinition definition){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void startScheduler(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {stopScheduler();long ticks=Math.max(20,plugin.getConfig().getLong("scheduler.update-ticks",100));task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::tick,20,ticks);} }
+    public void stopScheduler(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(task!=null){task.cancel();task=null;}} }
+    public void shutdown(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {stopScheduler();repository.save();} }
+    public StartOutcome start(Player actor,Town target,OperationDefinition definition){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         Town attacker=towny.town(actor);if(attacker==null||target==null)return new StartOutcome(StartStatus.NO_TOWN,null,0,0);
         if(attacker.getUUID().equals(target.getUUID()))return new StartOutcome(StartStatus.SELF_TARGET,null,0,0);
         try {
@@ -60,27 +60,27 @@ public final class EspionageService {
         SpyOperation operation=new SpyOperation(UUID.randomUUID(),attacker.getUUID(),attacker.getName(),target.getUUID(),target.getName(),actor.getUniqueId(),actor.getName(),definition.id(),now,now+duration,success,detection,definition.cost(),OperationStatus.ACTIVE,false);
         own.cooldown(cooldownKey,now+definition.cooldownMillis());repository.add(operation);repository.save();return new StartOutcome(StartStatus.SUCCESS,operation,duration,definition.cost());
     } }
-    public UpgradeOutcome upgrade(Town town,boolean network){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public UpgradeOutcome upgrade(Town town,boolean network){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         TownSpyData data=repository.town(town.getUUID());String path=network?"network":"counterintelligence";int current=network?data.networkLevel():data.defenseLevel();int maximum=Math.max(0,plugin.getConfig().getInt(path+".maximum-level",5));
         if(current>=maximum)return new UpgradeOutcome(UpgradeStatus.MAXIMUM,current,0);List<Double> costs=plugin.getConfig().getDoubleList(path+".upgrade-costs");double cost=current<costs.size()?Math.max(0,costs.get(current)):0;
         if(economy.balance(town)<cost)return new UpgradeOutcome(UpgradeStatus.NO_MONEY,current,cost);if(!economy.withdrawUpgrade(town,cost,network))return new UpgradeOutcome(UpgradeStatus.ECONOMY_ERROR,current,cost);
         if(network)data.networkLevel(current+1);else data.defenseLevel(current+1);repository.markDirty();repository.save();return new UpgradeOutcome(UpgradeStatus.SUCCESS,current+1,cost);
     } }
-    public boolean forceComplete(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {SpyOperation operation=repository.operation(id);if(operation==null||operation.status()!=OperationStatus.ACTIVE)return false;complete(operation,true);return operation.status()!=OperationStatus.ACTIVE;} }
-    public boolean cancel(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {SpyOperation operation=repository.operation(id);if(operation==null||operation.status()!=OperationStatus.ACTIVE)return false;operation.finish(OperationStatus.CANCELLED,false);repository.markDirty();repository.save();return true;} }
-    public void setLevel(Town town,boolean network,int level){ synchronized (ru.neverland.core.SuiteState.lock()) {TownSpyData data=repository.town(town.getUUID());int max=plugin.getConfig().getInt((network?"network":"counterintelligence")+".maximum-level",5);if(network)data.networkLevel(Math.min(max,Math.max(0,level)));else data.defenseLevel(Math.min(max,Math.max(0,level)));repository.markDirty();repository.save();} }
-    public int activeLimit(Town town){ synchronized (ru.neverland.core.SuiteState.lock()) {TownSpyData data=repository.town(town.getUUID());return Math.max(1,plugin.getConfig().getInt("network.base-active-operations",1)+data.networkLevel()*plugin.getConfig().getInt("network.operations-per-level",1));} }
-    public Preview preview(Town attacker,Town target,OperationDefinition definition){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean forceComplete(UUID id){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {SpyOperation operation=repository.operation(id);if(operation==null||operation.status()!=OperationStatus.ACTIVE)return false;complete(operation,true);return operation.status()!=OperationStatus.ACTIVE;} }
+    public boolean cancel(UUID id){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {SpyOperation operation=repository.operation(id);if(operation==null||operation.status()!=OperationStatus.ACTIVE)return false;operation.finish(OperationStatus.CANCELLED,false);repository.markDirty();repository.save();return true;} }
+    public void setLevel(Town town,boolean network,int level){ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {TownSpyData data=repository.town(town.getUUID());int max=plugin.getConfig().getInt((network?"network":"counterintelligence")+".maximum-level",5);if(network)data.networkLevel(Math.min(max,Math.max(0,level)));else data.defenseLevel(Math.min(max,Math.max(0,level)));repository.markDirty();repository.save();} }
+    public int activeLimit(Town town){ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {TownSpyData data=repository.town(town.getUUID());return Math.max(1,plugin.getConfig().getInt("network.base-active-operations",1)+data.networkLevel()*plugin.getConfig().getInt("network.operations-per-level",1));} }
+    public Preview preview(Town attacker,Town target,OperationDefinition definition){ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         TownSpyData own=repository.town(attacker.getUUID()),defending=repository.town(target.getUUID());BuildBridge.Defense defense=builds.defense(target.getUUID());
         double success=EspionageMath.chance(definition.successChance(),own.networkLevel(),plugin.getConfig().getDouble("network.success-bonus-per-level",.04),defending.defenseLevel(),plugin.getConfig().getDouble("counterintelligence.success-penalty-per-level",.05),defense.successPenalty(),plugin.getConfig().getDouble("limits.minimum-success-chance",.05),plugin.getConfig().getDouble("limits.maximum-success-chance",.95));
         double detection=EspionageMath.detection(definition.detectionChance(),defending.defenseLevel(),plugin.getConfig().getDouble("counterintelligence.detection-bonus-per-level",.07),defense.detectionBonus(),plugin.getConfig().getDouble("limits.minimum-detection-chance",.02),plugin.getConfig().getDouble("limits.maximum-detection-chance",.95));
         long duration=EspionageMath.duration(definition.durationMillis(),own.networkLevel(),plugin.getConfig().getDouble("network.duration-reduction-per-level",.05));
         return new Preview(success,detection,duration,cooldown(attacker,target,definition.id()));
     } }
-    public double defenseStrength(Town town){ synchronized (ru.neverland.core.SuiteState.lock()) {if(town==null)return 0;TownSpyData data=repository.town(town.getUUID());BuildBridge.Defense defense=builds.defense(town.getUUID());return data.defenseLevel()*plugin.getConfig().getDouble("counterintelligence.success-penalty-per-level",.05)+defense.successPenalty();} }
-    public int unread(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {int count=0;long now=System.currentTimeMillis();for(IntelReport report:repository.reports(town))if(!report.read()&&!report.expired(now))count++;return count;} }
-    public void read(IntelReport report){ synchronized (ru.neverland.core.SuiteState.lock()) {report.markRead();repository.markDirty();} }
-    public TownSpyData data(Town town){ synchronized (ru.neverland.core.SuiteState.lock()) {return repository.town(town.getUUID());} }public DefinitionRegistry registry(){ synchronized (ru.neverland.core.SuiteState.lock()) {return registry;} }public EspionageRepository repository(){ synchronized (ru.neverland.core.SuiteState.lock()) {return repository;} }public EconomyService economy(){ synchronized (ru.neverland.core.SuiteState.lock()) {return economy;} }
+    public double defenseStrength(Town town){ try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {if(town==null)return 0;TownSpyData data=repository.town(town.getUUID());BuildBridge.Defense defense=builds.defense(town.getUUID());return data.defenseLevel()*plugin.getConfig().getDouble("counterintelligence.success-penalty-per-level",.05)+defense.successPenalty();} }
+    public int unread(UUID town){ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {int count=0;long now=System.currentTimeMillis();for(IntelReport report:repository.reports(town))if(!report.read()&&!report.expired(now))count++;return count;} }
+    public void read(IntelReport report){ try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {report.markRead();repository.markDirty();} }
+    public TownSpyData data(Town town){ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {return repository.town(town.getUUID());} }public DefinitionRegistry registry(){ try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {return registry;} }public EspionageRepository repository(){ try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {return repository;} }public EconomyService economy(){ try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {return economy;} }
     private void tick(){long now=System.currentTimeMillis();for(SpyOperation operation:repository.operations())if(operation.status()==OperationStatus.ACTIVE&&!operation.timer().paused()&&operation.completesAt()<=now)complete(operation,null);repository.cleanup(now);repository.saveIfDirty();}
     private void complete(SpyOperation operation,Boolean forceSuccess){
         try{if(Math.max(ru.neverland.core.NewcomerProtection.remaining(plugin,operation.attackerTownId()),ru.neverland.core.NewcomerProtection.remaining(plugin,operation.targetTownId()))>0){cancel(operation.id());return;}}
@@ -124,11 +124,11 @@ public final class EspionageService {
         lines.add("");lines.add("&8Достоверность операции: "+Math.round(operation.successChance()*100)+"%");return lines;
     }
     private String wealth(double value){if(value<10000)return "скромное";if(value<50000)return "стабильное";if(value<200000)return "богатое";return "очень богатое";}
-    public String operationName(String id){ synchronized (ru.neverland.core.SuiteState.lock()) {OperationDefinition definition=registry.get(id);return definition==null?id:ColorUtil.strip(definition.name());} }
-    public long cooldown(Town source,Town target,String type){ synchronized (ru.neverland.core.SuiteState.lock()) {return Math.max(0,repository.town(source.getUUID()).cooldown(target.getUUID()+"_"+type)-System.currentTimeMillis());} }
-    public String summary(SpyOperation operation){ synchronized (ru.neverland.core.SuiteState.lock()) {return operation.targetName()+" / "+operationName(operation.type())+" / "+(operation.timer().paused()?"Пауза • ":"")+TimeUtil.format(operation.timer().remaining(System.currentTimeMillis()));} }
+    public String operationName(String id){ try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {OperationDefinition definition=registry.get(id);return definition==null?id:ColorUtil.strip(definition.name());} }
+    public long cooldown(Town source,Town target,String type){ try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {return Math.max(0,repository.town(source.getUUID()).cooldown(target.getUUID()+"_"+type)-System.currentTimeMillis());} }
+    public String summary(SpyOperation operation){ try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {return operation.targetName()+" / "+operationName(operation.type())+" / "+(operation.timer().paused()?"Пауза • ":"")+TimeUtil.format(operation.timer().remaining(System.currentTimeMillis()));} }
 
-    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets() { try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {
         ru.neverland.core.ApiServices.primaryThread();
         return repository.operations().stream().filter(c->c.status()==OperationStatus.ACTIVE).map(c -> new ru.neverland.core.ActivityAdmin.Target(c.id().toString(),c.attackerName()+" → "+c.targetName()+" / "+c.type(),
                 c.status()==OperationStatus.ACTIVE ? ru.neverland.core.ActivityAdmin.TIMED : java.util.Set.of("status"), (action,minutes) -> {

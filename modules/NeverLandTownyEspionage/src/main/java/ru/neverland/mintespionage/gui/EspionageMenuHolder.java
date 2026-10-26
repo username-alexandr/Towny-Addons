@@ -8,6 +8,6 @@ public final class EspionageMenuHolder implements InventoryHolder {
     public enum Type { MAIN, TARGETS, OPERATIONS, REPORTS, ACTIVE }
     private final UUID townId,targetId;private final Type type;private Inventory inventory;
     public EspionageMenuHolder(UUID townId,UUID targetId,Type type){this.townId=townId;this.targetId=targetId;this.type=type;}
-    public UUID townId(){ synchronized (ru.neverland.core.SuiteState.lock()) {return townId;} }public UUID targetId(){ synchronized (ru.neverland.core.SuiteState.lock()) {return targetId;} }public Type type(){ synchronized (ru.neverland.core.SuiteState.lock()) {return type;} }public void inventory(Inventory value){ synchronized (ru.neverland.core.SuiteState.lock()) {inventory=value;} }
-    @Override public Inventory getInventory(){ synchronized (ru.neverland.core.SuiteState.lock()) {return inventory;} }
+    public UUID townId(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return townId;} }public UUID targetId(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return targetId;} }public Type type(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return type;} }public void inventory(Inventory value){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {inventory=value;} }
+    @Override public Inventory getInventory(){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {return inventory;} }
 }

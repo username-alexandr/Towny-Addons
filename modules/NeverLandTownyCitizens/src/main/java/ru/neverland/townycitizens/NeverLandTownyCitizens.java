@@ -10,7 +10,7 @@ public final class NeverLandTownyCitizens extends JavaPlugin {
     private CitizensService service;
     private boolean townCommand;
     private Runnable unregisterPlaceholders;
-    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         try {
@@ -33,9 +33,9 @@ public final class NeverLandTownyCitizens extends JavaPlugin {
     private CitizensSettings readSettings() throws Exception {
         var yaml = new YamlConfiguration(); yaml.load(getDataFolder().toPath().resolve("config.yml").toFile()); return CitizensSettings.load(yaml);
     }
-    public void reloadSettings() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) { var next = readSettings(); service.settings(next); reloadConfig(); } }
-    public CitizensService citizens() { synchronized (ru.neverland.core.SuiteState.lock()) { return service; } }
-    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reloadSettings() throws Exception { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { var next = readSettings(); service.settings(next); reloadConfig(); } }
+    public CitizensService citizens() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return service; } }
+    @Override public void onDisable() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (unregisterPlaceholders != null) unregisterPlaceholders.run();

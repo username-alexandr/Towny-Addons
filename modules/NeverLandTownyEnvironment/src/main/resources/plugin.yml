@@ -1,5 +1,5 @@
 name: NeverLandTownyEnvironment
-version: 0.1.1
+version: 0.1.2
 main: ru.neverland.townyenvironment.NeverLandTownyEnvironment
 folia-supported: true
 api-version: '26.2'

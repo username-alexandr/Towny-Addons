@@ -1,0 +1,6 @@
+name: NeverLandLedgerProbe
+version: 0.43.0
+main: ru.neverland.validation.LedgerProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyControl, NeverLandTownyChronicles]

@@ -10,7 +10,7 @@ import ru.neverland.townyquests.service.QuestService;
 public final class QuestCommand implements TabExecutor {
     private final NeverLandTownyQuests plugin; private final QuestService service; private final QuestMenu menu;
     public QuestCommand(NeverLandTownyQuests plugin, QuestService service, QuestMenu menu) { this.plugin = plugin; this.service = service; this.menu = menu; }
-    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyQuests")){return true;}
+    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyQuests")){return true;}
         try {
             if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
                 if (!sender.isOp() && !sender.hasPermission("neverlandtownyquests.admin")) throw new IllegalArgumentException("Нет прав администратора");
@@ -25,7 +25,7 @@ public final class QuestCommand implements TabExecutor {
         } catch (Exception ex) { sender.sendMessage("§c" + ex.getMessage()); }
         return true;
     } }
-    @Override public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (args.length == 0) return List.of();
         if (!sender.hasPermission("neverlandtownyquests.use") && !sender.isOp()) return List.of();
         var choices = new ArrayList<String>();

@@ -3,7 +3,7 @@ import java.util.*;
 import org.bukkit.configuration.ConfigurationSection;
 public record ElectionsSettings(long interval, long initialDelay, long nomination, long voting, long checkTicks,
         double quorum, boolean authoritarian, Map<String,Integer> seats, Map<String,String> names) {
-    public static ElectionsSettings load(ConfigurationSection y) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static ElectionsSettings load(ConfigurationSection y) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         long interval = integer(y, "schedule.interval-days", 1, 3650) * 86_400_000L;
         long initial = integer(y, "schedule.first-election-delay-days", 0, 3650) * 86_400_000L;
         long nomination = integer(y, "schedule.nomination-hours", 1, 8760) * 3_600_000L;

@@ -65,7 +65,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         guard=new ActionGuard(plugin,"order-blocks.log");plugin.getServer().getPluginManager().registerEvents(guard,plugin);plugin.getServer().getPluginManager().registerEvents(this,plugin);
         var command=Objects.requireNonNull(plugin.getCommand("orders"));command.setExecutor(this);command.setTabCompleter(this);
         income.start();SuiteScheduler.get().runTaskTimer(plugin,this::tick,200,200);
-        SuiteScheduler.get().runTaskTimer(plugin,()->{synchronized(SuiteState.lock()){if(!fault)try{boardSnapshot();}catch(IOException ex){plugin.getLogger().severe(ex.getMessage());}}},20,20);
+        SuiteScheduler.get().runTaskTimer(plugin,()->{try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){if(!fault)try{boardSnapshot();}catch(IOException ex){plugin.getLogger().severe(ex.getMessage());}}},20,20);
     }
     private static int positive(org.bukkit.configuration.ConfigurationSection c,String k,int d,int max){int n=SafeYaml.intValue(c,k,d);if(n<=0||n>max)throw new IllegalArgumentException(k+": 1.."+max);return n;}
     public static long money(org.bukkit.configuration.ConfigurationSection c,String k,int d){double v=SafeYaml.doubleValue(c,k,d);if(v<=0||v>1_000_000||Math.abs(v*100-Math.rint(v*100))>0.00001)throw new IllegalArgumentException("Неверная сумма "+k);return Math.round(v*100);}
@@ -94,7 +94,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         var paid=paidTemplates(player,snapshot.day());
         return snapshot.templates().stream().filter(t->!paid.contains(t.id())).toList();
     }
-    private void tick(){synchronized(SuiteState.lock()){if(!active())return;boolean changed=false;
+    private void tick(){try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){if(!active())return;boolean changed=false;
         for(Order o:List.copyOf(orders.values()))if(open(o)&&o.progress()<o.goal()){orders.put(o.id(),o.time(Math.max(0,o.remaining()-10000)));changed=true;}
         if(changed)try{save();}catch(IOException e){plugin.getLogger().severe(e.getMessage());}
     }}
@@ -141,15 +141,15 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         var receipt=PlayerSaveReceipt.before(p);receipt.save(p);income.ledger().release(e.id(),"recovered player receipt");
     }}
     @EventHandler public void join(PlayerJoinEvent e){SuiteScheduler.entity(plugin,e.getPlayer(),()->{try{recover(e.getPlayer());}catch(Exception ex){plugin.getLogger().severe("Доставка ожидает сверки: "+ex.getMessage());}});}
-    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void mine(BlockBreakEvent e){synchronized(SuiteState.lock()){
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void mine(BlockBreakEvent e){try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()){
         if(!ActionGuard.ore(e.getBlock().getType()))return;boolean natural=guard.untouched(e.getBlock());guard.deny(e.getBlock());if(natural&&e.isDropItems()){Player player=e.getPlayer();Material material=e.getBlock().getType();Location location=e.getBlock().getLocation();SuiteScheduler.region(plugin,location,()->{if(!e.isCancelled()&&location.getBlock().getType()!=material)SuiteScheduler.entity(plugin,player,()->progress(player,Type.MINING,material.name()));});}
     }}
-    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void kill(EntityDeathEvent e){synchronized(SuiteState.lock()){
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void kill(EntityDeathEvent e){try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()){
         Player player=guard.hunter(e);if(player==null)return;String target=e.getEntityType().name();
         HuntingCredit.afterDeath(plugin,e,player,()->progress(player,Type.HUNTING,target));
     }}
-    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void fish(PlayerFishEvent e){synchronized(SuiteState.lock()){if(e.getState()==PlayerFishEvent.State.CAUGHT_FISH&&e.getCaught() instanceof Item item&&SuiteScheduler.owns(item)){Player player=e.getPlayer();String target=item.getItemStack().getType().name();SuiteScheduler.entity(plugin,player,()->{if(!e.isCancelled())progress(player,Type.FISHING,target);});}}}
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){synchronized(SuiteState.lock()){
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void fish(PlayerFishEvent e){try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()){if(e.getState()==PlayerFishEvent.State.CAUGHT_FISH&&e.getCaught() instanceof Item item&&SuiteScheduler.owns(item)){Player player=e.getPlayer();String target=item.getItemStack().getType().name();SuiteScheduler.entity(plugin,player,()->{if(!e.isCancelled())progress(player,Type.FISHING,target);});}}}
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()){
         try{
             if(args.length>0&&args[0].equalsIgnoreCase("admin")){if(!sender.isOp()&&!sender.hasPermission("neverland.orders.admin"))throw new IllegalArgumentException("Нет прав администратора");income.admin(sender,Arrays.copyOfRange(args,1,args.length));return true;}
             if(!(sender instanceof Player p))throw new IllegalArgumentException("Игровая доска: /orders. Сверка: /orders admin");if(!p.hasPermission("neverland.orders.use"))throw new IllegalArgumentException("Нет прав на заказы");
@@ -165,7 +165,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         }catch(Exception ex){sender.sendMessage("§c"+ex.getMessage());}return true;
     }}
     /** Public UI integration. Real board, own orders only, no private-field reflection. */
-    public Map<String,Object> uiSnapshot(Player p)throws Exception { synchronized(SuiteState.lock()) {
+    public Map<String,Object> uiSnapshot(Player p)throws Exception { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         if(!p.hasPermission("neverland.orders.use"))throw new IllegalArgumentException("Нет прав на заказы");
         var board=boardSnapshot();var rows=new ArrayList<Map<String,Object>>();
         long count=orders.values().stream().filter(o->o.player().equals(p.getUniqueId())&&open(o)).count();
@@ -181,7 +181,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         return Map.of("day",board.day().toString(),"offers",List.copyOf(rows),"mine",List.copyOf(mine),"active",active());
     } }
     /** Checks the same quote under the same suite lock as the mutation. */
-    @SuppressWarnings("unchecked") public void uiExecute(Player p,String action,String id,String quote)throws Exception { synchronized(SuiteState.lock()) {
+    @SuppressWarnings("unchecked") public void uiExecute(Player p,String action,String id,String quote)throws Exception { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         var data=uiSnapshot(p);var rows=(List<Map<String,Object>>)data.get(action.equals("accept")?"offers":"mine");
         var row=rows.stream().filter(v->v.get("id").equals(id)&&v.get("quote").equals(quote)).findFirst().orElseThrow(()->new IllegalArgumentException("Условия заказа изменились. Откройте его заново."));
         switch(action){
@@ -357,7 +357,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
             default->o.progress()>=o.goal()?"Выполнен — получите награду":o.type()==Type.DELIVERY?"Ожидает сдачи ресурсов":"В работе";
         };
     }
-    @EventHandler public void click(InventoryClickEvent e){if(!(e.getView().getTopInventory().getHolder() instanceof Board board))return;e.setCancelled(true);if(e.getWhoClicked() instanceof Player p)synchronized(SuiteState.lock()){try{if(e.getRawSlot()==45)SuiteScheduler.entity(plugin,p,()->{p.closeInventory();showMine(p);});else if(board.slots().containsKey(e.getRawSlot()))accept(p,board.slots().get(e.getRawSlot()),board.day());}catch(Exception ex){p.sendMessage("§c"+ex.getMessage());}}}
+    @EventHandler public void click(InventoryClickEvent e){if(!(e.getView().getTopInventory().getHolder() instanceof Board board))return;e.setCancelled(true);if(e.getWhoClicked() instanceof Player p)try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()){try{if(e.getRawSlot()==45)SuiteScheduler.entity(plugin,p,()->{p.closeInventory();showMine(p);});else if(board.slots().containsKey(e.getRawSlot()))accept(p,board.slots().get(e.getRawSlot()),board.day());}catch(Exception ex){p.sendMessage("§c"+ex.getMessage());}}}
     @EventHandler public void drag(InventoryDragEvent e){if(e.getView().getTopInventory().getHolder() instanceof Board)e.setCancelled(true);}
-    @Override public List<String> onTabComplete(CommandSender s,Command c,String a,String[] args){synchronized(SuiteState.lock()){try{if(args.length==1)return List.of("board","accept","mine","claim","cancel","admin");if(args.length==2&&args[0].equals("accept")&&s instanceof Player p)return visibleTemplates(p.getUniqueId(),boardSnapshot()).stream().map(Template::id).toList();if(args.length==2&&Set.of("claim","cancel").contains(args[0])&&s instanceof Player p)return orders.values().stream().filter(o->o.player().equals(p.getUniqueId())&&open(o)).map(o->o.id().toString()).toList();}catch(IOException ex){plugin.getLogger().severe(ex.getMessage());}return List.of();}}
+    @Override public List<String> onTabComplete(CommandSender s,Command c,String a,String[] args){try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()){try{if(args.length==1)return List.of("board","accept","mine","claim","cancel","admin");if(args.length==2&&args[0].equals("accept")&&s instanceof Player p)return visibleTemplates(p.getUniqueId(),boardSnapshot()).stream().map(Template::id).toList();if(args.length==2&&Set.of("claim","cancel").contains(args[0])&&s instanceof Player p)return orders.values().stream().filter(o->o.player().equals(p.getUniqueId())&&open(o)).map(o->o.id().toString()).toList();}catch(IOException ex){plugin.getLogger().severe(ex.getMessage());}return List.of();}}
 }

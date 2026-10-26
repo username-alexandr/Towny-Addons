@@ -8,6 +8,6 @@ public record LawEffects(
         double ideologyExperienceMultiplier,
         int bonusClaimBlocks
 ) {
-    public static LawEffects empty() { synchronized (ru.neverland.core.SuiteState.lock()) { return new LawEffects(null, null, 1.0, 1.0, 1.0, 0); } }
-    public boolean changesTax() { synchronized (ru.neverland.core.SuiteState.lock()) { return taxAmount != null && taxPercentage != null; } }
+    public static LawEffects empty() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return new LawEffects(null, null, 1.0, 1.0, 1.0, 0); } }
+    public boolean changesTax() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return taxAmount != null && taxPercentage != null; } }
 }

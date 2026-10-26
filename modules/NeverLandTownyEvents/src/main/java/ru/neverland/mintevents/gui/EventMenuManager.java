@@ -55,7 +55,7 @@ public final class EventMenuManager implements Listener {
         Bukkit.getPluginManager().registerEvents(repairs, plugin);
     }
 
-    public void open(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void open(Player player) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Town town = towny.town(player);
         if (town == null) {
             messages.send(player, "no-town");
@@ -115,11 +115,11 @@ public final class EventMenuManager implements Listener {
     public void openAdminRepairs(Player player) { repairs.towns(player,0); }
 
     @EventHandler
-    public void onDrag(org.bukkit.event.inventory.InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void onDrag(org.bukkit.event.inventory.InventoryDragEvent event) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (event.getView().getTopInventory().getHolder() instanceof EventMenuHolder) event.setCancelled(true);
     } }
 
-    public void openHistory(Player player, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void openHistory(Player player, Town town) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         EventMenuHolder holder = new EventMenuHolder(town.getUUID(), EventMenuHolder.Type.HISTORY);
         Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, holder, 54,
                 ColorUtil.color(plugin.getConfig().getString("gui.history-title", "История событий")));
@@ -142,7 +142,7 @@ public final class EventMenuManager implements Listener {
     } }
 
     @EventHandler
-    public void onClick(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEvents")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onClick(InventoryClickEvent event) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEvents")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getInventory().getHolder() instanceof EventMenuHolder holder)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player)) return;

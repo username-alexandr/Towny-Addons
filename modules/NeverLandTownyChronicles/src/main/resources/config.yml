@@ -3,6 +3,9 @@ storage:
   maximum-entries-per-town: 1000
 
 tracking:
+  # Проверка идёт небольшими порциями; старый конфиг получает эти значения по умолчанию.
+  towns-per-tick: 2
+  scan-budget-millis: 3
   scan-interval-seconds: 60
   first-scan-delay-seconds: 3
   record-existing-towns: true

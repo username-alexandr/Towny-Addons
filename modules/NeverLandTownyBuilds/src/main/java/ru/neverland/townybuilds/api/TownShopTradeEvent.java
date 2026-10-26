@@ -24,12 +24,12 @@ public final class TownShopTradeEvent extends Event implements Cancellable {
         this.total = total;
     }
 
-    public UUID buyerId() { synchronized (ru.neverland.core.SuiteState.lock()) { return buyerId; } }
-    public UUID sellerTownId() { synchronized (ru.neverland.core.SuiteState.lock()) { return sellerTownId; } }
-    public ItemStack item() { synchronized (ru.neverland.core.SuiteState.lock()) { return item.clone(); } }
-    public double total() { synchronized (ru.neverland.core.SuiteState.lock()) { return total; } }
-    @Override public boolean isCancelled() { synchronized (ru.neverland.core.SuiteState.lock()) { return cancelled; } }
-    @Override public void setCancelled(boolean value) { synchronized (ru.neverland.core.SuiteState.lock()) { cancelled = value; } }
-    @Override public @NotNull HandlerList getHandlers() { synchronized (ru.neverland.core.SuiteState.lock()) { return HANDLERS; } }
-    public static @NotNull HandlerList getHandlerList() { synchronized (ru.neverland.core.SuiteState.lock()) { return HANDLERS; } }
+    public UUID buyerId() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return buyerId; } }
+    public UUID sellerTownId() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return sellerTownId; } }
+    public ItemStack item() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return item.clone(); } }
+    public double total() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return total; } }
+    @Override public boolean isCancelled() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { return cancelled; } }
+    @Override public void setCancelled(boolean value) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { cancelled = value; } }
+    @Override public @NotNull HandlerList getHandlers() { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { return HANDLERS; } }
+    public static @NotNull HandlerList getHandlerList() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) { return HANDLERS; } }
 }

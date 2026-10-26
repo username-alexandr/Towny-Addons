@@ -8,7 +8,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 /** Explicit millisecond deadline schemas. Money, receipts, history and duration counters are untouched. */
 public final class ModuleTimers {
     private ModuleTimers() {}
-    public static Map<String,List<String>> rules(String name) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Map<String,List<String>> rules(String name) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         String module=name.replaceFirst("^NeverLandTowny", "");
         return switch(module) {
             case "Events" -> Map.of("events-data.yml", List.of("active.*.ends-at","active.*.paused-at","active.*.last-raid-wave","towns.*.last-event-at","shields.*"));
@@ -33,7 +33,7 @@ public final class ModuleTimers {
             default -> throw new IllegalArgumentException("Нет проверенной схемы таймеров: "+name);
         };
     } }
-    public static String shifted(String text,List<String> rules,long delta)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String shifted(String text,List<String> rules,long delta)throws Exception { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(delta<0) throw new IllegalArgumentException("Часы сервера идут назад");
         var y=new YamlConfiguration();y.loadFromString(text);
         for(String key:new ArrayList<>(y.getKeys(true))) for(String rule:rules) if(matches(key,rule) && live(y,key)) {
@@ -69,7 +69,7 @@ public final class ModuleTimers {
         for(int i=0;i<a.length;i++)if(!b[i].equals("*")&&!b[i].equals(a[i]))return false;return true;
     }
     /** Journal permits recovery after any individual file replacement, without shifting twice. */
-    public static void resume(Path directory,String name,long pausedAt,long now)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void resume(Path directory,String name,long pausedAt,long now)throws Exception { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if(now<pausedAt) throw new IOException("Время сервера раньше начала паузы");
         Path journal=directory.resolve("module-resume.yml");
         YamlConfiguration plan=Files.exists(journal)?SafeYaml.load(journal):null;

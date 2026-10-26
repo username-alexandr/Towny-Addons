@@ -20,8 +20,8 @@ public final class FireDamageRepository {
     private Map<UUID,FireDamage> records=Map.of();
     private boolean loaded;
     public FireDamageRepository(Path file){this.file=file;}
-    public boolean writable(){ synchronized (ru.neverland.core.SuiteState.lock()) {return loaded&&AtomicFiles.writable(file);} }
-    public void load() throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean writable(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return loaded&&AtomicFiles.writable(file);} }
+    public void load() throws IOException { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         loaded=false;Map<UUID,FireDamage> next=new LinkedHashMap<>();
         try {
             if(Files.exists(file)){
@@ -39,17 +39,17 @@ public final class FireDamageRepository {
         }catch(Exception error){throw new IOException("Нельзя загрузить fire-damage.yml; изменения остановлены",error);}
         records=Map.copyOf(next);AtomicFiles.loaded(file);loaded=true;
     } }
-    public List<FireDamage> town(UUID town){ synchronized (ru.neverland.core.SuiteState.lock()) {return records.values().stream().filter(d->d.town().equals(town)).sorted(java.util.Comparator.comparing(d->d.id().toString())).toList();} }
-    public FireDamage get(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {return records.get(id);} }
-    public boolean pending(UUID world,int x,int y,int z){ synchronized (ru.neverland.core.SuiteState.lock()) {return records.containsKey(FireDamage.id(world,x,y,z));} }
-    public boolean prepare(FireDamage damage) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<FireDamage> town(UUID town){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return records.values().stream().filter(d->d.town().equals(town)).sorted(java.util.Comparator.comparing(d->d.id().toString())).toList();} }
+    public FireDamage get(UUID id){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return records.get(id);} }
+    public boolean pending(UUID world,int x,int y,int z){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {return records.containsKey(FireDamage.id(world,x,y,z));} }
+    public boolean prepare(FireDamage damage) throws IOException { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         requireWritable();FireDamage old=records.get(damage.id());
         if(old!=null){if(!old.equals(damage))throw new IllegalArgumentException("Место уже ожидает ремонта");return false;}
         if(!FireMaterials.combustible(damage.material()))throw new IllegalArgumentException("Материал не поддерживает пожар");
         Map<UUID,FireDamage> next=new LinkedHashMap<>(records);next.put(damage.id(),damage);save(next);return true;
     } }
     /** Atomically close exactly the selected snapshot; no world or inventory operations. */
-    public int confirm(ru.neverland.mintevents.model.FireRepairPlot plot) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int confirm(ru.neverland.mintevents.model.FireRepairPlot plot) throws IOException { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         requireWritable();
         var current = records.values().stream().filter(plot::contains).collect(java.util.stream.Collectors.toSet());
         if (!current.equals(Set.copyOf(plot.damage()))) throw new IllegalArgumentException("Список ремонта изменился. Откройте участок заново.");
@@ -57,7 +57,7 @@ public final class FireDamageRepository {
         return current.size();
     } }
     /** Low-level ledger operation. Player confirmation must use an immutable plot snapshot. */
-    public void confirm(Set<UUID> repaired) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void confirm(Set<UUID> repaired) throws IOException { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         requireWritable();Map<UUID,FireDamage> next=new LinkedHashMap<>(records);repaired.forEach(next::remove);if(next.size()!=records.size())save(next);
     } }
     private void requireWritable() throws IOException{if(!writable())throw new IOException("Журнал ремонта заблокирован после ошибки записи");}

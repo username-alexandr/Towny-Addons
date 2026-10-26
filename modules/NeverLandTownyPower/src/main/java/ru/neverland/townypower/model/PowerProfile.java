@@ -9,7 +9,7 @@ public record PowerProfile(String id,String name,String icon,boolean enabled,int
         for(var values:List.of(generation,demand)){long previous=0;for(long n:values){if(n<previous||n>MAX)throw new IllegalArgumentException("Мощность должна возрастать: 0..1000000000 для "+id);previous=n;}}
         if(generation.stream().anyMatch(n->n>0)&&demand.stream().anyMatch(n->n>0))throw new IllegalArgumentException("Генератор не может зависеть от своей сети: "+id);
     }
-    public long generation(int level){ synchronized (ru.neverland.core.SuiteState.lock()) {return at(generation,level);} }public long demand(int level){ synchronized (ru.neverland.core.SuiteState.lock()) {return at(demand,level);} }
+    public long generation(int level){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return at(generation,level);} }public long demand(int level){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return at(demand,level);} }
     private long at(List<Long> values,int level){return level<=0?0:values.get(Math.min(level,values.size())-1);}
-    public boolean producer(){ synchronized (ru.neverland.core.SuiteState.lock()) {return generation.stream().anyMatch(n->n>0);} }public boolean consumer(){ synchronized (ru.neverland.core.SuiteState.lock()) {return demand.stream().anyMatch(n->n>0);} }public boolean relevant(){ synchronized (ru.neverland.core.SuiteState.lock()) {return producer()||consumer();} }
+    public boolean producer(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return generation.stream().anyMatch(n->n>0);} }public boolean consumer(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return demand.stream().anyMatch(n->n>0);} }public boolean relevant(){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {return producer()||consumer();} }
 }

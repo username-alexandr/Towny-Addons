@@ -7,7 +7,7 @@ import static ru.neverland.townysieges.SiegeRules.*;
 public record SiegeSettings(Map<Fort, Double> radii, double groundHeight, double towerHeight,
         double wallReduction, double towerReduction, double defenseCap, double moatRate, double moatCap, boolean battleOnly) {
     public SiegeSettings { radii=Map.copyOf(radii); }
-    public static SiegeSettings load(ConfigurationSection y) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static SiegeSettings load(ConfigurationSection y) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var radii=new EnumMap<Fort,Double>(Fort.class);
         for (Fort f:Fort.values()) radii.put(f,number(y,"radius."+f.project,0,128));
         return new SiegeSettings(radii,number(y,"ground-height",4,64),number(y,"tower-height",16,320),

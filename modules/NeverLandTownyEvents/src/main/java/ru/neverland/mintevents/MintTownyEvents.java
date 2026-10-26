@@ -27,7 +27,7 @@ public final class MintTownyEvents extends JavaPlugin {
     private EventService events;
 
     @Override
-    public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         ru.neverland.mintevents.util.LegacyDataMigrator.migrate(this, "MintTownyEvents");
@@ -64,7 +64,7 @@ public final class MintTownyEvents extends JavaPlugin {
     } }
 
     @Override
-    public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void onDisable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (events != null) events.shutdown();
@@ -72,7 +72,7 @@ public final class MintTownyEvents extends JavaPlugin {
         getServer().getServicesManager().unregisterAll(this);
     } }
 
-    public void reloadPlugin() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reloadPlugin() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         reloadConfig();
         messages.reload();
         registry.reload();

@@ -51,7 +51,7 @@ public final class SiteService {
         legacyMobKey = NamespacedKey.fromString("minttownyexpeditions:expedition_id");
     }
 
-    public void findSite(World world, Location camp, ExpeditionDefinition definition, Consumer<BlockPos> callback) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void findSite(World world, Location camp, ExpeditionDefinition definition, Consumer<BlockPos> callback) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         List<int[]> candidates = new ArrayList<>();
         Random random = new Random();
         int tries = plugin.getConfig().getInt("expeditions.search-attempts", 12);
@@ -113,7 +113,7 @@ public final class SiteService {
         }));
     }
 
-    public boolean build(ActiveExpedition expedition, ExpeditionDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean build(ActiveExpedition expedition, ExpeditionDefinition definition) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         World world = expedition.world();
         if (world == null) return false;
         SitePlan plan = generator.generate(definition, expedition.siteAnchor());
@@ -150,7 +150,7 @@ public final class SiteService {
         return new SiteSnapshot(block.getType(), block.getBlockData().getAsString(), items);
     }
 
-    public void respawn(ActiveExpedition expedition, ExpeditionDefinition definition, int count) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void respawn(ActiveExpedition expedition, ExpeditionDefinition definition, int count) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (expedition.siteLocation()!=null && !ru.neverland.core.SuiteScheduler.owns(expedition.siteLocation())) { ru.neverland.core.SuiteScheduler.region(plugin,expedition.siteLocation(),()->respawn(expedition,definition,count));return; }
         if (count <= 0 || expedition.status() != ExpeditionStatus.ACTIVE
                 || repository.get(expedition.id()) == null) return;
@@ -261,12 +261,12 @@ public final class SiteService {
         return result;
     }
 
-    public ActiveExpedition expeditionForMob(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ActiveExpedition expeditionForMob(Entity entity) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         UUID id = expeditionMob(entity);
         return id == null ? null : repository.get(id);
     } }
 
-    public boolean insideMobArea(ActiveExpedition expedition, Location location) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean insideMobArea(ActiveExpedition expedition, Location location) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         Location center = expedition.siteLocation();
         return center != null && insideMobArea(center, location);
     } }
@@ -285,7 +285,7 @@ public final class SiteService {
                 && Math.abs(location.getY() - center.getY()) <= maximumHeight;
     }
 
-    public boolean relocateMob(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean relocateMob(Entity entity) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         ActiveExpedition expedition = expeditionForMob(entity);
         Location center = expedition == null ? null : expedition.siteLocation();
         if (center == null) return false;
@@ -303,7 +303,7 @@ public final class SiteService {
         entity.teleportAsync(safe);return true;
     } }
 
-    public void guard(ActiveExpedition expedition, ExpeditionDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void guard(ActiveExpedition expedition, ExpeditionDefinition definition) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         Location center=expedition.siteLocation();if(center==null)return;
         if(!ru.neverland.core.SuiteScheduler.owns(center)) {ru.neverland.core.SuiteScheduler.region(plugin,center,()->guard(expedition,definition));return;}
         if(repository.get(expedition.id())!=expedition || expedition.status()!=ExpeditionStatus.ACTIVE)return;
@@ -329,7 +329,7 @@ public final class SiteService {
         if(missing>0&&spawn(expedition,definition,missing)>0)repository.changed();
     }}
 
-    public void resume(ActiveExpedition expedition, ExpeditionDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void resume(ActiveExpedition expedition, ExpeditionDefinition definition) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         ru.neverland.core.WorldTasks.eachEntity(plugin,entity->{if(expedition.id().equals(expeditionMob(entity))) {
             expedition.spawnedMobs().add(entity.getUniqueId());repository.changed();
             if(!insideMobArea(expedition,entity.getLocation()))relocateMob(entity);
@@ -337,7 +337,7 @@ public final class SiteService {
         guard(expedition,definition);
     }}
 
-    public UUID expeditionMob(Entity entity) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public UUID expeditionMob(Entity entity) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         String raw = entity.getPersistentDataContainer().get(mobKey, PersistentDataType.STRING);
         if (raw == null && legacyMobKey != null) {
             raw = entity.getPersistentDataContainer().get(legacyMobKey, PersistentDataType.STRING);
@@ -349,7 +349,7 @@ public final class SiteService {
         }
     } }
 
-    public void restore(ActiveExpedition expedition, Runnable done) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void restore(ActiveExpedition expedition, Runnable done) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         World world = expedition.world();
         if (world == null) {
             done.run();
@@ -362,7 +362,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,entity->{if(expedition.id().equal
                 plugin.getConfig().getInt("generation.restore-blocks-per-tick", 80));
         class RestoreBatch implements Runnable {
             int index;
-            public void run() { synchronized (ru.neverland.core.SuiteState.lock()) { synchronized(ru.neverland.core.SuiteState.lock()) {
+            public void run() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
                 for (int restored = 0; restored < batch && index < entries.size();
                      restored++, index++) {
                     Map.Entry<BlockPos, SiteSnapshot> entry = entries.get(index);

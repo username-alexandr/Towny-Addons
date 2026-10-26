@@ -8,19 +8,19 @@ import ru.neverland.core.*;
 public final class ShopJournal implements PurchaseSaga.Store<ShopOrder> {
     private final Path file;private Map<UUID,ShopOrder> orders=Map.of();private boolean writable;
     private java.util.function.Consumer<ShopOrder> audit=o->{};
-    public void audit(java.util.function.Consumer<ShopOrder> observer){ synchronized (ru.neverland.core.SuiteState.lock()) {audit=Objects.requireNonNull(observer);} }
+    public void audit(java.util.function.Consumer<ShopOrder> observer){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {audit=Objects.requireNonNull(observer);} }
     public ShopJournal(Path file){this.file=file;}
-    public boolean writable(){ synchronized (ru.neverland.core.SuiteState.lock()) {return writable&&AtomicFiles.writable(file);} }
-    public Collection<ShopOrder> all(){ synchronized (ru.neverland.core.SuiteState.lock()) {return orders.values();} }
-    public ShopOrder order(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {return orders.get(id);} }
-    public void load()throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean writable(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return writable&&AtomicFiles.writable(file);} }
+    public Collection<ShopOrder> all(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return orders.values();} }
+    public ShopOrder order(UUID id){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return orders.get(id);} }
+    public void load()throws IOException{ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         writable=false;Map<UUID,ShopOrder> next=new LinkedHashMap<>();
         if(Files.exists(file))try{var y=new YamlConfiguration();y.load(file.toFile());if(number(y,"schema")!=1||!y.isConfigurationSection("orders"))throw new IOException("Неверная схема покупок");var root=y.getConfigurationSection("orders");
             for(String key:root.getKeys(false)){var s=root.getConfigurationSection(key);if(s==null||!s.isBoolean("finalized"))throw new IOException("Повреждена запись покупки");UUID id=UUID.fromString(key);next.put(id,new ShopOrder(id,UUID.fromString(text(s,"seller")),UUID.fromString(text(s,"buyer")),text(s,"material"),Math.toIntExact(number(s,"amount")),number(s,"unit"),number(s,"created"),text(s,"phase"),number(s,"check"),text(s,"note"),s.getBoolean("finalized"),s.contains("seller-income")?number(s,"seller-income"):Math.multiplyExact(number(s,"unit"),number(s,"amount"))));}
         }catch(Exception ex){throw new IOException("shop-orders.yml повреждён; покупки остановлены",ex);}
         orders=Map.copyOf(next);AtomicFiles.loaded(file);writable=true;
     } }
-    public void put(ShopOrder order)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void put(ShopOrder order)throws IOException{ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         if(!writable())throw new IOException("Покупки остановлены после ошибки записи");var next=new LinkedHashMap<>(orders);next.put(order.id(),order);
         var completed=next.values().stream().filter(ShopOrder::finalized).sorted(Comparator.comparingLong(ShopOrder::created).reversed()).toList();if(completed.size()>2000)completed.subList(2000,completed.size()).forEach(o->next.remove(o.id()));
         try{AtomicFiles.write(file,()->{var y=new YamlConfiguration();y.set("schema",1);y.createSection("orders");for(var o:next.values()){var s=y.createSection("orders."+o.id());s.set("seller",o.seller().toString());s.set("buyer",o.buyer().toString());s.set("material",o.material());s.set("amount",o.amount());s.set("unit",o.unit());s.set("seller-income",o.sellerIncome());s.set("created",o.created());s.set("phase",o.paymentStep());s.set("check",o.check());s.set("note",o.note());s.set("finalized",o.finalized());}return y.saveToString();});orders=Map.copyOf(next);}catch(IOException ex){writable=false;throw ex;}

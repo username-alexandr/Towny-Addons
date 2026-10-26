@@ -28,7 +28,7 @@ public final class MobFarmMenu implements CommandExecutor,TabCompleter,Listener 
         var stack=new ItemStack(icon);var meta=stack.getItemMeta();meta.displayName(Component.text(name));meta.lore(MenuStyle.loreComponents(lore.stream().map(Component::text).toList()));stack.setItemMeta(meta);
         v.inventory.setItem(slot,stack);if(action!=null)v.actions.put(slot,action);
     }
-    public void open(Player p,boolean list,int requestedPage){synchronized(SuiteState.lock()){
+    public void open(Player p,boolean list,int requestedPage){try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){
         access(p);var town=farms.viewTown(p);if(town==null)throw new IllegalStateException("Вступите в город, чтобы открыть его карту");
         var v=view(p,list?"Город • зоны ферм":"Город • защита от мобов",54);
         if(list){
@@ -77,7 +77,7 @@ public final class MobFarmMenu implements CommandExecutor,TabCompleter,Listener 
         button(v,11,Material.LIME_CONCRETE,"Подтвердить",List.of(),()->{farms.apply(p,c);open(p,false,0);});
         button(v,15,Material.RED_CONCRETE,"Оставить как есть",List.of(),()->open(p,false,0));p.openInventory(v.inventory);
     }
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){synchronized(SuiteState.lock()){
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){
         try{
             if(!(sender instanceof Player p))throw new IllegalStateException("Откройте карту в игре: /t farm");access(p);
             String action=args.length==0?"map":args[0].toLowerCase(Locale.ROOT);
@@ -93,7 +93,7 @@ public final class MobFarmMenu implements CommandExecutor,TabCompleter,Listener 
         return true;
     }}
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){return args.length==1?List.of("map","list","show","status","allow","protect").stream().filter(s->s.startsWith(args[0].toLowerCase(Locale.ROOT))).toList():List.of();}
-    @EventHandler public void click(InventoryClickEvent e){synchronized(SuiteState.lock()){
+    @EventHandler public void click(InventoryClickEvent e){try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()){
         if(!(e.getView().getTopInventory().getHolder(false) instanceof View v))return;e.setCancelled(true);
         if(!(e.getWhoClicked() instanceof Player p)||!v.player.equals(p.getUniqueId()))return;
         var action=v.actions.get(e.getRawSlot());if(action==null)return;

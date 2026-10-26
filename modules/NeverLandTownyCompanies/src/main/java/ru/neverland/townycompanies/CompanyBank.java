@@ -7,7 +7,7 @@ import ru.neverland.integration.TreasuryAccess;
 import static ru.neverland.townycompanies.CompanyData.*;
 
 public final class CompanyBank implements CompanyLedger.Bank {
-    @Override public boolean transfer(Payment p) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public boolean transfer(Payment p) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if(!com.palmergames.bukkit.towny.TownyEconomyHandler.isActive())return false;
         boolean city=p.purpose()==Purpose.TAX||p.purpose()==Purpose.REFUND;
         var town=city?TownyAPI.getInstance().getTown(p.account()):null;

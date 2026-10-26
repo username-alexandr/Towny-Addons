@@ -7,7 +7,7 @@ import com.palmergames.bukkit.towny.TownyAPI;
 public final class ElectionsCommand implements TabExecutor {
     private final NeverLandTownyElections plugin;private final ElectionsService service;private final ElectionsMenus menus;
     public ElectionsCommand(NeverLandTownyElections plugin,ElectionsService service,ElectionsMenus menus){this.plugin=plugin;this.service=service;this.menus=menus;}
-    public static void help(CommandSender s){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void help(CommandSender s){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         s.sendMessage("§6Выборы города §8• §f/t elections");
         s.sendMessage("§e/t elections candidate <должность> §7— выдвинуть себя");
         s.sendMessage("§e/t elections withdraw §7— снять кандидатуру до голосования");
@@ -19,7 +19,7 @@ public final class ElectionsCommand implements TabExecutor {
             s.sendMessage("§c/elections abort <город> <UUID кампании> §7— закрыть кампанию, сохранив текущую власть");
         }
     } }
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyElections")){return true;}
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyElections")){return true;}
         try {
             if(!sender.hasPermission("townyelections.use"))throw new IllegalArgumentException("Нет разрешения townyelections.use.");
             String action=args.length==0?"menu":args[0].toLowerCase(Locale.ROOT);
@@ -60,7 +60,7 @@ public final class ElectionsCommand implements TabExecutor {
         }catch(Exception ex){sender.sendMessage("§cВыборы: "+(ex.getMessage()==null?ex.getClass().getSimpleName():ex.getMessage()));}
         return true;
     } }
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String label,String[] args){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         var values=new ArrayList<String>();
         if(args.length==1){values.addAll(List.of("menu","candidate","withdraw","vote","results","history","help"));if(sender.hasPermission("townyelections.admin"))values.addAll(List.of("start","resume","abort","reload"));}
         else if(args.length==2 && Set.of("candidate","vote").contains(args[0]))values.addAll(service.settings().seats().keySet());

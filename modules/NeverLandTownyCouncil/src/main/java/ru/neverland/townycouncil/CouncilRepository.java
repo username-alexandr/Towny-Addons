@@ -21,10 +21,10 @@ public final class CouncilRepository {
     private List<Audit> history = List.of();
     private boolean writable;
     public CouncilRepository(Path file) { this.file = file; }
-    public boolean writable() { synchronized (ru.neverland.core.SuiteState.lock()) { return writable && AtomicFiles.writable(file); } }
-    public Map<String, Appointment> all() { synchronized (ru.neverland.core.SuiteState.lock()) { return records; } }
-    public List<Audit> history() { synchronized (ru.neverland.core.SuiteState.lock()) { return history; } }
-    public void load() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean writable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return writable && AtomicFiles.writable(file); } }
+    public Map<String, Appointment> all() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return records; } }
+    public List<Audit> history() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return history; } }
+    public void load() throws Exception { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         writable = false;
         var next = new LinkedHashMap<String, Appointment>(); var audit = new ArrayList<Audit>();
         if (Files.exists(file)) {
@@ -46,7 +46,7 @@ public final class CouncilRepository {
         }
         validate(next); records = Map.copyOf(next); history = List.copyOf(audit); AtomicFiles.loaded(file); writable = true;
     } }
-    public void commit(Map<String, Appointment> next, List<Audit> additions) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void commit(Map<String, Appointment> next, List<Audit> additions) throws IOException { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if (!writable()) throw new IOException("Реестр совета остановлен после ошибки; нужен перезапуск после восстановления файла");
         validate(next);
         var audit = new ArrayList<>(history); audit.addAll(additions);

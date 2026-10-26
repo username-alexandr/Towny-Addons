@@ -29,7 +29,7 @@ final class PersonalHistoryMenu implements Listener {
         this.plugin=plugin;Bukkit.getPluginManager().registerEvents(this,plugin);
         plugin.getCommand("nlthistory").setExecutor((sender,command,label,args)->{
             if(!(sender instanceof Player player)){sender.sendMessage("История открывается игроком в игре.");return true;}
-            synchronized(SuiteState.lock()){
+            try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){
                 if(!player.hasPermission(PERMISSION)){player.sendMessage("§eПросмотр личной истории отключён для вашей группы. Обратитесь к администрации.");return true;}
                 if(args.length!=0){player.sendMessage("§e/nlthistory — открыть только свою историю операций.");return true;}
                 load(player,PersonalHistory.Category.ALL,1,MenuStyle.previousMenu(player));return true;
@@ -83,12 +83,12 @@ final class PersonalHistoryMenu implements Listener {
     }
     private static ItemStack item(Material icon,String name,List<String> lore){var item=new ItemStack(icon);var meta=item.getItemMeta();meta.displayName(MenuStyle.nameComponent(MenuStyle.decode(name)));meta.lore(MenuStyle.loreComponents(lore.stream().map(MenuStyle::decode).toList()));meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES,ItemFlag.HIDE_ENCHANTS);item.setItemMeta(meta);return item;}
     private void button(View view,int slot,Material icon,String name,List<String> lore,String role,Runnable action){var item=item(icon,name,lore);if(!role.isEmpty()){var meta=item.getItemMeta();meta.getPersistentDataContainer().set(new NamespacedKey("neverland","menu_role"),PersistentDataType.STRING,role);item.setItemMeta(meta);}view.inventory.setItem(slot,item);view.buttons.put(slot,action);}
-    @EventHandler public void click(InventoryClickEvent event){synchronized(SuiteState.lock()){
+    @EventHandler public void click(InventoryClickEvent event){try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){
         if(!(event.getView().getTopInventory().getHolder() instanceof View view))return;event.setCancelled(true);
         if(!(event.getWhoClicked() instanceof Player player)||!view.owner.equals(player.getUniqueId())||!player.hasPermission(PERMISSION)||view.busy)return;
         Runnable action=view.buttons.get(event.getRawSlot());if(action==null)return;view.busy=true;
         SuiteScheduler.entity(plugin,player,()->{try{if(player.getOpenInventory().getTopInventory()==view.inventory&&player.hasPermission(PERMISSION))action.run();}finally{view.busy=false;}});
     }}
     @EventHandler public void drag(InventoryDragEvent event){if(event.getView().getTopInventory().getHolder() instanceof View)event.setCancelled(true);}
-    @EventHandler public void quit(PlayerQuitEvent event){synchronized(SuiteState.lock()){cooldown.remove(event.getPlayer().getUniqueId());}}
+    @EventHandler public void quit(PlayerQuitEvent event){try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()){cooldown.remove(event.getPlayer().getUniqueId());}}
 }

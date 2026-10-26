@@ -10,10 +10,10 @@ public final class MarketRepository implements MarketPayments.Store {
     private final Path file;private volatile Map<UUID,Listing> listings=Map.of();private volatile Map<UUID,Order> orders=Map.of();private volatile List<Demand> demand=List.of();private boolean writable;
     public MarketRepository(Path file){this.file=file;}
     private java.util.function.Consumer<Order> audit=o->{};
-    public void audit(java.util.function.Consumer<Order> observer){ synchronized (ru.neverland.core.SuiteState.lock()) {audit=Objects.requireNonNull(observer);} }
-    public boolean writable(){ synchronized (ru.neverland.core.SuiteState.lock()) {return writable;} }public Collection<Listing> listings(){ synchronized (ru.neverland.core.SuiteState.lock()) {return listings.values();} }public Collection<Order> orders(){ synchronized (ru.neverland.core.SuiteState.lock()) {return orders.values();} }public List<Demand> demand(){ synchronized (ru.neverland.core.SuiteState.lock()) {return demand;} }
-    public Listing listing(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {return listings.get(id);} }@Override public Order order(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {return orders.get(id);} }
-    public void load()throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void audit(java.util.function.Consumer<Order> observer){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {audit=Objects.requireNonNull(observer);} }
+    public boolean writable(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return writable;} }public Collection<Listing> listings(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return listings.values();} }public Collection<Order> orders(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return orders.values();} }public List<Demand> demand(){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {return demand;} }
+    public Listing listing(UUID id){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {return listings.get(id);} }@Override public Order order(UUID id){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {return orders.get(id);} }
+    public void load()throws IOException { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         writable=false;Map<UUID,Listing> ls=new LinkedHashMap<>();Map<UUID,Order> os=new LinkedHashMap<>();List<Demand> ds=new ArrayList<>();
         if(Files.exists(file))try{var y=new YamlConfiguration();y.load(file.toFile());if(y.getInt("schema")!=1)throw new IOException("Неизвестная схема рынка");
             var l=section(y,"listings");for(String id:l.getKeys(false)){UUID uuid=UUID.fromString(id);var s=section(l,id);ls.put(uuid,new Listing(uuid,uuid(s,"town"),text(s,"item"),text(s,"label"),text(s,"product"),Scope.valueOf(text(s,"scope")),bool(s,"auto"),num(s,"base"),integer(s,"amount"),num(s,"created"),ListingState.valueOf(text(s,"state")),text(s,"note")));}
@@ -24,18 +24,18 @@ public final class MarketRepository implements MarketPayments.Store {
         listings=Collections.unmodifiableMap(ls);orders=Collections.unmodifiableMap(os);demand=List.copyOf(ds);writable=true;ru.neverland.core.AtomicFiles.loaded(file);
     } }
     private static void validate(Map<UUID,Listing> ls,Map<UUID,Order> os)throws IOException {for(var o:os.values()){var l=ls.get(o.lot());if(l==null||!l.town().equals(o.seller())||o.city()!=(l.scope()==Scope.GLOBAL))throw new IOException("Покупка не соответствует предложению");}}
-    public void put(Listing l)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {var ls=new LinkedHashMap<>(listings);ls.put(l.id(),l);save(ls,orders,demand);} }
-    @Override public void put(Order o)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {put(o,System.currentTimeMillis());} }
-    public void put(Order o,long now)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void put(Listing l)throws IOException{ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {var ls=new LinkedHashMap<>(listings);ls.put(l.id(),l);save(ls,orders,demand);} }
+    @Override public void put(Order o)throws IOException{ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {put(o,System.currentTimeMillis());} }
+    public void put(Order o,long now)throws IOException { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
         var os=new LinkedHashMap<>(orders);Order old=os.put(o.id(),o);List<Demand> ds=new ArrayList<>(demand.stream().filter(d->d.at()>now-DAY).toList());
         if(o.phase()==Phase.COMPLETE&&(old==null||old.phase()!=Phase.COMPLETE)&&ds.stream().noneMatch(d->d.order().equals(o.id()))){var l=listings.get(o.lot());ds.add(new Demand(o.id(),l.scopeKey(),l.product(),o.buyer(),now,o.amount()));}
         ds.sort(Comparator.comparingLong(Demand::at));if(ds.size()>5000)ds=new ArrayList<>(ds.subList(ds.size()-5000,ds.size()));save(listings,os,ds);audit.accept(o);
     } }
-    public void prune()throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void prune()throws IOException { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         var done=orders.values().stream().filter(Order::finalized).sorted(Comparator.comparingLong(Order::created).reversed()).toList();if(done.size()<=2000)return;
         var os=new LinkedHashMap<>(orders);done.subList(2000,done.size()).forEach(o->os.remove(o.id()));save(listings,os,demand);
     } }
-    public void removeListing(UUID id)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {if(orders.values().stream().anyMatch(o->o.lot().equals(id)))return;var ls=new LinkedHashMap<>(listings);ls.remove(id);save(ls,orders,demand);} }
+    public void removeListing(UUID id)throws IOException { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {if(orders.values().stream().anyMatch(o->o.lot().equals(id)))return;var ls=new LinkedHashMap<>(listings);ls.remove(id);save(ls,orders,demand);} }
     private void save(Map<UUID,Listing> ls,Map<UUID,Order> os,List<Demand> ds)throws IOException {
         if(!writable)throw new IOException("Рынок остановлен после ошибки записи. Исправьте файл и выполните reload");
         try{validate(ls,os);var y=new YamlConfiguration();y.set("schema",1);y.createSection("listings");y.createSection("orders");y.createSection("demand");
@@ -45,7 +45,7 @@ public final class MarketRepository implements MarketPayments.Store {
             atomic(y,file);listings=Collections.unmodifiableMap(new LinkedHashMap<>(ls));orders=Collections.unmodifiableMap(new LinkedHashMap<>(os));demand=List.copyOf(ds);
         }catch(IOException|RuntimeException ex){writable=false;throw new IOException("Не удалось сохранить рынок; операции остановлены",ex);}
     }
-    public static void atomic(YamlConfiguration yaml,Path path)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {ru.neverland.core.AtomicFiles.write(path,yaml::saveToString);} }
+    public static void atomic(YamlConfiguration yaml,Path path)throws IOException { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {ru.neverland.core.AtomicFiles.write(path,yaml::saveToString);} }
     private static ConfigurationSection section(ConfigurationSection s,String key)throws IOException{var v=s.getConfigurationSection(key);if(v==null)throw new IOException("Нет раздела "+key);return v;}
     private static String text(ConfigurationSection s,String key)throws IOException{if(!s.isString(key))throw new IOException("Нет строки "+key);return s.getString(key);}
     private static UUID uuid(ConfigurationSection s,String key)throws IOException{return UUID.fromString(text(s,key));}

@@ -51,8 +51,8 @@ final class TerrainProtection implements Listener {
     static Plot plot(TownBlock block){return new Plot(block.getWorld().getUUID(),block.getX(),block.getZ());}
     Path baselineFile(Plot plot){return root.resolve("baselines").resolve(plot.key()+".gz");}
     @EventHandler public void world(WorldLoadEvent event){SuiteScheduler.get().runTaskLater(plugin,()->{try{protectWorlds();}catch(Exception ex){plugin.getLogger().severe("Не удалось включить защиту территории: "+ex.getMessage());}},20);}
-    @EventHandler(priority=EventPriority.MONITOR) public void created(NewTownEvent event){synchronized(SuiteState.lock()){for(var block:event.getTown().getTownBlocks())capture(block);}}
-    @EventHandler(priority=EventPriority.MONITOR) public void claim(TownClaimEvent event){synchronized(SuiteState.lock()){capture(event.getTownBlock());}}
+    @EventHandler(priority=EventPriority.MONITOR) public void created(NewTownEvent event){try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){for(var block:event.getTown().getTownBlocks())capture(block);}}
+    @EventHandler(priority=EventPriority.MONITOR) public void claim(TownClaimEvent event){try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){capture(event.getTownBlock());}}
     private void capture(TownBlock block){
         if(TownySettings.getTownBlockSize()!=16)return;
         Town town=block.getTownOrNull();if(town==null)return;
@@ -67,7 +67,7 @@ final class TerrainProtection implements Listener {
                 try{
                     var data=new ArrayList<String>();for(int z=0;z<16;z++)for(int x=0;x<16;x++)for(int y=max-1;y>min;y--)data.add(snapshot.getBlockData(x,y,z).getAsString());
                     var baseline=new Baseline(plot,owner,claimed,min,max,data);
-                    synchronized(SuiteState.lock()){if(!capture.equals(captures.get(plot)))return;saveBaseline(baselineFile(plot),baseline);captures.remove(plot);}
+                    try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()){if(!capture.equals(captures.get(plot)))return;saveBaseline(baselineFile(plot),baseline);captures.remove(plot);}
                 }catch(Exception ex){plugin.getLogger().severe("Снимок участка не сохранён; полный откат этого участка будет запрещён: "+ex.getMessage());}
             });
         });
@@ -75,7 +75,7 @@ final class TerrainProtection implements Listener {
     /** Called off-thread; returns a complete immutable snapshot or fails before town deletion. */
     Baseline baseline(TownBlock block,UUID town,int min,int max)throws IOException {
         Plot plot=plot(block);Path own=baselineFile(plot);
-        synchronized(SuiteState.lock()){if(captures.containsKey(plot))throw new IOException("Снимок нового участка ещё сохраняется. Повторите позже.");}
+        try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()){if(captures.containsKey(plot))throw new IOException("Снимок нового участка ещё сохраняется. Повторите позже.");}
         if(Files.exists(own)){
             var b=loadBaseline(own);
             if(!b.plot().equals(plot)||!b.town().equals(town)||b.claimed()!=block.getClaimedAt()||b.minY()!=min||b.maxY()!=max)throw new IOException("Снимок относится к другому владельцу или высоте мира: "+plot.key());

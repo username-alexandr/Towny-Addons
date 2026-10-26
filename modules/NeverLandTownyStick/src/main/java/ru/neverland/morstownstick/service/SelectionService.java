@@ -21,7 +21,7 @@ public final class SelectionService {
         this.plugin = plugin;
     }
 
-    public ToggleResult toggle(UUID playerId, CellKey cell) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ToggleResult toggle(UUID playerId, CellKey cell) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         LinkedHashSet<CellKey> selected = selections.computeIfAbsent(playerId, ignored -> new LinkedHashSet<>());
         if (selected.remove(cell)) {
             removeEmpty(playerId, selected);
@@ -33,35 +33,35 @@ public final class SelectionService {
         return ToggleResult.SELECTED;
     } }
 
-    public Set<CellKey> snapshot(UUID playerId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Set<CellKey> snapshot(UUID playerId) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         Set<CellKey> selected = selections.get(playerId);
         return selected == null ? Set.of() : Collections.unmodifiableSet(new LinkedHashSet<>(selected));
     } }
 
-    public int count(UUID playerId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int count(UUID playerId) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         Set<CellKey> selected = selections.get(playerId);
         return selected == null ? 0 : selected.size();
     } }
 
-    public void remove(UUID playerId, CellKey cell) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void remove(UUID playerId, CellKey cell) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         LinkedHashSet<CellKey> selected = selections.get(playerId);
         if (selected == null) return;
         selected.remove(cell);
         removeEmpty(playerId, selected);
     } }
 
-    public void removeAll(UUID playerId, Collection<CellKey> cells) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void removeAll(UUID playerId, Collection<CellKey> cells) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         LinkedHashSet<CellKey> selected = selections.get(playerId);
         if (selected == null) return;
         selected.removeAll(cells);
         removeEmpty(playerId, selected);
     } }
 
-    public void clear(UUID playerId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void clear(UUID playerId) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         selections.remove(playerId);
     } }
 
-    public void clearAll() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void clearAll() { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         selections.clear();
     } }
 

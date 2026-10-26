@@ -7,12 +7,12 @@ import com.palmergames.bukkit.towny.TownyAPI;
 /** Uses the Events shield ledger; the registration fallback also supports standalone addons. */
 public final class NewcomerProtection {
     private NewcomerProtection() { }
-    public static long registrationRemaining(long registered, long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static long registrationRemaining(long registered, long now) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (registered <= 0) return 0;
         if (registered < 100_000_000_000L) registered = Math.multiplyExact(registered, 1000);
         return Math.max(0, Math.subtractExact(Math.addExact(registered, 86_400_000L), now));
     } }
-    public static long remaining(JavaPlugin consumer, UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static long remaining(JavaPlugin consumer, UUID town) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread();
         if (!consumer.getConfig().getBoolean("newcomer-protection.enabled", true)) return 0;
         var c = ApiServices.connect("NeverLandTownyEvents", "ru.neverland.mintevents.api.MintTownyEventsApi", 1, "shieldRemainingMillis");

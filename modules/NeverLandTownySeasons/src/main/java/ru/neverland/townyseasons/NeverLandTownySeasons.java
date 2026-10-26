@@ -16,8 +16,8 @@ public final class NeverLandTownySeasons extends JavaPlugin {
         try(var stream=getResource("config.yml")){y.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(stream,StandardCharsets.UTF_8)));}
         return SeasonSettings.load(y);
     }
-    public void reloadSeasons() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) { var next=settings();service.reload(next);reloadConfig(); } }
-    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reloadSeasons() throws Exception { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { var next=settings();service.reload(next);reloadConfig(); } }
+    @Override public void onEnable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         try {
@@ -31,7 +31,7 @@ public final class NeverLandTownySeasons extends JavaPlugin {
             task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(this,service::pulse,20,100);
         } catch(Exception|LinkageError e) {getLogger().log(java.util.logging.Level.SEVERE,"Сезоны не загружены",e);getServer().getPluginManager().disablePlugin(this);}
     } }
-    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onDisable() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if(task!=null)task.cancel();getServer().getServicesManager().unregisterAll(this);

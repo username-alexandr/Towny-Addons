@@ -8,9 +8,9 @@ public record CourierJob(UUID id,UUID town,String route,String hub,String source
         if(level<1||level>5||waypoint<0||handlingTicks<0||outbound.isEmpty()||delivery.isEmpty()||home.isEmpty())throw new IllegalArgumentException("Некорректный курьер");
         for(var path:List.of(outbound,delivery,home))for(var point:path)if(!point.world().equals(position.world()))throw new IllegalArgumentException("Курьер не может менять мир");
     }
-    public List<Position> path(){ synchronized (ru.neverland.core.SuiteState.lock()) {return switch(phase){case TO_SOURCE,LOADING->outbound;case TO_TARGET,UNLOADING->delivery;case RETURNING,DONE->home;};} }
-    public CourierJob move(Position p,int index){ synchronized (ru.neverland.core.SuiteState.lock()) {return new CourierJob(id,town,route,hub,source,target,level,outbound,delivery,home,phase,index,p,handlingTicks);} }
-    public CourierJob phase(Phase value,int wait){ synchronized (ru.neverland.core.SuiteState.lock()) {return new CourierJob(id,town,route,hub,source,target,level,outbound,delivery,home,value,0,position,wait);} }
-    public CourierJob returnFromSource(){ synchronized (ru.neverland.core.SuiteState.lock()) {var back=new ArrayList<>(outbound);Collections.reverse(back);return new CourierJob(id,town,route,hub,source,target,level,outbound,delivery,back,Phase.RETURNING,0,position,0);} }
-    public CourierJob waitTicks(int ticks){ synchronized (ru.neverland.core.SuiteState.lock()) {return new CourierJob(id,town,route,hub,source,target,level,outbound,delivery,home,phase,waypoint,position,Math.max(0,handlingTicks-ticks));} }
+    public List<Position> path(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return switch(phase){case TO_SOURCE,LOADING->outbound;case TO_TARGET,UNLOADING->delivery;case RETURNING,DONE->home;};} }
+    public CourierJob move(Position p,int index){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return new CourierJob(id,town,route,hub,source,target,level,outbound,delivery,home,phase,index,p,handlingTicks);} }
+    public CourierJob phase(Phase value,int wait){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return new CourierJob(id,town,route,hub,source,target,level,outbound,delivery,home,value,0,position,wait);} }
+    public CourierJob returnFromSource(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {var back=new ArrayList<>(outbound);Collections.reverse(back);return new CourierJob(id,town,route,hub,source,target,level,outbound,delivery,back,Phase.RETURNING,0,position,0);} }
+    public CourierJob waitTicks(int ticks){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {return new CourierJob(id,town,route,hub,source,target,level,outbound,delivery,home,phase,waypoint,position,Math.max(0,handlingTicks-ticks));} }
 }

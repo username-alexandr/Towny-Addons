@@ -5,9 +5,9 @@ public final class ProjectEngine {
     private ProjectEngine() {}
     public record Observation(boolean ready, int value, String detail) {
         public Observation { if (value < 0 || detail == null) throw new IllegalArgumentException("Неверное наблюдение"); }
-        public static Observation waiting(String reason) { synchronized (ru.neverland.core.SuiteState.lock()) { return new Observation(false, 0, reason); } }
+        public static Observation waiting(String reason) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return new Observation(false, 0, reason); } }
     }
-    public static CityProject advance(CityProject run, Observation observation, int elapsedSeconds) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static CityProject advance(CityProject run, Observation observation, int elapsedSeconds) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (elapsedSeconds < 0 || elapsedSeconds > 60) throw new IllegalArgumentException("Интервал: 0..60 секунд");
         if (run.status() != CityProject.Status.ACTIVE || !observation.ready()) return run;
         var stage = run.definition().stages().get(run.stage());

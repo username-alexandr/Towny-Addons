@@ -75,7 +75,7 @@ public final class MenuManager implements Listener {
         actionKey = new NamespacedKey(plugin, "action");
     }
 
-    public void openProjects(Player player, ProjectType type) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void openProjects(Player player, ProjectType type) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (type == ProjectType.BUILDING) openCategories(player);
         else openProjects(player, type, null, 0);
     } }
@@ -145,7 +145,7 @@ public final class MenuManager implements Listener {
         player.openInventory(inventory);
     }
 
-    public void openDetails(Player player, ProjectDefinition project) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void openDetails(Player player, ProjectDefinition project) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         openDetails(player, project, pageFor(project),
                 project.type() == ProjectType.BUILDING ? project.category() : null);
     } }
@@ -251,12 +251,12 @@ public final class MenuManager implements Listener {
         player.openInventory(inventory);
     }
 
-    public void openStorage(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void openStorage(Player player) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         ((ru.neverland.townybuilds.NeverLandTownyBuilds)plugin).storage().openStorage(player,"warehouse");
     } }
 
     @EventHandler
-    public void onClick(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onClick(InventoryClickEvent event) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         InventoryHolder holder = event.getView().getTopInventory().getHolder(false);
         if (!(event.getWhoClicked() instanceof Player player)) {
             return;
@@ -383,7 +383,7 @@ public final class MenuManager implements Listener {
     } }
 
     @EventHandler
-    public void onDrag(InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onDrag(InventoryDragEvent event) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         InventoryHolder holder = event.getView().getTopInventory().getHolder(false);
         if(holder instanceof MenuHolder&&!(holder instanceof StorageHolder)){event.setCancelled(true);return;}
         if (!(holder instanceof StorageHolder storage) || storage.mayor()) {
@@ -394,7 +394,7 @@ public final class MenuManager implements Listener {
     } }
 
     @EventHandler
-    public void onClose(InventoryCloseEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void onClose(InventoryCloseEvent event) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         InventoryHolder holder = event.getInventory().getHolder(false);
         if (holder instanceof StorageHolder storage) {
             TownData data = dataStore.town(storage.townId());
@@ -630,7 +630,7 @@ public final class MenuManager implements Listener {
         }
     }
 
-    public ru.neverland.townybuilds.construction.BlueprintPlan preview(Player player,Inventory inventory){synchronized(ru.neverland.core.SuiteState.lock()){
+    public ru.neverland.townybuilds.construction.BlueprintPlan preview(Player player,Inventory inventory){try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()){
         if(player.getOpenInventory().getTopInventory()!=inventory||!(inventory.getHolder() instanceof DetailsHolder holder)||!player.hasPermission("neverlandtownybuilds.use"))return null;
         var town=towny.town(player);var project=definitions.project(holder.projectId());if(town==null||project==null)return null;
         var state=dataStore.town(town.getUUID());int level=Math.min(project.maxLevel(),state.level(project.id())+1);

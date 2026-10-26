@@ -23,27 +23,27 @@ public final class IdeologyExpansion extends PlaceholderExpansion {
     }
 
     @Override
-    public @NotNull String getIdentifier() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public @NotNull String getIdentifier() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return "nlti";
     } }
 
     @Override
-    public @NotNull String getAuthor() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public @NotNull String getAuthor() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return "Alexander Sokolov";
     } }
 
     @Override
-    public @NotNull String getVersion() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public @NotNull String getVersion() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         return plugin.getPluginMeta().getVersion();
     } }
 
     @Override
-    public boolean persist() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean persist() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         return true;
     } }
 
     @Override
-    public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if (player == null) return "";
         TownIdeology current = ideologies.get(player).orElse(null);
         if (current == null) {

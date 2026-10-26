@@ -6,5 +6,5 @@ public enum CitizenRight {
     STABLES("Городские конюшни"), INSURANCE("Страхование");
     private final String title;
     CitizenRight(String title) { this.title = title; }
-    public String title() { synchronized (ru.neverland.core.SuiteState.lock()) { return title; } }
+    public String title() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return title; } }
 }

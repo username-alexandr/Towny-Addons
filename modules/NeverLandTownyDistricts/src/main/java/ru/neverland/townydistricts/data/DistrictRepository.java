@@ -9,9 +9,9 @@ public final class DistrictRepository {
     private boolean ready;private final Path file;private final int cellSize;private Map<String,District> districts=new LinkedHashMap<>();
     public DistrictRepository(Path file,int cellSize){this.file=file;this.cellSize=cellSize;}
     private String key(District district){return district.town()+"/"+district.id();}
-    public Collection<District> all(){ synchronized (ru.neverland.core.SuiteState.lock()) {return List.copyOf(districts.values());} }
-    public Optional<District> get(UUID town,String id){ synchronized (ru.neverland.core.SuiteState.lock()) {return Optional.ofNullable(districts.get(town+"/"+id));} }
-    public void load() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Collection<District> all(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return List.copyOf(districts.values());} }
+    public Optional<District> get(UUID town,String id){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return Optional.ofNullable(districts.get(town+"/"+id));} }
+    public void load() throws Exception { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         ready=false;if(!Files.exists(file)){ru.neverland.core.AtomicFiles.loaded(file);ready=true;return;}
         var y=new YamlConfiguration();y.load(file.toFile());
         if(y.getInt("schema")!=1||y.getInt("cell-size")!=cellSize)throw new IOException("Версия базы или размер участков Towny изменились");
@@ -28,10 +28,10 @@ public final class DistrictRepository {
         }
         districts=loaded;ru.neverland.core.AtomicFiles.loaded(file);ready=true;
     } }
-    public void put(District district) throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {var copy=new LinkedHashMap<>(districts);copy.put(key(district),district);replace(copy.values());} }
-    public void delete(UUID town,String id)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {var copy=new LinkedHashMap<>(districts);copy.remove(town+"/"+id);replace(copy.values());} }
+    public void put(District district) throws IOException{ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {var copy=new LinkedHashMap<>(districts);copy.put(key(district),district);replace(copy.values());} }
+    public void delete(UUID town,String id)throws IOException{ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {var copy=new LinkedHashMap<>(districts);copy.remove(town+"/"+id);replace(copy.values());} }
     /** Persist before publishing the mutation in memory. */
-    public void replace(Collection<District> values)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {if(!ready||!ru.neverland.core.AtomicFiles.writable(file))throw new IOException("База районов недоступна");
+    public void replace(Collection<District> values)throws IOException{ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {if(!ready||!ru.neverland.core.AtomicFiles.writable(file))throw new IOException("База районов недоступна");
         Map<String,District> next=new LinkedHashMap<>();values.forEach(d->next.put(key(d),d));if(next.equals(districts))return;
         var y=new YamlConfiguration();y.set("schema",1);y.set("cell-size",cellSize);y.createSection("towns");
         for(District d:next.values()){

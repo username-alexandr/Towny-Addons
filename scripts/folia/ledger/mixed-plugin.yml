@@ -1,0 +1,7 @@
+name: MixedProtocolProbe
+version: 0.43.0
+main: ru.neverland.validation.MixedProtocolProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny]
+softdepend: [NeverLandTownyControl, NeverLandTownyChronicles]

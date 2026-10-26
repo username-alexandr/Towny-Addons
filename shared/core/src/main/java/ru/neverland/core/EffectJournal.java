@@ -22,24 +22,24 @@ public final class EffectJournal {
       this.file = file;
    }
 
-   public static UUID id(String value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public static UUID id(String value) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       return UUID.nameUUIDFromBytes(value.getBytes(StandardCharsets.UTF_8));
    } }
 
-   public boolean writable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean writable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
       return this.loaded && AtomicFiles.writable(this.file);
    } }
 
-   public Collection<EffectJournal.Entry> entries() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public Collection<EffectJournal.Entry> entries() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
       return this.entries.values();
    } }
 
-   public EffectJournal.State state(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public EffectJournal.State state(UUID id) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
       EffectJournal.Entry entry = this.entries.get(id);
       return entry == null ? EffectJournal.State.READY : entry.state();
    } }
 
-   public void load() throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void load() throws IOException { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
       this.loaded = false;
       Map<UUID, EffectJournal.Entry> next = new LinkedHashMap<>();
       if (Files.exists(this.file)) {
@@ -94,7 +94,7 @@ public final class EffectJournal {
       }
    }
 
-   public boolean execute(UUID id, String description, EffectJournal.Action action) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean execute(UUID id, String description, EffectJournal.Action action) throws Exception { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
       if (!this.writable()) {
          throw new IOException("Журнал операций недоступен");
       } else {
@@ -114,7 +114,7 @@ public final class EffectJournal {
       }
    } }
 
-   public void resolve(UUID id, boolean applied) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void resolve(UUID id, boolean applied) throws IOException { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
       EffectJournal.Entry old = this.entries.get(id);
       if (old != null && old.state() == EffectJournal.State.PENDING) {
          this.put(new EffectJournal.Entry(id, old.description(), applied ? EffectJournal.State.DONE : EffectJournal.State.READY));
@@ -123,13 +123,13 @@ public final class EffectJournal {
       }
    } }
 
-   public void review(UUID id, String description) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void review(UUID id, String description) throws IOException { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
       if (!this.entries.containsKey(id)) {
          this.put(new EffectJournal.Entry(id, description, EffectJournal.State.PENDING));
       }
    } }
 
-   public void retain(Set<UUID> needed) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void retain(Set<UUID> needed) throws IOException { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
       if (!this.writable()) {
          throw new IOException("Журнал операций недоступен");
       } else {

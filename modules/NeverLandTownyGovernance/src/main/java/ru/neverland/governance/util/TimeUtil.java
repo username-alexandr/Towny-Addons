@@ -2,7 +2,7 @@ package ru.neverland.governance.util;
 
 public final class TimeUtil {
     private TimeUtil() { }
-    public static String format(long millis) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String format(long millis) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         long seconds = Math.max(0, (millis + 999) / 1000);
         long days = seconds / 86400; seconds %= 86400;
         long hours = seconds / 3600; seconds %= 3600;

@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender;
 public final class TreasuryAccess {
     public static final String EXPORT = "neverlandtownytreasury.export";
     private TreasuryAccess() { }
-    public static boolean canExport(CommandSender sender) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean canExport(CommandSender sender) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!(sender instanceof org.bukkit.entity.Player)) return sender.hasPermission(EXPORT);
         if (!(sender instanceof org.bukkit.entity.Player player)) return false;
         var resident = com.palmergames.bukkit.towny.TownyAPI.getInstance().getResident(player);

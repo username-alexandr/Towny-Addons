@@ -13,7 +13,7 @@ public final class ProductionListener implements Listener {
     private final DistrictService service;
     public ProductionListener(DistrictService service){this.service=service;}
     @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
-    public void smelt(FurnaceSmeltEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDistricts")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void smelt(FurnaceSmeltEvent event){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDistricts")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if(!service.settings().furnaces()||event.getResult().hasItemMeta()||event.getSource().hasItemMeta())return;
         var block=event.getBlock();var d=service.districtAt(block.getWorld().getUID(),block.getX(),block.getZ()).orElse(null);
         if(d==null||d.type()!=DistrictType.INDUSTRIAL)return;
@@ -26,7 +26,7 @@ public final class ProductionListener implements Listener {
         if(amount!=result.getAmount()){result.setAmount(amount);event.setResult(result);}
     } }
     @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
-    public void grow(BlockGrowEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDistricts")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void grow(BlockGrowEvent event){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDistricts")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if(!service.settings().crops()||!(event.getNewState().getBlockData() instanceof Ageable crop)||crop.getAge()>=crop.getMaximumAge())return;
         var block=event.getBlock();var d=service.districtAt(block.getWorld().getUID(),block.getX(),block.getZ()).orElse(null);
         if(d==null||d.type()!=DistrictType.AGRICULTURAL)return;

@@ -10,13 +10,13 @@ import org.bukkit.entity.Player;
 public final class CouncilCommand implements TabExecutor {
     private final NeverLandTownyCouncil plugin; private final CouncilService service; private final CouncilMenus menus; private final AccessMenus access;
     public CouncilCommand(NeverLandTownyCouncil plugin, CouncilService service, CouncilMenus menus,AccessMenus access) { this.plugin = plugin; this.service = service; this.menus = menus;this.access=access; }
-    public static void tell(CommandSender sender, String text) { synchronized (ru.neverland.core.SuiteState.lock()) { sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', "&aNeverLand &f• Министры &7» &f" + text)); } }
+    public static void tell(CommandSender sender, String text) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', "&aNeverLand &f• Министры &7» &f" + text)); } }
     private Town town(CommandSender sender, String[] args, int index) {
         Town town = args.length > index ? TownyAPI.getInstance().getTown(args[index])
                 : sender instanceof Player p ? service.ownTown(p.getUniqueId()) : null;
         if (town == null) throw new IllegalArgumentException("Город не найден. Укажите его последним аргументом команды"); return town;
     }
-    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCouncil")){return true;}
+    @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCouncil")){return true;}
         if (!sender.hasPermission("neverlandtownycouncil.use")) { tell(sender, "&cНет права на просмотр совета"); return true; }
         try {
             String action = args.length == 0 ? "menu" : args[0].toLowerCase(Locale.ROOT);
@@ -86,7 +86,7 @@ public final class CouncilCommand implements TabExecutor {
         catch (Exception ex) { tell(sender, "&cОперация не завершена. Проверьте журнал сервера"); plugin.getLogger().log(java.util.logging.Level.SEVERE, "Операция совета не выполнена", ex); }
         return true;
     } }
-    public static void help(CommandSender sender) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void help(CommandSender sender) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         tell(sender, "&e/council [menu] [город] &7— состав министерств.");
         tell(sender, "&e/council permissions <должность> &7— права должности.");
         tell(sender,"&e/council access &7— личные права жителей (только мэр).");
@@ -101,7 +101,7 @@ public final class CouncilCommand implements TabExecutor {
         tell(sender, "&7Также работает &f/t ministers&7. Выборный совет: &f/t council&7.");
         if (sender.hasPermission("neverlandtownycouncil.admin")) tell(sender, "&e/council reload &7— обновить настройки прав.");
     } }
-    @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if (!sender.hasPermission("neverlandtownycouncil.use") || args.length == 0) return List.of();
         var own = sender instanceof Player p ? service.ownTown(p.getUniqueId()) : null;
         boolean manager = sender.hasPermission("neverlandtownycouncil.admin") || service.manages(sender, own);

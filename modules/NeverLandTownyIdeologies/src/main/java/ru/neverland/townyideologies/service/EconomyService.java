@@ -26,7 +26,7 @@ public final class EconomyService {
         this.itemsAdder = itemsAdder;
     }
 
-    public Result withdraw(Player player, Town town, double amount, String reason) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Result withdraw(Player player, Town town, double amount, String reason) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (amount <= 0.0D) return Result.SUCCESS;
         String mode = plugin.getConfig().getString("settings.economy.mode", "TOWN_BANK").toUpperCase(Locale.ROOT);
         try {
@@ -46,11 +46,11 @@ public final class EconomyService {
         }
     } }
 
-    public String currencyName() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String currencyName() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return plugin.getConfig().getString("settings.economy.currency-name", "монет");
     } }
 
-    public String format(double value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String format(double value) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         String pattern = plugin.getConfig().getString("settings.economy.number-format", "#,##0.##");
         DecimalFormat format = new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(Locale.forLanguageTag("ru-RU")));
         return format.format(value);

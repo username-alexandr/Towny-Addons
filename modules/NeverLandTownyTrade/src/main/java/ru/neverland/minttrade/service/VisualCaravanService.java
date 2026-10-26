@@ -35,7 +35,7 @@ public final class VisualCaravanService {
       this.towny = towny;
    }
 
-   public void start() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void start() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       this.stop();
       if (this.plugin.getConfig().getBoolean("visuals.enabled", true)) {
          long period = Math.max(2L, this.plugin.getConfig().getLong("visuals.update-ticks", 10L));
@@ -43,7 +43,7 @@ public final class VisualCaravanService {
       }
    } }
 
-   public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void stop() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
       if (this.task != null) {
          this.task.cancel();
       }

@@ -28,7 +28,7 @@ public final class PlayerExperienceProbe extends JavaPlugin {
     Object field(Object o,String name)throws Exception{var f=o.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(o);}
     void set(Object o,String name,Object value)throws Exception{var f=o.getClass().getDeclaredField(name);f.setAccessible(true);f.set(o,value);}
     void check(boolean ok,String name){if(!ok)throw new AssertionError(name);checks.add("PASS "+name);}
-    void later(Runnable action){Bukkit.getRegionScheduler().runDelayed(this,new Location(world,1,160,1),t->{synchronized(SuiteState.lock()){try{action.run();}catch(Throwable e){finish(e);}}},5);}
+    void later(Runnable action){Bukkit.getRegionScheduler().runDelayed(this,new Location(world,1,160,1),t->{try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){try{action.run();}catch(Throwable e){finish(e);}}},5);}
     @Override public void onEnable(){
         if(!Files.exists(Path.of("ALLOW_DISPOSABLE_PLAYER_EXPERIENCE_PROBE"))||!getServer().getIp().equals("127.0.0.1")){getServer().getPluginManager().disablePlugin(this);return;}
         proof=getDataFolder().toPath();world=Bukkit.getWorlds().getFirst();

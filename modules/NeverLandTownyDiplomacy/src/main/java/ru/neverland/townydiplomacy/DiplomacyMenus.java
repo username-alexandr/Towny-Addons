@@ -13,14 +13,14 @@ import ru.neverland.core.MenuStyle;
 import static ru.neverland.townydiplomacy.Treaty.*;
 
 public final class DiplomacyMenus implements Listener {
-    record Holder(UUID viewer,UUID town,int page,List<UUID> entries,UUID detail,String confirm,Inventory back) implements InventoryHolder { public Inventory getInventory(){ synchronized (ru.neverland.core.SuiteState.lock()) {return null;} } }
+    record Holder(UUID viewer,UUID town,int page,List<UUID> entries,UUID detail,String confirm,Inventory back) implements InventoryHolder { public Inventory getInventory(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return null;} } }
     private final NeverLandTownyDiplomacy plugin;private final DiplomacyService service;
     public DiplomacyMenus(NeverLandTownyDiplomacy plugin,DiplomacyService service){this.plugin=plugin;this.service=service;}
-    public static String name(UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {var t=TownyAPI.getInstance().getTown(id);return t==null?"Удалённый город":t.getName();} }
-    public static String phase(Treaty t){ synchronized (ru.neverland.core.SuiteState.lock()) {long now=System.currentTimeMillis();if(t.phase()==Phase.ENDED)return "Завершён";if(!t.open(now))return "Срок истёк";return switch(t.phase()){case PENDING->"Ожидает принятия";case ACTIVE->"Действует";case TERMINATING->"Расторгается; условия ещё действуют";case ENDED->"Завершён";};} }
+    public static String name(UUID id){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {var t=TownyAPI.getInstance().getTown(id);return t==null?"Удалённый город":t.getName();} }
+    public static String phase(Treaty t){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {long now=System.currentTimeMillis();if(t.phase()==Phase.ENDED)return "Завершён";if(!t.open(now))return "Срок истёк";return switch(t.phase()){case PENDING->"Ожидает принятия";case ACTIVE->"Действует";case TERMINATING->"Расторгается; условия ещё действуют";case ENDED->"Завершён";};} }
     private static Material icon(TreatyType type){return switch(type){case ALLIANCE->Material.SHIELD;case TRADE->Material.GOLD_INGOT;case NONAGGRESSION->Material.WHITE_BANNER;case VASSALAGE->Material.GOLDEN_HELMET;case GUARANTEE->Material.TOTEM_OF_UNDYING;case EMBARGO->Material.BARRIER;case SANCTIONS->Material.IRON_BARS;};}
     private Inventory previous(Player p){var top=p.getOpenInventory().getTopInventory();return top.getHolder() instanceof Holder h?h.back():MenuStyle.previousMenu(p);}
-    public void open(Player player,Town town,int page,Inventory back){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void open(Player player,Town town,int page,Inventory back){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if(!player.hasPermission("neverlandtownydiplomacy.use"))return;
         var values=service.repository().all().values().stream().filter(t->t.party(town.getUUID())).sorted(Comparator.comparing((Treaty t)->!t.open(System.currentTimeMillis())).thenComparing(Comparator.comparingLong(Treaty::created).reversed()).thenComparing(Treaty::id)).toList();
         int pages=Math.max(1,(values.size()+27)/28);page=Math.max(0,Math.min(page,pages-1));var slice=values.stream().skip(page*28L).limit(28).toList();
@@ -56,7 +56,7 @@ public final class DiplomacyMenus implements Listener {
     }
     private static String actionName(String action){return switch(action){case "accept"->"Принять договор";case "reject"->"Отклонить предложение";default->"Завершить договор или ограничение";};}
     private static ItemStack item(Material type,String name,List<String> lore){var item=new ItemStack(type);var meta=item.getItemMeta();meta.setDisplayName(MenuStyle.nameLegacy(name));meta.setLore(MenuStyle.loreStrings(lore));item.setItemMeta(meta);return item;}
-    @EventHandler public void click(InventoryClickEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDiplomacy")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler public void click(InventoryClickEvent e){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDiplomacy")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         if(!(e.getView().getTopInventory().getHolder() instanceof Holder h))return;e.setCancelled(true);
         if(!(e.getWhoClicked() instanceof Player p)||!h.viewer().equals(p.getUniqueId())||!p.hasPermission("neverlandtownydiplomacy.use"))return;
         int slot=e.getRawSlot();var town=TownyAPI.getInstance().getTown(h.town());
@@ -73,5 +73,5 @@ public final class DiplomacyMenus implements Listener {
             }catch(IllegalArgumentException ex){DiplomacyCommand.tell(p,"&c"+ex.getMessage());}catch(Exception ex){DiplomacyCommand.tell(p,"&cРешение не сохранено; обратитесь к администратору");plugin.failure("Ошибка меню дипломатии",ex);}
         });
     } }
-    @EventHandler public void drag(InventoryDragEvent e){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDiplomacy")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(e.getView().getTopInventory().getHolder() instanceof Holder)e.setCancelled(true);} }
+    @EventHandler public void drag(InventoryDragEvent e){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDiplomacy")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(e.getView().getTopInventory().getHolder() instanceof Holder)e.setCancelled(true);} }
 }

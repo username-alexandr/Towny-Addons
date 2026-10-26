@@ -17,10 +17,10 @@ public final class CitizensRepository {
     private Map<String, CitizenshipRecord> records = Map.of();
     private boolean writable;
     public CitizensRepository(Path file) { this.file = file; }
-    public boolean writable() { synchronized (ru.neverland.core.SuiteState.lock()) { return writable && AtomicFiles.writable(file); } }
-    public Map<String, CitizenshipRecord> all() { synchronized (ru.neverland.core.SuiteState.lock()) { return records; } }
-    public CitizenshipRecord get(UUID town, UUID resident) { synchronized (ru.neverland.core.SuiteState.lock()) { return records.get(town + "/" + resident); } }
-    public void load() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean writable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return writable && AtomicFiles.writable(file); } }
+    public Map<String, CitizenshipRecord> all() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return records; } }
+    public CitizenshipRecord get(UUID town, UUID resident) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return records.get(town + "/" + resident); } }
+    public void load() throws Exception { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         writable = false;
         Map<String, CitizenshipRecord> next = new LinkedHashMap<>();
         if (Files.exists(file)) {
@@ -38,7 +38,7 @@ public final class CitizensRepository {
         }
         records = Map.copyOf(next); AtomicFiles.loaded(file); writable = true;
     } }
-    public void put(CitizenshipRecord record) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void put(CitizenshipRecord record) throws IOException { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if (!writable()) throw new IOException("Реестр гражданства остановлен после ошибки записи");
         var next = new LinkedHashMap<>(records); next.put(record.key(), record);
         var y = new YamlConfiguration(); y.set("schema", 1); y.createSection("records");

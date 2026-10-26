@@ -27,19 +27,19 @@ public final class QuestService implements TownyQuestsApi {
     public QuestService(Plugin plugin, QuestRepository repository, QuestSettings settings) {
         this.plugin = plugin; this.repository = repository; this.settings = settings;
     }
-    public QuestSettings settings() { synchronized (ru.neverland.core.SuiteState.lock()) { return settings; } }
-    public Map<String, CityProject> state(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { return repository.get(town); } }
-    public String detail(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { return details.getOrDefault(town, "Проверка условий выполняется автоматически"); } }
-    public Town town(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) { var r = TownyAPI.getInstance().getResident(player); return r == null ? null : r.getTownOrNull(); } }
-    public boolean manager(Player player, Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public QuestSettings settings() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return settings; } }
+    public Map<String, CityProject> state(UUID town) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return repository.get(town); } }
+    public String detail(UUID town) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return details.getOrDefault(town, "Проверка условий выполняется автоматически"); } }
+    public Town town(Player player) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { var r = TownyAPI.getInstance().getResident(player); return r == null ? null : r.getTownOrNull(); } }
+    public boolean manager(Player player, Town town) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         var r = TownyAPI.getInstance().getResident(player);
         return r != null && town.equals(r.getTownOrNull()) && (town.isMayor(r) || ru.neverland.core.CouncilAccess.check(player,town.getUUID(),"quests",player.hasPermission("neverlandtownyquests.manage")));
     } }
-    public void start() { synchronized (ru.neverland.core.SuiteState.lock()) { ApiServices.primaryThread(); schedule(); } }
+    public void start() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { ApiServices.primaryThread(); schedule(); } }
     private void schedule() { task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::tick, 20L, settings.interval() * 20L); }
-    public void stop() { synchronized (ru.neverland.core.SuiteState.lock()) { if (task != null) task.cancel(); observations.clear(); details.clear(); } }
-    public void reload(QuestSettings next) { synchronized (ru.neverland.core.SuiteState.lock()) { ApiServices.primaryThread(); stop(); settings = next; schedule(); } }
-    public void begin(Player player, String id) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void stop() { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { if (task != null) task.cancel(); observations.clear(); details.clear(); } }
+    public void reload(QuestSettings next) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) { ApiServices.primaryThread(); stop(); settings = next; schedule(); } }
+    public void begin(Player player, String id) throws Exception { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); var town = town(player);
         if (!player.hasPermission("neverlandtownyquests.use") || town == null || !manager(player, town))
             throw new IllegalArgumentException("Начать проект может мэр или уполномоченный своего города");
@@ -55,14 +55,14 @@ public final class QuestService implements TownyQuestsApi {
         var run = CityProject.start(definition); repository.put(city, run); observations.remove(city);
         audit(city, run, "start", "Начат проект: " + definition.name());
     } }
-    public String control(UUID town, String id, String action) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String control(UUID town, String id, String action) throws Exception { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); var run = state(town).get(id);
         if (run == null || TownyAPI.getInstance().getTown(town) == null) throw new IllegalArgumentException("Город или проект больше не существует");
         if (action.equals("status")) return describe(run) + "; " + detail(town);
         var next = run.control(action); repository.put(town, next); observations.remove(town); details.remove(town);
         return describe(next) + "; завершённые этапы сохранены";
     } }
-    public void tick() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void tick() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); long nano = System.nanoTime(), now = System.currentTimeMillis();
         for (var city : repository.towns().entrySet()) for (var run : city.getValue().values()) {
             UUID id = city.getKey();
@@ -98,7 +98,7 @@ public final class QuestService implements TownyQuestsApi {
         ru.neverland.core.SuiteScheduler.players(plugin, player -> {if (town.equals(town(player)))
             player.sendMessage("§aГородской проект завершён: " + run.definition().name() + ". §f" + run.definition().reward());});
     }
-    public List<ActivityAdmin.Target> adminTargets() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<ActivityAdmin.Target> adminTargets() { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); var result = new ArrayList<ActivityAdmin.Target>();
         repository.towns().forEach((town, runs) -> { var city = TownyAPI.getInstance().getTown(town); if (city == null) return;
             runs.forEach((id, run) -> { if (run.status() == CityProject.Status.COMPLETED) return;
@@ -107,16 +107,16 @@ public final class QuestService implements TownyQuestsApi {
             });
         }); return List.copyOf(result);
     } }
-    public static String status(CityProject.Status status) { synchronized (ru.neverland.core.SuiteState.lock()) { return switch (status) {
+    public static String status(CityProject.Status status) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) { return switch (status) {
         case ACTIVE -> "В работе"; case PAUSED -> "Приостановлен"; case CANCELLED -> "Отменён без провала"; case COMPLETED -> "Завершён";
     }; } }
-    public static String describe(CityProject run) { synchronized (ru.neverland.core.SuiteState.lock()) { return run.definition().name() + " — " + status(run.status()) + "; этапы " + run.stage() + "/" + run.definition().stages().size(); } }
-    @Override public boolean unlocked(UUID town, String unlock) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String describe(CityProject run) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) { return run.definition().name() + " — " + status(run.status()) + "; этапы " + run.stage() + "/" + run.definition().stages().size(); } }
+    @Override public boolean unlocked(UUID town, String unlock) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread();
         return town != null && TownyAPI.getInstance().getTown(town) != null && state(town).values().stream()
                 .anyMatch(r -> r.status() == CityProject.Status.COMPLETED && r.definition().unlock().equals(unlock));
     } }
-    @Override public List<Map<String, Object>> quests(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<Map<String, Object>> quests(UUID town) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); if (town == null || TownyAPI.getInstance().getTown(town) == null) return List.of();
         return state(town).values().stream().sorted(Comparator.comparing(r -> r.definition().id())).map(r -> Map.<String, Object>of(
                 "id", r.definition().id(), "name", r.definition().name(), "run", r.run(), "status", r.status().name(),

@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 public final class CouncilAccess {
     private CouncilAccess() { }
     /** Use after checking town membership and mayor/admin authority. Live denies precede legacy ranks. */
-    public static boolean check(Player player, UUID town, String action, boolean legacy) { synchronized(SuiteState.lock()) {
+    public static boolean check(Player player, UUID town, String action, boolean legacy) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if(player==null||town==null)return false;
         var c=ApiServices.connect("NeverLandTownyCouncil","ru.neverland.townycouncil.api.TownyCouncilApi",1,"allows");
         if(c.state()==ApiServices.State.NOT_INSTALLED)return legacy;
@@ -21,7 +21,7 @@ public final class CouncilAccess {
             return legacy||allows(player,town,action);
         }catch(ReflectiveOperationException|RuntimeException|LinkageError ex){return false;}
     } }
-    public static boolean allows(Player player, UUID town, String action) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean allows(Player player, UUID town, String action) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (player == null || town == null) return false;
         String permission = "neverlandtownycouncil.action." + action;
         if (!player.hasPermission(permission)) return false;

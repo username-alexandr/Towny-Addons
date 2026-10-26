@@ -7,7 +7,7 @@ import static ru.neverland.townysieges.SiegeRules.*;
 /** Reads only the public Builds workplace contract. Live operational level is rechecked for every restriction. */
 public final class BuildsAccess {
     public record Building(int completed, Zone zone) { }
-    public Map<Fort,Building> buildings(UUID town,SiegeSettings settings) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Map<Fort,Building> buildings(UUID town,SiegeSettings settings) throws Exception { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var api=ApiServices.require("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","workplaces","line");
         var workplaces=(Map<?,?>)api.invoke("workplaces",new Class<?>[]{UUID.class},town);
         var out=new EnumMap<Fort,Building>(Fort.class);
@@ -27,19 +27,19 @@ public final class BuildsAccess {
         return Map.copyOf(out);
     } }
     static double num(Object record,String name)throws Exception { return ((Number)record.getClass().getMethod(name).invoke(record)).doubleValue(); }
-    public int level(UUID town,Fort fort,Building building)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int level(UUID town,Fort fort,Building building)throws Exception { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(building==null) return 0;
         int live=((Number)ApiServices.call("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","operationalLevel",new Class<?>[]{UUID.class,String.class},town,fort.project)).intValue();
         return Math.max(0,Math.min(5,Math.min(live,building.completed())));
     } }
-    public boolean protectedByTreaty(UUID attacker,UUID defender)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean protectedByTreaty(UUID attacker,UUID defender)throws Exception { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if(attacker==null) return false;
         var api=ApiServices.connect("NeverLandTownyDiplomacy","ru.neverland.townydiplomacy.api.TownyDiplomacyApi",1,"healthy","hostileBlocked");
         if(api.state()==ApiServices.State.NOT_INSTALLED) return false;
         if(!api.ready() || !Boolean.TRUE.equals(api.invoke("healthy",new Class<?>[]{}))) throw new IllegalStateException("Дипломатия недоступна");
         return Boolean.TRUE.equals(api.invoke("hostileBlocked",new Class<?>[]{UUID.class,UUID.class},attacker,defender));
     } }
-    public double army(UUID town)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public double army(UUID town)throws Exception { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         var api=ApiServices.connect("NeverLandTownyArmy","ru.neverland.townyarmy.api.TownyArmyApi",1,"healthy","garrison");
         if(api.state()==ApiServices.State.NOT_INSTALLED) return 0;
         if(!api.ready() || !Boolean.TRUE.equals(api.invoke("healthy",new Class<?>[]{}))) throw new IllegalStateException("Гарнизон недоступен");

@@ -19,7 +19,7 @@ public final class CustomRaidMobs {
         if (dependency == null || !dependency.isEnabled()) throw new IllegalStateException("Не включён " + pluginName);
         return Class.forName(className, true, dependency.getClass().getClassLoader());
     }
-    public void apply(LivingEntity entity, RaidCatalog.MobSpec spec, RaidCatalog.Wave wave, double protection) throws ReflectiveOperationException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void apply(LivingEntity entity, RaidCatalog.MobSpec spec, RaidCatalog.Wave wave, double protection) throws ReflectiveOperationException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         // Resolve all equipment before attaching a model, so an invalid item cannot leave model parts behind.
         Map<String, ItemStack> equipment = new LinkedHashMap<>();
         for (var item : spec.equipment().entrySet()) equipment.put(item.getKey(), item(item.getValue()));

@@ -13,10 +13,10 @@ import ru.neverland.core.MenuStyle;
 import ru.neverland.townycitizens.model.*;
 
 public final class CitizensMenus implements Listener {
-    private record Holder(UUID viewer, Inventory back) implements InventoryHolder { public Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { return null; } } }
+    private record Holder(UUID viewer, Inventory back) implements InventoryHolder { public Inventory getInventory() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return null; } } }
     private final NeverLandTownyCitizens plugin; private final CitizensService service;
     public CitizensMenus(NeverLandTownyCitizens plugin, CitizensService service) { this.plugin = plugin; this.service = service; }
-    public void open(Player viewer, Town town, Resident resident) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void open(Player viewer, Town town, Resident resident) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         var previous = viewer.getOpenInventory().getTopInventory();
         var back = previous.getHolder() instanceof Holder old ? old.back() : MenuStyle.previousMenu(viewer);
         var menu = MenuStyle.inventory(plugin, new Holder(viewer.getUniqueId(), back), 45, "Гражданство • " + town.getName());
@@ -47,11 +47,11 @@ public final class CitizensMenus implements Listener {
         var item = new ItemStack(material); var meta = item.getItemMeta();
         meta.setDisplayName(MenuStyle.nameLegacy(name)); meta.setLore(MenuStyle.loreStrings(lore)); item.setItemMeta(meta); return item;
     }
-    @EventHandler public void click(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCitizens")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    @EventHandler public void click(InventoryClickEvent event) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCitizens")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getView().getTopInventory().getHolder() instanceof Holder holder)) return;
         event.setCancelled(true); if (!(event.getWhoClicked() instanceof Player p) || !p.getUniqueId().equals(holder.viewer())) return;
         if (event.getRawSlot() == 36) ru.neverland.core.SuiteScheduler.entity(plugin, p, () -> MenuStyle.returnTo(p, holder.back()));
         if (event.getRawSlot() == 40) CitizensCommand.help(p);
     } }
-    @EventHandler public void drag(InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCitizens")){ru.neverland.core.ModuleGate.stopEvent(event);return;} if (event.getView().getTopInventory().getHolder() instanceof Holder) event.setCancelled(true); } }
+    @EventHandler public void drag(InventoryDragEvent event) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCitizens")){ru.neverland.core.ModuleGate.stopEvent(event);return;} if (event.getView().getTopInventory().getHolder() instanceof Holder) event.setCancelled(true); } }
 }

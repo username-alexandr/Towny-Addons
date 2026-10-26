@@ -5,7 +5,7 @@ import ru.neverland.core.*;
 import ru.neverland.integration.TreasuryAccess;
 /** Towny account evidence resolves a lost bank reply; no raw Vault bypass of municipal budgets. */
 public final class JusticeBank implements JusticePayments.Bank {
-    public boolean debit(JusticePayment p){ synchronized (ru.neverland.core.SuiteState.lock()) {return transfer(p,false);} }public boolean credit(JusticePayment p){ synchronized (ru.neverland.core.SuiteState.lock()) {return transfer(p,true);} }
+    public boolean debit(JusticePayment p){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return transfer(p,false);} }public boolean credit(JusticePayment p){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return transfer(p,true);} }
     private boolean transfer(JusticePayment p,boolean incoming){ApiServices.primaryThread();if(!TownyEconomyHandler.isActive())return false;
         boolean city=p.kind()==JusticePayment.Kind.BOUNTY_FUND||incoming&&p.kind()!=JusticePayment.Kind.BOUNTY_PAY;var town=city?TownyAPI.getInstance().getTown(p.town()):null;var resident=city?null:TownyAPI.getInstance().getResident(p.resident());if(town==null&&resident==null)return false;Account account=city?town.getAccount():resident.getAccount();String token="[justice:"+p.id()+"]";var evidence=new PaymentEvidence(account,incoming,token,p.amount());
         var observer=new AccountObserver(){public void withdrew(Account a,double n,String why){ evidence.observe(a,false,n,why); }public void deposited(Account a,double n,String why){ evidence.observe(a,true,n,why); }};

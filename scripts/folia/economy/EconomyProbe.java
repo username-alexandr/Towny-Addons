@@ -22,7 +22,7 @@ public final class EconomyProbe extends JavaPlugin {
     private final AtomicInteger remaining=new AtomicInteger(2);private int failed;
     private void check(String title,boolean value){results.add((value?"PASS ":"FAIL ")+title);if(!value)failed++;}
     @Override public void onEnable(){
-        Bukkit.getGlobalRegionScheduler().runDelayed(this,t->{synchronized(SuiteState.lock()){
+        Bukkit.getGlobalRegionScheduler().runDelayed(this,t->{try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){
             try{bankChecks();auditWhenDisconnected();presentationChecks();dailyOrdersChecks();regions();}catch(Throwable ex){getLogger().log(java.util.logging.Level.SEVERE,"Probe failed",ex);check(ex.toString(),false);finish();}
         }},60);
     }
@@ -158,7 +158,7 @@ public final class EconomyProbe extends JavaPlugin {
         }
     }
     private void regions(){World world=Bukkit.getWorlds().getFirst();for(int x:new int[]{0,10000}){
-        Location at=new Location(world,x,80,0);world.getChunkAtAsync(at).thenAccept(chunk->Bukkit.getRegionScheduler().run(this,at,t->{synchronized(SuiteState.lock()){
+        Location at=new Location(world,x,80,0);world.getChunkAtAsync(at).thenAccept(chunk->Bukkit.getRegionScheduler().run(this,at,t->{try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){
             try{check("region owns location "+x,Bukkit.isOwnedByCurrentRegion(at));var original=at.getBlock().getBlockData();at.getBlock().setType(Material.IRON_ORE,false);
                 var guard=new ActionGuard(this,"native-blocks.log");check("fresh ore eligible "+x,guard.untouched(at.getBlock()));guard.deny(at.getBlock());check("placed/mined coordinate rejected "+x,!guard.untouched(at.getBlock()));var reload=new ActionGuard(this,"native-blocks.log");check("block provenance survives reload "+x,!reload.untouched(at.getBlock()));at.getBlock().setBlockData(original,false);
                 if(x==0){

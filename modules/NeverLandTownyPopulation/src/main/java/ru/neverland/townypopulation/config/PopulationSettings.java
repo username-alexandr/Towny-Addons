@@ -11,17 +11,17 @@ public record PopulationSettings(long intervalMillis, int initial, Capacity base
                                  PopulationMath.Rules rules, Map<String, Building> buildings) {
     public PopulationSettings { buildings = Collections.unmodifiableMap(new LinkedHashMap<>(buildings)); }
     public record Building(String name, String icon, int minimumLevel, int maximumLevel, Capacity capacity) {
-        public Capacity atLevel(int level) { synchronized (ru.neverland.core.SuiteState.lock()) { return capacity.times(Math.max(0, Math.min(maximumLevel,level)-minimumLevel+1)); } }
+        public Capacity atLevel(int level) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return capacity.times(Math.max(0, Math.min(maximumLevel,level)-minimumLevel+1)); } }
     }
-    public Capacity capacity(ToIntFunction<String> levels) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Capacity capacity(ToIntFunction<String> levels) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return capacity(levels,id -> 1.0);
     } }
-    public Capacity capacity(ToIntFunction<String> levels, java.util.function.ToDoubleFunction<String> multipliers) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Capacity capacity(ToIntFunction<String> levels, java.util.function.ToDoubleFunction<String> multipliers) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         Capacity result = base;
         for (var entry : buildings.entrySet()) result = result.plus(entry.getValue().atLevel(levels.applyAsInt(entry.getKey())).scaled(multipliers.applyAsDouble(entry.getKey())));
         return result;
     } }
-    public static PopulationSettings load(YamlConfiguration config, YamlConfiguration catalog) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static PopulationSettings load(YamlConfiguration config, YamlConfiguration catalog) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         int maximum = integer(config,"simulation.maximum-population",1,1000000);
         int initial = integer(config,"simulation.initial-population",0,maximum);
         var rules = new PopulationMath.Rules(maximum,

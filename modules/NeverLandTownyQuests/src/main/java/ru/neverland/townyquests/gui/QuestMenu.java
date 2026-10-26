@@ -15,7 +15,7 @@ public final class QuestMenu implements Listener {
     private static final class View implements InventoryHolder {
         final UUID player, town; final Map<Integer, Runnable> buttons = new HashMap<>(); Inventory inventory;
         View(UUID player, UUID town) { this.player = player; this.town = town; }
-        @Override public Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { return inventory; } }
+        @Override public Inventory getInventory() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return inventory; } }
     }
     private View view(Player player, String title) {
         var town = service.town(player);
@@ -28,7 +28,7 @@ public final class QuestMenu implements Listener {
         meta.setLore(lore.stream().map(s -> "§7" + s).toList()); item.setItemMeta(meta); v.inventory.setItem(slot, item);
         if (action != null) v.buttons.put(slot, action);
     }
-    public void home(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) { home(player, 0); } }
+    public void home(Player player) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { home(player, 0); } }
     private void home(Player player, int requestedPage) {
         var v = view(player, "Городские проекты"); var state = service.state(v.town);
         Map<String, Project> definitions = new LinkedHashMap<>(service.settings().projects());
@@ -50,7 +50,7 @@ public final class QuestMenu implements Listener {
         if ((page + 1) * 45 < definitions.size()) button(v, 53, "ARROW", "Следующая страница", List.of(), () -> home(player, page + 1));
         player.openInventory(v.inventory);
     }
-    public void project(Player player, String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void project(Player player, String id) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         var v = view(player, "Этапы городского проекта"); var run = service.state(v.town).get(id);
         var p = run == null ? service.settings().projects().get(id) : run.definition();
         if (p == null) throw new IllegalArgumentException("Проект отсутствует. Обновите меню");
@@ -76,7 +76,7 @@ public final class QuestMenu implements Listener {
             button(v, 51, "WRITABLE_BOOK", "Открыть городские политики", List.of("Санитарная реформа разблокирована", "Выбор и стоимость указаны в политиках"), () -> { player.closeInventory(); player.performCommand("town policies"); });
         player.openInventory(v.inventory);
     } }
-    @EventHandler public void click(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyQuests")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    @EventHandler public void click(InventoryClickEvent event) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyQuests")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getView().getTopInventory().getHolder() instanceof View v)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player) || !v.player.equals(player.getUniqueId())) return;
@@ -85,6 +85,6 @@ public final class QuestMenu implements Listener {
         var action = v.buttons.get(event.getRawSlot());
         if (action != null) try { action.run(); } catch (Exception ex) { player.sendMessage("§c" + ex.getMessage()); }
     } }
-    @EventHandler public void drag(InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyQuests")){ru.neverland.core.ModuleGate.stopEvent(event);return;} if (event.getView().getTopInventory().getHolder() instanceof View) event.setCancelled(true); } }
-    public void close() { synchronized (ru.neverland.core.SuiteState.lock()) { ru.neverland.core.SuiteScheduler.cleanupPlayers(plugin,p->{if(p.getOpenInventory().getTopInventory().getHolder() instanceof View)p.closeInventory();}); } }
+    @EventHandler public void drag(InventoryDragEvent event) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyQuests")){ru.neverland.core.ModuleGate.stopEvent(event);return;} if (event.getView().getTopInventory().getHolder() instanceof View) event.setCancelled(true); } }
+    public void close() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { ru.neverland.core.SuiteScheduler.cleanupPlayers(plugin,p->{if(p.getOpenInventory().getTopInventory().getHolder() instanceof View)p.closeInventory();}); } }
 }

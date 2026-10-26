@@ -19,7 +19,7 @@ public final class GovernanceMenuHolder implements InventoryHolder {
         if (queued) return null;
         var action = actions.get(slot); if (action != null) queued = true; return action;
     }
-    public Type type() { synchronized (ru.neverland.core.SuiteState.lock()) { return type; } }
-    public UUID townId() { synchronized (ru.neverland.core.SuiteState.lock()) { return townId; } }
-    @Override public Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { return null; } }
+    public Type type() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return type; } }
+    public UUID townId() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return townId; } }
+    @Override public Inventory getInventory() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return null; } }
 }

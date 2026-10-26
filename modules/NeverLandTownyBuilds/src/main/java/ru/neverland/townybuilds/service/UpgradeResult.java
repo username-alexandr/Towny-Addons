@@ -24,7 +24,7 @@ public record UpgradeResult(Status status, double requiredMoney, List<String> mi
         ECONOMY_ERROR
     }
 
-    public static UpgradeResult of(Status status) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static UpgradeResult of(Status status) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return new UpgradeResult(status, 0, List.of(), 0);
     } }
 }

@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-/** Explicit ownership scheduling, valid on both Paper and Folia. No blocking handoffs. */
+/** Busy ledger callbacks defer on the SAME scheduler instead of waiting. */
 public final class SuiteScheduler {
     private static final SuiteScheduler INSTANCE = new SuiteScheduler();
     private static final Set<Task> TASKS = ConcurrentHashMap.newKeySet();
@@ -22,47 +22,39 @@ public final class SuiteScheduler {
     public static SuiteScheduler get() { return INSTANCE; }
     public BukkitTask runTask(Plugin plugin, Runnable action) { return runTaskLater(plugin, action, 1); }
     public BukkitTask runTaskLater(Plugin plugin, Runnable action, long delay) {
-        Task task = new Task(plugin, false, false);
-        task.bind(Bukkit.getGlobalRegionScheduler().runDelayed(plugin, ignored -> task.run(action), Math.max(1, delay)));
-        return task;
+        return new Task(plugin, action, false, 0, (ticks, run, retired) ->
+                Bukkit.getGlobalRegionScheduler().runDelayed(plugin, ignored -> run.run(), ticks), null).start(delay);
     }
     public BukkitTask runTaskTimer(Plugin plugin, Runnable action, long delay, long period) {
-        Task task = new Task(plugin, false, true);
-        task.bind(Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, ignored -> task.run(action), Math.max(1, delay), Math.max(1, period)));
-        return task;
+        return new Task(plugin, action, false, Math.max(1, period), (ticks, run, retired) ->
+                Bukkit.getGlobalRegionScheduler().runDelayed(plugin, ignored -> run.run(), ticks), null).start(delay);
     }
     public BukkitTask runTaskAsynchronously(Plugin plugin, Runnable action) {
-        Task task = new Task(plugin, true, false);
-        task.bind(Bukkit.getAsyncScheduler().runNow(plugin, ignored -> task.run(action)));
-        return task;
+        return new Task(plugin, action, true, 0, (ticks, run, retired) ->
+                Bukkit.getAsyncScheduler().runNow(plugin, ignored -> run.run()), null).start(1);
     }
     public static BukkitTask entity(Plugin plugin, Entity entity, Runnable action) { return entityLater(plugin, entity, action, null, 1); }
     public static BukkitTask entityLater(Plugin plugin, Entity entity, Runnable action, Runnable retired, long delay) {
-        Task task = new Task(plugin, false, false);
-        if (entity == null) { task.retire(retired); return task; }
-        ScheduledTask scheduled = entity.getScheduler().runDelayed(plugin, ignored -> task.run(action), () -> task.retire(retired), Math.max(1, delay));
-        task.bind(scheduled);
-        if (scheduled == null) task.retire(retired);
-        return task;
+        return new Task(plugin, action, false, 0, (ticks, run, gone) -> entity == null ? null :
+                entity.getScheduler().runDelayed(plugin, ignored -> run.run(), gone, ticks), retired).start(delay);
     }
     public static BukkitTask region(Plugin plugin, Location location, Runnable action) { return regionLater(plugin, location, action, 1); }
     public static BukkitTask regionLater(Plugin plugin, Location location, Runnable action, long delay) {
         if (location == null || location.getWorld() == null) throw new IllegalArgumentException("World location required");
-        Task task = new Task(plugin, false, false);
-        task.bind(Bukkit.getRegionScheduler().runDelayed(plugin, location.clone(), ignored -> task.run(action), Math.max(1, delay)));
-        return task;
+        Location anchor = location.clone();
+        return new Task(plugin, action, false, 0, (ticks, run, retired) ->
+                Bukkit.getRegionScheduler().runDelayed(plugin, anchor, ignored -> run.run(), ticks), null).start(delay);
     }
     public static void player(Plugin plugin, Player player, Consumer<Player> action) {
-        if(plugin.isEnabled()&&!SuiteState.frozen(plugin.getName())) entity(plugin, player, () -> { if (player.isOnline()) action.accept(player); });
+        if (plugin.isEnabled() && !SuiteState.frozen(plugin.getName())) entity(plugin, player, () -> { if (player.isOnline()) action.accept(player); });
     }
-    /** Teardown only: the controller stays alive while dependent addons are disabled. */
     public static void cleanupPlayer(Plugin plugin, Player player, Consumer<Player> action) {
-        if(owns(player)) { action.accept(player); return; }
-        Plugin owner=WorldTasks.cleanupOwner(plugin);
-        if(owner!=null) entity(owner,player,()->action.accept(player));
+        if (owns(player)) { action.accept(player); return; }
+        Plugin owner = WorldTasks.cleanupOwner(plugin);
+        if (owner != null) entity(owner, player, () -> action.accept(player));
     }
-    public static void cleanupPlayers(Plugin plugin,Consumer<Player> action) {
-        for(Player player:Bukkit.getOnlinePlayers())cleanupPlayer(plugin,player,action);
+    public static void cleanupPlayers(Plugin plugin, Consumer<Player> action) {
+        for (Player player : Bukkit.getOnlinePlayers()) cleanupPlayer(plugin, player, action);
     }
     public static void players(Plugin plugin, Consumer<Player> action) {
         for (Player player : Bukkit.getOnlinePlayers()) player(plugin, player, action);
@@ -74,27 +66,83 @@ public final class SuiteScheduler {
     public static boolean owns(Location location) { return location != null && location.getWorld() != null && Bukkit.isOwnedByCurrentRegion(location); }
     public void cancelTasks(Plugin plugin) { for (Task task : TASKS) if (task.owner == plugin) task.cancel(); }
 
-    private static final class Task implements BukkitTask {
+    @FunctionalInterface interface Schedule { ScheduledTask later(long delay, Runnable action, Runnable retired); }
+    /** Package-visible for deterministic tests with injected scheduler queues. */
+    static final class Task implements BukkitTask {
         private final int id = IDS.incrementAndGet();
         private final Plugin owner;
-        private final boolean async, repeating;
-        private volatile ScheduledTask scheduled;
-        private volatile boolean cancelled, finished;
-        Task(Plugin owner, boolean async, boolean repeating) { this.owner=owner;this.async=async;this.repeating=repeating;TASKS.add(this); }
-        void bind(ScheduledTask value) { scheduled=value; if (cancelled && value!=null) value.cancel(); }
-        void run(Runnable action) {
-            try { if (!cancelled && owner.isEnabled() && !SuiteState.frozen(owner.getName())) {
-                if (async) action.run(); else SuiteState.run(() -> { if (!cancelled && owner.isEnabled() && !SuiteState.frozen(owner.getName())) action.run(); });
-            } } finally { if (!repeating) { finished=true;TASKS.remove(this); } }
+        private final boolean async;
+        private final long period;
+        private final Runnable retiredCallback;
+        private Runnable action;
+        private Schedule schedule;
+        private ScheduledTask scheduled;
+        private long generation;
+        private volatile boolean cancelled;
+        private boolean finished, running, retired;
+        Task(Plugin owner, Runnable action, boolean async, long period, Schedule schedule, Runnable retiredCallback) {
+            this.owner=owner; this.action=action; this.async=async; this.period=period; this.schedule=schedule; this.retiredCallback=retiredCallback;
+            TASKS.add(this);
         }
-        void retire(Runnable callback) {
-            synchronized (this) { if (finished || cancelled) return;finished=true;TASKS.remove(this); }
-            if (callback != null) SuiteState.run(callback);
+        Task start(long delay) { arm(delay); return this; }
+        private void arm(long delay) {
+            final long ticket; final Schedule target;
+            synchronized (this) { if (cancelled || finished) return; ticket=++generation; target=schedule; }
+            ScheduledTask value;
+            try { value=target.later(Math.max(1, delay), () -> execute(ticket), () -> retire(ticket)); }
+            catch (RuntimeException | Error ex) { cancel(); throw ex; }
+            synchronized (this) {
+                if (cancelled || finished || generation != ticket) { if (value != null) value.cancel(); return; }
+                scheduled=value;
+            }
+            if (value == null) retire(ticket);
         }
+        private void execute(long ticket) {
+            synchronized (this) {
+                if (cancelled || finished || running || generation != ticket) return;
+                running=true; scheduled=null;
+            }
+            boolean busy=false;
+            try {
+                if ((!retired && !owner.isEnabled()) || cancelled) { finish(); return; }
+                if (!retired && SuiteState.frozen(owner.getName())) return;
+                Runnable guarded=() -> {
+                    if (!cancelled && (retired || owner.isEnabled() && !SuiteState.frozen(owner.getName()))) action.run();
+                };
+                if (async) guarded.run();
+                else if (!SuiteState.tryRun(owner.getName()+" task="+id+(retired?" retired":""), guarded)) {
+                    busy=true; SuiteState.warnIfStalled(owner.getLogger(), owner.getName()+" task="+id);
+                }
+            } finally {
+                synchronized (this) { running=false; }
+                // At most one continuation. Slow tasks never accumulate missed timer invocations.
+                if (busy) arm(1);
+                else if (period > 0 && !retired) arm(period);
+                else finish();
+            }
+        }
+        private void retire(long ticket) {
+            synchronized (this) {
+                if (cancelled || finished || running || retired || generation != ticket) return;
+                retired=true; generation++; scheduled=null;
+                if (retiredCallback == null) { finish(); return; }
+                Plugin schedulerOwner=WorldTasks.cleanupOwner(owner);
+                if (schedulerOwner == null) { finish(); return; }
+                action=retiredCallback;
+                // Retired callbacks cannot touch the entity. Their data cleanup can run globally.
+                schedule=(ticks, run, gone) -> Bukkit.getGlobalRegionScheduler().runDelayed(schedulerOwner, ignored -> run.run(), ticks);
+            }
+            arm(1);
+        }
+        private synchronized void finish() { finished=true; TASKS.remove(this); }
         public int getTaskId() { return id; }
         public Plugin getOwner() { return owner; }
         public boolean isSync() { return !async; }
-        public boolean isCancelled() { return cancelled || scheduled!=null && scheduled.isCancelled(); }
-        public void cancel() { cancelled=true;ScheduledTask value=scheduled;if(value!=null)value.cancel();TASKS.remove(this); }
+        public synchronized boolean isCancelled() { return cancelled; }
+        public void cancel() {
+            ScheduledTask value;
+            synchronized (this) { cancelled=true; generation++; value=scheduled; scheduled=null; TASKS.remove(this); }
+            if (value != null) value.cancel();
+        }
     }
 }

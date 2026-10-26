@@ -5,7 +5,7 @@ import static ru.neverland.townyarmy.ArmyModel.*;
 public final class ArmyMigration {
     public interface Legacy { Map<UUID, UUID> legacy() throws Exception; void handoff(Map<UUID, UUID> expected) throws Exception; }
     private ArmyMigration() { }
-    public static void resume(ArmyRepository repository, Legacy legacy, long now) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void resume(ArmyRepository repository, Legacy legacy, long now) throws Exception { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!repository.state().imported()) {
             var roster = legacy.legacy(); var d = repository.draft(); d.imported = true; d.legacy.putAll(roster);
             for (var e : roster.entrySet()) d.soldier(Soldier.applicant(e.getKey(), e.getValue(), Unit.INFANTRY, now).swear().status(Status.ACTIVE));

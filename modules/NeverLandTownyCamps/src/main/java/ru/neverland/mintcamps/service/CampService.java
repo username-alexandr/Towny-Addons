@@ -57,11 +57,11 @@ public final class CampService {
         this.itemNames = itemNames;
     }
 
-    public void holograms(HologramService value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void holograms(HologramService value) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         this.holograms = value;
     } }
 
-    public boolean create(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean create(Player player) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (repository.get(player.getUniqueId()).isPresent()) {
             messages.send(player, "already-has-camp");
             return false;
@@ -141,7 +141,7 @@ public final class CampService {
         }
     } }
 
-    public boolean upgrade(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean upgrade(Player player) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         Camp camp = repository.get(player.getUniqueId()).orElse(null);
         if (camp == null) {
             messages.send(player, "no-camp");
@@ -216,7 +216,7 @@ public final class CampService {
         }
     } }
 
-    public boolean pack(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean pack(Player player) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         Camp camp = repository.get(player.getUniqueId()).orElse(null);
         if (camp == null) {
             messages.send(player, "no-camp");
@@ -231,7 +231,7 @@ public final class CampService {
         return true;
     } }
 
-    public boolean pack(Camp camp, Player receiver, boolean expired) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean pack(Camp camp, Player receiver, boolean expired) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         try {
             if ((!expired&&receiver!=null&&!ru.neverland.core.SuiteScheduler.owns(receiver)) || !ru.neverland.core.WorldTasks.ownsBox(camp.anchorLocation(),16) || repository.stashBusy(camp.ownerId())) return false;
             if (repository.get(camp.ownerId()).orElse(null) != camp) return false;
@@ -259,7 +259,7 @@ public final class CampService {
         }
     } }
 
-    public boolean trust(Player owner, UUID targetId, String targetName) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean trust(Player owner, UUID targetId, String targetName) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         Camp camp = repository.get(owner.getUniqueId()).orElse(null);
         if (camp == null) { messages.send(owner, "no-camp"); return false; }
         if (owner.getUniqueId().equals(targetId)) { messages.send(owner, "self-trust"); return false; }
@@ -275,7 +275,7 @@ public final class CampService {
         return true;
     } }
 
-    public boolean untrust(Player owner, UUID targetId, String targetName) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean untrust(Player owner, UUID targetId, String targetName) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         Camp camp = repository.get(owner.getUniqueId()).orElse(null);
         if (camp == null) { messages.send(owner, "no-camp"); return false; }
         if (camp.trusted().remove(targetId) == null) {
@@ -290,7 +290,7 @@ public final class CampService {
         return true;
     } }
 
-    public void toggleBarrier(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void toggleBarrier(Player player) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         Camp camp = repository.get(player.getUniqueId()).orElse(null);
         if (camp == null) { messages.send(player, "no-camp"); return; }
         camp.mobsDisabled(!camp.mobsDisabled());
@@ -298,7 +298,7 @@ public final class CampService {
         messages.send(player, camp.mobsDisabled() ? "barrier.enabled" : "barrier.disabled");
     } }
 
-    public void updateCampfire(Camp camp) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void updateCampfire(Camp camp) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         World world = camp.world().orElse(null);
         if (world == null) return;
         if (!ru.neverland.core.WorldTasks.ownsBox(camp.anchorLocation(),16)) { ru.neverland.core.SuiteScheduler.region(plugin,camp.anchorLocation(),()->{ if(ru.neverland.core.WorldTasks.ownsBox(camp.anchorLocation(),16))updateCampfire(camp); });return; }
@@ -314,7 +314,7 @@ public final class CampService {
         }
     } }
 
-    public void migrateRaisedCampfires() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void migrateRaisedCampfires() { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         int migrated = 0;
         for (Camp camp : repository.all()) {
             if (camp.anchorLocation()!=null) ru.neverland.core.SuiteScheduler.region(plugin,camp.anchorLocation(),()->{ if(ru.neverland.core.WorldTasks.ownsBox(camp.anchorLocation(),16)&&migrateRaisedCampfire(camp))repository.saveIfDirty(); });
@@ -325,19 +325,19 @@ public final class CampService {
         }
     } }
 
-    public int stashSize(int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int stashSize(int level) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
         return plugin.getConfig().getInt("settings.levels." + level + ".stash-size", level * 9);
     } }
 
-    public int maxTrusted(int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int maxTrusted(int level) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         return plugin.getConfig().getInt("settings.levels." + level + ".max-trusted", level * 2);
     } }
 
-    public String levelName(int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String levelName(int level) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
         return messages.formatConfig(plugin.getConfig().getString("settings.levels." + level + ".name", "Уровень " + level));
     } }
 
-    public String styleName(Camp camp) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String styleName(Camp camp) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         return styles.find(camp.styleId()).map(value -> messages.formatConfig(value.name())).orElse(camp.styleId());
     } }
 

@@ -16,7 +16,7 @@ public record Project(String id, String name, String icon, List<String> requires
                 || stages.stream().map(Stage::id).distinct().count() != stages.size())
             throw new IllegalArgumentException("Неверные зависимости или этапы проекта");
     }
-    public static void identifier(String value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void identifier(String value) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (value == null || !value.matches("[a-z0-9_]{1,48}")) throw new IllegalArgumentException("Неверный идентификатор: " + value);
     } }
     public enum Kind { BUILDING, WATER_DISTRICTS }

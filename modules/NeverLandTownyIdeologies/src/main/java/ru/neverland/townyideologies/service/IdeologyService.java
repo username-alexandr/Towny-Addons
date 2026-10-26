@@ -30,16 +30,16 @@ public final class IdeologyService {
         this.economy = economy;
     }
 
-    public Optional<TownIdeology> get(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Optional<TownIdeology> get(Player player) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Town town = towny.town(player);
         return town == null ? Optional.empty() : data.get(town.getUUID());
     } }
 
-    public Optional<TownIdeology> get(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Optional<TownIdeology> get(Town town) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return town == null ? Optional.empty() : data.get(town.getUUID());
     } }
 
-    public boolean active(Player player, String ideologyId, boolean checkScope) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean active(Player player, String ideologyId, boolean checkScope) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         Town town = towny.town(player);
         if (town == null) return false;
         TownIdeology current = data.get(town.getUUID()).orElse(null);
@@ -50,7 +50,7 @@ public final class IdeologyService {
         return !"TOWN".equalsIgnoreCase(scope) || (territory != null && town.getUUID().equals(territory.getUUID()));
     } }
 
-    public PurchaseResult purchase(Player player, String ideologyId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public PurchaseResult purchase(Player player, String ideologyId) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         IdeologyDefinition definition = registry.find(ideologyId).orElse(null);
         if (definition == null) return new PurchaseResult(PurchaseStatus.DEFINITION_MISSING, null, 0, 0.0D);
         if (!player.hasPermission("neverlandtownyideologies.select")) {
@@ -107,14 +107,14 @@ public final class IdeologyService {
         }
     } }
 
-    public void adminSet(Town town, String ideologyId, int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void adminSet(Town town, String ideologyId, int level) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         IdeologyDefinition definition = registry.find(ideologyId).orElseThrow();
         data.set(new TownIdeology(town.getUUID(), town.getName(), definition.id(),
                 Math.max(1, Math.min(IdeologyDefinition.MAX_LEVEL, level)), System.currentTimeMillis()));
         data.save();
     } }
 
-    public void adminReset(Town town) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void adminReset(Town town) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         data.remove(town.getUUID());
         data.save();
     } }

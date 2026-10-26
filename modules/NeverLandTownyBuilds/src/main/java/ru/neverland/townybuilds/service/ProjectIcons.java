@@ -19,7 +19,7 @@ public final class ProjectIcons {
 
     private ProjectIcons() {}
 
-    public static Material resolve(String projectId, Material configured, boolean custom) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Material resolve(String projectId, Material configured, boolean custom) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Change change = CHANGES.get(projectId);
         return !custom && change != null && configured == change.previous() ? change.current() : configured;
     } }

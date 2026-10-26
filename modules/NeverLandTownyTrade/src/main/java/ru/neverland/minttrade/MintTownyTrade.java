@@ -31,10 +31,10 @@ public final class MintTownyTrade extends JavaPlugin {
     private VisualCaravanService visuals;
     private ru.neverland.minttrade.contract.SupplyService supplies;
     private ru.neverland.minttrade.contract.SupplyMenus supplyMenus;
-    public ru.neverland.minttrade.contract.SupplyService supplies(){ synchronized (ru.neverland.core.SuiteState.lock()) {return supplies;} }
+    public ru.neverland.minttrade.contract.SupplyService supplies(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return supplies;} }
 
 
-    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         ru.neverland.minttrade.util.LegacyDataMigrator.migrate(this, "MintTownyTrade");
@@ -68,13 +68,13 @@ ru.neverland.core.ActivityAdmin.attach(this,"townytrade","minttrade.admin",trade
                 + warehouse.available() + ", лагеря=" + (getServer().getPluginManager().isPluginEnabled("NeverLandTownyCamps") || getServer().getPluginManager().isPluginEnabled("MintTownyCamps"))
                 + ", активных перевалочных пунктов=" + campStops + ", налоги=" + taxes.available() + ", PlaceholderAPI=" + placeholders + ".");
     } }
-    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onDisable() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if(supplyMenus!=null)supplyMenus.stop();if(supplies!=null)supplies.stop(); if (visuals != null) visuals.stop(); if (trade != null) trade.shutdown();
         if (towny != null) towny.unregister("trade"); getServer().getServicesManager().unregisterAll(this);
     } }
-    public void reloadPlugin() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reloadPlugin() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         reloadConfig(); messages.reload(); itemsAdder.reload(); registry.reload(); trade.start(); visuals.start(); supplies.reload();
     } }
     private void copy(String name) { if (!new File(getDataFolder(), name).exists()) saveResource(name, false); }

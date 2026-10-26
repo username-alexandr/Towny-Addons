@@ -6,7 +6,7 @@ import java.nio.file.*;
 import java.util.*;
 
 /** Source migration tool: serializes suite entry points without changing API signatures.
- * The monitor protects the suite ledger, not Minecraft state. Ownership handoffs are explicit.
+ * The reentrant guard protects the suite ledger, not Minecraft state. Ownership handoffs are explicit.
  */
 public final class FoliaGuardSources {
     record Edit(int at,String text) {}
@@ -15,7 +15,7 @@ public final class FoliaGuardSources {
         var paths=new ArrayList<Path>();
         for(String directory:List.of("modules","shared"))try(var stream=Files.walk(root.resolve(directory))){
             stream.filter(p->p.toString().contains("/src/main/java/")&&p.toString().endsWith(".java"))
-                .filter(p->!Set.of("SuiteState.java","SuiteScheduler.java","SuiteRunnable.java","WorldTasks.java","AuditQuery.java","AuditCategory.java","AuditRecord.java","AuditJournal.java","AuditTrail.java","PaymentEvidence.java","Money.java","EconomyListener.java").contains(p.getFileName().toString())).forEach(paths::add);
+                .filter(p->!Set.of("SuiteState.java","SuiteScheduler.java","SuiteProtocol.java","SuiteRunnable.java","WorldTasks.java","AuditQuery.java","AuditCategory.java","AuditRecord.java","AuditJournal.java","AuditTrail.java","PaymentEvidence.java","Money.java","EconomyListener.java").contains(p.getFileName().toString())).forEach(paths::add);
         }
         var compiler=ToolProvider.getSystemJavaCompiler();
         try(var manager=compiler.getStandardFileManager(null,null,null)) {
@@ -28,10 +28,15 @@ public final class FoliaGuardSources {
                         var body=method.getBody();
                         boolean entry=method.getModifiers().getFlags().contains(Modifier.PUBLIC)||method.getModifiers().getFlags().contains(Modifier.PROTECTED)
                             ||method.getModifiers().getAnnotations().stream().anyMatch(a->a.getAnnotationType().toString().endsWith("EventHandler"));
+                        // These hand off to the scheduler or only touch owner-region entity metadata.
+                        if(Set.of("ChronicleRepository.java#requestSave","HologramService.java#onChunkLoad",
+                                "NeverLandTownyControl.java#loaded","EventGameplayListener.java#onEntitiesLoad",
+                                "CourierNpcs.java#load","CourierNpcs.java#unload","SiteService.java#onPopulate")
+                                .contains(path.getFileName()+"#"+method.getName()))entry=false;
                         if(body!=null&&method.getReturnType()!=null&&entry&&!Set.of("withdrew","deposited","observeTransaction").contains(method.getName().toString())&&!(path.getFileName().toString().equals("BankAudit.java")&&Set.of("transfer","bankCommand").contains(method.getName().toString()))) {
                             int start=(int)positions.getStartPosition(unit,body),end=(int)positions.getEndPosition(unit,body);
-                            if(!source.substring(start,Math.min(end,start+90)).contains("synchronized (ru.neverland.core.SuiteState.lock())")) {
-                                edits.add(new Edit(start+1," synchronized (ru.neverland.core.SuiteState.lock()) {"));
+                            if(!source.substring(start,Math.min(end,start+160)).contains("SuiteState.guard()")) {
+                                edits.add(new Edit(start+1," try (var generatedSuiteGuard"+start+" = ru.neverland.core.SuiteState.guard()) {"));
                                 edits.add(new Edit(end-1,"} "));count[0]++;
                             }
                         }

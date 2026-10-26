@@ -4,11 +4,11 @@ public final class TimeUtil {
     private TimeUtil() {
     }
 
-    public static String formatMillis(long millis) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String formatMillis(long millis) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return formatSeconds(Math.max(0L, (millis + 999L) / 1000L));
     } }
 
-    public static String formatSeconds(long seconds) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String formatSeconds(long seconds) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         long value = Math.max(0L, seconds);
         long days = value / 86400L;
         long hours = value % 86400L / 3600L;

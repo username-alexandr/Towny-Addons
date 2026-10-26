@@ -29,7 +29,7 @@ public final class EventRegistry {
         reload();
     }
 
-    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         definitions.clear();
         MaterialNameConfig.reload(plugin, itemNames);
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "events.yml"));
@@ -122,11 +122,11 @@ public final class EventRegistry {
         return Math.max(min, Math.min(max, value));
     }
 
-    public EventDefinition get(String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public EventDefinition get(String id) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return id == null ? null : definitions.get(id.toLowerCase(Locale.ROOT));
     } }
 
-    public Collection<EventDefinition> all() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Collection<EventDefinition> all() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         return List.copyOf(definitions.values());
     } }
 }

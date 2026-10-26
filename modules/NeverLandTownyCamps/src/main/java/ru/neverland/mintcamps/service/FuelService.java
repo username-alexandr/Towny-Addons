@@ -27,7 +27,7 @@ public final class FuelService {
         reload();
     }
 
-    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         entries.clear();
         for (Map<?, ?> map : plugin.getConfig().getMapList("settings.fuel.entries")) {
             Material material = material(map.get("material"));
@@ -40,7 +40,7 @@ public final class FuelService {
         }
     } }
 
-    public Result addFromMainHand(Player player, Camp camp) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Result addFromMainHand(Player player, Camp camp) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         ItemStack held = player.getInventory().getItemInMainHand();
         if (held.getType().isAir() || held.getAmount() <= 0) return result(Status.EMPTY_HAND, camp, 0, 0);
         FuelEntry entry = entries.stream().filter(value -> value.matches(held.getType())).findFirst().orElse(null);
@@ -71,15 +71,15 @@ public final class FuelService {
         return result(Status.ADDED, camp, consumed, added);
     } }
 
-    public boolean isFuel(ItemStack item) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean isFuel(ItemStack item) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         return item != null && !item.getType().isAir() && entries.stream().anyMatch(value -> value.matches(item.getType()));
     } }
 
-    public long burnCapMillis(int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public long burnCapMillis(int level) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         return Math.max(1, plugin.getConfig().getLong("settings.lifetime.burn-cap-seconds." + level, 86400L)) * 1000L;
     } }
 
-    public long maximumLifeMillis() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public long maximumLifeMillis() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         return Math.max(1, plugin.getConfig().getLong("settings.lifetime.maximum-seconds", 259200L)) * 1000L;
     } }
 

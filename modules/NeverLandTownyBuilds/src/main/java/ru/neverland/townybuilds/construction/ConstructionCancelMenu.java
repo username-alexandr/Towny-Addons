@@ -18,7 +18,7 @@ public final class ConstructionCancelMenu implements Listener {
         public Inventory getInventory(){throw new UnsupportedOperationException();}
     }
     public void open(Player player,String project) {
-        synchronized(SuiteState.lock()) {
+        try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
             try {
                 var town=towny.town(player);boolean admin=player.isOp()||player.hasPermission("neverlandtownybuilds.admin.cancel");
                 if(town==null||!admin&&!refunds.allowed(player,town))throw new IllegalStateException("Отменить стройку может мэр или уполномоченный строитель");

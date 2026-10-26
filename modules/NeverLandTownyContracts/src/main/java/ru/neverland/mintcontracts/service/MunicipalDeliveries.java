@@ -9,18 +9,18 @@ public final class MunicipalDeliveries {
     @FunctionalInterface public interface Take{boolean take()throws Exception;}
     private final Store store;private final Warehouse warehouse;
     public MunicipalDeliveries(Store store,Warehouse warehouse){this.store=store;this.warehouse=warehouse;}
-    public void start(DeliveryIntent d,Take take)throws Exception{ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void start(DeliveryIntent d,Take take)throws Exception{ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if(store.get(d.id())!=null)throw new IllegalArgumentException("Поставка уже существует");
         store.put(d);boolean removed;
         try{removed=take.take();}catch(Exception ex){return;}
         store.put(d.phase(removed?Phase.TAKEN:Phase.REJECTED));if(removed)process(d.id());
     } }
-    public void process(UUID id)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void process(UUID id)throws Exception { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         DeliveryIntent d=store.get(id);if(d==null)return;
         if(d.phase()==Phase.TAKEN){if(!"DELIVERED".equals(warehouse.deposit(d)))return;store.complete(d.phase(Phase.COMPLETE));d=store.get(id);}
         if(d.phase()==Phase.COMPLETE&&!d.acknowledged()){warehouse.acknowledge(d);store.put(d.acknowledge());}
     } }
-    public void resolve(UUID id,boolean taken)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void resolve(UUID id,boolean taken)throws Exception { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         var d=store.get(id);if(d==null||d.phase()!=Phase.PLAYER_PENDING)throw new IllegalArgumentException("Поставка не ожидает сверки инвентаря");
         store.put(d.phase(taken?Phase.TAKEN:Phase.REJECTED));
     } }

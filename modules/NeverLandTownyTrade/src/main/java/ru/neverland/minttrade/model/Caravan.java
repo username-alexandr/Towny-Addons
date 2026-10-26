@@ -33,11 +33,11 @@ public final class Caravan {
    private boolean incidentHandled;
    private CaravanStatus status;
 
-   public String settlement() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public String settlement() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       return this.settlement;
    } }
 
-   public void settlement(String value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void settlement(String value) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
       if (!Set.of("PREPARED", "ACTIVE", "DELIVERING", "PAYING", "RETURNING", "COMPLETE", "CANCELLED", "LEGACY_REVIEW").contains(value)) {
          throw new IllegalArgumentException("Неизвестный этап каравана");
       } else {
@@ -45,19 +45,19 @@ public final class Caravan {
       }
    } }
 
-   public boolean legacyFunded() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean legacyFunded() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
       return this.legacyFunded;
    } }
 
-   public void legacyFunded(boolean value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void legacyFunded(boolean value) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
       this.legacyFunded = value;
    } }
 
-   public boolean terminal() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean terminal() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
       return this.settlement.equals("COMPLETE") || this.settlement.equals("CANCELLED");
    } }
 
-   public UUID operation(String step) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public UUID operation(String step) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
       return EffectJournal.id("caravan:" + this.id + ":" + step);
    } }
 
@@ -99,109 +99,109 @@ public final class Caravan {
       this.status = status;
    }
 
-   public UUID id() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public UUID id() { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
       return this.id;
    } }
 
-   public String shortId() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public String shortId() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
       return this.id.toString().substring(0, 8);
    } }
 
-   public UUID sellerId() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public UUID sellerId() { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
       return this.sellerId;
    } }
 
-   public UUID buyerId() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public UUID buyerId() { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
       return this.buyerId;
    } }
 
-   public String exportId() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public String exportId() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
       return this.exportId;
    } }
 
-   public ItemStack cargoItem() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public ItemStack cargoItem() { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
       return this.cargoItem.clone();
    } }
 
-   public int totalCargo() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public int totalCargo() { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
       return this.totalCargo;
    } }
 
-   public int remainingCargo() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public int remainingCargo() { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
       return this.remainingCargo;
    } }
 
-   public void remainingCargo(int value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void remainingCargo(int value) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
       this.remainingCargo = Math.max(0, value);
    } }
 
-   public double basePrice() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public double basePrice() { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
       return this.basePrice;
    } }
 
-   public double escrow() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public double escrow() { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
       return this.escrow;
    } }
 
-   public Map<UUID, Double> tariffs() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public Map<UUID, Double> tariffs() { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {
       return Map.copyOf(this.tariffs);
    } }
 
-   public List<RoutePoint> route() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public List<RoutePoint> route() { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {
       return List.copyOf(this.route);
    } }
 
-   public long departedAt() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public long departedAt() { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {
       return this.departedAt;
    } }
 
-   public long arrivesAt() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public long arrivesAt() { try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {
       return this.arrivesAt;
    } }
 
-   public void arrivesAt(long value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void arrivesAt(long value) { try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) {
       this.arrivesAt = value;
    } }
 
-   public void delay(long millis) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void delay(long millis) { try (var suiteGuard23 = ru.neverland.core.SuiteState.guard()) {
       this.arrivesAt = this.arrivesAt + Math.max(0L, millis);
    } }
 
-   public long incidentAt() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public long incidentAt() { try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) {
       return this.incidentAt;
    } }
 
-   public boolean shouldDelay() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean shouldDelay() { try (var suiteGuard25 = ru.neverland.core.SuiteState.guard()) {
       return this.shouldDelay;
    } }
 
-   public boolean incidentHandled() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean incidentHandled() { try (var suiteGuard26 = ru.neverland.core.SuiteState.guard()) {
       return this.incidentHandled;
    } }
 
-   public void incidentHandled(boolean value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void incidentHandled(boolean value) { try (var suiteGuard27 = ru.neverland.core.SuiteState.guard()) {
       this.incidentHandled = value;
    } }
 
-   public CaravanStatus status() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public CaravanStatus status() { try (var suiteGuard28 = ru.neverland.core.SuiteState.guard()) {
       return this.status;
    } }
 
-   public void status(CaravanStatus value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void status(CaravanStatus value) { try (var suiteGuard29 = ru.neverland.core.SuiteState.guard()) {
       this.status = value;
    } }
 
-   public double progress(long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public double progress(long now) { try (var suiteGuard30 = ru.neverland.core.SuiteState.guard()) {
       return TradeMath.progress(this.departedAt, this.arrivesAt, timer().now(now));
    } }
 
-   public int campStops() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public int campStops() { try (var suiteGuard31 = ru.neverland.core.SuiteState.guard()) {
       return (int)this.route.stream().filter(point -> point.kind() == Kind.CAMP).count();
    } }
-   public ru.neverland.core.ActivityTimer timer(){ synchronized (ru.neverland.core.SuiteState.lock()) {return new ru.neverland.core.ActivityTimer(arrivesAt,adminPausedAt,adminDuration);} }
-   public void timer(ru.neverland.core.ActivityTimer value){ synchronized (ru.neverland.core.SuiteState.lock()) {arrivesAt=value.deadline();adminPausedAt=value.pausedAt();adminDuration=value.duration();} }
-   public void travelTimes(long departed,long incident){ synchronized (ru.neverland.core.SuiteState.lock()) {departedAt=departed;incidentAt=incident;} }
-   public void editTimer(String action,long minutes,long now){ synchronized (ru.neverland.core.SuiteState.lock()) {
+   public ru.neverland.core.ActivityTimer timer(){ try (var suiteGuard32 = ru.neverland.core.SuiteState.guard()) {return new ru.neverland.core.ActivityTimer(arrivesAt,adminPausedAt,adminDuration);} }
+   public void timer(ru.neverland.core.ActivityTimer value){ try (var suiteGuard33 = ru.neverland.core.SuiteState.guard()) {arrivesAt=value.deadline();adminPausedAt=value.pausedAt();adminDuration=value.duration();} }
+   public void travelTimes(long departed,long incident){ try (var suiteGuard34 = ru.neverland.core.SuiteState.guard()) {departedAt=departed;incidentAt=incident;} }
+   public void editTimer(String action,long minutes,long now){ try (var suiteGuard35 = ru.neverland.core.SuiteState.guard()) {
       var before=timer();var after=before.edit(action,minutes,now);
       if(action.equals("resume")){long delta=now-before.pausedAt();departedAt=Math.addExact(departedAt,delta);incidentAt=Math.addExact(incidentAt,delta);}
       // Restart only the travel timer; cargo, payment IDs and the incident receipt remain intact.

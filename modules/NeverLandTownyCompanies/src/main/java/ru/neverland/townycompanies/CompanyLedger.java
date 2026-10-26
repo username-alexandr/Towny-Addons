@@ -8,18 +8,18 @@ import static ru.neverland.townycompanies.CompanyData.*;
 public final class CompanyLedger {
     public record State(Map<UUID,Company> companies, Map<UUID,Payment> payments, Map<UUID,Receipt> receipts) {
         public State { companies=Map.copyOf(companies);payments=Map.copyOf(payments);receipts=Map.copyOf(receipts);validate(companies,payments,receipts); }
-        public static State empty() { synchronized (ru.neverland.core.SuiteState.lock()) { return new State(Map.of(),Map.of(),Map.of()); } }
+        public static State empty() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return new State(Map.of(),Map.of(),Map.of()); } }
     }
     public interface Store { State state(); void save(State state)throws IOException; boolean writable(); }
     public interface Bank { boolean transfer(Payment payment)throws Exception; }
     private final Store store; private final Bank bank;
     public CompanyLedger(Store store,Bank bank) { this.store=store;this.bank=bank; }
-    public State state() { synchronized (ru.neverland.core.SuiteState.lock()) { return store.state(); } }
-    public Company company(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return state().companies().get(id); } }
-    public Company membership(UUID player) { synchronized (ru.neverland.core.SuiteState.lock()) { return state().companies().values().stream().filter(c->!c.closed()&&c.members().containsKey(player)).findFirst().orElse(null); } }
-    public void put(Company c)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) { var cs=new LinkedHashMap<>(state().companies());cs.put(c.id(),c);store.save(new State(cs,state().payments(),state().receipts())); } }
-    public boolean busy(UUID company) { synchronized (ru.neverland.core.SuiteState.lock()) { return state().payments().values().stream().anyMatch(p->p.company().equals(company)&&(p.phase()==Phase.READY||p.phase()==Phase.PENDING)); } }
-    public Payment begin(UUID company, UUID account, Purpose purpose, long amount,long now)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public State state() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return store.state(); } }
+    public Company company(UUID id) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return state().companies().get(id); } }
+    public Company membership(UUID player) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return state().companies().values().stream().filter(c->!c.closed()&&c.members().containsKey(player)).findFirst().orElse(null); } }
+    public void put(Company c)throws IOException { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { var cs=new LinkedHashMap<>(state().companies());cs.put(c.id(),c);store.save(new State(cs,state().payments(),state().receipts())); } }
+    public boolean busy(UUID company) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { return state().payments().values().stream().anyMatch(p->p.company().equals(company)&&(p.phase()==Phase.READY||p.phase()==Phase.PENDING)); } }
+    public Payment begin(UUID company, UUID account, Purpose purpose, long amount,long now)throws IOException { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         Company c=Objects.requireNonNull(company(company));if(c.closed()||busy(company))throw new IllegalStateException("Предыдущий платёж компании ещё не завершён");
         if(purpose==Purpose.REFUND)throw new IllegalArgumentException("Возврат создаётся только расчётом контракта");
         if(purpose==Purpose.DEPOSIT)money(Math.addExact(c.balance(),amount));
@@ -29,14 +29,14 @@ public final class CompanyLedger {
         var cs=new LinkedHashMap<>(state().companies());cs.put(c.id(),c);var ps=new LinkedHashMap<>(state().payments());ps.put(p.id(),p);
         store.save(new State(cs,ps,state().receipts()));return p;
     } }
-    public void process(UUID id)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void process(UUID id)throws IOException { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         Payment p=state().payments().get(id);if(p==null||p.phase()!=Phase.READY)return;
         // Missing final bank evidence never triggers an automatic retry.
         set(p.phase(Phase.PENDING)); boolean success;
         try { success=bank.transfer(p); } catch(Exception ex) { return; }
         finish(id,success);
     } }
-    public void finish(UUID id,boolean success)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void finish(UUID id,boolean success)throws IOException { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         Payment p=state().payments().get(id);if(p==null||p.phase()!=Phase.PENDING)throw new IllegalArgumentException("Платёж не ожидает сверки");
         Company c=company(p.company());long balance=c.balance(),debt=c.debt();
         if(success&&p.purpose()==Purpose.DEPOSIT)balance=Math.addExact(balance,p.amount());
@@ -49,12 +49,12 @@ public final class CompanyLedger {
         store.save(new State(cs,ps,state().receipts()));
     } }
     private void set(Payment p)throws IOException {var ps=new LinkedHashMap<>(state().payments());ps.put(p.id(),p);store.save(new State(state().companies(),ps,state().receipts()));}
-    public void assess(UUID id,long rate,long now,long interval)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void assess(UUID id,long rate,long now,long interval)throws IOException { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         Company c=company(id);if(c.closed()||now<c.nextTax()||busy(id))return;
         // One assessment after downtime; existing debt blocks another assessment.
         put(c.funds(c.balance(),c.debt()==0?rate:c.debt(),Math.addExact(now,interval)));
     } }
-    public boolean settle(Receipt receipt,long now)throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean settle(Receipt receipt,long now)throws IOException { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
         Receipt old=state().receipts().get(receipt.contract());if(old!=null){if(!old.equals(receipt))throw new IllegalArgumentException("Условия повторного расчёта отличаются");return true;}
         Company c=company(receipt.company());if(c==null||c.closed()||!c.town().equals(receipt.town())||busy(c.id()))return false;
         var cs=new LinkedHashMap<>(state().companies());cs.put(c.id(),c.funds(Math.addExact(c.balance(),receipt.payout()),c.debt(),c.nextTax()));

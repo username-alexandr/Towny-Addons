@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 public final class NeverLandTownyDistricts extends JavaPlugin{
     private DistrictService service;private BorderPreview borders;private boolean registered,farmsRegistered;
     private MobFarmService farms;private ru.neverland.townydistricts.gui.MobFarmMenu farmMenu;
-    @Override public void onEnable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 try{
         ru.neverland.townydistricts.integration.BuildsBridge.verify();
@@ -39,11 +39,11 @@ try{
         getServer().getServicesManager().register(TownyDistrictsApi.class,service,this,ServicePriority.Normal);
         getLogger().info("NeverLandTownyDistricts "+getPluginMeta().getVersion()+": семь типов районов включены.");
     }catch(Exception|LinkageError ex){getLogger().log(java.util.logging.Level.SEVERE,"Не удалось загрузить районы; база не сброшена.",ex);getServer().getPluginManager().disablePlugin(this);}} }
-    public boolean reloadDistricts(){ synchronized (ru.neverland.core.SuiteState.lock()) {try{var settings=DistrictSettings.load(read("config.yml"),read("projects.yml"));service.reload(settings);reloadConfig();return true;}
+    public boolean reloadDistricts(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {try{var settings=DistrictSettings.load(read("config.yml"),read("projects.yml"));service.reload(settings);reloadConfig();return true;}
         catch(Exception ex){getLogger().warning("Настройки районов не применены: "+ex.getMessage());return false;}} }
     private YamlConfiguration read(String name)throws Exception{var y=new YamlConfiguration();y.load(new File(getDataFolder(),name));
         try(var stream=getResource(name)){if(stream!=null)y.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(stream,StandardCharsets.UTF_8)));}y.options().copyDefaults(true);return y;}
-    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onDisable(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 if(farmMenu!=null)farmMenu.stop();if(farms!=null)farms.stop();if(service!=null)service.stop();if(borders!=null)borders.stop();if(registered)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"district");if(farmsRegistered)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"farm");getServer().getServicesManager().unregisterAll(this);} }
 }

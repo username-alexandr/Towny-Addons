@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 public final class LegacyDataMigrator {
     private LegacyDataMigrator() { }
 
-    public static void migrate(JavaPlugin plugin, String legacyPluginName) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void migrate(JavaPlugin plugin, String legacyPluginName) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Path current = plugin.getDataFolder().toPath();
         Path plugins = current.getParent();
         if (plugins == null || Files.exists(current)) return;

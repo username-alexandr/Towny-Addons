@@ -32,7 +32,7 @@ public final class ExpeditionListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void shieldUse(PlayerInteractEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void shieldUse(PlayerInteractEvent event) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!event.getAction().isRightClick() || event.getItem() == null
                 || event.getItem().getType() != org.bukkit.Material.SHIELD
                 || !service.shieldDenied(event.getPlayer())) return;
@@ -42,7 +42,7 @@ public final class ExpeditionListener implements Listener {
     } }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void interact(PlayerInteractEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void interact(PlayerInteractEvent event) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         Block block = event.getClickedBlock();
         if (block == null) return;
         ActiveExpedition expedition =
@@ -53,7 +53,7 @@ public final class ExpeditionListener implements Listener {
     } }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void breakBlock(BlockBreakEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void breakBlock(BlockBreakEvent event) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         BlockPos position = BlockPos.of(event.getBlock().getLocation());
         ActiveExpedition expedition = service.at(position, event.getBlock().getWorld());
         if (expedition == null) return;
@@ -62,12 +62,12 @@ public final class ExpeditionListener implements Listener {
     } }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void place(BlockPlaceEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void place(BlockPlaceEvent event) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (protectedAt(event.getBlock())) event.setCancelled(true);
     } }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void teleport(EntityTeleportEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void teleport(EntityTeleportEvent event) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         ActiveExpedition expedition = service.expeditionForMob(event.getEntity());
         if (expedition == null || !service.preventMobTeleportOutside()
                 || service.insideMobArea(expedition, event.getTo())) return;
@@ -76,7 +76,7 @@ public final class ExpeditionListener implements Listener {
     } }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void damage(EntityDamageEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void damage(EntityDamageEvent event) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!service.protectMobFromEnvironment()
                 || service.expeditionForMob(event.getEntity()) == null) return;
         EntityDamageEvent.DamageCause cause = event.getCause();
@@ -95,7 +95,7 @@ public final class ExpeditionListener implements Listener {
     } }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void death(EntityDeathEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void death(EntityDeathEvent event) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         ActiveExpedition expedition = service.expeditionForMob(event.getEntity());
         if (expedition == null) return;
         Player killer = event.getEntity().getKiller();
@@ -107,34 +107,34 @@ public final class ExpeditionListener implements Listener {
     } }
 
     @EventHandler(ignoreCancelled = true)
-    public void change(EntityChangeBlockEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void change(EntityChangeBlockEvent event) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (protectedAt(event.getBlock())) event.setCancelled(true);
     } }
 
     @EventHandler(ignoreCancelled = true)
-    public void explode(EntityExplodeEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void explode(EntityExplodeEvent event) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         event.blockList().removeIf(this::protectedAt);
     } }
 
     @EventHandler(ignoreCancelled = true)
-    public void explode(BlockExplodeEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void explode(BlockExplodeEvent event) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         event.blockList().removeIf(this::protectedAt);
     } }
 
     @EventHandler(ignoreCancelled = true)
-    public void flow(BlockFromToEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void flow(BlockFromToEvent event) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (protectedAt(event.getBlock()) || protectedAt(event.getToBlock())) {
             event.setCancelled(true);
         }
     } }
 
     @EventHandler(ignoreCancelled = true)
-    public void piston(BlockPistonExtendEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void piston(BlockPistonExtendEvent event) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (event.getBlocks().stream().anyMatch(this::protectedAt)) event.setCancelled(true);
     } }
 
     @EventHandler(ignoreCancelled = true)
-    public void piston(BlockPistonRetractEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void piston(BlockPistonRetractEvent event) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (event.getBlocks().stream().anyMatch(this::protectedAt)) event.setCancelled(true);
     } }
 
@@ -143,14 +143,14 @@ public final class ExpeditionListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void spread(BlockSpreadEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void spread(BlockSpreadEvent event) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         // Catalyst growth would change terrain outside the saved structure footprint.
         if (event.getNewState().getType().name().startsWith("SCULK")
                 && protectedAt(event.getSource())) event.setCancelled(true);
     } }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void bloom(SculkBloomEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void bloom(SculkBloomEvent event) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         for (ActiveExpedition expedition : service.repository().active()) {
             if (service.insideMobArea(expedition, event.getBlock().getLocation())) {
                 event.setCancelled(true);
@@ -163,12 +163,12 @@ public final class ExpeditionListener implements Listener {
         var expedition=service.expeditionForMob(entity);return expedition!=null&&expedition.timer().paused();
     }
     @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
-    public void pausedDamage(org.bukkit.event.entity.EntityDamageEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void pausedDamage(org.bukkit.event.entity.EntityDamageEvent event){ try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
         if(pausedMob(event.getEntity()) || event instanceof org.bukkit.event.entity.EntityDamageByEntityEvent hit && pausedMob(hit.getDamager()))event.setCancelled(true);
     } }
     @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
-    public void pausedTarget(org.bukkit.event.entity.EntityTargetLivingEntityEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(pausedMob(event.getEntity()))event.setCancelled(true);} }
+    public void pausedTarget(org.bukkit.event.entity.EntityTargetLivingEntityEvent event){ try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {if(pausedMob(event.getEntity()))event.setCancelled(true);} }
     @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
-    public void pausedExplosion(org.bukkit.event.entity.EntityExplodeEvent event){ synchronized (ru.neverland.core.SuiteState.lock()) {if(pausedMob(event.getEntity()))event.setCancelled(true);} }
+    public void pausedExplosion(org.bukkit.event.entity.EntityExplodeEvent event){ try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {if(pausedMob(event.getEntity()))event.setCancelled(true);} }
 
 }

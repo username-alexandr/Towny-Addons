@@ -45,11 +45,11 @@ public final class ExpansionBlueprintGenerator {
             Map.entry("prison", "Тюрьма")
     );
 
-    public Set<String> supportedProjects() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Set<String> supportedProjects() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return Set.copyOf(PROJECTS);
     } }
 
-    public BlueprintPlan generate(String rawId, int rawLevel) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public BlueprintPlan generate(String rawId, int rawLevel) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         String id = rawId == null ? "" : rawId.toLowerCase(Locale.ROOT);
         if (!PROJECTS.contains(id)) return null;
         int level = Math.max(1, Math.min(5, rawLevel));
@@ -77,7 +77,7 @@ public final class ExpansionBlueprintGenerator {
         return new BlueprintPlan(id, level, stageName(id, level), b.blocks);
     } }
 
-    public String stageName(String id, int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String stageName(String id, int level) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         String[] names = switch (id) {
             case "infirmary" -> new String[]{"Приёмный покой", "Палатное крыло", "Аптекарский дом", "Башня лекаря", "Лечебный сад"};
             case "fire_station" -> new String[]{"Дежурный дом", "Пожарное депо", "Водяная башня", "Конюшня команды", "Учебный двор"};

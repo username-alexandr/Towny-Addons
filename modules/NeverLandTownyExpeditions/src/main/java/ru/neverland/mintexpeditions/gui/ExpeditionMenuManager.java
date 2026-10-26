@@ -35,7 +35,7 @@ public final class ExpeditionMenuManager implements Listener {
         this.itemNames = itemNames;
     }
 
-    public void open(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void open(Player player) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin,
                 new ExpeditionMenuHolder(), 54,
                 ColorUtil.color(plugin.getConfig().getString(
@@ -87,7 +87,7 @@ public final class ExpeditionMenuManager implements Listener {
     }
 
     @EventHandler
-    public void click(InventoryClickEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void click(InventoryClickEvent event) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyExpeditions")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getInventory().getHolder() instanceof ExpeditionMenuHolder)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player)) return;
@@ -109,11 +109,11 @@ public final class ExpeditionMenuManager implements Listener {
     } }
 
     @EventHandler
-    public void drag(org.bukkit.event.inventory.InventoryDragEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void drag(org.bukkit.event.inventory.InventoryDragEvent event) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (event.getView().getTopInventory().getHolder() instanceof ExpeditionMenuHolder) event.setCancelled(true);
     } }
 
-    public void start(Player player, ExpeditionDefinition definition) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void start(Player player, ExpeditionDefinition definition) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         ExpeditionService.StartResult result = service.start(player, definition);
         switch (result) {
             case NO_CAMP -> message(player, "no-camp");

@@ -27,7 +27,7 @@ public final class IdeologyRegistry {
         reload();
     }
 
-    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "ideologies.yml"));
         definitions.clear();
         ConfigurationSection root = yaml.getConfigurationSection("ideologies");
@@ -61,16 +61,16 @@ public final class IdeologyRegistry {
         plugin.getLogger().info("Загружено идеологий: " + definitions.size() + ".");
     } }
 
-    public Collection<IdeologyDefinition> all() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Collection<IdeologyDefinition> all() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return Collections.unmodifiableCollection(definitions.values());
     } }
 
-    public Optional<IdeologyDefinition> find(String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Optional<IdeologyDefinition> find(String id) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (id == null) return Optional.empty();
         return Optional.ofNullable(definitions.get(id.toLowerCase(Locale.ROOT)));
     } }
 
-    public double levelDouble(String id, String path, int level, double fallback) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public double levelDouble(String id, String path, int level, double fallback) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         List<?> values = yaml.getList("ideologies." + id + ".bonuses." + path, Collections.emptyList());
         int index = Math.max(0, Math.min(values.size() - 1, level - 1));
         if (values.isEmpty()) return fallback;
@@ -83,16 +83,16 @@ public final class IdeologyRegistry {
         }
     } }
 
-    public int levelInt(String id, String path, int level, int fallback) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int levelInt(String id, String path, int level, int fallback) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         return (int) Math.round(levelDouble(id, path, level, fallback));
     } }
 
-    public List<String> levelStrings(String id, String path, int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<String> levelStrings(String id, String path, int level) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         String full = "ideologies." + id + ".bonuses." + path + ".level-" + Math.max(1, Math.min(5, level));
         return new ArrayList<>(yaml.getStringList(full));
     } }
 
-    public Map<String, String> bonusPlaceholders(IdeologyDefinition definition, int level) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Map<String, String> bonusPlaceholders(IdeologyDefinition definition, int level) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         Map<String, String> values = new LinkedHashMap<>();
         values.put("growth_multiplier", decimal(levelDouble(definition.id(), "growth-multiplier", level, 1.0D)));
         values.put("smelt_multiplier", decimal(levelDouble(definition.id(), "smelt-multiplier", level, 1.0D)));

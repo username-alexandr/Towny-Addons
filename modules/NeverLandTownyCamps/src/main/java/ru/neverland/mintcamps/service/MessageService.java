@@ -22,7 +22,7 @@ public final class MessageService {
         reload();
     }
 
-    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "messages.yml"));
         try (InputStream stream = plugin.getResource("messages.yml")) {
             if (stream != null) {
@@ -35,15 +35,15 @@ public final class MessageService {
         }
     } }
 
-    public String raw(String path) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String raw(String path) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         return yaml.getString(path, path);
     } }
 
-    public List<String> list(String path) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<String> list(String path) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         return yaml.getStringList(path);
     } }
 
-    public String replace(String text, Map<String, ?> replacements) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String replace(String text, Map<String, ?> replacements) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         String value = text == null ? "" : text;
         for (Map.Entry<String, ?> entry : replacements.entrySet()) {
             value = value.replace("{" + entry.getKey() + "}", String.valueOf(entry.getValue()));
@@ -51,19 +51,19 @@ public final class MessageService {
         return value;
     } }
 
-    public String format(String path, Map<String, ?> replacements) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String format(String path, Map<String, ?> replacements) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         return ColorUtil.legacy(replace(raw(path), replacements));
     } }
 
-    public String formatConfig(String text) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String formatConfig(String text) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         return ColorUtil.legacy(text == null ? "" : text);
     } }
 
-    public void send(CommandSender sender, String path) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void send(CommandSender sender, String path) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         send(sender, path, Collections.emptyMap());
     } }
 
-    public void send(CommandSender sender, String path, Map<String, ?> replacements) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void send(CommandSender sender, String path, Map<String, ?> replacements) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         sender.sendMessage(ColorUtil.legacy(raw("prefix") + replace(raw(path), replacements)));
     } }
 }

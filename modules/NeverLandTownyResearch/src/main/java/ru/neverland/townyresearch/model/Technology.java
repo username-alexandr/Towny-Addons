@@ -6,6 +6,6 @@ public record Technology(String id,String name,String icon,String description,bo
     public record Level(long knowledge,int seconds,double bonus,Map<String,Integer> buildings,Map<String,Integer> requires){
         public Level{if(knowledge<1||knowledge>1_000_000_000_000L||seconds<5||seconds>604800||!Double.isFinite(bonus)||bonus<0||bonus>0.5)throw new IllegalArgumentException("Некорректная цена, время или бонус технологии");buildings=checked(buildings);requires=checked(requires);if(buildings.isEmpty())throw new IllegalArgumentException("Укажите научные здания");}
     }
-    public static Map<String,Integer> checked(Map<String,Integer> input){ synchronized (ru.neverland.core.SuiteState.lock()) {var out=Map.copyOf(input);for(var e:out.entrySet()){validId(e.getKey());if(e.getValue()<1||e.getValue()>5)throw new IllegalArgumentException("Уровень требования: 1..5");}return out;} }
-    public static void validId(String id){ synchronized (ru.neverland.core.SuiteState.lock()) {if(id==null||!id.matches("[a-z0-9_-]{1,64}"))throw new IllegalArgumentException("Неверный ID");} }
+    public static Map<String,Integer> checked(Map<String,Integer> input){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {var out=Map.copyOf(input);for(var e:out.entrySet()){validId(e.getKey());if(e.getValue()<1||e.getValue()>5)throw new IllegalArgumentException("Уровень требования: 1..5");}return out;} }
+    public static void validId(String id){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(id==null||!id.matches("[a-z0-9_-]{1,64}"))throw new IllegalArgumentException("Неверный ID");} }
 }

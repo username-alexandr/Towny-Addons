@@ -11,10 +11,10 @@ public final class EnvironmentEngine {
                 throw new IllegalArgumentException("Некорректная экологическая нагрузка");
             contributions = Map.copyOf(contributions);
         }
-        public double change() { synchronized (ru.neverland.core.SuiteState.lock()) { return emissions - cleaning; } }
+        public double change() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return emissions - cleaning; } }
     }
     public record Effects(double happiness, double agriculture) { }
-    public static Pressure pressure(Map<String, Integer> active, EnvironmentSettings settings) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Pressure pressure(Map<String, Integer> active, EnvironmentSettings settings) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         double emissions = 0, cleaning = settings.naturalRecovery(); var contributions = new TreeMap<String, Double>();
         for (var entry : active.entrySet()) {
             int level = entry.getValue(); if (level < 0 || level > 5) throw new IllegalArgumentException("Неверный уровень здания");
@@ -24,10 +24,10 @@ public final class EnvironmentEngine {
         }
         return new Pressure(emissions, cleaning, contributions);
     } }
-    public static EnvironmentState advance(EnvironmentState state, Pressure pressure) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static EnvironmentState advance(EnvironmentState state, Pressure pressure) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         return state.paused() ? state : new EnvironmentState(Math.max(0, Math.min(100, state.pollution() + pressure.change())), Math.addExact(state.cycles(), 1), false);
     } }
-    public static Effects effects(EnvironmentState state, EnvironmentSettings settings, boolean ready) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Effects effects(EnvironmentState state, EnvironmentSettings settings, boolean ready) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if (!ready || state.paused()) return new Effects(0, 1);
         double severity = Math.max(0, (state.pollution() - settings.threshold()) / (100 - settings.threshold()));
         return new Effects(-settings.maximumHappinessPenalty() * severity, 1 - settings.maximumAgriculturePenalty() * severity);

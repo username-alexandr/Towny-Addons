@@ -38,7 +38,7 @@ public final class StickListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onInteract(PlayerInteractEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    public void onInteract(PlayerInteractEvent event) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (event.getHand() != EquipmentSlot.HAND || event.getAction() != Action.RIGHT_CLICK_BLOCK
                 || event.getClickedBlock() == null || !sticks.isSelector(event.getItem())) return;
         event.setCancelled(true);
@@ -72,7 +72,7 @@ public final class StickListener implements Listener {
     } }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void onQuit(PlayerQuitEvent event) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         clicks.clear(event.getPlayer().getUniqueId());
         if (plugin.getConfig().getBoolean("selection.clear-on-quit", true)) selections.clear(event.getPlayer().getUniqueId());
         claims.playerQuit(event.getPlayer().getUniqueId());

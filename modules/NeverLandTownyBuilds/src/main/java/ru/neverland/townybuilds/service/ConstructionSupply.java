@@ -7,12 +7,12 @@ import org.bukkit.inventory.ItemStack;
 public final class ConstructionSupply {
     private ConstructionSupply() {}
 
-    public static Material material(Material blueprintMaterial) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Material material(Material blueprintMaterial) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return blueprintMaterial == Material.DEEPSLATE_TILES
                 ? Material.COBBLED_DEEPSLATE_SLAB : blueprintMaterial;
     } }
 
-    public static ItemStack migrate(ItemStack item) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static ItemStack migrate(ItemStack item) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         ItemStack result = item.clone();
         if (item.getType() == Material.DEEPSLATE_TILES && !item.hasItemMeta()) {
             result.setType(Material.COBBLED_DEEPSLATE_SLAB);

@@ -14,7 +14,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 public final class NeverLandTownyResources extends JavaPlugin {
     private ResourcesService service;private boolean townCommand;private Runnable removePlaceholder;
-    @Override public void onEnable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 try{
         saveDefaultConfig();if(!new File(getDataFolder(),"buildings.yml").exists())saveResource("buildings.yml",false);
@@ -29,8 +29,8 @@ try{
         var yaml=new YamlConfiguration();yaml.load(new File(getDataFolder(),name));try(var input=getResource(name)){if(input!=null)yaml.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(input,StandardCharsets.UTF_8)));}yaml.options().copyDefaults(true);return yaml;
     }
     private ResourcesSettings readSettings()throws Exception{return ResourcesSettings.load(read("config.yml"),read("buildings.yml"));}
-    public boolean reloadResources(){ synchronized (ru.neverland.core.SuiteState.lock()) {try{service.reload(readSettings());return true;}catch(Exception ex){getLogger().warning("Настройки ресурсов не применены: "+ex.getMessage());return false;}} }
-    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean reloadResources(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {try{service.reload(readSettings());return true;}catch(Exception ex){getLogger().warning("Настройки ресурсов не применены: "+ex.getMessage());return false;}} }
+    @Override public void onDisable(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 if(service!=null)service.stop();if(removePlaceholder!=null)removePlaceholder.run();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"resources");} }
 }

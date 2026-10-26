@@ -26,14 +26,14 @@ public final class MenuStyle {
     private static final Pattern ACTION = Pattern.compile("(?iu)^(?:[←→›•]\\s*)?(?:лкм|пкм|shift|нажмите|клик|/|назад|закрыть|подтвердить|вернуться).*");
     private MenuStyle() { }
 
-    public static Inventory previousMenu(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Inventory previousMenu(Player player) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Inventory previous = player.getOpenInventory().getTopInventory();
         InventoryHolder holder = previous.getHolder();
         if (holder == null || !holder.getClass().getName().startsWith("ru.neverland.")
                 || holder.getClass().getName().contains(".storage.")) return null;
         return previous;
     } }
-    public static void returnTo(Player player, Inventory previous) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void returnTo(Player player, Inventory previous) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (previous != null && previous.getHolder() != null) {
             try {
                 if (JavaPlugin.getProvidingPlugin(previous.getHolder().getClass()).isEnabled()) {
@@ -45,27 +45,27 @@ public final class MenuStyle {
         player.closeInventory();
     } }
 
-    public static Inventory inventory(Plugin plugin, InventoryHolder holder, int size, String title) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Inventory inventory(Plugin plugin, InventoryHolder holder, int size, String title) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         return inventory(plugin, holder, size, decode(title));
     } }
-    public static Inventory inventory(Plugin plugin, InventoryHolder holder, int size, Component title) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Inventory inventory(Plugin plugin, InventoryHolder holder, int size, Component title) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         String color = plugin instanceof JavaPlugin java ? java.getConfig().getString("menu-style.title-color", "#F4F7FC") : "#F4F7FC";
         return Bukkit.createInventory(holder, size, title(title, color));
     } }
-    public static Component title(Component input, String configuredColor) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Component title(Component input, String configuredColor) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         TextColor color = TextColor.fromHexString(configuredColor == null ? "" : configuredColor);
         if (color == null) color = TextColor.color(0xF4F7FC);
         return Component.text(plain(input).replace('\n', ' ').strip(), color).decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, false);
     } }
-    public static String nameLegacy(String name) { synchronized (ru.neverland.core.SuiteState.lock()) { return LEGACY.serialize(nameComponent(decode(name))); } }
-    public static Component nameComponent(Component name) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String nameLegacy(String name) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { return LEGACY.serialize(nameComponent(decode(name))); } }
+    public static Component nameComponent(Component name) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         if (plain(name).isBlank()) return Component.text(" ");
         return readable(name).colorIfAbsent(TextColor.color(0xF4F7FC)).decorate(TextDecoration.BOLD);
     } }
-    public static List<String> loreStrings(List<String> lines) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static List<String> loreStrings(List<String> lines) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         return loreComponents(lines == null ? List.of() : lines.stream().map(MenuStyle::decode).toList()).stream().map(LEGACY::serialize).toList();
     } }
-    public static List<Component> loreComponents(List<? extends Component> lines) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static List<Component> loreComponents(List<? extends Component> lines) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         List<Component> result = new ArrayList<>();
         boolean previousAction = false;
         for (Component original : lines == null ? List.<Component>of() : lines) {
@@ -86,7 +86,7 @@ public final class MenuStyle {
     private static void blank(List<Component> lines) {
         if (!lines.isEmpty() && !plain(lines.get(lines.size()-1)).isBlank()) lines.add(Component.empty());
     }
-    public static Component decode(String input) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Component decode(String input) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         String text = input == null ? "" : input;
         // Both already translated section codes and configuration ampersand/hex codes occur in the suite.
         return LEGACY.deserialize(LEGACY.serialize(AMPERSAND.deserialize(text.replace('§', '&'))));

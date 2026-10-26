@@ -44,11 +44,11 @@ public final class ExpeditionRepository {
       this.effects = new EffectJournal(directory.resolve("reward-effects.yml"));
    }
 
-   public EffectJournal effects() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public EffectJournal effects() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       return this.effects;
    } }
 
-   public boolean writable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean writable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
       return this.writable && AtomicFiles.writable(this.file) && this.effects.writable();
    } }
 
@@ -58,7 +58,7 @@ public final class ExpeditionRepository {
       }
    }
 
-   public void load() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void load() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
       this.writable = false;
       this.active.clear();
       this.history.clear();
@@ -237,7 +237,7 @@ public final class ExpeditionRepository {
       }
    }
 
-   public void save() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void save() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
 
       try {
@@ -318,15 +318,15 @@ public final class ExpeditionRepository {
       return y;
    }
 
-   public Collection<ActiveExpedition> active() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public Collection<ActiveExpedition> active() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
       return List.copyOf(this.active.values());
    } }
 
-   public ActiveExpedition get(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public ActiveExpedition get(UUID id) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
       return this.active.get(id);
    } }
 
-   public ActiveExpedition byLeader(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public ActiveExpedition byLeader(UUID id) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
       return this.active
          .values()
          .stream()
@@ -335,34 +335,34 @@ public final class ExpeditionRepository {
          .orElse(null);
    } }
 
-   public ActiveExpedition byCamp(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public ActiveExpedition byCamp(UUID id) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
       return this.active.values().stream().filter(e -> e.leaderId().equals(id)).findFirst().orElse(null);
    } }
 
-   public void put(ActiveExpedition e) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void put(ActiveExpedition e) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.active.put(e.id(), e);
       this.dirty = true;
    } }
 
-   public void remove(ActiveExpedition e) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void remove(ActiveExpedition e) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.active.remove(e.id());
       this.dirty = true;
    } }
 
-   public void changed() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void changed() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.dirty = true;
    } }
 
-   public void saveIfDirty() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void saveIfDirty() { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
       if (this.dirty) {
          this.save();
       }
    } }
 
-   public void history(ExpeditionHistory h, int limit) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void history(ExpeditionHistory h, int limit) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       if (this.history.stream().noneMatch(v -> v.id().equals(h.id()))) {
          this.history.add(0, h);
@@ -375,15 +375,15 @@ public final class ExpeditionRepository {
       this.dirty = true;
    } }
 
-   public List<ExpeditionHistory> history() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public List<ExpeditionHistory> history() { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
       return List.copyOf(this.history);
    } }
 
-   public void reward(UUID id, List<ItemStack> items, double money) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void reward(UUID id, List<ItemStack> items, double money) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
       this.reward(UUID.randomUUID(), id, items, money);
    } }
 
-   public void reward(UUID rewardId, UUID owner, List<ItemStack> items, double money) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void reward(UUID rewardId, UUID owner, List<ItemStack> items, double money) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       RewardBatch batch = new RewardBatch(rewardId, owner, items, money);
       RewardBatch old = this.rewards.get(rewardId);
@@ -395,19 +395,19 @@ public final class ExpeditionRepository {
       }
    } }
 
-   public List<RewardBatch> rewards(UUID owner) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public List<RewardBatch> rewards(UUID owner) { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
       return this.rewards.values().stream().filter(r -> r.owner().equals(owner)).toList();
    } }
 
-   public boolean hasReward(UUID owner) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean hasReward(UUID owner) { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {
       return !this.rewards(owner).isEmpty();
    } }
 
-   public double money(UUID owner) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public double money(UUID owner) { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {
       return this.rewards(owner).stream().filter(b -> this.effects.state(b.moneyId()) != EffectJournal.State.DONE).mapToDouble(RewardBatch::money).sum();
    } }
 
-   public void completeReward(RewardBatch batch) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void completeReward(RewardBatch batch) { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       if (batch.effects().stream().anyMatch(id -> this.effects.state(id) != EffectJournal.State.DONE)) {
          throw new IllegalStateException("Награда выдана не полностью");
@@ -418,7 +418,7 @@ public final class ExpeditionRepository {
       }
    } }
 
-   public void pruneEffects() throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void pruneEffects() throws IOException { try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {
       Set<UUID> needed = new HashSet<>();
       this.rewards.values().forEach(r -> needed.addAll(r.effects()));
       this.effects.retain(needed);

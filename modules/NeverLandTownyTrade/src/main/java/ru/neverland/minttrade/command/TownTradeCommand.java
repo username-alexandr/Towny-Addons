@@ -20,7 +20,7 @@ public final class TownTradeCommand implements CommandExecutor {
     private final TownyHook towny; private final TradeService trade; private final TradeMenuManager menus; private final MessageService messages;
     private final ru.neverland.minttrade.contract.SupplyCommands supplies;
     public TownTradeCommand(TownyHook towny, TradeService trade, TradeMenuManager menus, MessageService messages,ru.neverland.minttrade.contract.SupplyCommands supplies) { this.supplies=supplies; this.towny = towny; this.trade = trade; this.menus = menus; this.messages = messages; }
-    @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyTrade")){return true;}
+    @Override public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyTrade")){return true;}
         if (!(sender instanceof Player player)) { messages.send(sender, "only-player"); return true; }
         if (!player.hasPermission("minttrade.use")) { messages.send(player, "no-permission"); return true; }
         Town town = towny.town(player); if (town == null) { messages.send(player, "no-town"); return true; }

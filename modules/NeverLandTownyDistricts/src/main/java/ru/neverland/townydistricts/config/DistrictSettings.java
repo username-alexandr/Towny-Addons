@@ -6,8 +6,8 @@ public record DistrictSettings(int maxDistricts,int maxCells,int maxSelection,do
                                double maximum,Set<String> requires,boolean furnaces,boolean crops,Map<String,Project> projects){
     public record Project(String name,String icon,DistrictType type){}
     public DistrictSettings{requires=Set.copyOf(requires);projects=Collections.unmodifiableMap(new LinkedHashMap<>(projects));}
-    public Map<String,DistrictType> types(){ synchronized (ru.neverland.core.SuiteState.lock()) {Map<String,DistrictType> result=new HashMap<>();projects.forEach((k,v)->result.put(k,v.type()));return result;} }
-    public static DistrictSettings load(YamlConfiguration c,YamlConfiguration catalog){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Map<String,DistrictType> types(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {Map<String,DistrictType> result=new HashMap<>();projects.forEach((k,v)->result.put(k,v.type()));return result;} }
+    public static DistrictSettings load(YamlConfiguration c,YamlConfiguration catalog){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         Map<String,Project> projects=new LinkedHashMap<>();var section=catalog.getConfigurationSection("projects");
         if(section==null)throw new IllegalArgumentException("Нет раздела projects");
         for(String id:section.getKeys(false)){

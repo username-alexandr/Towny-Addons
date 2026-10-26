@@ -5,8 +5,8 @@ public record LogisticsSettings(int nodes,int routes,double linkDistance,double 
         Set<String> hubs,Map<Integer,Level> levels,double roadBonus,double railBonus,int stuck,int retry){
     public record Level(int couriers,int cargo,double speed,int handling){}
     public LogisticsSettings{hubs=Set.copyOf(hubs);levels=Map.copyOf(levels);}
-    public Level level(int n){ synchronized (ru.neverland.core.SuiteState.lock()) {return levels.get(Math.max(1,Math.min(5,n)));} }
-    public static LogisticsSettings load(YamlConfiguration c){ synchronized (ru.neverland.core.SuiteState.lock()) {Map<Integer,Level> levels=new HashMap<>();
+    public Level level(int n){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return levels.get(Math.max(1,Math.min(5,n)));} }
+    public static LogisticsSettings load(YamlConfiguration c){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {Map<Integer,Level> levels=new HashMap<>();
         for(int i=1;i<=5;i++){String p="levels."+i+".";levels.put(i,new Level(integer(c,p+"couriers",1,16),integer(c,p+"cargo",1,1024),number(c,p+"speed",0.1,2),integer(c,p+"handling-seconds",1,60)));}
         Set<String> hubs=new HashSet<>(c.getStringList("hubs"));if(hubs.isEmpty())throw new IllegalArgumentException("Нет зданий логистики");
         return new LogisticsSettings(integer(c,"limits.nodes-per-town",1,512),integer(c,"limits.routes-per-town",1,128),number(c,"limits.link-distance",4,48),number(c,"limits.route-distance",32,8192),

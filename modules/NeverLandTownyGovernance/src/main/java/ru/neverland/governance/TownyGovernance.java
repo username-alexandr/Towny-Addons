@@ -25,7 +25,7 @@ public final class TownyGovernance extends JavaPlugin {
     private TownyHook towny; private ItemsAdderHook itemsAdder; private MessageService messages; private DefinitionRegistry definitions;
     private GovernanceRepository repository; private GovernanceService governance;
 
-    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         ru.neverland.governance.util.LegacyDataMigrator.migrate(this, "TownyGovernance");
@@ -46,14 +46,14 @@ governance.start();
                 + ", открытых голосований " + repository.open().size() + ", PlaceholderAPI=" + placeholders + ".");
     } }
 
-    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onDisable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (governance != null) governance.shutdown(); if (towny != null) townCommands.keySet().forEach(towny::unregister);
         getServer().getServicesManager().unregisterAll(this);
     } }
 
-    public void reloadPlugin() { synchronized (ru.neverland.core.SuiteState.lock()) { reloadConfig(); messages.reload(); itemsAdder.reload(); definitions.reload(); governance.start(); } }
+    public void reloadPlugin() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { reloadConfig(); messages.reload(); itemsAdder.reload(); definitions.reload(); governance.start(); } }
 
     private void registerTownCommands(GovernanceMenuManager menus) {
         townCommands.put("governance", TownGovernanceCommand.DefaultView.MAIN); townCommands.put("laws", TownGovernanceCommand.DefaultView.LAWS);

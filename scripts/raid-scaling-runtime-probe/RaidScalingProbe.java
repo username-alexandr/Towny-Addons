@@ -22,7 +22,7 @@ public final class RaidScalingProbe extends JavaPlugin {
     Object field(Object o,String name)throws Exception {var f=o.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(o);}
     void check(boolean value,String name){if(!value)throw new AssertionError(name);checks.add("PASS "+name);}
     void close(double value,double expected,String name){check(Math.abs(value-expected)<0.000001,name+" ["+value+"]");}
-    void later(Runnable r){Bukkit.getRegionScheduler().runDelayed(this,new Location(world,8,0,8),task->{synchronized(SuiteState.lock()){try{r.run();}catch(Throwable e){finish(e);}}},5);}
+    void later(Runnable r){Bukkit.getRegionScheduler().runDelayed(this,new Location(world,8,0,8),task->{try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){try{r.run();}catch(Throwable e){finish(e);}}},5);}
     @Override public void onEnable(){
         if(!Files.exists(Path.of("ALLOW_DISPOSABLE_RAID_SCALING_PROBE"))||!getServer().getIp().equals("127.0.0.1")){getServer().getPluginManager().disablePlugin(this);return;}
         proof=getDataFolder().toPath();world=Bukkit.getWorlds().getFirst();

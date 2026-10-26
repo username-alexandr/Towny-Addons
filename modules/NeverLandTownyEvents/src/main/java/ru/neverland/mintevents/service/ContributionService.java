@@ -11,7 +11,7 @@ import ru.neverland.mintevents.model.ContributionRule;
 public final class ContributionService {
     public record Result(int amount, int points) {}
 
-    public Result contribute(Player player, ContributionRule rule, boolean all, ActiveEvent event) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Result contribute(Player player, ContributionRule rule, boolean all, ActiveEvent event) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         ItemStack[] contents = player.getInventory().getStorageContents();
         int wanted = all ? Integer.MAX_VALUE : 1;
         int removed = 0;

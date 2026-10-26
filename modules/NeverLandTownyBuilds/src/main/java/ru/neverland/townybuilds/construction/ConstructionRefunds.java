@@ -219,7 +219,7 @@ public final class ConstructionRefunds {
     }
     private void warn(Exception ex) { if(System.currentTimeMillis()-warned>60000){warned=System.currentTimeMillis();plugin.getLogger().warning("Строительство: "+ex.getMessage());} }
     public void admin(CommandSender sender,String[] args) {
-        synchronized(SuiteState.lock()) {
+        try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
             try {
                 if(!sender.isOp()&&!sender.hasPermission("neverlandtownybuilds.admin.cancel"))throw new IllegalStateException("Нет права neverlandtownybuilds.admin.cancel");
                 if(args.length==2&&args[1].equalsIgnoreCase("list")) {

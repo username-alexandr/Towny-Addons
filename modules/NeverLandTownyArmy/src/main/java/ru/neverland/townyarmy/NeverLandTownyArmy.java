@@ -19,8 +19,8 @@ public final class NeverLandTownyArmy extends JavaPlugin {
         for (var unit : settings.units().values()) if (!unit.icon().isItem()) throw new IllegalArgumentException("Иконка подразделения должна быть предметом");
         return settings;
     }
-    public void reloadArmy() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) { service.reload(settings()); reloadConfig(); } }
-    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reloadArmy() throws Exception { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { service.reload(settings()); reloadConfig(); } }
+    @Override public void onEnable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         try {
@@ -40,7 +40,7 @@ public final class NeverLandTownyArmy extends JavaPlugin {
             getServer().getPluginManager().disablePlugin(this);
         }
     } }
-    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onDisable() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (task != null) task.cancel(); if (service != null) service.stop();

@@ -15,15 +15,15 @@ public final class MunicipalDrafts {
     private final JavaPlugin plugin;private final TownyHook towny;private final ContractService contracts;private final RussianNames names;
     private final Map<UUID,Draft> drafts=new HashMap<>();private final Map<UUID,Selection> selections=new HashMap<>();
     public MunicipalDrafts(JavaPlugin plugin,TownyHook towny,ContractService contracts,RussianNames names){this.plugin=plugin;this.towny=towny;this.contracts=contracts;this.names=names;}
-    public Town manager(Player p){ synchronized (ru.neverland.core.SuiteState.lock()) {Town t=towny.town(p);if(t==null||!p.hasPermission("mintcontracts.manage")||!towny.isManager(p,t))throw new IllegalArgumentException("Публиковать задания может мэр или уполномоченный заместитель.");return t;} }
-    public void clear(Player p){ synchronized (ru.neverland.core.SuiteState.lock()) {drafts.remove(p.getUniqueId());selections.remove(p.getUniqueId());} }
-    public void select(Player p,boolean first){ synchronized (ru.neverland.core.SuiteState.lock()) {manager(p);Block b=p.getTargetBlockExact(10);Location l=(b==null?p.getLocation().clone().subtract(0,1,0):b.getLocation());Selection old=selections.get(p.getUniqueId());if(old==null||old.expires()<System.currentTimeMillis())old=new Selection(null,null,0);
+    public Town manager(Player p){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {Town t=towny.town(p);if(t==null||!p.hasPermission("mintcontracts.manage")||!towny.isManager(p,t))throw new IllegalArgumentException("Публиковать задания может мэр или уполномоченный заместитель.");return t;} }
+    public void clear(Player p){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {drafts.remove(p.getUniqueId());selections.remove(p.getUniqueId());} }
+    public void select(Player p,boolean first){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {manager(p);Block b=p.getTargetBlockExact(10);Location l=(b==null?p.getLocation().clone().subtract(0,1,0):b.getLocation());Selection old=selections.get(p.getUniqueId());if(old==null||old.expires()<System.currentTimeMillis())old=new Selection(null,null,0);
         selections.put(p.getUniqueId(),new Selection(first?l:old.first(),first?old.second():l,System.currentTimeMillis()+600_000));
         p.sendMessage("§aТочка "+(first?1:2)+": "+l.getBlockX()+", "+l.getBlockY()+", "+l.getBlockZ()+". Выделение действует 10 минут.");
     } }
-    public Draft get(Player p){ synchronized (ru.neverland.core.SuiteState.lock()) {Draft d=drafts.get(p.getUniqueId());if(d==null||d.expires()<System.currentTimeMillis()||towny.town(p)==null||!d.town().equals(towny.town(p).getUUID())){drafts.remove(p.getUniqueId());throw new IllegalArgumentException("Черновик истёк. Создайте задание заново.");}return d;} }
-    public Draft template(Player p,ContractDefinition d){ synchronized (ru.neverland.core.SuiteState.lock()) {if(d==null)throw new IllegalArgumentException("Шаблон не найден.");if(d.type()==ContractType.ROAD||d.type()==ContractType.SCOUT)throw new IllegalArgumentException("Используйте конструктор участка дороги или разведки.");return remember(p,d,null);} }
-    public Draft create(Player p,ContractType type,String target,int amount,String reward,long hours){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Draft get(Player p){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {Draft d=drafts.get(p.getUniqueId());if(d==null||d.expires()<System.currentTimeMillis()||towny.town(p)==null||!d.town().equals(towny.town(p).getUUID())){drafts.remove(p.getUniqueId());throw new IllegalArgumentException("Черновик истёк. Создайте задание заново.");}return d;} }
+    public Draft template(Player p,ContractDefinition d){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {if(d==null)throw new IllegalArgumentException("Шаблон не найден.");if(d.type()==ContractType.ROAD||d.type()==ContractType.SCOUT)throw new IllegalArgumentException("Используйте конструктор участка дороги или разведки.");return remember(p,d,null);} }
+    public Draft create(Player p,ContractType type,String target,int amount,String reward,long hours){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         manager(p);long cents=MunicipalPayment.amount(reward);if(cents>Math.min(100_000_000_000L,Math.max(0,plugin.getConfig().getLong("municipal.max-reward",1_000_000))*100))throw new IllegalArgumentException("Награда превышает лимит.");
         if(hours<1||hours>Math.min(8760,Math.max(1,plugin.getConfig().getLong("municipal.max-hours",720))))throw new IllegalArgumentException("Недопустимый срок задания в часах.");
         if(amount<1||amount>Math.min(1_000_000,Math.max(1,plugin.getConfig().getInt("municipal.max-amount",1000000))))throw new IllegalArgumentException("Недопустимое количество.");
@@ -38,7 +38,7 @@ public final class MunicipalDrafts {
         var d=new ContractDefinition("municipal_"+UUID.randomUUID().toString().replace("-",""),name,type,icon,0,List.of("Муниципальное задание города"),target,item,amount,cents/100.0,hours*3600);
         return remember(p,d,area);
     } }
-    public Draft edit(Player p,int amountDelta,long rewardDelta,long hoursDelta,String target){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Draft edit(Player p,int amountDelta,long rewardDelta,long hoursDelta,String target){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         Draft old=get(p);ContractDefinition d=old.definition();
         if(d.type()!=ContractType.ROAD&&d.type()!=ContractType.SCOUT&&target==null){long cents=MunicipalPayment.amount(java.math.BigDecimal.valueOf(d.reward()).add(java.math.BigDecimal.valueOf(rewardDelta)).toPlainString());int goal=Math.addExact(d.goal(),amountDelta);long hours=d.durationSeconds()/3600+hoursDelta;
             if(goal<1||goal>Math.min(1000000,plugin.getConfig().getInt("municipal.max-amount",1000000))||hours<1||hours>Math.min(8760,plugin.getConfig().getLong("municipal.max-hours",720))||cents>Math.min(100000000000L,Math.max(0,plugin.getConfig().getLong("municipal.max-reward",1000000))*100))throw new IllegalArgumentException("Достигнут предел значения.");
@@ -46,12 +46,12 @@ public final class MunicipalDrafts {
         }
         return create(p,d.type(),target==null?d.target():target,Math.max(1,Math.addExact(d.goal(),amountDelta)),java.math.BigDecimal.valueOf(d.reward()).add(java.math.BigDecimal.valueOf(rewardDelta)).toPlainString(),d.durationSeconds()/3600+hoursDelta);
     } }
-    public ContractService.ActivateResult confirm(Player p,UUID revision){ synchronized (ru.neverland.core.SuiteState.lock()) {Town town=manager(p);Draft d=get(p);if(!d.revision().equals(revision))throw new IllegalArgumentException("Условия изменились. Откройте актуальный черновик.");
+    public ContractService.ActivateResult confirm(Player p,UUID revision){ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {Town town=manager(p);Draft d=get(p);if(!d.revision().equals(revision))throw new IllegalArgumentException("Условия изменились. Откройте актуальный черновик.");
         if(d.area()!=null){WorkArea current=area(p,d.definition().type(),Material.matchMaterial(d.definition().target()));if(!current.equals(d.area()))throw new IllegalArgumentException("Участок изменился. Пересоздайте черновик.");}
         drafts.remove(p.getUniqueId());return contracts.activate(town,d.definition(),d.area());
     } }
     private Draft remember(Player p,ContractDefinition d,WorkArea area){Draft draft=new Draft(UUID.randomUUID(),manager(p).getUUID(),d,area,System.currentTimeMillis()+600_000);drafts.put(p.getUniqueId(),draft);return draft;}
-    public List<Material> roadMaterials(){ synchronized (ru.neverland.core.SuiteState.lock()) {List<String> keys=plugin.getConfig().getStringList("municipal.road.materials");if(keys.isEmpty())keys=List.of("COBBLESTONE","STONE_BRICKS","SMOOTH_STONE","GRAVEL","ANDESITE");return keys.stream().map(Material::matchMaterial).filter(Objects::nonNull).filter(m->m.isBlock()&&m.isSolid()&&m.isItem()).distinct().toList();} }
+    public List<Material> roadMaterials(){ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {List<String> keys=plugin.getConfig().getStringList("municipal.road.materials");if(keys.isEmpty())keys=List.of("COBBLESTONE","STONE_BRICKS","SMOOTH_STONE","GRAVEL","ANDESITE");return keys.stream().map(Material::matchMaterial).filter(Objects::nonNull).filter(m->m.isBlock()&&m.isSolid()&&m.isItem()).distinct().toList();} }
     private WorkArea area(Player p,ContractType type,Material material){
         Selection s=selections.get(p.getUniqueId());if(s==null||s.first()==null||s.second()==null||s.expires()<System.currentTimeMillis())throw new IllegalArgumentException("Выделите две точки: /t contracts pos1 и /t contracts pos2.");
         Location a=s.first(),b=s.second();if(!a.getWorld().equals(b.getWorld())||!a.getWorld().equals(p.getWorld()))throw new IllegalArgumentException("Обе точки должны находиться в вашем текущем мире.");

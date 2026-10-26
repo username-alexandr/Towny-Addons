@@ -8,7 +8,7 @@ public final class ItemCodec {
     private ItemCodec() {
     }
 
-    public static String encode(ItemStack[] contents) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String encode(ItemStack[] contents) throws IOException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         try {
             return Base64.getEncoder().encodeToString(ItemStack.serializeItemsAsBytes(contents));
         } catch (RuntimeException exception) {
@@ -16,7 +16,7 @@ public final class ItemCodec {
         }
     } }
 
-    public static ItemStack[] decode(String encoded, int fallbackSize) throws IOException, ClassNotFoundException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static ItemStack[] decode(String encoded, int fallbackSize) throws IOException, ClassNotFoundException { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (encoded == null || encoded.isBlank()) {
             return new ItemStack[fallbackSize];
         }
@@ -27,7 +27,7 @@ public final class ItemCodec {
         }
     } }
 
-    public static String encodeSingle(ItemStack item) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String encodeSingle(ItemStack item) throws IOException { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         try {
             return Base64.getEncoder().encodeToString(item.serializeAsBytes());
         } catch (RuntimeException exception) {
@@ -35,7 +35,7 @@ public final class ItemCodec {
         }
     } }
 
-    public static ItemStack decodeSingle(String encoded) throws IOException, ClassNotFoundException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static ItemStack decodeSingle(String encoded) throws IOException, ClassNotFoundException { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         try {
             return ItemStack.deserializeBytes(Base64.getDecoder().decode(encoded));
         } catch (RuntimeException exception) {

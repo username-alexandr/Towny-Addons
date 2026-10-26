@@ -9,7 +9,7 @@ public final class CaravanProcessor {
    private CaravanProcessor() {
    }
 
-   public static void advance(Caravan c, CaravanProcessor.Store store, CaravanProcessor.Gateway gateway) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public static void advance(Caravan c, CaravanProcessor.Store store, CaravanProcessor.Gateway gateway) throws Exception { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       String var3 = c.settlement();
       switch (var3) {
          case "PREPARED":

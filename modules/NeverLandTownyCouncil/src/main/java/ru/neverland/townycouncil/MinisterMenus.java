@@ -29,7 +29,7 @@ public final class MinisterMenus implements Listener {
         var item=new ItemStack(material);var meta=item.getItemMeta();meta.setDisplayName(MenuStyle.nameLegacy(title));meta.setLore(MenuStyle.loreStrings(lore));meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);item.setItemMeta(meta);v.inventory.setItem(slot,item);if(action!=null)v.actions.put(slot,action);
     }
     private static Material icon(MinisterRole role){return switch(role){case ECONOMY->Material.GOLD_INGOT;case DEFENSE->Material.SHIELD;case CONSTRUCTION->Material.BRICKS;case FOREIGN->Material.WRITABLE_BOOK;};}
-    public void open(Player p,Town town,MinisterRole role){ synchronized(SuiteState.lock()) {
+    public void open(Player p,Town town,MinisterRole role){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var v=view(p,town,"Министр • "+role.title());var holder=service.appointment(town.getUUID(),role);
         var lore=new ArrayList<String>(List.of("&7Управление городскими службами", "&7"+role.description(),holder==null?"&eДолжность свободна":"&7Назначен: &f"+CouncilMenus.name(holder.resident()),"&7Министр работает до смены мэра."));
         if(holder!=null)lore.add(service.active(holder)?"&aПолномочия действуют":"&cПолномочия приостановлены");
@@ -94,7 +94,7 @@ public final class MinisterMenus implements Listener {
         }
         button(v,49,Material.ARROW,"&fНазад",List.of("&7К подтверждению назначения"),(who,t)->review(who,t,role,resident,false));p.openInventory(v.inventory);
     }
-    @EventHandler public void click(InventoryClickEvent event){ synchronized(SuiteState.lock()) {
+    @EventHandler public void click(InventoryClickEvent event){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(!(event.getView().getTopInventory().getHolder() instanceof View v))return;event.setCancelled(true);
         if(SuiteState.frozen(plugin.getName())||event.getClick()!=ClickType.LEFT||!(event.getWhoClicked() instanceof Player p)||!v.viewer.equals(p.getUniqueId())||v.queued)return;
         var action=v.actions.get(event.getRawSlot());if(action==null)return;v.queued=true;

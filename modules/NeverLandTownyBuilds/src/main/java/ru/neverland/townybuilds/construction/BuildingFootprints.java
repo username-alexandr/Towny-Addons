@@ -6,7 +6,7 @@ import java.util.*;
 public final class BuildingFootprints {
     private final BuildingBlueprintGenerator generator=new BuildingBlueprintGenerator();
     private final Map<String,int[]> bounds=new HashMap<>();
-    public Optional<BuildingFootprint> footprint(ConstructionSite site,int savedLevel){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Optional<BuildingFootprint> footprint(ConstructionSite site,int savedLevel){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         int required=generator.maximumStage(site.projectId());if(required==0)return Optional.empty();
         String key=site.projectId()+":"+site.architectureVersion();
         int[] local=bounds.computeIfAbsent(key,k->{

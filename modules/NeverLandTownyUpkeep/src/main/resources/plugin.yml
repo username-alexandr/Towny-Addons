@@ -1,5 +1,5 @@
 name: NeverLandTownyUpkeep
-version: 0.1.19
+version: 0.1.20
 main: ru.neverland.townyupkeep.NeverLandTownyUpkeep
 folia-supported: true
 api-version: '26.2'

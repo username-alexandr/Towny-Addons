@@ -37,7 +37,7 @@ public final class TownyArchaeology extends JavaPlugin {
     private BukkitTask autosave;
 
     @Override
-    public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         ru.neverland.archaeology.util.LegacyDataMigrator.migrate(this, "TownyArchaeology");
@@ -95,7 +95,7 @@ public final class TownyArchaeology extends JavaPlugin {
     } }
 
     @Override
-    public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void onDisable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (sites != null) sites.stop();
@@ -108,7 +108,7 @@ public final class TownyArchaeology extends JavaPlugin {
         getServer().getServicesManager().unregisterAll(this);
     } }
 
-    public void reloadPlugin() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reloadPlugin() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         reloadConfig();
         messages.reload();
         itemsAdder.reload();

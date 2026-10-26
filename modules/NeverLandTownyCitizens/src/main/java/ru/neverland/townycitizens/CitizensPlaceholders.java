@@ -13,11 +13,11 @@ final class CitizensPlaceholders extends PlaceholderExpansion {
         if (!expansion.register()) throw new IllegalStateException("Не удалось зарегистрировать citizens placeholders");
         return expansion::unregister;
     }
-    @Override public String getIdentifier() { synchronized (ru.neverland.core.SuiteState.lock()) { return "townycitizens"; } }
-    @Override public String getAuthor() { synchronized (ru.neverland.core.SuiteState.lock()) { return "NeverLand"; } }
-    @Override public String getVersion() { synchronized (ru.neverland.core.SuiteState.lock()) { return plugin.getDescription().getVersion(); } }
-    @Override public boolean persist() { synchronized (ru.neverland.core.SuiteState.lock()) { return true; } }
-    @Override public String onRequest(OfflinePlayer player, String params) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public String getIdentifier() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return "townycitizens"; } }
+    @Override public String getAuthor() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return "NeverLand"; } }
+    @Override public String getVersion() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return plugin.getDescription().getVersion(); } }
+    @Override public boolean persist() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return true; } }
+    @Override public String onRequest(OfflinePlayer player, String params) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if (player == null) return "";
         // Do not access Towny from async renderers; they may retry on the main thread.
         if (!ru.neverland.core.SuiteState.held()) return "Недоступно";

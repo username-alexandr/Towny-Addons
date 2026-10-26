@@ -32,7 +32,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
     /** ConstructionService returns supplied blocks after placement; UI must not quote them as consumed. */
     public boolean uiReturnsPlacedMaterial() { return true; }
     /** Opens a real, guarded details inventory on the caller player entity thread. */
-    public void uiOpenDetails(org.bukkit.entity.Player player, String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void uiOpenDetails(org.bukkit.entity.Player player, String id) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!player.hasPermission("neverlandtownybuilds.use")) throw new IllegalArgumentException("Нет доступа к постройкам");
         var project = definitions.project(id);
         if (project == null) throw new IllegalArgumentException("Постройка больше не существует");
@@ -47,7 +47,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
     private CivicService civic;
     private ru.neverland.townybuilds.storage.ProductionService production;
     private ru.neverland.townybuilds.storage.BuildingStorageService storage;
-    public ru.neverland.townybuilds.storage.BuildingStorageService storage(){ synchronized (ru.neverland.core.SuiteState.lock()) {return storage;} }
+    public ru.neverland.townybuilds.storage.BuildingStorageService storage(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return storage;} }
     private ru.neverland.townybuilds.army.ArmyService army;
 
     private ru.neverland.townybuilds.construction.ConstructionRefunds constructionRefunds;
@@ -56,7 +56,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
     public ru.neverland.townybuilds.construction.ConstructionCancelMenu constructionCancelMenu() { return constructionCancelMenu; }
 
     @Override
-    public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void onEnable() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         saveDefaultConfig();
@@ -134,7 +134,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
     } }
 
     @Override
-    public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void onDisable() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (effects != null) effects.stop();
@@ -151,13 +151,13 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         for (String command : TOWN_COMMANDS) towny.unregisterTownCommand(command);
     } }
 
-    public java.util.concurrent.CompletableFuture<java.util.Map<String,String>> buildingPreview(org.bukkit.entity.Player player,org.bukkit.inventory.Inventory inventory){synchronized(ru.neverland.core.SuiteState.lock()){
+    public java.util.concurrent.CompletableFuture<java.util.Map<String,String>> buildingPreview(org.bukkit.entity.Player player,org.bukkit.inventory.Inventory inventory){try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()){
         if(!isEnabled()||ru.neverland.core.SuiteState.frozen(getName())||uiMenus==null||thumbnails==null)return java.util.concurrent.CompletableFuture.completedFuture(java.util.Map.of());
         var plan=uiMenus.preview(player,inventory);return plan==null?java.util.concurrent.CompletableFuture.completedFuture(java.util.Map.of()):thumbnails.preview(plan);
     }}
     public java.util.Map<String,String> placementControls(org.bukkit.entity.Player player){return placements==null?java.util.Map.of():placements.controls(player);}
     public boolean nudgePlacement(org.bukkit.entity.Player player,String key,long sequence,String action){return placements!=null&&placements.nudge(player,key,sequence,action);}
-    public void reloadPlugin() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reloadPlugin() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         reloadConfig();
         messages.reload();
         itemsAdder.reload();
@@ -182,7 +182,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         towny.registerTownCommand("shop", new CivicCommand(civic, messages, true));
     }
 
-    public ru.neverland.townybuilds.army.ArmyService army() { synchronized (ru.neverland.core.SuiteState.lock()) { return army; } }
+    public ru.neverland.townybuilds.army.ArmyService army() { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { return army; } }
 
     private void copyResource(String name) {
         if (!new File(getDataFolder(), name).exists()) saveResource(name, false);

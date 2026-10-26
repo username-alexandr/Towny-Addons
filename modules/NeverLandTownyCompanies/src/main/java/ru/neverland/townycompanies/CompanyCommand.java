@@ -13,19 +13,19 @@ public final class CompanyCommand implements CommandExecutor,TabCompleter {
     private final JavaPlugin plugin;private final CompanyService service;private CompanyMenus menus;
     private final Map<UUID,Quote> quotes=new HashMap<>();
     public CompanyCommand(JavaPlugin plugin,CompanyService service){this.plugin=plugin;this.service=service;}
-    public void menus(CompanyMenus menus){ synchronized (ru.neverland.core.SuiteState.lock()) {this.menus=menus;} }
-    public void quote(Player p,String description,Action action){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void menus(CompanyMenus menus){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {this.menus=menus;} }
+    public void quote(Player p,String description,Action action){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         service.requireUse(p);Company c=service.ledger.membership(p.getUniqueId());long now=System.currentTimeMillis();quotes.values().removeIf(q->q.until()<now);
         quotes.put(p.getUniqueId(),new Quote(now+30_000,c==null?null:c.id(),c==null?0:c.revision(),action));
         message(p,description+". Подтвердите: /company confirm (30 секунд)");menus.confirm(p,description);
     } }
-    public void confirm(Player p)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void confirm(Player p)throws Exception { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         service.requireUse(p);Quote q=quotes.remove(p.getUniqueId());Company c=service.ledger.membership(p.getUniqueId());
         if(q==null||q.until()<System.currentTimeMillis()||!Objects.equals(q.company(),c==null?null:c.id())||(c!=null&&q.revision()!=c.revision()))throw new IllegalArgumentException("Подтверждение истекло или состояние компании изменилось. Повторите действие");
         q.action().run();message(p,"Готово");menus.open(p);
     } }
-    public void safe(Player p,Action action){ synchronized (ru.neverland.core.SuiteState.lock()) {try{service.requireUse(p);action.run();}catch(Exception ex){message(p,ex.getMessage()==null?"Операция недоступна":ex.getMessage());if(ex instanceof java.io.IOException)plugin.getLogger().severe(ex.toString());}} }
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCompanies")){return true;}
+    public void safe(Player p,Action action){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {try{service.requireUse(p);action.run();}catch(Exception ex){message(p,ex.getMessage()==null?"Операция недоступна":ex.getMessage());if(ex instanceof java.io.IOException)plugin.getLogger().severe(ex.toString());}} }
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCompanies")){return true;}
         if(args.length>0&&args[0].equalsIgnoreCase("admin")){admin(sender,args);return true;}
         if(!(sender instanceof Player p)){message(sender,"Команда доступна игроку; /company admin pending");return true;}
         safe(p,()->{
@@ -57,7 +57,7 @@ public final class CompanyCommand implements CommandExecutor,TabCompleter {
             }
         });return true;
     } }
-    public void takeQuote(Player p,UUID id){ synchronized (ru.neverland.core.SuiteState.lock()) {Company c=service.manage(p,false,true);Map<String,Object> offer=service.contracts.offers(c.town()).stream().filter(o->id.toString().equals(o.get("id"))).findFirst().orElseThrow(()->new IllegalArgumentException("Контракт не найден"));
+    public void takeQuote(Player p,UUID id){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {Company c=service.manage(p,false,true);Map<String,Object> offer=service.contracts.offers(c.town()).stream().filter(o->id.toString().equals(o.get("id"))).findFirst().orElseThrow(()->new IllegalArgumentException("Контракт не найден"));
         quote(p,"Принять заказ «"+offer.get("name")+"», цель "+offer.get("goal")+", награда на счёт компании "+offer.get("reward")+", срок до "+CompanyMenus.date(((Number)offer.get("expires")).longValue()),()->service.take(p,id));} }
     private void admin(CommandSender sender,String[] args){
         if(!sender.hasPermission("neverlandtownycompanies.admin")){message(sender,"Нет разрешения");return;}
@@ -81,7 +81,7 @@ public final class CompanyCommand implements CommandExecutor,TabCompleter {
         message(p,"/company contracts; take <UUID>; release <UUID>; /t contracts — выполнение заказов");
         message(p,"/company transfer <игрок>; acceptowner; disband; confirm; cancel");
     }
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         List<String> values=args.length==1?List.of("help","list","create","members","invite","invitations","join","role","kick","leave","deposit","withdraw","payments","contracts","take","release","transfer","acceptowner","disband","confirm","cancel")
                 :args.length==2&&args[0].equalsIgnoreCase("create")?List.of("shop","mine","farm","transport")
                 :args.length==3&&args[0].equalsIgnoreCase("role")?List.of("manager","worker"):List.of();

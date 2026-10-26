@@ -9,7 +9,7 @@ public final class ResourceMatcher {
     private ResourceMatcher() {
     }
 
-    public static boolean matches(ItemStack candidate, ItemStack required) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean matches(ItemStack candidate, ItemStack required) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (candidate == null || required == null
                 || isAir(candidate.getType()) || isAir(required.getType())) {
             return false;

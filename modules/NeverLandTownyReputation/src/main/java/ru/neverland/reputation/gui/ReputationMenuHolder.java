@@ -9,5 +9,5 @@ import java.util.UUID;
 
 public record ReputationMenuHolder(Type type, ReputationScope scope, UUID owner) implements InventoryHolder {
     public enum Type { MAIN, RELATIONS, HISTORY, TOP, LEVELS, PROFILE, PROFILE_HISTORY }
-    @Override public @NotNull Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { throw new UnsupportedOperationException(); } }
+    @Override public @NotNull Inventory getInventory() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { throw new UnsupportedOperationException(); } }
 }

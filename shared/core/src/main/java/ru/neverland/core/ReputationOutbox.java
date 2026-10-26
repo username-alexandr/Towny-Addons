@@ -7,12 +7,12 @@ import org.bukkit.configuration.ConfigurationSection;
 /** Written in the SAME atomic snapshot as its source operation. Provider receipts make ack retries safe. */
 public final class ReputationOutbox {
     private final Map<String, ReputationOutcome> pending = new LinkedHashMap<>();
-    public void add(ReputationOutcome outcome) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void add(ReputationOutcome outcome) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var previous = pending.putIfAbsent(outcome.id(), outcome);
         if (previous != null && !previous.equals(outcome)) throw new IllegalArgumentException("Конфликт события репутации: " + outcome.id());
     } }
-    public int size() { synchronized (ru.neverland.core.SuiteState.lock()) { return pending.size(); } }
-    public void load(ConfigurationSection yaml) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int size() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return pending.size(); } }
+    public void load(ConfigurationSection yaml) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         var next = new ReputationOutbox();
         for (var row : SafeYaml.maps(yaml, "reputation-outbox")) {
             var s = new org.bukkit.configuration.MemoryConfiguration(); row.forEach((k,v) -> s.set(String.valueOf(k), v));
@@ -24,11 +24,11 @@ public final class ReputationOutbox {
         }
         pending.clear(); pending.putAll(next.pending);
     } }
-    public void write(ConfigurationSection yaml) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void write(ConfigurationSection yaml) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         yaml.set("reputation-outbox", pending.values().stream().map(o -> Map.of("id", o.id(), "scope", o.scope(), "subject", o.subject().toString(),
                 "rule", o.rule(), "at", o.at(), "context", o.context())).toList());
     } }
-    public void flush(BooleanSupplier healthy, Runnable persist) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void flush(BooleanSupplier healthy, Runnable persist) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if (!healthy.getAsBoolean()) return;
         // Bound synchronous work; unacknowledged outcomes remain durable for the next tick.
         for (var outcome : List.copyOf(pending.values()).stream().limit(16).toList()) {

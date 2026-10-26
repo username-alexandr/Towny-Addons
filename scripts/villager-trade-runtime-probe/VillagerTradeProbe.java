@@ -30,7 +30,7 @@ public final class VillagerTradeProbe extends JavaPlugin {
         for(int x=-1;x<=4;x++)for(int z=-1;z<=1;z++)chunks.add(world.getChunkAtAsync(x,z));
         java.util.concurrent.CompletableFuture.allOf(chunks.toArray(java.util.concurrent.CompletableFuture[]::new)).whenComplete((ignored,error)->{
             if(error!=null){finish(error);return;}
-            Bukkit.getRegionScheduler().runDelayed(this,new Location(world,1,160,1),t->{synchronized(SuiteState.lock()){
+            Bukkit.getRegionScheduler().runDelayed(this,new Location(world,1,160,1),t->{try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){
                 try{Files.createDirectories(proof);run();}catch(Throwable failure){finish(failure);}
             }},50);
         });
@@ -58,7 +58,7 @@ public final class VillagerTradeProbe extends JavaPlugin {
         own=new Actor(host.getMayor().getUUID());guest=new Actor(visitor.getMayor().getUUID());other=new Actor(neutral.getMayor().getUUID());nomad=new Actor(id("nomad"));
         villager=world.spawn(new Location(world,1,160,1),Villager.class,e->{e.setAI(false);e.setGravity(false);e.setProfession(Villager.Profession.FARMER);});
         trader=world.spawn(new Location(world,2,160,1),WanderingTrader.class,e->{e.setAI(false);e.setGravity(false);});
-        Bukkit.getRegionScheduler().runDelayed(this,new Location(world,1,160,1),t->{synchronized(SuiteState.lock()){
+        Bukkit.getRegionScheduler().runDelayed(this,new Location(world,1,160,1),t->{try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){
             try{scenarios(restart);finish(null);}catch(Throwable failure){finish(failure);}
         }},5);
     }

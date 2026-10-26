@@ -14,13 +14,13 @@ public final class SeasonMenu implements Listener {
     static final class Holder implements InventoryHolder {
         final UUID viewer,world;final Inventory previous;Inventory inventory;
         Holder(UUID viewer,UUID world,Inventory previous) { this.viewer=viewer;this.world=world;this.previous=previous; }
-        @Override public Inventory getInventory(){ synchronized (ru.neverland.core.SuiteState.lock()) {return inventory;} }
+        @Override public Inventory getInventory(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return inventory;} }
     }
     static ItemStack item(Material material,String title,List<String> lines) {
         var item=new ItemStack(material);var meta=item.getItemMeta();meta.displayName(MenuStyle.nameComponent(MenuStyle.decode(title)));
         meta.lore(MenuStyle.loreComponents(lines.stream().map(MenuStyle::decode).toList()));item.setItemMeta(meta);return item;
     }
-    public void open(Player player,UUID world,Inventory previous) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void open(Player player,UUID world,Inventory previous) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(!player.hasPermission("neverlandtownyseasons.use"))throw new IllegalArgumentException("Нет права просмотра календаря");
         var current=service.calendar(world);var h=new Holder(player.getUniqueId(),world,previous);
         var inv=MenuStyle.inventory(plugin,h,54,"Сезоны • "+current.get("title"));h.inventory=inv;
@@ -44,12 +44,12 @@ public final class SeasonMenu implements Listener {
         if(player.hasPermission("neverlandtownyseasons.admin"))inv.setItem(53,item(Material.COMPARATOR,"&eУправление сезонами",List.of("/tseasons help","/tseasons status")));
         player.openInventory(inv);
     } }
-    @EventHandler public void click(InventoryClickEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySeasons")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler public void click(InventoryClickEvent e) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySeasons")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         if(!(e.getView().getTopInventory().getHolder() instanceof Holder h))return;e.setCancelled(true);
         if(!(e.getWhoClicked() instanceof Player p)||!p.getUniqueId().equals(h.viewer))return;
         if(!p.hasPermission("neverlandtownyseasons.use")){p.closeInventory();return;}
         if(e.getRawSlot()==45)MenuStyle.returnTo(p,h.previous);
         else if(e.getRawSlot()==49)try{open(p,h.world,h.previous);}catch(RuntimeException ex){p.closeInventory();p.sendMessage(MenuStyle.decode("&c"+ex.getMessage()));}
     } }
-    @EventHandler public void drag(InventoryDragEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySeasons")){ru.neverland.core.ModuleGate.stopEvent(e);return;} if(e.getView().getTopInventory().getHolder() instanceof Holder)e.setCancelled(true); } }
+    @EventHandler public void drag(InventoryDragEvent e) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySeasons")){ru.neverland.core.ModuleGate.stopEvent(e);return;} if(e.getView().getTopInventory().getHolder() instanceof Holder)e.setCancelled(true); } }
 }

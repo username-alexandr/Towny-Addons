@@ -6,7 +6,7 @@ import ru.neverland.mintcontracts.service.ContractService;
 
 public final class PlaceholderHook {
     private PlaceholderHook() {}
-    public static boolean register(MintTownyContracts plugin, TownyHook towny, ContractService contracts) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean register(MintTownyContracts plugin, TownyHook towny, ContractService contracts) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) return false;
         try { return new MintContractsExpansion(plugin, towny, contracts).register(); }
         catch (LinkageError error) { plugin.getLogger().warning("PlaceholderAPI несовместим: " + error.getMessage()); return false; }

@@ -26,7 +26,7 @@ public final class SiegeListener implements Listener {
         if(flying && (a.enters(Fort.TOWER,begin,end)||a.enters(Fort.KEEP,begin,end))) { service.tell(p,"Дозорная башня перекрывает воздушный подход. Приземлитесь за пределами зоны.");return true; }
         return false;
     }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void move(PlayerMoveEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void move(PlayerMoveEvent e) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         if(e instanceof PlayerTeleportEvent || e.getTo()==null || e.getFrom().toVector().equals(e.getTo().toVector()))return;
         if(entry(e.getPlayer(),e.getFrom(),e.getTo(),e.getPlayer().isGliding()||e.getPlayer().isRiptiding()))e.setCancelled(true);
     } }
@@ -37,24 +37,24 @@ public final class SiegeListener implements Listener {
         if(item && (a.uncertain()||a.wall(SiegeService.point(e.getTo())))) {e.setCancelled(true);service.tell(e.getPlayer(),"Активная крепостная стена блокирует телепортацию предметами в осаждённый город.");return;}
         if(entry(e.getPlayer(),e.getFrom(),e.getTo(),e.getPlayer().isGliding()))e.setCancelled(true);
     }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void teleport(PlayerTeleportEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;} teleportCheck(e); } }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void portal(PlayerPortalEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;} teleportCheck(e); } }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void interact(PlayerInteractEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void teleport(PlayerTeleportEvent e) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;} teleportCheck(e); } }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void portal(PlayerPortalEvent e) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;} teleportCheck(e); } }
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void interact(PlayerInteractEvent e) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         var block=e.getClickedBlock();if(block==null)return;
         boolean mechanism=block.getBlockData() instanceof Openable || block.getType().name().endsWith("_BUTTON") || block.getType().name().endsWith("_PRESSURE_PLATE") || block.getType()==org.bukkit.Material.LEVER;
         if(!mechanism || e.getAction()!=Action.RIGHT_CLICK_BLOCK && e.getAction()!=Action.PHYSICAL)return;
         var a=service.assess(e.getPlayer(),block.getLocation());
         if(a.near(Fort.GATE,SiegeService.point(block.getLocation()))>0) {e.setCancelled(true);service.tell(e.getPlayer(),"Механизмы крепостных ворот недоступны атакующей стороне.");}
     } }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void glide(EntityToggleGlideEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void glide(EntityToggleGlideEvent e) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         if(!e.isGliding()||!(e.getEntity() instanceof Player p))return;
         var a=service.assess(p,p.getLocation());Point pos=SiegeService.point(p.getLocation());
         if(a.near(Fort.TOWER,pos)>0||a.near(Fort.KEEP,pos)>0) {e.setCancelled(true);service.tell(p,"В зоне дозорной башни нельзя раскрыть элитры.");}
     } }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void sprint(PlayerToggleSprintEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void sprint(PlayerToggleSprintEvent e) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         if(e.isSprinting() && service.assess(e.getPlayer(),e.getPlayer().getLocation()).near(Fort.MOAT,SiegeService.point(e.getPlayer().getLocation()))>0)e.setCancelled(true);
     } }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void swim(EntityToggleSwimEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void swim(EntityToggleSwimEvent e) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         if(e.isSwimming()&&e.getEntity() instanceof Player p&&service.assess(p,p.getLocation()).near(Fort.MOAT,SiegeService.point(p.getLocation()))>0)e.setCancelled(true);
     } }
     static List<Player> passengers(Entity entity) { var out=new ArrayList<Player>(); passengers(entity,out,0);return out; }
@@ -69,7 +69,7 @@ public final class SiegeListener implements Listener {
         }
         return false;
     }
-    @EventHandler(priority=EventPriority.HIGHEST) public void boat(VehicleMoveEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler(priority=EventPriority.HIGHEST) public void boat(VehicleMoveEvent e) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         var vehicle=e.getVehicle();if(movingVehicles.contains(vehicle.getUniqueId())||!vehicleEntry(vehicle,e.getFrom(),e.getTo()))return;
         movingVehicles.add(vehicle.getUniqueId());
         try {
@@ -77,10 +77,10 @@ public final class SiegeListener implements Listener {
             vehicle.teleportAsync(e.getFrom()).whenComplete((ok,error)->ru.neverland.core.SuiteState.run(()->{if(error!=null||!Boolean.TRUE.equals(ok))service.failed(new IllegalStateException("Не удалось вернуть транспорт за линию обороны",error));}));
         } finally {movingVehicles.remove(vehicle.getUniqueId());}
     } }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void mount(EntityMoveEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void mount(EntityMoveEvent e) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         if(e.hasChangedPosition()&&!e.getEntity().getPassengers().isEmpty()&&vehicleEntry(e.getEntity(),e.getFrom(),e.getTo()))e.setCancelled(true);
     } }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void board(VehicleEnterEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void board(VehicleEnterEvent e) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         if(!(e.getEntered() instanceof Player p))return;
         var at=e.getVehicle().getLocation();var a=service.assess(p,at);var pos=SiegeService.point(at);
         if(a.near(Fort.GATE,pos)>0||e.getVehicle() instanceof Boat&&a.near(Fort.PORT,pos)>0)e.setCancelled(true);
@@ -92,15 +92,15 @@ public final class SiegeListener implements Listener {
         if(e instanceof Tameable t&&t.getOwner() instanceof Player p)return p;
         return null;
     }
-    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void damage(EntityDamageByEntityEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true) public void damage(EntityDamageByEntityEvent e) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         if(!(e.getEntity() instanceof Player defender))return;
         Player attacker=responsible(e.getDamageSource().getCausingEntity(),0);if(attacker==null)attacker=responsible(e.getDamager(),0);if(attacker==null)return;
         double reduction=service.defense(attacker,defender,defender.getLocation());
         if(reduction<0) {e.setCancelled(true);service.tell(attacker,"Проверка осадной обороны временно недоступна.");}
         else if(reduction>0)e.setDamage(e.getDamage()*(1-reduction));
     } }
-    @EventHandler public void quit(PlayerQuitEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) { service.leave(e.getPlayer()); } }
-    @EventHandler public void death(PlayerDeathEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;} service.leave(e.getEntity()); } }
-    @EventHandler public void join(PlayerJoinEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;} service.leave(e.getPlayer()); } }
-    @EventHandler(priority=EventPriority.MONITOR) public void changedWorld(PlayerChangedWorldEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;} service.leave(e.getPlayer()); } }
+    @EventHandler public void quit(PlayerQuitEvent e) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) { service.leave(e.getPlayer()); } }
+    @EventHandler public void death(PlayerDeathEvent e) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;} service.leave(e.getEntity()); } }
+    @EventHandler public void join(PlayerJoinEvent e) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;} service.leave(e.getPlayer()); } }
+    @EventHandler(priority=EventPriority.MONITOR) public void changedWorld(PlayerChangedWorldEvent e) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;} service.leave(e.getPlayer()); } }
 }

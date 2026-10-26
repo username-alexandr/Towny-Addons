@@ -6,6 +6,6 @@ import java.util.regex.Pattern;
 
 public final class ColorUtil {
     private static final Pattern HEX=Pattern.compile("&#([A-Fa-f0-9]{6})");private ColorUtil(){}
-    public static String color(String input){ synchronized (ru.neverland.core.SuiteState.lock()) {if(input==null)return "";Matcher matcher=HEX.matcher(input);StringBuffer out=new StringBuffer();while(matcher.find()){StringBuilder legacy=new StringBuilder("&x");for(char value:matcher.group(1).toCharArray())legacy.append('&').append(value);matcher.appendReplacement(out,Matcher.quoteReplacement(legacy.toString()));}matcher.appendTail(out);return ChatColor.translateAlternateColorCodes('&',out.toString());} }
-    public static String strip(String input){ synchronized (ru.neverland.core.SuiteState.lock()) {return ChatColor.stripColor(color(input));} }
+    public static String color(String input){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(input==null)return "";Matcher matcher=HEX.matcher(input);StringBuffer out=new StringBuffer();while(matcher.find()){StringBuilder legacy=new StringBuilder("&x");for(char value:matcher.group(1).toCharArray())legacy.append('&').append(value);matcher.appendReplacement(out,Matcher.quoteReplacement(legacy.toString()));}matcher.appendTail(out);return ChatColor.translateAlternateColorCodes('&',out.toString());} }
+    public static String strip(String input){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return ChatColor.stripColor(color(input));} }
 }

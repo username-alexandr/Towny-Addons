@@ -12,9 +12,9 @@ public final class RussianNames {
 
     public RussianNames(JavaPlugin plugin) { this.plugin = plugin; reload(); }
 
-    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) { MaterialNameConfig.reload(plugin, names); } }
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { MaterialNameConfig.reload(plugin, names); } }
 
-    public String item(ItemStack stack) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String item(ItemStack stack) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (stack == null || stack.getType().isAir()) return "Пусто";
         ItemMeta meta = stack.getItemMeta();
         String custom = MaterialNameConfig.customName(meta);
@@ -22,7 +22,7 @@ public final class RussianNames {
         return value(stack.getType().name());
     } }
 
-    public String value(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String value(String key) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (key == null || key.isBlank()) return "Цель";
         return names.name(key);
     } }

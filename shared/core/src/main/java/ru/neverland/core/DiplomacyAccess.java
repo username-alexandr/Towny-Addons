@@ -6,7 +6,7 @@ import java.util.*;
 public final class DiplomacyAccess {
     private static final String PLUGIN="NeverLandTownyDiplomacy",API="ru.neverland.townydiplomacy.api.TownyDiplomacyApi";
     private DiplomacyAccess() { }
-    public static boolean available() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean available() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var c=ApiServices.connect(PLUGIN,API,1,"healthy");
         if(c.state()==ApiServices.State.NOT_INSTALLED)return true;if(!c.ready())return false;
         try{return Boolean.TRUE.equals(c.invoke("healthy",new Class<?>[0]));}
@@ -20,9 +20,9 @@ public final class DiplomacyAccess {
         try { Object value=c.invoke(method,new Class<?>[]{UUID.class,UUID.class},a,b);return !(value instanceof Boolean flag)||flag; }
         catch(ReflectiveOperationException|RuntimeException|LinkageError ex) { return true; }
     }
-    public static boolean tradeBlocked(UUID a,UUID b) { synchronized (ru.neverland.core.SuiteState.lock()) { return restriction("tradeBlocked",a,b); } }
-    public static boolean hostileBlocked(UUID a,UUID b) { synchronized (ru.neverland.core.SuiteState.lock()) { return restriction("hostileBlocked",a,b); } }
-    public static double tariffMultiplier(UUID a,UUID b,UUID tariffTown) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean tradeBlocked(UUID a,UUID b) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return restriction("tradeBlocked",a,b); } }
+    public static boolean hostileBlocked(UUID a,UUID b) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return restriction("hostileBlocked",a,b); } }
+    public static double tariffMultiplier(UUID a,UUID b,UUID tariffTown) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         var c=ApiServices.connect(PLUGIN,API,1,"tariffMultiplier");
         if(c.state()==ApiServices.State.NOT_INSTALLED)return 1;
         if(!c.ready())throw new IllegalStateException("Система дипломатии недоступна");
@@ -32,7 +32,7 @@ public final class DiplomacyAccess {
             throw new IllegalStateException("Некорректная дипломатическая пошлина");
         } catch(ReflectiveOperationException|LinkageError ex) { throw new IllegalStateException("Система дипломатии недоступна",ex); }
     } }
-    public static Set<String> relations(UUID a,UUID b) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Set<String> relations(UUID a,UUID b) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         var c=ApiServices.connect(PLUGIN,API,1,"relations");
         if(c.state()==ApiServices.State.NOT_INSTALLED)return Set.of();if(!c.ready())return Set.of("UNAVAILABLE");
         try { Object value=c.invoke("relations",new Class<?>[]{UUID.class,UUID.class},a,b);if(value instanceof Set<?> set&&set.stream().allMatch(v->v instanceof String)) {

@@ -74,8 +74,8 @@ public final class CivicAutomationService {
 
     private final JavaPlugin plugin;private final TownyHook towny;private final DataStore dataStore;private final TownyBuildsApi api;private BukkitTask task;
     public CivicAutomationService(JavaPlugin plugin,TownyHook towny,DataStore dataStore,TownyBuildsApi api){this.plugin=plugin;this.towny=towny;this.dataStore=dataStore;this.api=api;}
-    public void start(){ synchronized (ru.neverland.core.SuiteState.lock()) {stop();long interval=Math.max(100L,plugin.getConfig().getLong("settings.civic.automation-interval-ticks",1200L));task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::runAutomation,interval,interval);} }
-    public void stop(){ synchronized (ru.neverland.core.SuiteState.lock()) {if(task!=null)task.cancel();task=null;} }
+    public void start(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {stop();long interval=Math.max(100L,plugin.getConfig().getLong("settings.civic.automation-interval-ticks",1200L));task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::runAutomation,interval,interval);} }
+    public void stop(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(task!=null)task.cancel();task=null;} }
     private boolean waterNetworkActive(UUID town){return api.waterNetworkActive(town);}
     private int inventorySize(String projectId, int level) {
         if (projectId.equals("forestry")) return level >= 5 ? 54 : Math.max(9, level * 9);

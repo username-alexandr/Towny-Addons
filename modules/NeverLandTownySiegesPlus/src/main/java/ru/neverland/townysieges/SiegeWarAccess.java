@@ -15,13 +15,13 @@ public final class SiegeWarAccess {
     private Plugin bound;
     private Class<?> siegeType;
     private Method getSiege, active, battle, side;
-    public State state() { synchronized (ru.neverland.core.SuiteState.lock()) { return state; } }
-    public String detail() { synchronized (ru.neverland.core.SuiteState.lock()) { return detail; } }
+    public State state() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return state; } }
+    public String detail() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return detail; } }
     private void status(State next,String text) {
         if (state!=next && next!=State.READY && next!=State.NOT_INSTALLED) Bukkit.getLogger().warning("[NeverLand Sieges+] SiegeWar: "+next+" — "+text);
         state=next; detail=text;
     }
-    public boolean connect() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean connect() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         Plugin plugin=Bukkit.getPluginManager().getPlugin("SiegeWar");
         if (plugin==null) { bound=null; status(State.NOT_INSTALLED,"SiegeWar не установлен"); return false; }
         if (!plugin.isEnabled()) { bound=null; status(State.DISABLED,"SiegeWar отключён"); return false; }
@@ -39,8 +39,8 @@ public final class SiegeWarAccess {
             bound=plugin; status(State.READY,"SiegeWar "+plugin.getDescription().getVersion()); return true;
         } catch (ReflectiveOperationException | RuntimeException | LinkageError e) { bound=null; status(State.INCOMPATIBLE_API,e.toString()); return false; }
     } }
-    public record Context(boolean active, boolean battle, String side) { public static Context none() { synchronized (ru.neverland.core.SuiteState.lock()) { return new Context(false,false,"NOBODY"); } } }
-    public Context context(Town town,Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public record Context(boolean active, boolean battle, String side) { public static Context none() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return new Context(false,false,"NOBODY"); } } }
+    public Context context(Town town,Player player) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         ru.neverland.core.ApiServices.primaryThread();
         if (!connect()) throw new IllegalStateException(detail);
         try {

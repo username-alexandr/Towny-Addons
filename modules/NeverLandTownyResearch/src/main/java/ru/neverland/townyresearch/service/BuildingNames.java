@@ -100,4 +100,4 @@ Map.entry("seed_vault","Селекционный центр"),
 Map.entry("industrial_works","Индустриальный комбинат"),
 Map.entry("academy_of_sciences","Академия наук"),
 Map.entry("admiralty","Адмиралтейство"),
-Map.entry("pilgrimage_center","Центр паломничества")); public static String name(String id){ synchronized (ru.neverland.core.SuiteState.lock()) {return NAMES.getOrDefault(id,"Городское здание");} } }
+Map.entry("pilgrimage_center","Центр паломничества")); public static String name(String id){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return NAMES.getOrDefault(id,"Городское здание");} } }

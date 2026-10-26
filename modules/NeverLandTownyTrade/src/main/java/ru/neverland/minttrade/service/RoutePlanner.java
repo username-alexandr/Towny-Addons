@@ -27,7 +27,7 @@ public final class RoutePlanner {
     public RoutePlanner(JavaPlugin plugin, TownyHook towny, BuildBridge builds, CampsBridge camps) {
         this.plugin = plugin; this.towny = towny; this.builds = builds; this.camps = camps;
     }
-    public RoutePlan plan(Town seller, Town buyer) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public RoutePlan plan(Town seller, Town buyer) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Location from = seller == null ? null : seller.getSpawnOrNull(), to = buyer == null ? null : buyer.getSpawnOrNull();
         if (from == null || to == null || from.getWorld() == null || !from.getWorld().equals(to.getWorld())) return null;
         RoutePoint start = townPoint(from, seller), end = townPoint(to, buyer);

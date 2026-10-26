@@ -9,7 +9,7 @@ public record TownState(Map<Resource,Long> balances,Map<Resource,Long> reserves,
         if(cycles<0||lastCycle<0||!Double.isFinite(foodCoverage)||!Double.isFinite(waterCoverage)||foodCoverage<0||foodCoverage>1||waterCoverage<0||waterCoverage>1) throw new IllegalArgumentException("Некорректная история ресурсов");
     }
     private static void validId(String id) { if(id==null||!id.matches("[a-z0-9_-]{1,64}"))throw new IllegalArgumentException("Некорректный ID здания"); }
-    public static TownState initial(Map<Resource,Long> values) { synchronized (ru.neverland.core.SuiteState.lock()) { return new TownState(values,Map.of(),Set.of(),Map.of(),0,0,Map.of(),Map.of(),1,1); } }
-    public TownState settings(Map<Resource,Long> keep,Set<String> stop,Map<String,Integer> order) { synchronized (ru.neverland.core.SuiteState.lock()) { return new TownState(balances,keep,stop,order,cycles,lastCycle,income,expense,foodCoverage,waterCoverage); } }
-    public TownState balance(Resource resource,long amount) { synchronized (ru.neverland.core.SuiteState.lock()) { var next=Amounts.mutable(balances);next.put(resource,Amounts.valid(amount));return new TownState(next,reserves,paused,priorities,cycles,lastCycle,income,expense,foodCoverage,waterCoverage); } }
+    public static TownState initial(Map<Resource,Long> values) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return new TownState(values,Map.of(),Set.of(),Map.of(),0,0,Map.of(),Map.of(),1,1); } }
+    public TownState settings(Map<Resource,Long> keep,Set<String> stop,Map<String,Integer> order) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return new TownState(balances,keep,stop,order,cycles,lastCycle,income,expense,foodCoverage,waterCoverage); } }
+    public TownState balance(Resource resource,long amount) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { var next=Amounts.mutable(balances);next.put(resource,Amounts.valid(amount));return new TownState(next,reserves,paused,priorities,cycles,lastCycle,income,expense,foodCoverage,waterCoverage); } }
 }

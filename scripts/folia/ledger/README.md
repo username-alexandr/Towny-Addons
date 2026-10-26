@@ -1,0 +1,11 @@
+# Shared-ledger native regression
+
+Use a disposable, empty Folia 26.2 build 7 / Java 25 server only. The probes create Towny and Chronicles fixture records, edit blocks and spawn entities (the companion FoliaProbe), hold the suite ledger on a worker for about six seconds and stop the server. Never install either probe on a live server.
+
+Prepare dependencies and telemetry opt-outs as described in `../README.md`. Bind to `127.0.0.1`, create the file `ALLOW_DISPOSABLE_LEDGER_PROBE` in the server root, disable Towny economy for this test, and set two region threads. Install all 40 freshly verified suite JARs. Compile `../FoliaProbe.java` and `LedgerProbe.java` with the bootstrapped server libraries and installed plugins on the classpath. Package their classes with `../plugin.yml` and `plugin.yml`, respectively, as separate test plugins.
+
+Run `python3 scripts/folia/ledger/run.py /absolute/disposable/server`. The runner launches and fully shuts down the fixture twice. It retains Towny, Chronicles and command receipt data between launches. Each launch uses a new run ID for result paths and synthetic receipt keys, so stale results cannot pass a new run. It fails on nonzero probe results, missing results, nonzero exit, timeout or a watchdog dump. Results, check details and console logs are retained under the fixture's `validation/` directory.
+
+The ledger probe verifies a live global heartbeat during lock contention, same-thread resumption, exactly-once execution, cancellation, live `/nltlock`, queued Chronicles scans, unavailable-economy handling, background durable save and cached-balance survival after restart. The companion FoliaProbe checks all modules, native region/entity ownership, teleport/retirement, command deduplication and module pause/resume. It does not test a client connection, premium integrations, production balances or player load.
+
+`MixedProtocolProbe.java` is a separate fixture: install only Towny, Vault, current Control and the actual previous Chronicles 0.1.18 JAR. Compile/package it with `mixed-plugin.yml`. It verifies that Control refuses to enable and does not create its module-state file when an old core is present. Keep this fixture and its data separate from the full-suite test.

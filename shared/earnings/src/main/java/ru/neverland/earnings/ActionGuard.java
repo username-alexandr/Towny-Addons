@@ -25,8 +25,8 @@ public final class ActionGuard implements Listener {
     }
     public static boolean ore(Material m){return m.name().endsWith("_ORE")||m==Material.ANCIENT_DEBRIS;}
     public static String key(Block b){return b.getWorld().getUID()+":"+b.getX()+":"+b.getY()+":"+b.getZ();}
-    public boolean untouched(Block b){synchronized(ru.neverland.core.SuiteState.lock()){return !fault&&!denied.contains(key(b));}}
-    public void deny(Block b){synchronized(ru.neverland.core.SuiteState.lock()){
+    public boolean untouched(Block b){try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){return !fault&&!denied.contains(key(b));}}
+    public void deny(Block b){try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){
         String key=key(b);if(denied.contains(key))return;if(fault)throw new IllegalStateException("Журнал блоков остановлен");
         try{Files.createDirectories(file.getParent());try(var channel=FileChannel.open(file,StandardOpenOption.CREATE,StandardOpenOption.WRITE,StandardOpenOption.APPEND)){var bytes=ByteBuffer.wrap((key+"\n").getBytes(StandardCharsets.UTF_8));while(bytes.hasRemaining())channel.write(bytes);channel.force(true);}denied.add(key);}
         catch(IOException ex){fault=true;throw new UncheckedIOException(ex);}

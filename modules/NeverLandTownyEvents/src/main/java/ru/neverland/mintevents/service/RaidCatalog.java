@@ -61,6 +61,6 @@ public final class RaidCatalog {
         if (!Double.isFinite(number) || number <= 0 || number > 10000) throw new IllegalArgumentException("Недопустимая характеристика: " + number);
         return number;
     }
-    public MobSpec mob(String id) { synchronized (ru.neverland.core.SuiteState.lock()) { return mobs.get(id); } }
-    public Wave wave(int number) { synchronized (ru.neverland.core.SuiteState.lock()) { return waves.get(Math.max(1, Math.min(10, number)) - 1); } }
+    public MobSpec mob(String id) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return mobs.get(id); } }
+    public Wave wave(int number) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return waves.get(Math.max(1, Math.min(10, number)) - 1); } }
 }

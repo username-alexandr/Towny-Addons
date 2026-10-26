@@ -48,7 +48,7 @@ public final class DailyOrderBoard {
         AtomicFiles.loaded(file);
     }
 
-    public Snapshot snapshot() throws IOException { synchronized (SuiteState.lock()) {
+    public Snapshot snapshot() throws IOException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         LocalDate today = clock.instant().atZone(MOSCOW).toLocalDate();
         // A backwards clock adjustment must not offer another board for an already visited day.
         if (current != null && !today.isAfter(current.day())) return current;

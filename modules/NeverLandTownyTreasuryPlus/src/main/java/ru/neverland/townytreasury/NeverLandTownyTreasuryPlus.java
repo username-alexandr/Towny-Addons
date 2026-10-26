@@ -14,12 +14,12 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 public final class NeverLandTownyTreasuryPlus extends JavaPlugin {
     private TreasuryService service;private boolean townCommand;private TreasuryExpansion expansion;
-    @Override public void onEnable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 try{saveDefaultConfig();var repository=new TreasuryRepository(getDataFolder().toPath().resolve("treasury-data.yml"));repository.load();service=new TreasuryService(this,repository,settings());var menu=new TreasuryMenu(this,service);var command=new TreasuryCommand(this,service,menu);var direct=getCommand("townytreasury");if(direct==null)throw new IllegalStateException("Нет команды townytreasury");direct.setExecutor(command);direct.setTabCompleter(command);townCommand=TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"treasury",command);if(!townCommand)getLogger().warning("/t treasury занят; используйте /townytreasury");getServer().getPluginManager().registerEvents(menu,this);getServer().getServicesManager().register(TownyTreasuryApi.class,service,this,ServicePriority.Normal);service.start();if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")){expansion=new TreasuryExpansion(service,getPluginMeta().getVersion());expansion.register();}getLogger().info("Казна и недельные отчёты включены.");}catch(Exception|LinkageError ex){getLogger().log(java.util.logging.Level.SEVERE,"Казна не загружена; проверьте настройки и сохранённую базу.",ex);getServer().getPluginManager().disablePlugin(this);}} }
     private TreasurySettings settings()throws Exception{var y=new YamlConfiguration();y.load(new File(getDataFolder(),"config.yml"));try(var input=getResource("config.yml")){if(input!=null)y.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(input,StandardCharsets.UTF_8)));}y.options().copyDefaults(true);return TreasurySettings.load(y);}
-    public boolean reloadTreasury(){ synchronized (ru.neverland.core.SuiteState.lock()) {try{service.reload(settings());return true;}catch(Exception ex){getLogger().warning("Настройки не применены: "+ex.getMessage());return false;}} }
-    @Override public void onDisable(){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean reloadTreasury(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {try{service.reload(settings());return true;}catch(Exception ex){getLogger().warning("Настройки не применены: "+ex.getMessage());return false;}} }
+    @Override public void onDisable(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 if(expansion!=null)expansion.unregister();if(service!=null)service.stop();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"treasury");} }
 }

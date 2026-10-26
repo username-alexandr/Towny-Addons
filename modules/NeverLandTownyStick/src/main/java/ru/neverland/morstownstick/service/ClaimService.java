@@ -42,11 +42,11 @@ public final class ClaimService {
         this.borders = borders;
     }
 
-    public boolean isBusy(UUID playerId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean isBusy(UUID playerId) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return jobs.containsKey(playerId);
     } }
 
-    public void start(Player player) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void start(Player player) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         UUID playerId = player.getUniqueId();
         if (!plugin.getConfig().getBoolean("claim.enabled", true)) {
             messages.send(player, "claim-disabled");
@@ -101,12 +101,12 @@ public final class ClaimService {
         processNext(job);
     } }
 
-    public void playerQuit(UUID playerId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void playerQuit(UUID playerId) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         ClaimJob job = jobs.remove(playerId);
         if (job != null) job.cancelled = true;
     } }
 
-    public void shutdown() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void shutdown() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         for (ClaimJob job : jobs.values()) job.cancelled = true;
         jobs.clear();
     } }

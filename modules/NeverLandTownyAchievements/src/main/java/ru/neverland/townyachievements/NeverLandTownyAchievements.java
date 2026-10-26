@@ -15,7 +15,7 @@ import ru.neverland.townyachievements.command.AchievementCommand;
 public final class NeverLandTownyAchievements extends JavaPlugin {
     private AchievementService service; private AchievementMenu menu; private boolean townCommand;
     private Runnable closeExpansion = () -> { };
-    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
         try {
             saveDefaultConfig(); if (!new File(getDataFolder(), "achievements.yml").exists()) saveResource("achievements.yml", false);
@@ -43,8 +43,8 @@ public final class NeverLandTownyAchievements extends JavaPlugin {
         var definitions = new YamlConfiguration(); definitions.load(new File(getDataFolder(), "achievements.yml"));
         return AchievementSettings.load(config, definitions);
     }
-    public void reloadAchievements() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) { var next = settings(); service.reload(next); menu.close(); } }
-    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reloadAchievements() throws Exception { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { var next = settings(); service.reload(next); menu.close(); } }
+    @Override public void onDisable() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
         if (service != null) service.stop(); if (menu != null) menu.close(); closeExpansion.run();
         getServer().getServicesManager().unregisterAll(this);

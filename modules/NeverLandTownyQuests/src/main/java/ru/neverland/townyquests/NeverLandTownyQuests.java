@@ -15,7 +15,7 @@ import ru.neverland.townyquests.service.QuestService;
 
 public final class NeverLandTownyQuests extends JavaPlugin {
     private QuestService service; private QuestMenu menu; private boolean townCommand;
-    @Override public void onEnable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
         try {
             saveDefaultConfig(); if (!new File(getDataFolder(), "quests.yml").exists()) saveResource("quests.yml", false);
@@ -42,8 +42,8 @@ public final class NeverLandTownyQuests extends JavaPlugin {
         return y;
     }
     private QuestSettings settings() throws Exception { return QuestSettings.load(read("config.yml", true), read("quests.yml", false)); }
-    public void reloadQuests() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) { var next = settings(); service.reload(next); menu.close(); } }
-    @Override public void onDisable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reloadQuests() throws Exception { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { var next = settings(); service.reload(next); menu.close(); } }
+    @Override public void onDisable() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
         if (service != null) service.stop(); if (menu != null) menu.close();
         getServer().getServicesManager().unregisterAll(this);

@@ -22,7 +22,7 @@ public final class ConstructionProbe extends JavaPlugin {
             world.getChunkAtAsync(0,0).whenComplete((chunk,error)->{
                 if(error!=null){finish(error);return;}
                 Bukkit.getRegionScheduler().execute(this,world,0,0,()->{
-                    synchronized(SuiteState.lock()){try{run(world);finish(null);}catch(Throwable ex){finish(ex);}}
+                    try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){try{run(world);finish(null);}catch(Throwable ex){finish(ex);}}
                 });
             });
         },40);

@@ -44,19 +44,19 @@ public record RewardBatch(UUID id, UUID owner, List<ItemStack> items, double mon
       }
    }
 
-   public List<ItemStack> items() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public List<ItemStack> items() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       return this.items.stream().<ItemStack>map(ItemStack::clone).toList();
    } }
 
-   public UUID moneyId() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public UUID moneyId() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
       return EffectJournal.id("expedition:" + this.id + ":money");
    } }
 
-   public UUID itemId(int index) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public UUID itemId(int index) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
       return EffectJournal.id("expedition:" + this.id + ":item:" + index);
    } }
 
-   public Set<UUID> effects() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public Set<UUID> effects() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
       HashSet<UUID> ids = new HashSet<>();
       if (this.money > 0.0) {
          ids.add(this.moneyId());

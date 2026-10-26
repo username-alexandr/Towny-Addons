@@ -8,7 +8,7 @@ public record CivicLine(UUID worldId, int x1, int y1, int z1, int x2, int y2, in
         if (worldId == null) throw new IllegalArgumentException("Не указан мир линии");
     }
 
-    public int length() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public int length() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         int dx = x2 - x1;
         int dy = y2 - y1;
         int dz = z2 - z1;

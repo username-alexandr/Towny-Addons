@@ -11,9 +11,9 @@ import ru.neverland.townyenvironment.model.EnvironmentState;
 public final class EnvironmentRepository {
     private final Path file; private boolean ready; private Map<UUID, EnvironmentState> towns = Map.of();
     public EnvironmentRepository(Path file) { this.file = file; }
-    public Map<UUID, EnvironmentState> towns() { synchronized (ru.neverland.core.SuiteState.lock()) { return towns; } }
-    public EnvironmentState get(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { return towns.getOrDefault(town, EnvironmentState.clean()); } }
-    public void load() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Map<UUID, EnvironmentState> towns() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return towns; } }
+    public EnvironmentState get(UUID town) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return towns.getOrDefault(town, EnvironmentState.clean()); } }
+    public void load() throws Exception { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         ready = false;
         if (!Files.exists(file)) { towns = Map.of(); AtomicFiles.loaded(file); ready = true; return; }
         var y = new YamlConfiguration(); y.load(file.toFile());
@@ -26,10 +26,10 @@ public final class EnvironmentRepository {
         }
         towns = Map.copyOf(next); AtomicFiles.loaded(file); ready = true;
     } }
-    public void put(UUID town, EnvironmentState state) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void put(UUID town, EnvironmentState state) throws IOException { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         var next = new HashMap<>(towns); next.put(Objects.requireNonNull(town), state); replace(next);
     } }
-    public void replace(Map<UUID, EnvironmentState> next) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void replace(Map<UUID, EnvironmentState> next) throws IOException { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if (!ready || !AtomicFiles.writable(file)) throw new IOException("Хранилище экологии заблокировано");
         next = Map.copyOf(next); if (next.equals(towns)) return;
         var y = new YamlConfiguration(); y.set("schema", 1); var root = y.createSection("towns");

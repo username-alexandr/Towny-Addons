@@ -8,13 +8,13 @@ public record ActivityTimer(long deadline, long pausedAt, long duration) {
         if (deadline < 0 || pausedAt < 0 || duration <= 0 || pausedAt > deadline)
             throw new IllegalArgumentException("Повреждён таймер задачи");
     }
-    public static ActivityTimer running(long start, long end) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static ActivityTimer running(long start, long end) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         return new ActivityTimer(end, 0, Math.max(1, Math.subtractExact(end, start)));
     } }
-    public boolean paused() { synchronized (ru.neverland.core.SuiteState.lock()) { return pausedAt != 0; } }
-    public long now(long wallTime) { synchronized (ru.neverland.core.SuiteState.lock()) { return paused() ? pausedAt : wallTime; } }
-    public long remaining(long wallTime) { synchronized (ru.neverland.core.SuiteState.lock()) { return Math.max(0, deadline - now(wallTime)); } }
-    public ActivityTimer edit(String action, long minutes, long wallTime) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean paused() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return pausedAt != 0; } }
+    public long now(long wallTime) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return paused() ? pausedAt : wallTime; } }
+    public long remaining(long wallTime) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return Math.max(0, deadline - now(wallTime)); } }
+    public ActivityTimer edit(String action, long minutes, long wallTime) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if (wallTime <= 0) throw new IllegalArgumentException("Некорректное время сервера");
         return switch (action) {
             case "pause" -> {
@@ -35,15 +35,15 @@ public record ActivityTimer(long deadline, long pausedAt, long duration) {
             default -> throw new IllegalArgumentException("Неизвестное действие с таймером: " + action);
         };
     } }
-    public static ActivityTimer read(ConfigurationSection section, String prefix, ActivityTimer initial) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static ActivityTimer read(ConfigurationSection section, String prefix, ActivityTimer initial) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         return new ActivityTimer(initial.deadline(), SafeYaml.longValue(section, prefix + "admin-paused-at", 0),
                 SafeYaml.longValue(section, prefix + "admin-duration", initial.duration()));
     } }
-    public void write(ConfigurationSection section, String prefix) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void write(ConfigurationSection section, String prefix) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         section.set(prefix + "admin-paused-at", pausedAt);
         section.set(prefix + "admin-duration", duration);
     } }
-    public String describe(long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String describe(long now) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         long seconds = (remaining(now) + 999) / 1000;
         return (paused() ? "Пауза" : "Работает") + "; осталось " + seconds / 60 + " мин. " + seconds % 60 + " сек.";
     } }

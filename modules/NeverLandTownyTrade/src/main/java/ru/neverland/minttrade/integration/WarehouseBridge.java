@@ -14,19 +14,19 @@ public final class WarehouseBridge {
       return ApiServices.connect("NeverLandTownyBuilds", "ru.neverland.townybuilds.api.WarehouseApi", 1, "transfer", "transferred", "acknowledgeMovement");
    }
 
-   public boolean available() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean available() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       return this.api().ready();
    } }
 
-   public WarehouseBridge.Result take(UUID town, ItemStack sample, int amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public WarehouseBridge.Result take(UUID town, ItemStack sample, int amount) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
       return this.change("take", town, sample, amount);
    } }
 
-   public WarehouseBridge.Result deposit(UUID town, ItemStack sample, int amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public WarehouseBridge.Result deposit(UUID town, ItemStack sample, int amount) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
       return this.change("deposit", town, sample, amount);
    } }
 
-   public WarehouseBridge.Result transfer(UUID operation, UUID town, ItemStack sample, int amount, boolean incoming) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public WarehouseBridge.Result transfer(UUID operation, UUID town, ItemStack sample, int amount, boolean incoming) throws Exception { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
       ApiServices.Connection c = this.api();
       if (!c.ready()) {
          return new WarehouseBridge.Result(WarehouseBridge.Status.UNAVAILABLE, 0);
@@ -38,7 +38,7 @@ public final class WarehouseBridge {
       }
    } }
 
-   public boolean transferred(UUID operation, UUID town) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean transferred(UUID operation, UUID town) throws Exception { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
       ApiServices.Connection c = this.api();
       if (!c.ready()) {
          throw new IllegalStateException("Склад недоступен");
@@ -47,7 +47,7 @@ public final class WarehouseBridge {
       }
    } }
 
-   public void acknowledge(UUID operation, UUID town) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void acknowledge(UUID operation, UUID town) throws Exception { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
       ApiServices.Connection c = this.api();
       if (!c.ready()) {
          throw new IllegalStateException("Склад недоступен");

@@ -17,10 +17,10 @@ public final class SupplyProcessor {
         void acknowledge(SupplyContract contract)throws Exception;
     }
     private SupplyProcessor(){}
-    public static void advance(UUID id,long now,long retry,Store store,Gateway gateway)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void advance(UUID id,long now,long retry,Store store,Gateway gateway)throws Exception { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         advance(id,now,retry,86_400_000L,store,gateway);
     } }
-    public static void advance(UUID id,long now,long retry,long grace,Store store,Gateway gateway)throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void advance(UUID id,long now,long retry,long grace,Store store,Gateway gateway)throws Exception { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(grace<0)throw new IllegalArgumentException("Неверный льготный срок поставки");
         var c=store.get(id);if(c==null||now<c.nextCheck())return;
         if(c.attempt()==null){
@@ -66,7 +66,7 @@ public final class SupplyProcessor {
             case DEBIT_PENDING, CREDIT_PENDING -> { /* A restart or ambiguous bank result requires operator reconciliation. */ }
         }
     } }
-    public static SupplyContract resolve(SupplyContract c,UUID attempt,String decision,long now){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static SupplyContract resolve(SupplyContract c,UUID attempt,String decision,long now){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if(c==null||c.attempt()==null||!c.attempt().id().equals(attempt))throw new IllegalArgumentException("Укажите полный текущий ID поставки");
         Phase from=c.attempt().phase();Phase next=switch(decision){
             case "debit-paid" -> from==Phase.DEBIT_PENDING?Phase.PAID:null;
@@ -77,7 +77,7 @@ public final class SupplyProcessor {
         if(next==null)throw new IllegalArgumentException("Решение не соответствует ожидающему платежу");
         return c.attempt(c.attempt().phase(next),now,"Результат платежа подтверждён администратором");
     } }
-    public static String warehouseNote(String status){ synchronized (ru.neverland.core.SuiteState.lock()) {return switch(status){
+    public static String warehouseNote(String status){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return switch(status){
         case "BUSY" -> "Склад открыт игроком";case "STOCK_LOW" -> "На складе продавца не хватает товара";
         case "FULL" -> "Недостаточно места на складе";case "CITY_MISSING" -> "Один из городов удалён";
         default -> "API поставок склада недоступно";};} }

@@ -13,7 +13,7 @@ import java.util.*;
 /** A repeatable decorative pattern licence; exchanges one blank banner for one decorated banner. */
 public final class BannerRewards {
     private BannerRewards() { }
-    public static void apply(Plugin plugin, AchievementService service, Player player, String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void apply(Plugin plugin, AchievementService service, Player player, String id) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var progress = service.reward(player, id); String style = progress.definition().reward().banner();
         if (style.isEmpty()) throw new IllegalArgumentException("У достижения нет знамени");
         ItemStack held = player.getInventory().getItemInMainHand();

@@ -16,10 +16,10 @@ public final class AchievementRepository {
     private Map<UUID, CityAchievements> towns = Map.of();
     private Map<UUID, Cosmetic> cosmetics = Map.of();
     public AchievementRepository(Path file) { this.file = file; }
-    public Map<UUID, CityAchievements> towns() { synchronized (ru.neverland.core.SuiteState.lock()) { return towns; } }
-    public Map<UUID, Cosmetic> cosmetics() { synchronized (ru.neverland.core.SuiteState.lock()) { return cosmetics; } }
-    public CityAchievements get(UUID town) { synchronized (ru.neverland.core.SuiteState.lock()) { return towns.getOrDefault(town, CityAchievements.empty()); } }
-    public void load() throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Map<UUID, CityAchievements> towns() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return towns; } }
+    public Map<UUID, Cosmetic> cosmetics() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return cosmetics; } }
+    public CityAchievements get(UUID town) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return towns.getOrDefault(town, CityAchievements.empty()); } }
+    public void load() throws Exception { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         ready = false;
         if (!Files.exists(file)) { towns = Map.of(); cosmetics = Map.of(); AtomicFiles.loaded(file); ready = true; return; }
         var y = new YamlConfiguration(); y.load(file.toFile());
@@ -48,11 +48,11 @@ public final class AchievementRepository {
             if (p == null || !p.earned() || p.definition().reward().cosmetic().isEmpty()) throw new IllegalArgumentException("Косметика ещё не открыта");
         }
     }
-    public void put(UUID town, CityAchievements city) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void put(UUID town, CityAchievements city) throws IOException { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if (city.equals(towns.get(town))) return;
         var next = new HashMap<>(towns); next.put(Objects.requireNonNull(town), city); save(next, cosmetics);
     } }
-    public void cosmetic(UUID player, Cosmetic cosmetic) throws IOException { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void cosmetic(UUID player, Cosmetic cosmetic) throws IOException { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         var next = new HashMap<>(cosmetics); if (cosmetic == null) next.remove(player); else next.put(player, cosmetic);
         if (!next.equals(cosmetics)) save(towns, next);
     } }

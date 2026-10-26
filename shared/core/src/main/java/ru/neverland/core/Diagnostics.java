@@ -13,7 +13,7 @@ public final class Diagnostics {
    private Diagnostics() {
    }
 
-   public static void show(CommandSender sender) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public static void show(CommandSender sender) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       Set<String> lines = new TreeSet<>();
 
       for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {

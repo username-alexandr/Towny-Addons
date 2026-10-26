@@ -8,9 +8,10 @@ public final class ModuleLifecycle {
     private static final java.util.Set<JavaPlugin> started = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
     private ModuleLifecycle() {}
     /** Skip cleanup for a plugin whose enable body was deliberately never entered. */
-    public static boolean end(JavaPlugin plugin) { synchronized (ru.neverland.core.SuiteState.lock()) { SuiteScheduler.get().cancelTasks(plugin);return started.remove(plugin); } }
-    public static boolean begin(JavaPlugin plugin) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean end(JavaPlugin plugin) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { SuiteScheduler.get().cancelTasks(plugin);return started.remove(plugin); } }
+    public static boolean begin(JavaPlugin plugin) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         try {
+            SuiteProtocol.verify(plugin);
             Path folder=plugin.getDataFolder().toPath();Path control=ModulePauseStore.file(folder.getParent());
             var entry=ModulePauseStore.load(control).modules().get(plugin.getName());
             if(entry!=null&&entry.disabled()) {

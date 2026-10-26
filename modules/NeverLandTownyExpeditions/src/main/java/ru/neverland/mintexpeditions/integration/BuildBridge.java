@@ -15,7 +15,7 @@ public final class BuildBridge {
         this.plugin = plugin;
     }
 
-    public double expeditionTimeMultiplier(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public double expeditionTimeMultiplier(UUID townId) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (projectLevel(townId, "celestial_orrery") <= 0) return 1.0;
         return Math.max(1.0, plugin.getConfig().getDouble("builds.celestial-orrery-time-multiplier", 1.25));
     } }

@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-/** Personal, temporary hints. All callers hold SuiteState.lock(); update runs on the player's region. */
+/** Personal, temporary hints. All callers hold a SuiteState guard; update runs on the player's region. */
 final class ConstructionBlockDisplays {
     record Hint(Location location, BlockData data) {}
     private record Key(UUID world, int x, int y, int z) {

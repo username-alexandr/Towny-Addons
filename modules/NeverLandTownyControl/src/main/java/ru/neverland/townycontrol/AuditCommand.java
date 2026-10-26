@@ -25,7 +25,7 @@ public final class AuditCommand implements CommandExecutor,TabCompleter {
             if(plugin.isEnabled())ru.neverland.core.SuiteScheduler.player(plugin,viewer,p->callback.accept(result,error));
         }); } catch(RuntimeException ex){jobs.release();throw ex;}
     }
-    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if(!AdminAccess.has(sender,AdminAccess.AUDIT)){sender.sendMessage("§cНет прав на аудит.");return true;}
         try{
             String action=args.length==0?"help":args[0].toLowerCase(Locale.ROOT);
@@ -53,5 +53,5 @@ public final class AuditCommand implements CommandExecutor,TabCompleter {
         }finally{if(writer!=null)writer.close();if(temporary!=null)Files.deleteIfExists(temporary);}
     }
     private static String clean(String value){return value.replaceAll("[\\p{Cntrl}§]"," ").substring(0,Math.min(300,value.replaceAll("[\\p{Cntrl}§]"," ").length()));}
-    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {if(!AdminAccess.has(sender,AdminAccess.AUDIT))return List.of();String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return (args.length<=1?List.of("search","export","status","help"):List.of("town=","player=","from=","to=","category=","kind=","module=","outcome=","id=","since=","until=","intercity=true","text=","page=")).stream().filter(s->s.startsWith(prefix)).filter(s->!s.equals("export")||AdminAccess.has(sender,AdminAccess.EXPORT)).toList();} }
+    @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(!AdminAccess.has(sender,AdminAccess.AUDIT))return List.of();String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return (args.length<=1?List.of("search","export","status","help"):List.of("town=","player=","from=","to=","category=","kind=","module=","outcome=","id=","since=","until=","intercity=true","text=","page=")).stream().filter(s->s.startsWith(prefix)).filter(s->!s.equals("export")||AdminAccess.has(sender,AdminAccess.EXPORT)).toList();} }
 }

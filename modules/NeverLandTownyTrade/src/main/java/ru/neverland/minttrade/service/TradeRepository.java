@@ -38,11 +38,11 @@ public final class TradeRepository {
    private boolean writable;
    private final EffectJournal effects;
 
-   public EffectJournal effects() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public EffectJournal effects() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       return this.effects;
    } }
 
-   public boolean writable() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean writable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
       return this.writable && AtomicFiles.writable(this.file.toPath()) && this.effects.writable();
    } }
 
@@ -58,7 +58,7 @@ public final class TradeRepository {
       this.effects = new EffectJournal(plugin.getDataFolder().toPath().resolve("caravan-effects.yml"));
    }
 
-   public void load() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void load() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
       this.writable = false;
       this.offers.clear();
       this.caravans.clear();
@@ -201,39 +201,39 @@ public final class TradeRepository {
       }
    }
 
-   public Collection<TradeOffer> offers() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public Collection<TradeOffer> offers() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
       return Collections.unmodifiableCollection(this.offers.values());
    } }
 
-   public Collection<Caravan> caravans() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public Collection<Caravan> caravans() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
       return this.caravans.values().stream().filter(c -> !c.terminal()).toList();
    } }
 
-   public Collection<Caravan> allCaravans() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public Collection<Caravan> allCaravans() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
       return List.copyOf(this.caravans.values());
    } }
 
-   public List<TradeOffer> incoming(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public List<TradeOffer> incoming(UUID townId) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
       return this.offers.values().stream().filter(value -> value.buyerId().equals(townId)).toList();
    } }
 
-   public List<TradeOffer> outgoing(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public List<TradeOffer> outgoing(UUID townId) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
       return this.offers.values().stream().filter(value -> value.sellerId().equals(townId)).toList();
    } }
 
-   public List<Caravan> caravans(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public List<Caravan> caravans(UUID townId) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
       return this.caravans().stream().filter(value -> value.sellerId().equals(townId) || value.buyerId().equals(townId)).toList();
    } }
 
-   public List<TradeHistory> history(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public List<TradeHistory> history(UUID townId) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
       return this.history.stream().filter(value -> value.sellerId().equals(townId) || value.buyerId().equals(townId)).toList();
    } }
 
-   public TradeOffer findOffer(String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public TradeOffer findOffer(String id) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
       return this.find(this.offers, id);
    } }
 
-   public Caravan findCaravan(String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public Caravan findCaravan(String id) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
       return this.find(this.caravans, id);
    } }
 
@@ -258,13 +258,13 @@ public final class TradeRepository {
       }
    }
 
-   public void add(TradeOffer value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void add(TradeOffer value) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.offers.put(value.id(), value);
       this.dirty = true;
    } }
 
-   public void remove(TradeOffer value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void remove(TradeOffer value) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       if (value != null) {
          this.offers.remove(value.id());
@@ -272,13 +272,13 @@ public final class TradeRepository {
       }
    } }
 
-   public void add(Caravan value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void add(Caravan value) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.caravans.put(value.id(), value);
       this.dirty = true;
    } }
 
-   public void remove(Caravan value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void remove(Caravan value) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       if (value != null) {
          this.caravans.remove(value.id());
@@ -286,22 +286,22 @@ public final class TradeRepository {
       }
    } }
 
-   public void changed() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void changed() { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.dirty = true;
    } }
 
-   public double tariff(UUID townId, double fallback) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public double tariff(UUID townId, double fallback) { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {
       return this.tariffs.getOrDefault(townId, fallback);
    } }
 
-   public void setTariff(UUID townId, double value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void setTariff(UUID townId, double value) { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.tariffs.put(townId, value);
       this.dirty = true;
    } }
 
-   public void addHistory(TradeHistory entry, int limit) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void addHistory(TradeHistory entry, int limit) { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.history.add(0, entry);
       int perTown = Math.max(1, limit);
@@ -314,11 +314,11 @@ public final class TradeRepository {
       this.dirty = true;
    } }
 
-   public Map<UUID, Double> pendingCredits() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public Map<UUID, Double> pendingCredits() { try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {
       return Map.copyOf(this.pendingCredits);
    } }
 
-   public void addPending(UUID townId, double amount) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void addPending(UUID townId, double amount) { try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       if (amount > 0.0) {
          this.pendingCredits.merge(townId, amount, Double::sum);
@@ -326,17 +326,17 @@ public final class TradeRepository {
       }
    } }
 
-   public void clearPending(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void clearPending(UUID townId) { try (var suiteGuard23 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.pendingCredits.remove(townId);
       this.dirty = true;
    } }
 
-   public boolean saveIfDirty() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean saveIfDirty() { try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) {
       return !this.dirty || this.save();
    } }
 
-   public boolean save() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean save() { try (var suiteGuard25 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
 
       try {

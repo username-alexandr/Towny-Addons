@@ -18,7 +18,7 @@ public record CouncilSettings(Map<MinisterRole, Set<String>> permissions) {
         }
         permissions = Collections.unmodifiableMap(copy);
     }
-    public static CouncilSettings load(ConfigurationSection yaml) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static CouncilSettings load(ConfigurationSection yaml) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var roles = yaml.getConfigurationSection("roles");
         if (roles == null || !roles.getKeys(false).equals(Set.of("economy", "defense", "construction", "foreign")))
             throw new IllegalArgumentException("Ожидались четыре раздела roles: economy, defense, construction, foreign");

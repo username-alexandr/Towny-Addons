@@ -23,7 +23,7 @@ public final class ExcavationPlanner {
 
     private ExcavationPlanner() { }
 
-    public static Set<BlockOffset> offsets(BlueprintPlan plan, int fromStage) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Set<BlockOffset> offsets(BlueprintPlan plan, int fromStage) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Map<Integer, Bounds> layers = new LinkedHashMap<>();
         for (Map.Entry<BlockOffset, BlueprintBlock> entry : plan.blocks().entrySet()) {
             BlockOffset offset = entry.getKey();
@@ -43,7 +43,7 @@ public final class ExcavationPlanner {
         return Set.copyOf(result);
     } }
 
-    public static boolean canClear(Material material) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean canClear(Material material) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (material == null || material == Material.AIR
                 || material == Material.CAVE_AIR || material == Material.VOID_AIR) return true;
         return NATURAL_TERRAIN.contains(material) || material.name().endsWith("_ORE");

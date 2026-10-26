@@ -1,5 +1,5 @@
 name: NeverLandTownyCitizens
-version: 0.1.11
+version: 0.1.12
 main: ru.neverland.townycitizens.NeverLandTownyCitizens
 folia-supported: true
 api-version: '26.2'

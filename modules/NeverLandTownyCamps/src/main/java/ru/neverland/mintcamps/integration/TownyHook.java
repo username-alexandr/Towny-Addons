@@ -24,7 +24,7 @@ public final class TownyHook {
         reload();
     }
 
-    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         available = false;
         if (Bukkit.getPluginManager().getPlugin("Towny") == null) return;
         try {
@@ -43,7 +43,7 @@ public final class TownyHook {
         }
     } }
 
-    public PlacementResult canPlace(Player player, Location location) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public PlacementResult canPlace(Player player, Location location) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!available || player.hasPermission("mintcamps.bypass.placement")) return PlacementResult.ALLOWED;
         try {
             Object locationTown = getTownAt.invoke(api, location);

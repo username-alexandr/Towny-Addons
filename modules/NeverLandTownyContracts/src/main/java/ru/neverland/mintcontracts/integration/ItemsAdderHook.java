@@ -11,7 +11,7 @@ public final class ItemsAdderHook {
     private Method getItemStack;
     private boolean available;
     public ItemsAdderHook(JavaPlugin plugin) { this.plugin = plugin; reload(); }
-    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         available = false;
         if (!Bukkit.getPluginManager().isPluginEnabled("ItemsAdder")) return;
         try {
@@ -23,7 +23,7 @@ public final class ItemsAdderHook {
             plugin.getLogger().warning("API ItemsAdder недоступен: " + exception.getMessage());
         }
     } }
-    public ItemStack item(String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ItemStack item(String id) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!available || id == null || id.isBlank()) return null;
         try {
             Object custom = getInstance.invoke(null, id);

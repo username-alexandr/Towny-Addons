@@ -34,7 +34,7 @@ public final class AdminCommand implements TabExecutor {
     public AdminCommand(TownyArchaeology plugin, TownyHook towny, ArchaeologyRegistry registry, ArtifactService artifacts, MuseumService museums, SiteService sites, MessageService messages) { this.plugin = plugin; this.towny = towny; this.registry = registry; this.artifacts = artifacts; this.museums = museums; this.sites = sites; this.messages = messages; }
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyArchaeology"))return true;
+                             @NotNull String label, @NotNull String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyArchaeology"))return true;
         boolean artifactCommand = command.getName().equalsIgnoreCase("artifact");
         if (artifactCommand) {
             if (!sender.hasPermission(GIVE_PERMISSION) && !sender.hasPermission(ADMIN_PERMISSION)) {
@@ -101,7 +101,7 @@ public final class AdminCommand implements TabExecutor {
     private int number(String[] args, int index, int fallback) { if (args.length <= index) return fallback; try { return Math.max(1, Integer.parseInt(args[index])); } catch (NumberFormatException ignored) { return fallback; } }
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
-                                                 @NotNull String alias, @NotNull String[] args) { synchronized (ru.neverland.core.SuiteState.lock()) {
+                                                 @NotNull String alias, @NotNull String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         boolean artifactCommand = command.getName().equalsIgnoreCase("artifact");
         if (artifactCommand) {
             if (!sender.hasPermission(GIVE_PERMISSION) && !sender.hasPermission(ADMIN_PERMISSION)) return List.of();

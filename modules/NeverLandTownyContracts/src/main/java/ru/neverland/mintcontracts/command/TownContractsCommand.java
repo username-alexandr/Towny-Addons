@@ -10,7 +10,7 @@ import java.util.*;
 public final class TownContractsCommand implements CommandExecutor {
     private final TownyHook towny;private final ContractService contracts;private final ContractMenuManager menus;private final MessageService messages;
     public TownContractsCommand(TownyHook towny,ContractService contracts,ContractMenuManager menus,MessageService messages){this.towny=towny;this.contracts=contracts;this.menus=menus;this.messages=messages;}
-    @Override public boolean onCommand(CommandSender sender,Command cmd,String label,String[] args){ synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyContracts")){return true;}
+    @Override public boolean onCommand(CommandSender sender,Command cmd,String label,String[] args){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyContracts")){return true;}
         if(!(sender instanceof Player p)){messages.send(sender,"only-player");return true;}if(!p.hasPermission("mintcontracts.use")){messages.send(p,"no-permission");return true;}if(towny.town(p)==null){messages.send(p,"no-town");return true;}
         try{if(args.length==0){menus.open(p);return true;}
             switch(args[0].toLowerCase(Locale.ROOT)){

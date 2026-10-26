@@ -17,7 +17,7 @@ public final class ColorUtil {
     private ColorUtil() {
     }
 
-    public static Component component(String input) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Component component(String input) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         String value = legacy(input);
         Component result = Component.empty();
         StringBuilder text = new StringBuilder();
@@ -83,7 +83,7 @@ public final class ColorUtil {
         return append(result, text, color, obfuscated, bold, strikethrough, underlined, italic);
     } }
 
-    public static String legacy(String input) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String legacy(String input) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         char[] characters = expandHex(input == null ? "" : input).toCharArray();
         for (int index = 0; index < characters.length - 1; index++) {
             if (characters[index] == '&' && VALID_CODES.indexOf(characters[index + 1]) >= 0) {
@@ -93,18 +93,18 @@ public final class ColorUtil {
         return new String(characters);
     } }
 
-    public static String plain(String input) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String plain(String input) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         return FORMATTING.matcher(expandHex(input == null ? "" : input)).replaceAll("");
     } }
 
-    public static String plain(Component component) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String plain(Component component) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if (component == null) return "";
         StringBuilder result = new StringBuilder();
         appendPlain(component, result);
         return result.toString();
     } }
 
-    public static String expandHex(String input) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String expandHex(String input) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         Matcher matcher = HEX.matcher(input == null ? "" : input);
         StringBuffer result = new StringBuffer();
         while (matcher.find()) {

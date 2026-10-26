@@ -20,16 +20,16 @@ public final class ArmyMenu implements Listener {
     private static final class Holder implements InventoryHolder {
         final UUID viewer; final Map<Integer, Action> actions = new HashMap<>(); Inventory inventory;
         Holder(UUID viewer) { this.viewer = viewer; }
-        @Override public Inventory getInventory() { synchronized (ru.neverland.core.SuiteState.lock()) { return inventory; } }
+        @Override public Inventory getInventory() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return inventory; } }
     }
     public ArmyMenu(NeverLandTownyArmy p, ArmyService s) { plugin = p; service = s; }
-    public static String name(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { if (id.equals(SYSTEM)) return "Система"; var r = TownyAPI.getInstance().getResident(id); return r == null ? id.toString().substring(0, 8) : r.getName(); } }
+    public static String name(UUID id) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { if (id.equals(SYSTEM)) return "Система"; var r = TownyAPI.getInstance().getResident(id); return r == null ? id.toString().substring(0, 8) : r.getName(); } }
     private static String resource(String id) { return Map.of("food","Пища","water","Вода","metal","Металл","materials","Материалы","wood","Древесина","stone","Камень","knowledge","Знания","influence","Влияние").getOrDefault(id,id); }
     private static String building(String id) { return Map.of("army","Штаб армии","barracks","Казармы","stables","Конюшни","shipyard","Верфь","workshop","Мастерская","observatory","Обсерватория").getOrDefault(id,id); }
     private static String action(String id) { return switch(id) { case "APPLICATION" -> "Заявка на службу"; case "ADMISSION" -> "Приём рекрута"; case "OATH" -> "Присяга"; case "COMMANDER" -> "Назначение генерала"; case "PROMOTION" -> "Повышение"; case "DEMOTE" -> "Понижение"; case "DISMISS", "LEFT_TOWN" -> "Прекращение службы"; case "WARN" -> "Взыскание"; case "PARDON" -> "Снятие взысканий"; case "TRANSFER" -> "Перевод подразделения"; case "MOBILIZE", "ALERT" -> "Мобилизация"; case "RESERVE" -> "Перевод в резерв"; case "BASE" -> "Военная база"; case "SUPPLY_ORDER" -> "Заказ снабжения"; case "SUPPLY_APPLIED" -> "Поставка принята"; case "EQUIPMENT" -> "Экипировка"; case "TRAINING" -> "Тренировка"; case "UPKEEP" -> "Содержание гарнизона"; case "SHORTAGE" -> "Недостаток снабжения"; default -> id; }; }
-    public static String amount(long value) { synchronized (ru.neverland.core.SuiteState.lock()) { return BigDecimal.valueOf(value, 3).stripTrailingZeros().toPlainString(); } }
-    public static String status(Status value) { synchronized (ru.neverland.core.SuiteState.lock()) { return switch (value) { case APPLICANT -> "Заявка"; case RECRUIT -> "Рекрут • ожидает присяги"; case RESERVE -> "Военный резерв"; case ACTIVE -> "Мобилизован"; case DISCHARGED -> "Уволен"; }; } }
-    public static String phase(Phase phase) { synchronized (ru.neverland.core.SuiteState.lock()) { return switch (phase) { case PLANNED -> "ожидает обработки"; case APPLIED, CLOSED -> "зачислена"; case DECLINED, CANCELLED -> "отклонена: ресурсов недостаточно"; }; } }
+    public static String amount(long value) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return BigDecimal.valueOf(value, 3).stripTrailingZeros().toPlainString(); } }
+    public static String status(Status value) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return switch (value) { case APPLICANT -> "Заявка"; case RECRUIT -> "Рекрут • ожидает присяги"; case RESERVE -> "Военный резерв"; case ACTIVE -> "Мобилизован"; case DISCHARGED -> "Уволен"; }; } }
+    public static String phase(Phase phase) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { return switch (phase) { case PLANNED -> "ожидает обработки"; case APPLIED, CLOSED -> "зачислена"; case DECLINED, CANCELLED -> "отклонена: ресурсов недостаточно"; }; } }
     private Holder create(Player p, String title) { var h = new Holder(p.getUniqueId()); h.inventory = MenuStyle.inventory(plugin, h, 54, title); return h; }
     private void item(Holder h, int slot, Material icon, String title, List<String> lore, Action action) {
         var item = new ItemStack(icon); var meta = item.getItemMeta(); meta.displayName(MenuStyle.nameComponent(MenuStyle.decode(title)));
@@ -37,7 +37,7 @@ public final class ArmyMenu implements Listener {
     }
     private void back(Holder h, Inventory previous) { item(h, 45, Material.ARROW, "&e← Назад", List.of(previous == null ? "Закрыть меню" : "Вернуться в предыдущее меню"), p -> MenuStyle.returnTo(p, previous)); }
     private UUID town(Player p) { if (!p.hasPermission("neverlandtownyarmy.use")) throw new IllegalArgumentException("Недостаточно прав"); return service.ownTown(p).getUUID(); }
-    public void open(Player p, String page, int requested, Inventory previous) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void open(Player p, String page, int requested, Inventory previous) throws Exception { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         UUID town = town(p); var h = create(p, "Армия • " + switch (page) { case "roster" -> "Личный состав"; case "stock" -> "Военные запасы"; case "history" -> "Журнал приказов"; case "units" -> "Подразделения"; case "ranks" -> "Звания"; default -> "Штаб города"; });
         back(h, previous);
         if (!service.healthy()) throw new IllegalArgumentException("Армия приостановлена; обратитесь к администратору");
@@ -92,7 +92,7 @@ public final class ArmyMenu implements Listener {
         if ((n + 1) * 36 < size) item(h, 50, Material.PAPER, "&eСледующая страница →", List.of(), p -> open(p, page, n + 1, previous));
         item(h, 49, Material.MAP, "&fСтраница " + (n + 1), List.of("Записей: " + size), null);
     }
-    public void record(Player p, UUID id, Inventory previous) throws Exception { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void record(Player p, UUID id, Inventory previous) throws Exception { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         UUID town = town(p); var s = service.repository().state().soldiers().get(id);
         if (!service.healthy() || s == null || !s.town().equals(town)) throw new IllegalArgumentException("Карточка не найдена в вашем городе");
         var h = create(p, "Армия • " + name(id)); back(h, previous);
@@ -111,11 +111,11 @@ public final class ArmyMenu implements Listener {
         if (service.officer(p, town, Rank.CAPTAIN) && !id.equals(p.getUniqueId())) item(h, 49, Material.WRITABLE_BOOK, "&eКадровые приказы", List.of("/army promote " + name(id) + " <причина>", "/army assign " + name(id) + " <подразделение> <причина>", "/army warn " + name(id) + " <причина>", "/army dismiss " + name(id) + " <причина>"), null);
         p.openInventory(h.inventory);
     } }
-    @EventHandler public void click(InventoryClickEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyArmy")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
+    @EventHandler public void click(InventoryClickEvent e) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyArmy")){ru.neverland.core.ModuleGate.stopEvent(e);return;}
         if (!(e.getView().getTopInventory().getHolder() instanceof Holder h)) return; e.setCancelled(true);
         if (!(e.getWhoClicked() instanceof Player p) || !h.viewer.equals(p.getUniqueId()) || !p.hasPermission("neverlandtownyarmy.use")) return;
         var action = h.actions.get(e.getRawSlot()); if (action == null) return;
         try { action.run(p); } catch (Exception ex) { ArmyCommand.say(p, "&c" + (ex instanceof IllegalArgumentException ? ex.getMessage() : "Действие приостановлено; обратитесь к администратору")); }
     } }
-    @EventHandler public void drag(InventoryDragEvent e) { synchronized (ru.neverland.core.SuiteState.lock()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyArmy")){ru.neverland.core.ModuleGate.stopEvent(e);return;} if (e.getView().getTopInventory().getHolder() instanceof Holder) e.setCancelled(true); } }
+    @EventHandler public void drag(InventoryDragEvent e) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyArmy")){ru.neverland.core.ModuleGate.stopEvent(e);return;} if (e.getView().getTopInventory().getHolder() instanceof Holder) e.setCancelled(true); } }
 }

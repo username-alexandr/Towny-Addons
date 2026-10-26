@@ -10,9 +10,9 @@ import java.util.*;
 public class CityMetrics {
     public record Observation(boolean ready, long value, String detail) {
         public Observation { if (value < 0) throw new IllegalArgumentException("Отрицательное значение"); }
-        public static Observation waiting(String detail) { synchronized (ru.neverland.core.SuiteState.lock()) { return new Observation(false, 0, detail); } }
+        public static Observation waiting(String detail) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return new Observation(false, 0, detail); } }
     }
-    public Observation observe(Town town, Achievement achievement) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public Observation observe(Town town, Achievement achievement) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         try {
             UUID id = town.getUUID(); long value;
             switch (achievement.kind()) {

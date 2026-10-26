@@ -14,7 +14,7 @@ public final class ColorUtil {
      * No Adventure serializer call is used, which keeps this compatible with
      * different Adventure revisions bundled by Paper and Purpur.
      */
-    public static String legacy(String value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static String legacy(String value) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         String expanded = expandHex(value == null ? "" : value);
         char[] characters = expanded.toCharArray();
         for (int index = 0; index < characters.length - 1; index++) {

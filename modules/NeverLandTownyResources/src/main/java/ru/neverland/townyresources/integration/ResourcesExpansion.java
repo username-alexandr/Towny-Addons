@@ -7,11 +7,11 @@ import java.util.Locale;
 public final class ResourcesExpansion extends PlaceholderExpansion {
     private final TownyResourcesApi api;private final String version;
     public ResourcesExpansion(TownyResourcesApi api,String version){this.api=api;this.version=version;}
-    @Override public String getIdentifier(){ synchronized (ru.neverland.core.SuiteState.lock()) {return "nltresources";} }
-    @Override public String getAuthor(){ synchronized (ru.neverland.core.SuiteState.lock()) {return "Alexander Sokolov";} }
-    @Override public String getVersion(){ synchronized (ru.neverland.core.SuiteState.lock()) {return version;} }
-    @Override public boolean persist(){ synchronized (ru.neverland.core.SuiteState.lock()) {return true;} }
-    @Override public String onRequest(OfflinePlayer player,String parameters){ synchronized (ru.neverland.core.SuiteState.lock()) {
+    @Override public String getIdentifier(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return "nltresources";} }
+    @Override public String getAuthor(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return "Alexander Sokolov";} }
+    @Override public String getVersion(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return version;} }
+    @Override public boolean persist(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return true;} }
+    @Override public String onRequest(OfflinePlayer player,String parameters){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if(player==null)return "";var s=api.residentResources(player.getUniqueId()).orElse(null);if(s==null)return "";String key=parameters.toLowerCase(Locale.ROOT);
         if(key.equals("paused"))return s.paused()?"да":"нет";
         if(key.equals("food_coverage"))return String.format(Locale.ROOT,"%.1f",s.foodCoverage()*100);

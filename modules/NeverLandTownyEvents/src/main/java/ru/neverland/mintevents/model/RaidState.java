@@ -30,28 +30,28 @@ public final class RaidState {
     public RaidCatalog.Wave waveDefinition(int number, RaidCatalog fallback) {
         return plannedWaves.isEmpty() ? fallback.wave(number) : plannedWaves.get(Math.max(1, Math.min(WAVES, number)) - 1);
     }
-    public UUID generation() { synchronized (ru.neverland.core.SuiteState.lock()) { return generation; } }
-    public int wave() { synchronized (ru.neverland.core.SuiteState.lock()) { return wave; } }
-    public int remaining() { synchronized (ru.neverland.core.SuiteState.lock()) { return pending.size() + alive.size(); } }
-    public int aliveCount() { synchronized (ru.neverland.core.SuiteState.lock()) { return alive.size(); } }
-    public String next() { synchronized (ru.neverland.core.SuiteState.lock()) { return pending.peekFirst(); } }
-    public boolean clear() { synchronized (ru.neverland.core.SuiteState.lock()) { return remaining() == 0; } }
-    public boolean finished() { synchronized (ru.neverland.core.SuiteState.lock()) { return wave == WAVES && clear(); } }
-    public boolean owns(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return alive.containsKey(id); } }
-    public void begin(List<String> composition) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public UUID generation() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return generation; } }
+    public int wave() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return wave; } }
+    public int remaining() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return pending.size() + alive.size(); } }
+    public int aliveCount() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return alive.size(); } }
+    public String next() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { return pending.peekFirst(); } }
+    public boolean clear() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { return remaining() == 0; } }
+    public boolean finished() { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { return wave == WAVES && clear(); } }
+    public boolean owns(UUID id) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) { return alive.containsKey(id); } }
+    public void begin(List<String> composition) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         if (!clear() || wave >= WAVES || composition.isEmpty()) throw new IllegalStateException("Wave cannot start");
         wave++; pending.addAll(composition); waveSize = composition.size();
     } }
-    public void spawned(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void spawned(UUID id) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         if (alive.containsKey(id) || pending.isEmpty()) throw new IllegalStateException("Unexpected spawn");
         alive.put(id, pending.removeFirst());
     } }
-    public String died(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return alive.remove(id); } }
-    public double ratio() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String died(UUID id) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) { return alive.remove(id); } }
+    public double ratio() { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         if (wave == 0) return 0;
         return Math.max(0, Math.min(1, (wave - 1 + (waveSize - remaining()) / (double) Math.max(1, waveSize)) / WAVES));
     } }
-    public void save(ConfigurationSection out) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void save(ConfigurationSection out) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
         out.set("wave", wave); out.set("size", waveSize);
         out.set("pending", new ArrayList<>(pending));
         // On restart only unfinished enemies are recreated. A new generation invalidates old bodies.
@@ -67,7 +67,7 @@ public final class RaidState {
             }
         }
     } }
-    public static RaidState load(ConfigurationSection in) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static RaidState load(ConfigurationSection in) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         if (in == null) return new RaidState();
         RaidState state;
         if (in.contains("plan-version")) {

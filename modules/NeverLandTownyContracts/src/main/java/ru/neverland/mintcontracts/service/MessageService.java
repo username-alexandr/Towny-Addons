@@ -17,7 +17,7 @@ public final class MessageService {
     private final JavaPlugin plugin;
     private YamlConfiguration yaml;
     public MessageService(JavaPlugin plugin) { this.plugin = plugin; reload(); }
-    public void reload() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "messages.yml"));
         try (InputStream stream = plugin.getResource("messages.yml")) {
             if (stream != null) yaml.setDefaults(YamlConfiguration.loadConfiguration(
@@ -32,19 +32,19 @@ public final class MessageService {
             plugin.getLogger().warning("Не удалось загрузить встроенные сообщения: " + exception.getMessage());
         }
     } }
-    public String raw(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String raw(String key) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         String value = yaml.getString(key);
         return value == null ? key : value;
     } }
-    public String text(String key, Map<String, ?> values, boolean prefix) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public String text(String key, Map<String, ?> values, boolean prefix) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         String result = raw(key);
         for (Map.Entry<String, ?> entry : values.entrySet())
             result = result.replace("%" + entry.getKey() + "%", String.valueOf(entry.getValue()));
         return ColorUtil.color((prefix ? yaml.getString("prefix", "") : "") + result);
     } }
-    public void send(CommandSender sender, String key) { synchronized (ru.neverland.core.SuiteState.lock()) { send(sender, key, Map.of()); } }
-    public void send(CommandSender sender, String key, Map<String, ?> values) { synchronized (ru.neverland.core.SuiteState.lock()) { sender.sendMessage(text(key, values, true)); } }
-    public List<String> list(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void send(CommandSender sender, String key) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { send(sender, key, Map.of()); } }
+    public void send(CommandSender sender, String key, Map<String, ?> values) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { sender.sendMessage(text(key, values, true)); } }
+    public List<String> list(String key) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         List<String> out = new ArrayList<>();
         yaml.getStringList(key).forEach(line -> out.add(ColorUtil.color(line)));
         return out;

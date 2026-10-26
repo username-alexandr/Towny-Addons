@@ -20,12 +20,12 @@ import ru.neverland.reputation.model.ReputationScope;
 
 public final class ReputationRepository {
    private final ru.neverland.core.ReputationOutbox reputation = new ru.neverland.core.ReputationOutbox();
-   public boolean healthy(){ synchronized (ru.neverland.core.SuiteState.lock()) {return ready && AtomicFiles.writable(file.toPath());} }
-   public void outcome(ru.neverland.core.ReputationOutcome outcome){ synchronized (ru.neverland.core.SuiteState.lock()) {gate();reputation.add(outcome);dirty=true;} }
-   public void flushReputation(){ synchronized (ru.neverland.core.SuiteState.lock()) {reputation.flush(this::healthy,()->{dirty=true;save();});} }
+   public boolean healthy(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return ready && AtomicFiles.writable(file.toPath());} }
+   public void outcome(ru.neverland.core.ReputationOutcome outcome){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {gate();reputation.add(outcome);dirty=true;} }
+   public void flushReputation(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {reputation.flush(this::healthy,()->{dirty=true;save();});} }
    private boolean profilesInitialized;
-   public boolean profilesInitialized(){ synchronized (ru.neverland.core.SuiteState.lock()) {gate();return profilesInitialized;} }
-   public void profilesInitialized(boolean value){ synchronized (ru.neverland.core.SuiteState.lock()) {gate();profilesInitialized=value;dirty=true;} }
+   public boolean profilesInitialized(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {gate();return profilesInitialized;} }
+   public void profilesInitialized(boolean value){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {gate();profilesInitialized=value;dirty=true;} }
    private boolean ready;
    private final JavaPlugin plugin;
    private final File file;
@@ -53,7 +53,7 @@ public final class ReputationRepository {
       this.file = new File(plugin.getDataFolder(), "data.yml");
    }
 
-   public void load() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void load() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
       this.ready = false;
       this.records.clear();
       this.processed.clear();
@@ -119,7 +119,7 @@ public final class ReputationRepository {
       this.loaded();
    } }
 
-   public void save() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void save() { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       if (this.dirty || !this.file.exists()) {
          YamlConfiguration yaml = new YamlConfiguration();reputation.write(yaml);yaml.set("profiles-initialized",profilesInitialized);
@@ -169,24 +169,24 @@ public final class ReputationRepository {
       }
    } }
 
-   public ReputationRecord get(RelationKey key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public ReputationRecord get(RelationKey key) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       return this.records.get(key);
    } }
 
-   public ReputationRecord getOrCreate(RelationKey key, String firstName, String secondName) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public ReputationRecord getOrCreate(RelationKey key, String firstName, String secondName) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       ReputationRecord result = this.records.computeIfAbsent(key, value -> new ReputationRecord(value, firstName, secondName));
       result.names(firstName, secondName);
       return result;
    } }
 
-   public List<ReputationRecord> all() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public List<ReputationRecord> all() { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       return List.copyOf(this.records.values());
    } }
 
-   public List<ReputationRecord> involving(ReputationScope scope, UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public List<ReputationRecord> involving(ReputationScope scope, UUID id) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       return this.records
          .values()
@@ -196,12 +196,12 @@ public final class ReputationRepository {
          .toList();
    } }
 
-   public boolean processed(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean processed(String key) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       return key != null && !key.isBlank() && this.processed.containsKey(key);
    } }
 
-   public void markProcessed(String key, long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void markProcessed(String key, long now) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       if (key != null && !key.isBlank()) {
          this.processed.put(key, now);
@@ -209,61 +209,61 @@ public final class ReputationRepository {
       }
    } }
 
-   public int dailyUsage(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public int dailyUsage(String key) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       return this.dailyUsage.getOrDefault(key, 0);
    } }
 
-   public void dailyUsage(String key, int value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void dailyUsage(String key, int value) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.dailyUsage.put(key, value);
       this.dirty = true;
    } }
 
-   public long feedbackCooldown(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public long feedbackCooldown(String key) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       return this.feedbackCooldowns.getOrDefault(key, 0L);
    } }
 
-   public void feedbackCooldown(String key, long value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void feedbackCooldown(String key, long value) { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.feedbackCooldowns.put(key, value);
       this.dirty = true;
    } }
 
-   public int feedbackDaily(String key) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public int feedbackDaily(String key) { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       return this.feedbackDaily.getOrDefault(key, 0);
    } }
 
-   public void feedbackDaily(String key, int value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void feedbackDaily(String key, int value) { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.feedbackDaily.put(key, value);
       this.dirty = true;
    } }
 
-   public String lastDecay() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public String lastDecay() { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       return this.lastDecay;
    } }
 
-   public void lastDecay(String value) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void lastDecay(String value) { try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.lastDecay = value;
       this.dirty = true;
    } }
 
-   public void dirty() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void dirty() { try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.dirty = true;
    } }
 
-   public boolean dirtyState() { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public boolean dirtyState() { try (var suiteGuard23 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       return this.dirty;
    } }
 
-   public void cleanup(long processedCutoff, int processedLimit, String currentDay) { synchronized (ru.neverland.core.SuiteState.lock()) {
+   public void cleanup(long processedCutoff, int processedLimit, String currentDay) { try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.processed.entrySet().removeIf(entry -> entry.getValue() < processedCutoff);
 

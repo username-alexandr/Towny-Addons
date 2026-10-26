@@ -8,7 +8,7 @@ import java.io.IOException;
 public final class ShipmentTransactions {
     public interface Access {ItemStack[] read(String id);void write(String id,ItemStack[] items);boolean busy(String id);void commit()throws IOException;}
     private ShipmentTransactions(){}
-    public static CargoShipment pickup(TownData data,Access access,UUID id,String route,String source,String target,ItemStack filter,int limit,int keep)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static CargoShipment pickup(TownData data,Access access,UUID id,String route,String source,String target,ItemStack filter,int limit,int keep)throws IOException{ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         CargoShipment old=data.shipments().get(id);
         if(old!=null){if(!old.route().equals(route)||!old.source().equals(source)||!old.target().equals(target))throw new IllegalArgumentException("ID груза уже используется");return old;}
         if(source.equals(target)||limit<1||limit>1024||keep<0)throw new IllegalArgumentException("Параметры груза");
@@ -20,14 +20,14 @@ public final class ShipmentTransactions {
         try{access.commit();}catch(IOException|RuntimeException ex){access.write(source,before);data.removeShipment(id);throw ex;}
         return shipment;
     } }
-    public static boolean unload(TownData data,Access access,UUID id,boolean returned)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static boolean unload(TownData data,Access access,UUID id,boolean returned)throws IOException{ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         var s=data.shipments().get(id);if(s==null)throw new IllegalArgumentException("Груз не найден");if(!s.inTransit())return true;
         String target=returned?s.source():s.target();if(access.busy(target))return false;
         var before=access.read(target);var work=StockMath.copy(before);if(!StockMath.insert(work,s.cargo()))return false;
         access.write(target,work);data.putShipment(s.finish(returned));
         try{access.commit();}catch(IOException|RuntimeException ex){access.write(target,before);data.putShipment(s);throw ex;}return true;
     } }
-    public static void acknowledge(TownData data,Access access,UUID id)throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static void acknowledge(TownData data,Access access,UUID id)throws IOException{ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         var old=data.shipments().get(id);if(old==null)return;if(old.inTransit())throw new IllegalArgumentException("Груз ещё в пути");
         data.removeShipment(id);try{access.commit();}catch(IOException|RuntimeException ex){data.putShipment(old);throw ex;}
     } }

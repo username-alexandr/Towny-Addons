@@ -3,7 +3,7 @@ import java.util.OptionalInt;
 public final class MobilizationPolicy {
     private MobilizationPolicy() {}
     public enum Result { ALLOWED, FORBIDDEN, NO_BUILDING, FOREIGN_RESIDENT, UNKNOWN_AGE, UNDER_AGE, ALREADY_MOBILIZED, FULL }
-    public static Result check(boolean manager, int level, boolean sameTown, OptionalInt age, boolean enrolled, int size, int capacity) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static Result check(boolean manager, int level, boolean sameTown, OptionalInt age, boolean enrolled, int size, int capacity) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!manager) return Result.FORBIDDEN;
         if (level <= 0) return Result.NO_BUILDING;
         if (!sameTown) return Result.FOREIGN_RESIDENT;
@@ -13,7 +13,7 @@ public final class MobilizationPolicy {
         if (size >= capacity) return Result.FULL;
         return Result.ALLOWED;
     } }
-    public static OptionalInt parseAge(String text) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public static OptionalInt parseAge(String text) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (text == null || !text.trim().matches("[0-9]{1,3}")) return OptionalInt.empty();
         int value = Integer.parseInt(text.trim());
         return value <= 150 ? OptionalInt.of(value) : OptionalInt.empty();

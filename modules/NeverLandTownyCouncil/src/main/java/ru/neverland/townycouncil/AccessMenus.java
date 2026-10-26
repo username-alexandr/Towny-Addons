@@ -29,7 +29,7 @@ public final class AccessMenus implements Listener {
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);stack.setItemMeta(meta);v.inventory.setItem(slot,stack);if(click!=null)v.buttons.put(slot,click);
     }
     private void back(View v,Click click){button(v,49,Material.ARROW,"&fНазад",List.of(),click);}
-    public void open(Player p,Town town,boolean roles,int page){ synchronized(SuiteState.lock()) {
+    public void open(Player p,Town town,boolean roles,int page){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var v=view(p,town,roles?"Права министров":"Права жителей");
         button(v,4,Material.BOOK,"&eДоступ в городе",List.of("&7Личное правило важнее должности.","&7Сброс возвращает права жителя и его должностей.","&7Настройки меняет только мэр."),null);
         if(roles){int slot=19;for(var role:MinisterRole.values()){
@@ -46,7 +46,7 @@ public final class AccessMenus implements Listener {
         }
         back(v,who->council.open(who,town));p.openInventory(v.inventory);
     } }
-    public void actions(Player p,Town town,String role,UUID resident,String category,int page){ synchronized(SuiteState.lock()) {
+    public void actions(Player p,Town town,String role,UUID resident,String category,int page){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(resident!=null&&(!town.equals(service.ownTown(resident))||resident.equals(town.getMayor().getUUID())))throw new IllegalArgumentException("Житель больше недоступен");
         if(resident==null)MinisterRole.parse(role);
         var v=view(p,town,resident==null?"Права • "+MinisterRole.parse(role).title():"Права • "+CouncilMenus.name(resident));
@@ -90,7 +90,7 @@ public final class AccessMenus implements Listener {
         }
         back(v,who->actions(who,town,role,resident,category,page));p.openInventory(v.inventory);
     }
-    @EventHandler public void click(InventoryClickEvent e){ synchronized(SuiteState.lock()) {
+    @EventHandler public void click(InventoryClickEvent e){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if(!(e.getView().getTopInventory().getHolder() instanceof View v))return;e.setCancelled(true);
         if(SuiteState.frozen(plugin.getName())||!(e.getWhoClicked() instanceof Player p)||!v.viewer.equals(p.getUniqueId()))return;
         if(e.getRawSlot()<0||e.getRawSlot()>=54||e.getClick()!=ClickType.LEFT||v.queued)return;

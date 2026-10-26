@@ -25,16 +25,16 @@ public final class ContractRepository {
     private final Map<UUID,MunicipalPayment> payments=new LinkedHashMap<>();
     private final Map<UUID,DeliveryIntent> deliveries=new LinkedHashMap<>();
     private final ru.neverland.core.ReputationOutbox reputation = new ru.neverland.core.ReputationOutbox();
-    public void flushReputation(){ synchronized (ru.neverland.core.SuiteState.lock()) {reputation.flush(this::writable,()->{if(!save())throw new IllegalStateException("Контракты не сохранены");});} }
-    public void outcome(ru.neverland.core.ReputationOutcome outcome){ synchronized (ru.neverland.core.SuiteState.lock()) {if(!writable())throw new IllegalStateException("Контракты остановлены");reputation.add(outcome);dirty=true;} }
+    public void flushReputation(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {reputation.flush(this::writable,()->{if(!save())throw new IllegalStateException("Контракты не сохранены");});} }
+    public void outcome(ru.neverland.core.ReputationOutcome outcome){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(!writable())throw new IllegalStateException("Контракты остановлены");reputation.add(outcome);dirty=true;} }
     private boolean dirty;
     private boolean writable = true;
-    public boolean writable() { synchronized (ru.neverland.core.SuiteState.lock()) { return writable&&ru.neverland.core.AtomicFiles.writable(file.toPath()); } }
+    public boolean writable() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return writable&&ru.neverland.core.AtomicFiles.writable(file.toPath()); } }
 
     public ContractRepository(JavaPlugin plugin) { this(new File(plugin.getDataFolder(), "contract-data.yml"),plugin.getLogger()); }
     public ContractRepository(File file,java.util.logging.Logger logger) {this.file=file;this.logger=logger;}
 
-    public void load() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void load() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         writable=false;reputation.load(new YamlConfiguration());active.clear(); history.clear(); pendingPlayers.clear(); pendingTowns.clear();payments.clear();deliveries.clear();
         if (!file.exists()){ru.neverland.core.AtomicFiles.loaded(file.toPath());writable=true;return;}
         YamlConfiguration yaml = new YamlConfiguration();
@@ -110,25 +110,25 @@ public final class ContractRepository {
     private int integer(Object value) { return value instanceof Number number ? number.intValue() : 0; }
     private double decimal(Object value) { return value instanceof Number number ? number.doubleValue() : 0; }
 
-    public List<ActiveContract> active(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { return List.copyOf(active.getOrDefault(townId, List.of())); } }
-    public List<ActiveContract> allActive() { synchronized (ru.neverland.core.SuiteState.lock()) { return active.values().stream().flatMap(List::stream).toList(); } }
-    public List<ContractHistory> history(UUID townId) { synchronized (ru.neverland.core.SuiteState.lock()) { return List.copyOf(history.getOrDefault(townId, List.of())); } }
-    public void add(ActiveContract contract) { synchronized (ru.neverland.core.SuiteState.lock()) { if(allActive().stream().anyMatch(c->c.id().equals(contract.id())))throw new IllegalArgumentException("ID контракта уже занят");active.computeIfAbsent(contract.townId(), key -> new ArrayList<>()).add(contract); dirty = true; } }
-    public void remove(ActiveContract contract) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public List<ActiveContract> active(UUID townId) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { return List.copyOf(active.getOrDefault(townId, List.of())); } }
+    public List<ActiveContract> allActive() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { return active.values().stream().flatMap(List::stream).toList(); } }
+    public List<ContractHistory> history(UUID townId) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { return List.copyOf(history.getOrDefault(townId, List.of())); } }
+    public void add(ActiveContract contract) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) { if(allActive().stream().anyMatch(c->c.id().equals(contract.id())))throw new IllegalArgumentException("ID контракта уже занят");active.computeIfAbsent(contract.townId(), key -> new ArrayList<>()).add(contract); dirty = true; } }
+    public void remove(ActiveContract contract) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         List<ActiveContract> list = active.get(contract.townId());
         if (list != null) { list.removeIf(item -> item.id().equals(contract.id())); if (list.isEmpty()) active.remove(contract.townId()); }
         dirty = true;
     } }
-    public ActiveContract find(UUID townId, String id) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public ActiveContract find(UUID townId, String id) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         for (ActiveContract contract : active(townId))
             if (contract.id().toString().equalsIgnoreCase(id) || contract.shortId().equalsIgnoreCase(id)) return contract;
         return null;
     } }
-    public boolean hasTemplate(UUID townId, String templateId) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean hasTemplate(UUID townId, String templateId) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
         return active(townId).stream().anyMatch(contract -> contract.templateId().equalsIgnoreCase(templateId));
     } }
-    public void changed() { synchronized (ru.neverland.core.SuiteState.lock()) { dirty = true; } }
-    public void addHistory(ActiveContract contract, ContractStatus status, double paid, double refunded, int limit, long now) { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public void changed() { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) { dirty = true; } }
+    public void addHistory(ActiveContract contract, ContractStatus status, double paid, double refunded, int limit, long now) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
         remove(contract);
         List<ContractHistory> entries = history.computeIfAbsent(contract.townId(), key -> new ArrayList<>());
         entries.removeIf(entry->entry.contractId().equals(contract.id()));
@@ -136,22 +136,22 @@ public final class ContractRepository {
         while (entries.size() > Math.max(1, limit)) entries.remove(entries.size() - 1);
         dirty = true;
     } }
-    public double pendingPlayer(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { return pendingPlayers.getOrDefault(id, 0.0)+payments.values().stream().filter(p->p.kind()==MunicipalPayment.Kind.REWARD&&p.account().equals(id)&&(p.phase()==MunicipalPayment.Phase.READY||p.phase()==MunicipalPayment.Phase.PENDING)).mapToLong(MunicipalPayment::cents).sum()/100.0; } }
-    public Map<UUID,Double> legacyPlayers(){ synchronized (ru.neverland.core.SuiteState.lock()) {return Map.copyOf(pendingPlayers);} }
-    public Map<UUID,MunicipalPayment> payments(){ synchronized (ru.neverland.core.SuiteState.lock()) {return Map.copyOf(payments);} }
-    public void payment(MunicipalPayment p){ synchronized (ru.neverland.core.SuiteState.lock()) {var old=payments.get(p.id());if(old!=null&&(!java.util.Objects.equals(old.contract(),p.contract())||!old.town().equals(p.town())||!old.account().equals(p.account())||old.cents()!=p.cents()||old.kind()!=p.kind()))throw new IllegalArgumentException("Условия платежа изменены");payments.put(p.id(),p);dirty=true;} }
-    public Map<UUID,DeliveryIntent> deliveries(){ synchronized (ru.neverland.core.SuiteState.lock()) {return Map.copyOf(deliveries);} }
-    public void delivery(DeliveryIntent d){ synchronized (ru.neverland.core.SuiteState.lock()) {var old=deliveries.get(d.id());if(old!=null&&(!old.contract().equals(d.contract())||!old.town().equals(d.town())||!old.actor().equals(d.actor())||!old.sample().equals(d.sample())||old.amount()!=d.amount()||old.created()!=d.created()))throw new IllegalArgumentException("Условия поставки изменены");deliveries.put(d.id(),d);dirty=true;} }
-    public boolean deliveryBusy(UUID contract){ synchronized (ru.neverland.core.SuiteState.lock()) {return deliveries.values().stream().anyMatch(d->d.contract().equals(contract)&&(d.phase()==DeliveryIntent.Phase.PLAYER_PENDING||d.phase()==DeliveryIntent.Phase.TAKEN));} }
-    public void saveOrThrow()throws IOException{ synchronized (ru.neverland.core.SuiteState.lock()) {if(!save())throw new IOException("Не удалось сохранить контракт. Операции остановлены");} }
-    public void addPendingPlayer(UUID id, double amount) { synchronized (ru.neverland.core.SuiteState.lock()) { if (amount > 0) pendingPlayers.merge(id, amount, Double::sum); dirty = true; } }
-    public void clearPendingPlayer(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { pendingPlayers.remove(id); dirty = true; } }
-    public void addPendingTown(UUID id, double amount) { synchronized (ru.neverland.core.SuiteState.lock()) { if (amount > 0) pendingTowns.merge(id, amount, Double::sum); dirty = true; } }
-    public Map<UUID, Double> pendingTowns() { synchronized (ru.neverland.core.SuiteState.lock()) { return Map.copyOf(pendingTowns); } }
-    public void clearPendingTown(UUID id) { synchronized (ru.neverland.core.SuiteState.lock()) { pendingTowns.remove(id); dirty = true; } }
-    public void saveIfDirty() { synchronized (ru.neverland.core.SuiteState.lock()) { if (dirty) save(); } }
+    public double pendingPlayer(UUID id) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) { return pendingPlayers.getOrDefault(id, 0.0)+payments.values().stream().filter(p->p.kind()==MunicipalPayment.Kind.REWARD&&p.account().equals(id)&&(p.phase()==MunicipalPayment.Phase.READY||p.phase()==MunicipalPayment.Phase.PENDING)).mapToLong(MunicipalPayment::cents).sum()/100.0; } }
+    public Map<UUID,Double> legacyPlayers(){ try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {return Map.copyOf(pendingPlayers);} }
+    public Map<UUID,MunicipalPayment> payments(){ try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {return Map.copyOf(payments);} }
+    public void payment(MunicipalPayment p){ try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {var old=payments.get(p.id());if(old!=null&&(!java.util.Objects.equals(old.contract(),p.contract())||!old.town().equals(p.town())||!old.account().equals(p.account())||old.cents()!=p.cents()||old.kind()!=p.kind()))throw new IllegalArgumentException("Условия платежа изменены");payments.put(p.id(),p);dirty=true;} }
+    public Map<UUID,DeliveryIntent> deliveries(){ try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {return Map.copyOf(deliveries);} }
+    public void delivery(DeliveryIntent d){ try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {var old=deliveries.get(d.id());if(old!=null&&(!old.contract().equals(d.contract())||!old.town().equals(d.town())||!old.actor().equals(d.actor())||!old.sample().equals(d.sample())||old.amount()!=d.amount()||old.created()!=d.created()))throw new IllegalArgumentException("Условия поставки изменены");deliveries.put(d.id(),d);dirty=true;} }
+    public boolean deliveryBusy(UUID contract){ try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {return deliveries.values().stream().anyMatch(d->d.contract().equals(contract)&&(d.phase()==DeliveryIntent.Phase.PLAYER_PENDING||d.phase()==DeliveryIntent.Phase.TAKEN));} }
+    public void saveOrThrow()throws IOException{ try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {if(!save())throw new IOException("Не удалось сохранить контракт. Операции остановлены");} }
+    public void addPendingPlayer(UUID id, double amount) { try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) { if (amount > 0) pendingPlayers.merge(id, amount, Double::sum); dirty = true; } }
+    public void clearPendingPlayer(UUID id) { try (var suiteGuard23 = ru.neverland.core.SuiteState.guard()) { pendingPlayers.remove(id); dirty = true; } }
+    public void addPendingTown(UUID id, double amount) { try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) { if (amount > 0) pendingTowns.merge(id, amount, Double::sum); dirty = true; } }
+    public Map<UUID, Double> pendingTowns() { try (var suiteGuard25 = ru.neverland.core.SuiteState.guard()) { return Map.copyOf(pendingTowns); } }
+    public void clearPendingTown(UUID id) { try (var suiteGuard26 = ru.neverland.core.SuiteState.guard()) { pendingTowns.remove(id); dirty = true; } }
+    public void saveIfDirty() { try (var suiteGuard27 = ru.neverland.core.SuiteState.guard()) { if (dirty) save(); } }
 
-    public boolean save() { synchronized (ru.neverland.core.SuiteState.lock()) {
+    public boolean save() { try (var suiteGuard28 = ru.neverland.core.SuiteState.guard()) {
         if(!writable)return false;
         YamlConfiguration yaml = new YamlConfiguration();
         reputation.write(yaml);yaml.set("schema",3);yaml.createSection("towns");yaml.createSection("pending.players");yaml.createSection("pending.towns");
