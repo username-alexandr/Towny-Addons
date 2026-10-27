@@ -1,5 +1,5 @@
 name: NeverLandTownySiegesPlus
-version: 0.1.10
+version: 0.2.0
 main: ru.neverland.townysieges.NeverLandTownySiegesPlus
 folia-supported: true
 api-version: '26.2'
@@ -13,6 +13,9 @@ commands:
     description: Оборона города и осадные ограничения
     usage: /sieges help
 permissions:
+  neverlandtownysiegesplus.raid.use:
+    description: Боевой TNT мобилизованных и объявление рейда мэром/генералом
+    default: true
   neverlandtownysiegesplus.use:
     default: true
   neverlandtownysiegesplus.admin:

@@ -1,0 +1,14 @@
+PASS SiegesPlus 0.2.0 and actual SQLite enabled
+PASS Builds 0.8.40 enabled
+PASS real controller fails closed without Army provider
+PASS real relation guard rejects neutral town
+PASS real relation guard rejects own town
+PASS real construction TextDisplay uses 0.45 scale and 200px wrapping
+PASS guide remains private and temporary
+PASS invalid guide scale falls back safely
+PASS damaged stone HP survives full native restart
+PASS replaced door survives full native restart
+PASS destroyed glass is not rolled back on restart
+PASS chest contents survive full native restart
+PASS all in-flight block watches released
+PASS TNT actor/town audit persisted

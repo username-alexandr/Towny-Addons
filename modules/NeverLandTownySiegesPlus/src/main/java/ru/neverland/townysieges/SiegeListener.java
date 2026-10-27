@@ -22,7 +22,7 @@ public final class SiegeListener implements Listener {
         if(to==null)return false;
         var a=service.assess(p,to);if(a.town()==null)return false;
         Point begin=SiegeService.point(from),end=SiegeService.point(to);
-        if(a.enters(Fort.GATE,begin,end)) { service.tell(p,"Крепостные ворота перекрывают проход атакующим. Отойдите от ворот.");return true; }
+        if(a.enters(Fort.GATE,begin,end)&&!service.physicalGate(p,a.town())) { service.tell(p,"Крепостные ворота перекрывают проход атакующим. Отойдите от ворот.");return true; }
         if(flying && (a.enters(Fort.TOWER,begin,end)||a.enters(Fort.KEEP,begin,end))) { service.tell(p,"Дозорная башня перекрывает воздушный подход. Приземлитесь за пределами зоны.");return true; }
         return false;
     }

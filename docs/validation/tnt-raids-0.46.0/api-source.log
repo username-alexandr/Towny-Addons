@@ -1,0 +1,2 @@
+API SOURCE PASS: 42 contracts, 111 call sites, 144 resolved requests, 150 executable tests
+DYNAMIC (requires runtime coverage): modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/integration/CompaniesBridge.java:7

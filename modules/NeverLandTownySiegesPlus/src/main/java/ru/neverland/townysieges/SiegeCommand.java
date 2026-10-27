@@ -18,15 +18,29 @@ public final class SiegeCommand implements TabExecutor {
                 case "menu"->{if(!(sender instanceof Player p))throw new IllegalArgumentException("Меню доступно в игре");if(args.length>2)throw new IllegalArgumentException("/sieges menu [город]");var town=args.length==2?TownyAPI.getInstance().getTown(args[1]):SiegeService.town(p.getUniqueId());if(town==null)throw new IllegalArgumentException("Укажите город: /sieges menu <город>");menu.open(p,town.getUUID(),MenuStyle.previousMenu(p));}
                 case "status"->{if(!sender.hasPermission("neverlandtownysiegesplus.admin"))throw new IllegalArgumentException("Диагностика доступна администратору");var s=service.warStatus();tell(sender,s.get("state")+": "+s.get("detail"));if(!s.get("dependencyError").isBlank())tell(sender,"&e"+s.get("dependencyError"));}
                 case "reload"->{if(!sender.hasPermission("neverlandtownysiegesplus.admin"))throw new IllegalArgumentException("Недостаточно прав");if(args.length!=1)throw new IllegalArgumentException("/sieges reload");plugin.reloadSieges();tell(sender,"Настройки осад обновлены.");}
-                default->{tell(sender,"&e/sieges menu [город] &f— оборонительные постройки и ограничения.");tell(sender,"&e/t sieges &f— открыть меню своего города.");tell(sender,"Осаду и боевые сессии проводит SiegeWar.");if(sender.hasPermission("neverlandtownysiegesplus.admin"))tell(sender,"&e/sieges status &f— диагностика; &e/sieges reload &f— настройки.");}
+                case "raid"->{
+                    if(args.length==1||args[1].equalsIgnoreCase("status")){plugin.raids().status(sender);break;}
+                    if(args[1].equalsIgnoreCase("cancel")||args[1].equalsIgnoreCase("history")){
+                        if(!sender.hasPermission("neverlandtownysiegesplus.admin"))throw new IllegalArgumentException("Доступно администратору");
+                        if(args.length!=3)throw new IllegalArgumentException("/sieges raid "+args[1]+" <город>");
+                        var target=TownyAPI.getInstance().getTown(args[2]);if(target==null)throw new IllegalArgumentException("Город не найден");
+                        if(args[1].equalsIgnoreCase("cancel"))plugin.raids().cancel(sender,target.getUUID());else plugin.raids().history(sender,target.getUUID());break;
+                    }
+                    if(!(sender instanceof Player p)||args.length!=2)throw new IllegalArgumentException("/sieges raid <город>");
+                    plugin.raids().declare(p,args[1]);
+                }
+                case "hp"->{if(!(sender instanceof Player p))throw new IllegalArgumentException("Посмотрите на блок в игре и выполните /sieges hp");plugin.tnt().health(p);}
+                default->{tell(sender,"&e/sieges menu [город] &f— оборонительные постройки и ограничения.");tell(sender,"&e/t sieges &f— открыть меню своего города.");tell(sender,"&e/sieges raid <город> &f— объявить армейский рейд; &e/sieges raid status &f— текущие рейды.");tell(sender,"&e/sieges hp &f— прочность двери или блока под прицелом.");if(sender.hasPermission("neverlandtownysiegesplus.admin"))tell(sender,"&e/sieges raid cancel|history <город> &f— остановка и журнал; &e/sieges reload &f— настройки.");}
             }
         }catch(Exception|LinkageError e){tell(sender,"&c"+e.getMessage());}
         return true;
     } }
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(!sender.hasPermission("neverlandtownysiegesplus.use"))return List.of();
-        var out=new ArrayList<String>();if(args.length==1){out.addAll(List.of("menu","help"));if(sender.hasPermission("neverlandtownysiegesplus.admin"))out.addAll(List.of("status","reload"));}
-        if(args.length==2&&args[0].equalsIgnoreCase("menu"))TownyAPI.getInstance().getTowns().forEach(t->out.add(t.getName()));
+        var out=new ArrayList<String>();if(args.length==1){out.addAll(List.of("menu","help","raid","hp"));if(sender.hasPermission("neverlandtownysiegesplus.admin"))out.addAll(List.of("status","reload"));}
+        if(args.length==2&&(args[0].equalsIgnoreCase("menu")||args[0].equalsIgnoreCase("raid")))TownyAPI.getInstance().getTowns().forEach(t->out.add(t.getName()));
+        if(args.length==2&&args[0].equalsIgnoreCase("raid")){out.add("status");if(sender.hasPermission("neverlandtownysiegesplus.admin"))out.addAll(List.of("cancel","history"));}
+        if(args.length==3&&args[0].equalsIgnoreCase("raid")&&Set.of("cancel","history").contains(args[1].toLowerCase(Locale.ROOT))&&sender.hasPermission("neverlandtownysiegesplus.admin"))TownyAPI.getInstance().getTowns().forEach(t->out.add(t.getName()));
         String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return out.stream().filter(s->s.toLowerCase(Locale.ROOT).startsWith(prefix)).sorted().limit(60).toList();
     } }
 }

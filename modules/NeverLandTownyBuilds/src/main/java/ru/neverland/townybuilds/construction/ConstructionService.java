@@ -815,7 +815,7 @@ public final class ConstructionService implements Listener {
                 created.setVisibleByDefault(false);
                 created.setBillboard(Display.Billboard.CENTER);
                 created.setViewRange(1.0f);
-                created.setLineWidth(260);
+                created.setLineWidth(200);
                 created.setAlignment(TextDisplay.TextAlignment.CENTER);
                 created.setShadowed(true);
                 created.setSeeThrough(true);
@@ -826,6 +826,10 @@ public final class ConstructionService implements Listener {
         } else {
             display.teleportAsync(labelLocation);
         }
+        double labelScale=plugin.getConfig().getDouble("settings.construction.guide-label-scale",0.45);
+        if(!Double.isFinite(labelScale))labelScale=0.45;
+        display.setTransformationMatrix(new org.joml.Matrix4f().scale((float)Math.max(0.2,Math.min(0.8,labelScale))));
+        display.setLineWidth(Math.max(100,Math.min(300,plugin.getConfig().getInt("settings.construction.guide-label-width",200))));
         display.text(messages.component("construction-layer-guide-display", guideValues(target)));
         player.showEntity(plugin, display);
     }

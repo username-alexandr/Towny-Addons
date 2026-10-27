@@ -21,6 +21,9 @@ public final class SiegeService implements TownySiegesApi {
     private final Map<UUID,Long> messages=new HashMap<>();
     private long lastFailure;
     private String failure="";
+    private RaidController raids;
+    public void raids(RaidController value){raids=value;}
+    public boolean physicalGate(Player player,UUID town){return raids!=null&&raids.physicalGate(player,town);}
     public SiegeService(NeverLandTownySiegesPlus plugin,SiegeSettings settings) { this.plugin=plugin; this.settings=settings; }
     public SiegeSettings settings() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return settings; } }
     public SiegeWarAccess war() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return war; } }
@@ -49,9 +52,11 @@ public final class SiegeService implements TownySiegesApi {
         Town target=TownyAPI.getInstance().getTown(location);
         if(target==null) return Assessment.none();
         try {
-            if(!war.connect()) return Assessment.none();
-            var context=war.context(target,player);
-            if(!context.active() || settings.battleOnly()&&!context.battle() || !context.side().equals("ATTACKERS")) return Assessment.none();
+            if(!physicalGate(player,target.getUUID())) {
+                if(!war.connect()) return Assessment.none();
+                var context=war.context(target,player);
+                if(!context.active() || settings.battleOnly()&&!context.battle() || !context.side().equals("ATTACKERS")) return Assessment.none();
+            }
         } catch(Exception|LinkageError e) { failed(e); return Assessment.none(); }
         try {
             Town own=town(player.getUniqueId());
@@ -96,8 +101,8 @@ public final class SiegeService implements TownySiegesApi {
     } }
     public void leave(Player p) { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) { slow(p,0);messages.remove(p.getUniqueId()); } }
     public void stop() { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) { ru.neverland.core.SuiteScheduler.cleanupPlayers(plugin, p -> {leave(p);});geometry.clear(); } }
-    @Override public boolean healthy() { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) { ApiServices.primaryThread();return war.connect() && war.state()==SiegeWarAccess.State.READY && failure.isEmpty(); } }
-    @Override public Map<String,String> warStatus() { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) { ApiServices.primaryThread();war.connect();return Map.of("state",war.state().name(),"detail",war.detail(),"dependencyError",failure,"testedVersion","3.6.2"); } }
+    @Override public boolean healthy() { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) { ApiServices.primaryThread();return (war.connect() && war.state()==SiegeWarAccess.State.READY || raids!=null&&raids.healthy()) && failure.isEmpty(); } }
+    @Override public Map<String,String> warStatus() { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) { ApiServices.primaryThread();war.connect();return Map.of("state",war.state().name(),"detail",war.detail(),"dependencyError",failure,"testedVersion","3.6.2","tnt",raids!=null&&raids.healthy()?"READY":"UNAVAILABLE"); } }
     @Override public Collection<Map<String,Object>> defenses(UUID town) { try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread();if(town==null||TownyAPI.getInstance().getTown(town)==null)return List.of();
         try {

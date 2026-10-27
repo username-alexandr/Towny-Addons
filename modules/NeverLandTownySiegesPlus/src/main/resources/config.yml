@@ -1,5 +1,5 @@
 # SiegeWar owns wars, sides, battle windows, scores and occupation.
-# SiegeWar 3.6.2 is the tested provider; without it the addon displays defenses only.
+# SiegeWar 3.6.2 is the existing siege integration; without it army raids use tnt.raid below.
 battle-sessions-only: true
 # Horizontal expansion beyond the completed building's actual footprint.
 radius:
@@ -21,3 +21,31 @@ moat:
   maximum-slow: 0.35
 menu-style:
   title-color: '#F4F7FC'
+
+# Прочность дверей и блоков во время объявленного рейда.
+# Без SiegeWar: /sieges raid <город>, объявляет мобилизованный мэр или генерал.
+# С SiegeWar: используются его стороны и активная боевая сессия, отдельный рейд не создаётся.
+# Настройки Towny, взрывы и PvP на участках не переключаются.
+tnt:
+  enabled: true
+  radius: 6.0
+  # Полный урон до ближайшей грани блока в этом радиусе.
+  contact-radius: 1.0
+  contact-damage: 100.0
+  # За contact-radius: damage * ((radius-distance)/(radius-contact-radius))^power.
+  falloff-power: 2.0
+  # Целый блок восстанавливает HP после затишья; уничтоженные блоки не откатываются.
+  repair-after-seconds: 1800
+  raid:
+    warmup-seconds: 120
+    duration-seconds: 1200
+    cooldown-seconds: 86400
+    minimum-defenders-online: 1
+  hitpoints:
+    default: 400.0
+    wooden-door: 120.0
+    iron-door: 400.0
+    glass: 60.0
+    wood: 200.0
+    obsidian: 1200.0
+    materials: {}

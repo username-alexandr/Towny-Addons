@@ -1,0 +1,20 @@
+{
+  "suite": "0.46.0",
+  "updates": {
+    "NeverLandTownySiegesPlus-0.2.0.jar": {
+      "bytes": 234797,
+      "sha256": "fefdcee800113a1bacc21443fd63f9de4a41c9f94ecba4420ce1dad9d25b4202",
+      "classfile_major": 61
+    },
+    "NeverLandTownyBuilds-0.8.40.jar": {
+      "bytes": 825404,
+      "sha256": "697f42b588f06be88c467dbcfa994bd3dbfb1f9b1def66407e9c16b2a1a85117",
+      "classfile_major": 61
+    }
+  },
+  "toolchain": {
+    "folia-26.2-7.jar": "128a634192261cd38bb4a5dc54075018a0f896fd6c6f529e37dca6e99e32b3b3",
+    "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+    "jdk25.tar.gz": "9980dfa804c16b9a8cac843b5f4201910d1a46d94633f559ce283b07617a3b99"
+  }
+}
