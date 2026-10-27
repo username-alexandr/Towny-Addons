@@ -1,4 +1,6 @@
-# NeverLandTownyBuilds 0.7.7
+# NeverLandTownyBuilds 0.8.41
+
+Обновление 0.8.41: [осадные лагеря, кафедра ратуши и склад добычи](../../docs/CAMP-RAIDS-0.47.0-RU.md).
 
 Аддон городского развития для **Paper/Purpur 26.2** и **Towny 0.103.2.0**.
 

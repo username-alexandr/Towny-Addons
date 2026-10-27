@@ -572,6 +572,7 @@ public final class ConstructionService implements Listener {
     }
 
     private void repairCompletedSites() {
+        if(!plugin.getConfig().getBoolean("settings.construction.restore-missing-completed-blocks",false))return;
         int repaired = 0;
         for (TownData town : dataStore.towns().values()) {
             if (towny.town(town.townId()) == null) continue;

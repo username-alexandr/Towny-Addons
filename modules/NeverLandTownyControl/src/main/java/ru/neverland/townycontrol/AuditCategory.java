@@ -11,6 +11,7 @@ enum AuditCategory implements Predicate<AuditRecord> {
     TRADE("Торговля и поставки","MINECART",Set.of("CARAVAN_DEAL","TRADE_PAYMENT","TRADE_TARIFF","TRADE_REFUND","SUPPLY_AGREEMENT","SUPPLY_DEAL")),
     MARKETS("Рынок и магазины","EMERALD",Set.of("MARKET_DEAL","SHOP_DEAL","MARKET_DELIVERY","SHOP_DELIVERY")),
     STORAGE("Ресурсы и склады","CHEST",Set.of("WAREHOUSE_TRADE","WAREHOUSE_LEG","STORAGE_PLAYER")),
+    RAIDS("Рейды и добыча","TNT",Set.of("RAID_CAMP","RAID_DECLARED","RAID_CORE","RAID_LOOT_MONEY","RAID_LOOT_RESOURCES","RAID_LOOT_STATE","RAID_LOOT_REVIEW","RAID_LOOT_RECONCILE")),
     COMPANIES("Компании","IRON_INGOT",Set.of("COMPANY_PAYMENT","COMPANY_CONTRACT")),
     CONSTRUCTION("Стройки и возвраты","BRICKS",Set.of("CONSTRUCTION_REFUND","BUILD_CONTRIBUTION")),
     FIRE_REPAIRS("Ремонт после пожара","ANVIL",Set.of("FIRE_REPAIR")),
@@ -29,6 +30,7 @@ enum AuditCategory implements Predicate<AuditRecord> {
     AuditCategory(String title,String icon,Set<String> kinds){this.title=title;this.icon=icon;this.kinds=kinds;}
     @Override public boolean test(AuditRecord record){return this==ALL||this==OTHER?this==ALL||Arrays.stream(values()).filter(c->c!=ALL&&c!=OTHER).noneMatch(c->c.kinds.contains(record.kind())):kinds.contains(record.kind());}
     static String kind(String kind){return switch(kind){
+        case "RAID_CAMP"->"Осадный лагерь";case "RAID_DECLARED"->"Начало рейда";case "RAID_CORE"->"Захват кафедры ратуши";case "RAID_LOOT_MONEY"->"Захваченные деньги";case "RAID_LOOT_RESOURCES"->"Захваченные ресурсы";case "RAID_LOOT_STATE"->"Выдача добычи";case "RAID_LOOT_REVIEW"->"Добыча: нужна сверка";case "RAID_LOOT_RECONCILE"->"Администратор сверил добычу";
         case "FIRE_REPAIR"->"Подтверждение ремонта участка";
         case "MOB_FARM_ZONE"->"Защита участка от мобов";
         case "BUILD_CONTRIBUTION"->"Материалы для строительства";
@@ -40,5 +42,5 @@ enum AuditCategory implements Predicate<AuditRecord> {
         case "WAREHOUSE_TRADE"->"Обмен со складом";case "WAREHOUSE_LEG"->"Изменение склада";case "STORAGE_PLAYER"->"Игрок и хранилище";
         case "COMPANY_PAYMENT"->"Оплата компании";case "COMPANY_CONTRACT"->"Контракт компании";case "CONTRACT_PAYMENT"->"Оплата контракта";case "CONTRACT_DELIVERY"->"Выдача контракта";case "TAX_TRANSFER"->"Перечисление налога";
         case "CITY_ENVIRONMENT"->"Изменение уровня загрязнения";case "CITY_ACHIEVEMENT"->"Достижение города";case "ACHIEVEMENT_REWARD"->"Оформление награды";case "CITY_PROJECT"->"Этап городского проекта";case "ADMIN_ACTIVITY"->"Управление задачей";case "ADMIN_MODULE"->"Управление модулем";default->kind;};}
-    static String outcome(String value){return switch(value){case "REQUESTED"->"Отмена запрошена";case "MONEY_RETURNED"->"Деньги возвращены";case "PURCHASED"->"Стройка оплачена";case "COMPLETED","COMPLETE","SUCCESS","DONE"->"Выполнено";case "OBSERVED"->"Зафиксирована команда";case "CREDIT"->"Зачисление";case "DEBIT"->"Списание";case "CANCELLED"->"Отменено";case "REFUNDED","RETURNED"->"Возвращено";case "DELIVERED"->"Доставлено";case "REJECTED"->"Отклонено";case "UNCONFIRMED"->"Не подтверждено";case "PREPARED"->"Подготовлено";case "PAID"->"Оплачено";case "REVIEW"->"Нужна сверка";case "FAILED","FAILURE"->"Ошибка";default->value;};}
+    static String outcome(String value){return switch(value){case "REQUESTED"->"Отмена запрошена";case "MONEY_RETURNED"->"Деньги возвращены";case "PURCHASED"->"Стройка оплачена";case "COMPLETED","COMPLETE","SUCCESS","DONE"->"Выполнено";case "OBSERVED"->"Зафиксирована команда";case "CREDIT"->"Зачисление";case "DEBIT"->"Списание";case "CANCELLED"->"Отменено";case "REFUNDED","RETURNED"->"Возвращено";case "DELIVERED"->"Доставлено";case "REJECTED"->"Отклонено";case "UNCONFIRMED"->"Не подтверждено";case "PREPARED"->"Подготовлено";case "PAID"->"Оплачено";case "REVIEW","REVIEW_CORE","REVIEW_DEBIT","REVIEW_CREDIT"->"Нужна сверка";case "READY"->"Готово";case "LOST"->"Лагерь потерян";case "ARMED"->"Проверяется кафедра";case "BREACHED"->"Кафедра захвачена";case "DEBITED"->"Деньги списаны";case "FUNDED"->"Деньги переведены, ожидается доставка";case "DEBITING","CREDITING"->"Платёж выполняется";case "VOID"->"Захват не состоялся";case "FAILED","FAILURE"->"Ошибка";default->value;};}
 }

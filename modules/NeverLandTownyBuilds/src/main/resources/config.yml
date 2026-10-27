@@ -41,6 +41,8 @@ settings:
     guide-label-enabled: true
     guide-label-height: 1.35
     # Размер подписи над строительным блоком. Работает и со старым config.yml.
+    # Разрушенные в рейде здания не восстанавливаются при перезапуске.
+    restore-missing-completed-blocks: false
     guide-label-scale: 0.45
     guide-label-width: 200
   civic:

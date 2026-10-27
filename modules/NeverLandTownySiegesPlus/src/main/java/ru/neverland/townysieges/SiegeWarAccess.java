@@ -40,6 +40,7 @@ public final class SiegeWarAccess {
         } catch (ReflectiveOperationException | RuntimeException | LinkageError e) { bound=null; status(State.INCOMPATIBLE_API,e.toString()); return false; }
     } }
     public record Context(boolean active, boolean battle, String side) { public static Context none() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return new Context(false,false,"NOBODY"); } } }
+    public UUID identity(Town town){if(!connect())throw new IllegalStateException(detail);try{Object siege=getSiege.invoke(null,town);if(siege==null)throw new IllegalStateException("Осада завершена");return (UUID)siegeType.getMethod("getUUID").invoke(siege);}catch(ReflectiveOperationException error){throw new IllegalStateException("Нет идентификатора осады SiegeWar",error);}}
     public Context context(Town town,Player player) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         ru.neverland.core.ApiServices.primaryThread();
         if (!connect()) throw new IllegalStateException(detail);

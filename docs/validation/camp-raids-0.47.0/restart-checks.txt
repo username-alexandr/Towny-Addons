@@ -1,0 +1,30 @@
+PASS SiegesPlus 0.3.0 and actual SQLite enabled
+PASS Builds 0.8.41 enabled
+PASS real controller fails closed without Army provider
+PASS real relation guard rejects neutral town
+PASS real relation guard rejects own town
+PASS real construction TextDisplay uses 0.45 scale and 200px wrapping
+PASS guide remains private and temporary
+PASS invalid guide scale falls back safely
+PASS damaged stone HP survives full native restart
+PASS replaced door survives full native restart
+PASS destroyed glass is not rolled back on restart
+PASS chest contents survive full native restart
+PASS real Towny account totals use deterministic external adapter
+PASS new public raid storage API healthy
+PASS Control 0.4.17 enabled
+PASS admin home contains separate raid button
+PASS admin panel separates raid history, money and resources
+PASS general logging categories include raids
+PASS completed town hall does not auto-rebuild captured lectern on restart
+PASS resource escrow survives full native restart
+PASS completed bank legs preserved without replay on restart
+PASS capacity recovery delivers pending loot after restart
+PASS exact stolen items delivered to attacker warehouse
+PASS original lectern book returned to defender without loss
+PASS money total conserved after delivery retry
+PASS admin audit includes actor, captured core, money and per-item resources
+PASS camp markers and SQLite ownership survive restart
+PASS resource replay remains idempotent after delivery
+PASS all in-flight block watches released
+PASS TNT actor/town audit persisted

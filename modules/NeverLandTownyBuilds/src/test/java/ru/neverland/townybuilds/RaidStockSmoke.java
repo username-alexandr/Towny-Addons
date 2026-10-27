@@ -1,0 +1,21 @@
+package ru.neverland.townybuilds;
+import java.io.*;import java.util.*;import org.bukkit.Material;import org.bukkit.inventory.ItemStack;import ru.neverland.townybuilds.storage.*;
+public final class RaidStockSmoke {
+    static int checks;static void ok(boolean x,String why){if(!x)throw new AssertionError(why);checks++;}
+    static final class Item extends ItemStack {final String key;int amount;Item(String k,int n){super();key=k;amount=n;}public Material getType(){return Material.STONE;}public int getAmount(){return amount;}public void setAmount(int n){amount=n;}public int getMaxStackSize(){return 64;}public Item clone(){return new Item(key,amount);}public boolean isSimilar(ItemStack o){return o instanceof Item i&&key.equals(i.key);}}
+    static final class Store implements RaidStockTransactions.Access {Map<UUID,ItemStack[]> stock=new HashMap<>();Map<UUID,RaidStock> journal=new HashMap<>();boolean fail;int writes;public ItemStack[] read(UUID town){return StockMath.copy(stock.get(town));}public void write(UUID town,ItemStack[] a){stock.put(town,StockMath.copy(a));}public RaidStock get(UUID id){return journal.get(id);}public void put(UUID id,RaidStock s){if(s==null)journal.remove(id);else journal.put(id,s);}public void commit()throws IOException{if(fail)throw new IOException("disk full");writes++;}}
+    interface Work{void run()throws Exception;}static void denied(Work w)throws Exception{try{w.run();throw new AssertionError("accepted invalid operation");}catch(IOException|IllegalArgumentException expected){checks++;}}
+    public static void main(String[] args)throws Exception{
+        var d=UUID.randomUUID();var a=UUID.randomUUID();var id=UUID.randomUUID();var s=new Store();s.stock.put(d,new ItemStack[]{new Item("stone",1),new Item("stone",9),new Item("stone",64),new Item("custom-stone",20),new Item("rare",9)});s.stock.put(a,new ItemStack[5]);
+        s.fail=true;denied(()->RaidStockTransactions.reserve(s,id,d,a,1000));ok(s.journal.isEmpty()&&StockMath.total(s.read(d))==103,"failed reservation leaves all resources and receipt unchanged");s.fail=false;
+        var r=RaidStockTransactions.reserve(s,id,d,a,1000);ok(StockMath.count(r.cargo(),new Item("stone",1))==7,"percentage aggregates split stacks before floor");ok(StockMath.count(r.cargo(),new Item("custom-stone",1))==2,"custom metadata remains separate");ok(StockMath.count(r.cargo(),new Item("rare",1))==0,"small quantities round down");ok(StockMath.total(s.read(d))+StockMath.total(r.cargo())==103,"source plus escrow conserved");
+        int writes=s.writes;RaidStockTransactions.reserve(s,id,d,a,1000);ok(s.writes==writes,"replayed capture cannot reserve twice");denied(()->RaidStockTransactions.reserve(s,id,d,a,2000));denied(()->RaidStockTransactions.reserve(s,id,a,d,1000));
+        var snapshot=r.cargo();snapshot[0].setAmount(1);ok(StockMath.total(r.cargo())==9,"cargo snapshot cannot mutate escrow");
+        s.stock.put(a,new ItemStack[]{new Item("other",64)});ok(RaidStockTransactions.settle(s,id,true).equals("FULL")&&s.journal.get(id).state().equals("RESERVED"),"full recipient keeps durable cargo");
+        var restart=new Store();restart.stock=s.stock;restart.journal=new HashMap<>(s.journal);restart.stock.put(a,new ItemStack[5]);restart.fail=true;denied(()->RaidStockTransactions.settle(restart,id,true));ok(StockMath.total(restart.read(a))==0&&restart.journal.get(id).state().equals("RESERVED"),"failed delivery restores destination and escrow");restart.fail=false;
+        ok(RaidStockTransactions.settle(restart,id,true).equals("DELIVERED"),"delivery completes after capacity restored");RaidStockTransactions.settle(restart,id,true);ok(StockMath.total(restart.read(a))==9,"replayed delivery adds resources once");ok(RaidStockTransactions.settle(restart,id,false).equals("DELIVERED"),"completed delivery cannot be refunded again");
+        UUID empty=UUID.randomUUID();var zero=RaidStockTransactions.reserve(restart,empty,d,a,0);ok(StockMath.total(zero.cargo())==0,"zero percentage is an empty idempotent claim");
+        denied(()->RaidStockTransactions.reserve(restart,UUID.randomUUID(),d,a,-1));denied(()->RaidStockTransactions.reserve(restart,UUID.randomUUID(),d,a,10001));
+        System.out.println("RaidStockSmoke PASS: "+checks+" assertions; aggregation, metadata, conservation, disk failure, restart, replay and full storage");
+    }
+}

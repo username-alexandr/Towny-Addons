@@ -34,19 +34,19 @@ public final class RaidController {
     public void reload(TntSettings next){settings=next;}
     public boolean ready(){return !closed&&loaded&&settings.enabled()&&store.healthy()&&plugin.isEnabled()&&!SuiteState.frozen(plugin.getName());}
     public boolean healthy(){try{return ready()&&army().ready();}catch(Exception|LinkageError unavailable){return false;}}
-    private boolean siegeWarInstalled(){var p=Bukkit.getPluginManager().getPlugin("SiegeWar");return p!=null;}
+    private boolean siegeWarInstalled(){if(plugin.camps()!=null&&plugin.camps().settings().enabled())return false;var p=Bukkit.getPluginManager().getPlugin("SiegeWar");return p!=null;}
     private ApiServices.Connection army()throws Exception {
         var api=ApiServices.require("NeverLandTownyArmy","ru.neverland.townyarmy.api.TownyArmyApi","healthy","isMobilized","serviceRecord");
         if(!Boolean.TRUE.equals(api.invoke("healthy",new Class<?>[]{})))throw new IllegalStateException("Армия временно недоступна");
         return api;
     }
-    private boolean mobilized(UUID player)throws Exception{return Boolean.TRUE.equals(army().invoke("isMobilized",new Class<?>[]{UUID.class},player));}
+    boolean mobilized(UUID player)throws Exception{return Boolean.TRUE.equals(army().invoke("isMobilized",new Class<?>[]{UUID.class},player));}
     private boolean commander(Player player,Town town)throws Exception {
         if(player.hasPermission("neverlandtownysiegesplus.admin")||town.isMayor(TownyAPI.getInstance().getResident(player.getUniqueId())))return true;
         Object row=((Optional<?>)army().invoke("serviceRecord",new Class<?>[]{UUID.class},player.getUniqueId())).orElse(null);
         return row instanceof Map<?,?> map&&town.getUUID().equals(map.get("town"))&&"general".equals(map.get("rank"));
     }
-    private void relations(Town own,Town target)throws Exception {
+    void relations(Town own,Town target)throws Exception {
         if(own==null||target==null||own==target)throw new IllegalArgumentException("Нужен другой существующий город");
         if(own.isAlliedWith(target)||target.isAlliedWith(own)||own.isNeutral()||target.isNeutral()
                 ||diplomacy.protectedByTreaty(own.getUUID(),target.getUUID())||diplomacy.protectedByTreaty(target.getUUID(),own.getUUID()))
@@ -77,9 +77,10 @@ public final class RaidController {
         if(siegeWarInstalled()) {
             var context=siege.war().context(target,actor);
             if(!context.active()||!context.battle()||!context.side().equals("ATTACKERS"))throw new IllegalArgumentException("Боевой TNT доступен атакующим во время боевой сессии SiegeWar");
-            return new Permit(actor.getUniqueId(),own.getUUID(),defender,UUID.nameUUIDFromBytes(("siegewar:"+defender).getBytes(java.nio.charset.StandardCharsets.UTF_8)),now,true);
+            return new Permit(actor.getUniqueId(),own.getUUID(),defender,siege.war().identity(target),now,true);
         }
         var raid=raid(own.getUUID(),defender,now).orElseThrow(()->new IllegalArgumentException("Сначала объявите рейд: /sieges raid <город>"));
+        if(plugin.camps()!=null&&!plugin.camps().active(own.getUUID(),defender))throw new IllegalArgumentException("Осадный лагерь недоступен");
         if(!raid.fighting(now))throw new IllegalArgumentException("Ещё идёт подготовка к рейду");
         return new Permit(actor.getUniqueId(),own.getUUID(),defender,raid.id(),now,false);
     }
@@ -90,8 +91,8 @@ public final class RaidController {
             Town own=SiegeService.town(permit.actor()),target=TownyAPI.getInstance().getTown(permit.defender());
             if(own==null||!own.getUUID().equals(permit.attacker()))return false;
             relations(own,target);defenders(target);if(!mobilized(permit.actor()))return false;
-            if(permit.siegeWar()) {var c=siege.war().context(target,null);return siegeWarInstalled()&&c.active()&&c.battle();}
-            return !siegeWarInstalled()&&raid(own.getUUID(),target.getUUID(),System.currentTimeMillis()).filter(r->r.id().equals(permit.raid())&&r.fighting(System.currentTimeMillis())).isPresent();
+            if(permit.siegeWar()) {var c=siege.war().context(target,null);return siegeWarInstalled()&&c.active()&&c.battle()&&siege.war().identity(target).equals(permit.raid());}
+            return !siegeWarInstalled()&&(plugin.camps()==null||plugin.camps().active(own.getUUID(),target.getUUID()))&&raid(own.getUUID(),target.getUUID(),System.currentTimeMillis()).filter(r->r.id().equals(permit.raid())&&r.fighting(System.currentTimeMillis())).isPresent();
         }catch(Exception|LinkageError unavailable){return false;}
     }
     public boolean physicalGate(Player player,UUID defender) {
@@ -105,10 +106,22 @@ public final class RaidController {
         relations(own,target);defenders(target);
         if(actor.getGameMode()!=GameMode.SURVIVAL||!mobilized(actor.getUniqueId())||!commander(actor,own))
             throw new IllegalArgumentException("Рейд объявляет мобилизованный мэр или генерал");
+        if(plugin.camps()!=null&&plugin.camps().settings().enabled()){
+            plugin.camps().muster(actor,target,()->{try{validateCommander(actor,own,target);defenders(target);start(actor,own,target);}catch(Exception error){reply(actor,error.getMessage());}});return;
+        }
+        start(actor,own,target);
+    }
+    void validateCommander(Player actor,Town own,Town target)throws Exception{
+        if(!ready())throw new IllegalArgumentException("Рейды сейчас недоступны");relations(own,target);var current=SiegeService.town(actor.getUniqueId());
+        if(current==null||!current.getUUID().equals(own.getUUID())||!actor.hasPermission("neverlandtownysiegesplus.raid.use")||actor.getGameMode()!=GameMode.SURVIVAL||!mobilized(actor.getUniqueId())||!commander(actor,own))throw new IllegalArgumentException("Нужен мобилизованный мэр или генерал своего города");
+    }
+    private void start(Player actor,Town own,Town target){
         long now=System.currentTimeMillis(),start=now+settings.warmupSeconds()*1000L,end=start+settings.durationSeconds()*1000L;
         var raid=new RaidStore.Raid(UUID.randomUUID(),own.getUUID(),target.getUUID(),actor.getUniqueId(),now,start,end,end+settings.cooldownSeconds()*1000L,"OPEN");
         store.start(raid).whenComplete((rows,error)->{if(error==null&&!closed)raids=rows;publish(()->{
             if(error!=null){reply(actor,"&e"+problem(error));return;}
+            if(plugin.camps()!=null&&!plugin.camps().active(own.getUUID(),target.getUUID())){cancel(Bukkit.getConsoleSender(),target.getUUID());reply(actor,"Лагерь потерян до начала рейда");return;}
+            AuditTrail.record(plugin,"declare",raid.id().toString(),"RAID_DECLARED","READY",AuditTrail.player(actor.getUniqueId()),AuditTrail.town(own.getUUID()),AuditTrail.town(target.getUUID()),"",0,"","Подготовка "+settings.warmupSeconds()+" сек.; бой "+settings.durationSeconds()+" сек.");
             notifyTown(own.getUUID(),"Рейд на "+target.getName()+" объявлен. Подготовка: "+settings.warmupSeconds()+" сек. Боевой TNT — только для мобилизованных.");
             notifyTown(target.getUUID(),"Город "+own.getName()+" объявил рейд. Подготовка: "+settings.warmupSeconds()+" сек. Проверьте ворота и оборону.");
         });});
@@ -129,7 +142,7 @@ public final class RaidController {
     public void history(CommandSender sender,UUID town) {
         store.history(town).whenComplete((rows,error)->publish(()->{if(error!=null){reply(sender,problem(error));return;}if(rows.isEmpty())reply(sender,"Записей рейдов пока нет");for(var row:rows)reply(sender,new java.util.Date(row.time())+" "+row.action()+"; инициатор="+row.actor()+"; блоков="+row.blocks());}));
     }
-    private void notifyTown(UUID town,String text){SuiteScheduler.players(plugin,p->{var own=SiegeService.town(p.getUniqueId());if(own!=null&&own.getUUID().equals(town))SiegeCommand.tell(p,text);});}
+    void notifyTown(UUID town,String text){SuiteScheduler.players(plugin,p->{var own=SiegeService.town(p.getUniqueId());if(own!=null&&own.getUUID().equals(town))SiegeCommand.tell(p,text);});}
     public void reply(CommandSender sender,String text){SuiteScheduler.reply(plugin,sender,()->SiegeCommand.tell(sender,text));}
     private void publish(Runnable action){if(!closed&&plugin.isEnabled()&&!Bukkit.isStopping())SuiteScheduler.get().runTask(plugin,action);}
     static String problem(Throwable error){while(error.getCause()!=null&&(error instanceof CompletionException||error instanceof ExecutionException))error=error.getCause();return error.getMessage()==null?error.getClass().getSimpleName():error.getMessage();}

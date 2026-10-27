@@ -1,0 +1,6 @@
+name: TntRuntimeProbe
+version: 2.0
+main: ru.neverland.runtime.CampLootRuntimeProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownySiegesPlus, NeverLandTownyControl]

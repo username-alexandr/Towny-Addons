@@ -23,7 +23,8 @@ public final class RaidStore implements AutoCloseable {
     private Connection db;
     private final CompletableFuture<Void> ready;
     private final CompletableFuture<Void> stopped=new CompletableFuture<>();
-    @FunctionalInterface private interface Sql<T>{T run()throws Exception;}
+    @FunctionalInterface interface Sql<T>{T run()throws Exception;}
+    Connection connection(){return db;}
     public RaidStore(Path file,Consumer<Throwable> failure) {
         this.failure=failure;
         worker=new ThreadPoolExecutor(1,1,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(512),r->{var t=new Thread(r,"NeverLand-Raid-Storage");t.setDaemon(true);return t;}) {
@@ -45,13 +46,15 @@ public final class RaidStore implements AutoCloseable {
                 // Never replay a destructive callback after a restart. A surviving block needs a new real hit.
                 s.execute("UPDATE hp SET hp=1,receipt='' WHERE receipt<>''");
             }
+            RaidLootStore.initialize(db);
+            RaidCamps.initialize(db);
             healthy=true;return null;
         });
     }
     public boolean healthy(){return healthy&&!closed;}
     public CompletionStage<Void> ready(){return ready;}
     public CompletionStage<Void> stopped(){return stopped;}
-    private <T> CompletableFuture<T> submit(Sql<T> work) {
+    <T> CompletableFuture<T> submit(Sql<T> work) {
         var result=new CompletableFuture<T>();
         if(closed){result.completeExceptionally(new IllegalStateException("Хранилище рейдов остановлено"));return result;}
         try{worker.execute(()->{try{result.complete(work.run());}catch(Throwable e){if(!(e instanceof IllegalArgumentException)){healthy=false;failure.accept(e);}result.completeExceptionally(e);}});}
@@ -125,7 +128,7 @@ public final class RaidStore implements AutoCloseable {
         try(var p=db.prepareStatement("SELECT * FROM hp WHERE key=?")){p.setString(1,key.id());try(var r=p.executeQuery()){if(r.next()&&r.getString("material").equals(material)&&now-r.getLong("last_hit")<repair*1000L){double hp=r.getDouble("hp");if(!Double.isFinite(hp)||hp<0||hp>1_000_000)throw new SQLException("Повреждена прочность блока");return new Health(Math.min(max,hp),max,r.getLong("last_hit"));}}}
         return new Health(max,max,0);
     });}
-    private void audit(String actor,String attacker,String defender,String action,long now,int blocks)throws SQLException {
+    void audit(String actor,String attacker,String defender,String action,long now,int blocks)throws SQLException {
         try(var p=db.prepareStatement("INSERT INTO audit(actor,attacker,defender,action,at,blocks) VALUES(?,?,?,?,?,?)")){p.setString(1,actor);p.setString(2,attacker);p.setString(3,defender);p.setString(4,action);p.setLong(5,now);p.setInt(6,blocks);p.executeUpdate();}
     }
     public CompletionStage<List<Audit>> history(UUID town){return submit(()->{var out=new ArrayList<Audit>();try(var p=db.prepareStatement("SELECT * FROM audit WHERE attacker=? OR defender=? ORDER BY id DESC LIMIT 10")){p.setString(1,town.toString());p.setString(2,town.toString());try(var r=p.executeQuery()){while(r.next())out.add(new Audit(r.getString("actor"),r.getString("attacker"),r.getString("defender"),r.getString("action"),r.getLong("at"),r.getInt("blocks")));}}return List.copyOf(out);});}

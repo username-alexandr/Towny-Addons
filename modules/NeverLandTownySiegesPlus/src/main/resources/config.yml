@@ -1,5 +1,5 @@
-# SiegeWar owns wars, sides, battle windows, scores and occupation.
-# SiegeWar 3.6.2 is the existing siege integration; without it army raids use tnt.raid below.
+# Camp mode uses army raids below. With camp.enabled=false, installed SiegeWar owns wars and battle windows.
+# Existing SiegeWar 3.6.2 integration is retained for servers opting out of camp mode.
 battle-sessions-only: true
 # Horizontal expansion beyond the completed building's actual footprint.
 radius:
@@ -22,9 +22,25 @@ moat:
 menu-style:
   title-color: '#F4F7FC'
 
+# Однократная добыча за основную кафедру завершённой ратуши во время рейда.
+# Получатель — казна и общий склад атакующего города. Новая валюта не создаётся.
+loot:
+  enabled: true
+  money-percent: 10.0
+  resources-percent: 10.0
+
+# Режим войны через физический осадный лагерь. Имеет приоритет над боями SiegeWar.
+camp:
+  enabled: true
+  border-distance: 16
+  muster-radius: 16
+  minimum-army: 2
+  lifetime-seconds: 86400
+
 # Прочность дверей и блоков во время объявленного рейда.
-# Без SiegeWar: /sieges raid <город>, объявляет мобилизованный мэр или генерал.
-# С SiegeWar: используются его стороны и активная боевая сессия, отдельный рейд не создаётся.
+# В режиме camp рейд запускается у лагеря: /sieges camp.
+# При camp.enabled=false без SiegeWar: /sieges raid <город>.
+# При camp.enabled=false с SiegeWar: используются его стороны и активная боевая сессия.
 # Настройки Towny, взрывы и PvP на участках не переключаются.
 tnt:
   enabled: true

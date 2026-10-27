@@ -914,3 +914,22 @@ ru.neverland.mintcontracts.api.ServerMaterialsApi	integrationDiagnostics():java.
 ru.neverland.mintcontracts.api.ServerMaterialsApi	release(java.util.UUID,java.lang.String,java.lang.String):java.util.concurrent.CompletionStage<java.lang.String> throws []
 ru.neverland.mintcontracts.api.ServerMaterialsApi	reserve(java.util.UUID,java.lang.String,java.util.Map<java.lang.String, java.lang.Long>,java.lang.String,java.lang.String):java.util.concurrent.CompletionStage<java.lang.String> throws []
 ru.neverland.mintcontracts.api.ServerMaterialsApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.RaidStorageApi	apiVersion():int throws []
+ru.neverland.townybuilds.api.RaidStorageApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townybuilds.api.RaidStorageApi	capability core
+ru.neverland.townybuilds.api.RaidStorageApi	capability healthy
+ru.neverland.townybuilds.api.RaidStorageApi	capability reserve
+ru.neverland.townybuilds.api.RaidStorageApi	capability settle
+ru.neverland.townybuilds.api.RaidStorageApi	capability status
+ru.neverland.townybuilds.api.RaidStorageApi	core(java.util.UUID):java.util.Optional<ru.neverland.townybuilds.api.RegisteredBuildingBlock> throws []
+ru.neverland.townybuilds.api.RaidStorageApi	default apiVersion()
+ru.neverland.townybuilds.api.RaidStorageApi	default capabilities()
+ru.neverland.townybuilds.api.RaidStorageApi	default integrationDiagnostics()
+ru.neverland.townybuilds.api.RaidStorageApi	default storageMetrics()
+ru.neverland.townybuilds.api.RaidStorageApi	healthy():boolean throws []
+ru.neverland.townybuilds.api.RaidStorageApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.RaidStorageApi	record ru.neverland.townybuilds.api.RegisteredBuildingBlock [worldId:java.util.UUID, x:int, y:int, z:int, project:java.lang.String, material:java.lang.String]
+ru.neverland.townybuilds.api.RaidStorageApi	reserve(java.util.UUID,java.util.UUID,java.util.UUID,java.util.UUID,int):java.util.Map<java.lang.String, java.lang.Object> throws [java.io.IOException]
+ru.neverland.townybuilds.api.RaidStorageApi	settle(java.util.UUID,boolean):java.util.Map<java.lang.String, java.lang.Object> throws [java.io.IOException]
+ru.neverland.townybuilds.api.RaidStorageApi	status(java.util.UUID):java.util.Map<java.lang.String, java.lang.Object> throws []
+ru.neverland.townybuilds.api.RaidStorageApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []

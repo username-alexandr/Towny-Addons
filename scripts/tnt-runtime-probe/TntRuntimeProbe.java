@@ -23,7 +23,7 @@ import ru.neverland.townybuilds.construction.*;
 import ru.neverland.core.SuiteState;
 
 /** Real Folia/Towny/TNT/SQLite/displays. Explicit Access double isolates world damage from player login/Army. */
-public final class TntRuntimeProbe extends JavaPlugin implements Listener {
+public class TntRuntimeProbe extends JavaPlugin implements Listener {
     static UUID id(String s){return UUID.nameUUIDFromBytes(("tnt-runtime-046-"+s).getBytes(java.nio.charset.StandardCharsets.UTF_8));}
     static final UUID DEF=id("defender"),ATT=id("attacker"),ACTOR=id("actor"),MAYOR=id("mayor");
     NeverLandTownySiegesPlus plugin;TntRaidEngine engine;RaidStore store;World world;Location origin;Town defender,attacker;
@@ -52,8 +52,8 @@ public final class TntRuntimeProbe extends JavaPlugin implements Listener {
     TNTPrimed tnt(boolean actual){var entity=world.spawn(origin,TNTPrimed.class);entity.getPersistentDataContainer().set(new NamespacedKey(plugin,"raid_tnt_actor"),PersistentDataType.STRING,ACTOR.toString());entity.setFuseTicks(actual?2:10000);entity.setGravity(false);entity.setVelocity(new org.bukkit.util.Vector());return entity;}
     EntityExplodeEvent blast(TNTPrimed entity){var e=new EntityExplodeEvent(entity,origin,new ArrayList<>(List.of(block(15,160,9),block(19,160,8),block(14,160,8),block(16,160,8))),0,ExplosionResult.DESTROY);Bukkit.getPluginManager().callEvent(e);return e;}
     void setup()throws Exception{
-        plugin=(NeverLandTownySiegesPlus)Bukkit.getPluginManager().getPlugin("NeverLandTownySiegesPlus");engine=plugin.tnt();store=plugin.raids().store();check(plugin.isEnabled()&&store.healthy(),"SiegesPlus 0.2.0 and actual SQLite enabled");
-        check(Bukkit.getPluginManager().getPlugin("NeverLandTownyBuilds").getDescription().getVersion().equals("0.8.40"),"Builds 0.8.40 enabled");
+        plugin=(NeverLandTownySiegesPlus)Bukkit.getPluginManager().getPlugin("NeverLandTownySiegesPlus");engine=plugin.tnt();store=plugin.raids().store();check(plugin.isEnabled()&&store.healthy(),"SiegesPlus 0.3.0 and actual SQLite enabled");
+        check(Bukkit.getPluginManager().getPlugin("NeverLandTownyBuilds").getDescription().getVersion().equals("0.8.41"),"Builds 0.8.41 enabled");
         var u=TownyUniverse.getInstance();if(!restart){u.newTownInternal("TntDefenders",DEF);u.newTownInternal("TntAttackers",ATT);
             defender=TownyAPI.getInstance().getTown(DEF);attacker=TownyAPI.getInstance().getTown(ATT);
             for(var entry:Map.of(ACTOR,"TntRaider",MAYOR,"TntMayor").entrySet()){var r=u.getDataSource().newResident(entry.getValue(),entry.getKey());r.setTown(entry.getKey().equals(ACTOR)?attacker:defender);r.save();}

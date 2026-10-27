@@ -150,8 +150,9 @@ public final class TntRaidEngine implements Listener,AutoCloseable {
             for(int y=minY;y<=maxY;y++) {
             Block raw=world.getBlockAt(x,y,z);double amount=TntRules.damage(TntRules.distance(origin.x(),origin.y(),origin.z(),x,y,z),settings);if(amount<=0)continue;
             Block block=canonical(raw);var k=key(block);if(!seen.add(k))continue;
-            Material material=block.getType();if(material.isAir()||(!material.isSolid()&&!(block.getBlockData() instanceof Door))||TntRules.protectedMaterial(material.name()))continue;
-            var state=block.getState(false);if(state instanceof TileState||state instanceof InventoryHolder)continue;
+            Material material=block.getType();boolean core=material==Material.LECTERN&&plugin.loot().core(town.getUUID(),block);
+            if(material.isAir()||(!material.isSolid()&&!(block.getBlockData() instanceof Door)&&!core)||TntRules.protectedMaterial(material.name()))continue;
+            var state=block.getState(false);if((state instanceof TileState||state instanceof InventoryHolder)&&!core)continue;
             // A door is one object. Its nearest half receives one hit, never two hits from one blast.
             if(block.getBlockData() instanceof Door)amount=Math.max(amount,TntRules.damage(TntRules.distance(origin.x(),origin.y(),origin.z(),block.getX(),block.getY()+1,block.getZ()),settings));
             damaged.add(k.id());hits.add(new RaidStore.Hit(k,town.getUUID(),material.name(),watch(k),settings.hp(material.name()),amount));
@@ -165,6 +166,7 @@ public final class TntRaidEngine implements Listener,AutoCloseable {
                         try {
                             if(error!=null){plugin.getLogger().warning("Урон TNT отложен: "+RaidController.problem(error));return;}
                             for(var result:results)if(!result.receipt().isEmpty()) {
+                                if(result.hit().material().equals("LECTERN")){breach(world,cx,cz,origin,result,permit);continue;}
                                 boolean destroyed=false;
                                 try{if(active()&&access.valid(permit)&&world.isChunkLoaded(cx,cz)&&unchanged(result.hit())) {
                                     var k=result.hit().key();Block block=world.getBlockAt(k.x(),k.y(),k.z());var town=TownyAPI.getInstance().getTown(block.getLocation());
@@ -178,13 +180,36 @@ public final class TntRaidEngine implements Listener,AutoCloseable {
                     });
                 });
     }
+    private byte[] book(Block block){var item=((org.bukkit.block.Lectern)block.getState(false)).getInventory().getItem(0);return item==null||item.getType().isAir()?new byte[0]:item.serializeAsBytes();}
+    private void breach(World world,int cx,int cz,Origin origin,RaidStore.Result result,RaidController.Permit permit){
+        var hit=result.hit();var k=hit.key();Block block=world.getBlockAt(k.x(),k.y(),k.z());
+        if(!active()||!access.valid(permit)||!unchanged(hit)||!plugin.loot().core(permit.defender(),block)){store.finish(result,false);return;}
+        byte[] book;
+        try{book=book(block);}catch(RuntimeException error){store.finish(result,false);return;}
+        watch(k);plugin.loot().store().arm(permit,k,book,plugin.loot().settings()).whenComplete((loot,error)->{
+            if(closed){release(hit);return;}
+            if(error!=null||!active()){store.finish(result,false);if(error==null&&loot.state().equals("ARMED"))plugin.loot().store().change(loot.id(),"ARMED","VOID","module paused before core destruction");release(hit);return;}
+            SuiteScheduler.region(plugin,new Location(world,cx*16,origin.y(),cz*16),()->{
+                boolean destroyed=false;
+                try{
+                    if(!loot.state().equals("ARMED")||!active()||!access.valid(permit)||!world.isChunkLoaded(cx,cz)||!unchanged(hit))return;
+                    Block current=world.getBlockAt(k.x(),k.y(),k.z());var town=TownyAPI.getInstance().getTown(current.getLocation());
+                    if(town==null||!town.getUUID().equals(permit.defender())||!plugin.loot().core(town.getUUID(),current)||!Arrays.equals(book,book(current)))return;
+                    current.setType(Material.AIR,false);damaged.remove(k.id());destroyed=true;
+                }finally{
+                    store.finish(result,destroyed);release(hit);
+                    if(loot.state().equals("ARMED"))plugin.loot().store().change(loot.id(),"ARMED",destroyed?"BREACHED":"VOID",destroyed?"authorized TNT destroyed registered town hall core":"world changed before core destruction");
+                }
+            });
+        });
+    }
     public void health(Player player) {
         if(!active())throw new IllegalArgumentException("Рейды сейчас недоступны");
         if(!WorldTasks.ownsBox(player.getLocation(),6))throw new IllegalArgumentException("Подойдите ближе к блоку");
         Block raw=player.getTargetBlockExact(6);if(raw==null)throw new IllegalArgumentException("Посмотрите на дверь или блок");
         Block block=canonical(raw);var town=TownyAPI.getInstance().getTown(block.getLocation());if(town==null)throw new IllegalArgumentException("Этот блок находится за пределами города");
         var type=block.getType();var k=key(block);
-        if(TntRules.protectedMaterial(type.name())||block.getState(false) instanceof TileState||block.getState(false) instanceof InventoryHolder){raids.reply(player,"Этот блок защищён от боевого TNT");return;}
+        if((TntRules.protectedMaterial(type.name())||block.getState(false) instanceof TileState||block.getState(false) instanceof InventoryHolder)&&!plugin.loot().core(town.getUUID(),block)){raids.reply(player,"Этот блок защищён от боевого TNT");return;}
         var settings=raids.settings();store.health(k,type.name(),settings.hp(type.name()),System.currentTimeMillis(),settings.repairSeconds())
                 .whenComplete((value,error)->{if(error!=null){raids.reply(player,RaidController.problem(error));return;}raids.reply(player,"Прочность блока: "+(long)Math.ceil(value.hp())+" / "+(long)Math.ceil(value.maximum())+" HP. После затишья повреждённый целый блок восстановит прочность.");});
     }

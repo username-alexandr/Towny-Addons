@@ -65,9 +65,20 @@ final class AdminMenu implements Listener {
             player.closeInventory(); command.getExecutor().onCommand(player,command,"townyevents",new String[]{"repairmenu"});
         });
         button(s,24,Material.GRASS_BLOCK,"Удаление городов",List.of("Предупреждение и подтверждение","Режим сохранения обычных баз"),()->towns(player,1));
+        button(s,20,Material.TNT,"Рейды и добыча",List.of("Лагеря, нападения и захват кафедры","Казна, ресурсы и сверка выдачи"),()->raids(player));
         button(s,42,Material.GOLD_INGOT,"Серверные выплаты",List.of("Заказы и зарплаты: диагностика и сверка"),()->income(player));
         button(s,40,Material.COMMAND_BLOCK,"Команды наград",List.of("Очередь выдачи и спорные результаты","Сверка перед повторным выполнением"),()->rewardCommands(player,1));
         button(s,33,Material.COMPASS,"Справочник аддонов",List.of("Игровых аддонов: "+router.entries().size(),"Штатные команды и доступные задачи"),()->modules(player,1,true));show(player,s);
+    }
+    private void raids(Player player){
+        var s=screen(player,"Администрация • Рейды",AdminAccess.AUDIT);
+        button(s,11,Material.BOOK,"Журнал рейдов",List.of("Инициатор, города, время и результат","Фильтры по городу, игроку и дате"),()->logPage(player,AuditCategory.RAIDS,new AuditQuery(Map.of("category","RAIDS"),1)));
+        button(s,13,Material.GOLD_INGOT,"Денежная добыча",List.of("Подтверждённые переводы между городами"),()->logPage(player,AuditCategory.RAIDS,new AuditQuery(Map.of("category","RAIDS","kind","RAID_LOOT_MONEY"),1)));
+        button(s,15,Material.CHEST,"Захваченные ресурсы",List.of("Предметы, количество и получатель"),()->logPage(player,AuditCategory.RAIDS,new AuditQuery(Map.of("category","RAIDS","kind","RAID_LOOT_RESOURCES"),1)));
+        button(s,29,Material.SPYGLASS,"Записи для сверки",List.of("Прерванные операции и спорные результаты","Актуальное состояние — в квитанции"),()->logPage(player,AuditCategory.RAIDS,new AuditQuery(Map.of("category","RAIDS","kind","RAID_LOOT_REVIEW"),1)));
+        button(s,31,Material.PAPER,"Текущие квитанции",List.of("ID захвата и состояние выдачи","Нужен доступ администратора SiegesPlus"),()->{var owner=Bukkit.getPluginManager().getPlugin("NeverLandTownySiegesPlus");if(!(owner instanceof org.bukkit.plugin.java.JavaPlugin addon)||!addon.isEnabled())throw new IllegalArgumentException("Рейды сейчас недоступны");var cmd=addon.getCommand("townysieges");cmd.getExecutor().onCommand(player,cmd,"sieges",new String[]{"loot"});});
+        button(s,33,Material.WRITABLE_BOOK,"Как сверять",List.of("Откройте квитанцию: /sieges loot show <ID>","Сопоставьте банковский журнал и сумму","Сверка требует явного решения и основания"),()->{player.sendMessage("/sieges loot show <ID>");player.sendMessage("/sieges loot resolve <ID> <core|debit|credit> <yes|no> confirm <основание>");});
+        back(s,()->home(player));show(player,s);
     }
     private void income(Player player){
         var s=screen(player,"Экономика • Серверные выплаты");
@@ -223,7 +234,7 @@ final class AdminMenu implements Listener {
     }
     private void outcomes(Player player,AuditCategory category,AuditQuery query){
         var s=screen(player,"Журналы • Результат",AdminAccess.AUDIT);int slot=0;
-        for(String value:List.of("COMPLETED","COMPLETE","DONE","DELIVERED","CREDIT","DEBIT","OBSERVED","CANCELLED","RETURNED","REFUNDED","REJECTED","UNCONFIRMED","PREPARED","PAID","REVIEW"))button(s,slot++,Material.PAPER,AuditCategory.outcome(value),List.of("Точный статус: "+value,"Финальный результат зависит от типа операции"),()->logPage(player,category,with(query,"outcome",value)));
+        for(String value:List.of("COMPLETED","COMPLETE","DONE","DELIVERED","CREDIT","DEBIT","OBSERVED","CANCELLED","RETURNED","REFUNDED","REJECTED","UNCONFIRMED","PREPARED","PAID","REVIEW","REVIEW_CORE","REVIEW_DEBIT","REVIEW_CREDIT","BREACHED","FUNDED","LOST"))button(s,slot++,Material.PAPER,AuditCategory.outcome(value),List.of("Точный статус: "+value,"Финальный результат зависит от типа операции"),()->logPage(player,category,with(query,"outcome",value)));
         button(s,40,Material.MILK_BUCKET,"Все результаты",List.of("Снять фильтр результата"),()->logPage(player,category,with(query,"outcome",null)));back(s,()->filters(player,category,query));show(player,s);
     }
     private void record(Player player,AuditRecord record,AuditCategory category,AuditQuery query){

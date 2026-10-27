@@ -22,11 +22,18 @@ public final class DataStore {
     private final File file;
     private final int storageSize;
     private final Map<UUID, TownData> towns = new LinkedHashMap<>();
+    private final Map<UUID,ru.neverland.townybuilds.storage.RaidStock> raidStocks=new LinkedHashMap<>();
+    private final Map<UUID,UUID> warehouseHolds=new HashMap<>();
+    public Map<UUID,ru.neverland.townybuilds.storage.RaidStock> raidStocks(){return Map.copyOf(raidStocks);}
+    public void raidStock(UUID op,ru.neverland.townybuilds.storage.RaidStock value){if(value==null)raidStocks.remove(op);else raidStocks.put(op,value);dirty=true;}
+    public boolean freezeWarehouse(UUID town,UUID op){var prior=warehouseHolds.putIfAbsent(town,op);return prior==null||prior.equals(op);}
+    public void thawWarehouse(UUID town,UUID op){warehouseHolds.remove(town,op);}
+    public boolean storageSessionBusy(UUID town,String project){return storageLocks.busy(town,project);}
     private boolean dirty;
     private boolean writable = true;
     private final ru.neverland.townybuilds.storage.StorageSessions storageLocks=new ru.neverland.townybuilds.storage.StorageSessions();
-    public boolean storageBusy(UUID town,String project){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return storageLocks.busy(town,project);} }
-    public boolean lockStorage(UUID town,String project,UUID session){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return storageLocks.acquire(town,project,session);} }
+    public boolean storageBusy(UUID town,String project){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return project.equals("warehouse")&&warehouseHolds.containsKey(town)||storageLocks.busy(town,project);} }
+    public boolean lockStorage(UUID town,String project,UUID session){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return !(project.equals("warehouse")&&warehouseHolds.containsKey(town))&&storageLocks.acquire(town,project,session);} }
     public boolean ownsStorage(UUID town,String project,UUID session){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return storageLocks.owns(town,project,session);} }
     public void unlockStorage(UUID town,String project,UUID session){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {storageLocks.release(town,project,session);} }
 
@@ -40,15 +47,20 @@ public final class DataStore {
     public void load() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         writable = false;
         towns.clear();
+        raidStocks.clear();warehouseHolds.clear();
         if (!file.exists()) {
             writable = true; ru.neverland.core.AtomicFiles.loaded(file.toPath());
             return;
         }
         YamlConfiguration yaml = new YamlConfiguration();
         try { yaml.load(file); } catch (Exception ex) { throw new IllegalStateException("town-data.yml повреждён; запись отключена", ex); }
+        try{var raids=ru.neverland.core.SafeYaml.section(yaml,"raid-stock");if(raids!=null)for(String id:raids.getKeys(false)){
+            var c=ru.neverland.core.SafeYaml.section(raids,id);if(c==null)throw new IOException("Нет квитанции добычи");
+            var stock=new ru.neverland.townybuilds.storage.RaidStock(UUID.fromString(id),UUID.fromString(ru.neverland.core.SafeYaml.text(c,"defender")),UUID.fromString(ru.neverland.core.SafeYaml.text(c,"attacker")),UUID.fromString(ru.neverland.core.SafeYaml.text(c,"actor")),Math.toIntExact(ru.neverland.core.SafeYaml.integer(c,"bps")),ItemCodec.decode(ru.neverland.core.SafeYaml.text(c,"cargo"),0),ru.neverland.core.SafeYaml.text(c,"state"));raidStocks.put(stock.id(),stock);
+        }}catch(Exception error){throw new IllegalStateException("Повреждён резерв добычи рейдов; запись отключена",error);}
         ConfigurationSection root = yaml.getConfigurationSection("towns");
         if (root == null) {
-            if (!yaml.getKeys(false).isEmpty()) throw new IllegalStateException("В базе нет раздела towns; запись отключена");
+            if (yaml.getKeys(false).stream().anyMatch(k->!k.equals("raid-stock"))) throw new IllegalStateException("В базе нет раздела towns; запись отключена");
             writable = true; ru.neverland.core.AtomicFiles.loaded(file.toPath()); return;
         }
         for (String rawId : root.getKeys(false)) {
@@ -177,6 +189,8 @@ public final class DataStore {
     public void saveOrThrow() throws IOException { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         if (!writable()) throw new IOException("Запись повреждённой базы запрещена");
         YamlConfiguration yaml = new YamlConfiguration();
+        yaml.createSection("towns");
+        for(var stock:raidStocks.values()){String p="raid-stock."+stock.id();yaml.set(p+".defender",stock.defender().toString());yaml.set(p+".attacker",stock.attacker().toString());yaml.set(p+".actor",stock.actor().toString());yaml.set(p+".bps",stock.basisPoints());yaml.set(p+".cargo",ItemCodec.encode(stock.cargo()));yaml.set(p+".state",stock.state());}
         for (TownData data : towns.values()) {
             String path = "towns." + data.townId();
             for(var m:data.warehouseMovements().values()){
