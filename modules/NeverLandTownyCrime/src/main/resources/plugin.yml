@@ -1,5 +1,5 @@
 name: NeverLandTownyCrime
-version: 0.1.9
+version: 0.1.10
 main: ru.neverland.townycrime.NeverLandTownyCrime
 folia-supported: true
 api-version: '26.2'

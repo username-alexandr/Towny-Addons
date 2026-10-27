@@ -48,6 +48,7 @@ public final class ConstructionDisplaysSmoke {
         var server=stub(Server.class,(n,a)->switch(n){
             case "getLogger"->java.util.logging.Logger.getLogger("display-test");case "getName","getVersion","getBukkitVersion"->"test";
             case "getPluginManager"->manager;
+            case "isStopping"->false;
             case "isOwnedByCurrentRegion"->a[0] instanceof Entity e?!foreign.contains(e):chunksOwned;
             default->bad(n);
         });var serverField=Bukkit.class.getDeclaredField("server");serverField.setAccessible(true);serverField.set(null,server);

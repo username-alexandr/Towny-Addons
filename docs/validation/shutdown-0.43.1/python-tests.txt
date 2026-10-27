@@ -1,0 +1,6 @@
+Picked up JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/workspace/scratch/eb47b830f6d4/shutdown-toolchain/cacerts -Djavax.net.ssl.trustStorePassword=changeit -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=39525 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=39525 -Dhttp.nonProxyHosts=localhost|127.*
+.............
+----------------------------------------------------------------------
+Ran 13 tests in 2.806s
+
+OK

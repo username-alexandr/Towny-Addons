@@ -1,5 +1,5 @@
 name: NeverLandTownyPower
-version: 0.1.16
+version: 0.1.17
 main: ru.neverland.townypower.NeverLandTownyPower
 folia-supported: true
 api-version: '26.2'

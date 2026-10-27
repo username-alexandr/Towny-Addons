@@ -43,6 +43,7 @@ public final class WorldTasks implements Listener {
     @EventHandler public void move(org.bukkit.event.player.PlayerMoveEvent event) { POSITIONS.put(event.getPlayer().getUniqueId(),event.getTo().clone()); }
     @EventHandler public void quit(org.bukkit.event.player.PlayerQuitEvent event) { POSITIONS.remove(event.getPlayer().getUniqueId()); }
     public static void eachChunk(Plugin plugin,Consumer<Chunk> action) {
+        if(Bukkit.isStopping())return;
         for(World world:Bukkit.getWorlds())for(Chunk chunk:world.getLoadedChunks()) {
             int x=chunk.getX(),z=chunk.getZ();
             SuiteScheduler.region(plugin,new Location(world,x*16.0,0,z*16.0),()->{
@@ -58,10 +59,10 @@ public final class WorldTasks implements Listener {
     }
     /** Load asynchronously, then enter the owning region. No waiting while holding the ledger. */
     public static void loaded(Plugin plugin,Location location,Runnable action) {
-        if(location==null||location.getWorld()==null||!plugin.isEnabled())return;
+        if(Bukkit.isStopping()||location==null||location.getWorld()==null||!plugin.isEnabled())return;
         location.getWorld().getChunkAtAsync(location).whenComplete((chunk,error)->{
             if(error!=null){plugin.getLogger().warning("Не удалось загрузить участок: "+error.getMessage());return;}
-            if(plugin.isEnabled()&&!SuiteState.frozen(plugin.getName()))SuiteScheduler.region(plugin,location,action);
+            if(!Bukkit.isStopping()&&plugin.isEnabled()&&!SuiteState.frozen(plugin.getName()))SuiteScheduler.region(plugin,location,action);
         });
     }
     public static boolean ownsBox(Location center,int radius) {
@@ -76,12 +77,13 @@ public final class WorldTasks implements Listener {
         if(!ownsBox(center,radius))throw new IllegalStateException("Участок ещё не готов. Подойдите к месту постройки и повторите действие.");
     }
     public static void remove(Plugin plugin,Entity entity) {
-        if(entity==null)return;
+        if(Bukkit.isStopping()||entity==null)return;
         if(SuiteScheduler.owns(entity)) { entity.remove();ENTITIES.remove(entity.getUniqueId(),entity);return; }
         Plugin owner=cleanupOwner(plugin);
         if(owner!=null)SuiteScheduler.entity(owner,entity,()->{ entity.remove();ENTITIES.remove(entity.getUniqueId(),entity); });
     }
     public static Plugin cleanupOwner(Plugin plugin) {
+        if(Bukkit.isStopping())return null;
         Plugin control=Bukkit.getPluginManager().getPlugin("NeverLandTownyControl");
         return control!=null&&control.isEnabled()?control:plugin.isEnabled()?plugin:null;
     }

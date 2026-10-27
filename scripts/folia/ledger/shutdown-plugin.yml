@@ -1,0 +1,6 @@
+name: NeverLandShutdownProbe
+version: 0.43.1
+main: ru.neverland.validation.ShutdownProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyControl, NeverLandTownyEvents]

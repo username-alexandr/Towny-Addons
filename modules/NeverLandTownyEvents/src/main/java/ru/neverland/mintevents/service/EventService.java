@@ -127,7 +127,9 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
             if(remaining > 0 && repository.shield(town.getUUID()) == null) repository.shield(town.getUUID(), System.currentTimeMillis() + remaining);
         }
         repository.save();
-        for(ActiveEvent event : repository.active().values()) cleanupRaidMobs(event.townId());
+        // Full shutdown has no ticking regions. Saved raid state recreates unfinished
+        // enemies; generation validation removes old bodies on the next chunk load.
+        if(!Bukkit.isStopping())for(ActiveEvent event : repository.active().values()) cleanupRaidMobs(event.townId());
     } }
 
     private void stopTasks() {

@@ -26,7 +26,7 @@ public final class SuiteSchedulerSmoke {
         void next(){items.removeFirst().action.run();}
     }
     public static void main(String[] args)throws Exception {
-        var enabled=new AtomicBoolean(true);var logger=Logger.getLogger("SuiteSchedulerSmoke");
+        var enabled=new AtomicBoolean(true);var stopping=new AtomicBoolean();var logger=Logger.getLogger("SuiteSchedulerSmoke");
         Plugin owner=(Plugin)Proxy.newProxyInstance(Plugin.class.getClassLoader(),new Class[]{Plugin.class},(o,m,a)->switch(m.getName()){
             case "getName"->"NeverLandTest";case "isEnabled"->enabled.get();case "getLogger"->logger;case "hashCode"->System.identityHashCode(o);case "equals"->o==a[0];default->null;});
         var global=new Queue();
@@ -35,6 +35,8 @@ public final class SuiteSchedulerSmoke {
             throw new UnsupportedOperationException(m.getName());});
         PluginManager manager=(PluginManager)Proxy.newProxyInstance(PluginManager.class.getClassLoader(),new Class[]{PluginManager.class},(o,m,a)->m.getName().equals("getPlugins")?new Plugin[]{owner}:null);
         Server server=(Server)Proxy.newProxyInstance(Server.class.getClassLoader(),new Class[]{Server.class},(o,m,a)->switch(m.getName()){
+            case "isStopping"->stopping.get();
+            case "getWorlds","getOnlinePlayers","isOwnedByCurrentRegion"->throw new AssertionError("Shutdown must not access world/player state: "+m.getName());
             case "getName","getVersion","getBukkitVersion","getMinecraftVersion"->"test";case "getLogger"->logger;case "getPluginManager"->manager;case "getGlobalRegionScheduler"->scheduler;default->null;});
         var serverField=Bukkit.class.getDeclaredField("server");serverField.setAccessible(true);serverField.set(null,server);
         var calls=new AtomicInteger();var origin=new Queue();
@@ -77,6 +79,35 @@ public final class SuiteSchedulerSmoke {
         check(retiredCalls.get()==1&&global.items.isEmpty(),"retired cleanup executes once");
         var disabledQueue=new Queue();new SuiteScheduler.Task(owner,calls::incrementAndGet,false,8,disabledQueue,null).start(1);
         enabled.set(false);disabledQueue.next();check(disabledQueue.items.isEmpty()&&calls.get()==1,"disabled owner stops repeating task");
+        enabled.set(true);
+        check(WorldTasks.cleanupOwner(owner)==owner,"running server retains cleanup owner for administrative disable");
+        var stopQueue=new Queue();var stopCalls=new AtomicInteger();
+        var pendingStop=new SuiteScheduler.Task(owner,stopCalls::incrementAndGet,false,10,stopQueue,null).start(1);
+        var retiringQueue=new Queue();var retiring=new SuiteScheduler.Task(owner,stopCalls::incrementAndGet,false,0,retiringQueue,stopCalls::incrementAndGet).start(1);
+        stopping.set(true);
+        stopQueue.next();check(pendingStop.isCancelled()&&stopCalls.get()==0&&stopQueue.items.isEmpty(),"queued timer is cancelled on server stop without another schedule");
+        retiringQueue.items.removeFirst().retired.run();check(retiring.isCancelled()&&global.items.isEmpty(),"retirement cannot schedule cleanup during shutdown");
+        var blocked=new SuiteScheduler.Task(owner,stopCalls::incrementAndGet,false,0,(d,a,r)->{throw new AssertionError("native scheduler invoked after stop");},null).start(1);
+        check(blocked.isCancelled(),"new tasks return cancelled handles without invoking native schedulers");
+        var world=(World)Proxy.newProxyInstance(World.class.getClassLoader(),new Class[]{World.class},(o,m,a)->{throw new AssertionError("world access at shutdown");});
+        var shutdownEntity=(org.bukkit.entity.Entity)Proxy.newProxyInstance(org.bukkit.entity.Entity.class.getClassLoader(),new Class[]{org.bukkit.entity.Entity.class},(o,m,a)->{throw new AssertionError("entity access at shutdown");});
+        check(SuiteScheduler.region(owner,new Location(world,0,64,0),stopCalls::incrementAndGet).isCancelled(),"public region scheduling is stopped");
+        check(SuiteScheduler.entity(owner,shutdownEntity,stopCalls::incrementAndGet).isCancelled(),"public entity scheduling is stopped");
+        check(SuiteScheduler.get().runTask(owner,stopCalls::incrementAndGet).isCancelled(),"public global scheduling is stopped");
+        check(SuiteScheduler.get().runTaskAsynchronously(owner,stopCalls::incrementAndGet).isCancelled(),"public async scheduling is stopped");
+        WorldTasks.eachEntityCleanup(owner,e->{throw new AssertionError("cleanup executed");});
+        WorldTasks.eachChunk(owner,c->{throw new AssertionError("chunk access");});
+        WorldTasks.remove(owner,shutdownEntity);WorldTasks.loaded(owner,new Location(world,0,64,0),stopCalls::incrementAndGet);
+        SuiteScheduler.cleanupPlayer(owner,null,p->{throw new AssertionError("player cleanup executed");});
+        SuiteScheduler.cleanupPlayers(owner,p->{throw new AssertionError("player cleanup executed");});
+        check(WorldTasks.cleanupOwner(owner)==null&&stopCalls.get()==0,"shutdown cleanup never accesses world/entity/player state");
+        stopping.set(false);
+        var raced=new SuiteScheduler.Task(owner,stopCalls::incrementAndGet,false,0,(d,a,r)->{stopping.set(true);throw new NullPointerException("region data already retired");},null).start(1);
+        check(raced.isCancelled(),"shutdown race during native scheduling is cancelled without surfacing NPE");
+        stopping.set(false);
+        var expected=new NullPointerException("real scheduler defect outside shutdown");
+        try{new SuiteScheduler.Task(owner,stopCalls::incrementAndGet,false,0,(d,a,r)->{throw expected;},null).start(1);throw new AssertionError("exception swallowed");}
+        catch(NullPointerException actual){check(actual==expected,"normal runtime scheduling errors remain visible");}
         System.out.println("SuiteSchedulerSmoke PASS: "+checks+" checks; contention, affinity, retries, cancellation, freeze, exceptions, reentrancy and retirement");
     }
 }

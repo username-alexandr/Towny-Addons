@@ -1,0 +1,15 @@
+PASS Events enabled before shutdown scenario
+PASS town survives restart
+PASS unfinished event remains active after restart
+PASS completed kill and unfinished wave survive without duplication
+PASS saved live enemy is queued once for recovery
+PASS restart invalidates old entity generation
+PASS normal chunk-load validation removes stale raid body
+PASS unrelated persistent entity survives cleanup and restart
+PASS shutdown fixture contains one live and one pending enemy
+PASS live server still provides cleanup scheduler owner
+PASS active raid prepared before server stop
+PASS probe observes actual full server shutdown
+PASS Events stays enabled until its real shutdown callback
+PASS shutdown begins with intact active event
+FAIL java.lang.NullPointerException: Cannot invoke "io.papermc.paper.threadedregions.scheduler.FoliaRegionScheduler$Scheduler.queueTask(io.papermc.paper.threadedregions.scheduler.FoliaRegionScheduler$LocationScheduledTask, long)" because the return value of "io.papermc.paper.threadedregions.RegionizedData.get()" is null

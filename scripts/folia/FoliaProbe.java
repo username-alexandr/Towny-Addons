@@ -99,6 +99,9 @@ public final class FoliaProbe extends JavaPlugin {
     }catch(Throwable e){error("region "+number,e);remaining.decrementAndGet();}}
     private Entity find(UUID id){try{return (Entity)invoke(worldTasks,"find",new Class<?>[]{UUID.class},id);}catch(Exception e){throw new RuntimeException(e);}}
     private void finish(){
+        // The dependency cascade also disables Events. Keep it alive for the
+        // separate full-shutdown regression, which must reach Events.onDisable.
+        if(Boolean.getBoolean("neverland.probe.activeRaid")){writeResult();return;}
         if(control!=null&&control.isEnabled()){
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(),"nltmodules disable Quests");
             Bukkit.getGlobalRegionScheduler().runDelayed(this,t->{

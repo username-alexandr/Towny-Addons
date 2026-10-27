@@ -1,5 +1,5 @@
 name: NeverLandTownyAchievements
-version: 0.1.4
+version: 0.1.5
 main: ru.neverland.townyachievements.NeverLandTownyAchievements
 folia-supported: true
 api-version: '26.2'

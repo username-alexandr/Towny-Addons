@@ -33,10 +33,11 @@ def main():
         proof=json.loads(args.native_results.read_text())
         if len(proof)!=2 or [r['phase'] for r in proof]!=['initial','restart']:
             raise SystemExit('Expected initial and restart native proofs')
+        shutdown=any('shutdown' in row for row in proof)
         for row in proof:
             if row.get('exit_code')!=0 or row.get('watchdog') is not False or row.get('jar_sha256')!=hashes:
                 raise SystemExit('Native proof failed or refers to different artifacts')
-            for name in ['suite','ledger']:
+            for name in ['suite','ledger']+(['shutdown'] if shutdown else []):
                 lines=row.get(name,'').splitlines()
                 if 'failed=0' not in lines or 'run_id='+row.get('run_id','missing') not in lines:
                     raise SystemExit('Native result missing or stale')
@@ -44,9 +45,10 @@ def main():
                 'включая перезапуск с сохранёнными данными. SHA-256 всех JAR совпадают с\n'
                 'проверенными артефактами. Оба набора проверок завершились без ошибок и\n'
                 'без watchdog-дампа. Проверены общая блокировка, региональные задачи,\n'
-                'сохранение Chronicles и недоступная экономика. Подробности: docs/validation/ledger-0.43.0/.\n'
+                'сохранение Chronicles и недоступная экономика. Подробности: docs/validation/.\n'
                 'Нагрузочный тест с игроками и проверка реального экономического провайдера\n'
                 'не выполнялись; сторонние премиальные интеграции не проверялись.\n')
+        if shutdown:native+='Дополнительно проверены остановка с активным рейдом и восстановление волны после перезапуска.\n'
     commit = subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     stamp = datetime.now(timezone.utc).isoformat()
     text = (f'NeverLandTownySuite {matrix["suite"]}\nCommit: {commit}\nBuild time (UTC): {stamp}\n\n'

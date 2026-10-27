@@ -1,5 +1,5 @@
 name: NeverLandTownyCompanies
-version: 0.1.15
+version: 0.1.16
 main: ru.neverland.townycompanies.NeverLandTownyCompanies
 folia-supported: true
 api-version: '26.2'

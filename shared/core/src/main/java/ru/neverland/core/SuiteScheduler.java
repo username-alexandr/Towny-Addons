@@ -49,11 +49,13 @@ public final class SuiteScheduler {
         if (plugin.isEnabled() && !SuiteState.frozen(plugin.getName())) entity(plugin, player, () -> { if (player.isOnline()) action.accept(player); });
     }
     public static void cleanupPlayer(Plugin plugin, Player player, Consumer<Player> action) {
+        if (Bukkit.isStopping()) return;
         if (owns(player)) { action.accept(player); return; }
         Plugin owner = WorldTasks.cleanupOwner(plugin);
         if (owner != null) entity(owner, player, () -> action.accept(player));
     }
     public static void cleanupPlayers(Plugin plugin, Consumer<Player> action) {
+        if (Bukkit.isStopping()) return;
         for (Player player : Bukkit.getOnlinePlayers()) cleanupPlayer(plugin, player, action);
     }
     public static void players(Plugin plugin, Consumer<Player> action) {
@@ -86,11 +88,19 @@ public final class SuiteScheduler {
         }
         Task start(long delay) { arm(delay); return this; }
         private void arm(long delay) {
+            // Folia halts region ticking BEFORE plugin onDisable. No new native tasks then.
+            if (Bukkit.isStopping()) { cancel(); return; }
             final long ticket; final Schedule target;
             synchronized (this) { if (cancelled || finished) return; ticket=++generation; target=schedule; }
             ScheduledTask value;
             try { value=target.later(Math.max(1, delay), () -> execute(ticket), () -> retire(ticket)); }
-            catch (RuntimeException | Error ex) { cancel(); throw ex; }
+            catch (RuntimeException ex) {
+                cancel();
+                // Shutdown may start between the check above and the scheduler call.
+                if (!Bukkit.isStopping()) throw ex;
+                return;
+            }
+            catch (Error ex) { cancel(); throw ex; }
             synchronized (this) {
                 if (cancelled || finished || generation != ticket) { if (value != null) value.cancel(); return; }
                 scheduled=value;
@@ -98,6 +108,7 @@ public final class SuiteScheduler {
             if (value == null) retire(ticket);
         }
         private void execute(long ticket) {
+            if (Bukkit.isStopping()) { cancel(); return; }
             synchronized (this) {
                 if (cancelled || finished || running || generation != ticket) return;
                 running=true; scheduled=null;
@@ -122,6 +133,7 @@ public final class SuiteScheduler {
             }
         }
         private void retire(long ticket) {
+            if (Bukkit.isStopping()) { cancel(); return; }
             synchronized (this) {
                 if (cancelled || finished || running || retired || generation != ticket) return;
                 retired=true; generation++; scheduled=null;

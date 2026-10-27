@@ -1,5 +1,5 @@
 name: NeverLandTownyArmy
-version: 0.1.10
+version: 0.1.11
 main: ru.neverland.townyarmy.NeverLandTownyArmy
 folia-supported: true
 api-version: '26.2'
