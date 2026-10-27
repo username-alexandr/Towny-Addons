@@ -1,5 +1,5 @@
 name: NeverLandBuildMenuProbe
-version: 0.45.0
+version: 0.45.1
 main: ru.neverland.validation.BuildMenuProbe
 api-version: '26.2'
 folia-supported: true

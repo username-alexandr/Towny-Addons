@@ -156,7 +156,7 @@ public final class MenuManager implements Listener {
                 && existing.owner.equals(player.getUniqueId()) && existing.projectId().equals(project.id()) ? existing
                 : new DetailsHolder(player.getUniqueId(),project.id(),page,category);
         boolean opening=holder.inventory==null;
-        if(opening)holder.inventory=ru.neverland.core.MenuStyle.inventory(plugin,holder,54,ColorUtil.component(project.name()));
+        if(opening)holder.inventory=ru.neverland.core.MenuStyle.inventory(plugin,holder,27,ColorUtil.component(project.name()));
         renderDetails(player,project,holder);
         if(opening)player.openInventory(holder.inventory);
     }
@@ -245,9 +245,9 @@ public final class MenuManager implements Listener {
         if(!construction.active()&&!unavailable.isEmpty()){
             var item=inventory.getItem(15);if(item!=null)markUnavailable(item,unavailable);
         }
-        if(!construction.active()&&current<project.maxLevel())renderMaterials(player,project,holder);
-        inventory.setItem(50,actionItem("refresh",new ItemStack(Material.CLOCK),"Обновить условия",List.of("&7Проверить материалы и разрешения.")));
-        var back=actionItem("back",backItem(),"&fНазад",List.of("&7Вернуться к списку зданий."));role(back,"back");inventory.setItem(45,back);
+        if(!construction.active()&&current<project.maxLevel())renderContribution(player,project,holder);
+        inventory.setItem(24,actionItem("refresh",new ItemStack(Material.CLOCK),"Обновить условия",List.of("&7Проверить материалы и разрешения.")));
+        var back=actionItem("back",backItem(),"&fНазад",List.of("&7Вернуться к списку зданий."));role(back,"back");inventory.setItem(22,back);
     }
 
     public void openStorage(Player player) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
@@ -335,12 +335,8 @@ public final class MenuManager implements Listener {
                 handleUpgrade(player, project, details.page(), details.category());
             } else if ("construction-cancel".equals(action)) {
                 ((ru.neverland.townybuilds.NeverLandTownyBuilds)plugin).constructionCancelMenu().open(player,project.id());
-            } else if ("source".equals(action)) {
-                details.warehouse=!details.warehouse;details.resourcePage=0;renderDetails(player,project,details);
-            } else if ("previous".equals(action)||"next".equals(action)) {
-                details.resourcePage+=action.equals("next")?1:-1;renderDetails(player,project,details);
-            } else if ("confirm".equals(action)) {
-                confirmMaterials(player,project,details);
+            } else if ("contribute".equals(action)) {
+                confirmMaterials(player,project,details,event.isShiftClick());
             }
             return;
         }
@@ -448,39 +444,45 @@ public final class MenuManager implements Listener {
         meta.getPersistentDataContainer().set(new NamespacedKey("neverland","disabled_reason"),PersistentDataType.STRING,String.join("\n",reasons));item.setItemMeta(meta);
     }
     private void role(ItemStack item,String role){var meta=item.getItemMeta();meta.getPersistentDataContainer().set(new NamespacedKey("neverland","menu_role"),PersistentDataType.STRING,role);item.setItemMeta(meta);}
-    private static final int[] MATERIAL_SLOTS={28,29,30,31,32,33,34,37,38,39,40,41,42,43};
-    private void renderMaterials(Player player,ProjectDefinition project,DetailsHolder holder){
-        var quote=builds.previewContribution(player,project,holder.warehouse);holder.quote=quote;holder.created=System.nanoTime();
-        int last=Math.max(0,(quote.lines().size()-1)/MATERIAL_SLOTS.length);
-        holder.resourcePage=Math.max(0,Math.min(holder.resourcePage,last));
-        var inventory=holder.inventory;
-        inventory.setItem(13,actionItem("source",new ItemStack(holder.warehouse?Material.CHEST:Material.HOPPER),
-                holder.warehouse?"Материалы со склада города":"Материалы из вашего инвентаря",List.of(
-                "&7В списке ниже — недостающее для здания.","&7Можно сдавать ресурсы по частям.",
-                "&7Нажмите, чтобы выбрать "+(holder.warehouse?"свой инвентарь.":"склад города."),
-                "&7Передача — кнопкой «Сдать материалы».","&7Броня и вторая рука не используются.")));
-        int offset=holder.resourcePage*MATERIAL_SLOTS.length;
-        for(int i=offset;i<Math.min(quote.lines().size(),offset+MATERIAL_SLOTS.length);i++){
-            var line=quote.lines().get(i);var icon=line.sample();icon.setAmount(1);var meta=icon.getItemMeta();
-            meta.displayName(ColorUtil.component("&f"+line.name()));meta.lore(ru.neverland.core.MenuStyle.loreComponents(List.of(
-                ColorUtil.component("&7Нужно ещё: &f"+line.needed()),ColorUtil.component("&7У вас: &f"+line.personal()),
-                ColorUtil.component("&7На складе: &f"+line.stored()),ColorUtil.component("&aСейчас передадите: "+line.taking()),
-                ColorUtil.component("&7Останется собрать: &f"+(line.needed()-line.taking())))));
-            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES,ItemFlag.HIDE_ENCHANTS);icon.setItemMeta(meta);inventory.setItem(MATERIAL_SLOTS[i-offset],icon);
+    private void renderContribution(Player player,ProjectDefinition project,DetailsHolder holder){
+        var town=towny.town(player);if(town==null)return;
+        int target=dataStore.town(town.getUUID()).level(project.id())+1;var level=project.level(target);if(level==null)return;
+        holder.quote=builds.previewContribution(player,project,false);
+        holder.storageQuote=builds.previewContribution(player,project,true);holder.created=System.nanoTime();
+        List<String> lore=new ArrayList<>();
+        lore.add("&7Для уровня: &f"+target);
+        lore.add("&7Стоимость из казны: &e"+MONEY.format(level.money())+" монет");
+        lore.add("&7Деньги списываются при начале строительства.");
+        lore.add("");lore.add("&#C9A7FFНеобходимые ресурсы:");
+        if(level.resources().isEmpty())lore.add("&7Ресурсы не требуются.");
+        else for(var item:level.resources()){
+            int have=builds.contributed(town,project,target,item);
+            lore.add("&8• &f"+itemName(item)+" &7— "+have+"/"+item.getAmount()+" сдано");
         }
-        if(holder.resourcePage>0){var prev=actionItem("previous",new ItemStack(Material.ARROW),"Предыдущая страница",List.of());role(prev,"previous");inventory.setItem(47,prev);}
-        if(holder.resourcePage<last){var next=actionItem("next",new ItemStack(Material.ARROW),"Следующая страница",List.of());role(next,"next");inventory.setItem(51,next);}
-        var confirm=actionItem("confirm",new ItemStack(quote.ready()?Material.LIME_DYE:Material.GRAY_DYE),"Сдать материалы",List.of(
-                "&7Передать: &f"+quote.total()+" предметов","&7Источник: &f"+(holder.warehouse?"Склад города":"Ваш инвентарь"),
-                "&7Только недостающие ресурсы из списка.","&7Деньги за сдачу не списываются."));role(confirm,"confirm");
-        if(!quote.ready())markUnavailable(confirm,List.of(quote.reason()));inventory.setItem(53,confirm);
+        var prerequisites=builds.prerequisiteRequirements(town,project);
+        if(!prerequisites.isEmpty()){
+            lore.add("");lore.add("&#74D7FFНеобходимые здания и условия:");
+            prerequisites.forEach(line->lore.add("&8• "+line));
+        }
+        var artifacts=builds.artifactRequirements(town,project);
+        if(!artifacts.isEmpty()){
+            lore.add("");lore.add("&#E6C363Необходимые артефакты:");
+            artifacts.forEach(line->lore.add("&8• &f"+line));
+            lore.add("&7Учитываются находки в фонде городского музея.");
+        }
+        lore.add("");lore.add("&7Можно сдавать по частям: берётся только недостающее.");
+        lore.add("&#63E6BEЛКМ — сдать из своего инвентаря.");
+        lore.add("&#63E6BEShift + ЛКМ — сдать со склада города.");
+        // One button supports either source. A missing personal stack must not disable warehouse clicks.
+        holder.inventory.setItem(13,actionItem("contribute",new ItemStack(Material.HOPPER),
+                "&#E6C363&lСдать ресурсы",lore));
     }
-    private void confirmMaterials(Player player,ProjectDefinition project,DetailsHolder holder){
-        var quote=holder.quote;if(quote==null)return;
+    private void confirmMaterials(Player player,ProjectDefinition project,DetailsHolder holder,boolean warehouse){
+        var quote=warehouse?holder.storageQuote:holder.quote;if(quote==null)return;
         if(System.nanoTime()-holder.created>120_000_000_000L){
             player.sendMessage("§eСписок обновлён. Проверьте материалы и подтвердите снова.");renderDetails(player,project,holder);return;
         }
-        if(!quote.ready()){player.sendMessage("§e"+quote.reason());return;}
+        if(!quote.ready()){player.sendMessage("§e"+quote.reason());renderDetails(player,project,holder);return;}
         holder.busy=true;
         ru.neverland.core.SuiteScheduler.entity(plugin,player,()->{
             try{
@@ -645,8 +647,8 @@ public final class MenuManager implements Listener {
     private record ProjectListHolder(ProjectType type, ProjectCategory category, int page) implements MenuHolder { }
     private static final class DetailsHolder implements MenuHolder {
         final UUID owner;final String projectId;final int page;final ProjectCategory category;
-        Inventory inventory;boolean warehouse,busy;int resourcePage;long created;
-        ru.neverland.townybuilds.service.ContributionPreview quote;
+        Inventory inventory;boolean busy;long created;
+        ru.neverland.townybuilds.service.ContributionPreview quote,storageQuote;
         DetailsHolder(UUID owner,String projectId,int page,ProjectCategory category){this.owner=owner;this.projectId=projectId;this.page=page;this.category=category;}
         String projectId(){return projectId;}int page(){return page;}ProjectCategory category(){return category;}
     }

@@ -1,0 +1,27 @@
+PASS Builds and CraftoUI enabled on Folia 26.2
+PASS original 272-item serialization failure reproduced
+PASS fingerprint preserves quantity without mutating requirement
+PASS NBT contains legal one-item sample with original metadata
+PASS quantity changes invalidate confirmation fingerprint
+PASS item metadata changes invalidate confirmation fingerprint
+PASS actual contribution preview handles requirement 272
+PASS compact building details menu has one resource button
+PASS only one resource donation button exists
+PASS resource tooltip contains actual material requirements and counts
+PASS resource tooltip includes building price
+PASS irrelevant dependency and artifact sections stay hidden
+PASS resource button includes building dependencies and progress
+PASS town hall has a real blueprint preview
+PASS CraftoUI preview is tied only to the town hall button
+PASS menu click never takes its icon
+PASS stale quote refreshes same menu without taking resources
+PASS menu click never takes its icon
+PASS menu click never takes its icon
+PASS duplicate confirmation transfers personal materials once and keeps same menu
+PASS supply operation never closes or reopens the building menu
+PASS same-container role and disabled-state updates reach CraftoUI
+PASS menu click never takes its icon
+PASS warehouse contribution conserves stock and stays in same menu
+PASS resource button of a wonder includes museum artifact requirements
+PASS actual artifact names and quantities are carried into the hovered resource button
+PASS other building buttons do not supply a preview

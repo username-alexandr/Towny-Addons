@@ -62,28 +62,49 @@ public final class BuildMenuProbe extends JavaPlugin {
         var defs=field(builds,"definitions");hall=(ProjectDefinition)defs.getClass().getMethod("project",String.class).invoke(defs,"town_hall");
         var storage=new ItemStack[54];storage[0]=new ItemStack(Material.STONE_BRICKS,64);store.town(town.getUUID()).setStorage(storage,54);
         menu.openDetails(actor.player,hall);original=actor.top;
-        check(original.getSize()==54&&original.getItem(28)!=null&&original.getItem(53)!=null,"materials and donation button share the building details inventory");
+        check(original.getSize()==27&&original.getItem(13)!=null,"compact building details menu has one resource button");
+        check(java.util.Arrays.stream(original.getContents()).filter(java.util.Objects::nonNull).filter(item->plainName(item).equals("Сдать ресурсы")).count()==1,"only one resource donation button exists");
+        String info=lore(original.getItem(13));
+        Files.createDirectories(proof);Files.writeString(proof.resolve("resource-tooltip.json"),Protocol.JSON.toJson(Protocol.object("title","Ратуша","lines",original.getItem(13).getItemMeta().lore().stream().map(line->net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(line)).toList())));
+        check(hall.level(1).resources().stream().allMatch(item->info.contains("/"+item.getAmount()+" сдано"))&&info.contains("Каменные кирпичи")&&info.contains("Дубовые доски"),"resource tooltip contains actual material requirements and counts");
+        check(info.contains("Стоимость из казны")&&info.replaceAll("[^0-9]","").contains("5000"),"resource tooltip includes building price");
+        check(!info.contains("Необходимые здания")&&!info.contains("Необходимые артефакты"),"irrelevant dependency and artifact sections stay hidden");
+        var originalRequirements=hall.requirements();
+        try{hall.setRequirements(Map.of("forge",2));menu.openDetails(actor.player,hall);String dependent=lore(original.getItem(13));
+            check(dependent.contains("Необходимые здания")&&dependent.contains("Кузница")&&dependent.contains("0/2"),"resource button includes building dependencies and progress");
+        }finally{hall.setRequirements(originalRequirements);menu.openDetails(actor.player,hall);}
         check(menu.preview(actor.player,original)!=null,"town hall has a real blueprint preview");
         later(this::stale);
     }
-    void click(int slot){var event=new InventoryClickEvent(actor.view,InventoryType.SlotType.CONTAINER,slot,ClickType.LEFT,InventoryAction.PICKUP_ALL);Bukkit.getPluginManager().callEvent(event);check(event.isCancelled(),"menu click never takes its icon");}
+    String plainName(ItemStack item){return ru.neverland.townybuilds.util.ColorUtil.plain(net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(item.getItemMeta().displayName()));}
+    String lore(ItemStack item){return item.getItemMeta().lore().stream().map(line->net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(line)).collect(java.util.stream.Collectors.joining("\n"));}
+    void click(int slot){click(slot,false);}
+    void click(int slot,boolean warehouse){var event=new InventoryClickEvent(actor.view,InventoryType.SlotType.CONTAINER,slot,warehouse?ClickType.SHIFT_LEFT:ClickType.LEFT,warehouse?InventoryAction.MOVE_TO_OTHER_INVENTORY:InventoryAction.PICKUP_ALL);Bukkit.getPluginManager().callEvent(event);check(event.isCancelled(),"menu click never takes its icon");}
     long fund(){return store.town(town.getUUID()).resourceFund("town_hall",1).count(new ItemStack(Material.STONE_BRICKS));}
     void stale(){
         var hints=actor.packets.stream().map(Protocol::decode).filter(m->m.kind()==Protocol.Kind.NATIVE_MENU&&!Protocol.bool(m.body(),"presentationOnly",false)).toList();
         check(hints.size()==1&&hints.get(0).body().getAsJsonObject("presentation").get("previewSlot").getAsInt()==11,"CraftoUI preview is tied only to the town hall button");
-        actor.contents[0].setAmount(65);click(53);
-        later(()->{check(actor.top==original&&fund()==0&&actor.contents[0].getAmount()==65,"stale quote refreshes same menu without taking resources");click(53);click(53);later(this::personalDone);});
+        actor.contents[0].setAmount(65);click(13);
+        later(()->{check(actor.top==original&&fund()==0&&actor.contents[0].getAmount()==65,"stale quote refreshes same menu without taking resources");click(13);click(13);later(this::personalDone);});
     }
     void personalDone(){
         check(actor.top==original&&fund()==65&&actor.contents[0]==null,"duplicate confirmation transfers personal materials once and keeps same menu");
         check(actor.opens==1&&actor.closes==0,"supply operation never closes or reopens the building menu");
         check(actor.packets.stream().map(Protocol::decode).anyMatch(m->m.kind()==Protocol.Kind.NATIVE_MENU&&Protocol.bool(m.body(),"presentationOnly",false)),"same-container role and disabled-state updates reach CraftoUI");
-        click(13);check(actor.top==original,"source switch stays in same menu");click(53);later(this::warehouseDone);
+        click(13,true);later(this::warehouseDone);
     }
     void warehouseDone(){
         check(actor.top==original&&fund()==129&&store.town(town.getUUID()).storage()[0]==null,"warehouse contribution conserves stock and stays in same menu");
         try{
-            var defs=field(builds,"definitions");var forge=(ProjectDefinition)defs.getClass().getMethod("project",String.class).invoke(defs,"forge");menu.openDetails(actor.player,forge);
+            var defs=field(builds,"definitions");
+            var wonders=(java.util.List<ProjectDefinition>)defs.getClass().getMethod("type",ProjectType.class).invoke(defs,ProjectType.WONDER);
+            var wonder=wonders.stream().filter(p->!service.artifactRequirements(town,p).isEmpty()).findFirst().orElseThrow();
+            menu.openDetails(actor.player,wonder);
+            String artifacts=lore(actor.top.getItem(13));
+            Files.writeString(proof.resolve("artifact-tooltip.json"),Protocol.JSON.toJson(Protocol.object("title",ru.neverland.townybuilds.util.ColorUtil.plain(wonder.name()),"lines",actor.top.getItem(13).getItemMeta().lore().stream().map(line->net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(line)).toList())));
+            check(artifacts.contains("Необходимые артефакты")&&artifacts.contains("музея"),"resource button of a wonder includes museum artifact requirements");
+            check(service.artifactRequirements(town,wonder).stream().anyMatch(line->{String text=ru.neverland.townybuilds.util.ColorUtil.plain(line);return artifacts.replaceAll("\\s+","").contains(text.replaceAll("\\s+",""));}),"actual artifact names and quantities are carried into the hovered resource button");
+            var forge=(ProjectDefinition)defs.getClass().getMethod("project",String.class).invoke(defs,"forge");menu.openDetails(actor.player,forge);
             check(menu.preview(actor.player,actor.top)==null,"other building buttons do not supply a preview");
             store.saveOrThrow();finish(null);
         }catch(Exception e){finish(e);}
