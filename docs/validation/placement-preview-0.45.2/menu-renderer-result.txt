@@ -1,0 +1,1 @@
+PASS 78 assertions; real AddonScreen with explicit AWT/platform/texture doubles; 18 PNGs; no launched game client

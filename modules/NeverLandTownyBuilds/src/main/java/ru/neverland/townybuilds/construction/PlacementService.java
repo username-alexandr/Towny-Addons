@@ -33,7 +33,7 @@ public final class PlacementService implements Listener,CommandExecutor {
         Session(UUID town,String project,PlacementDraft draft,PlacementChoice choice,ConstructionPreparation check,PlacementProjection projection,Controls controls){this.controls=controls;this.town=town;this.project=project;this.draft=draft;this.choice=choice;this.check=check;this.projection=projection;}
     }
     public static final class PlacementMenu implements InventoryHolder {
-        final UUID viewer;final Session session;final Map<Integer,Runnable> actions=new HashMap<>();Inventory inventory;boolean used;
+        final UUID viewer;Session session;final Map<Integer,Runnable> actions=new HashMap<>();Inventory inventory;boolean used;
         PlacementMenu(Player p,Session s){viewer=p.getUniqueId();session=s;}
         @Override public Inventory getInventory(){return inventory;}
     }
@@ -124,12 +124,14 @@ public final class PlacementService implements Listener,CommandExecutor {
         }catch(RuntimeException error){return null;}
     }
     public boolean nudge(Player p,String key,long sequence,String action){try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()){
-        var s=controlled(p);if(s==null||!s.controls.id.toString().equals(key)||data.town(s.town).constructionSite(s.project)!=null
-            ||p.getOpenInventory().getType()!=InventoryType.CRAFTING)return false;
+        var s=controlled(p);if(s==null||!s.controls.id.toString().equals(key)||data.town(s.town).constructionSite(s.project)!=null)return false;
+        var view=p.getOpenInventory();var holder=view.getTopInventory().getHolder(false);
+        boolean editing=holder instanceof PlacementMenu menu&&menu.viewer.equals(p.getUniqueId())&&menu.session==s&&!menu.used;
+        if(view.getType()!=InventoryType.CRAFTING&&!editing)return false;
         final PlacementNudge move;try{move=PlacementNudge.of(action,p.getFacing());}catch(RuntimeException invalid){return false;}
         if(sequence<=s.controls.sequence||sequence-s.controls.sequence>1000)return false;
         s.controls.sequence=sequence;long now=System.nanoTime();if(now<s.controls.nextInput)return false;s.controls.nextInput=now+180_000_000L;
-        try{select(p,resident(p),s.project,s.draft,s.choice.move(move.x(),move.y(),move.z()),s.controls,false);return true;}
+        try{select(p,resident(p),s.project,s.draft,s.choice.move(move.x(),move.y(),move.z()),s.controls,false);if(editing)menu(p,sessions.get(p.getUniqueId()));return true;}
         catch(RuntimeException blocked){p.sendActionBar(net.kyori.adventure.text.Component.text(blocked.getMessage()==null?"Не удалось сдвинуть здание":blocked.getMessage()));return false;}
     }}
     private void tick(){
@@ -146,7 +148,11 @@ public final class PlacementService implements Listener,CommandExecutor {
     }
     private void menu(Player p,Session s){
         if(sessions.get(p.getUniqueId())!=s)throw new IllegalArgumentException("Откройте проекцию заново");
-        var holder=new PlacementMenu(p,s);holder.inventory=MenuStyle.inventory(plugin,holder,54,"Размещение здания");
+        var current=p.getOpenInventory().getTopInventory();
+        var holder=current.getHolder(false) instanceof PlacementMenu old&&old.viewer.equals(p.getUniqueId())&&!old.used?old:new PlacementMenu(p,s);
+        boolean opening=holder.inventory==null;
+        if(opening)holder.inventory=MenuStyle.inventory(plugin,holder,54,"Размещение здания");
+        holder.session=s;holder.actions.clear();holder.used=false;holder.inventory.clear();
         var project=definitions.project(s.project);var state=data.town(s.town);
         button(holder,4,Material.STRUCTURE_VOID,ColorUtil.plain(project.name()),List.of("Уровень: "+s.draft.level(),"Место: "+s.choice.x()+" / "+s.choice.y()+" / "+s.choice.z(),"Из казны при подтверждении: "+(free(state,project,s.draft.level())?"0":AuditTrail.money(project.level(s.draft.level()).money()))),null);
         boolean fixed=state.constructionSite(s.project)!=null;
@@ -160,7 +166,7 @@ public final class PlacementService implements Listener,CommandExecutor {
         button(holder,40,ready?Material.LIME_CONCRETE:Material.CLOCK,ready?"Подтвердить место и начать стройку":"Проекция ещё загружается",lore,ready?()->confirm(p,s):()->menu(p,s));
         button(holder,45,Material.SPYGLASS,"Осмотреть здание",List.of("Закрыть меню, оставить проекцию"),p::closeInventory);
         button(holder,49,Material.BARRIER,"Отложить размещение",List.of("Проекция исчезнет; ресурсы останутся в фонде","Чертёж можно использовать снова"),()->{close(p.getUniqueId());p.closeInventory();});
-        button(holder,53,Material.CLOCK,"Обновить",List.of("Проверить готовность проекции"),()->menu(p,s));p.openInventory(holder.inventory);
+        button(holder,53,Material.CLOCK,"Обновить",List.of("Проверить готовность проекции"),()->menu(p,s));if(opening)p.openInventory(holder.inventory);
     }
     private void move(Player p,Session s,int x,int y,int z){select(p,resident(p),s.project,s.draft,s.choice.move(x,y,z));menu(p,sessions.get(p.getUniqueId()));}
     private void confirm(Player p,Session s){

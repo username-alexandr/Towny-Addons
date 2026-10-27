@@ -1,24 +1,7 @@
-NeverLandTownySuite 0.45.1
-Commit: 6a4d00dad81a82efdb74c395650e4be34a2e0e21
-Build time (UTC): 2026-10-27T09:05:32.097803+00:00
-
-Состав комплекта: 40 модулей
-В 0.45.1 пересобран только Builds 0.8.38.
-Остальные 39 JAR совпадают с проверенным комплектом 0.45.0.
-Повторно пройдены 40 программ Builds, 6 контрактов API и 13 Python-проверок.
-Накопленный отчёт: 147 Java-тестовых программ для текущих бинарников.
-Контрактов API проверено: 42
-Проверок отказов хранилища пройдено: 7
-Python-тесты сборочных скриптов и проверка release matrix завершились успешно.
-Контрольные суммы рассчитаны заново по JAR этой сборки.
-
-Выполнены два полных запуска всех 40 JAR на Folia 26.2 build 7 / Java 25,
-включая перезапуск с сохранёнными данными. SHA-256 всех JAR совпадают с
-проверенными артефактами. Оба набора проверок завершились без ошибок и
-без watchdog-дампа. Проверены общая блокировка, региональные задачи,
-сохранение Chronicles и недоступная экономика. Подробности: docs/validation/.
-Нагрузочный тест с игроками и проверка реального экономического провайдера
-не выполнялись; сторонние премиальные интеграции не проверялись.
-Дополнительно проверены остановка с активным рейдом и восстановление волны после перезапуска.
-Проверены реальная сериализация требования 272, меню и события сдачи, устаревшее подтверждение, двойной клик, склад и обновление CraftoUI; игрок и его транспорт имитируются.
-Проверены открытие SQLite на Folia, API серверных материалов, резервы строек, возврат и сохранение остатков между запусками.
+NeverLandTownySuite 0.45.2
+Builds 0.8.39 rebuilt; other 39 JARs unchanged from 0.45.1.
+40 Builds Java programs, 6 API contracts, 13 Python build checks passed.
+Native Folia 26.2 / Java 25: 188 initial and 6 restart assertions passed.
+All 40 suite JARs and CraftoUI server 0.8.15 are recorded by SHA-256 in docs/validation/placement-preview-0.45.2/results.json.
+Targeted placement, preview and persistence tests; no load test or real bank provider.
+Client input: 27 assertions with explicit platform doubles. Menu input/render: 78 assertions with explicit AWT/platform doubles. No game window or real connected player was tested.

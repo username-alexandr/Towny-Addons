@@ -52,7 +52,7 @@ public final class PlacementRuntimeProbe extends JavaPlugin {
     void command(Actor actor,String... args){placement.onCommand(actor.player,Bukkit.getPluginCommand("nltplace"),"nltplace",args);}
     void click(Actor actor,int slot){var e=new InventoryClickEvent(actor.view,InventoryType.SlotType.CONTAINER,slot,ClickType.LEFT,InventoryAction.PICKUP_ALL);placement.click(e);if(!e.isCancelled())throw new AssertionError("unsafe menu click");}
     @SuppressWarnings("unchecked") void setup()throws Exception{
-        owner=(JavaPlugin)Bukkit.getPluginManager().getPlugin("NeverLandTownyBuilds");check(owner.isEnabled(),"Builds 0.8.33 enabled on native Folia");
+        owner=(JavaPlugin)Bukkit.getPluginManager().getPlugin("NeverLandTownyBuilds");check(owner.isEnabled(),"Builds 0.8.39 enabled on native Folia");
         data=(DataStore)field(owner,"dataStore");definitions=(DefinitionRegistry)field(owner,"definitions");placement=(PlacementService)field(owner,"placements");builds=(BuildService)field(placement,"builds");construction=(ConstructionService)field(owner,"construction");placement.stop();
         if(Files.exists(proof.resolve("first-passed.txt"))){
             var state=data.town(TOWN);check(state.placements().get("town_hall").id().toString().equals(Files.readString(proof.resolve("draft-id"))),"unplaced blueprint survives native restart");
@@ -135,12 +135,19 @@ public final class PlacementRuntimeProbe extends JavaPlugin {
         check(!placement.nudge(mayor.player,UUID.randomUUID().toString(),6,"up"),"foreign control key rejected");check(!placement.nudge(mayor.player,key,6,"confirm"),"movement channel cannot start or pay for construction");
         ItemStack held=token(mayor).clone();mayor.contents.clear();check(placement.controls(mayor.player).isEmpty()&&!placement.nudge(mayor.player,key,6,"up"),"changing held item immediately disables movement");mayor.contents.setItem(0,held);
         check(placement.controls(mayor.player).get("sequence").equals("5"),"control acknowledgement survives temporary item switch");
-        command(mayor);rateReset();check(!placement.nudge(mayor.player,key,6,"up"),"open inventory blocks movement input");mayor.player.closeInventory();mayor.facing=BlockFace.NORTH;
+        command(mayor);var open=mayor.top;rateReset();
+        check(placement.nudge(mayor.player,key,6,"up"),"own placement menu accepts wheel input");
+        check(mayor.top==open&&field(open.getHolder(),"session")==session(mayor),"movement updates the same placement menu and current action session");render(mayor);
+        rateReset();check(placement.nudge(mayor.player,key,7,"down"),"own placement menu accepts opposite wheel input");render(mayor);
+        mayor.player.openInventory(Bukkit.createInventory(null,27));rateReset();check(!placement.nudge(mayor.player,key,8,"up"),"unrelated open inventory blocks movement input");mayor.player.closeInventory();
+        var alternative=held.clone();alternative.setType(Material.PAPER);mayor.contents.setItem(0,alternative);rateReset();
+        check(!placement.controls(mayor.player).isEmpty()&&placement.nudge(mayor.player,key,8,"right"),"valid server-tagged blueprint authorizes controls independently of material type");
+        rateReset();check(placement.nudge(mayor.player,key,9,"left"),"alternate blueprint moves back safely");mayor.contents.setItem(0,held);render(mayor);mayor.facing=BlockFace.NORTH;
         check(data.town(TOWN).constructionReceipts().isEmpty()&&data.town(TOWN).constructionSite("town_hall")==null,"moving does not charge or start construction");
     }
     Object uiConnection;JavaPlugin uiPlugin;java.lang.reflect.Method loadPreview;
     @SuppressWarnings("unchecked") void startUiProbe()throws Exception{
-        uiPlugin=(JavaPlugin)Bukkit.getPluginManager().getPlugin("CraftoUI");check(uiPlugin!=null&&uiPlugin.isEnabled(),"CraftoUI 0.8.1 enables alongside Builds on Folia");
+        uiPlugin=(JavaPlugin)Bukkit.getPluginManager().getPlugin("CraftoUI");check(uiPlugin!=null&&uiPlugin.isEnabled(),"CraftoUI 0.8.15 enables alongside Builds on Folia");
         var type=Class.forName("cc.crafto.ui.server.CraftoUIPlugin$Connection",true,uiPlugin.getClass().getClassLoader());var ctor=type.getDeclaredConstructor(Player.class);ctor.setAccessible(true);uiConnection=ctor.newInstance(mayor.player);
         for(String field:List.of("ready","buildingPreview")){var f=type.getDeclaredField(field);f.setAccessible(true);f.set(uiConnection,true);}
         ((Map<UUID,Object>)field(uiPlugin,"connections")).put(MAYOR,uiConnection);
@@ -168,6 +175,10 @@ public final class PlacementRuntimeProbe extends JavaPlugin {
         handler.invoke(uiPlugin,uiConnection,packet);check(((PlacementChoice)field(session(mayor),"choice")).x()==choice.x()+1,"network replay does not repeat movement");
         mayor.allowed=false;rateReset();var other=Protocol.decode(Protocol.encode(Protocol.Kind.PLACEMENT,Protocol.object("op","move","key",key,"sequence",2,"action","right")));handler.invoke(uiPlugin,uiConnection,other);check(((PlacementChoice)field(session(mayor),"choice")).x()==choice.x()+1,"revoked permissions stop network movement");mayor.allowed=true;
         command(mayor,"close");handler.invoke(uiPlugin,uiConnection,other);check(session(mayor)==null,"closed placement cannot be resurrected by late input");
+        var menus=(ru.neverland.townybuilds.gui.MenuManager)field(owner,"uiMenus");
+        var catalog=new ArrayList<ProjectDefinition>();catalog.addAll(definitions.type(ProjectType.BUILDING));catalog.addAll(definitions.type(ProjectType.WONDER));
+        for(var project:catalog){menus.openDetails(mayor.player,project);check(menus.preview(mayor.player,mayor.top)!=null,"summary preview exists: "+project.id());}
+        mayor.player.closeInventory();
     }
     void checkOwned(int x,int z){if(!Bukkit.isOwnedByCurrentRegion(world,x>>4,z>>4))throw new AssertionError("region not owned "+x+","+z);}
     void schedule(){if(steps.isEmpty())return;Bukkit.getRegionScheduler().runDelayed(this,new Location(world,0,160,0),t->SuiteState.run(()->{try{steps.removeFirst().run();schedule();}catch(Throwable e){fail(e);}}),4);}

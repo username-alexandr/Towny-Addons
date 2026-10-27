@@ -1,0 +1,194 @@
+PASS Builds 0.8.39 enabled on native Folia
+PASS all standard building surfaces fit default display budget
+PASS last resource contribution automatically gives blueprint
+PASS issuing blueprint does not start or charge construction
+PASS reissuing existing blueprint does not duplicate item
+PASS lost blueprint reissued without consuming fund
+PASS right click creates placement selection
+PASS whole building display completed
+PASS all real BlockDisplays temporary and private
+PASS projection includes roof before construction starts
+PASS projection leaves actual world blocks untouched
+PASS held blueprint exposes live control key
+PASS arrow moves preview through server API
+PASS right is relative to north-facing player's view
+PASS moving reuses all existing displays
+PASS confirmation waits for repositioned displays
+PASS whole building display completed
+PASS real display translation follows chosen position
+PASS replayed move sequence rejected
+PASS movement follows changed viewing direction
+PASS east-facing forward moves east
+PASS burst movement rate limited
+PASS wheel raises preview
+PASS wheel changes only one height step
+PASS wheel lowers preview
+PASS whole building display completed
+PASS foreign control key rejected
+PASS movement channel cannot start or pay for construction
+PASS changing held item immediately disables movement
+PASS control acknowledgement survives temporary item switch
+PASS own placement menu accepts wheel input
+PASS movement updates the same placement menu and current action session
+PASS whole building display completed
+PASS own placement menu accepts opposite wheel input
+PASS whole building display completed
+PASS unrelated open inventory blocks movement input
+PASS valid server-tagged blueprint authorizes controls independently of material type
+PASS alternate blueprint moves back safely
+PASS whole building display completed
+PASS moving does not charge or start construction
+PASS blueprint rotates clockwise
+PASS whole building display completed
+PASS closing preview removes real entities
+PASS preview cancellation keeps all resources
+PASS whole building display completed
+PASS double confirmation with unavailable economy leaves funds and site untouched
+PASS whole building display completed
+PASS ordinary resident cannot confirm placement
+PASS transferred blueprint cannot be used in another town
+PASS forged blueprint ID rejected
+PASS world height bounds rejected before blocks are read
+PASS footprint outside available city terrain rejected
+PASS whole building display completed
+PASS explicit confirmation starts valid legacy site
+PASS successful confirmation consumes token reference and item
+PASS duplicate confirmation creates exactly one zero-cost receipt
+PASS schematic view 0 fits bounded protocol
+PASS schematic view 1 fits bounded protocol
+PASS schematic view 2 fits bounded protocol
+PASS schematic view 3 fits bounded protocol
+PASS failed fund write aborts contribution
+PASS failed fund write restores player's exact resource
+PASS failed storage blocks new transactions
+PASS failed contribution creates no durable credit
+PASS active construction cannot collect a second fund for the same level
+PASS CraftoUI 0.8.15 enables alongside Builds on Folia
+PASS native bridge sends bounded preview message
+PASS image packet bound to current menu key
+PASS actual async thumbnail PNG delivered
+PASS native bridge sends bounded preview message
+PASS image packet bound to current menu key
+PASS actual async thumbnail PNG delivered
+PASS native bridge sends bounded preview message
+PASS image packet bound to current menu key
+PASS actual async thumbnail PNG delivered
+PASS native bridge sends bounded preview message
+PASS image packet bound to current menu key
+PASS actual async thumbnail PNG delivered
+PASS four preview rotations delivered through CraftoUI
+PASS clients without preview capability receive no new packet kind
+PASS closing menu prevents delayed preview delivery
+PASS old client without control capability cannot move preview
+PASS CraftoUI movement packet reaches Builds on owning region
+PASS server sends control state with acknowledged sequence
+PASS network replay does not repeat movement
+PASS revoked permissions stop network movement
+PASS closed placement cannot be resurrected by late input
+PASS summary preview exists: town_hall
+PASS summary preview exists: barracks
+PASS summary preview exists: market
+PASS summary preview exists: miners_guild
+PASS summary preview exists: temple
+PASS summary preview exists: great_library
+PASS summary preview exists: agrarian_complex
+PASS summary preview exists: infirmary
+PASS summary preview exists: fire_station
+PASS summary preview exists: tavern_inn
+PASS summary preview exists: city_bank
+PASS summary preview exists: embassy
+PASS summary preview exists: museum
+PASS summary preview exists: shipyard
+PASS summary preview exists: university
+PASS summary preview exists: courthouse
+PASS summary preview exists: aqueduct
+PASS summary preview exists: workshop
+PASS summary preview exists: watch_fortress
+PASS summary preview exists: hunting_lodge
+PASS summary preview exists: fishing_harbor
+PASS summary preview exists: post_station
+PASS summary preview exists: observatory
+PASS summary preview exists: prison
+PASS summary preview exists: sawmill
+PASS summary preview exists: quarry
+PASS summary preview exists: foundry
+PASS summary preview exists: mill
+PASS summary preview exists: bakery
+PASS summary preview exists: apiary
+PASS summary preview exists: warehouse
+PASS summary preview exists: caravanserai
+PASS summary preview exists: auction
+PASS summary preview exists: merchant_guild
+PASS summary preview exists: cargo_terminal
+PASS summary preview exists: water_tower
+PASS summary preview exists: sewer
+PASS summary preview exists: baths
+PASS summary preview exists: roads
+PASS summary preview exists: bridge_service
+PASS summary preview exists: reservoir
+PASS summary preview exists: guard
+PASS summary preview exists: arsenal
+PASS summary preview exists: armory
+PASS summary preview exists: watchtower
+PASS summary preview exists: fortress_gate
+PASS summary preview exists: counterintel
+PASS summary preview exists: alchemy
+PASS summary preview exists: archive
+PASS summary preview exists: cartography
+PASS summary preview exists: research
+PASS summary preview exists: botanical
+PASS summary preview exists: theater
+PASS summary preview exists: square
+PASS summary preview exists: arena
+PASS summary preview exists: gallery
+PASS summary preview exists: park
+PASS summary preview exists: guild_house
+PASS summary preview exists: memorial
+PASS summary preview exists: shelter
+PASS summary preview exists: cathedral
+PASS summary preview exists: trade_exchange
+PASS summary preview exists: printing_house
+PASS summary preview exists: citadel
+PASS summary preview exists: forestry
+PASS summary preview exists: seed_vault
+PASS summary preview exists: customs
+PASS summary preview exists: industrial_works
+PASS summary preview exists: trade_port
+PASS summary preview exists: academy_of_sciences
+PASS summary preview exists: mint
+PASS summary preview exists: admiralty
+PASS summary preview exists: stables
+PASS summary preview exists: pilgrimage_center
+PASS summary preview exists: fortress_wall
+PASS summary preview exists: city_moat
+PASS summary preview exists: archery_range
+PASS summary preview exists: port_fort
+PASS summary preview exists: census_bureau
+PASS summary preview exists: insurance_chamber
+PASS summary preview exists: pumping_station
+PASS summary preview exists: irrigation_station
+PASS summary preview exists: recycling_yard
+PASS summary preview exists: dam
+PASS summary preview exists: army
+PASS summary preview exists: residential_quarter
+PASS summary preview exists: water_wheel
+PASS summary preview exists: generator
+PASS summary preview exists: power_station
+PASS summary preview exists: forge
+PASS summary preview exists: sun_pyramid
+PASS summary preview exists: great_colosseum
+PASS summary preview exists: alexandria_lighthouse
+PASS summary preview exists: hanging_gardens
+PASS summary preview exists: archmage_spire
+PASS summary preview exists: rhodes_colossus
+PASS summary preview exists: world_tree
+PASS summary preview exists: celestial_orrery
+PASS summary preview exists: terracotta_army
+PASS summary preview exists: crystal_palace
+PASS summary preview exists: great_canal
+PASS Builds 0.8.39 enabled on native Folia
+PASS unplaced blueprint survives native restart
+PASS fund survives native restart
+PASS confirmed site survives native restart
+PASS consumed blueprint stays invalid after restart
+PASS free legacy placement receipt persisted

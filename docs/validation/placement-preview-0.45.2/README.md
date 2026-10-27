@@ -1,0 +1,11 @@
+# Placement and preview validation 0.45.2
+
+Builds 0.8.39: 40 executable Java programs, 6 API contracts and 13 build-script checks passed. Other 39 suite JARs are unchanged from 0.45.1 and were checked by SHA-256. Full matrix contains 147 previously verified test programs and 42 API contracts; those were not all rerun here.
+
+A fresh loopback disposable Folia 26.2 build 7 / 14b7fee, Java 25.0.5, Towny 0.103.2.0, all 40 suite JARs and CraftoUI server 0.8.15 were launched and shut down twice. The initial probe passed 188 assertions; the restart passed 6. The report binds the exact 40 suite JARs and CraftoUI server by SHA-256. Real Towny, world blocks, BlockDisplay entities, inventories, region/entity schedulers, persistence and network handlers are used. Players and their transport are explicit test doubles.
+
+The movement probe covers world-relative arrows, height wheel, actual display transforms and entity reuse, same-container movement in the owner's placement menu, rejected unrelated windows, tagged alternate blueprint material, replay/rate/held-item/permission guards, capability negotiation and movement packet acknowledgments. It also verifies that every standard building/wonder ID supplies a preview plan, four actual bounded thumbnail packets, no image to old clients, and rejection of stale images. Synthetic write failure and restoration tests intentionally log their expected storage error; no watchdog or lifecycle error occurred.
+
+The actual PlacementControls and PlacementInput compiled against explicit Minecraft/input/transport doubles pass 27 assertions. The actual AddonScreen renderer and input routing pass 78 assertions, including screen key/wheel dispatch and non-placement isolation. These are not a launched Minecraft window or physical-device tests.
+
+CraftoUI client/server compile against original Minecraft/Fabric/Paper 26.2 APIs. Server JUnit tests were rerun successfully; common source is unchanged and its successful Gradle test result was reused. Bootstrap on actual Fabric Knot 0.19.4 with the current client JAR is recorded in the CraftoUI package. MixinExtras 0.5.5 remains nested. No real bank provider, full user modpack, connected player or player load was tested.

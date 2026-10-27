@@ -1,0 +1,1 @@
+PASS 27 assertions; production PlacementControls/PlacementInput with explicit Minecraft/input/transport doubles; no launched game client

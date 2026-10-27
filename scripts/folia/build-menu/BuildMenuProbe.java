@@ -105,7 +105,7 @@ public final class BuildMenuProbe extends JavaPlugin {
             check(artifacts.contains("Необходимые артефакты")&&artifacts.contains("музея"),"resource button of a wonder includes museum artifact requirements");
             check(service.artifactRequirements(town,wonder).stream().anyMatch(line->{String text=ru.neverland.townybuilds.util.ColorUtil.plain(line);return artifacts.replaceAll("\\s+","").contains(text.replaceAll("\\s+",""));}),"actual artifact names and quantities are carried into the hovered resource button");
             var forge=(ProjectDefinition)defs.getClass().getMethod("project",String.class).invoke(defs,"forge");menu.openDetails(actor.player,forge);
-            check(menu.preview(actor.player,actor.top)==null,"other building buttons do not supply a preview");
+            check(menu.preview(actor.player,actor.top)!=null,"other building summary cards also supply their own preview");
             store.saveOrThrow();finish(null);
         }catch(Exception e){finish(e);}
     }

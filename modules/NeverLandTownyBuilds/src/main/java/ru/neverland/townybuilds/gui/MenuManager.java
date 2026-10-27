@@ -170,7 +170,7 @@ public final class MenuManager implements Listener {
         Inventory inventory=holder.inventory;inventory.clear();
         decorate(inventory);
         ItemStack summary=projectIcon(project,current,town.getUUID());
-        if(project.id().equals("town_hall"))role(summary,"building-preview");
+        role(summary,"building-preview");
         inventory.setItem(11,summary);
         if (project.id().equals("army")) inventory.setItem(16, actionItem("army", new ItemStack(Material.NETHERITE_HELMET),
                 "&#B65CFFСостав армии", List.of("&7Реестр и мобилизация граждан с 18 лет")));
@@ -639,7 +639,7 @@ public final class MenuManager implements Listener {
 
     public ru.neverland.townybuilds.construction.BlueprintPlan preview(Player player,Inventory inventory){try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()){
         if(player.getOpenInventory().getTopInventory()!=inventory||!(inventory.getHolder() instanceof DetailsHolder holder)||!player.hasPermission("neverlandtownybuilds.use"))return null;
-        var town=towny.town(player);var project=definitions.project(holder.projectId());if(town==null||project==null||!project.id().equals("town_hall"))return null;
+        var town=towny.town(player);var project=definitions.project(holder.projectId());if(town==null||project==null)return null;
         var state=dataStore.town(town.getUUID());int level=Math.min(project.maxLevel(),state.level(project.id())+1);
         return builds.previewPlan(project.id(),level,state.constructionSite(project.id()));
     }}
