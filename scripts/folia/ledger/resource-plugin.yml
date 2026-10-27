@@ -1,0 +1,6 @@
+name: NeverLandServerResourceProbe
+version: 0.44.0
+main: ru.neverland.validation.ServerResourceProbe
+api-version: '26.2'
+folia-supported: true
+depend: [NeverLandTownyContracts]

@@ -1,0 +1,17 @@
+[
+  {
+    "module": "NeverLandTownyControl",
+    "tests": [
+      "ru.neverland.core.SuiteSchedulerSmoke",
+      "ru.neverland.townycontrol.ActivityAdminSmoke",
+      "ru.neverland.townycontrol.AdminMenuSmoke",
+      "ru.neverland.townycontrol.AuditSmoke",
+      "ru.neverland.townycontrol.DeletionSafetySmoke",
+      "ru.neverland.townycontrol.ModuleSafetySmoke",
+      "ru.neverland.townycontrol.PersonalHistorySmoke"
+    ],
+    "api_contracts": [],
+    "repository_fault_probe": false,
+    "seconds": 22.9
+  }
+]

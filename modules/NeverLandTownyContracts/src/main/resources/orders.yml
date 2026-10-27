@@ -1,5 +1,5 @@
 # Государственные заказы /orders. Городские контракты и их казна не затрагиваются.
-catalog-version: 3
+catalog-version: 4
 enabled: true
 maximum-active: 3
 board-size: 18
@@ -705,4 +705,1357 @@ templates:
     target: PUFFERFISH
     amount: 80
     reward: 2400
+    duration-seconds: 86400
+
+  # Стройматериалы для спавна и других общественных построек.
+  # Предметы передаются игроком; зачёт разрушения блоков не используется.
+  build_oak_log_common:
+    introduced-in: 4
+    title: Дуб — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: OAK_LOG
+    amount: 64
+    reward: 80
+    duration-seconds: 7200
+  build_oak_log_uncommon:
+    introduced-in: 4
+    title: Дуб — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: OAK_LOG
+    amount: 128
+    reward: 180
+    duration-seconds: 14400
+  build_oak_log_rare:
+    introduced-in: 4
+    title: Дуб — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: OAK_LOG
+    amount: 384
+    reward: 550
+    duration-seconds: 21600
+  build_oak_log_epic:
+    introduced-in: 4
+    title: Дуб — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: OAK_LOG
+    amount: 1024
+    reward: 1400
+    duration-seconds: 43200
+  build_oak_log_legendary:
+    introduced-in: 4
+    title: Дуб — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: OAK_LOG
+    amount: 2048
+    reward: 2700
+    duration-seconds: 86400
+  build_spruce_log_common:
+    introduced-in: 4
+    title: Ель — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: SPRUCE_LOG
+    amount: 64
+    reward: 80
+    duration-seconds: 7200
+  build_spruce_log_uncommon:
+    introduced-in: 4
+    title: Ель — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: SPRUCE_LOG
+    amount: 128
+    reward: 180
+    duration-seconds: 14400
+  build_spruce_log_rare:
+    introduced-in: 4
+    title: Ель — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: SPRUCE_LOG
+    amount: 384
+    reward: 550
+    duration-seconds: 21600
+  build_spruce_log_epic:
+    introduced-in: 4
+    title: Ель — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: SPRUCE_LOG
+    amount: 1024
+    reward: 1400
+    duration-seconds: 43200
+  build_spruce_log_legendary:
+    introduced-in: 4
+    title: Ель — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: SPRUCE_LOG
+    amount: 2048
+    reward: 2700
+    duration-seconds: 86400
+  build_birch_log_common:
+    introduced-in: 4
+    title: Берёза — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: BIRCH_LOG
+    amount: 64
+    reward: 80
+    duration-seconds: 7200
+  build_birch_log_uncommon:
+    introduced-in: 4
+    title: Берёза — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: BIRCH_LOG
+    amount: 128
+    reward: 180
+    duration-seconds: 14400
+  build_birch_log_rare:
+    introduced-in: 4
+    title: Берёза — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: BIRCH_LOG
+    amount: 384
+    reward: 550
+    duration-seconds: 21600
+  build_birch_log_epic:
+    introduced-in: 4
+    title: Берёза — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: BIRCH_LOG
+    amount: 1024
+    reward: 1400
+    duration-seconds: 43200
+  build_birch_log_legendary:
+    introduced-in: 4
+    title: Берёза — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: BIRCH_LOG
+    amount: 2048
+    reward: 2700
+    duration-seconds: 86400
+  build_jungle_log_common:
+    introduced-in: 4
+    title: Тропическая древесина — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: JUNGLE_LOG
+    amount: 64
+    reward: 80
+    duration-seconds: 7200
+  build_jungle_log_uncommon:
+    introduced-in: 4
+    title: Тропическая древесина — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: JUNGLE_LOG
+    amount: 128
+    reward: 180
+    duration-seconds: 14400
+  build_jungle_log_rare:
+    introduced-in: 4
+    title: Тропическая древесина — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: JUNGLE_LOG
+    amount: 384
+    reward: 550
+    duration-seconds: 21600
+  build_jungle_log_epic:
+    introduced-in: 4
+    title: Тропическая древесина — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: JUNGLE_LOG
+    amount: 1024
+    reward: 1400
+    duration-seconds: 43200
+  build_jungle_log_legendary:
+    introduced-in: 4
+    title: Тропическая древесина — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: JUNGLE_LOG
+    amount: 2048
+    reward: 2700
+    duration-seconds: 86400
+  build_acacia_log_common:
+    introduced-in: 4
+    title: Акация — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: ACACIA_LOG
+    amount: 64
+    reward: 80
+    duration-seconds: 7200
+  build_acacia_log_uncommon:
+    introduced-in: 4
+    title: Акация — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: ACACIA_LOG
+    amount: 128
+    reward: 180
+    duration-seconds: 14400
+  build_acacia_log_rare:
+    introduced-in: 4
+    title: Акация — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: ACACIA_LOG
+    amount: 384
+    reward: 550
+    duration-seconds: 21600
+  build_acacia_log_epic:
+    introduced-in: 4
+    title: Акация — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: ACACIA_LOG
+    amount: 1024
+    reward: 1400
+    duration-seconds: 43200
+  build_acacia_log_legendary:
+    introduced-in: 4
+    title: Акация — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: ACACIA_LOG
+    amount: 2048
+    reward: 2700
+    duration-seconds: 86400
+  build_dark_oak_log_common:
+    introduced-in: 4
+    title: Тёмный дуб — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: DARK_OAK_LOG
+    amount: 64
+    reward: 80
+    duration-seconds: 7200
+  build_dark_oak_log_uncommon:
+    introduced-in: 4
+    title: Тёмный дуб — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: DARK_OAK_LOG
+    amount: 128
+    reward: 180
+    duration-seconds: 14400
+  build_dark_oak_log_rare:
+    introduced-in: 4
+    title: Тёмный дуб — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: DARK_OAK_LOG
+    amount: 384
+    reward: 550
+    duration-seconds: 21600
+  build_dark_oak_log_epic:
+    introduced-in: 4
+    title: Тёмный дуб — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: DARK_OAK_LOG
+    amount: 1024
+    reward: 1400
+    duration-seconds: 43200
+  build_dark_oak_log_legendary:
+    introduced-in: 4
+    title: Тёмный дуб — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: DARK_OAK_LOG
+    amount: 2048
+    reward: 2700
+    duration-seconds: 86400
+  build_mangrove_log_common:
+    introduced-in: 4
+    title: Мангровая древесина — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: MANGROVE_LOG
+    amount: 64
+    reward: 80
+    duration-seconds: 7200
+  build_mangrove_log_uncommon:
+    introduced-in: 4
+    title: Мангровая древесина — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: MANGROVE_LOG
+    amount: 128
+    reward: 180
+    duration-seconds: 14400
+  build_mangrove_log_rare:
+    introduced-in: 4
+    title: Мангровая древесина — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: MANGROVE_LOG
+    amount: 384
+    reward: 550
+    duration-seconds: 21600
+  build_mangrove_log_epic:
+    introduced-in: 4
+    title: Мангровая древесина — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: MANGROVE_LOG
+    amount: 1024
+    reward: 1400
+    duration-seconds: 43200
+  build_mangrove_log_legendary:
+    introduced-in: 4
+    title: Мангровая древесина — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: MANGROVE_LOG
+    amount: 2048
+    reward: 2700
+    duration-seconds: 86400
+  build_cherry_log_common:
+    introduced-in: 4
+    title: Вишнёвая древесина — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: CHERRY_LOG
+    amount: 64
+    reward: 80
+    duration-seconds: 7200
+  build_cherry_log_uncommon:
+    introduced-in: 4
+    title: Вишнёвая древесина — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: CHERRY_LOG
+    amount: 128
+    reward: 180
+    duration-seconds: 14400
+  build_cherry_log_rare:
+    introduced-in: 4
+    title: Вишнёвая древесина — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: CHERRY_LOG
+    amount: 384
+    reward: 550
+    duration-seconds: 21600
+  build_cherry_log_epic:
+    introduced-in: 4
+    title: Вишнёвая древесина — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: CHERRY_LOG
+    amount: 1024
+    reward: 1400
+    duration-seconds: 43200
+  build_cherry_log_legendary:
+    introduced-in: 4
+    title: Вишнёвая древесина — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: CHERRY_LOG
+    amount: 2048
+    reward: 2700
+    duration-seconds: 86400
+  build_pale_oak_log_common:
+    introduced-in: 4
+    title: Бледный дуб — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: PALE_OAK_LOG
+    amount: 64
+    reward: 80
+    duration-seconds: 7200
+  build_pale_oak_log_uncommon:
+    introduced-in: 4
+    title: Бледный дуб — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: PALE_OAK_LOG
+    amount: 128
+    reward: 180
+    duration-seconds: 14400
+  build_pale_oak_log_rare:
+    introduced-in: 4
+    title: Бледный дуб — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: PALE_OAK_LOG
+    amount: 384
+    reward: 550
+    duration-seconds: 21600
+  build_pale_oak_log_epic:
+    introduced-in: 4
+    title: Бледный дуб — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: PALE_OAK_LOG
+    amount: 1024
+    reward: 1400
+    duration-seconds: 43200
+  build_pale_oak_log_legendary:
+    introduced-in: 4
+    title: Бледный дуб — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: PALE_OAK_LOG
+    amount: 2048
+    reward: 2700
+    duration-seconds: 86400
+  build_bamboo_block_common:
+    introduced-in: 4
+    title: Бамбуковые блоки — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: BAMBOO_BLOCK
+    amount: 64
+    reward: 80
+    duration-seconds: 7200
+  build_bamboo_block_uncommon:
+    introduced-in: 4
+    title: Бамбуковые блоки — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: BAMBOO_BLOCK
+    amount: 128
+    reward: 180
+    duration-seconds: 14400
+  build_bamboo_block_rare:
+    introduced-in: 4
+    title: Бамбуковые блоки — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: BAMBOO_BLOCK
+    amount: 384
+    reward: 550
+    duration-seconds: 21600
+  build_bamboo_block_epic:
+    introduced-in: 4
+    title: Бамбуковые блоки — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: BAMBOO_BLOCK
+    amount: 1024
+    reward: 1400
+    duration-seconds: 43200
+  build_bamboo_block_legendary:
+    introduced-in: 4
+    title: Бамбуковые блоки — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: BAMBOO_BLOCK
+    amount: 2048
+    reward: 2700
+    duration-seconds: 86400
+  build_crimson_stem_common:
+    introduced-in: 4
+    title: Багровые стебли — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: CRIMSON_STEM
+    amount: 64
+    reward: 80
+    duration-seconds: 7200
+  build_crimson_stem_uncommon:
+    introduced-in: 4
+    title: Багровые стебли — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: CRIMSON_STEM
+    amount: 128
+    reward: 180
+    duration-seconds: 14400
+  build_crimson_stem_rare:
+    introduced-in: 4
+    title: Багровые стебли — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: CRIMSON_STEM
+    amount: 384
+    reward: 550
+    duration-seconds: 21600
+  build_crimson_stem_epic:
+    introduced-in: 4
+    title: Багровые стебли — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: CRIMSON_STEM
+    amount: 1024
+    reward: 1400
+    duration-seconds: 43200
+  build_crimson_stem_legendary:
+    introduced-in: 4
+    title: Багровые стебли — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: CRIMSON_STEM
+    amount: 2048
+    reward: 2700
+    duration-seconds: 86400
+  build_warped_stem_common:
+    introduced-in: 4
+    title: Искажённые стебли — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: WARPED_STEM
+    amount: 64
+    reward: 80
+    duration-seconds: 7200
+  build_warped_stem_uncommon:
+    introduced-in: 4
+    title: Искажённые стебли — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: WARPED_STEM
+    amount: 128
+    reward: 180
+    duration-seconds: 14400
+  build_warped_stem_rare:
+    introduced-in: 4
+    title: Искажённые стебли — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: WARPED_STEM
+    amount: 384
+    reward: 550
+    duration-seconds: 21600
+  build_warped_stem_epic:
+    introduced-in: 4
+    title: Искажённые стебли — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: WARPED_STEM
+    amount: 1024
+    reward: 1400
+    duration-seconds: 43200
+  build_warped_stem_legendary:
+    introduced-in: 4
+    title: Искажённые стебли — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: WARPED_STEM
+    amount: 2048
+    reward: 2700
+    duration-seconds: 86400
+  build_cobblestone_common:
+    introduced-in: 4
+    title: Булыжник — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: COBBLESTONE
+    amount: 128
+    reward: 80
+    duration-seconds: 7200
+  build_cobblestone_uncommon:
+    introduced-in: 4
+    title: Булыжник — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: COBBLESTONE
+    amount: 256
+    reward: 180
+    duration-seconds: 14400
+  build_cobblestone_rare:
+    introduced-in: 4
+    title: Булыжник — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: COBBLESTONE
+    amount: 512
+    reward: 450
+    duration-seconds: 21600
+  build_cobblestone_epic:
+    introduced-in: 4
+    title: Булыжник — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: COBBLESTONE
+    amount: 1024
+    reward: 1000
+    duration-seconds: 43200
+  build_cobblestone_legendary:
+    introduced-in: 4
+    title: Булыжник — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: COBBLESTONE
+    amount: 2048
+    reward: 2200
+    duration-seconds: 86400
+  build_stone_common:
+    introduced-in: 4
+    title: Камень — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: STONE
+    amount: 128
+    reward: 80
+    duration-seconds: 7200
+  build_stone_uncommon:
+    introduced-in: 4
+    title: Камень — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: STONE
+    amount: 256
+    reward: 180
+    duration-seconds: 14400
+  build_stone_rare:
+    introduced-in: 4
+    title: Камень — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: STONE
+    amount: 512
+    reward: 450
+    duration-seconds: 21600
+  build_stone_epic:
+    introduced-in: 4
+    title: Камень — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: STONE
+    amount: 1024
+    reward: 1000
+    duration-seconds: 43200
+  build_stone_legendary:
+    introduced-in: 4
+    title: Камень — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: STONE
+    amount: 2048
+    reward: 2200
+    duration-seconds: 86400
+  build_cobbled_deepslate_common:
+    introduced-in: 4
+    title: Колотый глубинный сланец — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: COBBLED_DEEPSLATE
+    amount: 128
+    reward: 80
+    duration-seconds: 7200
+  build_cobbled_deepslate_uncommon:
+    introduced-in: 4
+    title: Колотый глубинный сланец — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: COBBLED_DEEPSLATE
+    amount: 256
+    reward: 180
+    duration-seconds: 14400
+  build_cobbled_deepslate_rare:
+    introduced-in: 4
+    title: Колотый глубинный сланец — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: COBBLED_DEEPSLATE
+    amount: 512
+    reward: 450
+    duration-seconds: 21600
+  build_cobbled_deepslate_epic:
+    introduced-in: 4
+    title: Колотый глубинный сланец — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: COBBLED_DEEPSLATE
+    amount: 1024
+    reward: 1000
+    duration-seconds: 43200
+  build_cobbled_deepslate_legendary:
+    introduced-in: 4
+    title: Колотый глубинный сланец — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: COBBLED_DEEPSLATE
+    amount: 2048
+    reward: 2200
+    duration-seconds: 86400
+  build_andesite_common:
+    introduced-in: 4
+    title: Андезит — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: ANDESITE
+    amount: 128
+    reward: 80
+    duration-seconds: 7200
+  build_andesite_uncommon:
+    introduced-in: 4
+    title: Андезит — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: ANDESITE
+    amount: 256
+    reward: 180
+    duration-seconds: 14400
+  build_andesite_rare:
+    introduced-in: 4
+    title: Андезит — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: ANDESITE
+    amount: 512
+    reward: 450
+    duration-seconds: 21600
+  build_andesite_epic:
+    introduced-in: 4
+    title: Андезит — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: ANDESITE
+    amount: 1024
+    reward: 1000
+    duration-seconds: 43200
+  build_andesite_legendary:
+    introduced-in: 4
+    title: Андезит — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: ANDESITE
+    amount: 2048
+    reward: 2200
+    duration-seconds: 86400
+  build_diorite_common:
+    introduced-in: 4
+    title: Диорит — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: DIORITE
+    amount: 128
+    reward: 80
+    duration-seconds: 7200
+  build_diorite_uncommon:
+    introduced-in: 4
+    title: Диорит — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: DIORITE
+    amount: 256
+    reward: 180
+    duration-seconds: 14400
+  build_diorite_rare:
+    introduced-in: 4
+    title: Диорит — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: DIORITE
+    amount: 512
+    reward: 450
+    duration-seconds: 21600
+  build_diorite_epic:
+    introduced-in: 4
+    title: Диорит — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: DIORITE
+    amount: 1024
+    reward: 1000
+    duration-seconds: 43200
+  build_diorite_legendary:
+    introduced-in: 4
+    title: Диорит — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: DIORITE
+    amount: 2048
+    reward: 2200
+    duration-seconds: 86400
+  build_granite_common:
+    introduced-in: 4
+    title: Гранит — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: GRANITE
+    amount: 128
+    reward: 80
+    duration-seconds: 7200
+  build_granite_uncommon:
+    introduced-in: 4
+    title: Гранит — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: GRANITE
+    amount: 256
+    reward: 180
+    duration-seconds: 14400
+  build_granite_rare:
+    introduced-in: 4
+    title: Гранит — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: GRANITE
+    amount: 512
+    reward: 450
+    duration-seconds: 21600
+  build_granite_epic:
+    introduced-in: 4
+    title: Гранит — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: GRANITE
+    amount: 1024
+    reward: 1000
+    duration-seconds: 43200
+  build_granite_legendary:
+    introduced-in: 4
+    title: Гранит — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: GRANITE
+    amount: 2048
+    reward: 2200
+    duration-seconds: 86400
+  build_tuff_common:
+    introduced-in: 4
+    title: Туф — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: TUFF
+    amount: 128
+    reward: 80
+    duration-seconds: 7200
+  build_tuff_uncommon:
+    introduced-in: 4
+    title: Туф — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: TUFF
+    amount: 256
+    reward: 180
+    duration-seconds: 14400
+  build_tuff_rare:
+    introduced-in: 4
+    title: Туф — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: TUFF
+    amount: 512
+    reward: 450
+    duration-seconds: 21600
+  build_tuff_epic:
+    introduced-in: 4
+    title: Туф — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: TUFF
+    amount: 1024
+    reward: 1000
+    duration-seconds: 43200
+  build_tuff_legendary:
+    introduced-in: 4
+    title: Туф — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: TUFF
+    amount: 2048
+    reward: 2200
+    duration-seconds: 86400
+  build_calcite_common:
+    introduced-in: 4
+    title: Кальцит — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: CALCITE
+    amount: 32
+    reward: 90
+    duration-seconds: 7200
+  build_calcite_uncommon:
+    introduced-in: 4
+    title: Кальцит — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: CALCITE
+    amount: 64
+    reward: 220
+    duration-seconds: 14400
+  build_calcite_rare:
+    introduced-in: 4
+    title: Кальцит — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: CALCITE
+    amount: 128
+    reward: 500
+    duration-seconds: 21600
+  build_calcite_epic:
+    introduced-in: 4
+    title: Кальцит — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: CALCITE
+    amount: 256
+    reward: 1200
+    duration-seconds: 43200
+  build_calcite_legendary:
+    introduced-in: 4
+    title: Кальцит — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: CALCITE
+    amount: 512
+    reward: 2400
+    duration-seconds: 86400
+  build_blackstone_common:
+    introduced-in: 4
+    title: Чернит — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: BLACKSTONE
+    amount: 128
+    reward: 80
+    duration-seconds: 7200
+  build_blackstone_uncommon:
+    introduced-in: 4
+    title: Чернит — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: BLACKSTONE
+    amount: 256
+    reward: 180
+    duration-seconds: 14400
+  build_blackstone_rare:
+    introduced-in: 4
+    title: Чернит — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: BLACKSTONE
+    amount: 512
+    reward: 450
+    duration-seconds: 21600
+  build_blackstone_epic:
+    introduced-in: 4
+    title: Чернит — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: BLACKSTONE
+    amount: 1024
+    reward: 1000
+    duration-seconds: 43200
+  build_blackstone_legendary:
+    introduced-in: 4
+    title: Чернит — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: BLACKSTONE
+    amount: 2048
+    reward: 2200
+    duration-seconds: 86400
+  build_basalt_common:
+    introduced-in: 4
+    title: Базальт — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: BASALT
+    amount: 128
+    reward: 80
+    duration-seconds: 7200
+  build_basalt_uncommon:
+    introduced-in: 4
+    title: Базальт — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: BASALT
+    amount: 256
+    reward: 180
+    duration-seconds: 14400
+  build_basalt_rare:
+    introduced-in: 4
+    title: Базальт — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: BASALT
+    amount: 512
+    reward: 450
+    duration-seconds: 21600
+  build_basalt_epic:
+    introduced-in: 4
+    title: Базальт — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: BASALT
+    amount: 1024
+    reward: 1000
+    duration-seconds: 43200
+  build_basalt_legendary:
+    introduced-in: 4
+    title: Базальт — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: BASALT
+    amount: 2048
+    reward: 2200
+    duration-seconds: 86400
+  build_sand_common:
+    introduced-in: 4
+    title: Песок — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: SAND
+    amount: 128
+    reward: 80
+    duration-seconds: 7200
+  build_sand_uncommon:
+    introduced-in: 4
+    title: Песок — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: SAND
+    amount: 256
+    reward: 180
+    duration-seconds: 14400
+  build_sand_rare:
+    introduced-in: 4
+    title: Песок — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: SAND
+    amount: 512
+    reward: 450
+    duration-seconds: 21600
+  build_sand_epic:
+    introduced-in: 4
+    title: Песок — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: SAND
+    amount: 1024
+    reward: 1000
+    duration-seconds: 43200
+  build_sand_legendary:
+    introduced-in: 4
+    title: Песок — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: SAND
+    amount: 2048
+    reward: 2200
+    duration-seconds: 86400
+  build_red_sand_common:
+    introduced-in: 4
+    title: Красный песок — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: RED_SAND
+    amount: 128
+    reward: 80
+    duration-seconds: 7200
+  build_red_sand_uncommon:
+    introduced-in: 4
+    title: Красный песок — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: RED_SAND
+    amount: 256
+    reward: 180
+    duration-seconds: 14400
+  build_red_sand_rare:
+    introduced-in: 4
+    title: Красный песок — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: RED_SAND
+    amount: 512
+    reward: 450
+    duration-seconds: 21600
+  build_red_sand_epic:
+    introduced-in: 4
+    title: Красный песок — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: RED_SAND
+    amount: 1024
+    reward: 1000
+    duration-seconds: 43200
+  build_red_sand_legendary:
+    introduced-in: 4
+    title: Красный песок — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: RED_SAND
+    amount: 2048
+    reward: 2200
+    duration-seconds: 86400
+  build_gravel_common:
+    introduced-in: 4
+    title: Гравий — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: GRAVEL
+    amount: 128
+    reward: 80
+    duration-seconds: 7200
+  build_gravel_uncommon:
+    introduced-in: 4
+    title: Гравий — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: GRAVEL
+    amount: 256
+    reward: 180
+    duration-seconds: 14400
+  build_gravel_rare:
+    introduced-in: 4
+    title: Гравий — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: GRAVEL
+    amount: 512
+    reward: 450
+    duration-seconds: 21600
+  build_gravel_epic:
+    introduced-in: 4
+    title: Гравий — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: GRAVEL
+    amount: 1024
+    reward: 1000
+    duration-seconds: 43200
+  build_gravel_legendary:
+    introduced-in: 4
+    title: Гравий — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: GRAVEL
+    amount: 2048
+    reward: 2200
+    duration-seconds: 86400
+  build_clay_common:
+    introduced-in: 4
+    title: Глина — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: CLAY
+    amount: 32
+    reward: 90
+    duration-seconds: 7200
+  build_clay_uncommon:
+    introduced-in: 4
+    title: Глина — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: CLAY
+    amount: 64
+    reward: 220
+    duration-seconds: 14400
+  build_clay_rare:
+    introduced-in: 4
+    title: Глина — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: CLAY
+    amount: 128
+    reward: 500
+    duration-seconds: 21600
+  build_clay_epic:
+    introduced-in: 4
+    title: Глина — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: CLAY
+    amount: 256
+    reward: 1200
+    duration-seconds: 43200
+  build_clay_legendary:
+    introduced-in: 4
+    title: Глина — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: CLAY
+    amount: 512
+    reward: 2400
+    duration-seconds: 86400
+  build_glass_common:
+    introduced-in: 4
+    title: Стекло — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: GLASS
+    amount: 32
+    reward: 90
+    duration-seconds: 7200
+  build_glass_uncommon:
+    introduced-in: 4
+    title: Стекло — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: GLASS
+    amount: 64
+    reward: 220
+    duration-seconds: 14400
+  build_glass_rare:
+    introduced-in: 4
+    title: Стекло — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: GLASS
+    amount: 128
+    reward: 500
+    duration-seconds: 21600
+  build_glass_epic:
+    introduced-in: 4
+    title: Стекло — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: GLASS
+    amount: 256
+    reward: 1200
+    duration-seconds: 43200
+  build_glass_legendary:
+    introduced-in: 4
+    title: Стекло — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: GLASS
+    amount: 512
+    reward: 2400
+    duration-seconds: 86400
+  build_bricks_common:
+    introduced-in: 4
+    title: Кирпичные блоки — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: BRICKS
+    amount: 32
+    reward: 90
+    duration-seconds: 7200
+  build_bricks_uncommon:
+    introduced-in: 4
+    title: Кирпичные блоки — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: BRICKS
+    amount: 64
+    reward: 220
+    duration-seconds: 14400
+  build_bricks_rare:
+    introduced-in: 4
+    title: Кирпичные блоки — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: BRICKS
+    amount: 128
+    reward: 500
+    duration-seconds: 21600
+  build_bricks_epic:
+    introduced-in: 4
+    title: Кирпичные блоки — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: BRICKS
+    amount: 256
+    reward: 1200
+    duration-seconds: 43200
+  build_bricks_legendary:
+    introduced-in: 4
+    title: Кирпичные блоки — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: BRICKS
+    amount: 512
+    reward: 2400
+    duration-seconds: 86400
+  build_quartz_block_common:
+    introduced-in: 4
+    title: Кварцевые блоки — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: QUARTZ_BLOCK
+    amount: 16
+    reward: 100
+    duration-seconds: 7200
+  build_quartz_block_uncommon:
+    introduced-in: 4
+    title: Кварцевые блоки — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: QUARTZ_BLOCK
+    amount: 32
+    reward: 250
+    duration-seconds: 14400
+  build_quartz_block_rare:
+    introduced-in: 4
+    title: Кварцевые блоки — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: QUARTZ_BLOCK
+    amount: 64
+    reward: 600
+    duration-seconds: 21600
+  build_quartz_block_epic:
+    introduced-in: 4
+    title: Кварцевые блоки — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: QUARTZ_BLOCK
+    amount: 128
+    reward: 1300
+    duration-seconds: 43200
+  build_quartz_block_legendary:
+    introduced-in: 4
+    title: Кварцевые блоки — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: QUARTZ_BLOCK
+    amount: 256
+    reward: 2700
+    duration-seconds: 86400
+  build_prismarine_common:
+    introduced-in: 4
+    title: Призмарин — малая поставка
+    type: DELIVERY
+    rarity: COMMON
+    target: PRISMARINE
+    amount: 16
+    reward: 100
+    duration-seconds: 7200
+  build_prismarine_uncommon:
+    introduced-in: 4
+    title: Призмарин — поставка для мастерских
+    type: DELIVERY
+    rarity: UNCOMMON
+    target: PRISMARINE
+    amount: 32
+    reward: 250
+    duration-seconds: 14400
+  build_prismarine_rare:
+    introduced-in: 4
+    title: Призмарин — запас для стройки
+    type: DELIVERY
+    rarity: RARE
+    target: PRISMARINE
+    amount: 64
+    reward: 600
+    duration-seconds: 21600
+  build_prismarine_epic:
+    introduced-in: 4
+    title: Призмарин — крупная поставка
+    type: DELIVERY
+    rarity: EPIC
+    target: PRISMARINE
+    amount: 128
+    reward: 1300
+    duration-seconds: 43200
+  build_prismarine_legendary:
+    introduced-in: 4
+    title: Призмарин — великая стройка
+    type: DELIVERY
+    rarity: LEGENDARY
+    target: PRISMARINE
+    amount: 256
+    reward: 2700
     duration-seconds: 86400

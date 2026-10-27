@@ -104,6 +104,7 @@ public final class MountedOrdersSmoke {
         orders=(PublicOrders)unsafe.allocateInstance(PublicOrders.class);file=dir.resolve("public-orders.yml");AtomicFiles.loaded(file);
         rows=new LinkedHashMap<>();set(orders,PublicOrders.class,"orders",rows);set(orders,PublicOrders.class,"file",file);set(orders,PublicOrders.class,"plugin",plugin);
         var income=new IncomeRuntime(plugin,"payments",100000,1000000,true);set(orders,PublicOrders.class,"income",income);set(orders,PublicOrders.class,"guard",new ActionGuard(plugin,"blocks.log"));
+        var materials=new ServerMaterials(dir.resolve("materials.db"));materials.ready().toCompletableFuture().get(10,java.util.concurrent.TimeUnit.SECONDS);set(orders,PublicOrders.class,"materials",materials);
         UUID fishing=add(FISHING,"COD"),otherFish=add(FISHING,"COD"),hunting=add(HUNTING,"ZOMBIE");
         for(String mount:List.of("on foot","boat","chest boat","raft","happy ghast","horse","camel","pig","strider","minecart")){
             ride=mount;int caught=progress(fishing),slain=progress(hunting);
@@ -143,6 +144,7 @@ public final class MountedOrdersSmoke {
         check(income.ledger().all().isEmpty(),"progress alone never issues a duplicate monetary reward");
         var load=PublicOrders.class.getDeclaredMethod("load");load.setAccessible(true);rows.clear();load.invoke(orders);
         check(progress(fishing)==caught&&progress(hunting)==slain&&progress(otherFish)==0,"real saved progress reloads without loss or duplicate credit");
+        materials.close();materials.closed().toCompletableFuture().get(10,java.util.concurrent.TimeUnit.SECONDS);
         System.out.println("MountedOrdersSmoke PASS: "+checks+" checks; personal fishing/melee/bow, transport, region ownership, cancellation, provenance, one-order credit and durable progress");
     }
 }

@@ -1,0 +1,10 @@
+Ran 13 tests in 3.110s
+SuiteSchedulerSmoke PASS: 31 checks; contention, affinity, retries, cancellation, freeze, exceptions, reentrancy and retirement
+ActivityAdminSmoke PASS: persistent pause, restart, extension, module pause composition, strict IDs, overflow, newcomer registration
+AdminMenuSmoke PASS: permission inheritance, Events adapter, exclusive categories, bounded pagination, filters, corrupt source refusal
+AuditSmoke PASS: 28 checks; restart, collision, corruption, filters and CSV
+DELETION_SAFETY_PASS: 22 checks
+ModuleSafetySmoke PASS: graph, durable group, time freeze, journal recovery, corruption and financial preservation
+PersonalHistorySmoke PASS 10 checks
+PASS NeverLandTownyControl: 7 executable tests
+SUITE PASS: 1 modules; 7 executable tests

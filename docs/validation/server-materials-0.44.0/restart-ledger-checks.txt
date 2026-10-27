@@ -1,0 +1,20 @@
+PASS Chronicles enabled with new shared core
+PASS ledger protocol v2
+PASS worker still owns ledger after contention interval
+PASS global heartbeat continues while ledger held for 120 ticks
+PASS region chunk-load and population handlers return while ledger is held
+PASS busy callbacks wait in their queues, not on global thread
+PASS contention counted
+PASS nltlock completes while another thread owns ledger
+PASS deferred callback returns to native global owner with ledger held
+PASS worker releases ledger
+PASS deferred single and periodic tasks execute exactly once
+PASS cancelled deferred task never executes
+PASS fixture economy is deliberately unavailable
+PASS previous balance survives full server restart without economy
+PASS unavailable economy does not initialize Towny account
+PASS rescan enqueues work instead of processing every city inline
+PASS bounded scan processes real Towny city
+PASS missing provider does not replace cached treasury with zero
+PASS unavailable balance cannot grant treasury achievement
+PASS worker autosave durably stores preserved balance

@@ -1,0 +1,11 @@
+PASS Contracts enabled on live Folia
+PASS construction material API is registered with required capabilities
+PASS Paper bundled SQLite driver opens real server-materials.db
+PASS installed v3 catalogue gains construction deliveries
+PASS custom player/server payout caps survive real catalogue migration
+PASS reserved and consumed stock survives full Folia restart
+PASS confirmed delivery becomes live available stock once
+PASS construction reserves resources asynchronously
+PASS completed project consumes reserve
+PASS spent project cannot create a resource refund
+PASS duplicate reserve/return calls preserve final stock exactly

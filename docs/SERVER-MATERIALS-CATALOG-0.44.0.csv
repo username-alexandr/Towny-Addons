@@ -1,0 +1,151 @@
+﻿ID,Задание,Материал,Название материала,Редкость,Количество,Награда (монеты),Срок (секунды)
+build_oak_log_common,Дуб — малая поставка,OAK_LOG,Дубовое бревно,COMMON,64,80,7200
+build_oak_log_uncommon,Дуб — поставка для мастерских,OAK_LOG,Дубовое бревно,UNCOMMON,128,180,14400
+build_oak_log_rare,Дуб — запас для стройки,OAK_LOG,Дубовое бревно,RARE,384,550,21600
+build_oak_log_epic,Дуб — крупная поставка,OAK_LOG,Дубовое бревно,EPIC,1024,1400,43200
+build_oak_log_legendary,Дуб — великая стройка,OAK_LOG,Дубовое бревно,LEGENDARY,2048,2700,86400
+build_spruce_log_common,Ель — малая поставка,SPRUCE_LOG,Еловое бревно,COMMON,64,80,7200
+build_spruce_log_uncommon,Ель — поставка для мастерских,SPRUCE_LOG,Еловое бревно,UNCOMMON,128,180,14400
+build_spruce_log_rare,Ель — запас для стройки,SPRUCE_LOG,Еловое бревно,RARE,384,550,21600
+build_spruce_log_epic,Ель — крупная поставка,SPRUCE_LOG,Еловое бревно,EPIC,1024,1400,43200
+build_spruce_log_legendary,Ель — великая стройка,SPRUCE_LOG,Еловое бревно,LEGENDARY,2048,2700,86400
+build_birch_log_common,Берёза — малая поставка,BIRCH_LOG,Берёзовое бревно,COMMON,64,80,7200
+build_birch_log_uncommon,Берёза — поставка для мастерских,BIRCH_LOG,Берёзовое бревно,UNCOMMON,128,180,14400
+build_birch_log_rare,Берёза — запас для стройки,BIRCH_LOG,Берёзовое бревно,RARE,384,550,21600
+build_birch_log_epic,Берёза — крупная поставка,BIRCH_LOG,Берёзовое бревно,EPIC,1024,1400,43200
+build_birch_log_legendary,Берёза — великая стройка,BIRCH_LOG,Берёзовое бревно,LEGENDARY,2048,2700,86400
+build_jungle_log_common,Тропическая древесина — малая поставка,JUNGLE_LOG,Бревно джунглевого дерева,COMMON,64,80,7200
+build_jungle_log_uncommon,Тропическая древесина — поставка для мастерских,JUNGLE_LOG,Бревно джунглевого дерева,UNCOMMON,128,180,14400
+build_jungle_log_rare,Тропическая древесина — запас для стройки,JUNGLE_LOG,Бревно джунглевого дерева,RARE,384,550,21600
+build_jungle_log_epic,Тропическая древесина — крупная поставка,JUNGLE_LOG,Бревно джунглевого дерева,EPIC,1024,1400,43200
+build_jungle_log_legendary,Тропическая древесина — великая стройка,JUNGLE_LOG,Бревно джунглевого дерева,LEGENDARY,2048,2700,86400
+build_acacia_log_common,Акация — малая поставка,ACACIA_LOG,Акациевое бревно,COMMON,64,80,7200
+build_acacia_log_uncommon,Акация — поставка для мастерских,ACACIA_LOG,Акациевое бревно,UNCOMMON,128,180,14400
+build_acacia_log_rare,Акация — запас для стройки,ACACIA_LOG,Акациевое бревно,RARE,384,550,21600
+build_acacia_log_epic,Акация — крупная поставка,ACACIA_LOG,Акациевое бревно,EPIC,1024,1400,43200
+build_acacia_log_legendary,Акация — великая стройка,ACACIA_LOG,Акациевое бревно,LEGENDARY,2048,2700,86400
+build_dark_oak_log_common,Тёмный дуб — малая поставка,DARK_OAK_LOG,Бревно тёмного дуба,COMMON,64,80,7200
+build_dark_oak_log_uncommon,Тёмный дуб — поставка для мастерских,DARK_OAK_LOG,Бревно тёмного дуба,UNCOMMON,128,180,14400
+build_dark_oak_log_rare,Тёмный дуб — запас для стройки,DARK_OAK_LOG,Бревно тёмного дуба,RARE,384,550,21600
+build_dark_oak_log_epic,Тёмный дуб — крупная поставка,DARK_OAK_LOG,Бревно тёмного дуба,EPIC,1024,1400,43200
+build_dark_oak_log_legendary,Тёмный дуб — великая стройка,DARK_OAK_LOG,Бревно тёмного дуба,LEGENDARY,2048,2700,86400
+build_mangrove_log_common,Мангровая древесина — малая поставка,MANGROVE_LOG,Мангровое бревно,COMMON,64,80,7200
+build_mangrove_log_uncommon,Мангровая древесина — поставка для мастерских,MANGROVE_LOG,Мангровое бревно,UNCOMMON,128,180,14400
+build_mangrove_log_rare,Мангровая древесина — запас для стройки,MANGROVE_LOG,Мангровое бревно,RARE,384,550,21600
+build_mangrove_log_epic,Мангровая древесина — крупная поставка,MANGROVE_LOG,Мангровое бревно,EPIC,1024,1400,43200
+build_mangrove_log_legendary,Мангровая древесина — великая стройка,MANGROVE_LOG,Мангровое бревно,LEGENDARY,2048,2700,86400
+build_cherry_log_common,Вишнёвая древесина — малая поставка,CHERRY_LOG,Вишнёвое бревно,COMMON,64,80,7200
+build_cherry_log_uncommon,Вишнёвая древесина — поставка для мастерских,CHERRY_LOG,Вишнёвое бревно,UNCOMMON,128,180,14400
+build_cherry_log_rare,Вишнёвая древесина — запас для стройки,CHERRY_LOG,Вишнёвое бревно,RARE,384,550,21600
+build_cherry_log_epic,Вишнёвая древесина — крупная поставка,CHERRY_LOG,Вишнёвое бревно,EPIC,1024,1400,43200
+build_cherry_log_legendary,Вишнёвая древесина — великая стройка,CHERRY_LOG,Вишнёвое бревно,LEGENDARY,2048,2700,86400
+build_pale_oak_log_common,Бледный дуб — малая поставка,PALE_OAK_LOG,Бревно бледного дуба,COMMON,64,80,7200
+build_pale_oak_log_uncommon,Бледный дуб — поставка для мастерских,PALE_OAK_LOG,Бревно бледного дуба,UNCOMMON,128,180,14400
+build_pale_oak_log_rare,Бледный дуб — запас для стройки,PALE_OAK_LOG,Бревно бледного дуба,RARE,384,550,21600
+build_pale_oak_log_epic,Бледный дуб — крупная поставка,PALE_OAK_LOG,Бревно бледного дуба,EPIC,1024,1400,43200
+build_pale_oak_log_legendary,Бледный дуб — великая стройка,PALE_OAK_LOG,Бревно бледного дуба,LEGENDARY,2048,2700,86400
+build_bamboo_block_common,Бамбуковые блоки — малая поставка,BAMBOO_BLOCK,Блок бамбука,COMMON,64,80,7200
+build_bamboo_block_uncommon,Бамбуковые блоки — поставка для мастерских,BAMBOO_BLOCK,Блок бамбука,UNCOMMON,128,180,14400
+build_bamboo_block_rare,Бамбуковые блоки — запас для стройки,BAMBOO_BLOCK,Блок бамбука,RARE,384,550,21600
+build_bamboo_block_epic,Бамбуковые блоки — крупная поставка,BAMBOO_BLOCK,Блок бамбука,EPIC,1024,1400,43200
+build_bamboo_block_legendary,Бамбуковые блоки — великая стройка,BAMBOO_BLOCK,Блок бамбука,LEGENDARY,2048,2700,86400
+build_crimson_stem_common,Багровые стебли — малая поставка,CRIMSON_STEM,Багровая ножка,COMMON,64,80,7200
+build_crimson_stem_uncommon,Багровые стебли — поставка для мастерских,CRIMSON_STEM,Багровая ножка,UNCOMMON,128,180,14400
+build_crimson_stem_rare,Багровые стебли — запас для стройки,CRIMSON_STEM,Багровая ножка,RARE,384,550,21600
+build_crimson_stem_epic,Багровые стебли — крупная поставка,CRIMSON_STEM,Багровая ножка,EPIC,1024,1400,43200
+build_crimson_stem_legendary,Багровые стебли — великая стройка,CRIMSON_STEM,Багровая ножка,LEGENDARY,2048,2700,86400
+build_warped_stem_common,Искажённые стебли — малая поставка,WARPED_STEM,Искажённая ножка,COMMON,64,80,7200
+build_warped_stem_uncommon,Искажённые стебли — поставка для мастерских,WARPED_STEM,Искажённая ножка,UNCOMMON,128,180,14400
+build_warped_stem_rare,Искажённые стебли — запас для стройки,WARPED_STEM,Искажённая ножка,RARE,384,550,21600
+build_warped_stem_epic,Искажённые стебли — крупная поставка,WARPED_STEM,Искажённая ножка,EPIC,1024,1400,43200
+build_warped_stem_legendary,Искажённые стебли — великая стройка,WARPED_STEM,Искажённая ножка,LEGENDARY,2048,2700,86400
+build_cobblestone_common,Булыжник — малая поставка,COBBLESTONE,Булыжник,COMMON,128,80,7200
+build_cobblestone_uncommon,Булыжник — поставка для мастерских,COBBLESTONE,Булыжник,UNCOMMON,256,180,14400
+build_cobblestone_rare,Булыжник — запас для стройки,COBBLESTONE,Булыжник,RARE,512,450,21600
+build_cobblestone_epic,Булыжник — крупная поставка,COBBLESTONE,Булыжник,EPIC,1024,1000,43200
+build_cobblestone_legendary,Булыжник — великая стройка,COBBLESTONE,Булыжник,LEGENDARY,2048,2200,86400
+build_stone_common,Камень — малая поставка,STONE,Камень,COMMON,128,80,7200
+build_stone_uncommon,Камень — поставка для мастерских,STONE,Камень,UNCOMMON,256,180,14400
+build_stone_rare,Камень — запас для стройки,STONE,Камень,RARE,512,450,21600
+build_stone_epic,Камень — крупная поставка,STONE,Камень,EPIC,1024,1000,43200
+build_stone_legendary,Камень — великая стройка,STONE,Камень,LEGENDARY,2048,2200,86400
+build_cobbled_deepslate_common,Колотый глубинный сланец — малая поставка,COBBLED_DEEPSLATE,Колотый глубинный сланец,COMMON,128,80,7200
+build_cobbled_deepslate_uncommon,Колотый глубинный сланец — поставка для мастерских,COBBLED_DEEPSLATE,Колотый глубинный сланец,UNCOMMON,256,180,14400
+build_cobbled_deepslate_rare,Колотый глубинный сланец — запас для стройки,COBBLED_DEEPSLATE,Колотый глубинный сланец,RARE,512,450,21600
+build_cobbled_deepslate_epic,Колотый глубинный сланец — крупная поставка,COBBLED_DEEPSLATE,Колотый глубинный сланец,EPIC,1024,1000,43200
+build_cobbled_deepslate_legendary,Колотый глубинный сланец — великая стройка,COBBLED_DEEPSLATE,Колотый глубинный сланец,LEGENDARY,2048,2200,86400
+build_andesite_common,Андезит — малая поставка,ANDESITE,Андезит,COMMON,128,80,7200
+build_andesite_uncommon,Андезит — поставка для мастерских,ANDESITE,Андезит,UNCOMMON,256,180,14400
+build_andesite_rare,Андезит — запас для стройки,ANDESITE,Андезит,RARE,512,450,21600
+build_andesite_epic,Андезит — крупная поставка,ANDESITE,Андезит,EPIC,1024,1000,43200
+build_andesite_legendary,Андезит — великая стройка,ANDESITE,Андезит,LEGENDARY,2048,2200,86400
+build_diorite_common,Диорит — малая поставка,DIORITE,Диорит,COMMON,128,80,7200
+build_diorite_uncommon,Диорит — поставка для мастерских,DIORITE,Диорит,UNCOMMON,256,180,14400
+build_diorite_rare,Диорит — запас для стройки,DIORITE,Диорит,RARE,512,450,21600
+build_diorite_epic,Диорит — крупная поставка,DIORITE,Диорит,EPIC,1024,1000,43200
+build_diorite_legendary,Диорит — великая стройка,DIORITE,Диорит,LEGENDARY,2048,2200,86400
+build_granite_common,Гранит — малая поставка,GRANITE,Гранит,COMMON,128,80,7200
+build_granite_uncommon,Гранит — поставка для мастерских,GRANITE,Гранит,UNCOMMON,256,180,14400
+build_granite_rare,Гранит — запас для стройки,GRANITE,Гранит,RARE,512,450,21600
+build_granite_epic,Гранит — крупная поставка,GRANITE,Гранит,EPIC,1024,1000,43200
+build_granite_legendary,Гранит — великая стройка,GRANITE,Гранит,LEGENDARY,2048,2200,86400
+build_tuff_common,Туф — малая поставка,TUFF,Туф,COMMON,128,80,7200
+build_tuff_uncommon,Туф — поставка для мастерских,TUFF,Туф,UNCOMMON,256,180,14400
+build_tuff_rare,Туф — запас для стройки,TUFF,Туф,RARE,512,450,21600
+build_tuff_epic,Туф — крупная поставка,TUFF,Туф,EPIC,1024,1000,43200
+build_tuff_legendary,Туф — великая стройка,TUFF,Туф,LEGENDARY,2048,2200,86400
+build_calcite_common,Кальцит — малая поставка,CALCITE,Кальцит,COMMON,32,90,7200
+build_calcite_uncommon,Кальцит — поставка для мастерских,CALCITE,Кальцит,UNCOMMON,64,220,14400
+build_calcite_rare,Кальцит — запас для стройки,CALCITE,Кальцит,RARE,128,500,21600
+build_calcite_epic,Кальцит — крупная поставка,CALCITE,Кальцит,EPIC,256,1200,43200
+build_calcite_legendary,Кальцит — великая стройка,CALCITE,Кальцит,LEGENDARY,512,2400,86400
+build_blackstone_common,Чернит — малая поставка,BLACKSTONE,Чернит,COMMON,128,80,7200
+build_blackstone_uncommon,Чернит — поставка для мастерских,BLACKSTONE,Чернит,UNCOMMON,256,180,14400
+build_blackstone_rare,Чернит — запас для стройки,BLACKSTONE,Чернит,RARE,512,450,21600
+build_blackstone_epic,Чернит — крупная поставка,BLACKSTONE,Чернит,EPIC,1024,1000,43200
+build_blackstone_legendary,Чернит — великая стройка,BLACKSTONE,Чернит,LEGENDARY,2048,2200,86400
+build_basalt_common,Базальт — малая поставка,BASALT,Базальт,COMMON,128,80,7200
+build_basalt_uncommon,Базальт — поставка для мастерских,BASALT,Базальт,UNCOMMON,256,180,14400
+build_basalt_rare,Базальт — запас для стройки,BASALT,Базальт,RARE,512,450,21600
+build_basalt_epic,Базальт — крупная поставка,BASALT,Базальт,EPIC,1024,1000,43200
+build_basalt_legendary,Базальт — великая стройка,BASALT,Базальт,LEGENDARY,2048,2200,86400
+build_sand_common,Песок — малая поставка,SAND,Песок,COMMON,128,80,7200
+build_sand_uncommon,Песок — поставка для мастерских,SAND,Песок,UNCOMMON,256,180,14400
+build_sand_rare,Песок — запас для стройки,SAND,Песок,RARE,512,450,21600
+build_sand_epic,Песок — крупная поставка,SAND,Песок,EPIC,1024,1000,43200
+build_sand_legendary,Песок — великая стройка,SAND,Песок,LEGENDARY,2048,2200,86400
+build_red_sand_common,Красный песок — малая поставка,RED_SAND,Красный песок,COMMON,128,80,7200
+build_red_sand_uncommon,Красный песок — поставка для мастерских,RED_SAND,Красный песок,UNCOMMON,256,180,14400
+build_red_sand_rare,Красный песок — запас для стройки,RED_SAND,Красный песок,RARE,512,450,21600
+build_red_sand_epic,Красный песок — крупная поставка,RED_SAND,Красный песок,EPIC,1024,1000,43200
+build_red_sand_legendary,Красный песок — великая стройка,RED_SAND,Красный песок,LEGENDARY,2048,2200,86400
+build_gravel_common,Гравий — малая поставка,GRAVEL,Гравий,COMMON,128,80,7200
+build_gravel_uncommon,Гравий — поставка для мастерских,GRAVEL,Гравий,UNCOMMON,256,180,14400
+build_gravel_rare,Гравий — запас для стройки,GRAVEL,Гравий,RARE,512,450,21600
+build_gravel_epic,Гравий — крупная поставка,GRAVEL,Гравий,EPIC,1024,1000,43200
+build_gravel_legendary,Гравий — великая стройка,GRAVEL,Гравий,LEGENDARY,2048,2200,86400
+build_clay_common,Глина — малая поставка,CLAY,Глина,COMMON,32,90,7200
+build_clay_uncommon,Глина — поставка для мастерских,CLAY,Глина,UNCOMMON,64,220,14400
+build_clay_rare,Глина — запас для стройки,CLAY,Глина,RARE,128,500,21600
+build_clay_epic,Глина — крупная поставка,CLAY,Глина,EPIC,256,1200,43200
+build_clay_legendary,Глина — великая стройка,CLAY,Глина,LEGENDARY,512,2400,86400
+build_glass_common,Стекло — малая поставка,GLASS,Стекло,COMMON,32,90,7200
+build_glass_uncommon,Стекло — поставка для мастерских,GLASS,Стекло,UNCOMMON,64,220,14400
+build_glass_rare,Стекло — запас для стройки,GLASS,Стекло,RARE,128,500,21600
+build_glass_epic,Стекло — крупная поставка,GLASS,Стекло,EPIC,256,1200,43200
+build_glass_legendary,Стекло — великая стройка,GLASS,Стекло,LEGENDARY,512,2400,86400
+build_bricks_common,Кирпичные блоки — малая поставка,BRICKS,Кирпичи,COMMON,32,90,7200
+build_bricks_uncommon,Кирпичные блоки — поставка для мастерских,BRICKS,Кирпичи,UNCOMMON,64,220,14400
+build_bricks_rare,Кирпичные блоки — запас для стройки,BRICKS,Кирпичи,RARE,128,500,21600
+build_bricks_epic,Кирпичные блоки — крупная поставка,BRICKS,Кирпичи,EPIC,256,1200,43200
+build_bricks_legendary,Кирпичные блоки — великая стройка,BRICKS,Кирпичи,LEGENDARY,512,2400,86400
+build_quartz_block_common,Кварцевые блоки — малая поставка,QUARTZ_BLOCK,Кварцевый блок,COMMON,16,100,7200
+build_quartz_block_uncommon,Кварцевые блоки — поставка для мастерских,QUARTZ_BLOCK,Кварцевый блок,UNCOMMON,32,250,14400
+build_quartz_block_rare,Кварцевые блоки — запас для стройки,QUARTZ_BLOCK,Кварцевый блок,RARE,64,600,21600
+build_quartz_block_epic,Кварцевые блоки — крупная поставка,QUARTZ_BLOCK,Кварцевый блок,EPIC,128,1300,43200
+build_quartz_block_legendary,Кварцевые блоки — великая стройка,QUARTZ_BLOCK,Кварцевый блок,LEGENDARY,256,2700,86400
+build_prismarine_common,Призмарин — малая поставка,PRISMARINE,Призмарин,COMMON,16,100,7200
+build_prismarine_uncommon,Призмарин — поставка для мастерских,PRISMARINE,Призмарин,UNCOMMON,32,250,14400
+build_prismarine_rare,Призмарин — запас для стройки,PRISMARINE,Призмарин,RARE,64,600,21600
+build_prismarine_epic,Призмарин — крупная поставка,PRISMARINE,Призмарин,EPIC,128,1300,43200
+build_prismarine_legendary,Призмарин — великая стройка,PRISMARINE,Призмарин,LEGENDARY,256,2700,86400

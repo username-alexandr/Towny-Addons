@@ -77,6 +77,7 @@ final class AdminMenu implements Listener {
         button(s,16,Material.COMPARATOR,"Диагностика зарплат",List.of("Towny/Vault, провайдер, лимиты","Право: neverlandtownyjobs.payments"),()->incomeCommand(player,"Jobs","jobpay","status"));
         button(s,28,Material.PAPER,"Начисления заказов",List.of("Последние десять записей и их ID","Все страницы: /orders admin list <страница>"),()->incomeCommand(player,"Contracts","orders","list"));
         button(s,30,Material.PAPER,"Начисления зарплат",List.of("Последние десять записей и их ID","Все страницы: /jobpay admin list <страница>"),()->incomeCommand(player,"Jobs","jobpay","list"));
+        button(s,34,Material.BARREL,"Серверный склад",List.of("Сданные игроками материалы","История поставок и резервы для строек"),()->incomeCommand(player,"Contracts","orders","resources"));
         button(s,32,Material.SPYGLASS,"Сверка спорных выплат",List.of("REVIEW: проверить банковский журнал","HELD: проверить квитанцию ресурсов","Решение требует ID и письменного основания"),()->{player.closeInventory();player.sendMessage("/orders admin show <UUID> или /jobpay admin show <UUID>");player.sendMessage("... admin resolve <UUID> <paid|retry|taken|untouched> confirm <основание сверки>");});
         back(s,()->home(player));show(player,s);
     }

@@ -8,11 +8,12 @@ if not (server/'ALLOW_DISPOSABLE_LEDGER_PROBE').is_file() or 'server-ip=127.0.0.
 results=[]
 artifacts={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted((server/'plugins').glob('NeverLandTowny*.jar'))}
 has_shutdown=(server/'plugins/ShutdownProbe.jar').exists()
+has_resources=(server/'plugins/ServerResourceProbe.jar').exists()
 if a.expect_shutdown_error and not has_shutdown:raise SystemExit('Negative regression requires ShutdownProbe.jar')
 for phase in (['baseline'] if a.expect_shutdown_error else ['initial','restart']):
     run_id=uuid.uuid4().hex
     proof=server/'validation'/phase;proof.mkdir(parents=True,exist_ok=True)
-    names=['NeverLandValidationProbe','NeverLandLedgerProbe']+(['NeverLandShutdownProbe'] if has_shutdown else [])
+    names=['NeverLandValidationProbe','NeverLandLedgerProbe']+(['NeverLandShutdownProbe'] if has_shutdown else [])+(['NeverLandServerResourceProbe'] if has_resources else [])
     files=[server/'plugins'/name/'runs'/run_id/'result.txt' for name in names]
     # Unique paths and receipt keys ensure an older result cannot satisfy this launch.
     # Collect stdout in memory, then publish a complete log after exit. A synchronized
@@ -36,10 +37,12 @@ for phase in (['baseline'] if a.expect_shutdown_error else ['initial','restart']
     for path in files:shutil.copy2(path,proof/(path.parents[2].name+'-result.txt'))
     shutil.copy2(files[1].with_name('checks.txt'),proof/'ledger-checks.txt')
     if has_shutdown:shutil.copy2(files[2].with_name('checks.txt'),proof/'shutdown-checks.txt')
+    if has_resources:shutil.copy2(files[-1].with_name('checks.txt'),proof/'resource-checks.txt')
     if 'FoliaWatchdogThread' in log:raise SystemExit('Watchdog warning during native validation: '+phase)
     if any(token in log for token in ['Error occurred while disabling','Error occurred while enabling','Could not load plugin']):raise SystemExit('Plugin lifecycle error during native validation: '+phase)
     row={'phase':phase,'run_id':run_id,'exit_code':code,'suite':files[0].read_text(),'ledger':files[1].read_text(),'watchdog':False,'jar_sha256':artifacts}
     if has_shutdown:row['shutdown']=files[2].read_text()
+    if has_resources:row['resources']=files[-1].read_text()
     results.append(row)
     (server/'validation/results.json').write_text(json.dumps(results,indent=2)+'\n')
     print('PASS native '+phase,flush=True)

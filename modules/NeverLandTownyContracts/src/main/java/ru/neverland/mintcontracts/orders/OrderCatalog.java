@@ -15,10 +15,10 @@ import ru.neverland.mintcontracts.orders.PublicOrders.Type;
 
 /** Versioned, additive migrations preserve custom terms and previously removed templates. */
 public final class OrderCatalog {
-    public static final int CATALOG_VERSION = 3;
+    public static final int CATALOG_VERSION = 4;
     public static final int DEFAULT_PLAYER_LIMIT = 3000;
     public static final int DEFAULT_BOARD_SIZE = 18;
-    public static final String MIGRATION_BACKUP = "orders.pre-catalog-v3.yml";
+    public static final String MIGRATION_BACKUP = "orders.pre-catalog-v4.yml";
     private OrderCatalog() {}
 
     public static boolean migrate(YamlConfiguration cfg, YamlConfiguration defaults) {
@@ -44,12 +44,13 @@ public final class OrderCatalog {
             cfg.set("board-size", size == 4 ? 12 : Math.min(size, 45));
             cfg.set("refresh-seconds", null);
         }
-        int size = SafeYaml.intValue(cfg, "board-size", 12);
+        if(version<3){int size = SafeYaml.intValue(cfg, "board-size", 12);
         if (size == 12) cfg.set("board-size", DEFAULT_BOARD_SIZE);
         // Upgrade the previous default only; never lower or replace a custom personal cap.
         if (SafeYaml.doubleValue(cfg, "limits.player-24h", 1500) == 1500) {
             double serverLimit = SafeYaml.doubleValue(cfg, "limits.server-24h", 100000);
             if (serverLimit >= 1500) cfg.set("limits.player-24h", Math.min(DEFAULT_PLAYER_LIMIT, serverLimit));
+        }
         }
         cfg.set("catalog-version", CATALOG_VERSION);
         return true;

@@ -44,3 +44,22 @@ workspace synchronization cannot truncate a still-open log.
 
 This regression does not change the gameplay event deadline, simulate player
 load, test a real economy provider, or repeat the separate mixed-protocol test.
+
+## Server materials regression (0.44.0)
+
+Compile `ServerResourceProbe.java` against the server libraries and current suite
+JARs; package it with `resource-plugin.yml` renamed to `plugin.yml` in
+`plugins/ServerResourceProbe.jar`. Create `ALLOW_DISPOSABLE_SERVER_RESOURCE_PROBE`
+on the marked loopback fixture. It inserts **synthetic** material delivery records,
+then calls the actual registered ServerMaterialsApi to reserve, consume and return
+resources. No real player is connected and no bank deposit is performed by this
+probe. It retains a private balance checkpoint between boots to verify persistence.
+Set the disposable fixture's pre-upgrade order limits to 5000/500000 to exercise
+catalogue migration without replacing custom caps. Keep the idle raid fixture's
+deadline in the future when rerunning unrelated regressions over a long session.
+
+The runner requires a unique successful resource result in both launches, copies
+check details and adds `resources` to its JSON report. These probes are never
+included in the player release package. Player inventory transitions, receipt
+recovery and database faults are covered separately by ResourceDeliveriesSmoke
+with real SQLite and reward files plus a strict inventory test double.

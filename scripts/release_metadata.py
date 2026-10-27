@@ -34,10 +34,11 @@ def main():
         if len(proof)!=2 or [r['phase'] for r in proof]!=['initial','restart']:
             raise SystemExit('Expected initial and restart native proofs')
         shutdown=any('shutdown' in row for row in proof)
+        resources=any('resources' in row for row in proof)
         for row in proof:
             if row.get('exit_code')!=0 or row.get('watchdog') is not False or row.get('jar_sha256')!=hashes:
                 raise SystemExit('Native proof failed or refers to different artifacts')
-            for name in ['suite','ledger']+(['shutdown'] if shutdown else []):
+            for name in ['suite','ledger']+(['shutdown'] if shutdown else [])+(['resources'] if resources else []):
                 lines=row.get(name,'').splitlines()
                 if 'failed=0' not in lines or 'run_id='+row.get('run_id','missing') not in lines:
                     raise SystemExit('Native result missing or stale')
@@ -49,6 +50,7 @@ def main():
                 'Нагрузочный тест с игроками и проверка реального экономического провайдера\n'
                 'не выполнялись; сторонние премиальные интеграции не проверялись.\n')
         if shutdown:native+='Дополнительно проверены остановка с активным рейдом и восстановление волны после перезапуска.\n'
+        if resources:native+='Проверены открытие SQLite на Folia, API серверных материалов, резервы строек, возврат и сохранение остатков между запусками.\n'
     commit = subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     stamp = datetime.now(timezone.utc).isoformat()
     text = (f'NeverLandTownySuite {matrix["suite"]}\nCommit: {commit}\nBuild time (UTC): {stamp}\n\n'

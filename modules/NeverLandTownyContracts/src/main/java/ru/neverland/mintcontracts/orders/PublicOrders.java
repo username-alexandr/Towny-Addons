@@ -42,6 +42,8 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
     }
     private final JavaPlugin plugin;private final java.nio.file.Path file;private final Map<UUID,Order> orders=new LinkedHashMap<>();
     private final DailyOrderBoard dailyBoard;private final IncomeRuntime income;private final ActionGuard guard;private final RussianNames names;
+    private final ServerMaterials materials;private final ResourceDeliveries resourceDeliveries;private final ResourceAdmin resourceAdmin;
+    private final Set<UUID> delivering=new HashSet<>();private volatile boolean closed;private boolean reconciling;
     private final int maximum;private boolean fault;
     public PublicOrders(JavaPlugin plugin)throws Exception{
         this(plugin,new RussianNames(plugin));
@@ -64,6 +66,19 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         if(migrated){OrderCatalog.saveMigration(configFile,cfg);plugin.getLogger().info("Каталог заказов обновлён: шаблонов "+templates.size()+", мест на следующей доске "+boardSize+", личный лимит за 24 ч. "+AuditTrail.cents(playerLimit)+"; резервная копия "+OrderCatalog.MIGRATION_BACKUP);}
         guard=new ActionGuard(plugin,"order-blocks.log");plugin.getServer().getPluginManager().registerEvents(guard,plugin);plugin.getServer().getPluginManager().registerEvents(this,plugin);
         var command=Objects.requireNonNull(plugin.getCommand("orders"));command.setExecutor(this);command.setTabCompleter(this);
+        materials=new ServerMaterials(plugin.getDataFolder().toPath().resolve("server-materials.db"));
+        resourceDeliveries=new ResourceDeliveries(materials,income.ledger(),owner(null));
+        resourceAdmin=new ResourceAdmin(plugin,names,materials);
+        plugin.getServer().getServicesManager().register(ru.neverland.mintcontracts.api.ServerMaterialsApi.class,new ru.neverland.mintcontracts.api.ServerMaterialsApi(){
+            public java.util.concurrent.CompletionStage<Map<String,Long>> balances(){return materials.balances().thenApply(rows->{var result=new TreeMap<String,Long>();for(var row:rows)result.put(row.material(),row.available());return Map.copyOf(result);});}
+            private void writable(){if(closed||!plugin.isEnabled()||SuiteState.frozen(plugin.getName()))throw new IllegalStateException("Серверный склад на паузе");}
+            private String proof(String actor,String reason){if(actor==null||actor.isBlank()||reason==null||reason.trim().length()<8)throw new IllegalArgumentException("Нужны автор и основание операции");return actor+": "+reason;}
+            public java.util.concurrent.CompletionStage<String> reserve(UUID id,String project,Map<String,Long> costs,String actor,String reason){writable();return materials.allocate(id,project,actor,reason,costs).thenApply(r->r.state());}
+            public java.util.concurrent.CompletionStage<String> consume(UUID id,String actor,String reason){writable();return materials.allocation(id,"consume",proof(actor,reason)).thenApply(r->r.state());}
+            public java.util.concurrent.CompletionStage<String> release(UUID id,String actor,String reason){writable();return materials.allocation(id,"return",proof(actor,reason)).thenApply(r->r.state());}
+        },plugin,org.bukkit.plugin.ServicePriority.Normal);
+        materials.ready().whenComplete((value,error)->{if(error!=null)plugin.getLogger().log(java.util.logging.Level.SEVERE,"Публичные сдачи приостановлены: база серверного склада не открыта",error);});
+        SuiteScheduler.get().runTaskTimer(plugin,()->{if(!closed&&materials.available()&&!reconciling){reconciling=true;resourceDeliveries.reconcile().whenComplete((v,error)->owner(null).call(()->{reconciling=false;if(error!=null)plugin.getLogger().warning("Сверка серверного склада: "+failure(error));return null;}));}},20,200);
         income.start();SuiteScheduler.get().runTaskTimer(plugin,this::tick,200,200);
         SuiteScheduler.get().runTaskTimer(plugin,()->{try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){if(!fault)try{boardSnapshot();}catch(IOException ex){plugin.getLogger().severe(ex.getMessage());}}},20,20);
     }
@@ -79,7 +94,47 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         for(var o:orders.values()){String p="orders."+o.id()+".";y.set(p+"player",o.player().toString());y.set(p+"template",o.template());y.set(p+"title",o.title());y.set(p+"type",o.type().name());y.set(p+"target",o.target());y.set(p+"goal",o.goal());y.set(p+"progress",o.progress());y.set(p+"cents",o.cents());y.set(p+"remaining",o.remaining());y.set(p+"cycle",o.cycle());y.set(p+"state",o.state());y.set(p+"rarity",o.rarity().name());y.set(p+"board-day",o.boardDay());}
         try{AtomicFiles.write(file,y::saveToString);}catch(IOException ex){fault=true;throw ex;}
     }
-    private boolean active(){return !fault&&income.enabled();}
+    private boolean active(){return !closed&&!fault&&income.enabled()&&materials.available();}
+    public void shutdown(){closed=true;materials.close();}
+    private ResourceDeliveries.Owner owner(Player player){return new ResourceDeliveries.Owner(){
+        public <T> java.util.concurrent.CompletionStage<T> call(java.util.concurrent.Callable<T> action){
+            var result=new java.util.concurrent.CompletableFuture<T>();
+            if(closed||!plugin.isEnabled()){result.completeExceptionally(new IllegalStateException("Заказы останавливаются"));return result;}
+            Runnable run=()->{try{if(closed||player!=null&&!player.isOnline())throw new IllegalStateException("Игрок вышел; сдача сохранена для проверки при входе");result.complete(action.call());}catch(Throwable error){result.completeExceptionally(error);}};
+            var schedulerOwner=WorldTasks.cleanupOwner(plugin);if(schedulerOwner==null){result.completeExceptionally(new IllegalStateException("Заказы останавливаются"));return result;}
+            // Completion accounting must not disappear when Contracts is paused mid-transfer.
+            // New removals still recheck active()/permissions on the player's region.
+            var task=player==null?SuiteScheduler.get().runTask(schedulerOwner,run):SuiteScheduler.entityLater(schedulerOwner,player,run,()->result.completeExceptionally(new IllegalStateException("Игрок вышел; ресурсы повторно не списаны")),1);
+            if(task.isCancelled())result.completeExceptionally(new IllegalStateException("Заказы останавливаются"));return result;
+        }
+    };}
+    private static String failure(Throwable error){while(error.getCause()!=null&&(error instanceof java.util.concurrent.CompletionException||error instanceof java.util.concurrent.ExecutionException))error=error.getCause();return error.getMessage()==null?error.getClass().getSimpleName():error.getMessage();}
+    private ResourceDeliveries.Inventory inventory(Player player){return new ResourceDeliveries.Inventory(){
+        public <T> java.util.concurrent.CompletionStage<T> call(java.util.concurrent.Callable<T> action){return owner(player).call(action);}
+        public void check(ServerMaterials.Delivery delivery){
+            Order order=orders.get(delivery.id());
+            if(!active()||order==null||!open(order)||!order.player().equals(player.getUniqueId())||!player.hasPermission("neverland.orders.use"))throw new IllegalStateException("Сдача сейчас недоступна; ресурсы остались у вас");
+            if(player.getGameMode()!=GameMode.SURVIVAL)throw new IllegalStateException("Сдавать ресурсы можно в режиме выживания");
+            if(!income.ready(player.getUniqueId()))throw new IllegalStateException("Экономика не подключена. Ресурсы остаются у вас.");
+            var sample=new ItemStack(Material.valueOf(delivery.material()));int total=0;for(var item:player.getInventory().getStorageContents())if(item!=null&&item.isSimilar(sample))total+=item.getAmount();
+            if(total<delivery.amount())throw new IllegalArgumentException("Для сдачи нужно: "+names.value(delivery.material())+" × "+delivery.amount()+". В инвентаре: "+total+". Именные и изменённые предметы не принимаются.");
+        }
+        public void takeAndSave(ServerMaterials.Delivery delivery){
+            var receipt=PlayerSaveReceipt.before(player);var sample=new ItemStack(Material.valueOf(delivery.material()));var contents=player.getInventory().getStorageContents();int left=delivery.amount();
+            for(int i=0;i<contents.length&&left>0;i++)if(contents[i]!=null&&contents[i].isSimilar(sample)){int n=Math.min(left,contents[i].getAmount());contents[i]=contents[i].clone();contents[i].setAmount(contents[i].getAmount()-n);left-=n;if(contents[i].getAmount()==0)contents[i]=null;}
+            if(left!=0)throw new IllegalStateException("Инвентарь изменился; нужна проверка сдачи");
+            player.getInventory().setStorageContents(contents);player.getPersistentDataContainer().set(receiptKey(delivery.id()),PersistentDataType.BYTE,(byte)2);receipt.save(player);
+        }
+        public boolean hasReceipt(ServerMaterials.Delivery delivery){return Byte.valueOf((byte)2).equals(player.getPersistentDataContainer().get(receiptKey(delivery.id()),PersistentDataType.BYTE));}
+        public void proveReceipt(ServerMaterials.Delivery delivery){
+            if(!hasReceipt(delivery))throw new IllegalStateException("Нет сохранённого подтверждения передачи ресурсов");
+            var receipt=PlayerSaveReceipt.before(player);player.getPersistentDataContainer().set(new NamespacedKey(plugin,"order_recovery"),PersistentDataType.STRING,UUID.randomUUID().toString());receipt.save(player);
+        }
+    };}
+    private void deliveryResult(Player player,UUID id,Throwable error){owner(null).call(()->{
+        delivering.remove(id);if(error!=null)plugin.getLogger().warning("Поставка "+id+": "+failure(error));
+        SuiteScheduler.player(plugin,player,p->{if(error!=null)p.sendMessage("§e"+failure(error));else p.sendMessage("§aРесурсы переданы на серверный склад. Награда ожидает зачисления на личный счёт.");var order=orders.get(id);if(order!=null)showOrder(p,order);});return null;
+    });}
     private boolean open(Order o){return o.state().equals("ACTIVE")&&income.ledger().get(o.id())==null;}
     private DailyOrderBoard.Snapshot boardSnapshot()throws IOException{try{return dailyBoard.snapshot();}catch(IOException ex){fault=true;throw ex;}}
     private Set<String> paidTemplates(UUID player,LocalDate day){
@@ -128,15 +183,10 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         var existing=income.ledger().get(id);if(existing!=null){recover(p);showOrder(p,o);return;}
         if(!open(o))throw new IllegalArgumentException("Заказ уже закрыт");
         if(o.type()==Type.DELIVERY){
-            if(!income.ready(p.getUniqueId()))throw new IllegalArgumentException("Экономика не подключена. Ресурсы остаются у вас.");
-            var sample=new ItemStack(Material.valueOf(o.target()));int total=0;for(ItemStack item:p.getInventory().getStorageContents())if(item!=null&&item.isSimilar(sample))total+=item.getAmount();
-            if(total<o.goal())throw new IllegalArgumentException("Для сдачи нужно: "+names.value(o.target())+" × "+o.goal()+". В инвентаре: "+total+". Именные и изменённые предметы не принимаются.");
-            var receipt=PlayerSaveReceipt.before(p);
-            income.ledger().reserve(id,p.getUniqueId(),o.cents(),"orders:"+o.template(),true);
-            int left=o.goal();ItemStack[] contents=p.getInventory().getStorageContents();
-            for(int i=0;i<contents.length&&left>0;i++)if(contents[i]!=null&&contents[i].isSimilar(sample)){int n=Math.min(left,contents[i].getAmount());contents[i]=contents[i].clone();contents[i].setAmount(contents[i].getAmount()-n);left-=n;if(contents[i].getAmount()==0)contents[i]=null;}
-            p.getInventory().setStorageContents(contents);p.getPersistentDataContainer().set(receiptKey(id),PersistentDataType.BYTE,(byte)1);receipt.save(p);
-            income.ledger().release(id,"saved player inventory "+p.getUniqueId());
+            var delivery=new ServerMaterials.Delivery(id,p.getUniqueId(),p.getName(),o.template(),o.target(),o.goal(),o.cents(),o.rarity().name(),System.currentTimeMillis());
+            var actor=inventory(p);actor.check(delivery);if(!delivering.add(id))throw new IllegalArgumentException("Ресурсы уже передаются. Подождите подтверждения.");
+            resourceDeliveries.deliver(delivery,actor).whenComplete((value,error)->deliveryResult(p,id,error));
+            p.sendMessage("§eПередаём ресурсы на серверный склад…");return;
         }else{
             if(o.progress()<o.goal())throw new IllegalArgumentException("Заказ ещё не выполнен");income.ledger().reserve(id,p.getUniqueId(),o.cents(),"orders:"+o.template(),false);
         }
@@ -144,8 +194,10 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
     }
     private NamespacedKey receiptKey(UUID id){return new NamespacedKey(plugin,"order_"+id.toString().replace("-",""));}
     private void recover(Player p)throws IOException{for(var e:income.ledger().all())if(e.player().equals(p.getUniqueId())&&e.state()==RewardLedger.State.HELD&&p.getPersistentDataContainer().has(receiptKey(e.id()),PersistentDataType.BYTE)){
-        // A failed save in this session must be confirmed again before releasing escrow.
-        var receipt=PlayerSaveReceipt.before(p);receipt.save(p);income.ledger().release(e.id(),"recovered player receipt");
+        materials.delivery(e.id()).thenCompose(d->{if(d!=null)return resourceDeliveries.recover(d,inventory(p));
+            // Existing pre-warehouse receipts keep their payout path, without inventing stock.
+            return owner(p).call(()->{if(!Byte.valueOf((byte)1).equals(p.getPersistentDataContainer().get(receiptKey(e.id()),PersistentDataType.BYTE)))throw new IllegalStateException("Нет записи поставки в серверной базе; нужна сверка");var receipt=PlayerSaveReceipt.before(p);p.getPersistentDataContainer().set(new NamespacedKey(plugin,"order_recovery"),PersistentDataType.STRING,UUID.randomUUID().toString());receipt.save(p);income.ledger().release(e.id(),"legacy saved player receipt");return null;});
+        }).whenComplete((v,error)->{if(error!=null)deliveryResult(p,e.id(),error);});
     }}
     @EventHandler public void join(PlayerJoinEvent e){SuiteScheduler.entity(plugin,e.getPlayer(),()->{try{recover(e.getPlayer());}catch(Exception ex){plugin.getLogger().severe("Доставка ожидает сверки: "+ex.getMessage());}});}
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void mine(BlockBreakEvent e){try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()){
@@ -158,7 +210,16 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void fish(PlayerFishEvent e){try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()){if(e.getState()==PlayerFishEvent.State.CAUGHT_FISH&&e.getCaught() instanceof Item item&&SuiteScheduler.owns(item)){Player player=e.getPlayer();String target=item.getItemStack().getType().name();SuiteScheduler.entity(plugin,player,()->{if(!e.isCancelled())progress(player,Type.FISHING,target);});}}}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()){
         try{
-            if(args.length>0&&args[0].equalsIgnoreCase("admin")){if(!sender.isOp()&&!sender.hasPermission("neverland.orders.admin"))throw new IllegalArgumentException("Нет прав администратора");income.admin(sender,Arrays.copyOfRange(args,1,args.length));return true;}
+            if(args.length>0&&args[0].equalsIgnoreCase("admin")){
+                if(args.length>1&&args[1].equalsIgnoreCase("resources")){resourceAdmin.command(sender,Arrays.copyOfRange(args,2,args.length));return true;}
+                if(!sender.isOp()&&!sender.hasPermission("neverland.orders.admin"))throw new IllegalArgumentException("Нет прав администратора");
+                if(args.length>=6&&args[1].equals("resolve")&&Set.of("taken","untouched").contains(args[3])&&args[4].equals("confirm")){
+                    UUID id=UUID.fromString(args[2]);String reason=String.join(" ",Arrays.copyOfRange(args,5,args.length));if(reason.trim().length()<8)throw new IllegalArgumentException("Укажите основание сверки (не менее 8 символов)");String actor=sender.getName();
+                    materials.delivery(id).thenCompose(d->{if(d==null)return owner(sender instanceof Player p?p:null).call(()->{income.admin(sender,Arrays.copyOfRange(args,1,args.length));return null;});return resourceDeliveries.resolve(id,args[3].equals("taken"),actor,reason);})
+                            .whenComplete((v,error)->SuiteScheduler.reply(plugin,sender,()->sender.sendMessage(error==null?"Сверка ресурсов и выплаты сохранена.":"Сверка остановлена: "+failure(error))));return true;
+                }
+                income.admin(sender,Arrays.copyOfRange(args,1,args.length));return true;
+            }
             if(!(sender instanceof Player p))throw new IllegalArgumentException("Игровая доска: /orders. Сверка: /orders admin");if(!p.hasPermission("neverland.orders.use"))throw new IllegalArgumentException("Нет прав на заказы");
             String action=args.length==0?"board":args[0].toLowerCase(Locale.ROOT);
             switch(action){
@@ -344,7 +405,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         Component actions=Component.text("  ");
         if(o.type()==Type.DELIVERY||o.progress()>=o.goal())actions=actions.append(button(
                 o.type()==Type.DELIVERY?"Сдать ресурсы":"Получить награду","/orders claim "+o.id(),
-                o.type()==Type.DELIVERY?"Сдать обычные ресурсы из инвентаря и получить награду":"Зачислить награду на личный счёт",NamedTextColor.GREEN)).append(Component.space());
+                o.type()==Type.DELIVERY?"Передать обычные ресурсы на серверный склад для общественных строек и получить награду":"Зачислить награду на личный счёт",NamedTextColor.GREEN)).append(Component.space());
         actions=actions.append(Component.text("[Отменить]",NamedTextColor.YELLOW)
                 .clickEvent(ClickEvent.suggestCommand("/orders cancel "+o.id()))
                 .hoverEvent(HoverEvent.showText(Component.text("Отмена без штрафа. Нажмите и отправьте подставленную команду для подтверждения.",NamedTextColor.WHITE))));

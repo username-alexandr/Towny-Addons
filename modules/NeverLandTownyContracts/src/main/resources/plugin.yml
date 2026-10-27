@@ -1,5 +1,5 @@
 name: NeverLandTownyContracts
-version: 0.3.27
+version: 0.4.0
 main: ru.neverland.mintcontracts.MintTownyContracts
 folia-supported: true
 api-version: '26.2'
@@ -23,6 +23,13 @@ permissions:
   neverland.orders.use:
     default: true
   neverland.orders.admin:
+    default: op
+    children:
+      neverland.orders.resources: true
+      neverland.orders.resources.manage: true
+  neverland.orders.resources:
+    default: op
+  neverland.orders.resources.manage:
     default: op
   mintcontracts.use:
     default: true

@@ -1,0 +1,22 @@
+[
+  {
+    "module": "NeverLandTownyContracts",
+    "tests": [
+      "ru.neverland.earnings.HuntingSmoke",
+      "ru.neverland.mintcontracts.CompanyContractsSmoke",
+      "ru.neverland.mintcontracts.ContractMathSmoke",
+      "ru.neverland.mintcontracts.MunicipalContractsSmoke",
+      "ru.neverland.mintcontracts.RewardLedgerSmoke",
+      "ru.neverland.mintcontracts.orders.DailyOrdersSmoke",
+      "ru.neverland.mintcontracts.orders.MountedOrdersSmoke",
+      "ru.neverland.mintcontracts.orders.ResourceDeliveriesSmoke",
+      "ru.neverland.mintcontracts.orders.ServerMaterialsSmoke"
+    ],
+    "api_contracts": [
+      "ru.neverland.mintcontracts.api.MintTownyContractsApi",
+      "ru.neverland.mintcontracts.api.ServerMaterialsApi"
+    ],
+    "repository_fault_probe": false,
+    "seconds": 14.034
+  }
+]
