@@ -1,0 +1,7 @@
+Folia 26.2 build 7 / commit 14b7fee
+Folia server SHA256: 128a634192261cd38bb4a5dc54075018a0f896fd6c6f529e37dca6e99e32b3b3
+JDK: Zulu 25.0.5
+Contracts bytecode: Java 17; built with javac against original Folia API
+Compile dependencies: Towny 0.103.2.0, PlaceholderAPI 2.12.3, real Folia/Minecraft libraries
+No real players or economy provider; no load test. Native probe made no bank payment.
+Contracts SHA256: 810276d237fa3f41b9b73dc65ca26a5a0a90267feb66f72de19af61e4fb2cc17

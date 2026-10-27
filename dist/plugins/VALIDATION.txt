@@ -1,7 +1,10 @@
-NeverLandTownySuite 0.45.2
-Builds 0.8.39 rebuilt; other 39 JARs unchanged from 0.45.1.
-40 Builds Java programs, 6 API contracts, 13 Python build checks passed.
-Native Folia 26.2 / Java 25: 188 initial and 6 restart assertions passed.
-All 40 suite JARs and CraftoUI server 0.8.15 are recorded by SHA-256 in docs/validation/placement-preview-0.45.2/results.json.
-Targeted placement, preview and persistence tests; no load test or real bank provider.
-Client input: 27 assertions with explicit platform doubles. Menu input/render: 78 assertions with explicit AWT/platform doubles. No game window or real connected player was tested.
+NeverLandTownySuite 0.45.3
+Contracts 0.4.2 rebuilt; other 39 suite JARs unchanged from 0.45.2.
+10 Contracts Java programs passed, including 27 payout budget assertions.
+2 API contracts (43 signatures/capabilities) and 13 Python checks passed.
+Source matrix: 40 modules, 138 YAML files, 90 buildings / 11 wonders.
+Native Folia 26.2 build 7 / Java 25.0.5: 16 initial and 15 restart assertions passed.
+Tested personal 5000/global 5000000 budget, command startup, accepted progress, SQLite and held receipt persistence.
+Exact target hashes: docs/validation/payout-limits-0.45.3/native-results.json.
+Targeted update only; other modules were not rebuilt or retested.
+No real players, live economy provider or load test; no bank payment in native fixture.

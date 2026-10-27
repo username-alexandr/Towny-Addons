@@ -57,9 +57,10 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         try(var reader=new InputStreamReader(Objects.requireNonNull(plugin.getResource("orders.yml")),StandardCharsets.UTF_8)){defaults=new YamlConfiguration();defaults.load(reader);}
         boolean migrated=OrderCatalog.migrate(cfg,defaults);
         maximum=positive(cfg,"maximum-active",3,3);int boardSize=positive(cfg,"board-size",OrderCatalog.DEFAULT_BOARD_SIZE,45);
-        income=new IncomeRuntime(plugin,"order-payments",money(cfg,"limits.player-24h",OrderCatalog.DEFAULT_PLAYER_LIMIT),money(cfg,"limits.server-24h",100000),cfg.getBoolean("enabled",true));
+        var limits=PayoutLimits.read(cfg);
+        income=new IncomeRuntime(plugin,"order-payments",limits.playerCents(),limits.serverCents(),cfg.getBoolean("enabled",true));
         var templates=OrderCatalog.templates(cfg);OrderCatalog.validateItems(templates);
-        long playerLimit=money(cfg,"limits.player-24h",OrderCatalog.DEFAULT_PLAYER_LIMIT),serverLimit=money(cfg,"limits.server-24h",100000);
+        long playerLimit=limits.playerCents(),serverLimit=limits.serverCents();
         if(templates.stream().anyMatch(t->t.cents()>Math.min(playerLimit,serverLimit)))plugin.getLogger().warning("В каталоге есть награда выше лимита выплат: такой заказ нельзя оплатить до изменения limits");
         dailyBoard=new DailyOrderBoard(plugin.getDataFolder().toPath().resolve("orders-board.yml"),templates,boardSize,OrderCatalog.weights(cfg));
         load();OrderCatalog.validateItems(dailyBoard.snapshot().templates());

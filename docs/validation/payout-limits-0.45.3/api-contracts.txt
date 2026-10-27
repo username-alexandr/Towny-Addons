@@ -1,0 +1,2 @@
+API CONTRACT PASS: ru.neverland.mintcontracts.api.MintTownyContractsApi (27 signatures/capabilities)
+API CONTRACT PASS: ru.neverland.mintcontracts.api.ServerMaterialsApi (16 signatures/capabilities)

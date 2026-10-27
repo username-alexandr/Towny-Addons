@@ -1,0 +1,48 @@
+TEST NeverLandTownyContracts ru.neverland.earnings.HuntingSmoke
+HuntingSmoke: 135 checks passed
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.CompanyContractsSmoke
+ContractMathSmoke OK
+CompanyContractsSmoke OK: ownership, escrow, settlement restart and legacy migration
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.ContractMathSmoke
+ContractMathSmoke OK
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.MunicipalContractsSmoke
+ContractMathSmoke OK
+CompanyContractsSmoke OK: ownership, escrow, settlement restart and legacy migration
+MunicipalContractsSmoke OK: durable money, delivery crash windows, road verification, scout dwell, immutable conditions and restart
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.RewardLedgerSmoke
+REWARD_LEDGER_SMOKE_PASS: 38 checks
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.orders.DailyOrdersSmoke
+DAILY_ORDERS_SMOKE_PASS: 665 checks
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.orders.MountedOrdersSmoke
+SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/contracts-carry-toolchain/folia-libraries/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+MountedOrdersSmoke PASS: 76 checks; personal fishing/melee/bow, transport, region ownership, cancellation, provenance, one-order credit and durable progress
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.orders.PayoutLimitsSmoke
+PASS payout limits: 27 checks
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.orders.ResourceDeliveriesSmoke
+SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/contracts-carry-toolchain/folia-libraries/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+ResourceDeliveriesSmoke PASS: 22 checks; real SQLite/reward files, player ownership, duplicate clicks, save faults, database rollback, recovery, caps and exactly-once rewards
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.orders.ServerMaterialsSmoke
+SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/contracts-carry-toolchain/folia-libraries/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+ServerMaterialsSmoke PASS: 23 checks; real SQLite, duplicate receipts, stock conservation, project reserves, rollback, CSV, restart and corrupt storage
+SMOKE PASS: 10 executable tests

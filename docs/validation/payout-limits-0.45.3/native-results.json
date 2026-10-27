@@ -1,0 +1,26 @@
+[
+  {
+    "phase": "initial",
+    "exit_code": 0,
+    "result": "phase=initial\nfailed=0\nchecks=16\n",
+    "watchdog": false,
+    "jars": {
+      "PayoutLimitsRuntimeProbe.jar": "e461cb2d3e9cae973d16b912895e3e35faf043a42bf3567c2b84db02129459be",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyContracts-0.4.2.jar": "810276d237fa3f41b9b73dc65ca26a5a0a90267feb66f72de19af61e4fb2cc17",
+      "NeverLandTownyBuilds-0.8.39.jar": "278f99a58bfe4ef1579f65d4c9f29d969a1a70e359c69a1fcb4dbeba221d08c5"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "phase=restart\nfailed=0\nchecks=15\n",
+    "watchdog": false,
+    "jars": {
+      "PayoutLimitsRuntimeProbe.jar": "e461cb2d3e9cae973d16b912895e3e35faf043a42bf3567c2b84db02129459be",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyContracts-0.4.2.jar": "810276d237fa3f41b9b73dc65ca26a5a0a90267feb66f72de19af61e4fb2cc17",
+      "NeverLandTownyBuilds-0.8.39.jar": "278f99a58bfe4ef1579f65d4c9f29d969a1a70e359c69a1fcb4dbeba221d08c5"
+    }
+  }
+]

@@ -1,0 +1,15 @@
+PASS Contracts enabled on actual Folia 26.2
+PASS exact new plugin version loaded
+PASS five-million global budget does not suspend public orders
+PASS public income runtime enabled
+PASS personal 5000 cap retained in live ledger
+PASS global 5000000 cap retained in live ledger
+PASS custom configuration not reset during startup
+PASS all 670 catalogue templates preserved
+PASS orders command uses active board executor
+PASS existing city/company contract service retained
+PASS real SQLite material warehouse opened
+PASS accepted order and existing progress preserved
+PASS unpaid test receipt retained without making any bank payment
+PASS same receipt cannot create a second reward
+PASS reserved reward reduces personal allowance once

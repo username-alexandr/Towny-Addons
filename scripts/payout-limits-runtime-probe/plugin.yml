@@ -1,0 +1,6 @@
+name: PayoutLimitsRuntimeProbe
+version: 1
+main: ru.neverland.validation.PayoutLimitsRuntimeProbe
+api-version: '26.2'
+folia-supported: true
+depend: [NeverLandTownyContracts]
