@@ -1,0 +1,14 @@
+Ran 13 tests in 2.987s
+HuntingSmoke: 135 checks passed
+ContractMathSmoke OK
+CompanyContractsSmoke OK: ownership, escrow, settlement restart and legacy migration
+ContractMathSmoke OK
+ContractMathSmoke OK
+CompanyContractsSmoke OK: ownership, escrow, settlement restart and legacy migration
+MunicipalContractsSmoke OK: durable money, delivery crash windows, road verification, scout dwell, immutable conditions and restart
+REWARD_LEDGER_SMOKE_PASS: 38 checks
+DAILY_ORDERS_SMOKE_PASS: 61 checks
+MountedOrdersSmoke PASS: 76 checks; personal fishing/melee/bow, transport, region ownership, cancellation, provenance, one-order credit and durable progress
+API CONTRACT PASS: ru.neverland.mintcontracts.api.MintTownyContractsApi (27 signatures/capabilities)
+PASS NeverLandTownyContracts: 7 executable tests
+SUITE PASS: 1 modules; 7 executable tests

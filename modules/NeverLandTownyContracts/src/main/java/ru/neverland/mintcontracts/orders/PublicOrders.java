@@ -111,7 +111,14 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         Template t=board.templates().stream().filter(v->v.id().equals(template)).findFirst().orElseThrow(()->new IllegalArgumentException("Заказ отсутствует на доске"));
         Order o=new Order(UUID.randomUUID(),p.getUniqueId(),t.id(),t.title(),t.type(),t.target(),t.amount(),0,t.cents(),t.duration(),board.day().toEpochDay(),"ACTIVE",t.rarity(),board.day().toString());orders.put(o.id(),o);save();p.sendMessage(Component.text("Заказ принят: ",NamedTextColor.GREEN).append(Component.text(t.title(),NamedTextColor.WHITE)));showOrder(p,o);p.sendMessage(button("Мои заказы","/orders mine","Показать прогресс и действия по заказам",NamedTextColor.YELLOW));
     }
-    private void progress(Player p,Type type,String target){if(!active()||!ActionGuard.survival(p)||!p.hasPermission("neverland.orders.use"))return;
+    private static boolean eligibleAction(Player player,Type type){
+        // A passenger still fishes/attacks personally. Keep the stricter on-foot
+        // policy for mining and other income paths; no vehicle whitelist is needed.
+        if(type!=Type.HUNTING&&type!=Type.FISHING)return ActionGuard.survival(player);
+        return SuiteScheduler.owns(player)&&player.getGameMode()==GameMode.SURVIVAL
+                &&!player.isFlying()&&!player.isGliding();
+    }
+    private void progress(Player p,Type type,String target){if(!active()||!eligibleAction(p,type)||!p.hasPermission("neverland.orders.use"))return;
         // One action advances one order, never three copies of the same objective.
         Order o=orders.values().stream().filter(v->v.player().equals(p.getUniqueId())&&open(v)&&v.type()==type&&v.target().equals(target)&&v.progress()<v.goal()).findFirst().orElse(null);if(o==null)return;
         o=o.progress(o.progress()+1);orders.put(o.id(),o);try{save();if(o.progress()==o.goal()){p.sendMessage(Component.text("Заказ выполнен: ",NamedTextColor.GREEN).append(Component.text(o.title(),NamedTextColor.WHITE)));showOrder(p,o);}}catch(IOException ex){plugin.getLogger().severe(ex.getMessage());}

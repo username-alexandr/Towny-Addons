@@ -1,0 +1,202 @@
+{
+  "NeverLandTownyAchievements-0.1.5.jar": {
+    "sha256": "acb42472deed43b7b1cd670784537d8ba22c2551018e6ff17df2bb73806fcbef",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyArchaeology-0.1.23.jar": {
+    "sha256": "1a5a5d2d801c285f6be5910e9bc668eb65b20ace48dc16e00a535f2bd413fdd2",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyArmy-0.1.11.jar": {
+    "sha256": "798c1bdc354bf29991fbf3197a4c8da90cf254840b05de76a0821aee47929a9c",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyBuilds-0.8.36.jar": {
+    "sha256": "c6981d15f3e4e85718c5200375af012465c1d6e6a977d6101ef1285468e76516",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyCamps-0.1.23.jar": {
+    "sha256": "c7fa8084512aa8a74306a106fb53d81aa8ab507de0fa1c74626d035e8ea5b51d",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyChronicles-0.1.20.jar": {
+    "sha256": "857dc6e292e24ded8e8a1fa01b3d4a613e4fcab3cc5ff850ccadbeee3956af41",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyCitizens-0.1.13.jar": {
+    "sha256": "544dd4ad8c5a77ebca3c49e2a25385cafec9b4123f444751dd073b710a52cd70",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyCompanies-0.1.16.jar": {
+    "sha256": "a6fde8144a0e965a80ae9f6507525b0f369d2566c8bb9ee5e4e19fec6906945e",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyContracts-0.3.27.jar": {
+    "sha256": "c26007e051db220ab4f12eb5420f371efeaf4056e4ab4cf195fff6e0adcccd40",
+    "rebuilt": true,
+    "verified_source": "Contracts 0.3.27 rebuild"
+  },
+  "NeverLandTownyControl-0.4.15.jar": {
+    "sha256": "93ebdac4f2a6ba34c5ad3832c0b50f2816f985837e33bd2296ee6b605f67b1af",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyCouncil-0.1.17.jar": {
+    "sha256": "aa106044db256da970f53ea51c4eb4d2400dc10c47e0784721702e747a4a72c1",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyCrime-0.1.10.jar": {
+    "sha256": "7ea510a172f22cc2569b67c988abc35f7906d5093b4545eb13b943236a6a68bc",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyDiplomacy-0.1.13.jar": {
+    "sha256": "c4c83df0bd3d13165ac1570f618ac47723ccf90d53828a2d6b1ca97ab728e572",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyDistricts-0.1.21.jar": {
+    "sha256": "6aebb6e4642d055dee2dca5c7150e5d78c7132af217726763b0baeaad40833e0",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyElections-0.1.13.jar": {
+    "sha256": "0d1a4d3eea0f77f3ee4171320163ad22bf8eeb716b9cc6903965073423ce95bd",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyEnvironment-0.1.3.jar": {
+    "sha256": "91835d8228d45c64a8d618f4d7d5fe5e4c3849929574ef1b6e557643f090d4c6",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyEspionage-0.1.24.jar": {
+    "sha256": "6cc74dc6ce477ec746772f6e3c0eeaeae07868a95e507b9443276489ec155eae",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyEvents-0.4.12.jar": {
+    "sha256": "c441af6d7e683457d3b71eba1d4dd1a226d50e75c53227c02a8a50554c8e437d",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyExpeditions-0.1.26.jar": {
+    "sha256": "3a2ea4472019ca2e315097713f9cd3d58555259c7cdc49bb35a92835f21e327b",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyGovernance-0.1.27.jar": {
+    "sha256": "309c392856edbf769c05f9fbe527eb573e2016789ab1e9093a8ae8c26fad2fdf",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyIdeologies-0.1.21.jar": {
+    "sha256": "081314a5ce42360ce2d1466e900bbc07a2a8866bd3543d8c1c8d5d1d66b476f9",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyJobs-0.1.20.jar": {
+    "sha256": "1a7bc3a2b81bffc9bcec5db1d34399fa637101690d6321fa185eaf7baa685a75",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyJustice-0.1.10.jar": {
+    "sha256": "d5db8157346cd2ab728c9f37ee091d1dab658b093ad34f2f46cab76c092dd556",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyLogistics-0.1.20.jar": {
+    "sha256": "b7097f7c02f39eca297a8189799093ec67ef53c7a042ededa032f7a732fd62a5",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyMarket-0.1.18.jar": {
+    "sha256": "97af327ef1b4770b28de7e86e733481522ed54271c2758d386735d02e248e03b",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyPolicies-0.1.17.jar": {
+    "sha256": "32aebb1a8d0cf55094e49d92ee7fd6ae31daed60f8475f7f693ca970df9b8af6",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyPopulation-0.1.23.jar": {
+    "sha256": "bad4e763fb70daf5c41f7e263e9745894927a5d1dea95659bb7f5637d32c4a00",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyPower-0.1.17.jar": {
+    "sha256": "3256005145559dec6831c071436f43f365a4d6599c28907909cfb8416df5555d",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyQuests-0.1.6.jar": {
+    "sha256": "7f6ae03512ddb36c97ab5c5e08dbec9caafdd8c2c8475358f1a2cbacdb6aa6f5",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyReputation-0.2.11.jar": {
+    "sha256": "2494317fe6afc9854477e7b74cbb4431bac51b2dc2b281af03d49c228edf7aec",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyResearch-0.1.18.jar": {
+    "sha256": "d1d1cf19732d3da996388736a3f738b8225a85c769fde33015ccdafd84d2c9d1",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyResources-0.1.24.jar": {
+    "sha256": "8205a47187d75f00ec64ce409f4a443f1577b9aee3e21843806cf23b7608f442",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownySeasons-0.1.10.jar": {
+    "sha256": "33dc99613ef9867d8b6ed367471bce0bf387d3464c5ed9efe3e730c17d3f09fd",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownySiegesPlus-0.1.10.jar": {
+    "sha256": "2de9a82687e7d75232fb4dcc83b95367a4c0ec145ecf2056da9f0a012162b9e6",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownySpecialization-0.1.17.jar": {
+    "sha256": "a04732d188dda660226850780edbc74cd63af972e375cd1fea68109769d1acde",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyStick-0.1.22.jar": {
+    "sha256": "e5147b14e40ea125c7b1ba5322f9d143003ca00342431f6a650ba4da0a0bd4a5",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyTaxes-0.1.23.jar": {
+    "sha256": "1bd648bfbffd65befdb54525d90e9a0ab13df67280a3882d332f0fa0a912540a",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyTrade-0.2.20.jar": {
+    "sha256": "935b6c465e2a8bb9907d37892034a81a0fdbfd75d469fb7ff21d64eac6aa451a",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyTreasuryPlus-0.1.19.jar": {
+    "sha256": "81fae12debe5578566a1af417e80065a020644e28ea517e690e3fac8e91d1bd7",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  },
+  "NeverLandTownyUpkeep-0.1.21.jar": {
+    "sha256": "7ee72a67513c751a6b7d9caa72fc218529795a6ecd09efcc76c70a5adba687ff",
+    "rebuilt": false,
+    "verified_source": "Suite 0.43.1 unchanged binary"
+  }
+}
