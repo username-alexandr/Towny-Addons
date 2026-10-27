@@ -30,7 +30,7 @@ public final class LedgerProbe extends JavaPlugin {
         Bukkit.getGlobalRegionScheduler().runAtFixedRate(this,t->heartbeat.incrementAndGet(),1,1);
         if(Boolean.getBoolean("neverland.probe.shutdown"))Bukkit.getGlobalRegionScheduler().runAtFixedRate(this,t->{
             Path other=Path.of("plugins/NeverLandValidationProbe");if(!runId.equals("legacy"))other=other.resolve("runs").resolve(runId);
-            if(Files.exists(proof.resolve("result.txt"))&&Files.exists(other.resolve("result.txt"))){t.cancel();Bukkit.shutdown();}
+            if(Files.exists(proof.resolve("result.txt"))&&Files.exists(other.resolve("result.txt"))&&(Bukkit.getPluginManager().getPlugin("NeverLandBuildMenuProbe")==null||Files.exists(Path.of("plugins/NeverLandBuildMenuProbe/runs/"+runId+"/result.txt")))){t.cancel();Bukkit.shutdown();}
         },20,20);
         Bukkit.getGlobalRegionScheduler().runDelayed(this,t->{try{start();}catch(Throwable e){finish(e);}},80);
     }

@@ -15,10 +15,10 @@ import ru.neverland.mintcontracts.orders.PublicOrders.Type;
 
 /** Versioned, additive migrations preserve custom terms and previously removed templates. */
 public final class OrderCatalog {
-    public static final int CATALOG_VERSION = 4;
+    public static final int CATALOG_VERSION = 5;
     public static final int DEFAULT_PLAYER_LIMIT = 3000;
     public static final int DEFAULT_BOARD_SIZE = 18;
-    public static final String MIGRATION_BACKUP = "orders.pre-catalog-v4.yml";
+    public static final String MIGRATION_BACKUP = "orders.pre-catalog-v5.yml";
     private OrderCatalog() {}
 
     public static boolean migrate(YamlConfiguration cfg, YamlConfiguration defaults) {

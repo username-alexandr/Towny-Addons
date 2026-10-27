@@ -1,5 +1,5 @@
 # Государственные заказы /orders. Городские контракты и их казна не затрагиваются.
-catalog-version: 4
+catalog-version: 5
 enabled: true
 maximum-active: 3
 board-size: 18
@@ -2059,3 +2059,3965 @@ templates:
     amount: 256
     reward: 2700
     duration-seconds: 86400
+
+  # Каталог v5: цветные строительные материалы; двери и люки небольшими партиями.
+  build_white_stained_glass_common:
+    introduced-in: 5
+    title: "Для серверных построек: Белое стекло"
+    type: DELIVERY
+    target: WHITE_STAINED_GLASS
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_white_stained_glass_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Белое стекло"
+    type: DELIVERY
+    target: WHITE_STAINED_GLASS
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_white_stained_glass_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Белое стекло"
+    type: DELIVERY
+    target: WHITE_STAINED_GLASS
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_white_stained_glass_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Белое стекло"
+    type: DELIVERY
+    target: WHITE_STAINED_GLASS
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_white_stained_glass_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Белое стекло"
+    type: DELIVERY
+    target: WHITE_STAINED_GLASS
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_orange_stained_glass_common:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевое стекло"
+    type: DELIVERY
+    target: ORANGE_STAINED_GLASS
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_orange_stained_glass_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевое стекло"
+    type: DELIVERY
+    target: ORANGE_STAINED_GLASS
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_orange_stained_glass_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевое стекло"
+    type: DELIVERY
+    target: ORANGE_STAINED_GLASS
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_orange_stained_glass_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевое стекло"
+    type: DELIVERY
+    target: ORANGE_STAINED_GLASS
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_orange_stained_glass_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевое стекло"
+    type: DELIVERY
+    target: ORANGE_STAINED_GLASS
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_magenta_stained_glass_common:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурное стекло"
+    type: DELIVERY
+    target: MAGENTA_STAINED_GLASS
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_magenta_stained_glass_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурное стекло"
+    type: DELIVERY
+    target: MAGENTA_STAINED_GLASS
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_magenta_stained_glass_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурное стекло"
+    type: DELIVERY
+    target: MAGENTA_STAINED_GLASS
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_magenta_stained_glass_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурное стекло"
+    type: DELIVERY
+    target: MAGENTA_STAINED_GLASS
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_magenta_stained_glass_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурное стекло"
+    type: DELIVERY
+    target: MAGENTA_STAINED_GLASS
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_light_blue_stained_glass_common:
+    introduced-in: 5
+    title: "Для серверных построек: Голубое стекло"
+    type: DELIVERY
+    target: LIGHT_BLUE_STAINED_GLASS
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_light_blue_stained_glass_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Голубое стекло"
+    type: DELIVERY
+    target: LIGHT_BLUE_STAINED_GLASS
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_light_blue_stained_glass_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Голубое стекло"
+    type: DELIVERY
+    target: LIGHT_BLUE_STAINED_GLASS
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_light_blue_stained_glass_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Голубое стекло"
+    type: DELIVERY
+    target: LIGHT_BLUE_STAINED_GLASS
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_light_blue_stained_glass_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Голубое стекло"
+    type: DELIVERY
+    target: LIGHT_BLUE_STAINED_GLASS
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_yellow_stained_glass_common:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтое стекло"
+    type: DELIVERY
+    target: YELLOW_STAINED_GLASS
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_yellow_stained_glass_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтое стекло"
+    type: DELIVERY
+    target: YELLOW_STAINED_GLASS
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_yellow_stained_glass_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтое стекло"
+    type: DELIVERY
+    target: YELLOW_STAINED_GLASS
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_yellow_stained_glass_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтое стекло"
+    type: DELIVERY
+    target: YELLOW_STAINED_GLASS
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_yellow_stained_glass_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтое стекло"
+    type: DELIVERY
+    target: YELLOW_STAINED_GLASS
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_lime_stained_glass_common:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовое стекло"
+    type: DELIVERY
+    target: LIME_STAINED_GLASS
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_lime_stained_glass_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовое стекло"
+    type: DELIVERY
+    target: LIME_STAINED_GLASS
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_lime_stained_glass_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовое стекло"
+    type: DELIVERY
+    target: LIME_STAINED_GLASS
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_lime_stained_glass_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовое стекло"
+    type: DELIVERY
+    target: LIME_STAINED_GLASS
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_lime_stained_glass_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовое стекло"
+    type: DELIVERY
+    target: LIME_STAINED_GLASS
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_pink_stained_glass_common:
+    introduced-in: 5
+    title: "Для серверных построек: Розовое стекло"
+    type: DELIVERY
+    target: PINK_STAINED_GLASS
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_pink_stained_glass_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Розовое стекло"
+    type: DELIVERY
+    target: PINK_STAINED_GLASS
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_pink_stained_glass_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Розовое стекло"
+    type: DELIVERY
+    target: PINK_STAINED_GLASS
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_pink_stained_glass_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Розовое стекло"
+    type: DELIVERY
+    target: PINK_STAINED_GLASS
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_pink_stained_glass_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Розовое стекло"
+    type: DELIVERY
+    target: PINK_STAINED_GLASS
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_gray_stained_glass_common:
+    introduced-in: 5
+    title: "Для серверных построек: Серое стекло"
+    type: DELIVERY
+    target: GRAY_STAINED_GLASS
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_gray_stained_glass_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Серое стекло"
+    type: DELIVERY
+    target: GRAY_STAINED_GLASS
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_gray_stained_glass_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Серое стекло"
+    type: DELIVERY
+    target: GRAY_STAINED_GLASS
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_gray_stained_glass_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Серое стекло"
+    type: DELIVERY
+    target: GRAY_STAINED_GLASS
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_gray_stained_glass_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Серое стекло"
+    type: DELIVERY
+    target: GRAY_STAINED_GLASS
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_light_gray_stained_glass_common:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серое стекло"
+    type: DELIVERY
+    target: LIGHT_GRAY_STAINED_GLASS
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_light_gray_stained_glass_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серое стекло"
+    type: DELIVERY
+    target: LIGHT_GRAY_STAINED_GLASS
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_light_gray_stained_glass_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серое стекло"
+    type: DELIVERY
+    target: LIGHT_GRAY_STAINED_GLASS
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_light_gray_stained_glass_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серое стекло"
+    type: DELIVERY
+    target: LIGHT_GRAY_STAINED_GLASS
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_light_gray_stained_glass_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серое стекло"
+    type: DELIVERY
+    target: LIGHT_GRAY_STAINED_GLASS
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_cyan_stained_glass_common:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовое стекло"
+    type: DELIVERY
+    target: CYAN_STAINED_GLASS
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_cyan_stained_glass_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовое стекло"
+    type: DELIVERY
+    target: CYAN_STAINED_GLASS
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_cyan_stained_glass_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовое стекло"
+    type: DELIVERY
+    target: CYAN_STAINED_GLASS
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_cyan_stained_glass_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовое стекло"
+    type: DELIVERY
+    target: CYAN_STAINED_GLASS
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_cyan_stained_glass_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовое стекло"
+    type: DELIVERY
+    target: CYAN_STAINED_GLASS
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_purple_stained_glass_common:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовое стекло"
+    type: DELIVERY
+    target: PURPLE_STAINED_GLASS
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_purple_stained_glass_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовое стекло"
+    type: DELIVERY
+    target: PURPLE_STAINED_GLASS
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_purple_stained_glass_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовое стекло"
+    type: DELIVERY
+    target: PURPLE_STAINED_GLASS
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_purple_stained_glass_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовое стекло"
+    type: DELIVERY
+    target: PURPLE_STAINED_GLASS
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_purple_stained_glass_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовое стекло"
+    type: DELIVERY
+    target: PURPLE_STAINED_GLASS
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_blue_stained_glass_common:
+    introduced-in: 5
+    title: "Для серверных построек: Синее стекло"
+    type: DELIVERY
+    target: BLUE_STAINED_GLASS
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_blue_stained_glass_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Синее стекло"
+    type: DELIVERY
+    target: BLUE_STAINED_GLASS
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_blue_stained_glass_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Синее стекло"
+    type: DELIVERY
+    target: BLUE_STAINED_GLASS
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_blue_stained_glass_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Синее стекло"
+    type: DELIVERY
+    target: BLUE_STAINED_GLASS
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_blue_stained_glass_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Синее стекло"
+    type: DELIVERY
+    target: BLUE_STAINED_GLASS
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_brown_stained_glass_common:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневое стекло"
+    type: DELIVERY
+    target: BROWN_STAINED_GLASS
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_brown_stained_glass_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневое стекло"
+    type: DELIVERY
+    target: BROWN_STAINED_GLASS
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_brown_stained_glass_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневое стекло"
+    type: DELIVERY
+    target: BROWN_STAINED_GLASS
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_brown_stained_glass_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневое стекло"
+    type: DELIVERY
+    target: BROWN_STAINED_GLASS
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_brown_stained_glass_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневое стекло"
+    type: DELIVERY
+    target: BROWN_STAINED_GLASS
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_green_stained_glass_common:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёное стекло"
+    type: DELIVERY
+    target: GREEN_STAINED_GLASS
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_green_stained_glass_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёное стекло"
+    type: DELIVERY
+    target: GREEN_STAINED_GLASS
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_green_stained_glass_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёное стекло"
+    type: DELIVERY
+    target: GREEN_STAINED_GLASS
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_green_stained_glass_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёное стекло"
+    type: DELIVERY
+    target: GREEN_STAINED_GLASS
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_green_stained_glass_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёное стекло"
+    type: DELIVERY
+    target: GREEN_STAINED_GLASS
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_red_stained_glass_common:
+    introduced-in: 5
+    title: "Для серверных построек: Красное стекло"
+    type: DELIVERY
+    target: RED_STAINED_GLASS
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_red_stained_glass_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Красное стекло"
+    type: DELIVERY
+    target: RED_STAINED_GLASS
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_red_stained_glass_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Красное стекло"
+    type: DELIVERY
+    target: RED_STAINED_GLASS
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_red_stained_glass_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Красное стекло"
+    type: DELIVERY
+    target: RED_STAINED_GLASS
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_red_stained_glass_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Красное стекло"
+    type: DELIVERY
+    target: RED_STAINED_GLASS
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_black_stained_glass_common:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрное стекло"
+    type: DELIVERY
+    target: BLACK_STAINED_GLASS
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_black_stained_glass_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрное стекло"
+    type: DELIVERY
+    target: BLACK_STAINED_GLASS
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_black_stained_glass_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрное стекло"
+    type: DELIVERY
+    target: BLACK_STAINED_GLASS
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_black_stained_glass_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрное стекло"
+    type: DELIVERY
+    target: BLACK_STAINED_GLASS
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_black_stained_glass_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрное стекло"
+    type: DELIVERY
+    target: BLACK_STAINED_GLASS
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_white_wool_common:
+    introduced-in: 5
+    title: "Для серверных построек: Белая шерсть"
+    type: DELIVERY
+    target: WHITE_WOOL
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_white_wool_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Белая шерсть"
+    type: DELIVERY
+    target: WHITE_WOOL
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_white_wool_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Белая шерсть"
+    type: DELIVERY
+    target: WHITE_WOOL
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_white_wool_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Белая шерсть"
+    type: DELIVERY
+    target: WHITE_WOOL
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_white_wool_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Белая шерсть"
+    type: DELIVERY
+    target: WHITE_WOOL
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_orange_wool_common:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевая шерсть"
+    type: DELIVERY
+    target: ORANGE_WOOL
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_orange_wool_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевая шерсть"
+    type: DELIVERY
+    target: ORANGE_WOOL
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_orange_wool_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевая шерсть"
+    type: DELIVERY
+    target: ORANGE_WOOL
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_orange_wool_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевая шерсть"
+    type: DELIVERY
+    target: ORANGE_WOOL
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_orange_wool_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевая шерсть"
+    type: DELIVERY
+    target: ORANGE_WOOL
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_magenta_wool_common:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурная шерсть"
+    type: DELIVERY
+    target: MAGENTA_WOOL
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_magenta_wool_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурная шерсть"
+    type: DELIVERY
+    target: MAGENTA_WOOL
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_magenta_wool_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурная шерсть"
+    type: DELIVERY
+    target: MAGENTA_WOOL
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_magenta_wool_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурная шерсть"
+    type: DELIVERY
+    target: MAGENTA_WOOL
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_magenta_wool_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурная шерсть"
+    type: DELIVERY
+    target: MAGENTA_WOOL
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_light_blue_wool_common:
+    introduced-in: 5
+    title: "Для серверных построек: Голубая шерсть"
+    type: DELIVERY
+    target: LIGHT_BLUE_WOOL
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_light_blue_wool_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Голубая шерсть"
+    type: DELIVERY
+    target: LIGHT_BLUE_WOOL
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_light_blue_wool_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Голубая шерсть"
+    type: DELIVERY
+    target: LIGHT_BLUE_WOOL
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_light_blue_wool_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Голубая шерсть"
+    type: DELIVERY
+    target: LIGHT_BLUE_WOOL
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_light_blue_wool_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Голубая шерсть"
+    type: DELIVERY
+    target: LIGHT_BLUE_WOOL
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_yellow_wool_common:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтая шерсть"
+    type: DELIVERY
+    target: YELLOW_WOOL
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_yellow_wool_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтая шерсть"
+    type: DELIVERY
+    target: YELLOW_WOOL
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_yellow_wool_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтая шерсть"
+    type: DELIVERY
+    target: YELLOW_WOOL
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_yellow_wool_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтая шерсть"
+    type: DELIVERY
+    target: YELLOW_WOOL
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_yellow_wool_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтая шерсть"
+    type: DELIVERY
+    target: YELLOW_WOOL
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_lime_wool_common:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовая шерсть"
+    type: DELIVERY
+    target: LIME_WOOL
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_lime_wool_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовая шерсть"
+    type: DELIVERY
+    target: LIME_WOOL
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_lime_wool_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовая шерсть"
+    type: DELIVERY
+    target: LIME_WOOL
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_lime_wool_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовая шерсть"
+    type: DELIVERY
+    target: LIME_WOOL
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_lime_wool_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовая шерсть"
+    type: DELIVERY
+    target: LIME_WOOL
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_pink_wool_common:
+    introduced-in: 5
+    title: "Для серверных построек: Розовая шерсть"
+    type: DELIVERY
+    target: PINK_WOOL
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_pink_wool_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Розовая шерсть"
+    type: DELIVERY
+    target: PINK_WOOL
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_pink_wool_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Розовая шерсть"
+    type: DELIVERY
+    target: PINK_WOOL
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_pink_wool_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Розовая шерсть"
+    type: DELIVERY
+    target: PINK_WOOL
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_pink_wool_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Розовая шерсть"
+    type: DELIVERY
+    target: PINK_WOOL
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_gray_wool_common:
+    introduced-in: 5
+    title: "Для серверных построек: Серая шерсть"
+    type: DELIVERY
+    target: GRAY_WOOL
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_gray_wool_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Серая шерсть"
+    type: DELIVERY
+    target: GRAY_WOOL
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_gray_wool_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Серая шерсть"
+    type: DELIVERY
+    target: GRAY_WOOL
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_gray_wool_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Серая шерсть"
+    type: DELIVERY
+    target: GRAY_WOOL
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_gray_wool_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Серая шерсть"
+    type: DELIVERY
+    target: GRAY_WOOL
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_light_gray_wool_common:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серая шерсть"
+    type: DELIVERY
+    target: LIGHT_GRAY_WOOL
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_light_gray_wool_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серая шерсть"
+    type: DELIVERY
+    target: LIGHT_GRAY_WOOL
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_light_gray_wool_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серая шерсть"
+    type: DELIVERY
+    target: LIGHT_GRAY_WOOL
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_light_gray_wool_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серая шерсть"
+    type: DELIVERY
+    target: LIGHT_GRAY_WOOL
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_light_gray_wool_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серая шерсть"
+    type: DELIVERY
+    target: LIGHT_GRAY_WOOL
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_cyan_wool_common:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовая шерсть"
+    type: DELIVERY
+    target: CYAN_WOOL
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_cyan_wool_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовая шерсть"
+    type: DELIVERY
+    target: CYAN_WOOL
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_cyan_wool_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовая шерсть"
+    type: DELIVERY
+    target: CYAN_WOOL
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_cyan_wool_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовая шерсть"
+    type: DELIVERY
+    target: CYAN_WOOL
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_cyan_wool_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовая шерсть"
+    type: DELIVERY
+    target: CYAN_WOOL
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_purple_wool_common:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовая шерсть"
+    type: DELIVERY
+    target: PURPLE_WOOL
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_purple_wool_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовая шерсть"
+    type: DELIVERY
+    target: PURPLE_WOOL
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_purple_wool_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовая шерсть"
+    type: DELIVERY
+    target: PURPLE_WOOL
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_purple_wool_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовая шерсть"
+    type: DELIVERY
+    target: PURPLE_WOOL
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_purple_wool_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовая шерсть"
+    type: DELIVERY
+    target: PURPLE_WOOL
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_blue_wool_common:
+    introduced-in: 5
+    title: "Для серверных построек: Синяя шерсть"
+    type: DELIVERY
+    target: BLUE_WOOL
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_blue_wool_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Синяя шерсть"
+    type: DELIVERY
+    target: BLUE_WOOL
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_blue_wool_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Синяя шерсть"
+    type: DELIVERY
+    target: BLUE_WOOL
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_blue_wool_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Синяя шерсть"
+    type: DELIVERY
+    target: BLUE_WOOL
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_blue_wool_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Синяя шерсть"
+    type: DELIVERY
+    target: BLUE_WOOL
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_brown_wool_common:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневая шерсть"
+    type: DELIVERY
+    target: BROWN_WOOL
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_brown_wool_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневая шерсть"
+    type: DELIVERY
+    target: BROWN_WOOL
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_brown_wool_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневая шерсть"
+    type: DELIVERY
+    target: BROWN_WOOL
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_brown_wool_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневая шерсть"
+    type: DELIVERY
+    target: BROWN_WOOL
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_brown_wool_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневая шерсть"
+    type: DELIVERY
+    target: BROWN_WOOL
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_green_wool_common:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёная шерсть"
+    type: DELIVERY
+    target: GREEN_WOOL
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_green_wool_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёная шерсть"
+    type: DELIVERY
+    target: GREEN_WOOL
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_green_wool_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёная шерсть"
+    type: DELIVERY
+    target: GREEN_WOOL
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_green_wool_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёная шерсть"
+    type: DELIVERY
+    target: GREEN_WOOL
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_green_wool_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёная шерсть"
+    type: DELIVERY
+    target: GREEN_WOOL
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_red_wool_common:
+    introduced-in: 5
+    title: "Для серверных построек: Красная шерсть"
+    type: DELIVERY
+    target: RED_WOOL
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_red_wool_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Красная шерсть"
+    type: DELIVERY
+    target: RED_WOOL
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_red_wool_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Красная шерсть"
+    type: DELIVERY
+    target: RED_WOOL
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_red_wool_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Красная шерсть"
+    type: DELIVERY
+    target: RED_WOOL
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_red_wool_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Красная шерсть"
+    type: DELIVERY
+    target: RED_WOOL
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_black_wool_common:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрная шерсть"
+    type: DELIVERY
+    target: BLACK_WOOL
+    rarity: COMMON
+    amount: 32
+    reward: 40
+    duration-seconds: 3600
+  build_black_wool_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрная шерсть"
+    type: DELIVERY
+    target: BLACK_WOOL
+    rarity: UNCOMMON
+    amount: 64
+    reward: 90
+    duration-seconds: 7200
+  build_black_wool_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрная шерсть"
+    type: DELIVERY
+    target: BLACK_WOOL
+    rarity: RARE
+    amount: 128
+    reward: 200
+    duration-seconds: 14400
+  build_black_wool_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрная шерсть"
+    type: DELIVERY
+    target: BLACK_WOOL
+    rarity: EPIC
+    amount: 256
+    reward: 450
+    duration-seconds: 28800
+  build_black_wool_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрная шерсть"
+    type: DELIVERY
+    target: BLACK_WOOL
+    rarity: LEGENDARY
+    amount: 512
+    reward: 950
+    duration-seconds: 43200
+  build_white_concrete_common:
+    introduced-in: 5
+    title: "Для серверных построек: Белый бетон"
+    type: DELIVERY
+    target: WHITE_CONCRETE
+    rarity: COMMON
+    amount: 32
+    reward: 60
+    duration-seconds: 3600
+  build_white_concrete_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Белый бетон"
+    type: DELIVERY
+    target: WHITE_CONCRETE
+    rarity: UNCOMMON
+    amount: 64
+    reward: 130
+    duration-seconds: 7200
+  build_white_concrete_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Белый бетон"
+    type: DELIVERY
+    target: WHITE_CONCRETE
+    rarity: RARE
+    amount: 128
+    reward: 280
+    duration-seconds: 14400
+  build_white_concrete_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Белый бетон"
+    type: DELIVERY
+    target: WHITE_CONCRETE
+    rarity: EPIC
+    amount: 256
+    reward: 600
+    duration-seconds: 28800
+  build_white_concrete_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Белый бетон"
+    type: DELIVERY
+    target: WHITE_CONCRETE
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1250
+    duration-seconds: 43200
+  build_orange_concrete_common:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевый бетон"
+    type: DELIVERY
+    target: ORANGE_CONCRETE
+    rarity: COMMON
+    amount: 32
+    reward: 60
+    duration-seconds: 3600
+  build_orange_concrete_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевый бетон"
+    type: DELIVERY
+    target: ORANGE_CONCRETE
+    rarity: UNCOMMON
+    amount: 64
+    reward: 130
+    duration-seconds: 7200
+  build_orange_concrete_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевый бетон"
+    type: DELIVERY
+    target: ORANGE_CONCRETE
+    rarity: RARE
+    amount: 128
+    reward: 280
+    duration-seconds: 14400
+  build_orange_concrete_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевый бетон"
+    type: DELIVERY
+    target: ORANGE_CONCRETE
+    rarity: EPIC
+    amount: 256
+    reward: 600
+    duration-seconds: 28800
+  build_orange_concrete_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевый бетон"
+    type: DELIVERY
+    target: ORANGE_CONCRETE
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1250
+    duration-seconds: 43200
+  build_magenta_concrete_common:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурный бетон"
+    type: DELIVERY
+    target: MAGENTA_CONCRETE
+    rarity: COMMON
+    amount: 32
+    reward: 60
+    duration-seconds: 3600
+  build_magenta_concrete_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурный бетон"
+    type: DELIVERY
+    target: MAGENTA_CONCRETE
+    rarity: UNCOMMON
+    amount: 64
+    reward: 130
+    duration-seconds: 7200
+  build_magenta_concrete_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурный бетон"
+    type: DELIVERY
+    target: MAGENTA_CONCRETE
+    rarity: RARE
+    amount: 128
+    reward: 280
+    duration-seconds: 14400
+  build_magenta_concrete_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурный бетон"
+    type: DELIVERY
+    target: MAGENTA_CONCRETE
+    rarity: EPIC
+    amount: 256
+    reward: 600
+    duration-seconds: 28800
+  build_magenta_concrete_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурный бетон"
+    type: DELIVERY
+    target: MAGENTA_CONCRETE
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1250
+    duration-seconds: 43200
+  build_light_blue_concrete_common:
+    introduced-in: 5
+    title: "Для серверных построек: Голубой бетон"
+    type: DELIVERY
+    target: LIGHT_BLUE_CONCRETE
+    rarity: COMMON
+    amount: 32
+    reward: 60
+    duration-seconds: 3600
+  build_light_blue_concrete_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Голубой бетон"
+    type: DELIVERY
+    target: LIGHT_BLUE_CONCRETE
+    rarity: UNCOMMON
+    amount: 64
+    reward: 130
+    duration-seconds: 7200
+  build_light_blue_concrete_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Голубой бетон"
+    type: DELIVERY
+    target: LIGHT_BLUE_CONCRETE
+    rarity: RARE
+    amount: 128
+    reward: 280
+    duration-seconds: 14400
+  build_light_blue_concrete_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Голубой бетон"
+    type: DELIVERY
+    target: LIGHT_BLUE_CONCRETE
+    rarity: EPIC
+    amount: 256
+    reward: 600
+    duration-seconds: 28800
+  build_light_blue_concrete_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Голубой бетон"
+    type: DELIVERY
+    target: LIGHT_BLUE_CONCRETE
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1250
+    duration-seconds: 43200
+  build_yellow_concrete_common:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтый бетон"
+    type: DELIVERY
+    target: YELLOW_CONCRETE
+    rarity: COMMON
+    amount: 32
+    reward: 60
+    duration-seconds: 3600
+  build_yellow_concrete_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтый бетон"
+    type: DELIVERY
+    target: YELLOW_CONCRETE
+    rarity: UNCOMMON
+    amount: 64
+    reward: 130
+    duration-seconds: 7200
+  build_yellow_concrete_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтый бетон"
+    type: DELIVERY
+    target: YELLOW_CONCRETE
+    rarity: RARE
+    amount: 128
+    reward: 280
+    duration-seconds: 14400
+  build_yellow_concrete_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтый бетон"
+    type: DELIVERY
+    target: YELLOW_CONCRETE
+    rarity: EPIC
+    amount: 256
+    reward: 600
+    duration-seconds: 28800
+  build_yellow_concrete_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтый бетон"
+    type: DELIVERY
+    target: YELLOW_CONCRETE
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1250
+    duration-seconds: 43200
+  build_lime_concrete_common:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовый бетон"
+    type: DELIVERY
+    target: LIME_CONCRETE
+    rarity: COMMON
+    amount: 32
+    reward: 60
+    duration-seconds: 3600
+  build_lime_concrete_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовый бетон"
+    type: DELIVERY
+    target: LIME_CONCRETE
+    rarity: UNCOMMON
+    amount: 64
+    reward: 130
+    duration-seconds: 7200
+  build_lime_concrete_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовый бетон"
+    type: DELIVERY
+    target: LIME_CONCRETE
+    rarity: RARE
+    amount: 128
+    reward: 280
+    duration-seconds: 14400
+  build_lime_concrete_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовый бетон"
+    type: DELIVERY
+    target: LIME_CONCRETE
+    rarity: EPIC
+    amount: 256
+    reward: 600
+    duration-seconds: 28800
+  build_lime_concrete_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовый бетон"
+    type: DELIVERY
+    target: LIME_CONCRETE
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1250
+    duration-seconds: 43200
+  build_pink_concrete_common:
+    introduced-in: 5
+    title: "Для серверных построек: Розовый бетон"
+    type: DELIVERY
+    target: PINK_CONCRETE
+    rarity: COMMON
+    amount: 32
+    reward: 60
+    duration-seconds: 3600
+  build_pink_concrete_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Розовый бетон"
+    type: DELIVERY
+    target: PINK_CONCRETE
+    rarity: UNCOMMON
+    amount: 64
+    reward: 130
+    duration-seconds: 7200
+  build_pink_concrete_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Розовый бетон"
+    type: DELIVERY
+    target: PINK_CONCRETE
+    rarity: RARE
+    amount: 128
+    reward: 280
+    duration-seconds: 14400
+  build_pink_concrete_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Розовый бетон"
+    type: DELIVERY
+    target: PINK_CONCRETE
+    rarity: EPIC
+    amount: 256
+    reward: 600
+    duration-seconds: 28800
+  build_pink_concrete_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Розовый бетон"
+    type: DELIVERY
+    target: PINK_CONCRETE
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1250
+    duration-seconds: 43200
+  build_gray_concrete_common:
+    introduced-in: 5
+    title: "Для серверных построек: Серый бетон"
+    type: DELIVERY
+    target: GRAY_CONCRETE
+    rarity: COMMON
+    amount: 32
+    reward: 60
+    duration-seconds: 3600
+  build_gray_concrete_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Серый бетон"
+    type: DELIVERY
+    target: GRAY_CONCRETE
+    rarity: UNCOMMON
+    amount: 64
+    reward: 130
+    duration-seconds: 7200
+  build_gray_concrete_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Серый бетон"
+    type: DELIVERY
+    target: GRAY_CONCRETE
+    rarity: RARE
+    amount: 128
+    reward: 280
+    duration-seconds: 14400
+  build_gray_concrete_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Серый бетон"
+    type: DELIVERY
+    target: GRAY_CONCRETE
+    rarity: EPIC
+    amount: 256
+    reward: 600
+    duration-seconds: 28800
+  build_gray_concrete_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Серый бетон"
+    type: DELIVERY
+    target: GRAY_CONCRETE
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1250
+    duration-seconds: 43200
+  build_light_gray_concrete_common:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серый бетон"
+    type: DELIVERY
+    target: LIGHT_GRAY_CONCRETE
+    rarity: COMMON
+    amount: 32
+    reward: 60
+    duration-seconds: 3600
+  build_light_gray_concrete_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серый бетон"
+    type: DELIVERY
+    target: LIGHT_GRAY_CONCRETE
+    rarity: UNCOMMON
+    amount: 64
+    reward: 130
+    duration-seconds: 7200
+  build_light_gray_concrete_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серый бетон"
+    type: DELIVERY
+    target: LIGHT_GRAY_CONCRETE
+    rarity: RARE
+    amount: 128
+    reward: 280
+    duration-seconds: 14400
+  build_light_gray_concrete_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серый бетон"
+    type: DELIVERY
+    target: LIGHT_GRAY_CONCRETE
+    rarity: EPIC
+    amount: 256
+    reward: 600
+    duration-seconds: 28800
+  build_light_gray_concrete_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серый бетон"
+    type: DELIVERY
+    target: LIGHT_GRAY_CONCRETE
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1250
+    duration-seconds: 43200
+  build_cyan_concrete_common:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовый бетон"
+    type: DELIVERY
+    target: CYAN_CONCRETE
+    rarity: COMMON
+    amount: 32
+    reward: 60
+    duration-seconds: 3600
+  build_cyan_concrete_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовый бетон"
+    type: DELIVERY
+    target: CYAN_CONCRETE
+    rarity: UNCOMMON
+    amount: 64
+    reward: 130
+    duration-seconds: 7200
+  build_cyan_concrete_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовый бетон"
+    type: DELIVERY
+    target: CYAN_CONCRETE
+    rarity: RARE
+    amount: 128
+    reward: 280
+    duration-seconds: 14400
+  build_cyan_concrete_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовый бетон"
+    type: DELIVERY
+    target: CYAN_CONCRETE
+    rarity: EPIC
+    amount: 256
+    reward: 600
+    duration-seconds: 28800
+  build_cyan_concrete_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовый бетон"
+    type: DELIVERY
+    target: CYAN_CONCRETE
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1250
+    duration-seconds: 43200
+  build_purple_concrete_common:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовый бетон"
+    type: DELIVERY
+    target: PURPLE_CONCRETE
+    rarity: COMMON
+    amount: 32
+    reward: 60
+    duration-seconds: 3600
+  build_purple_concrete_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовый бетон"
+    type: DELIVERY
+    target: PURPLE_CONCRETE
+    rarity: UNCOMMON
+    amount: 64
+    reward: 130
+    duration-seconds: 7200
+  build_purple_concrete_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовый бетон"
+    type: DELIVERY
+    target: PURPLE_CONCRETE
+    rarity: RARE
+    amount: 128
+    reward: 280
+    duration-seconds: 14400
+  build_purple_concrete_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовый бетон"
+    type: DELIVERY
+    target: PURPLE_CONCRETE
+    rarity: EPIC
+    amount: 256
+    reward: 600
+    duration-seconds: 28800
+  build_purple_concrete_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовый бетон"
+    type: DELIVERY
+    target: PURPLE_CONCRETE
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1250
+    duration-seconds: 43200
+  build_blue_concrete_common:
+    introduced-in: 5
+    title: "Для серверных построек: Синий бетон"
+    type: DELIVERY
+    target: BLUE_CONCRETE
+    rarity: COMMON
+    amount: 32
+    reward: 60
+    duration-seconds: 3600
+  build_blue_concrete_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Синий бетон"
+    type: DELIVERY
+    target: BLUE_CONCRETE
+    rarity: UNCOMMON
+    amount: 64
+    reward: 130
+    duration-seconds: 7200
+  build_blue_concrete_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Синий бетон"
+    type: DELIVERY
+    target: BLUE_CONCRETE
+    rarity: RARE
+    amount: 128
+    reward: 280
+    duration-seconds: 14400
+  build_blue_concrete_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Синий бетон"
+    type: DELIVERY
+    target: BLUE_CONCRETE
+    rarity: EPIC
+    amount: 256
+    reward: 600
+    duration-seconds: 28800
+  build_blue_concrete_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Синий бетон"
+    type: DELIVERY
+    target: BLUE_CONCRETE
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1250
+    duration-seconds: 43200
+  build_brown_concrete_common:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневый бетон"
+    type: DELIVERY
+    target: BROWN_CONCRETE
+    rarity: COMMON
+    amount: 32
+    reward: 60
+    duration-seconds: 3600
+  build_brown_concrete_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневый бетон"
+    type: DELIVERY
+    target: BROWN_CONCRETE
+    rarity: UNCOMMON
+    amount: 64
+    reward: 130
+    duration-seconds: 7200
+  build_brown_concrete_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневый бетон"
+    type: DELIVERY
+    target: BROWN_CONCRETE
+    rarity: RARE
+    amount: 128
+    reward: 280
+    duration-seconds: 14400
+  build_brown_concrete_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневый бетон"
+    type: DELIVERY
+    target: BROWN_CONCRETE
+    rarity: EPIC
+    amount: 256
+    reward: 600
+    duration-seconds: 28800
+  build_brown_concrete_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневый бетон"
+    type: DELIVERY
+    target: BROWN_CONCRETE
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1250
+    duration-seconds: 43200
+  build_green_concrete_common:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёный бетон"
+    type: DELIVERY
+    target: GREEN_CONCRETE
+    rarity: COMMON
+    amount: 32
+    reward: 60
+    duration-seconds: 3600
+  build_green_concrete_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёный бетон"
+    type: DELIVERY
+    target: GREEN_CONCRETE
+    rarity: UNCOMMON
+    amount: 64
+    reward: 130
+    duration-seconds: 7200
+  build_green_concrete_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёный бетон"
+    type: DELIVERY
+    target: GREEN_CONCRETE
+    rarity: RARE
+    amount: 128
+    reward: 280
+    duration-seconds: 14400
+  build_green_concrete_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёный бетон"
+    type: DELIVERY
+    target: GREEN_CONCRETE
+    rarity: EPIC
+    amount: 256
+    reward: 600
+    duration-seconds: 28800
+  build_green_concrete_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёный бетон"
+    type: DELIVERY
+    target: GREEN_CONCRETE
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1250
+    duration-seconds: 43200
+  build_red_concrete_common:
+    introduced-in: 5
+    title: "Для серверных построек: Красный бетон"
+    type: DELIVERY
+    target: RED_CONCRETE
+    rarity: COMMON
+    amount: 32
+    reward: 60
+    duration-seconds: 3600
+  build_red_concrete_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Красный бетон"
+    type: DELIVERY
+    target: RED_CONCRETE
+    rarity: UNCOMMON
+    amount: 64
+    reward: 130
+    duration-seconds: 7200
+  build_red_concrete_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Красный бетон"
+    type: DELIVERY
+    target: RED_CONCRETE
+    rarity: RARE
+    amount: 128
+    reward: 280
+    duration-seconds: 14400
+  build_red_concrete_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Красный бетон"
+    type: DELIVERY
+    target: RED_CONCRETE
+    rarity: EPIC
+    amount: 256
+    reward: 600
+    duration-seconds: 28800
+  build_red_concrete_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Красный бетон"
+    type: DELIVERY
+    target: RED_CONCRETE
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1250
+    duration-seconds: 43200
+  build_black_concrete_common:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрный бетон"
+    type: DELIVERY
+    target: BLACK_CONCRETE
+    rarity: COMMON
+    amount: 32
+    reward: 60
+    duration-seconds: 3600
+  build_black_concrete_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрный бетон"
+    type: DELIVERY
+    target: BLACK_CONCRETE
+    rarity: UNCOMMON
+    amount: 64
+    reward: 130
+    duration-seconds: 7200
+  build_black_concrete_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрный бетон"
+    type: DELIVERY
+    target: BLACK_CONCRETE
+    rarity: RARE
+    amount: 128
+    reward: 280
+    duration-seconds: 14400
+  build_black_concrete_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрный бетон"
+    type: DELIVERY
+    target: BLACK_CONCRETE
+    rarity: EPIC
+    amount: 256
+    reward: 600
+    duration-seconds: 28800
+  build_black_concrete_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрный бетон"
+    type: DELIVERY
+    target: BLACK_CONCRETE
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1250
+    duration-seconds: 43200
+  build_white_terracotta_common:
+    introduced-in: 5
+    title: "Для серверных построек: Белая керамика"
+    type: DELIVERY
+    target: WHITE_TERRACOTTA
+    rarity: COMMON
+    amount: 32
+    reward: 50
+    duration-seconds: 3600
+  build_white_terracotta_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Белая керамика"
+    type: DELIVERY
+    target: WHITE_TERRACOTTA
+    rarity: UNCOMMON
+    amount: 64
+    reward: 110
+    duration-seconds: 7200
+  build_white_terracotta_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Белая керамика"
+    type: DELIVERY
+    target: WHITE_TERRACOTTA
+    rarity: RARE
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  build_white_terracotta_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Белая керамика"
+    type: DELIVERY
+    target: WHITE_TERRACOTTA
+    rarity: EPIC
+    amount: 256
+    reward: 520
+    duration-seconds: 28800
+  build_white_terracotta_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Белая керамика"
+    type: DELIVERY
+    target: WHITE_TERRACOTTA
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1100
+    duration-seconds: 43200
+  build_orange_terracotta_common:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевая керамика"
+    type: DELIVERY
+    target: ORANGE_TERRACOTTA
+    rarity: COMMON
+    amount: 32
+    reward: 50
+    duration-seconds: 3600
+  build_orange_terracotta_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевая керамика"
+    type: DELIVERY
+    target: ORANGE_TERRACOTTA
+    rarity: UNCOMMON
+    amount: 64
+    reward: 110
+    duration-seconds: 7200
+  build_orange_terracotta_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевая керамика"
+    type: DELIVERY
+    target: ORANGE_TERRACOTTA
+    rarity: RARE
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  build_orange_terracotta_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевая керамика"
+    type: DELIVERY
+    target: ORANGE_TERRACOTTA
+    rarity: EPIC
+    amount: 256
+    reward: 520
+    duration-seconds: 28800
+  build_orange_terracotta_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Оранжевая керамика"
+    type: DELIVERY
+    target: ORANGE_TERRACOTTA
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1100
+    duration-seconds: 43200
+  build_magenta_terracotta_common:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурная керамика"
+    type: DELIVERY
+    target: MAGENTA_TERRACOTTA
+    rarity: COMMON
+    amount: 32
+    reward: 50
+    duration-seconds: 3600
+  build_magenta_terracotta_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурная керамика"
+    type: DELIVERY
+    target: MAGENTA_TERRACOTTA
+    rarity: UNCOMMON
+    amount: 64
+    reward: 110
+    duration-seconds: 7200
+  build_magenta_terracotta_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурная керамика"
+    type: DELIVERY
+    target: MAGENTA_TERRACOTTA
+    rarity: RARE
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  build_magenta_terracotta_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурная керамика"
+    type: DELIVERY
+    target: MAGENTA_TERRACOTTA
+    rarity: EPIC
+    amount: 256
+    reward: 520
+    duration-seconds: 28800
+  build_magenta_terracotta_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Пурпурная керамика"
+    type: DELIVERY
+    target: MAGENTA_TERRACOTTA
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1100
+    duration-seconds: 43200
+  build_light_blue_terracotta_common:
+    introduced-in: 5
+    title: "Для серверных построек: Голубая керамика"
+    type: DELIVERY
+    target: LIGHT_BLUE_TERRACOTTA
+    rarity: COMMON
+    amount: 32
+    reward: 50
+    duration-seconds: 3600
+  build_light_blue_terracotta_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Голубая керамика"
+    type: DELIVERY
+    target: LIGHT_BLUE_TERRACOTTA
+    rarity: UNCOMMON
+    amount: 64
+    reward: 110
+    duration-seconds: 7200
+  build_light_blue_terracotta_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Голубая керамика"
+    type: DELIVERY
+    target: LIGHT_BLUE_TERRACOTTA
+    rarity: RARE
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  build_light_blue_terracotta_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Голубая керамика"
+    type: DELIVERY
+    target: LIGHT_BLUE_TERRACOTTA
+    rarity: EPIC
+    amount: 256
+    reward: 520
+    duration-seconds: 28800
+  build_light_blue_terracotta_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Голубая керамика"
+    type: DELIVERY
+    target: LIGHT_BLUE_TERRACOTTA
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1100
+    duration-seconds: 43200
+  build_yellow_terracotta_common:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтая керамика"
+    type: DELIVERY
+    target: YELLOW_TERRACOTTA
+    rarity: COMMON
+    amount: 32
+    reward: 50
+    duration-seconds: 3600
+  build_yellow_terracotta_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтая керамика"
+    type: DELIVERY
+    target: YELLOW_TERRACOTTA
+    rarity: UNCOMMON
+    amount: 64
+    reward: 110
+    duration-seconds: 7200
+  build_yellow_terracotta_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтая керамика"
+    type: DELIVERY
+    target: YELLOW_TERRACOTTA
+    rarity: RARE
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  build_yellow_terracotta_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтая керамика"
+    type: DELIVERY
+    target: YELLOW_TERRACOTTA
+    rarity: EPIC
+    amount: 256
+    reward: 520
+    duration-seconds: 28800
+  build_yellow_terracotta_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Жёлтая керамика"
+    type: DELIVERY
+    target: YELLOW_TERRACOTTA
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1100
+    duration-seconds: 43200
+  build_lime_terracotta_common:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовая керамика"
+    type: DELIVERY
+    target: LIME_TERRACOTTA
+    rarity: COMMON
+    amount: 32
+    reward: 50
+    duration-seconds: 3600
+  build_lime_terracotta_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовая керамика"
+    type: DELIVERY
+    target: LIME_TERRACOTTA
+    rarity: UNCOMMON
+    amount: 64
+    reward: 110
+    duration-seconds: 7200
+  build_lime_terracotta_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовая керамика"
+    type: DELIVERY
+    target: LIME_TERRACOTTA
+    rarity: RARE
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  build_lime_terracotta_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовая керамика"
+    type: DELIVERY
+    target: LIME_TERRACOTTA
+    rarity: EPIC
+    amount: 256
+    reward: 520
+    duration-seconds: 28800
+  build_lime_terracotta_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Лаймовая керамика"
+    type: DELIVERY
+    target: LIME_TERRACOTTA
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1100
+    duration-seconds: 43200
+  build_pink_terracotta_common:
+    introduced-in: 5
+    title: "Для серверных построек: Розовая керамика"
+    type: DELIVERY
+    target: PINK_TERRACOTTA
+    rarity: COMMON
+    amount: 32
+    reward: 50
+    duration-seconds: 3600
+  build_pink_terracotta_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Розовая керамика"
+    type: DELIVERY
+    target: PINK_TERRACOTTA
+    rarity: UNCOMMON
+    amount: 64
+    reward: 110
+    duration-seconds: 7200
+  build_pink_terracotta_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Розовая керамика"
+    type: DELIVERY
+    target: PINK_TERRACOTTA
+    rarity: RARE
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  build_pink_terracotta_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Розовая керамика"
+    type: DELIVERY
+    target: PINK_TERRACOTTA
+    rarity: EPIC
+    amount: 256
+    reward: 520
+    duration-seconds: 28800
+  build_pink_terracotta_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Розовая керамика"
+    type: DELIVERY
+    target: PINK_TERRACOTTA
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1100
+    duration-seconds: 43200
+  build_gray_terracotta_common:
+    introduced-in: 5
+    title: "Для серверных построек: Серая керамика"
+    type: DELIVERY
+    target: GRAY_TERRACOTTA
+    rarity: COMMON
+    amount: 32
+    reward: 50
+    duration-seconds: 3600
+  build_gray_terracotta_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Серая керамика"
+    type: DELIVERY
+    target: GRAY_TERRACOTTA
+    rarity: UNCOMMON
+    amount: 64
+    reward: 110
+    duration-seconds: 7200
+  build_gray_terracotta_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Серая керамика"
+    type: DELIVERY
+    target: GRAY_TERRACOTTA
+    rarity: RARE
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  build_gray_terracotta_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Серая керамика"
+    type: DELIVERY
+    target: GRAY_TERRACOTTA
+    rarity: EPIC
+    amount: 256
+    reward: 520
+    duration-seconds: 28800
+  build_gray_terracotta_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Серая керамика"
+    type: DELIVERY
+    target: GRAY_TERRACOTTA
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1100
+    duration-seconds: 43200
+  build_light_gray_terracotta_common:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серая керамика"
+    type: DELIVERY
+    target: LIGHT_GRAY_TERRACOTTA
+    rarity: COMMON
+    amount: 32
+    reward: 50
+    duration-seconds: 3600
+  build_light_gray_terracotta_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серая керамика"
+    type: DELIVERY
+    target: LIGHT_GRAY_TERRACOTTA
+    rarity: UNCOMMON
+    amount: 64
+    reward: 110
+    duration-seconds: 7200
+  build_light_gray_terracotta_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серая керамика"
+    type: DELIVERY
+    target: LIGHT_GRAY_TERRACOTTA
+    rarity: RARE
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  build_light_gray_terracotta_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серая керамика"
+    type: DELIVERY
+    target: LIGHT_GRAY_TERRACOTTA
+    rarity: EPIC
+    amount: 256
+    reward: 520
+    duration-seconds: 28800
+  build_light_gray_terracotta_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Светло-серая керамика"
+    type: DELIVERY
+    target: LIGHT_GRAY_TERRACOTTA
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1100
+    duration-seconds: 43200
+  build_cyan_terracotta_common:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовая керамика"
+    type: DELIVERY
+    target: CYAN_TERRACOTTA
+    rarity: COMMON
+    amount: 32
+    reward: 50
+    duration-seconds: 3600
+  build_cyan_terracotta_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовая керамика"
+    type: DELIVERY
+    target: CYAN_TERRACOTTA
+    rarity: UNCOMMON
+    amount: 64
+    reward: 110
+    duration-seconds: 7200
+  build_cyan_terracotta_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовая керамика"
+    type: DELIVERY
+    target: CYAN_TERRACOTTA
+    rarity: RARE
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  build_cyan_terracotta_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовая керамика"
+    type: DELIVERY
+    target: CYAN_TERRACOTTA
+    rarity: EPIC
+    amount: 256
+    reward: 520
+    duration-seconds: 28800
+  build_cyan_terracotta_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Бирюзовая керамика"
+    type: DELIVERY
+    target: CYAN_TERRACOTTA
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1100
+    duration-seconds: 43200
+  build_purple_terracotta_common:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовая керамика"
+    type: DELIVERY
+    target: PURPLE_TERRACOTTA
+    rarity: COMMON
+    amount: 32
+    reward: 50
+    duration-seconds: 3600
+  build_purple_terracotta_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовая керамика"
+    type: DELIVERY
+    target: PURPLE_TERRACOTTA
+    rarity: UNCOMMON
+    amount: 64
+    reward: 110
+    duration-seconds: 7200
+  build_purple_terracotta_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовая керамика"
+    type: DELIVERY
+    target: PURPLE_TERRACOTTA
+    rarity: RARE
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  build_purple_terracotta_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовая керамика"
+    type: DELIVERY
+    target: PURPLE_TERRACOTTA
+    rarity: EPIC
+    amount: 256
+    reward: 520
+    duration-seconds: 28800
+  build_purple_terracotta_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Фиолетовая керамика"
+    type: DELIVERY
+    target: PURPLE_TERRACOTTA
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1100
+    duration-seconds: 43200
+  build_blue_terracotta_common:
+    introduced-in: 5
+    title: "Для серверных построек: Синяя керамика"
+    type: DELIVERY
+    target: BLUE_TERRACOTTA
+    rarity: COMMON
+    amount: 32
+    reward: 50
+    duration-seconds: 3600
+  build_blue_terracotta_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Синяя керамика"
+    type: DELIVERY
+    target: BLUE_TERRACOTTA
+    rarity: UNCOMMON
+    amount: 64
+    reward: 110
+    duration-seconds: 7200
+  build_blue_terracotta_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Синяя керамика"
+    type: DELIVERY
+    target: BLUE_TERRACOTTA
+    rarity: RARE
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  build_blue_terracotta_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Синяя керамика"
+    type: DELIVERY
+    target: BLUE_TERRACOTTA
+    rarity: EPIC
+    amount: 256
+    reward: 520
+    duration-seconds: 28800
+  build_blue_terracotta_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Синяя керамика"
+    type: DELIVERY
+    target: BLUE_TERRACOTTA
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1100
+    duration-seconds: 43200
+  build_brown_terracotta_common:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневая керамика"
+    type: DELIVERY
+    target: BROWN_TERRACOTTA
+    rarity: COMMON
+    amount: 32
+    reward: 50
+    duration-seconds: 3600
+  build_brown_terracotta_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневая керамика"
+    type: DELIVERY
+    target: BROWN_TERRACOTTA
+    rarity: UNCOMMON
+    amount: 64
+    reward: 110
+    duration-seconds: 7200
+  build_brown_terracotta_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневая керамика"
+    type: DELIVERY
+    target: BROWN_TERRACOTTA
+    rarity: RARE
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  build_brown_terracotta_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневая керамика"
+    type: DELIVERY
+    target: BROWN_TERRACOTTA
+    rarity: EPIC
+    amount: 256
+    reward: 520
+    duration-seconds: 28800
+  build_brown_terracotta_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Коричневая керамика"
+    type: DELIVERY
+    target: BROWN_TERRACOTTA
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1100
+    duration-seconds: 43200
+  build_green_terracotta_common:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёная керамика"
+    type: DELIVERY
+    target: GREEN_TERRACOTTA
+    rarity: COMMON
+    amount: 32
+    reward: 50
+    duration-seconds: 3600
+  build_green_terracotta_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёная керамика"
+    type: DELIVERY
+    target: GREEN_TERRACOTTA
+    rarity: UNCOMMON
+    amount: 64
+    reward: 110
+    duration-seconds: 7200
+  build_green_terracotta_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёная керамика"
+    type: DELIVERY
+    target: GREEN_TERRACOTTA
+    rarity: RARE
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  build_green_terracotta_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёная керамика"
+    type: DELIVERY
+    target: GREEN_TERRACOTTA
+    rarity: EPIC
+    amount: 256
+    reward: 520
+    duration-seconds: 28800
+  build_green_terracotta_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Зелёная керамика"
+    type: DELIVERY
+    target: GREEN_TERRACOTTA
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1100
+    duration-seconds: 43200
+  build_red_terracotta_common:
+    introduced-in: 5
+    title: "Для серверных построек: Красная керамика"
+    type: DELIVERY
+    target: RED_TERRACOTTA
+    rarity: COMMON
+    amount: 32
+    reward: 50
+    duration-seconds: 3600
+  build_red_terracotta_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Красная керамика"
+    type: DELIVERY
+    target: RED_TERRACOTTA
+    rarity: UNCOMMON
+    amount: 64
+    reward: 110
+    duration-seconds: 7200
+  build_red_terracotta_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Красная керамика"
+    type: DELIVERY
+    target: RED_TERRACOTTA
+    rarity: RARE
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  build_red_terracotta_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Красная керамика"
+    type: DELIVERY
+    target: RED_TERRACOTTA
+    rarity: EPIC
+    amount: 256
+    reward: 520
+    duration-seconds: 28800
+  build_red_terracotta_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Красная керамика"
+    type: DELIVERY
+    target: RED_TERRACOTTA
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1100
+    duration-seconds: 43200
+  build_black_terracotta_common:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрная керамика"
+    type: DELIVERY
+    target: BLACK_TERRACOTTA
+    rarity: COMMON
+    amount: 32
+    reward: 50
+    duration-seconds: 3600
+  build_black_terracotta_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрная керамика"
+    type: DELIVERY
+    target: BLACK_TERRACOTTA
+    rarity: UNCOMMON
+    amount: 64
+    reward: 110
+    duration-seconds: 7200
+  build_black_terracotta_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрная керамика"
+    type: DELIVERY
+    target: BLACK_TERRACOTTA
+    rarity: RARE
+    amount: 128
+    reward: 240
+    duration-seconds: 14400
+  build_black_terracotta_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрная керамика"
+    type: DELIVERY
+    target: BLACK_TERRACOTTA
+    rarity: EPIC
+    amount: 256
+    reward: 520
+    duration-seconds: 28800
+  build_black_terracotta_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Чёрная керамика"
+    type: DELIVERY
+    target: BLACK_TERRACOTTA
+    rarity: LEGENDARY
+    amount: 512
+    reward: 1100
+    duration-seconds: 43200
+  build_oak_door_common:
+    introduced-in: 5
+    title: "Для серверных построек: Дубовая дверь"
+    type: DELIVERY
+    target: OAK_DOOR
+    rarity: COMMON
+    amount: 3
+    reward: 12
+    duration-seconds: 3600
+  build_oak_door_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Дубовая дверь"
+    type: DELIVERY
+    target: OAK_DOOR
+    rarity: UNCOMMON
+    amount: 6
+    reward: 27
+    duration-seconds: 7200
+  build_oak_door_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Дубовая дверь"
+    type: DELIVERY
+    target: OAK_DOOR
+    rarity: RARE
+    amount: 12
+    reward: 60
+    duration-seconds: 14400
+  build_oak_door_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Дубовая дверь"
+    type: DELIVERY
+    target: OAK_DOOR
+    rarity: EPIC
+    amount: 24
+    reward: 135
+    duration-seconds: 28800
+  build_oak_door_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Дубовая дверь"
+    type: DELIVERY
+    target: OAK_DOOR
+    rarity: LEGENDARY
+    amount: 48
+    reward: 300
+    duration-seconds: 43200
+  build_spruce_door_common:
+    introduced-in: 5
+    title: "Для серверных построек: Еловая дверь"
+    type: DELIVERY
+    target: SPRUCE_DOOR
+    rarity: COMMON
+    amount: 3
+    reward: 12
+    duration-seconds: 3600
+  build_spruce_door_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Еловая дверь"
+    type: DELIVERY
+    target: SPRUCE_DOOR
+    rarity: UNCOMMON
+    amount: 6
+    reward: 27
+    duration-seconds: 7200
+  build_spruce_door_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Еловая дверь"
+    type: DELIVERY
+    target: SPRUCE_DOOR
+    rarity: RARE
+    amount: 12
+    reward: 60
+    duration-seconds: 14400
+  build_spruce_door_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Еловая дверь"
+    type: DELIVERY
+    target: SPRUCE_DOOR
+    rarity: EPIC
+    amount: 24
+    reward: 135
+    duration-seconds: 28800
+  build_spruce_door_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Еловая дверь"
+    type: DELIVERY
+    target: SPRUCE_DOOR
+    rarity: LEGENDARY
+    amount: 48
+    reward: 300
+    duration-seconds: 43200
+  build_birch_door_common:
+    introduced-in: 5
+    title: "Для серверных построек: Берёзовая дверь"
+    type: DELIVERY
+    target: BIRCH_DOOR
+    rarity: COMMON
+    amount: 3
+    reward: 12
+    duration-seconds: 3600
+  build_birch_door_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Берёзовая дверь"
+    type: DELIVERY
+    target: BIRCH_DOOR
+    rarity: UNCOMMON
+    amount: 6
+    reward: 27
+    duration-seconds: 7200
+  build_birch_door_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Берёзовая дверь"
+    type: DELIVERY
+    target: BIRCH_DOOR
+    rarity: RARE
+    amount: 12
+    reward: 60
+    duration-seconds: 14400
+  build_birch_door_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Берёзовая дверь"
+    type: DELIVERY
+    target: BIRCH_DOOR
+    rarity: EPIC
+    amount: 24
+    reward: 135
+    duration-seconds: 28800
+  build_birch_door_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Берёзовая дверь"
+    type: DELIVERY
+    target: BIRCH_DOOR
+    rarity: LEGENDARY
+    amount: 48
+    reward: 300
+    duration-seconds: 43200
+  build_jungle_door_common:
+    introduced-in: 5
+    title: "Для серверных построек: Дверь из джунглевого дерева"
+    type: DELIVERY
+    target: JUNGLE_DOOR
+    rarity: COMMON
+    amount: 3
+    reward: 12
+    duration-seconds: 3600
+  build_jungle_door_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Дверь из джунглевого дерева"
+    type: DELIVERY
+    target: JUNGLE_DOOR
+    rarity: UNCOMMON
+    amount: 6
+    reward: 27
+    duration-seconds: 7200
+  build_jungle_door_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Дверь из джунглевого дерева"
+    type: DELIVERY
+    target: JUNGLE_DOOR
+    rarity: RARE
+    amount: 12
+    reward: 60
+    duration-seconds: 14400
+  build_jungle_door_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Дверь из джунглевого дерева"
+    type: DELIVERY
+    target: JUNGLE_DOOR
+    rarity: EPIC
+    amount: 24
+    reward: 135
+    duration-seconds: 28800
+  build_jungle_door_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Дверь из джунглевого дерева"
+    type: DELIVERY
+    target: JUNGLE_DOOR
+    rarity: LEGENDARY
+    amount: 48
+    reward: 300
+    duration-seconds: 43200
+  build_acacia_door_common:
+    introduced-in: 5
+    title: "Для серверных построек: Акациевая дверь"
+    type: DELIVERY
+    target: ACACIA_DOOR
+    rarity: COMMON
+    amount: 3
+    reward: 12
+    duration-seconds: 3600
+  build_acacia_door_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Акациевая дверь"
+    type: DELIVERY
+    target: ACACIA_DOOR
+    rarity: UNCOMMON
+    amount: 6
+    reward: 27
+    duration-seconds: 7200
+  build_acacia_door_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Акациевая дверь"
+    type: DELIVERY
+    target: ACACIA_DOOR
+    rarity: RARE
+    amount: 12
+    reward: 60
+    duration-seconds: 14400
+  build_acacia_door_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Акациевая дверь"
+    type: DELIVERY
+    target: ACACIA_DOOR
+    rarity: EPIC
+    amount: 24
+    reward: 135
+    duration-seconds: 28800
+  build_acacia_door_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Акациевая дверь"
+    type: DELIVERY
+    target: ACACIA_DOOR
+    rarity: LEGENDARY
+    amount: 48
+    reward: 300
+    duration-seconds: 43200
+  build_dark_oak_door_common:
+    introduced-in: 5
+    title: "Для серверных построек: Дверь из тёмного дуба"
+    type: DELIVERY
+    target: DARK_OAK_DOOR
+    rarity: COMMON
+    amount: 3
+    reward: 12
+    duration-seconds: 3600
+  build_dark_oak_door_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Дверь из тёмного дуба"
+    type: DELIVERY
+    target: DARK_OAK_DOOR
+    rarity: UNCOMMON
+    amount: 6
+    reward: 27
+    duration-seconds: 7200
+  build_dark_oak_door_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Дверь из тёмного дуба"
+    type: DELIVERY
+    target: DARK_OAK_DOOR
+    rarity: RARE
+    amount: 12
+    reward: 60
+    duration-seconds: 14400
+  build_dark_oak_door_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Дверь из тёмного дуба"
+    type: DELIVERY
+    target: DARK_OAK_DOOR
+    rarity: EPIC
+    amount: 24
+    reward: 135
+    duration-seconds: 28800
+  build_dark_oak_door_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Дверь из тёмного дуба"
+    type: DELIVERY
+    target: DARK_OAK_DOOR
+    rarity: LEGENDARY
+    amount: 48
+    reward: 300
+    duration-seconds: 43200
+  build_mangrove_door_common:
+    introduced-in: 5
+    title: "Для серверных построек: Мангровая дверь"
+    type: DELIVERY
+    target: MANGROVE_DOOR
+    rarity: COMMON
+    amount: 3
+    reward: 12
+    duration-seconds: 3600
+  build_mangrove_door_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Мангровая дверь"
+    type: DELIVERY
+    target: MANGROVE_DOOR
+    rarity: UNCOMMON
+    amount: 6
+    reward: 27
+    duration-seconds: 7200
+  build_mangrove_door_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Мангровая дверь"
+    type: DELIVERY
+    target: MANGROVE_DOOR
+    rarity: RARE
+    amount: 12
+    reward: 60
+    duration-seconds: 14400
+  build_mangrove_door_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Мангровая дверь"
+    type: DELIVERY
+    target: MANGROVE_DOOR
+    rarity: EPIC
+    amount: 24
+    reward: 135
+    duration-seconds: 28800
+  build_mangrove_door_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Мангровая дверь"
+    type: DELIVERY
+    target: MANGROVE_DOOR
+    rarity: LEGENDARY
+    amount: 48
+    reward: 300
+    duration-seconds: 43200
+  build_cherry_door_common:
+    introduced-in: 5
+    title: "Для серверных построек: Вишнёвая дверь"
+    type: DELIVERY
+    target: CHERRY_DOOR
+    rarity: COMMON
+    amount: 3
+    reward: 12
+    duration-seconds: 3600
+  build_cherry_door_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Вишнёвая дверь"
+    type: DELIVERY
+    target: CHERRY_DOOR
+    rarity: UNCOMMON
+    amount: 6
+    reward: 27
+    duration-seconds: 7200
+  build_cherry_door_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Вишнёвая дверь"
+    type: DELIVERY
+    target: CHERRY_DOOR
+    rarity: RARE
+    amount: 12
+    reward: 60
+    duration-seconds: 14400
+  build_cherry_door_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Вишнёвая дверь"
+    type: DELIVERY
+    target: CHERRY_DOOR
+    rarity: EPIC
+    amount: 24
+    reward: 135
+    duration-seconds: 28800
+  build_cherry_door_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Вишнёвая дверь"
+    type: DELIVERY
+    target: CHERRY_DOOR
+    rarity: LEGENDARY
+    amount: 48
+    reward: 300
+    duration-seconds: 43200
+  build_pale_oak_door_common:
+    introduced-in: 5
+    title: "Для серверных построек: Дверь из бледного дуба"
+    type: DELIVERY
+    target: PALE_OAK_DOOR
+    rarity: COMMON
+    amount: 3
+    reward: 12
+    duration-seconds: 3600
+  build_pale_oak_door_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Дверь из бледного дуба"
+    type: DELIVERY
+    target: PALE_OAK_DOOR
+    rarity: UNCOMMON
+    amount: 6
+    reward: 27
+    duration-seconds: 7200
+  build_pale_oak_door_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Дверь из бледного дуба"
+    type: DELIVERY
+    target: PALE_OAK_DOOR
+    rarity: RARE
+    amount: 12
+    reward: 60
+    duration-seconds: 14400
+  build_pale_oak_door_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Дверь из бледного дуба"
+    type: DELIVERY
+    target: PALE_OAK_DOOR
+    rarity: EPIC
+    amount: 24
+    reward: 135
+    duration-seconds: 28800
+  build_pale_oak_door_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Дверь из бледного дуба"
+    type: DELIVERY
+    target: PALE_OAK_DOOR
+    rarity: LEGENDARY
+    amount: 48
+    reward: 300
+    duration-seconds: 43200
+  build_bamboo_door_common:
+    introduced-in: 5
+    title: "Для серверных построек: Бамбуковая дверь"
+    type: DELIVERY
+    target: BAMBOO_DOOR
+    rarity: COMMON
+    amount: 3
+    reward: 12
+    duration-seconds: 3600
+  build_bamboo_door_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Бамбуковая дверь"
+    type: DELIVERY
+    target: BAMBOO_DOOR
+    rarity: UNCOMMON
+    amount: 6
+    reward: 27
+    duration-seconds: 7200
+  build_bamboo_door_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Бамбуковая дверь"
+    type: DELIVERY
+    target: BAMBOO_DOOR
+    rarity: RARE
+    amount: 12
+    reward: 60
+    duration-seconds: 14400
+  build_bamboo_door_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Бамбуковая дверь"
+    type: DELIVERY
+    target: BAMBOO_DOOR
+    rarity: EPIC
+    amount: 24
+    reward: 135
+    duration-seconds: 28800
+  build_bamboo_door_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Бамбуковая дверь"
+    type: DELIVERY
+    target: BAMBOO_DOOR
+    rarity: LEGENDARY
+    amount: 48
+    reward: 300
+    duration-seconds: 43200
+  build_crimson_door_common:
+    introduced-in: 5
+    title: "Для серверных построек: Багровая дверь"
+    type: DELIVERY
+    target: CRIMSON_DOOR
+    rarity: COMMON
+    amount: 3
+    reward: 12
+    duration-seconds: 3600
+  build_crimson_door_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Багровая дверь"
+    type: DELIVERY
+    target: CRIMSON_DOOR
+    rarity: UNCOMMON
+    amount: 6
+    reward: 27
+    duration-seconds: 7200
+  build_crimson_door_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Багровая дверь"
+    type: DELIVERY
+    target: CRIMSON_DOOR
+    rarity: RARE
+    amount: 12
+    reward: 60
+    duration-seconds: 14400
+  build_crimson_door_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Багровая дверь"
+    type: DELIVERY
+    target: CRIMSON_DOOR
+    rarity: EPIC
+    amount: 24
+    reward: 135
+    duration-seconds: 28800
+  build_crimson_door_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Багровая дверь"
+    type: DELIVERY
+    target: CRIMSON_DOOR
+    rarity: LEGENDARY
+    amount: 48
+    reward: 300
+    duration-seconds: 43200
+  build_warped_door_common:
+    introduced-in: 5
+    title: "Для серверных построек: Искажённая дверь"
+    type: DELIVERY
+    target: WARPED_DOOR
+    rarity: COMMON
+    amount: 3
+    reward: 12
+    duration-seconds: 3600
+  build_warped_door_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Искажённая дверь"
+    type: DELIVERY
+    target: WARPED_DOOR
+    rarity: UNCOMMON
+    amount: 6
+    reward: 27
+    duration-seconds: 7200
+  build_warped_door_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Искажённая дверь"
+    type: DELIVERY
+    target: WARPED_DOOR
+    rarity: RARE
+    amount: 12
+    reward: 60
+    duration-seconds: 14400
+  build_warped_door_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Искажённая дверь"
+    type: DELIVERY
+    target: WARPED_DOOR
+    rarity: EPIC
+    amount: 24
+    reward: 135
+    duration-seconds: 28800
+  build_warped_door_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Искажённая дверь"
+    type: DELIVERY
+    target: WARPED_DOOR
+    rarity: LEGENDARY
+    amount: 48
+    reward: 300
+    duration-seconds: 43200
+  build_oak_trapdoor_common:
+    introduced-in: 5
+    title: "Для серверных построек: Дубовый люк"
+    type: DELIVERY
+    target: OAK_TRAPDOOR
+    rarity: COMMON
+    amount: 2
+    reward: 16
+    duration-seconds: 3600
+  build_oak_trapdoor_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Дубовый люк"
+    type: DELIVERY
+    target: OAK_TRAPDOOR
+    rarity: UNCOMMON
+    amount: 4
+    reward: 36
+    duration-seconds: 7200
+  build_oak_trapdoor_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Дубовый люк"
+    type: DELIVERY
+    target: OAK_TRAPDOOR
+    rarity: RARE
+    amount: 8
+    reward: 80
+    duration-seconds: 14400
+  build_oak_trapdoor_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Дубовый люк"
+    type: DELIVERY
+    target: OAK_TRAPDOOR
+    rarity: EPIC
+    amount: 16
+    reward: 180
+    duration-seconds: 28800
+  build_oak_trapdoor_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Дубовый люк"
+    type: DELIVERY
+    target: OAK_TRAPDOOR
+    rarity: LEGENDARY
+    amount: 32
+    reward: 400
+    duration-seconds: 43200
+  build_spruce_trapdoor_common:
+    introduced-in: 5
+    title: "Для серверных построек: Еловый люк"
+    type: DELIVERY
+    target: SPRUCE_TRAPDOOR
+    rarity: COMMON
+    amount: 2
+    reward: 16
+    duration-seconds: 3600
+  build_spruce_trapdoor_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Еловый люк"
+    type: DELIVERY
+    target: SPRUCE_TRAPDOOR
+    rarity: UNCOMMON
+    amount: 4
+    reward: 36
+    duration-seconds: 7200
+  build_spruce_trapdoor_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Еловый люк"
+    type: DELIVERY
+    target: SPRUCE_TRAPDOOR
+    rarity: RARE
+    amount: 8
+    reward: 80
+    duration-seconds: 14400
+  build_spruce_trapdoor_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Еловый люк"
+    type: DELIVERY
+    target: SPRUCE_TRAPDOOR
+    rarity: EPIC
+    amount: 16
+    reward: 180
+    duration-seconds: 28800
+  build_spruce_trapdoor_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Еловый люк"
+    type: DELIVERY
+    target: SPRUCE_TRAPDOOR
+    rarity: LEGENDARY
+    amount: 32
+    reward: 400
+    duration-seconds: 43200
+  build_birch_trapdoor_common:
+    introduced-in: 5
+    title: "Для серверных построек: Берёзовый люк"
+    type: DELIVERY
+    target: BIRCH_TRAPDOOR
+    rarity: COMMON
+    amount: 2
+    reward: 16
+    duration-seconds: 3600
+  build_birch_trapdoor_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Берёзовый люк"
+    type: DELIVERY
+    target: BIRCH_TRAPDOOR
+    rarity: UNCOMMON
+    amount: 4
+    reward: 36
+    duration-seconds: 7200
+  build_birch_trapdoor_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Берёзовый люк"
+    type: DELIVERY
+    target: BIRCH_TRAPDOOR
+    rarity: RARE
+    amount: 8
+    reward: 80
+    duration-seconds: 14400
+  build_birch_trapdoor_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Берёзовый люк"
+    type: DELIVERY
+    target: BIRCH_TRAPDOOR
+    rarity: EPIC
+    amount: 16
+    reward: 180
+    duration-seconds: 28800
+  build_birch_trapdoor_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Берёзовый люк"
+    type: DELIVERY
+    target: BIRCH_TRAPDOOR
+    rarity: LEGENDARY
+    amount: 32
+    reward: 400
+    duration-seconds: 43200
+  build_jungle_trapdoor_common:
+    introduced-in: 5
+    title: "Для серверных построек: Люк из джунглевого дерева"
+    type: DELIVERY
+    target: JUNGLE_TRAPDOOR
+    rarity: COMMON
+    amount: 2
+    reward: 16
+    duration-seconds: 3600
+  build_jungle_trapdoor_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Люк из джунглевого дерева"
+    type: DELIVERY
+    target: JUNGLE_TRAPDOOR
+    rarity: UNCOMMON
+    amount: 4
+    reward: 36
+    duration-seconds: 7200
+  build_jungle_trapdoor_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Люк из джунглевого дерева"
+    type: DELIVERY
+    target: JUNGLE_TRAPDOOR
+    rarity: RARE
+    amount: 8
+    reward: 80
+    duration-seconds: 14400
+  build_jungle_trapdoor_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Люк из джунглевого дерева"
+    type: DELIVERY
+    target: JUNGLE_TRAPDOOR
+    rarity: EPIC
+    amount: 16
+    reward: 180
+    duration-seconds: 28800
+  build_jungle_trapdoor_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Люк из джунглевого дерева"
+    type: DELIVERY
+    target: JUNGLE_TRAPDOOR
+    rarity: LEGENDARY
+    amount: 32
+    reward: 400
+    duration-seconds: 43200
+  build_acacia_trapdoor_common:
+    introduced-in: 5
+    title: "Для серверных построек: Акациевый люк"
+    type: DELIVERY
+    target: ACACIA_TRAPDOOR
+    rarity: COMMON
+    amount: 2
+    reward: 16
+    duration-seconds: 3600
+  build_acacia_trapdoor_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Акациевый люк"
+    type: DELIVERY
+    target: ACACIA_TRAPDOOR
+    rarity: UNCOMMON
+    amount: 4
+    reward: 36
+    duration-seconds: 7200
+  build_acacia_trapdoor_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Акациевый люк"
+    type: DELIVERY
+    target: ACACIA_TRAPDOOR
+    rarity: RARE
+    amount: 8
+    reward: 80
+    duration-seconds: 14400
+  build_acacia_trapdoor_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Акациевый люк"
+    type: DELIVERY
+    target: ACACIA_TRAPDOOR
+    rarity: EPIC
+    amount: 16
+    reward: 180
+    duration-seconds: 28800
+  build_acacia_trapdoor_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Акациевый люк"
+    type: DELIVERY
+    target: ACACIA_TRAPDOOR
+    rarity: LEGENDARY
+    amount: 32
+    reward: 400
+    duration-seconds: 43200
+  build_dark_oak_trapdoor_common:
+    introduced-in: 5
+    title: "Для серверных построек: Люк из тёмного дуба"
+    type: DELIVERY
+    target: DARK_OAK_TRAPDOOR
+    rarity: COMMON
+    amount: 2
+    reward: 16
+    duration-seconds: 3600
+  build_dark_oak_trapdoor_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Люк из тёмного дуба"
+    type: DELIVERY
+    target: DARK_OAK_TRAPDOOR
+    rarity: UNCOMMON
+    amount: 4
+    reward: 36
+    duration-seconds: 7200
+  build_dark_oak_trapdoor_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Люк из тёмного дуба"
+    type: DELIVERY
+    target: DARK_OAK_TRAPDOOR
+    rarity: RARE
+    amount: 8
+    reward: 80
+    duration-seconds: 14400
+  build_dark_oak_trapdoor_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Люк из тёмного дуба"
+    type: DELIVERY
+    target: DARK_OAK_TRAPDOOR
+    rarity: EPIC
+    amount: 16
+    reward: 180
+    duration-seconds: 28800
+  build_dark_oak_trapdoor_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Люк из тёмного дуба"
+    type: DELIVERY
+    target: DARK_OAK_TRAPDOOR
+    rarity: LEGENDARY
+    amount: 32
+    reward: 400
+    duration-seconds: 43200
+  build_mangrove_trapdoor_common:
+    introduced-in: 5
+    title: "Для серверных построек: Мангровый люк"
+    type: DELIVERY
+    target: MANGROVE_TRAPDOOR
+    rarity: COMMON
+    amount: 2
+    reward: 16
+    duration-seconds: 3600
+  build_mangrove_trapdoor_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Мангровый люк"
+    type: DELIVERY
+    target: MANGROVE_TRAPDOOR
+    rarity: UNCOMMON
+    amount: 4
+    reward: 36
+    duration-seconds: 7200
+  build_mangrove_trapdoor_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Мангровый люк"
+    type: DELIVERY
+    target: MANGROVE_TRAPDOOR
+    rarity: RARE
+    amount: 8
+    reward: 80
+    duration-seconds: 14400
+  build_mangrove_trapdoor_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Мангровый люк"
+    type: DELIVERY
+    target: MANGROVE_TRAPDOOR
+    rarity: EPIC
+    amount: 16
+    reward: 180
+    duration-seconds: 28800
+  build_mangrove_trapdoor_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Мангровый люк"
+    type: DELIVERY
+    target: MANGROVE_TRAPDOOR
+    rarity: LEGENDARY
+    amount: 32
+    reward: 400
+    duration-seconds: 43200
+  build_cherry_trapdoor_common:
+    introduced-in: 5
+    title: "Для серверных построек: Вишнёвый люк"
+    type: DELIVERY
+    target: CHERRY_TRAPDOOR
+    rarity: COMMON
+    amount: 2
+    reward: 16
+    duration-seconds: 3600
+  build_cherry_trapdoor_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Вишнёвый люк"
+    type: DELIVERY
+    target: CHERRY_TRAPDOOR
+    rarity: UNCOMMON
+    amount: 4
+    reward: 36
+    duration-seconds: 7200
+  build_cherry_trapdoor_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Вишнёвый люк"
+    type: DELIVERY
+    target: CHERRY_TRAPDOOR
+    rarity: RARE
+    amount: 8
+    reward: 80
+    duration-seconds: 14400
+  build_cherry_trapdoor_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Вишнёвый люк"
+    type: DELIVERY
+    target: CHERRY_TRAPDOOR
+    rarity: EPIC
+    amount: 16
+    reward: 180
+    duration-seconds: 28800
+  build_cherry_trapdoor_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Вишнёвый люк"
+    type: DELIVERY
+    target: CHERRY_TRAPDOOR
+    rarity: LEGENDARY
+    amount: 32
+    reward: 400
+    duration-seconds: 43200
+  build_pale_oak_trapdoor_common:
+    introduced-in: 5
+    title: "Для серверных построек: Люк из бледного дуба"
+    type: DELIVERY
+    target: PALE_OAK_TRAPDOOR
+    rarity: COMMON
+    amount: 2
+    reward: 16
+    duration-seconds: 3600
+  build_pale_oak_trapdoor_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Люк из бледного дуба"
+    type: DELIVERY
+    target: PALE_OAK_TRAPDOOR
+    rarity: UNCOMMON
+    amount: 4
+    reward: 36
+    duration-seconds: 7200
+  build_pale_oak_trapdoor_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Люк из бледного дуба"
+    type: DELIVERY
+    target: PALE_OAK_TRAPDOOR
+    rarity: RARE
+    amount: 8
+    reward: 80
+    duration-seconds: 14400
+  build_pale_oak_trapdoor_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Люк из бледного дуба"
+    type: DELIVERY
+    target: PALE_OAK_TRAPDOOR
+    rarity: EPIC
+    amount: 16
+    reward: 180
+    duration-seconds: 28800
+  build_pale_oak_trapdoor_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Люк из бледного дуба"
+    type: DELIVERY
+    target: PALE_OAK_TRAPDOOR
+    rarity: LEGENDARY
+    amount: 32
+    reward: 400
+    duration-seconds: 43200
+  build_bamboo_trapdoor_common:
+    introduced-in: 5
+    title: "Для серверных построек: Бамбуковый люк"
+    type: DELIVERY
+    target: BAMBOO_TRAPDOOR
+    rarity: COMMON
+    amount: 2
+    reward: 16
+    duration-seconds: 3600
+  build_bamboo_trapdoor_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Бамбуковый люк"
+    type: DELIVERY
+    target: BAMBOO_TRAPDOOR
+    rarity: UNCOMMON
+    amount: 4
+    reward: 36
+    duration-seconds: 7200
+  build_bamboo_trapdoor_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Бамбуковый люк"
+    type: DELIVERY
+    target: BAMBOO_TRAPDOOR
+    rarity: RARE
+    amount: 8
+    reward: 80
+    duration-seconds: 14400
+  build_bamboo_trapdoor_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Бамбуковый люк"
+    type: DELIVERY
+    target: BAMBOO_TRAPDOOR
+    rarity: EPIC
+    amount: 16
+    reward: 180
+    duration-seconds: 28800
+  build_bamboo_trapdoor_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Бамбуковый люк"
+    type: DELIVERY
+    target: BAMBOO_TRAPDOOR
+    rarity: LEGENDARY
+    amount: 32
+    reward: 400
+    duration-seconds: 43200
+  build_crimson_trapdoor_common:
+    introduced-in: 5
+    title: "Для серверных построек: Багровый люк"
+    type: DELIVERY
+    target: CRIMSON_TRAPDOOR
+    rarity: COMMON
+    amount: 2
+    reward: 16
+    duration-seconds: 3600
+  build_crimson_trapdoor_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Багровый люк"
+    type: DELIVERY
+    target: CRIMSON_TRAPDOOR
+    rarity: UNCOMMON
+    amount: 4
+    reward: 36
+    duration-seconds: 7200
+  build_crimson_trapdoor_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Багровый люк"
+    type: DELIVERY
+    target: CRIMSON_TRAPDOOR
+    rarity: RARE
+    amount: 8
+    reward: 80
+    duration-seconds: 14400
+  build_crimson_trapdoor_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Багровый люк"
+    type: DELIVERY
+    target: CRIMSON_TRAPDOOR
+    rarity: EPIC
+    amount: 16
+    reward: 180
+    duration-seconds: 28800
+  build_crimson_trapdoor_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Багровый люк"
+    type: DELIVERY
+    target: CRIMSON_TRAPDOOR
+    rarity: LEGENDARY
+    amount: 32
+    reward: 400
+    duration-seconds: 43200
+  build_warped_trapdoor_common:
+    introduced-in: 5
+    title: "Для серверных построек: Искажённый люк"
+    type: DELIVERY
+    target: WARPED_TRAPDOOR
+    rarity: COMMON
+    amount: 2
+    reward: 16
+    duration-seconds: 3600
+  build_warped_trapdoor_uncommon:
+    introduced-in: 5
+    title: "Для серверных построек: Искажённый люк"
+    type: DELIVERY
+    target: WARPED_TRAPDOOR
+    rarity: UNCOMMON
+    amount: 4
+    reward: 36
+    duration-seconds: 7200
+  build_warped_trapdoor_rare:
+    introduced-in: 5
+    title: "Для серверных построек: Искажённый люк"
+    type: DELIVERY
+    target: WARPED_TRAPDOOR
+    rarity: RARE
+    amount: 8
+    reward: 80
+    duration-seconds: 14400
+  build_warped_trapdoor_epic:
+    introduced-in: 5
+    title: "Для серверных построек: Искажённый люк"
+    type: DELIVERY
+    target: WARPED_TRAPDOOR
+    rarity: EPIC
+    amount: 16
+    reward: 180
+    duration-seconds: 28800
+  build_warped_trapdoor_legendary:
+    introduced-in: 5
+    title: "Для серверных построек: Искажённый люк"
+    type: DELIVERY
+    target: WARPED_TRAPDOOR
+    rarity: LEGENDARY
+    amount: 32
+    reward: 400
+    duration-seconds: 43200

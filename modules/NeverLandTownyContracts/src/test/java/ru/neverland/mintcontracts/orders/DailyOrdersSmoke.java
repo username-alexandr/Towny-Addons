@@ -76,10 +76,10 @@ public final class DailyOrdersSmoke {
 
         var defaults=new YamlConfiguration();
         try(var input=DailyOrdersSmoke.class.getResourceAsStream("/orders.yml");var reader=new java.io.InputStreamReader(Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8)){defaults.load(reader);}
-        ok(defaults.getConfigurationSection("templates").getKeys(false).size()==230,"bundled catalog has 230 orders");
+        ok(defaults.getConfigurationSection("templates").getKeys(false).size()==670,"bundled catalog has 670 orders");
         var real=OrderCatalog.templates(defaults);
-        for(var rarity:OrderRarity.values())ok(real.stream().filter(t->t.rarity()==rarity).count()==46,"forty-six orders of "+rarity);
-        for(var type:Type.values())ok(real.stream().filter(t->t.type()==type).count()==(type==Type.DELIVERY?170:20),"building deliveries added without reducing other activities: "+type);
+        for(var rarity:OrderRarity.values())ok(real.stream().filter(t->t.rarity()==rarity).count()==134,"134 orders of "+rarity);
+        for(var type:Type.values())ok(real.stream().filter(t->t.type()==type).count()==(type==Type.DELIVERY?610:20),"building deliveries added without reducing other activities: "+type);
         ok(defaults.getInt("limits.player-24h")==3000&&defaults.getInt("board-size")==18,"new-install defaults offer larger board and budget");
         ok(real.stream().allMatch(t->t.cents()<=PublicOrders.money(defaults,"limits.player-24h",3000)),"every default reward fits player cap");
         var labels=new ru.neverland.localization.MaterialLabels();
@@ -89,12 +89,12 @@ public final class DailyOrdersSmoke {
         ok(old.getInt("board-size")==18&&!old.contains("refresh-seconds"),"hourly default migrates directly to 18 daily slots");
         ok(old.getInt("limits.player-24h")==987&&old.getInt("templates.wheat_delivery.reward")==777&&old.getInt("templates.wheat_delivery.amount")==17,"custom limits/rewards/requirements preserved");
         ok(old.getString("templates.wheat_delivery.title").equals("Мой заказ")&&old.contains("templates.custom_job"),"custom titles/templates preserved");
-        ok(old.getConfigurationSection("templates").getKeys(false).size()==231,"missing defaults added without deleting custom entries");
+        ok(old.getConfigurationSection("templates").getKeys(false).size()==671,"missing defaults added without deleting custom entries");
         old.set("templates.coal_mining",null);String after=old.saveToString();
         ok(!OrderCatalog.migrate(old,defaults)&&old.saveToString().equals(after),"migration is one-time and respects later deletions");
         Path legacyFile=root.resolve("orders.yml");Files.writeString(legacyFile,"original configuration\n");
         OrderCatalog.saveMigration(legacyFile,old);
-        ok(Files.readString(root.resolve("orders.pre-catalog-v4.yml")).equals("original configuration\n"),"original configuration backed up for this migration");
+        ok(Files.readString(root.resolve("orders.pre-catalog-v5.yml")).equals("original configuration\n"),"original configuration backed up for this migration");
 
         var v2=new YamlConfiguration();v2.loadFromString(defaults.saveToString());
         for(String id:new ArrayList<>(v2.getConfigurationSection("templates").getKeys(false)))
@@ -103,7 +103,7 @@ public final class DailyOrdersSmoke {
         v2.set("templates.coal_mining",null);v2.set("templates.wheat_delivery.reward",333);
         v2.set("templates.sawmill_delivery.enabled",false);v2.set("rarity-weights.COMMON",17);
         ok(OrderCatalog.migrate(v2,defaults),"installed v2 migrates to expanded catalog");
-        ok(v2.getInt("catalog-version")==4&&v2.getInt("board-size")==18&&v2.getInt("limits.player-24h")==3000,"previous standard settings raised once");
+        ok(v2.getInt("catalog-version")==5&&v2.getInt("board-size")==18&&v2.getInt("limits.player-24h")==3000,"previous standard settings raised once");
         ok(!v2.contains("templates.coal_mining")&&v2.contains("templates.tropical_collection"),"additions do not resurrect previously removed templates");
         ok(v2.getInt("templates.wheat_delivery.reward")==333&&v2.getInt("rarity-weights.COMMON")==17,"existing terms and selection weights unchanged");
         ok(!v2.getBoolean("templates.sawmill_delivery.enabled")&&!v2.contains("templates.sawmill_delivery.title"),"custom template with new built-in ID is not overwritten");
@@ -118,18 +118,30 @@ public final class DailyOrdersSmoke {
         var missing=new YamlConfiguration();missing.set("catalog-version",2);OrderCatalog.migrate(missing,defaults);
         ok(missing.getInt("limits.player-24h")==3000&&missing.getInt("board-size")==18,"missing old defaults acquire new defaults");
         var v3=new YamlConfiguration();v3.loadFromString(defaults.saveToString());
-        for(String id:new ArrayList<>(v3.getConfigurationSection("templates").getKeys(false)))if(v3.getInt("templates."+id+".introduced-in",2)==4)v3.set("templates."+id,null);
+        for(String id:new ArrayList<>(v3.getConfigurationSection("templates").getKeys(false)))if(v3.getInt("templates."+id+".introduced-in",2)>=4)v3.set("templates."+id,null);
         v3.set("catalog-version",3);v3.set("limits.player-24h",5000);v3.set("limits.server-24h",500000);v3.set("board-size",12);v3.set("templates.wheat_delivery",null);
         ok(OrderCatalog.migrate(v3,defaults),"building orders migrate installed v3");
         ok(v3.getInt("limits.player-24h")==5000&&v3.getInt("limits.server-24h")==500000&&v3.getInt("board-size")==12,"v4 preserves personal/server limits and custom board size");
         ok(!v3.contains("templates.wheat_delivery")&&v3.contains("templates.build_oak_log_common"),"migration adds new deliveries without resurrecting deleted old orders");
         var construction=real.stream().filter(t->t.id().startsWith("build_")).toList();
-        ok(construction.size()==150&&construction.stream().allMatch(t->t.type()==Type.DELIVERY&&t.amount()<=2048),"150 physically deliverable building orders fit ordinary inventory");
+        ok(construction.size()==590&&construction.stream().allMatch(t->t.type()==Type.DELIVERY&&t.amount()<=2048),"590 physically deliverable building orders fit ordinary inventory");
         for(var material:construction.stream().map(Template::target).distinct().toList()){
             var tiers=construction.stream().filter(t->t.target().equals(material)).sorted(Comparator.comparing(Template::rarity)).toList();
             ok(tiers.size()==5,"all rarities for "+material);for(int n=1;n<tiers.size();n++)ok(tiers.get(n).amount()>tiers.get(n-1).amount()&&tiers.get(n).cents()>tiers.get(n-1).cents(),"quantity and reward rise by rarity: "+material);
         }
-        var future=new YamlConfiguration();future.set("catalog-version",5);
+        var v4=new YamlConfiguration();v4.loadFromString(defaults.saveToString());
+        for(String id:new ArrayList<>(v4.getConfigurationSection("templates").getKeys(false)))if(v4.getInt("templates."+id+".introduced-in",2)==5)v4.set("templates."+id,null);
+        v4.set("catalog-version",4);v4.set("limits.player-24h",5000);v4.set("limits.server-24h",500000);v4.set("board-size",12);
+        v4.set("templates.build_oak_log_common",null);v4.set("templates.build_oak_door_common.enabled",false);
+        ok(OrderCatalog.migrate(v4,defaults),"v4 gains colored materials and wooden fittings");
+        ok(v4.getInt("limits.player-24h")==5000&&v4.getInt("limits.server-24h")==500000&&v4.getInt("board-size")==12,"v5 preserves configured budgets and board size");
+        ok(!v4.contains("templates.build_oak_log_common")&&!v4.getBoolean("templates.build_oak_door_common.enabled")&&!v4.contains("templates.build_oak_door_common.amount"),"v5 respects deletions and custom conflicting template IDs");
+        String migrated=v4.saveToString();ok(!OrderCatalog.migrate(v4,defaults)&&migrated.equals(v4.saveToString()),"v5 is idempotent");
+        var added=real.stream().filter(t->defaults.getInt("templates."+t.id()+".introduced-in")==5).toList();
+        ok(added.size()==440&&added.stream().map(Template::target).distinct().count()==88,"88 new materials in five rarities");
+        for(String suffix:List.of("STAINED_GLASS","WOOL","CONCRETE","TERRACOTTA"))ok(added.stream().filter(t->t.target().endsWith("_"+suffix)).map(Template::target).distinct().count()==16,"all colors: "+suffix);
+        ok(added.stream().filter(t->t.target().endsWith("_DOOR")||t.target().endsWith("_TRAPDOOR")).allMatch(t->t.amount()<=48),"wooden doors and trapdoors use small batches");
+        var future=new YamlConfiguration();future.set("catalog-version",6);
         rejects(()->OrderCatalog.migrate(future,defaults),"newer config schema is not silently downgraded");
 
         time.now=Instant.parse("2026-12-31T20:59:59Z");

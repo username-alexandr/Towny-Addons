@@ -342,9 +342,9 @@ public final class BuildService {
                 int needed=Math.max(0,required.getAmount()-have),taking=Math.min(needed,ResourceTransfer.count(available,required));
                 ResourceTransfer.remove(available,required,taking);
                 lines.add(new ContributionPreview.Line(required,itemNames.name(required),needed,ResourceTransfer.count(personal,required),ResourceTransfer.count(stored,required),taking));
-                fingerprint.append(':').append(java.util.Base64.getEncoder().encodeToString(required.serializeAsBytes())).append(':').append(have).append(':').append(taking);
+                fingerprint.append(':').append(ContributionFingerprint.item(required)).append(':').append(have).append(':').append(taking);
             }
-            for(var item:warehouse?stored:personal)fingerprint.append('|').append(item==null?"-":java.util.Base64.getEncoder().encodeToString(item.serializeAsBytes()));
+            for(var item:warehouse?stored:personal)fingerprint.append('|').append(ContributionFingerprint.item(item));
             signature=java.util.UUID.nameUUIDFromBytes(fingerprint.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
             if(reason.isEmpty()&&lines.stream().allMatch(x->x.needed()==0))reason="Все необходимые материалы уже собраны.";
             else if(reason.isEmpty()&&lines.stream().allMatch(x->x.taking()==0))reason=warehouse?"На складе нет подходящих материалов из списка.":"В вашем инвентаре нет подходящих материалов из списка.";

@@ -29,7 +29,7 @@ public final class ServerResourceProbe extends JavaPlugin {
         var orders=field(plugin,"publicOrders");var db=(ServerMaterials)field(orders,"materials");
         check(db.available(),"Paper bundled SQLite driver opens real server-materials.db");
         var catalogue=YamlConfiguration.loadConfiguration(Path.of("plugins/NeverLandTownyContracts/orders.yml").toFile());
-        check(catalogue.getInt("catalog-version")==4&&catalogue.contains("templates.build_oak_log_common"),"installed v3 catalogue gains construction deliveries");
+        check(catalogue.getInt("catalog-version")==5&&catalogue.contains("templates.build_oak_log_common")&&catalogue.contains("templates.build_black_stained_glass_legendary")&&catalogue.contains("templates.build_pale_oak_trapdoor_common"),"installed v3 catalogue gains construction deliveries");
         check(catalogue.getInt("limits.player-24h")==5000&&catalogue.getInt("limits.server-24h")==500000,"custom player/server payout caps survive real catalogue migration");
         var previous=YamlConfiguration.loadConfiguration(getDataFolder().toPath().resolve("previous.yml").toFile());
         var delivery=new ServerMaterials.Delivery(id("delivery"),id("player"),"FixturePlayer","fixture_building","OAK_LOG",64,100,"COMMON",System.currentTimeMillis());

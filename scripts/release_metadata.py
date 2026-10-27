@@ -35,10 +35,11 @@ def main():
             raise SystemExit('Expected initial and restart native proofs')
         shutdown=any('shutdown' in row for row in proof)
         resources=any('resources' in row for row in proof)
+        build_menu=any('build_menu' in row for row in proof)
         for row in proof:
             if row.get('exit_code')!=0 or row.get('watchdog') is not False or row.get('jar_sha256')!=hashes:
                 raise SystemExit('Native proof failed or refers to different artifacts')
-            for name in ['suite','ledger']+(['shutdown'] if shutdown else [])+(['resources'] if resources else []):
+            for name in ['suite','ledger']+(['shutdown'] if shutdown else [])+(['resources'] if resources else [])+(['build_menu'] if build_menu else []):
                 lines=row.get(name,'').splitlines()
                 if 'failed=0' not in lines or 'run_id='+row.get('run_id','missing') not in lines:
                     raise SystemExit('Native result missing or stale')
@@ -50,6 +51,7 @@ def main():
                 'Нагрузочный тест с игроками и проверка реального экономического провайдера\n'
                 'не выполнялись; сторонние премиальные интеграции не проверялись.\n')
         if shutdown:native+='Дополнительно проверены остановка с активным рейдом и восстановление волны после перезапуска.\n'
+        if build_menu:native+='Проверены реальная сериализация требования 272, меню и события сдачи, устаревшее подтверждение, двойной клик, склад и обновление CraftoUI; игрок и его транспорт имитируются.\n'
         if resources:native+='Проверены открытие SQLite на Folia, API серверных материалов, резервы строек, возврат и сохранение остатков между запусками.\n'
     commit = subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     stamp = datetime.now(timezone.utc).isoformat()
