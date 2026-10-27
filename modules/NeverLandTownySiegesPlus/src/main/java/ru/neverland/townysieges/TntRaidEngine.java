@@ -32,6 +32,7 @@ public final class TntRaidEngine implements Listener,AutoCloseable {
     private final RaidStore store;
     private final NamespacedKey actorKey;
     private Access access;
+    private final RepairPlans repairPlans=new RepairPlans();
     private final Map<String,UUID> owners=new ConcurrentHashMap<>();
     private final Map<String,Ticket> priming=new ConcurrentHashMap<>();
     private final Map<UUID,Long> processed=new ConcurrentHashMap<>();
@@ -155,7 +156,8 @@ public final class TntRaidEngine implements Listener,AutoCloseable {
             var state=block.getState(false);if((state instanceof TileState||state instanceof InventoryHolder)&&!core)continue;
             // A door is one object. Its nearest half receives one hit, never two hits from one blast.
             if(block.getBlockData() instanceof Door)amount=Math.max(amount,TntRules.damage(TntRules.distance(origin.x(),origin.y(),origin.z(),block.getX(),block.getY()+1,block.getZ()),settings));
-            damaged.add(k.id());hits.add(new RaidStore.Hit(k,town.getUUID(),material.name(),watch(k),settings.hp(material.name()),amount));
+            String project;try{project=repairPlans.project(town.getUUID(),k,material.name());}catch(Exception unavailable){plugin.getLogger().warning("Урон зданию отложен: "+RaidController.problem(unavailable));return;}
+            damaged.add(k.id());hits.add(new RaidStore.Hit(k,town.getUUID(),material.name(),watch(k),settings.hp(material.name()),amount,project));
             }
         }
         if(hits.isEmpty())return;
@@ -165,6 +167,7 @@ public final class TntRaidEngine implements Listener,AutoCloseable {
                     SuiteScheduler.region(plugin,new Location(world,cx*16,origin.y(),cz*16),()->{
                         try {
                             if(error!=null){plugin.getLogger().warning("Урон TNT отложен: "+RaidController.problem(error));return;}
+                            if(!results.isEmpty())AuditTrail.record(plugin,"tnt:"+cx+":"+cz+":"+permit.defender(),blast.toString(),"RAID_DAMAGE","COMPLETED",AuditTrail.player(permit.actor()),AuditTrail.town(permit.attacker()),AuditTrail.town(permit.defender()),"",0,"","Изменение прочности; целей="+results.size()+"; мир="+world.getUID()+"; чанк="+cx+","+cz);
                             for(var result:results)if(!result.receipt().isEmpty()) {
                                 if(result.hit().material().equals("LECTERN")){breach(world,cx,cz,origin,result,permit);continue;}
                                 boolean destroyed=false;
@@ -172,7 +175,7 @@ public final class TntRaidEngine implements Listener,AutoCloseable {
                                     var k=result.hit().key();Block block=world.getBlockAt(k.x(),k.y(),k.z());var town=TownyAPI.getInstance().getTown(block.getLocation());
                                     if(town!=null&&town.getUUID().equals(permit.defender())&&block.getType().name().equals(result.hit().material())&&!(block.getState(false) instanceof TileState)) {
                                         if(block.getBlockData() instanceof Door){Block top=block.getRelative(0,1,0);if(top.getType()==block.getType())top.setType(Material.AIR,false);}
-                                        block.setType(Material.AIR,false);destroyed=true;damaged.remove(k.id());
+                                        block.setType(Material.AIR,false);destroyed=true;if(result.hit().project().isEmpty())damaged.remove(k.id());
                                     }
                                 }}finally{store.finish(result,destroyed);}
                             }
@@ -186,7 +189,8 @@ public final class TntRaidEngine implements Listener,AutoCloseable {
         if(!active()||!access.valid(permit)||!unchanged(hit)||!plugin.loot().core(permit.defender(),block)){store.finish(result,false);return;}
         byte[] book;
         try{book=book(block);}catch(RuntimeException error){store.finish(result,false);return;}
-        watch(k);plugin.loot().store().arm(permit,k,book,plugin.loot().settings()).whenComplete((loot,error)->{
+        java.util.concurrent.CompletionStage<RaidLootStore.Loot> armed;try{armed=plugin.loot().arm(permit,k,book);}catch(Exception unavailable){store.finish(result,false);return;}
+        watch(k);armed.whenComplete((loot,error)->{
             if(closed){release(hit);return;}
             if(error!=null||!active()){store.finish(result,false);if(error==null&&loot.state().equals("ARMED"))plugin.loot().store().change(loot.id(),"ARMED","VOID","module paused before core destruction");release(hit);return;}
             SuiteScheduler.region(plugin,new Location(world,cx*16,origin.y(),cz*16),()->{
@@ -195,7 +199,7 @@ public final class TntRaidEngine implements Listener,AutoCloseable {
                     if(!loot.state().equals("ARMED")||!active()||!access.valid(permit)||!world.isChunkLoaded(cx,cz)||!unchanged(hit))return;
                     Block current=world.getBlockAt(k.x(),k.y(),k.z());var town=TownyAPI.getInstance().getTown(current.getLocation());
                     if(town==null||!town.getUUID().equals(permit.defender())||!plugin.loot().core(town.getUUID(),current)||!Arrays.equals(book,book(current)))return;
-                    current.setType(Material.AIR,false);damaged.remove(k.id());destroyed=true;
+                    current.setType(Material.AIR,false);if(hit.project().isEmpty())damaged.remove(k.id());destroyed=true;
                 }finally{
                     store.finish(result,destroyed);release(hit);
                     if(loot.state().equals("ARMED"))plugin.loot().store().change(loot.id(),"ARMED",destroyed?"BREACHED":"VOID",destroyed?"authorized TNT destroyed registered town hall core":"world changed before core destruction");
@@ -211,7 +215,8 @@ public final class TntRaidEngine implements Listener,AutoCloseable {
         var type=block.getType();var k=key(block);
         if((TntRules.protectedMaterial(type.name())||block.getState(false) instanceof TileState||block.getState(false) instanceof InventoryHolder)&&!plugin.loot().core(town.getUUID(),block)){raids.reply(player,"Этот блок защищён от боевого TNT");return;}
         var settings=raids.settings();store.health(k,type.name(),settings.hp(type.name()),System.currentTimeMillis(),settings.repairSeconds())
-                .whenComplete((value,error)->{if(error!=null){raids.reply(player,RaidController.problem(error));return;}raids.reply(player,"Прочность блока: "+(long)Math.ceil(value.hp())+" / "+(long)Math.ceil(value.maximum())+" HP. После затишья повреждённый целый блок восстановит прочность.");});
+                .whenComplete((value,error)->{if(error!=null){raids.reply(player,RaidController.problem(error));return;}raids.reply(player,"Прочность блока: "+(long)Math.ceil(value.hp())+" / "+(long)Math.ceil(value.maximum())+" HP. Здания ремонтируются за счёт казны через меню здания; обычные блоки восстанавливают HP после затишья.");});
     }
+    public void repaired(Collection<RaidStore.Key> keys){for(var k:keys){watches.computeIfPresent(k,(unused,w)->new Watch(epochs.incrementAndGet(),w.references()));damaged.remove(k.id());}}
     @Override public void close(){closed=true;owners.clear();priming.clear();processed.clear();watches.clear();damaged.clear();}
 }

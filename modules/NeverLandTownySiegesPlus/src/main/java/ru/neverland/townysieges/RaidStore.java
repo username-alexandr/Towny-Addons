@@ -13,7 +13,7 @@ public final class RaidStore implements AutoCloseable {
         public boolean live(long now){return state.equals("OPEN")&&now<ends;}
         public boolean fighting(long now){return live(now)&&now>=starts;}
     }
-    public record Hit(Key key,UUID town,String material,long generation,double max,double damage){}
+    public record Hit(Key key,UUID town,String material,long generation,double max,double damage,String project){public Hit(Key key,UUID town,String material,long generation,double max,double damage){this(key,town,material,generation,max,damage,"");}public Hit{Objects.requireNonNull(project);}}
     public record Result(Hit hit,double hp,String receipt){}
     public record Health(double hp,double maximum,long lastHit){}
     public record Audit(String actor,String attacker,String defender,String action,long time,int blocks){}
@@ -46,6 +46,8 @@ public final class RaidStore implements AutoCloseable {
                 // Never replay a destructive callback after a restart. A surviving block needs a new real hit.
                 s.execute("UPDATE hp SET hp=1,receipt='' WHERE receipt<>''");
             }
+            BuildingDamageStore.initialize(db);
+            RaidRepairsStore.initialize(db);
             RaidLootStore.initialize(db);
             RaidCamps.initialize(db);
             healthy=true;return null;
@@ -61,7 +63,7 @@ public final class RaidStore implements AutoCloseable {
         catch(RejectedExecutionException e){var error=new IllegalStateException("Очередь рейдов занята; разрушение остановлено до перезапуска",e);if(healthy){healthy=false;failure.accept(error);}result.completeExceptionally(error);}
         return result;
     }
-    private <T> T transaction(Sql<T> work)throws Exception {
+    <T> T transaction(Sql<T> work)throws Exception {
         db.setAutoCommit(false);try{T result=work.run();db.commit();return result;}
         catch(Exception e){db.rollback();throw e;}finally{db.setAutoCommit(true);}
     }
@@ -88,11 +90,11 @@ public final class RaidStore implements AutoCloseable {
         audit(actor,"",town.toString(),"CANCEL",now,0);return readRaids();
     }));}
     public CompletionStage<Map<String,UUID>> owners(){return submit(()->{var out=new HashMap<String,UUID>();try(var s=db.createStatement();var r=s.executeQuery("SELECT * FROM owners")){while(r.next())out.put(r.getString(1),UUID.fromString(r.getString(2)));}return Map.copyOf(out);});}
-    public CompletionStage<Set<String>> damagedKeys(){return submit(()->{var out=new HashSet<String>();try(var s=db.createStatement();var r=s.executeQuery("SELECT key FROM hp")){while(r.next())out.add(r.getString(1));}return Set.copyOf(out);});}
+    public CompletionStage<Set<String>> damagedKeys(){return submit(()->{var out=new HashSet<String>();try(var s=db.createStatement();var r=s.executeQuery("SELECT key FROM hp UNION SELECT key FROM building_damage")){while(r.next())out.add(r.getString(1));}return Set.copyOf(out);});}
     public CompletionStage<Void> owner(Key key,UUID player){return submit(()->{
         try(var p=db.prepareStatement(player==null?"DELETE FROM owners WHERE key=?":"INSERT OR REPLACE INTO owners VALUES(?,?)")){p.setString(1,key.id());if(player!=null)p.setString(2,player.toString());p.executeUpdate();}return null;
     });}
-    public CompletionStage<Void> reset(Key key){return submit(()->{try(var p=db.prepareStatement("DELETE FROM hp WHERE key=?")){p.setString(1,key.id());p.executeUpdate();}return null;});}
+    public CompletionStage<Void> reset(Key key){return submit(()->{try(var p=db.prepareStatement("DELETE FROM hp WHERE key=?")){p.setString(1,key.id());p.executeUpdate();}BuildingDamageStore.reset(db,key.id());return null;});}
     public CompletionStage<List<Result>> damage(UUID blast,String actor,UUID attacker,UUID defender,long at,int repairSeconds,List<Hit> hits) {return submit(()->transaction(()->{
         if(hits.size()>6000)throw new IllegalArgumentException("Слишком много целей одного взрыва");
         var results=new ArrayList<Result>();
@@ -108,11 +110,14 @@ public final class RaidStore implements AutoCloseable {
                     }
                 }
             }
+            var registered=BuildingDamageStore.read(db,hit.key().id());
+            if(!hit.project().isEmpty()&&registered!=null&&registered.town().equals(defender)&&registered.project().equals(hit.project())&&registered.material().equals(hit.material())){old=Math.min(hit.max(),registered.remaining());pending=registered.pending();}
             if(!pending.isEmpty())continue;
             double hp=Math.max(0,old-hit.damage());String receipt=hp==0?UUID.randomUUID().toString():"";
             try(var p=db.prepareStatement("INSERT OR REPLACE INTO hp VALUES(?,?,?,?,?,?,?,?)")) {
                 p.setString(1,hit.key().id());p.setString(2,defender.toString());p.setString(3,hit.material());p.setLong(4,hit.generation());p.setDouble(5,hit.max());p.setDouble(6,hp);p.setLong(7,at);p.setString(8,receipt);p.executeUpdate();
             }
+            BuildingDamageStore.hit(db,hit,hp,receipt,blast,at);
             results.add(new Result(hit,hp,receipt));
         }
         if(!results.isEmpty())audit(actor,attacker.toString(),defender.toString(),"TNT_HIT",at,results.size());
@@ -122,9 +127,10 @@ public final class RaidStore implements AutoCloseable {
     public CompletionStage<Void> finish(Result result,boolean destroyed){return submit(()->{
         try(var p=db.prepareStatement(destroyed?"DELETE FROM hp WHERE key=? AND receipt=?":"UPDATE hp SET hp=1,receipt='' WHERE key=? AND receipt=?")) {
             p.setString(1,result.hit().key().id());p.setString(2,result.receipt());p.executeUpdate();
-        }return null;
+        }BuildingDamageStore.finish(db,result,destroyed);return null;
     });}
     public CompletionStage<Health> health(Key key,String material,double max,long now,int repair){return submit(()->{
+        var registered=BuildingDamageStore.read(db,key.id());if(registered!=null&&registered.material().equals(material))return new Health(Math.min(max,registered.remaining()),max,registered.at());
         try(var p=db.prepareStatement("SELECT * FROM hp WHERE key=?")){p.setString(1,key.id());try(var r=p.executeQuery()){if(r.next()&&r.getString("material").equals(material)&&now-r.getLong("last_hit")<repair*1000L){double hp=r.getDouble("hp");if(!Double.isFinite(hp)||hp<0||hp>1_000_000)throw new SQLException("Повреждена прочность блока");return new Health(Math.min(max,hp),max,r.getLong("last_hit"));}}}
         return new Health(max,max,0);
     });}

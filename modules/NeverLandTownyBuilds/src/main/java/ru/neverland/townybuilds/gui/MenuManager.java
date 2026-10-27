@@ -246,6 +246,7 @@ public final class MenuManager implements Listener {
             var item=inventory.getItem(15);if(item!=null)markUnavailable(item,unavailable);
         }
         if(!construction.active()&&current<project.maxLevel())renderContribution(player,project,holder);
+        if(current>0&&!construction.active()&&Bukkit.getPluginManager().isPluginEnabled("NeverLandTownySiegesPlus"))inventory.setItem(14,actionItem("raid-repair",new ItemStack(Material.ANVIL),"&eПрочность и ремонт",List.of("&7Посмотреть общую прочность здания.","&7Ремонт оплачивается из городской казны.","&7Цена зависит от доли повреждений.")));
         inventory.setItem(24,actionItem("refresh",new ItemStack(Material.CLOCK),"Обновить условия",List.of("&7Проверить материалы и разрешения.")));
         var back=actionItem("back",backItem(),"&fНазад",List.of("&7Вернуться к списку зданий."));role(back,"back");inventory.setItem(22,back);
     }
@@ -333,6 +334,8 @@ public final class MenuManager implements Listener {
                 var reasons=builds.unavailableReasons(player,project);
                 if(!reasons.isEmpty()){player.sendMessage(ColorUtil.component("&e"+String.join("\n",reasons)));openDetails(player,project,details.page(),details.category());return;}
                 handleUpgrade(player, project, details.page(), details.category());
+            } else if ("raid-repair".equals(action)) {
+                try{ru.neverland.core.ApiServices.call("NeverLandTownySiegesPlus","ru.neverland.townysieges.api.TownyRaidRepairApi","open",new Class<?>[]{Player.class,String.class},player,project.id());}catch(Exception ex){player.sendMessage(ColorUtil.component("&eРемонт сейчас недоступен: "+ex.getMessage()));}
             } else if ("construction-cancel".equals(action)) {
                 ((ru.neverland.townybuilds.NeverLandTownyBuilds)plugin).constructionCancelMenu().open(player,project.id());
             } else if ("contribute".equals(action)) {

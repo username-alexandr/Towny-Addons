@@ -2,7 +2,7 @@
 
 Run only on a fresh, disposable Folia 26.2 loopback server. This destructive fixture creates towns, claims, camps, buildings, accounts, items and test records, then shuts down the server twice. The `ALLOW_DISPOSABLE_RAID_PROBE` marker and `server-ip=127.0.0.1` are mandatory.
 
-Install real Towny 0.103.2.0, Builds 0.8.41, SiegesPlus 0.3.0 and Control 0.4.17. Use Java 25 and the real Folia dependencies classpath.
+Install real Towny 0.103.2.0, Builds 0.8.42, SiegesPlus 0.4.0 and Control 0.4.18. Use Java 25 and the real Folia dependencies classpath.
 
 ```sh
 python scripts/camp-loot-runtime-probe/build.py --server /absolute/fresh-fixture --java-home /absolute/jdk25 --classpath-file /absolute/dependencies.classpath

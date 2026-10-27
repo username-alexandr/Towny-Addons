@@ -1,0 +1,51 @@
+PASS SiegesPlus 0.4.0 and actual SQLite enabled
+PASS Builds 0.8.42 enabled
+PASS real controller fails closed without Army provider
+PASS real relation guard rejects neutral town
+PASS real relation guard rejects own town
+PASS real newcomer shield rejects a raid
+PASS real relation guard accepts two unshielded unrelated towns
+PASS real Towny alliance blocks raid
+PASS real defender-online threshold prevents offline raid
+PASS real construction TextDisplay uses 0.45 scale and 200px wrapping
+PASS guide remains private and temporary
+PASS invalid guide scale falls back safely
+PASS real TNT contact blast applies 100 HP
+PASS real TNT crossing chunk boundary applies 25 HP at 3.5 blocks
+PASS both wooden door halves take only one 100 HP hit
+PASS glass destroyed at zero HP
+PASS bedrock protected
+PASS chest and contents protected from real TNT
+PASS replayed TNT entity UUID cannot damage twice
+PASS native blast cannot bypass HP in managed defender town
+PASS second contact hit destroys both door halves together
+PASS foreign final cancellation retained
+PASS cancelled and unauthorized blasts leave HP unchanged
+PASS replaced door survives stale in-flight hit
+PASS replaced block starts with full HP
+PASS module pause causes no additional HP loss
+PASS committed cancellation updates authority even while scheduler is paused
+PASS real Towny account totals use deterministic external adapter
+PASS new public raid storage API healthy
+PASS Control 0.4.18 enabled
+PASS admin home contains separate raid button
+PASS admin panel separates raid history, money and resources
+PASS general logging categories include raids
+PASS real campfire and marked banner activate camp on owning region
+PASS camp menu exposes raid start
+PASS real muster rejects absent online army
+PASS destroying camp banner immediately revokes camp
+PASS primary lectern selected from completed town hall, not secondary stage lectern
+PASS loot money confirmed while full target keeps resource delivery pending
+PASS registered primary lectern destroyed at zero HP
+PASS unregistered nearby lectern remains protected
+PASS production LootBank transfers 10 percent through actual Towny account observers
+PASS resource share removed exactly once into durable escrow
+PASS full target preserves all reserved cargo
+PASS duplicate core cannot create a second payment claim
+PASS real TNT destruction retained for aggregate building repair
+PASS repair intent is durable before external economy call
+PASS repair intent can be read before shutdown
+PASS independent SQLite connection confirms committed bank intent
+PASS all in-flight block watches released
+PASS TNT actor/town audit persisted

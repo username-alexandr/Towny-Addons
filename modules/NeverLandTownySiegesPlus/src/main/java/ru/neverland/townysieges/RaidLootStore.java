@@ -7,7 +7,7 @@ import java.util.concurrent.*;
 /** Durable saga: an interrupted external money call always requires reconciliation. */
 public final class RaidLootStore {
     public record Loot(UUID id,UUID raid,UUID attacker,UUID defender,UUID actor,RaidStore.Key core,byte[] book,
-            int moneyBps,int resourcesBps,long cents,long debitBefore,long creditBefore,long created,String state,String note) {
+            int moneyBps,int resourcesBps,long cents,long debitBefore,long creditBefore,long created,String state,String policy,String note) {
         public Loot {book=book.clone();if(cents<0||debitBefore<0||creditBefore<0||moneyBps<0||moneyBps>10000||resourcesBps<0||resourcesBps>10000)throw new IllegalArgumentException("Повреждена квитанция добычи");}
         @Override public byte[] book(){return book.clone();}
     }
@@ -15,7 +15,8 @@ public final class RaidLootStore {
     public RaidLootStore(RaidStore storage){this.storage=storage;}
     static void initialize(Connection db)throws SQLException {
         try(var s=db.createStatement()){
-            s.execute("CREATE TABLE IF NOT EXISTS raid_loot(id TEXT PRIMARY KEY,raid TEXT NOT NULL,attacker TEXT NOT NULL,defender TEXT NOT NULL,actor TEXT NOT NULL,world TEXT NOT NULL,x INTEGER NOT NULL,y INTEGER NOT NULL,z INTEGER NOT NULL,book BLOB NOT NULL,money_bps INTEGER NOT NULL,resources_bps INTEGER NOT NULL,cents INTEGER NOT NULL,debit_before INTEGER NOT NULL,credit_before INTEGER NOT NULL,created INTEGER NOT NULL,state TEXT NOT NULL,note TEXT NOT NULL,UNIQUE(raid,defender))");
+            s.execute("CREATE TABLE IF NOT EXISTS raid_loot(id TEXT PRIMARY KEY,raid TEXT NOT NULL,attacker TEXT NOT NULL,defender TEXT NOT NULL,actor TEXT NOT NULL,world TEXT NOT NULL,x INTEGER NOT NULL,y INTEGER NOT NULL,z INTEGER NOT NULL,book BLOB NOT NULL,money_bps INTEGER NOT NULL,resources_bps INTEGER NOT NULL,cents INTEGER NOT NULL,debit_before INTEGER NOT NULL,credit_before INTEGER NOT NULL,created INTEGER NOT NULL,state TEXT NOT NULL,note TEXT NOT NULL,policy TEXT NOT NULL DEFAULT '',UNIQUE(raid,defender))");
+            boolean hasPolicy=false;try(var columns=s.executeQuery("PRAGMA table_info(raid_loot)")){while(columns.next())if(columns.getString("name").equals("policy"))hasPolicy=true;}if(!hasPolicy)s.execute("ALTER TABLE raid_loot ADD COLUMN policy TEXT NOT NULL DEFAULT ''");
             s.execute("UPDATE raid_loot SET state='REVIEW_CORE',note='restart: core destruction outcome unknown' WHERE state='ARMED'");
             s.execute("UPDATE raid_loot SET state='REVIEW_DEBIT',note='restart: withdrawal outcome unknown' WHERE state='DEBITING'");
             s.execute("UPDATE raid_loot SET state='REVIEW_CREDIT',note='restart: deposit outcome unknown' WHERE state='CREDITING'");
@@ -23,13 +24,14 @@ public final class RaidLootStore {
     }
     private Connection db(){return storage.connection();}
     public static UUID operation(UUID raid,UUID defender){return UUID.nameUUIDFromBytes(("raid-loot:"+raid+":"+defender).getBytes(java.nio.charset.StandardCharsets.UTF_8));}
-    public CompletionStage<Loot> arm(RaidController.Permit permit,RaidStore.Key core,byte[] book,LootSettings settings){byte[] saved=book.clone();return storage.submit(()->{
+    public CompletionStage<Loot> arm(RaidController.Permit permit,RaidStore.Key core,byte[] book,LootSettings settings){return arm(permit,core,book,settings,"");}
+    public CompletionStage<Loot> arm(RaidController.Permit permit,RaidStore.Key core,byte[] book,LootSettings settings,String policy){byte[] saved=book.clone();return storage.submit(()->{
         UUID id=operation(permit.raid(),permit.defender());var old=read(id);if(old!=null&&!old.state().equals("VOID"))return old;
-        try(var p=db().prepareStatement("INSERT OR REPLACE INTO raid_loot VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")){
-            p.setString(1,id.toString());p.setString(2,permit.raid().toString());p.setString(3,permit.attacker().toString());p.setString(4,permit.defender().toString());p.setString(5,permit.actor().toString());p.setString(6,core.world().toString());p.setInt(7,core.x());p.setInt(8,core.y());p.setInt(9,core.z());p.setBytes(10,saved);p.setInt(11,settings.moneyBps());p.setInt(12,settings.resourcesBps());p.setLong(13,0);p.setLong(14,0);p.setLong(15,0);p.setLong(16,System.currentTimeMillis());p.setString(17,"ARMED");p.setString(18,"");p.executeUpdate();
+        try(var p=db().prepareStatement("INSERT OR REPLACE INTO raid_loot (id,raid,attacker,defender,actor,world,x,y,z,book,money_bps,resources_bps,cents,debit_before,credit_before,created,state,note,policy) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")){
+            p.setString(1,id.toString());p.setString(2,permit.raid().toString());p.setString(3,permit.attacker().toString());p.setString(4,permit.defender().toString());p.setString(5,permit.actor().toString());p.setString(6,core.world().toString());p.setInt(7,core.x());p.setInt(8,core.y());p.setInt(9,core.z());p.setBytes(10,saved);p.setInt(11,settings.moneyBps());p.setInt(12,settings.resourcesBps());p.setLong(13,0);p.setLong(14,0);p.setLong(15,0);p.setLong(16,System.currentTimeMillis());p.setString(17,"ARMED");p.setString(18,"");p.setString(19,policy);p.executeUpdate();
         }return read(id);
     });}
-    private Loot row(ResultSet r)throws SQLException{return new Loot(UUID.fromString(r.getString("id")),UUID.fromString(r.getString("raid")),UUID.fromString(r.getString("attacker")),UUID.fromString(r.getString("defender")),UUID.fromString(r.getString("actor")),new RaidStore.Key(UUID.fromString(r.getString("world")),r.getInt("x"),r.getInt("y"),r.getInt("z")),r.getBytes("book"),r.getInt("money_bps"),r.getInt("resources_bps"),r.getLong("cents"),r.getLong("debit_before"),r.getLong("credit_before"),r.getLong("created"),r.getString("state"),r.getString("note"));}
+    private Loot row(ResultSet r)throws SQLException{return new Loot(UUID.fromString(r.getString("id")),UUID.fromString(r.getString("raid")),UUID.fromString(r.getString("attacker")),UUID.fromString(r.getString("defender")),UUID.fromString(r.getString("actor")),new RaidStore.Key(UUID.fromString(r.getString("world")),r.getInt("x"),r.getInt("y"),r.getInt("z")),r.getBytes("book"),r.getInt("money_bps"),r.getInt("resources_bps"),r.getLong("cents"),r.getLong("debit_before"),r.getLong("credit_before"),r.getLong("created"),r.getString("state"),r.getString("policy"),r.getString("note"));}
     private Loot read(UUID id)throws SQLException{try(var p=db().prepareStatement("SELECT * FROM raid_loot WHERE id=?")){p.setString(1,id.toString());try(var r=p.executeQuery()){return r.next()?row(r):null;}}}
     public CompletionStage<Loot> get(UUID id){return storage.submit(()->read(id));}
     public CompletionStage<List<Loot>> list(boolean pending){return storage.submit(()->{var out=new ArrayList<Loot>();try(var s=db().createStatement();var r=s.executeQuery("SELECT * FROM raid_loot "+(pending?"WHERE state NOT IN ('DONE','VOID') ORDER BY CASE WHEN state LIKE 'REVIEW_%' THEN 1 ELSE 0 END,created ASC LIMIT 100":"ORDER BY created DESC LIMIT 100"))){while(r.next())out.add(row(r));}return List.copyOf(out);});}

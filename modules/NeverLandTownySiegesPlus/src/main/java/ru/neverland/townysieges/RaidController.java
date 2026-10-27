@@ -104,10 +104,11 @@ public final class RaidController {
         if(!actor.hasPermission("neverlandtownysiegesplus.raid.use"))throw new IllegalArgumentException("Нет прав на рейды");
         Town own=SiegeService.town(actor.getUniqueId()),target=TownyAPI.getInstance().getTown(name);
         relations(own,target);defenders(target);
+        if(plugin.repairs()!=null&&plugin.repairs().busy(target.getUUID()))throw new IllegalArgumentException("У города завершается оплаченный ремонт. Повторите объявление чуть позже");
         if(actor.getGameMode()!=GameMode.SURVIVAL||!mobilized(actor.getUniqueId())||!commander(actor,own))
             throw new IllegalArgumentException("Рейд объявляет мобилизованный мэр или генерал");
         if(plugin.camps()!=null&&plugin.camps().settings().enabled()){
-            plugin.camps().muster(actor,target,()->{try{validateCommander(actor,own,target);defenders(target);start(actor,own,target);}catch(Exception error){reply(actor,error.getMessage());}});return;
+            plugin.camps().muster(actor,target,()->{try{validateCommander(actor,own,target);defenders(target);if(plugin.repairs()!=null&&plugin.repairs().busy(target.getUUID()))throw new IllegalArgumentException("У города завершается ремонт");start(actor,own,target);}catch(Exception error){reply(actor,error.getMessage());}});return;
         }
         start(actor,own,target);
     }
@@ -127,8 +128,9 @@ public final class RaidController {
         });});
     }
     public void cancel(CommandSender sender,UUID town) {
+        var cancelled=raids.stream().filter(r->(r.attacker().equals(town)||r.defender().equals(town))&&r.live(System.currentTimeMillis())).toList();
         store.cancel(town,sender.getName(),System.currentTimeMillis()).whenComplete((rows,error)->{if(error==null&&!closed)raids=rows;publish(()->{
-            if(error!=null){reply(sender,"&e"+problem(error));return;}reply(sender,"Рейд остановлен без поражения города и списания наград.");notifyTown(town,"Администратор остановил рейд.");
+            if(error!=null){reply(sender,"&e"+problem(error));return;}for(var raid:cancelled)AuditTrail.record(plugin,"cancel",raid.id().toString(),"RAID_CANCELLED","CANCELLED",sender instanceof Player p?AuditTrail.player(p.getUniqueId()):AuditRecord.Party.system(),AuditTrail.town(raid.attacker()),AuditTrail.town(raid.defender()),"",0,"","Нейтральная остановка рейда");reply(sender,"Рейд остановлен без поражения города и списания наград.");notifyTown(town,"Администратор остановил рейд.");
         });});
     }
     public void status(CommandSender sender) {

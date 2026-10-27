@@ -2,7 +2,7 @@
 
 Opt-in fixture for a **fresh disposable loopback Folia 26.2 server**. Never install this probe on a real server: it creates towns, claims, entities, blocks and test data, changes settings in memory, and shuts the server down. It refuses to run without `ALLOW_DISPOSABLE_RAID_PROBE` and `server-ip=127.0.0.1`.
 
-Prepare a clean server with Towny 0.103.2.0, Builds 0.8.40 and SiegesPlus 0.2.0. No logged-in player, Army or SiegeWar is required: the world test explicitly substitutes the engine's `Access` object. The production controller is separately exercised for missing Army, own/neutral/allied/newcomer towns and offline-defense guards; the world test does not certify a real Army/SiegeWar combat session.
+Prepare a clean server with Towny 0.103.2.0, Builds 0.8.42 and SiegesPlus 0.4.0. No logged-in player, Army or SiegeWar is required: the world test explicitly substitutes the engine's `Access` object. The production controller is separately exercised for missing Army, own/neutral/allied/newcomer towns and offline-defense guards; the world test does not certify a real Army/SiegeWar combat session.
 
 Compile with Java 25 and a classpath file containing the real Folia API/runtime libraries and Towny JAR:
 

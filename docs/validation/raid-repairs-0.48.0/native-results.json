@@ -1,0 +1,26 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 51 assertions; native Folia/Towny/TNT/SQLite/TextDisplay; explicit raid Access double, no logged-in players or Army/SiegeWar integration claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyControl-0.4.18.jar": "b2186d2fdbd2844f90827a9316356a421b11b6972a4cb330d32b66f6992c0c04",
+      "NeverLandTownySiegesPlus-0.4.0.jar": "a7394c964e2c951e8165bc61d666a0a56f7cc27e5bf1616153688634eb652dd8",
+      "NeverLandTownyBuilds-0.8.42.jar": "e29fc696a960bc66d595c37fd47664da74acf9b28865de140486e791423fcf2a",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "TntRuntimeProbe.jar": "69a739cdad7486570579be9c460acbc76d95512d4e84db2da049863f951b15f1"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 44 assertions; native Folia/Towny/TNT/SQLite/TextDisplay; explicit raid Access double, no logged-in players or Army/SiegeWar integration claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyControl-0.4.18.jar": "b2186d2fdbd2844f90827a9316356a421b11b6972a4cb330d32b66f6992c0c04",
+      "NeverLandTownySiegesPlus-0.4.0.jar": "a7394c964e2c951e8165bc61d666a0a56f7cc27e5bf1616153688634eb652dd8",
+      "NeverLandTownyBuilds-0.8.42.jar": "e29fc696a960bc66d595c37fd47664da74acf9b28865de140486e791423fcf2a",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "TntRuntimeProbe.jar": "69a739cdad7486570579be9c460acbc76d95512d4e84db2da049863f951b15f1"
+    }
+  }
+]

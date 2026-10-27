@@ -1,0 +1,44 @@
+PASS SiegesPlus 0.4.0 and actual SQLite enabled
+PASS Builds 0.8.42 enabled
+PASS real controller fails closed without Army provider
+PASS real relation guard rejects neutral town
+PASS real relation guard rejects own town
+PASS real construction TextDisplay uses 0.45 scale and 200px wrapping
+PASS guide remains private and temporary
+PASS invalid guide scale falls back safely
+PASS damaged stone HP survives full native restart
+PASS replaced door survives full native restart
+PASS destroyed glass is not rolled back on restart
+PASS chest contents survive full native restart
+PASS real Towny account totals use deterministic external adapter
+PASS new public raid storage API healthy
+PASS Control 0.4.18 enabled
+PASS admin home contains separate raid button
+PASS admin panel separates raid history, money and resources
+PASS general logging categories include raids
+PASS completed town hall does not auto-rebuild captured lectern on restart
+PASS resource escrow survives full native restart
+PASS completed bank legs preserved without replay on restart
+PASS capacity recovery delivers pending loot after restart
+PASS exact stolen items delivered to attacker warehouse
+PASS original lectern book returned to defender without loss
+PASS money total conserved after delivery retry
+PASS admin audit includes actor, captured core, money and per-item resources
+PASS camp markers and SQLite ownership survive restart
+PASS resource replay remains idempotent after delivery
+PASS repair bank intent survives native restart as review without a second debit
+PASS native registered building fits bounded damage batch
+PASS 50 percent aggregate HP costs exactly 50 percent of current level
+PASS insufficient town treasury rejects repair before payment and world changes
+PASS repair menu shows shared integrity, exact cost and affordable confirmation
+PASS production repair debits only town balance through real Towny observer
+PASS paid repair restores aggregate HP completely
+PASS repair completion cannot debit the town twice
+PASS destroyed registered cell included in building repair quote
+PASS paid repair physically restores destroyed blueprint block
+PASS real operational city defense reduces money and resource shares
+PASS effective protected percentages and calculation frozen in durable loot receipt
+PASS admin journal contains repair price, building integrity and successful completion
+PASS admin raid panel separates repairs and defense loot calculations
+PASS all in-flight block watches released
+PASS TNT actor/town audit persisted

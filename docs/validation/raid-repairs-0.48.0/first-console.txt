@@ -1,0 +1,243 @@
+Starting org.bukkit.craftbukkit.Main
+[03:22:00 INFO]: [bootstrap] Running Java 25 (OpenJDK 64-Bit Server VM 25.0.5+8-LTS; Azul Systems, Inc. Zulu25.38+107-CA) on Linux 6.18.55 (amd64)
+[03:22:00 INFO]: [bootstrap] Loading Folia 26.2-7-ver/26.2.x@14b7fee (2026-08-25T13:29:28Z) for Minecraft 26.2
+[03:22:00 INFO]: [PluginInitializerManager] Initializing plugins...
+[03:22:00 INFO]: [PluginInitializerManager] Initialized 5 plugins
+[03:22:00 INFO]: [PluginInitializerManager] Bukkit plugins (5):
+ - NeverLandTownyBuilds (0.8.42), NeverLandTownyControl (0.4.18), NeverLandTownySiegesPlus (0.4.0), TntRuntimeProbe (3.0), Towny (0.103.2.0)
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.joml.MemUtil$MemUtilUnsafe (file:/workspace/scratch/eb47b830f6d4/repair-folia/libraries/org/joml/joml/1.10.8/joml-1.10.8.jar)
+WARNING: Please consider reporting this to the maintainers of class org.joml.MemUtil$MemUtilUnsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[03:22:05 INFO]: [ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry] Initialising converters for DataConverter...
+[03:22:05 INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, profilesHost=https://api.mojang.com, name=PROD]
+[03:22:05 ERROR]: Failed to request yggdrasil public key
+com.mojang.authlib.exceptions.MinecraftClientException: Failed to read from https://api.minecraftservices.com/publickeys due to api.minecraftservices.com
+	at com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:151) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.getWithEtag(MinecraftClient.java:81) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:65) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilServicesKeyInfo.fetch(YggdrasilServicesKeyInfo.java:114) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilServicesKeyInfo$1.run(YggdrasilServicesKeyInfo.java:89) ~[authlib-9.0.75.jar:?]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:545) ~[?:?]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:328) ~[?:?]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:309) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614) ~[?:?]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+Caused by: java.net.UnknownHostException: api.minecraftservices.com
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:569) ~[?:?]
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:307) ~[?:?]
+	at java.base/java.net.Socket.connect(Socket.java:659) ~[?:?]
+	at java.base/sun.security.ssl.SSLSocketImpl.connect(SSLSocketImpl.java:304) ~[?:?]
+	at java.base/sun.net.NetworkClient.doConnect(NetworkClient.java:161) ~[?:?]
+	at java.base/sun.net.www.http.HttpClient.openServer(HttpClient.java:524) ~[?:?]
+	at java.base/sun.net.www.http.HttpClient.openServer(HttpClient.java:612) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsClient.<init>(HttpsClient.java:207) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsClient.New(HttpsClient.java:289) ~[?:?]
+	at java.base/sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.getNewHttpClient(AbstractDelegateHttpsURLConnection.java:196) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1012) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:903) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:876) ~[?:?]
+	at java.base/sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.connect(AbstractDelegateHttpsURLConnection.java:181) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1380) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1306) ~[?:?]
+	at java.base/java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:493) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsURLConnectionImpl.getResponseCode(HttpsURLConnectionImpl.java:307) ~[?:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:130) ~[authlib-9.0.75.jar:?]
+	... 10 more
+[03:22:05 INFO]: [ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry] Finished initialising converters for DataConverter in 464.3ms
+[03:22:05 INFO]: Found new data pack paper, loading it automatically
+[03:22:06 INFO]: No existing world data, creating new world
+[03:22:07 INFO]: Loaded 1585 recipes
+[03:22:07 INFO]: Loaded 1688 advancements
+[03:22:07 INFO]: Starting minecraft server version 26.2
+[03:22:07 WARN]: ****************************
+[03:22:07 WARN]: YOU ARE RUNNING THIS SERVER AS AN ADMINISTRATIVE OR ROOT USER. THIS IS NOT ADVISED.
+[03:22:07 WARN]: YOU ARE OPENING YOURSELF UP TO POTENTIAL RISKS WHEN DOING THIS.
+[03:22:07 WARN]: FOR MORE INFORMATION, SEE https://madelinemiller.dev/blog/root-minecraft-server/
+[03:22:07 WARN]: ****************************
+[03:22:07 INFO]: Loading properties
+[03:22:07 INFO]: This server is running Folia version 26.2-7-ver/26.2.x@14b7fee (2026-08-25T13:29:28Z) (Implementing API version 26.2.build.7-beta)
+[03:22:07 INFO]: [spark] This server bundles the spark profiler. For more information please visit https://docs.papermc.io/paper/profiling
+[03:22:07 INFO]: Server Ping Player Sample Count: 12
+[03:22:07 INFO]: Using 4 threads for Netty based IO
+[03:22:07 INFO]: [MoonriseCommon] Paper is using 1 worker threads, 1 I/O threads
+[03:22:07 INFO]: [io.papermc.paper.threadedregions.TickRegions] Initialised EDF Folia scheduler with initial 1 target thread(s)
+[03:22:07 INFO]: Default game type: SURVIVAL
+[03:22:07 INFO]: Generating keypair
+[03:22:07 INFO]: Starting Minecraft server on 127.0.0.1:25615
+[03:22:08 INFO]: Paper: Using libdeflate (Linux x86_64) compression from Velocity.
+[03:22:08 INFO]: Paper: Using OpenSSL 3.x.x (Linux x86_64) cipher from Velocity.
+[03:22:08 WARN]: [io.netty.util.internal.MacAddressUtil] Failed to find a usable hardware address from the network interfaces; using random bytes: cf:12:02:10:b4:94:fb:1a
+[03:22:08 INFO]: [Towny] Loading server plugin Towny v0.103.2.0
+[03:22:08 INFO]: [NeverLandTownyControl] Loading server plugin NeverLandTownyControl v0.4.18
+[03:22:08 INFO]: [NeverLandTownyBuilds] Loading server plugin NeverLandTownyBuilds v0.8.42
+[03:22:08 INFO]: [NeverLandTownySiegesPlus] Loading server plugin NeverLandTownySiegesPlus v0.4.0
+[03:22:08 INFO]: [TntRuntimeProbe] Loading server plugin TntRuntimeProbe v3.0
+[03:22:08 WARN]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[03:22:08 WARN]: The server will make no attempt to authenticate usernames. Beware.
+[03:22:08 WARN]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[03:22:08 WARN]: To change this, set "online-mode" to "true" in the server.properties file.
+[03:22:08 INFO]: Preparing level "world"
+[03:22:08 INFO]: Selecting spawn point for level 'minecraft:overworld'...
+[03:22:08 INFO]: Selecting spawn point for level 'minecraft:the_nether'...
+[03:22:09 INFO]: Selecting spawn point for level 'minecraft:the_end'...
+[03:22:09 INFO]: Loading 0 persistent chunks for level 'minecraft:overworld'...
+[03:22:09 INFO]: Preparing spawn area: 100%
+[03:22:09 INFO]: Prepared spawn area in 1577 ms
+[03:22:09 INFO]: Loading 0 persistent chunks for level 'minecraft:the_nether'...
+[03:22:09 INFO]: Preparing spawn area: 100%
+[03:22:09 INFO]: Prepared spawn area in 1173 ms
+[03:22:09 INFO]: Loading 0 persistent chunks for level 'minecraft:the_end'...
+[03:22:09 INFO]: Preparing spawn area: 100%
+[03:22:09 INFO]: Prepared spawn area in 252 ms
+[03:22:09 INFO]: Done preparing level "world" (1.780s)
+[03:22:09 INFO]: [Towny] Enabling Towny v0.103.2.0
+[03:22:09 INFO]: ====================      Towny      ========================
+[03:22:10 INFO]: [Towny] Successfully loaded translations for 45 languages.
+[03:22:11 INFO]: [Towny] Config: Loaded 9 townblock types: default, bank, shop, wilds, inn, farm, embassy, arena, jail.
+[03:22:11 INFO]: [Towny] Database: [Load] flatfile [Save] flatfile
+[03:22:11 INFO]: [Towny] Database: Loaded in 29ms.
+[03:22:11 INFO]: [Towny] Cleaning up old backups...
+[03:22:11 INFO]: [Towny] Successfully cleaned backups.
+[03:22:11 INFO]: [Towny] Making backup...
+[03:22:11 INFO]: [Towny] Time until a New Day: 8 hours, 37 minutes, 49 seconds
+[03:22:11 INFO]: [Towny] Searching for third-party plugins...
+[03:22:11 INFO]: [Towny] Checking for updates...
+[03:22:11 INFO]: [Towny] Plugins found:
+[03:22:11 INFO]: [Towny]   Permissions: TownyPerms, BukkitPermissions
+[03:22:11 INFO]: [Towny] No new updates found.
+[03:22:11 INFO]: [Towny] Towny flatfiles and settings successfully backed up.
+[03:22:11 INFO]: =============================================================
+[03:22:11 INFO]: [Towny] Version: 0.103.2.0 - Plugin Enabled
+[03:22:11 INFO]: =============================================================
+[03:22:11 INFO]: [NeverLandTownyControl] Enabling NeverLandTownyControl v0.4.18
+[03:22:11 INFO]: [NeverLandTownyControl] Управление модулями: 39; отключено с зависимостями: 0
+[03:22:11 INFO]: [NeverLandTownyBuilds] Enabling NeverLandTownyBuilds v0.8.42
+[03:22:11 INFO]: [NeverLandTownyBuilds] Загружено городских проектов: 101
+[03:22:11 INFO]: [NeverLandTownyBuilds] NeverLandTownyBuilds 0.8.42 включён: процедурные здания и Чудеса, фонды ресурсов и совместное строительство готовы.
+[03:22:11 INFO]: [NeverLandTownySiegesPlus] Enabling NeverLandTownySiegesPlus v0.4.0
+[03:22:12 INFO]: [NeverLandTownySiegesPlus] Sieges+: SiegeWar не установлен; армейские рейды и прочность TNT включены по настройкам
+[03:22:12 INFO]: [TntRuntimeProbe] Enabling TntRuntimeProbe v3.0
+[03:22:12 INFO]: [spark] The spark plugin has been preferred but was not loaded. The bundled spark profiler will enabled instead.
+[03:22:12 INFO]: [spark] The spark profiler will not be enabled because it is currently disabled in the configuration.
+[03:22:12 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+[03:22:12 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_nether
+[03:22:12 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_end
+[03:22:12 INFO]: ThreadedAnvilChunkStorage (world): All chunks are saved
+[03:22:12 INFO]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[03:22:12 INFO]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[03:22:12 INFO]: ThreadedAnvilChunkStorage: All dimensions are saved
+[03:22:12 INFO]: Done (12.465s)! For help, type "help"
+[03:22:14 INFO]: [TntRuntimeProbe] CHECK SiegesPlus 0.4.0 and actual SQLite enabled
+[03:22:14 INFO]: [TntRuntimeProbe] CHECK Builds 0.8.42 enabled
+[03:22:14 INFO]: [TntRuntimeProbe] CHECK real controller fails closed without Army provider
+[03:22:14 INFO]: [TntRuntimeProbe] CHECK real relation guard rejects neutral town
+[03:22:14 INFO]: [TntRuntimeProbe] CHECK real relation guard rejects own town
+[03:22:14 INFO]: [TntRuntimeProbe] CHECK real newcomer shield rejects a raid
+[03:22:14 INFO]: [TntRuntimeProbe] CHECK real relation guard accepts two unshielded unrelated towns
+[03:22:14 INFO]: [TntRuntimeProbe] CHECK real Towny alliance blocks raid
+[03:22:14 INFO]: [TntRuntimeProbe] CHECK real defender-online threshold prevents offline raid
+[03:22:15 INFO]: [TntRuntimeProbe] CHECK real construction TextDisplay uses 0.45 scale and 200px wrapping
+[03:22:15 INFO]: [TntRuntimeProbe] CHECK guide remains private and temporary
+[03:22:15 INFO]: [TntRuntimeProbe] CHECK invalid guide scale falls back safely
+[03:22:17 INFO]: [TntRuntimeProbe] CHECK real TNT contact blast applies 100 HP
+[03:22:17 INFO]: [TntRuntimeProbe] CHECK real TNT crossing chunk boundary applies 25 HP at 3.5 blocks
+[03:22:17 INFO]: [TntRuntimeProbe] CHECK both wooden door halves take only one 100 HP hit
+[03:22:17 INFO]: [TntRuntimeProbe] CHECK glass destroyed at zero HP
+[03:22:17 INFO]: [TntRuntimeProbe] CHECK bedrock protected
+[03:22:17 INFO]: [TntRuntimeProbe] CHECK chest and contents protected from real TNT
+[03:22:18 INFO]: [TntRuntimeProbe] CHECK replayed TNT entity UUID cannot damage twice
+[03:22:18 INFO]: [TntRuntimeProbe] CHECK native blast cannot bypass HP in managed defender town
+[03:22:19 INFO]: [TntRuntimeProbe] CHECK second contact hit destroys both door halves together
+[03:22:19 INFO]: [TntRuntimeProbe] CHECK foreign final cancellation retained
+[03:22:20 INFO]: [TntRuntimeProbe] CHECK cancelled and unauthorized blasts leave HP unchanged
+[03:22:21 INFO]: [TntRuntimeProbe] CHECK replaced door survives stale in-flight hit
+[03:22:21 INFO]: [TntRuntimeProbe] CHECK replaced block starts with full HP
+[03:22:22 INFO]: [TntRuntimeProbe] CHECK module pause causes no additional HP loss
+[03:22:22 INFO]: [TntRuntimeProbe] CHECK committed cancellation updates authority even while scheduler is paused
+[03:22:22 INFO]: [TntRuntimeProbe] CHECK real Towny account totals use deterministic external adapter
+[03:22:22 INFO]: [TntRuntimeProbe] CHECK new public raid storage API healthy
+[03:22:23 INFO]: [TntRuntimeProbe] CHECK Control 0.4.18 enabled
+[03:22:23 INFO]: [TntRuntimeProbe] CHECK admin home contains separate raid button
+[03:22:23 INFO]: [TntRuntimeProbe] CHECK admin panel separates raid history, money and resources
+[03:22:23 INFO]: [TntRuntimeProbe] CHECK general logging categories include raids
+[03:22:23 INFO]: [TntRuntimeProbe] CHECK real campfire and marked banner activate camp on owning region
+[03:22:23 INFO]: [TntRuntimeProbe] CHECK camp menu exposes raid start
+[03:22:24 INFO]: [TntRuntimeProbe] CHECK real muster rejects absent online army
+[03:22:24 INFO]: [TntRuntimeProbe] CHECK destroying camp banner immediately revokes camp
+[03:22:24 INFO]: [TntRuntimeProbe] CHECK primary lectern selected from completed town hall, not secondary stage lectern
+[03:22:30 INFO]: [TntRuntimeProbe] CHECK loot money confirmed while full target keeps resource delivery pending
+[03:22:30 INFO]: [TntRuntimeProbe] CHECK registered primary lectern destroyed at zero HP
+[03:22:30 INFO]: [TntRuntimeProbe] CHECK unregistered nearby lectern remains protected
+[03:22:30 INFO]: [TntRuntimeProbe] CHECK production LootBank transfers 10 percent through actual Towny account observers
+[03:22:30 INFO]: [TntRuntimeProbe] CHECK resource share removed exactly once into durable escrow
+[03:22:30 INFO]: [TntRuntimeProbe] CHECK full target preserves all reserved cargo
+[03:22:30 INFO]: [TntRuntimeProbe] CHECK duplicate core cannot create a second payment claim
+[03:22:30 INFO]: [TntRuntimeProbe] CHECK real TNT destruction retained for aggregate building repair
+[03:22:30 INFO]: [TntRuntimeProbe] CHECK repair intent is durable before external economy call
+[03:22:30 INFO]: [TntRuntimeProbe] CHECK repair intent can be read before shutdown
+[03:22:30 INFO]: [TntRuntimeProbe] CHECK independent SQLite connection confirms committed bank intent
+[03:22:30 INFO]: [TntRuntimeProbe] CHECK all in-flight block watches released
+[03:22:31 INFO]: [TntRuntimeProbe] CHECK TNT actor/town audit persisted
+[03:22:31 INFO]: [RegionShutdownThread] Awaiting scheduler termination for 60s...
+[03:22:31 INFO]: [RegionShutdownThread] Scheduler halted
+[03:22:31 INFO]: Stopping server
+[03:22:31 INFO]: [TntRuntimeProbe] Disabling TntRuntimeProbe v3.0
+[03:22:31 INFO]: [NeverLandTownySiegesPlus] Disabling NeverLandTownySiegesPlus v0.4.0
+[03:22:31 INFO]: [NeverLandTownyBuilds] Disabling NeverLandTownyBuilds v0.8.42
+[03:22:31 INFO]: [NeverLandTownyControl] Disabling NeverLandTownyControl v0.4.18
+[03:22:31 INFO]: [Towny] Disabling Towny v0.103.2.0
+[03:22:31 INFO]: ==============================================================
+[03:22:31 INFO]: [Towny] Finishing File IO Tasks...
+[03:22:31 INFO]: [Towny] Finishing Universe Tasks...
+[03:22:31 INFO]: [Towny] Version: 0.103.2.0 - Plugin Disabled
+[03:22:31 INFO]: =============================================================
+[03:22:31 INFO]: [RegionShutdownThread] Halting chunk systems...
+[03:22:31 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:overworld'
+[03:22:31 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:overworld'
+[03:22:31 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:the_nether'
+[03:22:31 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:the_nether'
+[03:22:31 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:the_end'
+[03:22:31 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:the_end'
+[03:22:31 INFO]: [RegionShutdownThread] Halted chunk systems
+[03:22:31 INFO]: [RegionShutdownThread] Finishing pending teleports...
+[03:22:31 INFO]: [RegionShutdownThread] Finished pending teleports
+[03:22:31 INFO]: [RegionShutdownThread] Saving all worlds
+[03:22:31 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:overworld'
+[03:22:31 INFO]: [RegionShutdownThread] Closing player inventories...
+[03:22:31 INFO]: [RegionShutdownThread] Closed player inventories
+[03:22:31 INFO]: [RegionShutdownThread] Saving chunks...
+[03:22:31 INFO]: [RegionShutdownThread] Saving chunks around region around chunk [14, 0] in world 'world'
+[03:22:31 INFO]: [ChunkHolderManager] Saved 1019 block chunks, 95 entity chunks, 2 poi chunks in world 'minecraft:overworld' in 0.41s
+[03:22:31 INFO]: [ChunkHolderManager] Waiting 60s for chunk I/O to halt for world 'minecraft:overworld'
+[03:22:31 INFO]: [ChunkHolderManager] Halted I/O scheduler for world 'minecraft:overworld'
+[03:22:31 INFO]: [RegionShutdownThread] Saved chunks
+[03:22:31 INFO]: [RegionShutdownThread] Saving level data...
+[03:22:31 INFO]: [RegionShutdownThread] Saved level data
+[03:22:31 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:overworld'
+[03:22:31 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:the_nether'
+[03:22:31 INFO]: [RegionShutdownThread] Closing player inventories...
+[03:22:31 INFO]: [RegionShutdownThread] Closed player inventories
+[03:22:31 INFO]: [RegionShutdownThread] Saving chunks...
+[03:22:31 INFO]: [RegionShutdownThread] Saved chunks
+[03:22:31 INFO]: [RegionShutdownThread] Saving level data...
+[03:22:31 INFO]: [RegionShutdownThread] Saved level data
+[03:22:31 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:the_nether'
+[03:22:31 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:the_end'
+[03:22:31 INFO]: [RegionShutdownThread] Closing player inventories...
+[03:22:31 INFO]: [RegionShutdownThread] Closed player inventories
+[03:22:31 INFO]: [RegionShutdownThread] Saving chunks...
+[03:22:31 INFO]: [RegionShutdownThread] Saved chunks
+[03:22:31 INFO]: [RegionShutdownThread] Saving level data...
+[03:22:31 INFO]: [RegionShutdownThread] Saved level data
+[03:22:31 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:the_end'
+[03:22:31 INFO]: [RegionShutdownThread] Saved all worlds
+[03:22:31 INFO]: [RegionShutdownThread] Saving global world data...
+[03:22:31 INFO]: [RegionShutdownThread] Saved global world data.
+[03:22:31 INFO]: [RegionShutdownThread] Saving all player data...
+[03:22:31 INFO]: [RegionShutdownThread] Saved all player data
+[03:22:31 INFO]: Waiting for all RegionFile I/O tasks to complete...
+[03:22:31 INFO]: All RegionFile I/O tasks to complete
+[03:22:31 INFO]: [MoonriseCommon] Awaiting termination of worker pool for up to 60s...
+[03:22:31 INFO]: [MoonriseCommon] Awaiting termination of I/O pool for up to 60s...

@@ -7,7 +7,7 @@ import ru.neverland.townybuilds.data.DataStore;import ru.neverland.townybuilds.a
 import ru.neverland.townysieges.*;import ru.neverland.core.*;
 
 /** Adds actual Towny Account observers, a deterministic economy-adapter double, escrow, camp and admin UI checks. */
-public final class CampLootRuntimeProbe extends TntRuntimeProbe {
+public class CampLootRuntimeProbe extends TntRuntimeProbe {
     final Map<UUID,Double> balances=new HashMap<>();DataStore data;RaidStorageApi stock;RaidCamps.Camp camp;boolean extended;UUID capture;Actor actor;
     @Override void finish()throws Exception{if(extended){saveBalances();super.finish();return;}extended=true;installBank();
         var owner=Bukkit.getPluginManager().getPlugin("NeverLandTownyBuilds");data=(DataStore)field(owner,"dataStore");stock=Bukkit.getServicesManager().load(RaidStorageApi.class);check(stock!=null&&stock.healthy(),"new public raid storage API healthy");
@@ -26,7 +26,7 @@ public final class CampLootRuntimeProbe extends TntRuntimeProbe {
     }
     void saveBalances()throws Exception{var p=new Properties();balances.forEach((k,v)->p.setProperty(k.toString(),v.toString()));try(var out=Files.newOutputStream(proof.resolve("balances.properties"))){p.store(out,"Disposable economy fixture only");}}
     void adminMenus()throws Exception{
-        var control=Bukkit.getPluginManager().getPlugin("NeverLandTownyControl");check(control!=null&&control.isEnabled(),"Control 0.4.17 enabled");var menu=field(control,"adminMenu");call(menu,"home",new Class<?>[]{Player.class},actor.player);check(actor.top.getItem(20)!=null&&actor.top.getItem(20).getType()==Material.TNT,"admin home contains separate raid button");
+        var control=Bukkit.getPluginManager().getPlugin("NeverLandTownyControl");check(control!=null&&control.isEnabled(),"Control 0.4.18 enabled");var menu=field(control,"adminMenu");call(menu,"home",new Class<?>[]{Player.class},actor.player);check(actor.top.getItem(20)!=null&&actor.top.getItem(20).getType()==Material.TNT,"admin home contains separate raid button");
         call(menu,"raids",new Class<?>[]{Player.class},actor.player);check(actor.top.getItem(11).getType()==Material.BOOK&&actor.top.getItem(13).getType()==Material.GOLD_INGOT&&actor.top.getItem(15).getType()==Material.CHEST,"admin panel separates raid history, money and resources");
         call(menu,"logs",new Class<?>[]{Player.class},actor.player);check(Arrays.stream(actor.top.getContents()).anyMatch(i->i!=null&&i.getType()==Material.TNT),"general logging categories include raids");
     }

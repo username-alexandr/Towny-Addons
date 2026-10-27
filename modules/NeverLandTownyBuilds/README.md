@@ -1,4 +1,6 @@
-# NeverLandTownyBuilds 0.8.41
+# NeverLandTownyBuilds 0.8.42
+
+Обновление 0.8.42: [ремонт из казны и защита добычи](../../docs/RAID-REPAIRS-0.48.0-RU.md).
 
 Обновление 0.8.41: [осадные лагеря, кафедра ратуши и склад добычи](../../docs/CAMP-RAIDS-0.47.0-RU.md).
 

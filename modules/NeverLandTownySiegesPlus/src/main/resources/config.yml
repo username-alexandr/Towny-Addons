@@ -28,6 +28,10 @@ loot:
   enabled: true
   money-percent: 10.0
   resources-percent: 10.0
+  defense:
+    reduction-percent-per-level: 2.0
+    maximum-reduction-percent: 75.0
+    include-garrison: true
 
 # Режим войны через физический осадный лагерь. Имеет приоритет над боями SiegeWar.
 camp:
