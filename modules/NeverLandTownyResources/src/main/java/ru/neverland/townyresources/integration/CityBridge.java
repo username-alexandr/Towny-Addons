@@ -6,11 +6,18 @@ import ru.neverland.townyresources.model.ResourceEngine.Building;
 import java.util.*;
 
 public final class CityBridge {
-    public Map<String,Building> buildings(UUID town)throws ReflectiveOperationException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
+    private final PowerCoverage coverage=new PowerCoverage();
+    public void retain(Set<UUID> towns){coverage.retain(towns);}
+    public Map<String,Building> buildings(UUID town)throws ReflectiveOperationException {return buildings(town,false,false);}
+    public Map<String,Building> buildings(UUID town,boolean timed,boolean advance)throws ReflectiveOperationException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         Map<?,?> values=(Map<?,?>)ru.neverland.core.ApiServices.call("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","buildingFootprints",new Class<?>[]{UUID.class},town);Map<String,Building> result=new HashMap<>();
         for(var entry:values.entrySet()){
             Object b=entry.getValue();String id=entry.getKey().toString();int completed=integer(b,"completedLevel");
-            result.put(id,new Building(Math.max(0,Math.min(5,completed)),ru.neverland.integration.JobsAccess.multiplier(town,id,ru.neverland.integration.SpecializationAccess.production(town,id,ru.neverland.integration.ResearchBonuses.production(town,id,ru.neverland.integration.DistrictBonuses.multiplier(town,id)))),owned(town,b),ru.neverland.integration.BuildingOperations.active(town,id),ru.neverland.integration.BuildingOperations.inactiveReason(town,id),ru.neverland.integration.PoliciesAccess.production(town,id),ru.neverland.core.SeasonsAccess.production(town,id)*ru.neverland.core.SeasonsAccess.eventProduction(town,id),ru.neverland.core.EnvironmentAccess.agriculture(town,id)));
+            boolean serviceActive=ru.neverland.integration.BuildingOperations.maintained(town,id)&&ru.neverland.integration.SpecializationAccess.allowed(town,id);
+            double fraction=ru.neverland.integration.BuildingOperations.powered(town,id)?1:0;
+            if(timed){var power=ru.neverland.core.ApiServices.connect("NeverLandTownyPower","ru.neverland.townypower.api.TownyPowerApi",1,"uptime");if(power.ready())fraction=coverage.fraction(town,id,(Map<?,?>)power.invoke("uptime",new Class<?>[]{UUID.class,String.class},town,id),advance);else if(power.state()!=ru.neverland.core.ApiServices.State.NOT_INSTALLED&&power.state()!=ru.neverland.core.ApiServices.State.INCOMPATIBLE_API)fraction=0;}
+            if(!serviceActive)fraction=0;
+            result.put(id,new Building(Math.max(0,Math.min(5,completed)),ru.neverland.integration.JobsAccess.multiplier(town,id,ru.neverland.integration.SpecializationAccess.production(town,id,ru.neverland.integration.ResearchBonuses.production(town,id,ru.neverland.integration.DistrictBonuses.multiplier(town,id)))),owned(town,b),ru.neverland.integration.BuildingOperations.active(town,id),ru.neverland.integration.BuildingOperations.inactiveReason(town,id),ru.neverland.integration.PoliciesAccess.production(town,id),ru.neverland.core.SeasonsAccess.production(town,id)*ru.neverland.core.SeasonsAccess.eventProduction(town,id),ru.neverland.core.EnvironmentAccess.agriculture(town,id),fraction));
         }
         return Map.copyOf(result);
     } }

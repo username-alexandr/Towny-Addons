@@ -1,0 +1,13 @@
+PASS actual Taxes 0.2 enabled
+PASS native Towny economy readiness uses explicit deterministic provider fixture
+PASS public preview uses final penny rounding from frozen calculation
+PASS real personal preview command explains amount without spending
+PASS real Towny debit and credit equal public preview
+PASS durable receipt retains the same formula and amount
+PASS repeat collection cannot duplicate completed fixed-tax period
+PASS actual player history command shows confirmed receipt
+PASS explicit acknowledgement loss occurs after actual bank credit without minting
+PASS unattempted tax receipt waits without source withdrawal
+PASS unknown credit is held instead of repeated or refunded
+PASS controlled plugin disable drains SQLite before classloader closure
+PASS Folia records enable request for full restart instead of hot reload

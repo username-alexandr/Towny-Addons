@@ -22,9 +22,9 @@ addons:
   NeverLandTownyPopulation: 0.1.23
   NeverLandTownyDistricts: 0.1.21
   NeverLandTownyLogistics: 0.2.0
-  NeverLandTownyResources: 0.2.0
+  NeverLandTownyResources: 0.2.1
   NeverLandTownyUpkeep: 0.2.0
-  NeverLandTownyPower: 0.1.17
+  NeverLandTownyPower: 0.2.0
   NeverLandTownyResearch: 0.1.18
   NeverLandTownySpecialization: 0.1.17
   NeverLandTownyPolicies: 0.2.0

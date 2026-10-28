@@ -4,7 +4,15 @@ import java.util.*;
 /** Pure deterministic city cycle. Citizens' food/water reserve is protected from building inputs. */
 public final class ResourceEngine {
     private ResourceEngine() {}
-    public record Building(int completed,double bonus,boolean owned,boolean active,String inactiveReason,double policies,double season,double environment) { public Building(int completed,double bonus,boolean owned,boolean active,String inactiveReason,double policies,double season){this(completed,bonus,owned,active,inactiveReason,policies,season,1);} public Building(int completed,double bonus,boolean owned,boolean active,String inactiveReason,double policies){this(completed,bonus,owned,active,inactiveReason,policies,1);} public Building(int completed,double bonus,boolean owned,boolean active,String inactiveReason){this(completed,bonus,owned,active,inactiveReason,1);} public Building(int completed,double bonus,boolean owned,boolean active){this(completed,bonus,owned,active,"содержание не оплачено");} public Building(int completed,double bonus,boolean owned){this(completed,bonus,owned,true);} }
+    public record Building(int completed,double bonus,boolean owned,boolean active,String inactiveReason,double policies,double season,double environment,double powerFraction) {
+        public Building{if(!Double.isFinite(powerFraction)||powerFraction<0||powerFraction>1)throw new IllegalArgumentException("Неверная доля времени питания");}
+        public Building(int completed,double bonus,boolean owned,boolean active,String inactiveReason,double policies,double season,double environment){this(completed,bonus,owned,active,inactiveReason,policies,season,environment,active?1:0);}
+        public Building(int completed,double bonus,boolean owned,boolean active,String inactiveReason,double policies,double season){this(completed,bonus,owned,active,inactiveReason,policies,season,1);}
+        public Building(int completed,double bonus,boolean owned,boolean active,String inactiveReason,double policies){this(completed,bonus,owned,active,inactiveReason,policies,1);}
+        public Building(int completed,double bonus,boolean owned,boolean active,String inactiveReason){this(completed,bonus,owned,active,inactiveReason,1);}
+        public Building(int completed,double bonus,boolean owned,boolean active){this(completed,bonus,owned,active,"содержание не оплачено");}
+        public Building(int completed,double bonus,boolean owned){this(completed,bonus,owned,true);}
+    }
     public record Activity(int level,int priority,int operations,String status,Map<Resource,Long> income,Map<Resource,Long> expense) {
         public Activity { income=Amounts.flows(income);expense=Amounts.flows(expense); }
     }
@@ -26,21 +34,24 @@ public final class ResourceEngine {
         var profiles=new ArrayList<>(config.buildings().values());profiles.sort(Comparator.comparingInt((BuildingProfile p)->state.priorities().getOrDefault(p.id(),p.priority())).thenComparing(BuildingProfile::id));
         Map<String,Activity> activities=new LinkedHashMap<>();
         for(var p:profiles){var b=built.get(p.id());int level=b==null?0:p.levels(b.completed());int priority=state.priorities().getOrDefault(p.id(),p.priority());int done=0;
-            String status=!p.enabled()?"Отключено в настройках":level==0?"Не построено или этап не завершён":!b.owned()?"Площадка больше не принадлежит городу":!b.active()?"НЕАКТИВНО — "+b.inactiveReason():state.paused().contains(p.id())?"Приостановлено городом":"Работает";
+            String status=!p.enabled()?"Отключено в настройках":level==0?"Не построено или этап не завершён":!b.owned()?"Площадка больше не принадлежит городу":(b.powerFraction()<=0)?"НЕАКТИВНО — "+b.inactiveReason():state.paused().contains(p.id())?"Приостановлено городом":"Работает";
             var produced=Amounts.mutable(Map.of());var consumed=Amounts.mutable(Map.of());
             if(status.equals("Работает"))for(int step=0;step<level;step++){
                 var output=Amounts.mutable(p.produces());for(var r:Resource.values())output.put(r,ru.neverland.core.SeasonsAccess.output(ru.neverland.integration.PolicyEffects.output(output.get(r),b.bonus(),b.policies(),Amounts.MAX),b.season(),Amounts.MAX));
                 output.put(Resource.FOOD,ru.neverland.core.SeasonsAccess.output(output.get(Resource.FOOD),b.environment(),Amounts.MAX));
+                var input=Amounts.mutable(p.consumes());
+                for(var r:Resource.values()){output.put(r,fraction(output.get(r),b.powerFraction(),false));input.put(r,fraction(input.get(r),b.powerFraction(),true));}
                 String blocked=null;
                 for(var r:Resource.values()){
                     long reserve=Math.max(state.reserves().get(r),demand.get(r));
-                    if(p.consumes().get(r)>Math.max(0,stock.get(r)-reserve)){blocked="Не хватает: "+config.display().get(r).name()+" (с учётом резерва)";break;}
-                    long next=stock.get(r)-p.consumes().get(r)+output.get(r);
+                    if(input.get(r)>Math.max(0,stock.get(r)-reserve)){blocked="Не хватает: "+config.display().get(r).name()+" (с учётом резерва)";break;}
+                    long next=stock.get(r)-input.get(r)+output.get(r);
                     if(output.get(r)>0&&next>cap.get(r)){blocked="Нет места: "+config.display().get(r).name();break;}
                 }
                 if(blocked!=null){status=blocked;break;}
-                for(var r:Resource.values()){long in=output.get(r),out=p.consumes().get(r);stock.put(r,stock.get(r)-out+in);income.put(r,Math.addExact(income.get(r),in));expense.put(r,Math.addExact(expense.get(r),out));produced.put(r,Math.addExact(produced.get(r),in));consumed.put(r,Math.addExact(consumed.get(r),out));}done++;
+                for(var r:Resource.values()){long in=output.get(r),out=input.get(r);stock.put(r,stock.get(r)-out+in);income.put(r,Math.addExact(income.get(r),in));expense.put(r,Math.addExact(expense.get(r),out));produced.put(r,Math.addExact(produced.get(r),in));consumed.put(r,Math.addExact(consumed.get(r),out));}done++;
             }
+            if(done>0&&b.powerFraction()<1)status="Работает • время с питанием: "+Math.round(b.powerFraction()*100)+"%";
             if(status.equals("Работает")&&b.season()!=1)status="Работает • сезон/событие: "+Math.round(b.season()*100)+"%";
             if(done>0&&b.environment()!=1&&p.produces().get(Resource.FOOD)>0)status+=" • экология: "+Math.round(b.environment()*100)+"% еды";
             activities.put(p.id(),new Activity(level,priority,done,status,produced,consumed));
@@ -50,4 +61,6 @@ public final class ResourceEngine {
         var next=new TownState(stock,state.reserves(),state.paused(),state.priorities(),Math.addExact(state.cycles(),1),now,income,expense,food,water);
         return new Result(next,cap,demand,activities);
     } }
+    private static long fraction(long amount,double share,boolean cost){return java.math.BigDecimal.valueOf(amount).multiply(java.math.BigDecimal.valueOf(share)).setScale(0,cost?java.math.RoundingMode.CEILING:java.math.RoundingMode.FLOOR).longValueExact();}
+
 }

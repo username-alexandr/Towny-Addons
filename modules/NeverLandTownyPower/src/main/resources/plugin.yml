@@ -1,5 +1,5 @@
 name: NeverLandTownyPower
-version: 0.1.17
+version: 0.2.0
 main: ru.neverland.townypower.NeverLandTownyPower
 folia-supported: true
 api-version: '26.2'
@@ -11,7 +11,7 @@ commands:
   townypower:
     aliases: [nltpower, citypower]
     description: Энергоснабжение города
-    usage: /townypower [generators|consumers|info|pause|resume|priority|reload]
+    usage: /townypower [generators|consumers|info|pause|resume|priority|emergency|reload]
 permissions:
   neverlandtownypower.use:
     default: true

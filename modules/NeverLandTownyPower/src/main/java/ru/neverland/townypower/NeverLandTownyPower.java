@@ -18,7 +18,7 @@ public final class NeverLandTownyPower extends JavaPlugin {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 try{
         saveDefaultConfig();if(!new File(getDataFolder(),"buildings.yml").exists())saveResource("buildings.yml",false);
-        var repository=new PowerRepository(getDataFolder().toPath().resolve("power-data.yml"));repository.load();service=new PowerService(this,repository,settings());
+        var repository=new PowerRepository(getDataFolder().toPath().resolve("power-data.yml"));repository.load();service=new PowerService(this,repository,settings());ru.neverland.core.ModuleShutdown.register(this,service::prepareClose);
         var menu=new PowerMenu(this,service);var command=new PowerCommand(this,service,menu);var direct=getCommand("townypower");if(direct==null)throw new IllegalStateException("Нет команды townypower");direct.setExecutor(command);direct.setTabCompleter(command);
         townCommand=TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"power",command);if(!townCommand)getLogger().warning("/t power занят; используйте /townypower");
         getServer().getPluginManager().registerEvents(menu,this);service.start();getServer().getServicesManager().register(TownyPowerApi.class,service,this,ServicePriority.Normal);
@@ -28,7 +28,7 @@ try{
     private YamlConfiguration read(String name)throws Exception{var y=new YamlConfiguration();y.load(new File(getDataFolder(),name));try(var input=getResource(name)){if(input!=null)y.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(input,StandardCharsets.UTF_8)));}y.options().copyDefaults(true);return y;}
     private PowerSettings settings()throws Exception{return PowerSettings.load(read("config.yml"),read("buildings.yml"));}
     public boolean reloadPower(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {try{service.reload(settings());return true;}catch(Exception ex){getLogger().warning("Настройки энергетики не применены: "+ex.getMessage());return false;}} }
-    @Override public void onDisable(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
+    @Override public void onDisable(){try{try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
-if(expansion!=null)expansion.unregister();if(service!=null)service.stop();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"power");} }
+if(expansion!=null)expansion.unregister();if(service!=null)service.stop();getServer().getServicesManager().unregisterAll(this);if(townCommand)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"power");}}finally{if(service!=null)service.awaitClosed();ru.neverland.core.ModuleShutdown.remove(this);}}
 }

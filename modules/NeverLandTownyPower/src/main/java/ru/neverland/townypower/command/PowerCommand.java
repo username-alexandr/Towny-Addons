@@ -22,16 +22,16 @@ public final class PowerCommand implements CommandExecutor,TabCompleter {
         switch(action){
             case "menu","generators","consumers"->{if(args.length>2)throw new IllegalArgumentException("/t power [generators|consumers] [страница]");int page=args.length==2?Integer.parseInt(args[1])-1:0;menu.open(p,town.getUUID(),page,action.equals("menu")?"all":action,null);}
             case "info"->{count(args,2,"/t power info <здание>");menu.open(p,town.getUUID(),0,"all",args[1]);}
-            case "pause","resume","priority"->{count(args,action.equals("priority")?3:2,"/t power "+action+" <здание>"+(action.equals("priority")?" <0..100>":""));if(!service.manager(p,town))throw new IllegalArgumentException("Нужны права мэра, помощника или управляющего");service.change(town.getUUID(),args[1],action.equals("priority")?null:action.equals("pause"),action.equals("priority")?Integer.valueOf(args[2]):null);Ui.tell(p,"Настройки сохранены, питание перераспределено.");}
-            case "help"->Ui.tell(p,"/t power — сеть города; generators / consumers — списки; info <здание> — мощность; pause / resume <здание> — остановка и запуск; priority <здание> <0..100> — очерёдность (0 раньше 100).");
+            case "pause","resume","priority","emergency"->{boolean order=action.equals("priority")||action.equals("emergency");count(args,order?3:2,"/t power "+action+" <здание>"+(order?" <0..100>":""));if(!service.manager(p,town))throw new IllegalArgumentException("Нужны права мэра, помощника или управляющего");service.change(town.getUUID(),args[1],order?null:action.equals("pause"),action.equals("priority")?Integer.valueOf(args[2]):null,action.equals("emergency")?Integer.valueOf(args[2]):null).whenComplete((v,error)->ru.neverland.core.SuiteScheduler.entity(plugin,p,()->{if(p.isOnline())Ui.tell(p,error==null?"Настройки сохранены. Вступят в силу со следующего расчёта питания.":"&cИзменение не сохранено; прежние настройки остаются в силе.");}));}
+            case "help"->Ui.tell(p,"/t power — сеть города; generators / consumers — списки; info <здание> — мощность; pause / resume <здание> — остановка и запуск; priority <здание> <0..100> — обычная очерёдность; emergency <здание> <0..100> — при дефиците (0 раньше 100).");
             default->throw new IllegalArgumentException("Справка: /t power help");
         }
     }
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {List<String> result=new ArrayList<>();
-        if(args.length==1){if(sender.hasPermission("neverlandtownypower.use"))result.addAll(List.of("menu","generators","consumers","info","pause","resume","priority","help"));if(sender.hasPermission("neverlandtownypower.admin"))result.addAll(List.of("reload","town"));}
-        else if(args.length==2&&Set.of("info","pause","resume","priority").contains(args[0])&&sender.hasPermission("neverlandtownypower.use"))service.settings().profiles().values().stream().filter(p->p.relevant()).forEach(p->result.add(p.id()));
+        if(args.length==1){if(sender.hasPermission("neverlandtownypower.use"))result.addAll(List.of("menu","generators","consumers","info","pause","resume","priority","emergency","help"));if(sender.hasPermission("neverlandtownypower.admin"))result.addAll(List.of("reload","town"));}
+        else if(args.length==2&&Set.of("info","pause","resume","priority","emergency").contains(args[0])&&sender.hasPermission("neverlandtownypower.use"))service.settings().profiles().values().stream().filter(p->p.relevant()).forEach(p->result.add(p.id()));
         else if(args.length==2&&args[0].equals("town")&&sender.hasPermission("neverlandtownypower.admin"))TownyAPI.getInstance().getTowns().forEach(t->result.add(t.getName()));
-        else if(args.length==3&&args[0].equals("priority")&&sender.hasPermission("neverlandtownypower.use"))result.addAll(List.of("0","10","20","50","100"));
+        else if(args.length==3&&Set.of("priority","emergency").contains(args[0])&&sender.hasPermission("neverlandtownypower.use"))result.addAll(List.of("0","10","20","50","100"));
         String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return result.stream().filter(s->s.toLowerCase(Locale.ROOT).startsWith(prefix)).sorted().toList();
     } }
 }

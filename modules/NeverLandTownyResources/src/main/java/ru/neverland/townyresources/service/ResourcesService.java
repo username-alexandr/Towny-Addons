@@ -37,7 +37,7 @@ public final class ResourcesService implements TownyResourcesApi {
             UUID id=town.getUUID();existing.add(id);town.getResidents().forEach(r->residents.put(r.getUUID(),id));
             TownState state=states.getOrDefault(id,TownState.initial(settings.initial()));states.put(id,state);
             try{
-                var built=bridge.buildings(id);int people=settings.populationLinked()?bridge.population(town):0;
+                var built=bridge.buildings(id,true,advance);int people=settings.populationLinked()?bridge.population(town):0;
                 var preview=ResourceEngine.calculate(state,built,people,settings,now,repository.held(id));
                 if(advance){state=preview.state();states.put(id,state);preview=ResourceEngine.calculate(state,built,people,settings,now,repository.held(id));}
                 snapshots.put(id,new ResourceSnapshot(id,town.getName(),people,settings.populationLinked(),false,"Расчёт работает",now+remainingTicks*50L,state,preview.capacity(),preview.state().income(),preview.state().expense(),preview.demand(),preview.activity(),
@@ -46,7 +46,7 @@ public final class ResourcesService implements TownyResourcesApi {
                 var old=cache.towns().get(id);snapshots.put(id,new ResourceSnapshot(id,town.getName(),old==null?0:old.population(),settings.populationLinked(),true,"Ожидает данные: "+ex.getMessage(),now+remainingTicks*50L,state,old==null?settings.baseCapacity():old.capacity(),Map.of(),Map.of(),Map.of(),Map.of(),state.foodCoverage(),state.waterCoverage()));
             }
         }
-        states.keySet().retainAll(existing);if(advance)repository.replaceCycle(states);else repository.replace(states);cache=new Cache(Map.copyOf(snapshots),Map.copyOf(residents));
+        bridge.retain(existing);states.keySet().retainAll(existing);if(advance)repository.replaceCycle(states);else repository.replace(states);cache=new Cache(Map.copyOf(snapshots),Map.copyOf(residents));
     }
     private void publishFault(){var next=new HashMap<UUID,ResourceSnapshot>();for(var s:cache.towns().values())next.put(s.townId(),new ResourceSnapshot(s.townId(),s.townName(),s.population(),s.populationLinked(),true,"Ошибка сохранения — обратитесь к администратору",s.nextCycle(),s.state(),s.capacity(),Map.of(),Map.of(),s.populationDemand(),s.buildings(),s.foodCoverage(),s.waterCoverage()));cache=new Cache(Map.copyOf(next),cache.residents());}
     public Town town(Player p){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {var r=TownyAPI.getInstance().getResident(p);return r==null?null:r.getTownOrNull();} }

@@ -4,6 +4,7 @@ import argparse, json, os, re, shutil, subprocess, zipfile, xml.etree.ElementTre
 from pathlib import Path
 from api_audit import ROOT, inventory
 from run_smoke import run_tests
+from pinned_artifacts import capture,publish,build_lock
 
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--java-home',type=Path,required=True)
@@ -30,20 +31,27 @@ for short in a.modules:
         sources=[module/'src/main/java']+[expand(s.text) for s in pom.findall('.//m:configuration/m:sources/m:source',ns)]
         resource_roots=[module/'src/main/resources']+[expand(s.text) for s in pom.findall('.//m:configuration/m:resources/m:resource/m:directory',ns)]
     build=module/'build';classes=build/'classes/java/main';tests=build/'classes/java/test';libs=build/'libs'
-    for path in [classes,tests,libs]:shutil.rmtree(path,ignore_errors=True);path.mkdir(parents=True)
-    files=sorted({f for root in sources for f in root.rglob('*.java')})
-    subprocess.run([str(java/'javac'),'--release','17','-encoding','UTF-8','-cp',cp,'-d',str(classes),*map(str,files)],check=True)
-    for root in resource_roots:
-        if root.exists():shutil.copytree(root,classes,dirs_exist_ok=True)
-    descriptor=classes/'plugin.yml';descriptor.write_text(descriptor.read_text().replace('${version}',version))
-    jar=libs/f'{module.name}-{version}.jar'
-    with zipfile.ZipFile(jar,'w',zipfile.ZIP_DEFLATED) as z:
-        for file in sorted(classes.rglob('*')):
-            if file.is_file():z.write(file,file.relative_to(classes).as_posix())
-    test_sources=sorted((module/'src/test/java').rglob('*.java'))
-    if test_sources:subprocess.run([str(java/'javac'),'--release','17','-encoding','UTF-8','-cp',str(classes)+os.pathsep+cp,'-d',str(tests),*map(str,test_sources)],check=True)
-    test_cp=os.pathsep.join([str(tests),str(classes),cp]);names=run_tests(module,test_cp,data)
-    (build/'smoke-classpath.txt').write_text(test_cp)
-    report.append(dict(module=module.name,version=version,jar=str(jar.relative_to(ROOT)),tests=names))
-    (ROOT/'build/pinned-tests.json').write_text(json.dumps(report,indent=2)+'\n')
-    print('BUILD AND SMOKE PASS',jar.name,len(names),'programs',flush=True)
+    with build_lock(build):
+        for path in [classes,tests]:shutil.rmtree(path,ignore_errors=True);path.mkdir(parents=True)
+        libs.mkdir(parents=True,exist_ok=True)
+        def input_paths():
+            paths={f for folder in sources for f in folder.rglob('*.java')}
+            paths.update(f for folder in resource_roots for f in folder.rglob('*') if f.is_file())
+            paths.update((module/'src/test/java').rglob('*.java'))
+            paths.update(f for f in [module/'build.gradle.kts',module/'pom.xml',ROOT/'scripts/build_pinned_folia.py',ROOT/'scripts/pinned_artifacts.py',ROOT/'scripts/run_smoke.py'] if f.is_file())
+            return paths
+        initial=capture(ROOT,input_paths())
+        files=sorted({f for root in sources for f in root.rglob('*.java')})
+        subprocess.run([str(java/'javac'),'--release','17','-encoding','UTF-8','-cp',cp,'-d',str(classes),*map(str,files)],check=True)
+        for root in resource_roots:
+            if root.exists():shutil.copytree(root,classes,dirs_exist_ok=True)
+        descriptor=classes/'plugin.yml';descriptor.write_text(descriptor.read_text().replace('${version}',version))
+        jar=libs/f'{module.name}-{version}.jar'
+        test_sources=sorted((module/'src/test/java').rglob('*.java'))
+        if test_sources:subprocess.run([str(java/'javac'),'--release','17','-encoding','UTF-8','-cp',str(classes)+os.pathsep+cp,'-d',str(tests),*map(str,test_sources)],check=True)
+        test_cp=os.pathsep.join([str(tests),str(classes),cp]);names=run_tests(module,test_cp,data)
+        publish(classes,jar,initial,lambda:capture(ROOT,input_paths()),dict(module=module.name,version=version,tests=names,java_target=17,expected_runtime='Folia 26.2'))
+        (build/'smoke-classpath.txt').write_text(test_cp)
+        report.append(dict(module=module.name,version=version,jar=str(jar.relative_to(ROOT)),tests=names))
+        (ROOT/'build/pinned-tests.json').write_text(json.dumps(report,indent=2)+'\n')
+        print('BUILD AND SMOKE PASS',jar.name,len(names),'programs',flush=True)

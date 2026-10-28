@@ -11,10 +11,10 @@ import java.util.logging.Level;
 
 /** Local evidence survives absence/disable of Control. Audit failures never repeat a bank call. */
 public final class AuditTrail {
-    private static final Map<Path,AuditJournal> journals=new HashMap<>();
-    private static final Map<Path,Long> warnings=new HashMap<>();
+    private static final Map<Path,AuditJournal> journals=new java.util.concurrent.ConcurrentHashMap<>();
+    private static final Map<Path,Long> warnings=new java.util.concurrent.ConcurrentHashMap<>();
     private AuditTrail(){}
-    public static synchronized boolean record(Plugin plugin,String step,String operation,String kind,String outcome,
+    public static boolean record(Plugin plugin,String step,String operation,String kind,String outcome,
             AuditRecord.Party actor,AuditRecord.Party from,AuditRecord.Party to,String asset,long quantity,String money,String details){
         Path path=plugin.getDataFolder().toPath().resolve("audit");
         try{
@@ -22,7 +22,7 @@ public final class AuditTrail {
             journals.computeIfAbsent(path,AuditJournal::new).append(record);warnings.remove(path);return true;
         }catch(Exception ex){long now=System.currentTimeMillis();if(now-warnings.getOrDefault(path,0L)>60_000){warnings.put(path,now);plugin.getLogger().log(Level.SEVERE,"AUDIT GAP: запись "+operation+" / "+step+" не сохранена. Проверьте каталог "+path+". Финансовое действие не повторяется.",ex);}return false;}
     }
-    public static synchronized void bank(Plugin plugin,String kind,String outcome,AuditRecord.Party actor,AuditRecord.Party from,AuditRecord.Party to,double amount,String details){
+    public static void bank(Plugin plugin,String kind,String outcome,AuditRecord.Party actor,AuditRecord.Party from,AuditRecord.Party to,double amount,String details){
         Path path=plugin.getDataFolder().toPath().resolve("audit");String operation=UUID.randomUUID().toString();
         try{var r=new AuditRecord(AuditRecord.id(plugin.getName(),operation,"bank"),System.currentTimeMillis(),plugin.getName(),kind,outcome,operation,actor,from,to,"",0,money(amount),details);journals.computeIfAbsent(path,AuditJournal::new).appendUnique(r);}
         catch(Exception ex){long now=System.currentTimeMillis();if(now-warnings.getOrDefault(path,0L)>60_000){warnings.put(path,now);plugin.getLogger().log(Level.SEVERE,"AUDIT GAP: банковская запись "+operation+" не сохранена; платёж не повторяется",ex);}}

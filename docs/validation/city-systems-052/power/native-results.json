@@ -1,0 +1,32 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 17 assertions; real Folia/Towny/Builds power allocation, native commands/menus, durable charging and emergency ordering, controlled disable and full restart; explicit registered-site and offline player/scheduler fixtures; no GUI client claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyContracts-0.6.0.jar": "991d6a8119fb8377e357546df9c02d16ab516f4ae87054297225bed8e5c08501",
+      "NeverLandTownyBuilds-0.10.1.jar": "f004882b1f0f473c019eaad9f2e2e2f881979da5b8de95c5b81f108e04af4e9f",
+      "TntRuntimeProbe.jar": "51542235bd313ac9669ab73f7b1d2ad3d6be47993c56ae18bd52304462014ac5",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64",
+      "NeverLandTownyControl-0.5.4.jar": "7288ad365374086dab05a6302fc47fee89cdffe3df44a267cec1918bb6d7e175",
+      "NeverLandTownyPower-0.2.0.jar": "9eb1f115235354335a687a41f9bb21e5b11ac916a079e623ff68943a92cba995",
+      "NeverLandTownyResources-0.2.1.jar": "82bf813048b092f122e735964a97c1344b0ab8dd11ec0c585775234d3977e913"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 7 assertions; real Folia/Towny/Builds power allocation, native commands/menus, durable charging and emergency ordering, controlled disable and full restart; explicit registered-site and offline player/scheduler fixtures; no GUI client claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyContracts-0.6.0.jar": "991d6a8119fb8377e357546df9c02d16ab516f4ae87054297225bed8e5c08501",
+      "NeverLandTownyBuilds-0.10.1.jar": "f004882b1f0f473c019eaad9f2e2e2f881979da5b8de95c5b81f108e04af4e9f",
+      "TntRuntimeProbe.jar": "51542235bd313ac9669ab73f7b1d2ad3d6be47993c56ae18bd52304462014ac5",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64",
+      "NeverLandTownyControl-0.5.4.jar": "7288ad365374086dab05a6302fc47fee89cdffe3df44a267cec1918bb6d7e175",
+      "NeverLandTownyPower-0.2.0.jar": "9eb1f115235354335a687a41f9bb21e5b11ac916a079e623ff68943a92cba995",
+      "NeverLandTownyResources-0.2.1.jar": "82bf813048b092f122e735964a97c1344b0ab8dd11ec0c585775234d3977e913"
+    }
+  }
+]

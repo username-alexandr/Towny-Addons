@@ -1,0 +1,7 @@
+PASS actual Power 0.2 and Builds services enabled
+PASS actual Resources service enabled for paid-time production integration
+PASS confirmed battery charge survives full restart without offline generation
+PASS switches and emergency priorities retain identity across restart
+PASS stopped consumers do not receive restored stale backup lease
+PASS continued offline controls cannot accrue charge after restart
+PASS process-local energy lease never enters persistent file

@@ -1,0 +1,17 @@
+PASS actual Power 0.2 and Builds services enabled
+PASS actual Resources service enabled for paid-time production integration
+PASS new city starts with no invented battery stock
+PASS live actual generator charges its configured maintained accumulator
+PASS repeated refresh within a live period cannot credit production again
+PASS real allocation reserves 35 energy before enabling all 135 demand against 100 generation
+PASS consumer explains backup power in native status
+PASS native network menu shows saved charge and backup budget
+PASS building menu separates ordinary and emergency controls
+PASS ordinary resident cannot change emergency priorities
+PASS actual mayor command acknowledges durable emergency setting
+PASS actual strategic cycle grants only partial metal after a short prepaid backup period
+PASS partial production consumes proportional stone and explains earned powered time
+PASS second immediate resource cycle cannot reuse the previous powered delta
+PASS shortage obeys separate emergency order without minting power
+PASS controlled unload drains saved battery before plugin classloader closes
+PASS Folia re-enable is deferred to full restart

@@ -156,7 +156,7 @@ public final class FiscalService implements NeverLandTownyTaxesApi {
         if(coordinator==null||!coordinator.ready())throw new IllegalStateException("Квитанции временно недоступны");return coordinator.store().snapshot().receipts().values().stream().filter(r->r.sourceId().equals(subject)).sorted(Comparator.comparingLong(TaxPayment::created).reversed()).limit(100).map(FiscalService::receiptRow).toList();
     }}
     @Override public Collection<Map<String,Object>> taxPayments(){try(var guard=ru.neverland.core.SuiteState.guard()){
-        if(coordinator==null)throw new IllegalStateException("Налоговый учёт ещё не запущен");return coordinator.store().snapshot().receipts().values().stream().filter(r->!r.terminal()).sorted(Comparator.comparingLong(TaxPayment::created)).map(FiscalService::receiptRow).toList();
+        if(coordinator==null||!coordinator.store().healthy())throw new IllegalStateException("Журнал налоговых переводов временно недоступен");return coordinator.store().snapshot().receipts().values().stream().filter(r->!r.terminal()).sorted(Comparator.comparingLong(TaxPayment::created)).map(FiscalService::receiptRow).toList();
     }}
     public static String paymentState(String phase){return switch(TaxPayment.Phase.valueOf(phase)){case PREPARED->"Ожидает доступа к банку";case DEBITING,CREDITING,REFUNDING->"Нужна сверка банковского этапа";case DEBITED->"Средства удержаны, ожидают получателя";case REFUND_READY->"Ожидает возврата";case DONE->"Уплачено";case REFUNDED->"Возвращено";case REJECTED->"Не оплачено";case VOID->"Отменено без списания";};}
     public TaxCoordinator coordinator(){return coordinator;}

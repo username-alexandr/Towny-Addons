@@ -1,0 +1,7 @@
+PASS actual Taxes 0.2 enabled
+PASS native Towny economy readiness uses explicit deterministic provider fixture
+PASS administrator pause cancels unattempted receipt without debt after restart
+PASS uncertain credit survives full Folia restart
+PASS restart and automatic pulse never repeat bank credit
+PASS real administrator reconciliation completes receipt without moving money again
+PASS native admin journal links tax transfer and reconciliation evidence

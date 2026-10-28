@@ -1,0 +1,1 @@
+PASS 13 assertions; genuine Folia/Towny tax commands, account observers, SQLite, controlled unload and scheduled re-enable after restart, formula receipts and reconciliation; explicit deterministic provider/player fixtures and injected lost acknowledgement; no real Vault or GUI client claimed

@@ -1,0 +1,1 @@
+PASS 17 assertions; real Folia/Towny/Builds power allocation, native commands/menus, durable charging and emergency ordering, controlled disable and full restart; explicit registered-site and offline player/scheduler fixtures; no GUI client claimed
