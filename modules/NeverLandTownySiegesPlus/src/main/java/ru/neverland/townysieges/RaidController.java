@@ -59,6 +59,14 @@ public final class RaidController {
     public Optional<RaidStore.Raid> raid(UUID attacker,UUID defender,long now) {
         return raids.stream().filter(r->r.attacker().equals(attacker)&&r.defender().equals(defender)&&r.live(now)).findFirst();
     }
+    /** Immutable declarations; no foreign entity state or world blocks are read here. */
+    public List<RaidStore.Raid> declarations(){
+        if(!ready()||siegeWarInstalled()||openWars().isEmpty())return List.of();try{army();}catch(Exception|LinkageError unavailable){return List.of();}long now=System.currentTimeMillis();
+        return raids.stream().filter(r->{if(!r.live(now))return false;try{relations(TownyAPI.getInstance().getTown(r.attacker()),TownyAPI.getInstance().getTown(r.defender()));return plugin.camps()==null||plugin.camps().active(r.attacker(),r.defender());}catch(Exception|LinkageError denied){return false;}}).toList();
+    }
+    boolean knownDeclaration(UUID defender){return !closed&&settings.enabled()&&raids.stream().anyMatch(r->r.defender().equals(defender)&&r.live(System.currentTimeMillis()));}
+    List<RaidStore.Raid> openWars(){return raids.stream().filter(r->r.live(System.currentTimeMillis())).toList();}
+    boolean battle(RaidStore.Raid war){try{return declarations().stream().anyMatch(r->r.id().equals(war.id())&&r.fighting(System.currentTimeMillis()))&&online(war.defender())>=settings.defendersOnline();}catch(Exception|LinkageError denied){return false;}}
     public boolean managed(UUID defender) {
         if(closed||!settings.enabled()||!plugin.isEnabled())return false;
         if(raids.stream().anyMatch(r->r.defender().equals(defender)&&r.live(System.currentTimeMillis())))return true;

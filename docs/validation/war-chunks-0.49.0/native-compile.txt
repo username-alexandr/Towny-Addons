@@ -1,0 +1,8 @@
+/workspace/scratch/eb47b830f6d4/Towny-Addons/scripts/war-chunks-runtime-probe/WarRuntimeProbe.java:99: warning: [removal] EntityDamageByEntityEvent(@org.jetbrains.annotations.NotNull Entity,@org.jetbrains.annotations.NotNull Entity,@org.jetbrains.annotations.NotNull DamageCause,@org.jetbrains.annotations.NotNull DamageSource,double) in EntityDamageByEntityEvent has been deprecated and marked for removal
+        var source=org.bukkit.damage.DamageSource.builder(type).withCausingEntity(from).withDirectEntity(from).build();var event=new EntityDamageByEntityEvent(from,to,cause,source,6);Bukkit.getPluginManager().callEvent(event);return event;
+                                                                                                                                 ^
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: /workspace/scratch/eb47b830f6d4/Towny-Addons/scripts/war-chunks-runtime-probe/WarRuntimeProbe.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+1 warning

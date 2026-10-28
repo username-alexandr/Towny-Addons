@@ -1,0 +1,32 @@
+{
+  "integrity": "ok",
+  "captures": [
+    [
+      "RELEASED",
+      2
+    ]
+  ],
+  "logs": [
+    [
+      "CAPTURED",
+      2
+    ],
+    [
+      "INTERRUPTED",
+      1
+    ],
+    [
+      "RELEASED",
+      2
+    ],
+    [
+      "STARTED",
+      2
+    ],
+    [
+      "TNT_DENIED",
+      1
+    ]
+  ],
+  "unacknowledged_admin_logs": 0
+}

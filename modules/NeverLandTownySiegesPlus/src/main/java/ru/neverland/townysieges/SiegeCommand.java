@@ -39,6 +39,7 @@ public final class SiegeCommand implements TabExecutor {
                     }
                     throw new IllegalArgumentException("/sieges repair <здание> | /sieges repair admin list|show|resolve");
                 }
+                case "chunk"->{if(!(sender instanceof Player p))throw new IllegalArgumentException("Проверка участка доступна в игре: /sieges chunk");plugin.warControl().status(p);}
                 case "hp"->{if(!(sender instanceof Player p))throw new IllegalArgumentException("Посмотрите на блок в игре и выполните /sieges hp");plugin.tnt().health(p);}
                 case "camp"->{if(!(sender instanceof Player p))throw new IllegalArgumentException("Осадный лагерь доступен в игре");if(args.length==1)plugin.camps().menu(p);else if(args.length==2)plugin.camps().register(p,args[1]);else throw new IllegalArgumentException("/sieges camp [город]");}
                 case "loot"->{
@@ -51,14 +52,14 @@ public final class SiegeCommand implements TabExecutor {
                     }
                     throw new IllegalArgumentException("/sieges loot | /sieges loot show <ID> | /sieges loot resolve <ID> <core|debit|credit> <yes|no> confirm <основание>");
                 }
-                default->{tell(sender,"&e/sieges repair <здание> &f— прочность и ремонт из городской казны.");tell(sender,"&e/sieges camp <город> &f— зарегистрировать лагерь у чужого города; &e/sieges camp &f— меню лагеря.");tell(sender,"&e/sieges menu [город] &f— оборонительные постройки и ограничения.");tell(sender,"&e/t sieges &f— открыть меню своего города.");tell(sender,"&e/sieges raid <город> &f— объявить армейский рейд; &e/sieges raid status &f— текущие рейды.");tell(sender,"&e/sieges hp &f— прочность двери или блока под прицелом.");if(sender.hasPermission("neverlandtownysiegesplus.admin"))tell(sender,"&e/sieges raid cancel|history <город> &f— остановка и журнал; &e/sieges reload &f— настройки.");}
+                default->{tell(sender,"&e/sieges chunk &f— захват и правила TNT на текущем участке.");tell(sender,"&e/sieges repair <здание> &f— прочность и ремонт из городской казны.");tell(sender,"&e/sieges camp <город> &f— зарегистрировать лагерь у чужого города; &e/sieges camp &f— меню лагеря.");tell(sender,"&e/sieges menu [город] &f— оборонительные постройки и ограничения.");tell(sender,"&e/t sieges &f— открыть меню своего города.");tell(sender,"&e/sieges raid <город> &f— объявить армейский рейд; &e/sieges raid status &f— текущие рейды.");tell(sender,"&e/sieges hp &f— прочность двери или блока под прицелом.");if(sender.hasPermission("neverlandtownysiegesplus.admin"))tell(sender,"&e/sieges raid cancel|history <город> &f— остановка и журнал; &e/sieges reload &f— настройки.");}
             }
         }catch(Exception|LinkageError e){tell(sender,"&c"+e.getMessage());}
         return true;
     } }
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(!sender.hasPermission("neverlandtownysiegesplus.use"))return List.of();
-        var out=new ArrayList<String>();if(args.length==1){out.addAll(List.of("menu","help","camp","raid","hp","repair"));if(sender.hasPermission("neverlandtownysiegesplus.admin")||sender.isOp())out.addAll(List.of("status","reload","loot"));}
+        var out=new ArrayList<String>();if(args.length==1){out.addAll(List.of("menu","help","camp","raid","hp","repair","chunk"));if(sender.hasPermission("neverlandtownysiegesplus.admin")||sender.isOp())out.addAll(List.of("status","reload","loot"));}
         if(args.length==2&&(args[0].equalsIgnoreCase("menu")||args[0].equalsIgnoreCase("raid")||args[0].equalsIgnoreCase("camp")))TownyAPI.getInstance().getTowns().forEach(t->out.add(t.getName()));
         if(args.length==2&&args[0].equalsIgnoreCase("raid")){out.add("status");if(sender.hasPermission("neverlandtownysiegesplus.admin"))out.addAll(List.of("cancel","history"));}
         if(args.length==3&&args[0].equalsIgnoreCase("raid")&&Set.of("cancel","history").contains(args[1].toLowerCase(Locale.ROOT))&&sender.hasPermission("neverlandtownysiegesplus.admin"))TownyAPI.getInstance().getTowns().forEach(t->out.add(t.getName()));

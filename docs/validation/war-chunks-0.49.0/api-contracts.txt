@@ -1,0 +1,5 @@
+API CONTRACT PASS: ru.neverland.townybuilds.api.BuildingRepairPlansApi (17 signatures/capabilities)
+API CONTRACT PASS: ru.neverland.townysieges.api.TownyWarChunkApi (10 signatures/capabilities)
+API CONTRACT PASS: ru.neverland.townysieges.api.TownySiegesApi (16 signatures/capabilities)
+API CONTRACT PASS: ru.neverland.townysieges.api.TownyRaidRepairApi (10 signatures/capabilities)
+API CONTRACT PASS: ru.neverland.townybuilds.api.RaidStorageApi (19 signatures/capabilities)

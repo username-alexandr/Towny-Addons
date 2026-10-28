@@ -1,4 +1,4 @@
-suite: 0.48.0
+suite: 0.49.0
 platform:
   server: Paper/Purpur/Folia 26.2
   towny: 0.103.2.0
@@ -6,7 +6,7 @@ platform:
   bytecode_java: 17
 addons:
   NeverLandTownyArchaeology: 0.1.23
-  NeverLandTownyBuilds: 0.8.42
+  NeverLandTownyBuilds: 0.8.43
   NeverLandTownyCamps: 0.1.23
   NeverLandTownyChronicles: 0.1.20
   NeverLandTownyContracts: 0.4.2
@@ -39,9 +39,9 @@ addons:
   NeverLandTownyCrime: 0.1.10
   NeverLandTownyJustice: 0.1.10
   NeverLandTownyArmy: 0.1.11
-  NeverLandTownySiegesPlus: 0.4.0
+  NeverLandTownySiegesPlus: 0.5.0
   NeverLandTownySeasons: 0.1.10
-  NeverLandTownyControl: 0.4.18
+  NeverLandTownyControl: 0.4.19
   NeverLandTownyQuests: 0.1.6
   NeverLandTownyAchievements: 0.1.5
   NeverLandTownyEnvironment: 0.1.3

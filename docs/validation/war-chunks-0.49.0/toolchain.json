@@ -1,0 +1,12 @@
+{
+  "java": "Azul Zulu 25.0.5+8-LTS",
+  "compile_target": 17,
+  "folia": "26.2 build 7 / 14b7fee",
+  "folia_sha256": "128a634192261cd38bb4a5dc54075018a0f896fd6c6f529e37dca6e99e32b3b3",
+  "towny": "0.103.2.0",
+  "towny_sha256": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+  "towny_source_commit": "db92beace5fc73a14a3484facbdcbe945f6c4691",
+  "loopback_fixture": true,
+  "authenticated_players": false,
+  "army_camp_admission": "explicit Access policy; production absence fail-closed verified"
+}

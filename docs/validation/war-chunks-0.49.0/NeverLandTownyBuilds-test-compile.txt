@@ -1,0 +1,8 @@
+/workspace/scratch/eb47b830f6d4/Towny-Addons/modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/storage/StorageAccessSmoke.java:10: warning: [removal] HOTBAR_MOVE_AND_READD in InventoryAction has been deprecated and marked for removal
+        for(var a:new InventoryAction[]{InventoryAction.HOTBAR_SWAP,InventoryAction.HOTBAR_MOVE_AND_READD,InventoryAction.SWAP_WITH_CURSOR})
+                                                                                   ^
+Note: /workspace/scratch/eb47b830f6d4/Towny-Addons/modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/ResourceFundSmoke.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: /workspace/scratch/eb47b830f6d4/Towny-Addons/modules/NeverLandTownyBuilds/src/test/java/ru/neverland/townybuilds/construction/ConstructionDisplaysSmoke.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+1 warning

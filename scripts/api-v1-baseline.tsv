@@ -939,14 +939,17 @@ ru.neverland.townybuilds.api.BuildingRepairPlansApi	capabilities():java.util.Set
 ru.neverland.townybuilds.api.BuildingRepairPlansApi	capability canRepair
 ru.neverland.townybuilds.api.BuildingRepairPlansApi	capability plan
 ru.neverland.townybuilds.api.BuildingRepairPlansApi	capability plans
+ru.neverland.townybuilds.api.BuildingRepairPlansApi	capability warPlans
 ru.neverland.townybuilds.api.BuildingRepairPlansApi	default apiVersion()
 ru.neverland.townybuilds.api.BuildingRepairPlansApi	default capabilities()
 ru.neverland.townybuilds.api.BuildingRepairPlansApi	default integrationDiagnostics()
 ru.neverland.townybuilds.api.BuildingRepairPlansApi	default storageMetrics()
+ru.neverland.townybuilds.api.BuildingRepairPlansApi	default warPlans(java.util.UUID)
 ru.neverland.townybuilds.api.BuildingRepairPlansApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
 ru.neverland.townybuilds.api.BuildingRepairPlansApi	plan(java.util.UUID,java.lang.String):java.util.Map<java.lang.String, java.lang.Object> throws []
 ru.neverland.townybuilds.api.BuildingRepairPlansApi	plans(java.util.UUID):java.util.Collection<java.util.Map<java.lang.String, java.lang.Object>> throws []
 ru.neverland.townybuilds.api.BuildingRepairPlansApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.BuildingRepairPlansApi	warPlans(java.util.UUID):java.util.Collection<java.util.Map<java.lang.String, java.lang.Object>> throws []
 ru.neverland.townysieges.api.TownyRaidRepairApi	apiVersion():int throws []
 ru.neverland.townysieges.api.TownyRaidRepairApi	capabilities():java.util.Set<java.lang.String> throws []
 ru.neverland.townysieges.api.TownyRaidRepairApi	capability open
@@ -957,3 +960,14 @@ ru.neverland.townysieges.api.TownyRaidRepairApi	default storageMetrics()
 ru.neverland.townysieges.api.TownyRaidRepairApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
 ru.neverland.townysieges.api.TownyRaidRepairApi	open(org.bukkit.entity.Player,java.lang.String):void throws []
 ru.neverland.townysieges.api.TownyRaidRepairApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+# Suite 0.49.0: temporary war chunk TNT placement.
+ru.neverland.townysieges.api.TownyWarChunkApi	apiVersion():int throws []
+ru.neverland.townysieges.api.TownyWarChunkApi	canPlaceTnt(org.bukkit.entity.Player,org.bukkit.Location):boolean throws []
+ru.neverland.townysieges.api.TownyWarChunkApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townysieges.api.TownyWarChunkApi	capability canPlaceTnt
+ru.neverland.townysieges.api.TownyWarChunkApi	default apiVersion()
+ru.neverland.townysieges.api.TownyWarChunkApi	default capabilities()
+ru.neverland.townysieges.api.TownyWarChunkApi	default integrationDiagnostics()
+ru.neverland.townysieges.api.TownyWarChunkApi	default storageMetrics()
+ru.neverland.townysieges.api.TownyWarChunkApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townysieges.api.TownyWarChunkApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []

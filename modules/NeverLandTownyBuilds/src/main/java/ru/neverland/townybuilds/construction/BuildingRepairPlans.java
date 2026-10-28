@@ -23,9 +23,11 @@ public final class BuildingRepairPlans implements BuildingRepairPlansApi {
     private void ready(){ApiServices.primaryThread();if(!plugin.isEnabled()||SuiteState.frozen(plugin.getName())||!data.writable())throw new IllegalStateException("Здания временно недоступны");}
     public boolean canRepair(Player player,UUID town){try(var g=SuiteState.guard()){ready();var hook=new TownyHook();var own=hook.town(player);return own!=null&&own.getUUID().equals(town)&&(hook.isMayor(player,own)||CouncilAccess.check(player,town,"build",false));}}
     public Collection<Map<String,Object>> plans(UUID town){try(var g=SuiteState.guard()){ready();var out=new ArrayList<Map<String,Object>>();for(String project:data.town(town).constructionSites().keySet()){var plan=plan(town,project);if(!plan.isEmpty())out.add(plan);}return List.copyOf(out);}}
-    public Map<String,Object> plan(UUID town,String project){try(var g=SuiteState.guard()){
+    public Collection<Map<String,Object>> warPlans(UUID town){try(var g=SuiteState.guard()){ready();var out=new ArrayList<Map<String,Object>>();for(var entry:data.town(town).constructionSites().entrySet()){String project=entry.getKey();var completed=geometry(town,project,false);if(!completed.isEmpty())out.add(completed);if(entry.getValue().active()){var target=geometry(town,project,true);if(!target.isEmpty()&&!target.equals(completed))out.add(target);}}return List.copyOf(out);}}
+    public Map<String,Object> plan(UUID town,String project){return geometry(town,project,false);}
+    private Map<String,Object> geometry(UUID town,String project,boolean war){try(var g=SuiteState.guard()){
         ready();var state=data.town(town);var site=state.constructionSite(project);var definition=definitions.project(project);
-        int level=site==null?0:Math.min(state.level(project),site.completedStage());if(definition==null||site==null||level<1||definition.level(level)==null)return Map.of();
+        int level=site==null?0:war&&site.active()?Math.max(site.completedStage(),site.targetStage()):Math.min(state.level(project),site.completedStage());if(definition==null||site==null||level<1||definition.level(level)==null)return Map.of();
         var blueprint=generator.generateForArchitecture(project,level,site.architectureVersion());if(blueprint==null)return Map.of();
         var core=project.equals("town_hall")?Bukkit.getServicesManager().load(RaidStorageApi.class).core(town).orElse(null):null;var cells=new ArrayList<Map<String,Object>>();
         for(var e:blueprint.blocks().entrySet()){

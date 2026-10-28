@@ -1,0 +1,53 @@
+PASS SiegesPlus 0.5.0 and SQLite loaded on real Folia
+PASS Builds 0.8.43 loaded
+PASS production controller fails closed without real Army provider
+PASS offline CraftPlayer handles obey actual Folia region ownership
+PASS baseline Towny pipeline denies PvP without war policy
+PASS Towny's real damage pipeline permits enemy melee during declaration warmup
+PASS defenders can fight invaders in their city
+PASS war does not expose a townless visitor to PvP
+PASS foreign Bukkit damage cancellation retained
+PASS redstone cannot prime TNT in uncaptured city during warmup
+PASS Towny plot PvP and explosion flags were not changed
+PASS warmup expires before capture tests
+PASS Towny refuses attacker TNT placement before capture
+PASS uncaptured city blocks TNT priming cause FIRE
+PASS uncaptured city blocks TNT priming cause REDSTONE
+PASS uncaptured city blocks TNT priming cause PLAYER
+PASS uncaptured city blocks TNT priming cause EXPLOSION
+PASS uncaptured city blocks TNT priming cause PROJECTILE
+PASS uncaptured city blocks TNT priming cause BLOCK_BREAK
+PASS uncaptured city blocks TNT priming cause DISPENSER
+PASS priming outside city remains allowed
+PASS dispenser TNT blocked before item consumption
+PASS dropper can still drop an unlit TNT item
+PASS direct TNT spawn cannot bypass uncaptured city guard
+PASS real arrow resolves enemy shooter through Towny
+PASS attributed TNT damages enemy through both Towny explosion and PvP checks
+PASS attributed TNT cannot exploit war to hurt townless visitor
+PASS Towny respawn shield is retained during war
+PASS war geometry includes unfinished first-level construction
+PASS unfinished construction remains ineligible for completed-building repairs
+PASS chunk containing two registered buildings begins locked
+PASS defender contests empty chunk before capture
+PASS spectator cannot occupy a chunk
+PASS empty chunk becomes usable only after observed occupation
+PASS Towny permits narrow TNT placement after capture
+PASS capture grants no general building permission
+PASS redstone primes TNT in captured chunk
+PASS captured chunk does not grant TNT permission to visitors
+PASS adjacent uncaptured chunk remains locked
+PASS demobilization removes attacker's TNT placement exception
+PASS temporary camp unavailability suspends capture permission
+PASS camp availability recovery restores the same saved capture
+PASS real TNT launched outside city destroys the first registered part through HP
+PASS another building part in the chunk prevents early capture
+PASS last building part physically destroyed
+PASS chunk with demolished building parts is captured without empty-plot delay
+PASS shared admin journal contains capture with actor and coordinates
+PASS blocked TNT ignition is logged
+PASS construction site and Towny both allow TNT in captured building footprint
+PASS attacker can recover unlit TNT from captured building footprint
+PASS foreign block protection is retained after capture
+PASS admin menu separates chunk captures from rejected TNT ignition
+PASS all HP callbacks released Folia block watches

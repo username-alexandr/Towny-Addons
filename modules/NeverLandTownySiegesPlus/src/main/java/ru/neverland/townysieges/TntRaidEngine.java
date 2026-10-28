@@ -78,7 +78,7 @@ public final class TntRaidEngine implements Listener,AutoCloseable {
     public void piston(BlockPistonExtendEvent e){try(var guard=SuiteState.guard()){if(!closed&&loaded)for(Block block:e.getBlocks()){changed(block);changed(block.getRelative(e.getDirection()));}}}
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)
     public void retract(BlockPistonRetractEvent e){try(var guard=SuiteState.guard()){if(!closed&&loaded)for(Block block:e.getBlocks()){changed(block);changed(block.getRelative(e.getDirection()));}}}
-    private UUID owner(Entity entity) {
+    UUID owner(Entity entity) {
         if(entity instanceof Player player)return player.getUniqueId();
         if(entity instanceof Projectile projectile&&projectile.getShooter() instanceof Player player)return player.getUniqueId();
         if(entity instanceof TNTPrimed tnt) {
@@ -176,6 +176,7 @@ public final class TntRaidEngine implements Listener,AutoCloseable {
                                     if(town!=null&&town.getUUID().equals(permit.defender())&&block.getType().name().equals(result.hit().material())&&!(block.getState(false) instanceof TileState)) {
                                         if(block.getBlockData() instanceof Door){Block top=block.getRelative(0,1,0);if(top.getType()==block.getType())top.setType(Material.AIR,false);}
                                         block.setType(Material.AIR,false);destroyed=true;if(result.hit().project().isEmpty())damaged.remove(k.id());
+                                        if(plugin.warControl()!=null)plugin.warControl().destroyed(permit,k);
                                     }
                                 }}finally{store.finish(result,destroyed);}
                             }
@@ -200,6 +201,7 @@ public final class TntRaidEngine implements Listener,AutoCloseable {
                     Block current=world.getBlockAt(k.x(),k.y(),k.z());var town=TownyAPI.getInstance().getTown(current.getLocation());
                     if(town==null||!town.getUUID().equals(permit.defender())||!plugin.loot().core(town.getUUID(),current)||!Arrays.equals(book,book(current)))return;
                     current.setType(Material.AIR,false);if(hit.project().isEmpty())damaged.remove(k.id());destroyed=true;
+                    if(plugin.warControl()!=null)plugin.warControl().destroyed(permit,k);
                 }finally{
                     store.finish(result,destroyed);release(hit);
                     if(loot.state().equals("ARMED"))plugin.loot().store().change(loot.id(),"ARMED",destroyed?"BREACHED":"VOID",destroyed?"authorized TNT destroyed registered town hall core":"world changed before core destruction");

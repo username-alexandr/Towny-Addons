@@ -1,0 +1,2 @@
+Note: /workspace/scratch/eb47b830f6d4/Towny-Addons/modules/NeverLandTownyControl/src/test/java/ru/neverland/core/SuiteSchedulerSmoke.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.

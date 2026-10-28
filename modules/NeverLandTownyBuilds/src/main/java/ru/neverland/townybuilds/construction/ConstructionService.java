@@ -316,6 +316,7 @@ public final class ConstructionService implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlace(BlockPlaceEvent event) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+        if(raidTnt(event.getPlayer(),event.getBlockPlaced()))return;
         LocatedBlock located = locate(event.getBlockPlaced().getLocation(), true);
         if (located == null) return;
         Town playerTown = towny.town(event.getPlayer());
@@ -367,8 +368,15 @@ public final class ConstructionService implements Listener {
         });
     } }
 
+    private boolean raidTnt(Player player,Block block){
+        if(block.getType()!=Material.TNT||!Bukkit.getPluginManager().isPluginEnabled("NeverLandTownySiegesPlus"))return false;
+        try{var war=ru.neverland.core.ApiServices.require("NeverLandTownySiegesPlus","ru.neverland.townysieges.api.TownyWarChunkApi","canPlaceTnt");
+            return Boolean.TRUE.equals(war.invoke("canPlaceTnt",new Class<?>[]{Player.class,Location.class},player,block.getLocation()));
+        }catch(Exception|LinkageError unavailable){return false;}
+    }
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBreak(BlockBreakEvent event) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+        if(raidTnt(event.getPlayer(),event.getBlock()))return;
         LocatedBlock located = locate(event.getBlock().getLocation(), false);
         if (located == null || event.getPlayer().hasPermission("neverlandtownybuilds.admin.bypass")) return;
         event.setCancelled(true);

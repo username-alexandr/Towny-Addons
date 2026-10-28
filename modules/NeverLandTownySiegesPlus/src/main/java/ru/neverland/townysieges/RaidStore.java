@@ -50,6 +50,7 @@ public final class RaidStore implements AutoCloseable {
             RaidRepairsStore.initialize(db);
             RaidLootStore.initialize(db);
             RaidCamps.initialize(db);
+            WarCaptureStore.initialize(db);
             healthy=true;return null;
         });
     }

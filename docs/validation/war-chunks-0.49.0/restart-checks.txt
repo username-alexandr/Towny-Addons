@@ -1,0 +1,14 @@
+PASS SiegesPlus 0.5.0 and SQLite loaded on real Folia
+PASS Builds 0.8.43 loaded
+PASS production controller fails closed without real Army provider
+PASS offline CraftPlayer handles obey actual Folia region ownership
+PASS same active war recovered from SQLite
+PASS empty chunk capture survives full Folia restart for the same war
+PASS demolished building chunk capture survives full restart
+PASS uncaptured neighbor remains locked after restart
+PASS restart keeps exactly one admin receipt per captured chunk
+PASS new war identity cannot inherit captured chunks
+PASS cancellation immediately removes placement exception
+PASS Towny peaceful PvP applies again after cancellation
+PASS war ending durably logs release of temporary chunks
+PASS all HP callbacks released Folia block watches

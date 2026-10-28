@@ -1,0 +1,23 @@
+[
+  {
+    "file": "NeverLandTownyBuilds-0.8.43.jar",
+    "sha256": "ef6471c54accf175f89c8a5e741b6b4080df6b788c1cbc39f70df15f8b0f27bd",
+    "size": 845722,
+    "bytecode_java": 17,
+    "runtime_java": 25
+  },
+  {
+    "file": "NeverLandTownySiegesPlus-0.5.0.jar",
+    "sha256": "2f7502a82aedd9a99d4ad3ceeb88a9999497dad4a332f49b1dea83d378d503e1",
+    "size": 364600,
+    "bytecode_java": 17,
+    "runtime_java": 25
+  },
+  {
+    "file": "NeverLandTownyControl-0.4.19.jar",
+    "sha256": "7e6c43a88478fbce53afc90a707d34f32285801eca856c1f6b289c69e9aeb13e",
+    "size": 276969,
+    "bytecode_java": 17,
+    "runtime_java": 25
+  }
+]
