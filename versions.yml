@@ -22,7 +22,7 @@ addons:
   NeverLandTownyPopulation: 0.1.23
   NeverLandTownyDistricts: 0.1.21
   NeverLandTownyLogistics: 0.2.0
-  NeverLandTownyResources: 0.1.24
+  NeverLandTownyResources: 0.2.0
   NeverLandTownyUpkeep: 0.1.21
   NeverLandTownyPower: 0.1.17
   NeverLandTownyResearch: 0.1.18
@@ -41,7 +41,7 @@ addons:
   NeverLandTownyArmy: 0.2.0
   NeverLandTownySiegesPlus: 0.6.1
   NeverLandTownySeasons: 0.1.10
-  NeverLandTownyControl: 0.5.1
+  NeverLandTownyControl: 0.5.2
   NeverLandTownyQuests: 0.2.0
   NeverLandTownyAchievements: 0.1.5
   NeverLandTownyEnvironment: 0.2.0

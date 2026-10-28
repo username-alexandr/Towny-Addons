@@ -2,7 +2,7 @@ package ru.neverland.townyresources.api;
 import java.util.*;
 /** Immutable snapshots; reservation mutations require the server thread and durable receipts. */
 public interface TownyResourcesApi extends ru.neverland.core.ApiContract {
-    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("reserveResources", "settleResources", "forgetReservation", "productionWeeks", "reservationStatus", "reservations", "residentResources", "resources", "towns"); }
+    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("reserveResources", "settleResources", "forgetReservation", "productionWeeks", "reservationStatus", "reservations", "residentResources", "resources", "towns", "requestResources", "fundRequest", "resourceRequests", "resourceDeficits"); }
     Optional<ResourceSnapshot> resources(UUID townId);
     Optional<ResourceSnapshot> residentResources(UUID residentId);
     Collection<ResourceSnapshot> towns();
@@ -14,4 +14,9 @@ public interface TownyResourcesApi extends ru.neverland.core.ApiContract {
     String reservationStatus(UUID invoice);
     Map<UUID,String> reservations();
     void forgetReservation(UUID invoice) throws java.io.IOException;
+    /** Optional v2: explicit unfunded plans, separate from the legacy upkeep escrow API. Amounts are thousandths. */
+    default void requestResources(UUID town,String label,Map<String,Long> amounts,UUID actor)throws java.io.IOException{throw new UnsupportedOperationException();}
+    default boolean fundRequest(UUID town,String label)throws java.io.IOException{throw new UnsupportedOperationException();}
+    default Collection<Map<String,Object>> resourceRequests(UUID town){throw new UnsupportedOperationException();}
+    default Map<String,Long> resourceDeficits(UUID town){throw new UnsupportedOperationException();}
 }

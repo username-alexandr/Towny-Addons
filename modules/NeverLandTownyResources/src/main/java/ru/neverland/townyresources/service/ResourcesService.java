@@ -66,13 +66,11 @@ public final class ResourcesService implements TownyResourcesApi {
         Amounts.valid(value);if(value>Amounts.MAX-repository.held(id).get(r))throw new IllegalArgumentException("Часть предельного запаса занята резервом обслуживания");var snapshot=resources(id).orElseThrow();if(value>old&&value>snapshot.capacity().get(r))throw new IllegalArgumentException("Не хватает вместимости");change(id,s.balance(r,value));
     } }
     private void thread(){if(!ru.neverland.core.SuiteState.held())throw new IllegalStateException("Нужен основной поток сервера");}
-    private void afterReservation(){
+    private void afterReservation(UUID town){
         // Publish committed balances without recalculating every town for every payment phase.
         // Production and forecasts refresh on the regular five-second task.
-        var next=new HashMap<UUID,ResourceSnapshot>();for(var view:cache.towns().values()){
-            var state=repository.states().get(view.townId());if(state==null)continue;
-            next.put(view.townId(),new ResourceSnapshot(view.townId(),view.townName(),view.population(),view.populationLinked(),view.paused(),view.status(),view.nextCycle(),state,view.capacity(),view.forecastIncome(),view.forecastExpense(),view.populationDemand(),view.buildings(),view.foodCoverage(),view.waterCoverage()));
-        }cache=new Cache(Map.copyOf(next),cache.residents());
+        var view=cache.towns().get(town);var state=repository.states().get(town);if(view==null||state==null)return;
+        var next=new HashMap<>(cache.towns());next.put(town,new ResourceSnapshot(town,view.townName(),view.population(),view.populationLinked(),view.paused(),view.status(),view.nextCycle(),state,view.capacity(),view.forecastIncome(),view.forecastExpense(),view.populationDemand(),view.buildings(),view.foodCoverage(),view.waterCoverage()));cache=new Cache(Map.copyOf(next),cache.residents());
     }
     @Override public boolean reserveResources(UUID invoice,UUID town,Map<String,Long> amounts)throws IOException{ try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
         thread();var existing=repository.reservations().get(invoice);var cost=new EnumMap<Resource,Long>(Resource.class);
@@ -80,9 +78,9 @@ public final class ResourcesService implements TownyResourcesApi {
         // An existing receipt must remain inspectable during an integration outage.
         var s=existing==null?state(town):repository.states().get(town);var keep=Amounts.mutable(s==null?Map.of():s.reserves());
         if(existing==null){var view=resources(town).orElseThrow();if(view.paused())throw new IllegalStateException("Расчёт ресурсов временно недоступен");for(var r:Resource.values())keep.put(r,Math.max(keep.get(r),view.populationDemand().get(r)));}
-        boolean reserved=repository.reserve(invoice,town,cost,keep);if(reserved&&existing==null)afterReservation();return reserved;
+        boolean reserved=repository.reserve(invoice,town,cost,keep);if(reserved&&existing==null)afterReservation(town);return reserved;
     } }
-    @Override public void settleResources(UUID invoice,boolean consume)throws IOException{ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {thread();repository.settle(invoice,consume);afterReservation();} }
+    @Override public void settleResources(UUID invoice,boolean consume)throws IOException{ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {thread();var prior=repository.reservations().get(invoice);if(prior!=null&&!prior.purpose().isEmpty())throw new IllegalArgumentException("Используйте управление целевыми планами");repository.settle(invoice,consume);if(prior!=null)afterReservation(prior.town());} }
     @Override public String reservationStatus(UUID invoice){ try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {thread();var r=repository.reservations().get(invoice);return r==null?"NONE":r.status().name();} }
     @Override public Map<UUID,String> reservations(){ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {thread();Map<UUID,String> out=new HashMap<>();repository.reservations().forEach((id,r)->out.put(id,r.status().name()));return Map.copyOf(out);} }
     @Override public void forgetReservation(UUID invoice)throws IOException{ try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {thread();repository.forget(invoice);} }
@@ -91,4 +89,35 @@ public final class ResourcesService implements TownyResourcesApi {
     @Override public Optional<ResourceSnapshot> residentResources(UUID id){ try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {var current=cache;var town=id==null?null:current.residents().get(id);return Optional.ofNullable(town==null?null:current.towns().get(town));} }
     @Override public Map<String,Map<String,Long>> productionWeeks(UUID town){ try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {thread();return repository.productionWeeks(town);} }
     @Override public Collection<ResourceSnapshot> towns(){ try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {return List.copyOf(cache.towns().values());} }
+    @Override public void requestResources(UUID town,String label,Map<String,Long> amounts,UUID actor)throws IOException{try(var guard=ru.neverland.core.SuiteState.guard()){
+        thread();state(town);var cost=new EnumMap<Resource,Long>(Resource.class);for(var entry:amounts.entrySet())if(cost.put(Resource.parse(entry.getKey()),Amounts.valid(entry.getValue()))!=null)throw new IllegalArgumentException("Повтор ресурса");
+        var receipt=repository.request(ResourceRequests.id(town,label),town,cost,label,actor,System.currentTimeMillis());audit(ResourceRequests.id(town,label),receipt);
+    }}
+    private Map<Resource,Long> minimum(UUID town){
+        var state=state(town);var view=resources(town).orElseThrow();if(view.paused())throw new IllegalStateException("Расчёт временно недоступен; план и ресурсы сохранены");
+        var keep=Amounts.mutable(state.reserves());for(var r:Resource.values())keep.put(r,Math.max(keep.get(r),view.populationDemand().get(r)));return keep;
+    }
+    @Override public boolean fundRequest(UUID town,String label)throws IOException{return fundRequest(town,label,null);}
+    public boolean fundRequest(UUID town,String label,UUID actor)throws IOException{try(var guard=ru.neverland.core.SuiteState.guard()){
+        thread();UUID id=ResourceRequests.id(town,label);boolean funded=repository.fund(id,minimum(town),actor);if(funded){afterReservation(town);audit(id,repository.reservations().get(id));}return funded;
+    }}
+    public void finishRequest(UUID town,String label,boolean consume,UUID actor)throws IOException{try(var guard=ru.neverland.core.SuiteState.guard()){
+        thread();state(town);UUID id=ResourceRequests.id(town,label);var receipt=repository.reservations().get(id);if(receipt==null||!receipt.town().equals(town)||!receipt.purpose().equals(label))throw new IllegalArgumentException("Целевой план не найден");
+        repository.settle(id,consume,actor);afterReservation(town);audit(id,repository.reservations().get(id));
+    }}
+    @Override public Collection<Map<String,Object>> resourceRequests(UUID town){try(var guard=ru.neverland.core.SuiteState.guard()){
+        var out=new ArrayList<Map<String,Object>>();repository.reservations().entrySet().stream().filter(e->e.getValue().town().equals(town)&&!e.getValue().purpose().isEmpty()).sorted(Comparator.comparingLong(e->e.getValue().created())).forEach(e->{
+            var r=e.getValue();var amounts=new LinkedHashMap<String,Long>();r.amounts().forEach((resource,n)->{if(n>0)amounts.put(resource.id(),n);});out.add(Map.of("id",e.getKey().toString(),"label",r.purpose(),"status",r.status().name(),"actor",r.actor(),"created",r.created(),"amounts",Map.copyOf(amounts)));
+        });return List.copyOf(out);
+    }}
+    @Override public Map<String,Long> resourceDeficits(UUID town){try(var guard=ru.neverland.core.SuiteState.guard()){
+        var view=resources(town).orElseThrow();if(view.paused())throw new IllegalStateException("Прогноз снабжения временно недоступен");
+        var values=ResourceRequests.deficits(town,repository.reservations().values(),view.state(),view.populationDemand());var out=new LinkedHashMap<String,Long>();values.forEach((r,n)->out.put(r.id(),n));return Map.copyOf(out);
+    }}
+    private void audit(UUID id,Reservation receipt){
+        UUID actor=receipt.changedBy().isEmpty()?null:UUID.fromString(receipt.changedBy());
+        String detail="План "+receipt.purpose()+"; "+receipt.amounts().entrySet().stream().filter(e->e.getValue()>0).map(e->e.getKey().title+"="+Amounts.decimal(e.getValue())).collect(java.util.stream.Collectors.joining(", "));
+        String outcome=switch(receipt.status()){case REQUESTED->"SUPPLY_REQUESTED";case HELD->"SUPPLY_HELD";case RELEASED->"SUPPLY_RETURNED";case CONSUMED->"CONSUMED";};
+        if(!ru.neverland.core.AuditTrail.record(plugin,"resources-plan",id+":"+receipt.status(),"PURPOSE_RESOURCES",outcome,actor==null?ru.neverland.core.AuditRecord.Party.system():ru.neverland.core.AuditTrail.player(actor),ru.neverland.core.AuditTrail.town(receipt.town()),ru.neverland.core.AuditTrail.town(receipt.town()),"",0,"",detail))plugin.getLogger().warning("План ресурсов сохранён, запись общего журнала требует проверки: "+id);
+    }
 }

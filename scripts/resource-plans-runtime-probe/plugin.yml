@@ -1,0 +1,6 @@
+name: TntRuntimeProbe
+version: 8.0
+main: ru.neverland.runtime.ResourcePlansProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyContracts, NeverLandTownySiegesPlus, NeverLandTownyResources, NeverLandTownyControl]

@@ -30,11 +30,15 @@ public final class ResourcesCommand implements CommandExecutor,TabCompleter {
         }
         if(!(sender instanceof Player player))throw new IllegalArgumentException("Эта команда выполняется в игре");
         if(!player.hasPermission("neverlandtownyresources.use"))throw new IllegalArgumentException("Недостаточно прав");Town town=service.town(player);if(town==null)throw new IllegalArgumentException("Вы не состоите в городе");UUID id=town.getUUID();
-        if(action.equals("menu")||action.equals("buildings")){menu.open(player,id,action,null,args.length>1?Integer.parseInt(args[1]):0);return;}
+        if(Set.of("menu","buildings","needs","plans").contains(action)){menu.open(player,id,action,null,args.length>1?Integer.parseInt(args[1]):0);return;}
         if(action.equals("info")){count(args,2,"/t resources info <здание>");service.profile(args[1]);menu.open(player,id,"info",args[1],0);return;}
-        if(action.equals("help")){Ui.tell(player,"&e/t resources &7— запасы и баланс; buildings — вклад зданий.");Ui.tell(player,"&einfo <здание>; pause/resume <здание>; priority <здание> <0..100>.");Ui.tell(player,"&ekeep <ресурс> <количество> &7— резерв для расходов зданий.");return;}
+        if(action.equals("help")){Ui.tell(player,"&e/t resources &7— запасы и баланс; buildings — вклад зданий.");Ui.tell(player,"&einfo <здание>; pause/resume <здание>; priority <здание> <0..100>.");Ui.tell(player,"&ekeep <ресурс> <количество> &7— неприкосновенный минимум.");Ui.tell(player,"&eplans / needs &7— целевые планы и чего не хватает.");Ui.tell(player,"&eplan <название> wood=100,stone=25.5 &7— заявка без списания.");Ui.tell(player,"&efund / release <название> &7— зарезервировать всё / вернуть резерв.");Ui.tell(player,"&econsume <название> confirm &7— окончательно потратить обеспеченный резерв.");return;}
         if(!service.manager(player,town))throw new IllegalArgumentException("Нужны права мэра, помощника или управляющего ресурсами");
         switch(action){
+            case "plan"->{count(args,3,"/t resources plan <название> wood=100,stone=25.5");var cost=new LinkedHashMap<String,Long>();ResourceRequests.parse(args[2]).forEach((r,n)->cost.put(r.id(),n));service.requestResources(id,args[1],cost,player.getUniqueId());Ui.tell(player,"&aПлан сохранён. Ресурсы ещё не списаны; пополните запасы и нажмите «Обеспечить план».");menu.open(player,id,"plans",null,0);return;}
+            case "fund"->{count(args,2,"/t resources fund <название>");if(!service.fundRequest(id,args[1],player.getUniqueId())){Ui.tell(player,"&eНе хватает свободных ресурсов. Минимальный запас и питание жителей сохранены.");menu.open(player,id,"needs",null,0);return;}Ui.tell(player,"&aРесурсы целиком отложены для плана. Повторное нажатие ничего не списывает.");menu.open(player,id,"plans",null,0);return;}
+            case "release"->{count(args,2,"/t resources release <название>");service.finishRequest(id,args[1],false,player.getUniqueId());Ui.tell(player,"&aПлан отменён. Обеспеченный резерв возвращён в запасы города.");menu.open(player,id,"plans",null,0);return;}
+            case "consume"->{count(args,3,"/t resources consume <название> confirm — окончательно израсходовать резерв");if(!args[2].equalsIgnoreCase("confirm"))throw new IllegalArgumentException("Подтвердите расход словом confirm; вернуть потраченный резерв нельзя");service.finishRequest(id,args[1],true,player.getUniqueId());Ui.tell(player,"&aРасход ресурсов плана сохранён в журнале.");menu.open(player,id,"plans",null,0);return;}
             case "pause","resume"->{count(args,2,"/t resources "+action+" <здание>");service.pause(id,args[1],action.equals("pause"));}
             case "priority"->{count(args,3,"/t resources priority <здание> <0..100>");service.priority(id,args[1],Integer.parseInt(args[2]));}
             case "keep"->{count(args,3,"/t resources keep <ресурс> <количество>");service.reserve(id,Resource.parse(args[1]),Amounts.parse(args[2]));}
@@ -44,7 +48,9 @@ public final class ResourcesCommand implements CommandExecutor,TabCompleter {
     }
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         List<String> options=new ArrayList<>();boolean admin=sender.hasPermission("neverlandtownyresources.admin");
-        if(args.length==1){if(admin)options.addAll(List.of("reload","set","add","take","town"));if(sender.hasPermission("neverlandtownyresources.use"))options.addAll(List.of("menu","buildings","info","help","pause","resume","priority","keep"));}
+        if(args.length==1){if(admin)options.addAll(List.of("reload","set","add","take","town"));if(sender.hasPermission("neverlandtownyresources.use"))options.addAll(List.of("menu","buildings","info","help","pause","resume","priority","keep","plans","needs","plan","fund","release","consume"));}
+        else if(args.length==2&&Set.of("fund","release","consume").contains(args[0])&&sender instanceof Player player){var town=service.town(player);if(town!=null)for(var row:service.resourceRequests(town.getUUID()))options.add((String)row.get("label"));}
+        else if(args.length==3&&args[0].equals("consume"))options.add("confirm");
         else if(args.length==2&&Set.of("info","pause","resume","priority").contains(args[0]))options.addAll(service.settings().buildings().keySet());
         else if((args.length==2&&args[0].equals("keep"))||(args.length==3&&admin&&Set.of("set","add","take").contains(args[0])))for(var r:Resource.values())options.add(r.id());
         else if(args.length==2&&admin&&Set.of("set","add","take","town").contains(args[0]))for(var town:TownyAPI.getInstance().getTowns())options.add(town.getName());

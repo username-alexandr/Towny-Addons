@@ -21,9 +21,9 @@ public final class ResourcesMenu implements Listener {
     public void open(Player p,UUID id,String kind,String project,int requested){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(!access(p,id)){tell(p,"&cНет доступа к ресурсам этого города.");return;}
         var s=service.resources(id).orElse(null);if(s==null){tell(p,"Первый расчёт города ещё не выполнен.");return;}
-        int pages=Math.max(1,(service.settings().buildings().size()+35)/36);int page=Math.max(0,Math.min(pages-1,requested));var view=new View(id,kind,project,page);
-        view.inventory=ru.neverland.core.MenuStyle.inventory(plugin, view,54,color("&2"+(kind.equals("buildings")?"Производство города":kind.equals("info")?"Ресурсы здания":"Городские ресурсы")));
-        if(kind.equals("buildings"))buildings(p,view,s,pages);else if(kind.equals("info"))detail(p,view,s);else overview(p,view,s);
+        int size=kind.equals("plans")?service.resourceRequests(id).size():service.settings().buildings().size();int pages=Math.max(1,(size+35)/36);int page=Math.max(0,Math.min(pages-1,requested));var view=new View(id,kind,project,page);
+        view.inventory=ru.neverland.core.MenuStyle.inventory(plugin, view,54,color("&2"+(kind.equals("buildings")?"Производство города":kind.equals("info")?"Ресурсы здания":kind.equals("plans")?"Целевые планы":kind.equals("needs")?"Чего не хватает":kind.equals("request")?"Снабжение плана":"Городские ресурсы")));
+        if(kind.equals("buildings"))buildings(p,view,s,pages);else if(kind.equals("info"))detail(p,view,s);else if(kind.equals("plans"))plans(p,view,pages);else if(kind.equals("needs"))needs(p,view);else if(kind.equals("request"))request(p,view);else overview(p,view,s);
         button(view,49,Material.SUNFLOWER,"&aОбновить",List.of("Показать текущие запасы и прогноз."),()->open(p,id,kind,project,page));p.openInventory(view.inventory);
     } }
     private void overview(Player p,View v,ResourceSnapshot s){
@@ -36,6 +36,8 @@ public final class ResourcesMenu implements Listener {
         }
         button(v,40,Material.BREAD,"&eСнабжение населения",List.of(s.populationLinked()?"Население: "+s.population():"Связь с населением отключена","Продовольствие: "+percent(s.foodCoverage())+"%; вода: "+percent(s.waterCoverage())+"%","Питание жителей защищено от расходов зданий."),null);
         button(v,45,Material.BRICKS,"&aЗдания и производства",List.of("Приоритет, расход, выпуск и остановки."),()->open(p,v.town,"buildings",null,0));
+        button(v,46,Material.WRITABLE_BOOK,"&eЧего не хватает",List.of("Дефицит снабжения всех открытых планов.","Неприкосновенный минимум не тратится."),()->open(p,v.town,"needs",null,0));
+        button(v,47,Material.BARREL,"&aЦелевые планы",List.of("Отложить запасы для конкретной цели.","У каждой цели свой сохранённый резерв."),()->open(p,v.town,"plans",null,0));
         button(v,48,Material.CLOCK,"&fСледующий цикл",List.of(s.paused()?"Расчёт приостановлен":"Примерно через "+Math.max(0,(s.nextCycle()-System.currentTimeMillis()+999)/1000)+" сек.","Простой сервера не начисляет ресурсы."),null);
         if(Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyPolicies"))button(v,52,Material.WRITABLE_BOOK,"&eГородские указы",List.of("Политики, преимущества и издержки."),()->p.performCommand("townypolicies"));
         if(Bukkit.getPluginManager().isPluginEnabled("NeverLandTownySpecialization"))button(v,51,Material.NETHER_STAR,"&eСпециализация",List.of("Направление и уникальные городские здания."),()->p.performCommand("townyspecialization"));
@@ -58,6 +60,33 @@ public final class ResourcesMenu implements Listener {
         button(v,45,Material.ARROW,"&aВсе здания",List.of(),()->open(p,v.town,"buildings",null,0));
     }
     private interface Edit {void run()throws java.io.IOException;}
+    private static String status(String state){return switch(state){case "REQUESTED"->"Ожидает снабжения";case "HELD"->"Ресурсы отложены";case "CONSUMED"->"Израсходовано";case "RELEASED"->"Отменено, резерв возвращён";default->"Недоступно";};}
+    private List<String> requestAmounts(Map<String,Object> row){var lines=new ArrayList<String>();var amounts=(Map<?,?>)row.get("amounts");for(var r:Resource.values()){Object raw=amounts.get(r.id());if(raw instanceof Number n&&n.longValue()>0)lines.add(service.settings().display().get(r).name()+": "+amount(n.longValue()));}return lines;}
+    private void plans(Player p,View v,int pages){
+        var rows=new ArrayList<>(service.resourceRequests(v.town));
+        for(int i=v.page*36;i<Math.min(rows.size(),(v.page+1)*36);i++){
+            var row=rows.get(i);var lore=requestAmounts(row);String state=(String)row.get("status");lore.add(0,status(state));lore.add("Нажмите для управления планом.");String label=(String)row.get("label");button(v,i%36,state.equals("HELD")?Material.CHEST:state.equals("REQUESTED")?Material.PAPER:Material.BOOK,"&e"+label,lore,()->open(p,v.town,"request",label,0));
+        }
+        if(rows.isEmpty())button(v,13,Material.PAPER,"&eПока нет планов",List.of("Мэр создаёт план командой:","/t resources plan spawn wood=100,stone=50","Запасы ещё не расходуются."),null);
+        if(v.page>0)button(v,45,Material.ARROW,"&aНазад",List.of(),()->open(p,v.town,"plans",null,v.page-1));
+        button(v,46,Material.BELL,"&aЗапасы города",List.of("Страница "+(v.page+1)+" / "+pages),()->open(p,v.town,"menu",null,0));button(v,48,Material.WRITABLE_BOOK,"&eОбщий дефицит",List.of("Что нужно доставить для открытых планов."),()->open(p,v.town,"needs",null,0));
+        if(v.page+1<pages)button(v,53,Material.ARROW,"&aДалее",List.of(),()->open(p,v.town,"plans",null,v.page+1));
+    }
+    private void needs(Player p,View v){
+        Map<String,Long> deficits;try{deficits=service.resourceDeficits(v.town);}catch(Exception error){button(v,13,Material.BARRIER,"&eПрогноз недоступен",List.of(error.getMessage(),"Запасы и планы сохранены."),null);return;}
+        int[] slots={10,12,14,16,28,30,32,34};int i=0;
+        for(var r:Resource.values()){long needed=deficits.get(r.id());var display=service.settings().display().get(r);button(v,slots[i++],icon(display.icon()),"&e"+display.name(),List.of("Нужно дополнительно: "+amount(needed),"Сумма всех планов, ожидающих снабжения.","Свободный запас вычтен один раз.","Питание жителей и минимум защищены.","Заявка сама не создаёт деньги или ресурсы."),null);}
+        button(v,45,Material.ARROW,"&aЦелевые планы",List.of(),()->open(p,v.town,"plans",null,0));
+    }
+    private void request(Player p,View v){
+        var row=service.resourceRequests(v.town).stream().filter(r->r.get("label").equals(v.project)).findFirst().orElse(null);if(row==null){tell(p,"План больше не найден.");return;}
+        String state=(String)row.get("status");var lore=requestAmounts(row);lore.add(0,status(state));button(v,13,Material.BOOK,"&e"+v.project,lore,null);
+        if(state.equals("REQUESTED"))button(v,20,Material.CHEST,"&aОбеспечить план",List.of("Зарезервировать всю указанную сумму ресурсов.","При нехватке ничего не списывается.","Минимум города и питание жителей защищены."),()->manageRequest(p,v,()->{if(!service.fundRequest(v.town,v.project,p.getUniqueId()))throw new IllegalStateException("Не хватает свободных ресурсов. Откройте общий дефицит.");}));
+        if(state.equals("REQUESTED")||state.equals("HELD"))button(v,24,Material.RED_DYE,"&eОтменить план",List.of("Весь отложенный запас вернётся городу.","У неподтверждённой заявки возврата нет:","ресурсы на неё ещё не списывались."),()->manageRequest(p,v,()->service.finishRequest(v.town,v.project,false,p.getUniqueId())));
+        if(state.equals("HELD"))button(v,31,Material.FURNACE,"&eОкончательный расход",List.of("После использования ресурсов подтвердите:","/t resources consume "+v.project+" confirm","Повтор команды не списывает запас ещё раз.","Потраченные ресурсы вернуть нельзя."),null);
+        button(v,45,Material.ARROW,"&aВсе планы",List.of(),()->open(p,v.town,"plans",null,0));
+    }
+    private void manageRequest(Player p,View v,Edit action){var town=service.town(p);if(town==null||!town.getUUID().equals(v.town)||!service.manager(p,town)){tell(p,"&cУправлять планами может мэр или управляющий ресурсами.");return;}try{action.run();open(p,v.town,"request",v.project,0);}catch(Exception error){tell(p,"&e"+error.getMessage());}}
     private void manage(Player p,View v,Edit action){var town=service.town(p);if(town==null||!town.getUUID().equals(v.town)||!service.manager(p,town)){tell(p,"&cНедостаточно прав для управления этим городом.");return;}
         try{action.run();open(p,v.town,"info",v.project,0);}catch(Exception ex){tell(p,"&cОперация не завершена: "+ex.getMessage());}}
     private static String percent(double n){return String.format(Locale.forLanguageTag("ru-RU"),"%.1f",n*100);}

@@ -1,0 +1,6 @@
+PASS real Resources 0.2 service enabled
+PASS funded plan balance and escrow survive full Folia restart
+PASS unfunded demand survives full restart
+PASS real command cannot debit funded plan twice after restart
+PASS real cancellation command refunds held stock exactly once
+PASS cancelling unprovided request never creates stock

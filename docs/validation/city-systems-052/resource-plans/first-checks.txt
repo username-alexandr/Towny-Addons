@@ -1,0 +1,10 @@
+PASS real Resources 0.2 service enabled
+PASS ordinary resident cannot create a resource plan
+PASS actual mayor command creates two requests without spending
+PASS registered API aggregates deficits and protects mayor minimum
+PASS fund command fully escrows available resources
+PASS short second plan cannot consume minimum or partly debit
+PASS final consumption requires literal confirmation
+PASS native menu separates deficit and purpose plans
+PASS funded plan menu offers refund and explains confirmed consumption
+PASS administrator journal records actual funding actor and stable plan identity

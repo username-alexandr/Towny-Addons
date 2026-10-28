@@ -27,7 +27,7 @@ public final class ResourcesRepository {
         if(!Files.exists(file)){states=Map.of();ru.neverland.core.AtomicFiles.loaded(file);writable=true;return;}
         var y=new YamlConfiguration();y.load(file.toFile());
         long schema=number(y,"schema");
-        if((schema!=1&&schema!=2&&schema!=3)||!y.isConfigurationSection("towns"))throw new IOException("Неверная схема resources-data.yml");
+        if((schema<1||schema>4)||!y.isConfigurationSection("towns"))throw new IOException("Неверная схема resources-data.yml");
         Map<UUID,TownState> next=new HashMap<>();var towns=y.getConfigurationSection("towns");
         for(String id:towns.getKeys(false)){
             var p=towns.getConfigurationSection(id);if(p==null)throw new IOException("Неверная запись города");
@@ -41,10 +41,11 @@ public final class ResourcesRepository {
         Map<UUID,Reservation> held=new HashMap<>();
         if(schema>=2){var root=y.getConfigurationSection("reservations");if(root==null)throw new IOException("Отсутствует журнал резервирования");
             for(String id:root.getKeys(false)){var v=root.getConfigurationSection(id);if(v==null)throw new IOException("Неверный резерв");
-                var receipt=new Reservation(UUID.fromString(v.getString("town")),amounts(v,"amounts"),Reservation.Status.valueOf(v.getString("status")));
+                var receipt=new Reservation(UUID.fromString(v.getString("town")),amounts(v,"amounts"),Reservation.Status.valueOf(v.getString("status")),schema>=4?ru.neverland.core.SafeYaml.stringValue(v,"purpose"):"",schema>=4?ru.neverland.core.SafeYaml.stringValue(v,"actor"):"",schema>=4?number(v,"created"):0,schema>=4?ru.neverland.core.SafeYaml.stringValue(v,"changed-by"):"");
+                if(schema<4&&receipt.status()==Reservation.Status.REQUESTED)throw new IOException("Неизвестный старый статус резерва");
                 if(receipt.status()==Reservation.Status.HELD&&!next.containsKey(receipt.town()))throw new IOException("Резерв без города");held.put(UUID.fromString(id),receipt);}}
         Map<UUID,Map<String,Map<String,Long>>> history=new HashMap<>();
-        if(schema==3){var root=y.getConfigurationSection("production");if(root==null)throw new IOException("Отсутствует история производства");for(String id:root.getKeys(false)){var section=root.getConfigurationSection(id);if(section==null)throw new IOException("Неверная история города");Map<String,Map<String,Long>> weeks=new HashMap<>();for(String week:section.getKeys(false)){var row=section.getConfigurationSection(week);if(row==null)throw new IOException("Неверная неделя");var values=new HashMap<String,Long>();for(String key:row.getKeys(false))values.put(key,number(row,key));weeks.put(week,values);}history.put(UUID.fromString(id),weeks);}}
+        if(schema>=3){var root=y.getConfigurationSection("production");if(root==null)throw new IOException("Отсутствует история производства");for(String id:root.getKeys(false)){var section=root.getConfigurationSection(id);if(section==null)throw new IOException("Неверная история города");Map<String,Map<String,Long>> weeks=new HashMap<>();for(String week:section.getKeys(false)){var row=section.getConfigurationSection(week);if(row==null)throw new IOException("Неверная неделя");var values=new HashMap<String,Long>();for(String key:row.getKeys(false))values.put(key,number(row,key));weeks.put(week,values);}history.put(UUID.fromString(id),weeks);}}
         history=ProductionHistory.copy(history);validateHeadroom(next,held);states=Map.copyOf(next);reservations=Map.copyOf(held);production=history;ru.neverland.core.AtomicFiles.loaded(file);writable=true;
     } }
     private static long number(ConfigurationSection p,String key)throws IOException{
@@ -68,23 +69,44 @@ public final class ResourcesRepository {
     /** Balance and receipt are one atomic file replacement. Retries do not debit twice. */
     public boolean reserve(UUID id,UUID town,Map<Resource,Long> amounts,Map<Resource,Long> keep)throws IOException{ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         Objects.requireNonNull(id);var cost=Amounts.copy(amounts);var old=reservations.get(id);
-        if(old!=null){if(!old.town().equals(town)||!old.amounts().equals(cost))throw new IllegalArgumentException("ID резерва уже занят другим счётом");return old.status()!=Reservation.Status.RELEASED;}
+        if(old!=null){if(!old.town().equals(town)||!old.amounts().equals(cost)||!old.purpose().isEmpty())throw new IllegalArgumentException("ID резерва уже занят другим счётом");return old.status()==Reservation.Status.HELD||old.status()==Reservation.Status.CONSUMED;}
         var state=states.get(town);if(state==null)throw new IllegalStateException("Город ещё не рассчитан");
         for(var resource:Resource.values())if(cost.get(resource)>Math.max(0,state.balances().get(resource)-keep.getOrDefault(resource,0L)))return false;
         for(var resource:Resource.values())state=state.balance(resource,state.balances().get(resource)-cost.get(resource));
         var next=new HashMap<>(states);next.put(town,state);var journal=new HashMap<>(reservations);journal.put(id,new Reservation(town,cost,Reservation.Status.HELD));write(next,journal);return true;
     } }
-    public void settle(UUID id,boolean consume)throws IOException{ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
+    /** Durable unfunded need. Repeated creation cannot silently change the cost or replace an ended plan. */
+    public Reservation request(UUID id,UUID town,Map<Resource,Long> amounts,String purpose,UUID actor,long now)throws IOException{try(var guard=ru.neverland.core.SuiteState.guard()){
+        Objects.requireNonNull(id);Objects.requireNonNull(actor);var receipt=new Reservation(town,amounts,Reservation.Status.REQUESTED,purpose,actor.toString(),now);
+        if(purpose.isBlank()||receipt.amounts().values().stream().noneMatch(n->n>0))throw new IllegalArgumentException("Плану нужны назначение и ресурсы");
+        var old=reservations.get(id);if(old!=null){if(!old.town().equals(town)||!old.amounts().equals(receipt.amounts())||!old.purpose().equals(purpose)||!old.actor().equals(actor.toString()))throw new IllegalArgumentException("ID плана уже занят другой заявкой");return old;}
+        if(!states.containsKey(town))throw new IllegalStateException("Город ещё не рассчитан");
+        if(reservations.values().stream().filter(r->!r.purpose().isEmpty()).count()>=10000||reservations.values().stream().filter(r->r.town().equals(town)&&(r.status()==Reservation.Status.REQUESTED||r.status()==Reservation.Status.HELD)).count()>=64)throw new IllegalStateException("Достигнут лимит целевых планов; завершите прежние");
+        var journal=new HashMap<>(reservations);journal.put(id,receipt);write(states,journal);return receipt;
+    }}
+    /** All resources or none; a shortage leaves the same request available for later funding. */
+    public boolean fund(UUID id,Map<Resource,Long> keep)throws IOException{return fund(id,keep,null);}
+    public boolean fund(UUID id,Map<Resource,Long> keep,UUID actor)throws IOException{try(var guard=ru.neverland.core.SuiteState.guard()){
+        var receipt=reservations.get(id);if(receipt==null||receipt.purpose().isEmpty())throw new IllegalArgumentException("Целевой план не найден");
+        if(receipt.status()==Reservation.Status.HELD||receipt.status()==Reservation.Status.CONSUMED)return true;
+        if(receipt.status()!=Reservation.Status.REQUESTED)throw new IllegalStateException("План уже отменён; создайте план с новым названием");
+        var state=states.get(receipt.town());if(state==null)throw new IllegalStateException("Город недоступен");
+        for(var resource:Resource.values())if(receipt.amounts().get(resource)>Math.max(0,state.balances().get(resource)-Amounts.valid(keep.getOrDefault(resource,0L))))return false;
+        for(var resource:Resource.values())state=state.balance(resource,state.balances().get(resource)-receipt.amounts().get(resource));
+        var next=new HashMap<>(states);next.put(receipt.town(),state);var journal=new HashMap<>(reservations);journal.put(id,receipt.state(Reservation.Status.HELD,actor));write(next,journal);return true;
+    }}
+    public void settle(UUID id,boolean consume)throws IOException{settle(id,consume,null);}
+    public void settle(UUID id,boolean consume,UUID actor)throws IOException{ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         var receipt=reservations.get(id);if(receipt==null)throw new IllegalArgumentException("Резерв не найден");
         var expected=consume?Reservation.Status.CONSUMED:Reservation.Status.RELEASED;
-        if(receipt.status()==expected)return;if(receipt.status()!=Reservation.Status.HELD)throw new IllegalStateException("Резерв уже завершён иначе");
+        if(receipt.status()==expected)return;if(receipt.status()!=Reservation.Status.HELD&&(consume||receipt.status()!=Reservation.Status.REQUESTED))throw new IllegalStateException("Резерв не обеспечен или уже завершён иначе");
         var next=new HashMap<>(states);
-        if(!consume){var state=next.get(receipt.town());if(state==null)throw new IllegalStateException("Нет города для возврата");
+        if(!consume&&receipt.status()==Reservation.Status.HELD){var state=next.get(receipt.town());if(state==null)throw new IllegalStateException("Нет города для возврата");
             for(var resource:Resource.values())state=state.balance(resource,Math.addExact(state.balances().get(resource),receipt.amounts().get(resource)));next.put(receipt.town(),state);}
-        var journal=new HashMap<>(reservations);journal.put(id,receipt.finish(consume));write(next,journal);
+        var journal=new HashMap<>(reservations);journal.put(id,receipt.state(expected,actor));write(next,journal);
     } }
     public void forget(UUID id)throws IOException{ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
-        var receipt=reservations.get(id);if(receipt==null)return;if(receipt.status()==Reservation.Status.HELD)throw new IllegalStateException("Нельзя удалить незавершённый резерв");
+        var receipt=reservations.get(id);if(receipt==null)return;if(receipt.status()==Reservation.Status.HELD||receipt.status()==Reservation.Status.REQUESTED)throw new IllegalStateException("Нельзя удалить незавершённый резерв");
         var journal=new HashMap<>(reservations);journal.remove(id);write(states,journal);
     } }
     private static void validateHeadroom(Map<UUID,TownState> states,Map<UUID,Reservation> receipts)throws IOException{
@@ -97,9 +119,9 @@ public final class ResourcesRepository {
         if(!writable||!ru.neverland.core.AtomicFiles.writable(file))throw new IOException("Запись запрещена до успешной загрузки базы");
         validateHeadroom(next,receipts);next=Map.copyOf(next);receipts=Map.copyOf(receipts);if(next.equals(states)&&receipts.equals(reservations))return;
         var history=ProductionHistory.advance(production,states,next,reservations,receipts,System.currentTimeMillis(),cycle);
-        var y=new YamlConfiguration();y.set("schema",3);y.createSection("towns");y.createSection("reservations");y.createSection("production");
+        var y=new YamlConfiguration();y.set("schema",4);y.createSection("towns");y.createSection("reservations");y.createSection("production");
         for(var city:history.entrySet()){y.createSection("production."+city.getKey());for(var week:city.getValue().entrySet())y.createSection("production."+city.getKey()+"."+week.getKey(),week.getValue());}
-        for(var entry:receipts.entrySet()){String k="reservations."+entry.getKey()+".";var receipt=entry.getValue();y.set(k+"town",receipt.town().toString());y.set(k+"status",receipt.status().name());put(y,k+"amounts",receipt.amounts());}
+        for(var entry:receipts.entrySet()){String k="reservations."+entry.getKey()+".";var receipt=entry.getValue();y.set(k+"town",receipt.town().toString());y.set(k+"status",receipt.status().name());y.set(k+"purpose",receipt.purpose());y.set(k+"actor",receipt.actor());y.set(k+"created",receipt.created());y.set(k+"changed-by",receipt.changedBy());put(y,k+"amounts",receipt.amounts());}
         for(var entry:next.entrySet()){
             String k="towns."+entry.getKey()+".";var s=entry.getValue();
             put(y,k+"balances",s.balances());put(y,k+"reserves",s.reserves());put(y,k+"income",s.income());put(y,k+"expense",s.expense());
