@@ -61,6 +61,7 @@ public final class ContractRepository {
                             yaml.getInt(path + "goal", 1), yaml.getDouble(path + "escrow"), contributions);
                     if (!Double.isFinite(contract.escrow()) || contract.escrow()>1_000_000_000.0 || yaml.getDouble(path+"escrow")<0 || yaml.getInt(path+"goal")<1 || yaml.getInt(path+"progress")<0 || contract.progress()>contract.goal() || contributions.values().stream().anyMatch(n->n<=0) || contributions.values().stream().mapToLong(Integer::longValue).sum()!=contract.progress()) throw new IllegalArgumentException("Некорректные условия или прогресс");
                     contract.timer(ru.neverland.core.ActivityTimer.read(yaml,path,contract.timer()));
+                    contract.fishingPaused(ru.neverland.core.SafeYaml.booleanValue(yaml,path+"fishing-paused",false));
                     contract.administrativeCancellation(ru.neverland.core.SafeYaml.booleanValue(yaml,path+"admin-cancelled",false));
                     String company=yaml.getString(path+"company", "");
                     if(!company.isEmpty())contract.restoreCompany(UUID.fromString(company));
@@ -161,6 +162,7 @@ public final class ContractRepository {
             yaml.set(path + "expires-at", contract.expiresAt()); contract.timer().write(yaml,path);yaml.set(path+"admin-cancelled",contract.administrativeCancellation()); yaml.set(path + "progress", contract.progress());
             yaml.set(path + "goal", contract.goal()); yaml.set(path + "escrow", contract.escrow());
             yaml.set(path+"funded",contract.funded());
+            yaml.set(path+"fishing-paused",contract.fishingPaused());
             if(contract.snapshot()!=null)ContractCodec.write(yaml.createSection(path+"terms"),contract.snapshot());
             if(contract.area()!=null)ContractCodec.write(yaml.createSection(path+"area"),contract.area());
             for(var proof:contract.proofs().entrySet()){String p=path+"proofs."+proof.getKey()+".";yaml.set(p+"actor",proof.getValue().actor().toString());yaml.set(p+"at",proof.getValue().placedAt());}

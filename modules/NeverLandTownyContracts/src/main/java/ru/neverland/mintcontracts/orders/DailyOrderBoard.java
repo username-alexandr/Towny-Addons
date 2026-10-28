@@ -25,6 +25,8 @@ public final class DailyOrderBoard {
     private final Clock clock;
     private final Random random;
     private Snapshot current;
+    private java.util.function.ToIntFunction<Template> priority=t->1;
+    public DailyOrderBoard priority(java.util.function.ToIntFunction<Template> priority){try(var guard=SuiteState.guard()){this.priority=Objects.requireNonNull(priority);return this;}}
 
     public DailyOrderBoard(Path file, List<Template> catalog, int size, Map<OrderRarity, Integer> weights) throws IOException {
         this(file, catalog, size, weights, Clock.systemUTC(), new java.security.SecureRandom());
@@ -57,6 +59,8 @@ public final class DailyOrderBoard {
         // A backwards clock adjustment must not offer another board for an already visited day.
         if (current != null && !today.isAfter(current.day())) return current;
         var available = new ArrayList<>(catalog.stream().filter(t -> weights.get(t.rarity()) > 0).toList());
+        var selectionWeights=new HashMap<String,Long>();
+        for(var template:available){int factor=priority.applyAsInt(template);if(factor<1||factor>5)throw new IllegalArgumentException("Неверный приоритет спроса заказа");selectionWeights.put(template.id(),(long)weights.get(template.rarity())*factor);}
         var selected = new ArrayList<Template>();
         var types = new ArrayList<>(Arrays.asList(Type.values()));
         Collections.shuffle(types, random);
@@ -64,9 +68,9 @@ public final class DailyOrderBoard {
         for (Type type : types) {
             if (selected.size() >= size) break;
             var candidates = available.stream().filter(t -> t.type() == type).toList();
-            if (!candidates.isEmpty()) choose(candidates, available, selected);
+            if (!candidates.isEmpty()) choose(candidates, available, selected,selectionWeights);
         }
-        while (selected.size() < size && !available.isEmpty()) choose(available, available, selected);
+        while (selected.size() < size && !available.isEmpty()) choose(available, available, selected,selectionWeights);
         selected.sort(Comparator.comparing(Template::rarity).thenComparing(Template::type).thenComparing(Template::id));
         var next = new Snapshot(today, selected);
         var y = new YamlConfiguration(); y.set("schema", 1); y.set("day", today.toString());
@@ -81,11 +85,11 @@ public final class DailyOrderBoard {
         return current;
     } }
 
-    private void choose(List<Template> candidates, List<Template> available, List<Template> selected) {
-        long total = candidates.stream().mapToLong(t -> weights.get(t.rarity())).sum();
+    private void choose(List<Template> candidates, List<Template> available, List<Template> selected,Map<String,Long> selectionWeights) {
+        long total = candidates.stream().mapToLong(t -> selectionWeights.get(t.id())).sum();
         long roll = random.nextLong(total);
         Template choice = candidates.get(candidates.size() - 1);
-        for (Template t : candidates) { roll -= weights.get(t.rarity()); if (roll < 0) { choice = t; break; } }
+        for (Template t : candidates) { roll -= selectionWeights.get(t.id()); if (roll < 0) { choice = t; break; } }
         selected.add(choice); available.remove(choice);
     }
 }

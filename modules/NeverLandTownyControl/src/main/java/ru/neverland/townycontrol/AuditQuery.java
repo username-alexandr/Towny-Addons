@@ -13,6 +13,6 @@ public record AuditQuery(Map<String,String> filters,int page) implements Predica
         case "town"->r.town(v);case "player"->r.player(v);case "from"->r.from().id().equals(v)||r.from().town().equals(v);case "to"->r.to().id().equals(v)||r.to().town().equals(v);
         case "category"->AuditCategory.valueOf(v.toUpperCase(Locale.ROOT)).test(r);case "kind"->r.kind().equalsIgnoreCase(v);case "module"->r.module().equalsIgnoreCase(v)||r.module().equalsIgnoreCase("NeverLandTowny"+v);case "outcome"->r.outcome().equalsIgnoreCase(v);
         case "id"->r.id().equalsIgnoreCase(v)||r.operation().equalsIgnoreCase(v);
-        case "since"->r.at()>=LocalDate.parse(v).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();case "until"->r.at()<LocalDate.parse(v).plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+        case "since"->r.at()>=LocalDate.parse(v).atStartOfDay(ZoneId.of("Europe/Moscow")).toInstant().toEpochMilli();case "until"->r.at()<LocalDate.parse(v).plusDays(1).atStartOfDay(ZoneId.of("Europe/Moscow")).toInstant().toEpochMilli();
         case "intercity"->r.intercity()==Boolean.parseBoolean(v);case "text"->String.join(" ",r.fields()).toLowerCase(Locale.ROOT).contains(v.toLowerCase(Locale.ROOT));default->false;};if(!match)return false;}return true;}
 }

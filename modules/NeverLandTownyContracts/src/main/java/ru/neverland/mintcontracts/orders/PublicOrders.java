@@ -45,6 +45,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
     private final ServerMaterials materials;private final ResourceDeliveries resourceDeliveries;private final ResourceAdmin resourceAdmin;
     private final Set<UUID> delivering=new HashSet<>();private volatile boolean closed;private boolean reconciling;
     private final int maximum;private boolean fault;
+    private final DemandPriority demand=new DemandPriority();private boolean checkingDemand;
     public PublicOrders(JavaPlugin plugin)throws Exception{
         this(plugin,new RussianNames(plugin));
     }
@@ -63,6 +64,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         long playerLimit=limits.playerCents(),serverLimit=limits.serverCents();
         if(templates.stream().anyMatch(t->t.cents()>Math.min(playerLimit,serverLimit)))plugin.getLogger().warning("В каталоге есть награда выше лимита выплат: такой заказ нельзя оплатить до изменения limits");
         dailyBoard=new PersonalOrderBoards(plugin.getDataFolder().toPath().resolve("orders-boards"),templates,boardSize,OrderCatalog.weights(cfg));
+        if(SafeYaml.booleanValue(cfg,"server-demand.enabled",true))dailyBoard.priority(demand::factor);
         load();
         if(migrated){OrderCatalog.saveMigration(configFile,cfg);plugin.getLogger().info("Каталог заказов обновлён: шаблонов "+templates.size()+", мест на следующей доске "+boardSize+", личный лимит за 24 ч. "+AuditTrail.cents(playerLimit)+"; резервная копия "+OrderCatalog.MIGRATION_BACKUP);}
         guard=new ActionGuard(plugin,"order-blocks.log");plugin.getServer().getPluginManager().registerEvents(guard,plugin);plugin.getServer().getPluginManager().registerEvents(this,plugin);
@@ -71,6 +73,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         resourceDeliveries=new ResourceDeliveries(materials,income.ledger(),owner(null));
         resourceAdmin=new ResourceAdmin(plugin,names,materials);
         plugin.getServer().getServicesManager().register(ru.neverland.mintcontracts.api.ServerMaterialsApi.class,new ru.neverland.mintcontracts.api.ServerMaterialsApi(){
+            public java.util.concurrent.CompletionStage<Map<String,Long>> demand(){return materials.demand();}
             public java.util.concurrent.CompletionStage<Map<String,Long>> balances(){return materials.balances().thenApply(rows->{var result=new TreeMap<String,Long>();for(var row:rows)result.put(row.material(),row.available());return Map.copyOf(result);});}
             private void writable(){if(closed||!plugin.isEnabled()||SuiteState.frozen(plugin.getName()))throw new IllegalStateException("Серверный склад на паузе");}
             private String proof(String actor,String reason){if(actor==null||actor.isBlank()||reason==null||reason.trim().length()<8)throw new IllegalArgumentException("Нужны автор и основание операции");return actor+": "+reason;}
@@ -79,6 +82,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
             public java.util.concurrent.CompletionStage<String> release(UUID id,String actor,String reason){writable();return materials.allocation(id,"return",proof(actor,reason)).thenApply(r->r.state());}
         },plugin,org.bukkit.plugin.ServicePriority.Normal);
         materials.ready().whenComplete((value,error)->{if(error!=null)plugin.getLogger().log(java.util.logging.Level.SEVERE,"Публичные сдачи приостановлены: база серверного склада не открыта",error);});
+        SuiteScheduler.get().runTaskTimer(plugin,()->{if(!closed&&materials.available()&&!checkingDemand){checkingDemand=true;materials.demand().whenComplete((amounts,error)->{if(error==null)demand.update(amounts);else demand.update(Map.of());owner(null).call(()->{checkingDemand=false;return null;});});}},1,200);
         SuiteScheduler.get().runTaskTimer(plugin,()->{if(!closed&&materials.available()&&!reconciling){reconciling=true;resourceDeliveries.reconcile().whenComplete((v,error)->owner(null).call(()->{reconciling=false;if(error!=null)plugin.getLogger().warning("Сверка серверного склада: "+failure(error));return null;}));}},20,200);
         income.start();SuiteScheduler.get().runTaskTimer(plugin,this::tick,200,200);
     }
@@ -96,6 +100,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
     }
     private boolean active(){return !closed&&!fault&&income.enabled()&&materials.available();}
     public void shutdown(){closed=true;materials.close();}
+    public java.util.concurrent.CompletionStage<Void> shutdownAsync(){shutdown();return materials.closed();}
     private ResourceDeliveries.Owner owner(Player player){return new ResourceDeliveries.Owner(){
         public <T> java.util.concurrent.CompletionStage<T> call(java.util.concurrent.Callable<T> action){
             var result=new java.util.concurrent.CompletableFuture<T>();
@@ -135,6 +140,8 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         delivering.remove(id);if(error!=null)plugin.getLogger().warning("Поставка "+id+": "+failure(error));
         SuiteScheduler.player(plugin,player,p->{if(error!=null)p.sendMessage("§e"+failure(error));else p.sendMessage("§aРесурсы переданы на серверный склад. Награда ожидает зачисления на личный счёт.");var order=orders.get(id);if(order!=null)showOrder(p,order);});return null;
     });}
+    public boolean hasFishingTask(UUID player){try(var g=SuiteState.guard()){return active()&&orders.values().stream().anyMatch(o->o.player().equals(player)&&o.type()==Type.FISHING&&open(o)&&o.progress()<o.goal()&&o.remaining()>0);}}
+    private boolean fishingReady(){return !(plugin instanceof ru.neverland.mintcontracts.MintTownyContracts main)||main.fishingReady();}
     private boolean open(Order o){return o.state().equals("ACTIVE")&&income.ledger().get(o.id())==null;}
     private DailyOrderBoard.Snapshot boardSnapshot(UUID player)throws IOException{try{var snapshot=dailyBoard.snapshot(player);OrderCatalog.validateItems(snapshot.templates());return snapshot;}catch(IOException ex){fault=true;throw ex;}}
     private Set<String> paidTemplates(UUID player,LocalDate day){
@@ -150,7 +157,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         return snapshot.templates().stream().filter(t->!paid.contains(t.id())).toList();
     }
     private void tick(){try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){if(!active())return;boolean changed=false;
-        for(Order o:List.copyOf(orders.values()))if(open(o)&&o.progress()<o.goal()){orders.put(o.id(),o.time(Math.max(0,o.remaining()-10000)));changed=true;}
+        for(Order o:List.copyOf(orders.values()))if(open(o)&&o.progress()<o.goal()&&(o.type()!=Type.FISHING||fishingReady())){orders.put(o.id(),o.time(Math.max(0,o.remaining()-10000)));changed=true;}
         if(changed)try{save();}catch(IOException e){plugin.getLogger().severe(e.getMessage());}
     }}
     private void accept(Player p,String template)throws IOException{
@@ -164,6 +171,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         if(displayedDay!=null&&!displayedDay.equals(board.day()))throw new IllegalArgumentException("Доска обновилась. Откройте /orders и выберите заказ заново.");
         if(orders.values().stream().anyMatch(o->o.player().equals(p.getUniqueId())&&o.template().equals(template)&&o.boardDay().equals(board.day().toString())))throw new IllegalArgumentException("Этот заказ уже принят сегодня. Повторно взять его можно на новой доске после 00:00 МСК.");
         Template t=board.templates().stream().filter(v->v.id().equals(template)).findFirst().orElseThrow(()->new IllegalArgumentException("Заказ отсутствует на доске"));
+        if(t.type()==Type.FISHING&&!fishingReady())throw new IllegalArgumentException("Задания на рыбалку пока недоступны. Попробуйте позже.");
         Order o=new Order(UUID.randomUUID(),p.getUniqueId(),t.id(),t.title(),t.type(),t.target(),t.amount(),0,t.cents(),t.duration(),board.day().toEpochDay(),"ACTIVE",t.rarity(),board.day().toString());orders.put(o.id(),o);save();p.sendMessage(Component.text("Заказ принят: ",NamedTextColor.GREEN).append(Component.text(t.title(),NamedTextColor.WHITE)));showOrder(p,o);p.sendMessage(button("Мои заказы","/orders mine","Показать прогресс и действия по заказам",NamedTextColor.YELLOW));
     }
     private static boolean eligibleAction(Player player,Type type){
@@ -207,9 +215,10 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         Player player=guard.hunter(e);if(player==null)return;String target=e.getEntityType().name();
         HuntingCredit.afterDeath(plugin,e,player,()->progress(player,Type.HUNTING,target));
     }}
-    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void fish(PlayerFishEvent e){try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()){if(e.getState()==PlayerFishEvent.State.CAUGHT_FISH&&e.getCaught() instanceof Item item&&SuiteScheduler.owns(item)){Player player=e.getPlayer();String target=item.getItemStack().getType().name();SuiteScheduler.entity(plugin,player,()->{if(!e.isCancelled())progress(player,Type.FISHING,target);});}}}
+    @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void fish(PlayerFishEvent e){try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()){if(e.getState()==PlayerFishEvent.State.CAUGHT_FISH&&e.getCaught() instanceof Item item&&SuiteScheduler.owns(item)&&ru.neverland.mintcontracts.fishing.FishingProtection.allows(plugin,e)){Player player=e.getPlayer();String target=item.getItemStack().getType().name();SuiteScheduler.entity(plugin,player,()->{if(!e.isCancelled())progress(player,Type.FISHING,target);});}}}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()){
         try{
+            if(args.length==1&&args[0].equalsIgnoreCase("fishing")&&sender instanceof Player p){if(plugin instanceof ru.neverland.mintcontracts.MintTownyContracts main&&main.fishing()!=null)main.fishing().status(p);else p.sendMessage("§eПроверка рыбалки временно недоступна.");return true;}
             if(args.length>0&&args[0].equalsIgnoreCase("admin")){
                 if(args.length>1&&args[1].equalsIgnoreCase("resources")){resourceAdmin.command(sender,Arrays.copyOfRange(args,2,args.length));return true;}
                 if(!sender.isOp()&&!sender.hasPermission("neverland.orders.admin"))throw new IllegalArgumentException("Нет прав администратора");
@@ -238,13 +247,13 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         var board=boardSnapshot(p.getUniqueId());var rows=new ArrayList<Map<String,Object>>();
         long count=orders.values().stream().filter(o->o.player().equals(p.getUniqueId())&&open(o)).count();
         for(var t:visibleTemplates(p.getUniqueId(),board)){
-            String reason=!active()?"Заказы временно приостановлены":count>=maximum?"Достигнут лимит активных заказов":
+            String reason=!active()?"Заказы временно приостановлены":t.type()==Type.FISHING&&!fishingReady()?"Рыбалка заданий временно приостановлена":count>=maximum?"Достигнут лимит активных заказов":
                 orders.values().stream().anyMatch(o->o.player().equals(p.getUniqueId())&&o.template().equals(t.id())&&o.boardDay().equals(board.day().toString()))?"Уже принят сегодня":"";
-            var row=new LinkedHashMap<String,Object>();row.put("id",t.id());row.put("title",t.title());row.put("type",t.type().name());row.put("target",t.target());row.put("goal",t.amount());row.put("cents",t.cents());row.put("rarity",t.rarity().name());row.put("duration",t.duration());row.put("reason",reason);row.put("quote",board.day()+"/"+t.toString());rows.add(row);
+            var row=new LinkedHashMap<String,Object>();row.put("id",t.id());row.put("title",t.title());row.put("type",t.type().name());row.put("target",t.target());row.put("goal",t.amount());row.put("cents",t.cents());row.put("rarity",t.rarity().name());row.put("duration",t.duration());row.put("reason",reason);row.put("instructions",t.type()==Type.FISHING?fishingInstructions():List.of());row.put("quote",board.day()+"/"+t.toString());rows.add(row);
         }
         var mine=new ArrayList<Map<String,Object>>();
         for(var o:orders.values())if(o.player().equals(p.getUniqueId())&&open(o)){
-            var row=new LinkedHashMap<String,Object>();row.put("id",o.id().toString());row.put("title",o.title());row.put("type",o.type().name());row.put("target",o.target());row.put("goal",o.goal());row.put("progress",o.progress());row.put("cents",o.cents());row.put("rarity",o.rarity().name());row.put("remaining",o.remaining());row.put("quote",o.id()+"/"+o.state()+"/"+o.progress()+"/"+o.cents()+"/"+o.goal());mine.add(row);
+            var row=new LinkedHashMap<String,Object>();row.put("id",o.id().toString());row.put("title",o.title());row.put("type",o.type().name());row.put("target",o.target());row.put("goal",o.goal());row.put("progress",o.progress());row.put("cents",o.cents());row.put("rarity",o.rarity().name());row.put("remaining",o.remaining());row.put("instructions",o.type()==Type.FISHING?fishingInstructions():List.of());row.put("quote",o.id()+"/"+o.state()+"/"+o.progress()+"/"+o.cents()+"/"+o.goal());mine.add(row);
         }
         return Map.of("day",board.day().toString(),"offers",List.copyOf(rows),"mine",List.copyOf(mine),"active",active());
     } }
@@ -267,6 +276,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         Inventory inv=MenuStyle.inventory(plugin,holder,54,"Государственные заказы");
         for(int i=0;i<board.size();i++)inv.setItem(i,icon(board.get(i)));
         inv.setItem(45,information(Material.BOOK,"§eМои заказы",List.of("§7Прогресс, сдача ресурсов и награды","§eНажмите, чтобы посмотреть")));
+        inv.setItem(47,information(Material.FISHING_ROD,"§bГде ловить рыбу",fishingInstructions().stream().map(s->"§7"+s).toList()));
         inv.setItem(49,information(Material.CLOCK,"§6Обновление: каждый день в 00:00 МСК",List.of(
                 "§7Следующее: §f"+snapshot.day().plusDays(1).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))+" в 00:00 МСК",
                 "§7Принятые заказы сохраняют прогресс,","§7награду и оставшееся время.","§7Один заказ с доски — один раз за день.",
@@ -326,7 +336,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         var meta=item.getItemMeta();
         meta.setEnchantmentGlintOverride(t.rarity()==OrderRarity.EPIC||t.rarity()==OrderRarity.LEGENDARY);
         meta.setDisplayName(MenuStyle.nameLegacy(t.rarity().legacyColor+t.title()));
-        meta.setLore(MenuStyle.loreStrings(List.of(
+        var lore=new ArrayList<>(List.of(
                 "§7Редкость: "+t.rarity().legacyColor+t.rarity().label,
                 "§7Сложность: §f"+t.rarity().difficulty,
                 "§7Задание: §f"+task(t.type()),
@@ -336,7 +346,9 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
                 "", "§7При остановке сервера или паузе заказов",
                 "§7оставшееся время сохраняется.",
                 "§7Выход из игры не останавливает таймер.",
-                "§eНажмите, чтобы принять заказ", "§7Ваши заказы: /orders mine")));
+                "§eНажмите, чтобы принять заказ", "§7Ваши заказы: /orders mine"));
+        if(t.type()==Type.FISHING){lore.add(6,"");lore.addAll(7,fishingInstructions().stream().map(s->"§b"+s).toList());}
+        meta.setLore(MenuStyle.loreStrings(lore));
         item.setItemMeta(meta);
         // Explicitly hide even default sword/tool attributes on modern Paper/Folia.
         item.setData(DataComponentTypes.TOOLTIP_DISPLAY,TooltipDisplay.tooltipDisplay()
@@ -400,6 +412,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         }else if(payment==null)line(p,"Прогресс",o.progress()+" из "+o.goal(),o.progress()>=o.goal()?NamedTextColor.GREEN:NamedTextColor.YELLOW);
         line(p,"Награда",AuditTrail.cents(o.cents())+" монет",NamedTextColor.GREEN);
         line(p,"Статус",status(o,payment),NamedTextColor.WHITE);
+        if(o.type()==Type.FISHING&&open(o)&&o.progress()<o.goal())for(String instruction:fishingInstructions())p.sendMessage("§b"+instruction);
         if(payment!=null||!open(o))return;
         if(o.progress()<o.goal())line(p,"Осталось",duration(o.remaining()),NamedTextColor.WHITE);
         Component actions=Component.text("  ");
@@ -425,7 +438,8 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
             default->o.progress()>=o.goal()?"Выполнен — получите награду":o.type()==Type.DELIVERY?"Ожидает сдачи ресурсов":"В работе";
         };
     }
-    @EventHandler public void click(InventoryClickEvent e){if(!(e.getView().getTopInventory().getHolder() instanceof Board board))return;e.setCancelled(true);if(e.getWhoClicked() instanceof Player p)try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()){try{if(e.getRawSlot()==45)SuiteScheduler.entity(plugin,p,()->{p.closeInventory();showMine(p);});else if(board.slots().containsKey(e.getRawSlot()))accept(p,board.slots().get(e.getRawSlot()),board.day());}catch(Exception ex){p.sendMessage("§c"+ex.getMessage());}}}
+    private List<String> fishingInstructions(){return plugin instanceof ru.neverland.mintcontracts.MintTownyContracts main&&main.fishing()!=null?main.fishing().instructions():List.of("Правила рыбалки и запас: /orders fishing");}
+    @EventHandler public void click(InventoryClickEvent e){if(!(e.getView().getTopInventory().getHolder() instanceof Board board))return;e.setCancelled(true);if(e.getWhoClicked() instanceof Player p)try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()){try{if(e.getRawSlot()==45)SuiteScheduler.entity(plugin,p,()->{p.closeInventory();showMine(p);});else if(e.getRawSlot()==47&&plugin instanceof ru.neverland.mintcontracts.MintTownyContracts main&&main.fishing()!=null)main.fishing().status(p);else if(board.slots().containsKey(e.getRawSlot()))accept(p,board.slots().get(e.getRawSlot()),board.day());}catch(Exception ex){p.sendMessage("§c"+ex.getMessage());}}}
     @EventHandler public void drag(InventoryDragEvent e){if(e.getView().getTopInventory().getHolder() instanceof Board)e.setCancelled(true);}
-    @Override public List<String> onTabComplete(CommandSender s,Command c,String a,String[] args){try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()){try{if(args.length==1)return List.of("board","accept","mine","claim","cancel","admin");if(args.length==2&&args[0].equals("accept")&&s instanceof Player p)return visibleTemplates(p.getUniqueId(),boardSnapshot(p.getUniqueId())).stream().map(Template::id).toList();if(args.length==2&&Set.of("claim","cancel").contains(args[0])&&s instanceof Player p)return orders.values().stream().filter(o->o.player().equals(p.getUniqueId())&&open(o)).map(o->o.id().toString()).toList();}catch(IOException ex){plugin.getLogger().severe(ex.getMessage());}return List.of();}}
+    @Override public List<String> onTabComplete(CommandSender s,Command c,String a,String[] args){try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()){try{if(args.length==1)return List.of("board","accept","mine","claim","cancel","fishing","admin");if(args.length==2&&args[0].equals("accept")&&s instanceof Player p)return visibleTemplates(p.getUniqueId(),boardSnapshot(p.getUniqueId())).stream().map(Template::id).toList();if(args.length==2&&Set.of("claim","cancel").contains(args[0])&&s instanceof Player p)return orders.values().stream().filter(o->o.player().equals(p.getUniqueId())&&open(o)).map(o->o.id().toString()).toList();}catch(IOException ex){plugin.getLogger().severe(ex.getMessage());}return List.of();}}
 }

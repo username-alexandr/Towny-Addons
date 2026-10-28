@@ -1,0 +1,64 @@
+[
+  {
+    "module": "NeverLandTownyContracts",
+    "version": "0.6.0",
+    "jar": "modules/NeverLandTownyContracts/build/libs/NeverLandTownyContracts-0.6.0.jar",
+    "tests": [
+      "ru.neverland.earnings.HuntingSmoke",
+      "ru.neverland.mintcontracts.CompanyContractsSmoke",
+      "ru.neverland.mintcontracts.ContractMathSmoke",
+      "ru.neverland.mintcontracts.MunicipalContractsSmoke",
+      "ru.neverland.mintcontracts.RewardLedgerSmoke",
+      "ru.neverland.mintcontracts.fishing.FishStockSmoke",
+      "ru.neverland.mintcontracts.orders.DailyOrdersSmoke",
+      "ru.neverland.mintcontracts.orders.MountedOrdersSmoke",
+      "ru.neverland.mintcontracts.orders.PayoutLimitsSmoke",
+      "ru.neverland.mintcontracts.orders.PersonalOrderBoardsSmoke",
+      "ru.neverland.mintcontracts.orders.ResourceDeliveriesSmoke",
+      "ru.neverland.mintcontracts.orders.ServerMaterialsSmoke",
+      "ru.neverland.mintcontracts.orders.ServerProjectsSmoke"
+    ]
+  },
+  {
+    "module": "NeverLandTownyCamps",
+    "version": "0.2.0",
+    "jar": "modules/NeverLandTownyCamps/build/libs/NeverLandTownyCamps-0.2.0.jar",
+    "tests": [
+      "ru.neverland.mintcamps.CampIntegrationSmoke",
+      "ru.neverland.mintcamps.ColorUtilSmoke",
+      "ru.neverland.mintcamps.GuestAccessSmoke",
+      "ru.neverland.mintcamps.HologramLifecycleSmoke",
+      "ru.neverland.mintcamps.OptionalDependencySmoke",
+      "ru.neverland.mintcamps.StructureGeneratorSmoke"
+    ]
+  },
+  {
+    "module": "NeverLandTownyChronicles",
+    "version": "0.2.1",
+    "jar": "modules/NeverLandTownyChronicles/build/libs/NeverLandTownyChronicles-0.2.1.jar",
+    "tests": [
+      "ru.neverland.townychronicles.ChronicleSmoke",
+      "ru.neverland.townychronicles.CityContributionsSmoke",
+      "ru.neverland.townychronicles.LinkageSmoke",
+      "ru.neverland.townychronicles.SnapshotPersistenceSmoke",
+      "ru.neverland.townychronicles.StartupAnnouncementSmoke"
+    ]
+  },
+  {
+    "module": "NeverLandTownyControl",
+    "version": "0.5.1",
+    "jar": "modules/NeverLandTownyControl/build/libs/NeverLandTownyControl-0.5.1.jar",
+    "tests": [
+      "ru.neverland.core.SuiteSchedulerSmoke",
+      "ru.neverland.townycontrol.ActivityAdminSmoke",
+      "ru.neverland.townycontrol.AdminMenuSmoke",
+      "ru.neverland.townycontrol.AuditMoscowDatesSmoke",
+      "ru.neverland.townycontrol.AuditSmoke",
+      "ru.neverland.townycontrol.DeletionSafetySmoke",
+      "ru.neverland.townycontrol.ModuleSafetySmoke",
+      "ru.neverland.townycontrol.PersonalHistorySmoke",
+      "ru.neverland.townycontrol.RaidAuditSmoke",
+      "ru.neverland.townycontrol.ShutdownHooksSmoke"
+    ]
+  }
+]

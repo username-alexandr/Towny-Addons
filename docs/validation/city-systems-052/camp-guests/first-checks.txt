@@ -1,0 +1,13 @@
+PASS real Camps enabled
+PASS sleep guest has no full access or teleport authority
+PASS sleep right cannot open warehouse
+PASS sleep right cannot use a camp workbench
+PASS storage right opens one exclusive real inventory
+PASS stranger cannot join another player's storage session
+PASS revocation denies another inventory action immediately
+PASS revoked window closes and saves contents once
+PASS expiry closes idle warehouse window without requiring a click
+PASS workbench right permits camp crafting interaction
+PASS expiry denies next action in captured workbench window
+PASS real administrator disable first freezes Chronicle work
+PASS confirmed final snapshot precedes actual plugin disable without blocking region ledger

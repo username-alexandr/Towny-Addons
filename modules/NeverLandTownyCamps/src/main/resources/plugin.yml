@@ -1,5 +1,5 @@
 name: NeverLandTownyCamps
-version: 0.1.23
+version: 0.2.0
 main: ru.neverland.mintcamps.MintTownyCamps
 folia-supported: true
 api-version: '26.2'

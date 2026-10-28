@@ -1,0 +1,6 @@
+name: TntRuntimeProbe
+version: 7.0
+main: ru.neverland.runtime.FishingProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyContracts, NeverLandTownySiegesPlus]

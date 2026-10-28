@@ -1,0 +1,9 @@
+PASS native fishing authority and durable stock enabled
+PASS accepted fishing progress survives full Folia restart
+PASS city progress and automatic recovery survive restart
+PASS native Minecraft habitat calculation used
+PASS sufficient open pond passes habitat
+PASS valid pond bite reaches stock reservation
+PASS depleted shared stock blocks caught fish
+PASS catch credits exactly once or stays unchanged
+PASS restart does not refill depleted water or grant another progress

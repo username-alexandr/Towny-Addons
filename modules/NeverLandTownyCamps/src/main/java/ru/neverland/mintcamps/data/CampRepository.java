@@ -73,6 +73,12 @@ public final class CampRepository {
                 }
                 camp.stash(readItems(yaml.getList(path + "stash", Collections.emptyList())).toArray(ItemStack[]::new),
                         yaml.getInt(path + "stash-size", 9));
+                var guests=ru.neverland.core.SafeYaml.section(yaml,path+"guests");
+                if(guests!=null)for(String raw:guests.getKeys(false)){
+                    String g=path+"guests."+raw;var rights=java.util.EnumSet.noneOf(ru.neverland.mintcamps.model.GuestAccess.Right.class);
+                    for(String right:ru.neverland.core.SafeYaml.strings(yaml,g+".rights"))rights.add(ru.neverland.mintcamps.model.GuestAccess.Right.valueOf(right));
+                    camp.guests().put(UUID.fromString(raw),new ru.neverland.mintcamps.model.GuestAccess(ru.neverland.core.SafeYaml.stringValue(yaml,g+".name"),ru.neverland.core.SafeYaml.longValue(yaml,g+".granted"),ru.neverland.core.SafeYaml.longValue(yaml,g+".expires"),rights));
+                }
                 String stashPos = yaml.getString(path + "stash-block", "");
                 if (!stashPos.isBlank()) camp.stashBlock(BlockPos.parse(stashPos));
                 String hologram = yaml.getString(path + "hologram-id", "");
@@ -187,6 +193,9 @@ public final class CampRepository {
             for (Map.Entry<UUID, String> trusted : camp.trusted().entrySet()) {
                 yaml.set(path + "trusted." + trusted.getKey(), trusted.getValue());
             }
+            camp.guests().forEach((id,grant)->{
+                String g=path+"guests."+id;yaml.set(g+".name",grant.name());yaml.set(g+".granted",grant.grantedAt());yaml.set(g+".expires",grant.expiresAt());yaml.set(g+".rights",grant.rights().stream().map(Enum::name).sorted().toList());
+            });
             List<Map<String, Object>> snapshots = new ArrayList<>();
             for (Map.Entry<BlockPos, BlockSnapshot> entry : camp.snapshots().entrySet()) {
                 Map<String, Object> serialized = new LinkedHashMap<>();

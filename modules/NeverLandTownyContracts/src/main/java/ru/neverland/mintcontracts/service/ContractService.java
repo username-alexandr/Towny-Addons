@@ -135,6 +135,22 @@ public final class ContractService implements MintTownyContractsApi {
         }
     } }
 
+    public boolean hasFishingTask(UUID resident){try(var g=ru.neverland.core.SuiteState.guard()){
+        var person=towny.resident(resident);var town=person==null?null:person.getTownOrNull();if(town==null||!repository.writable())return false;
+        for(var contract:repository.active(town.getUUID())){var d=definition(contract);if(d!=null&&d.type()==ContractType.FISH&&!contract.completed()&&canContribute(contract,resident))return true;}
+        return false;
+    }}
+    private void fishingTimers(long now){
+        boolean ready=!(plugin instanceof ru.neverland.mintcontracts.MintTownyContracts main)||main.fishingReady();
+        for(var contract:repository.allActive()){
+            var d=definition(contract);if(d==null||d.type()!=ContractType.FISH||contract.completed()||contract.settlementStatus()!=null)continue;
+            if(!ready&&!contract.timer().paused()&&contract.expiresAt()>now){contract.timer(contract.timer().edit("pause",0,now));contract.fishingPaused(true);repository.changed();}
+            else if(ready&&contract.fishingPaused()){
+                if(contract.timer().paused())contract.timer(contract.timer().edit("resume",0,now));contract.fishingPaused(false);repository.changed();
+            }
+        }
+    }
+
     private boolean addInternal(ActiveContract contract, UUID contributor, int amount) {
         if (!canContribute(contract,contributor)) return false;
         int accepted = contract.add(contributor, amount);
@@ -154,7 +170,7 @@ public final class ContractService implements MintTownyContractsApi {
     public void tick() { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {
         if(!repository.writable())return;
         try{
-            repository.flushReputation();fieldWork.pulse();if(++pulses%Math.max(1,plugin.getConfig().getInt("contracts.expiration-check-seconds",30))!=0)return;
+            fishingTimers(System.currentTimeMillis());repository.flushReputation();fieldWork.pulse();if(++pulses%Math.max(1,plugin.getConfig().getInt("contracts.expiration-check-seconds",30))!=0){repository.saveIfDirty();return;}
             for(var d:repository.deliveries().values())if(d.phase()==DeliveryIntent.Phase.TAKEN||d.phase()==DeliveryIntent.Phase.COMPLETE&&!d.acknowledged()){
                 try{deliveries.process(d.id());}catch(Exception ex){if(!repository.writable())throw ex;}
             }

@@ -1004,7 +1004,7 @@ buildings:
     category: DEFENSE
     slot: 35
     order: 216
-    description: ["Отдельный штаб городской армии.", "Мобилизация граждан от 18 лет персонажа: /t army.", "Каждый уровень открывает 10 мест в штате."]
+    description: ["Отдельный штаб городской армии.", "Мобилизация граждан от 18 лет персонажа: /t army.", "Каждый уровень открывает 10 мест в штате.", "После первой завершённой постройки город открыт для рейдов.", "Снос штаба не возвращает защиту; щит первых суток действует отдельно."]
     levels:
       1: {money: 8000, bonus-blocks: 1, resources: ["DEEPSLATE_BRICKS:192", "POLISHED_ANDESITE:96"], effects: []}
       2: {money: 16000, bonus-blocks: 2, resources: ["POLISHED_ANDESITE:192", "POLISHED_BASALT:64"], effects: []}

@@ -46,7 +46,10 @@ public final class ProgressListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onFish(PlayerFishEvent event) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyContracts")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (event.getState() != PlayerFishEvent.State.CAUGHT_FISH) return;
-        String target = event.getCaught() instanceof Item item ? item.getItemStack().getType().name() : "ANY";
-        contracts.record(event.getPlayer(), ContractType.FISH, target, 1);
+        if(!ru.neverland.mintcontracts.fishing.FishingProtection.allows(plugin,event))return;
+        if(!(event.getCaught() instanceof Item item)||!ru.neverland.core.SuiteScheduler.owns(item))return;
+        String target=item.getItemStack().getType().name();
+        if(!java.util.Set.of("COD","SALMON","PUFFERFISH","TROPICAL_FISH").contains(target))return;
+        ru.neverland.core.SuiteScheduler.entity(plugin,event.getPlayer(),()->{if(!event.isCancelled())contracts.record(event.getPlayer(),ContractType.FISH,target,1);});
     } }
 }

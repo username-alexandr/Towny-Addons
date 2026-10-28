@@ -1,0 +1,26 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 41 assertions; genuine Folia/Minecraft pond calculation, caught events, stock depletion and restart; explicit offline actor; no network client\n",
+    "jar_sha256": {
+      "NeverLandTownyContracts-0.6.0.jar": "991d6a8119fb8377e357546df9c02d16ab516f4ae87054297225bed8e5c08501",
+      "NeverLandTownyBuilds-0.9.2.jar": "4c417d27490e9b0c8fef650058c8233da7f3c2d047ff6c918c74b32bacb08257",
+      "TntRuntimeProbe.jar": "200d87e878082828eff0aaaa4c5e688a67fa7523cfefa95682691bac49765363",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 9 assertions; genuine Folia/Minecraft pond calculation, caught events, stock depletion and restart; explicit offline actor; no network client\n",
+    "jar_sha256": {
+      "NeverLandTownyContracts-0.6.0.jar": "991d6a8119fb8377e357546df9c02d16ab516f4ae87054297225bed8e5c08501",
+      "NeverLandTownyBuilds-0.9.2.jar": "4c417d27490e9b0c8fef650058c8233da7f3c2d047ff6c918c74b32bacb08257",
+      "TntRuntimeProbe.jar": "200d87e878082828eff0aaaa4c5e688a67fa7523cfefa95682691bac49765363",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64"
+    }
+  }
+]

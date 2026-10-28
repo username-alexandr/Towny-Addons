@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Offline javac build against an already bootstrapped real Folia runtime and official plugin JARs."""
-import argparse, json, os, re, shutil, subprocess, zipfile
+import argparse, json, os, re, shutil, subprocess, zipfile, xml.etree.ElementTree as ET
 from pathlib import Path
 from api_audit import ROOT, inventory
 from run_smoke import run_tests
@@ -20,11 +20,17 @@ cp=os.pathsep.join(map(str,dependencies));report=[];data=inventory()
 (ROOT/'build').mkdir(exist_ok=True);(ROOT/'build/pinned-classpath.txt').write_text(cp)
 for short in a.modules:
     module=ROOT/'modules'/('NeverLandTowny'+short if not short.startswith('NeverLandTowny') else short)
-    gradle=(module/'build.gradle.kts').read_text();version=re.search(r'^version = "([^"]+)"',gradle,re.M).group(1)
+    if (module/'build.gradle.kts').exists():
+        gradle=(module/'build.gradle.kts').read_text();version=re.search(r'^version = "([^"]+)"',gradle,re.M).group(1)
+        sources=[module/'src/main/java']+[(module/s).resolve() for s in re.findall(r'java\.srcDir\("([^"]+)"\)',gradle)]
+        resource_roots=[module/'src/main/resources']+[(module/s).resolve() for s in re.findall(r'resources\.srcDir\("([^"]+)"\)',gradle)]
+    else:
+        ns={'m':'http://maven.apache.org/POM/4.0.0'};pom=ET.parse(module/'pom.xml').getroot();version=pom.findtext('m:version',namespaces=ns)
+        def expand(text):return Path(text.replace('${project.basedir}',str(module))).resolve()
+        sources=[module/'src/main/java']+[expand(s.text) for s in pom.findall('.//m:configuration/m:sources/m:source',ns)]
+        resource_roots=[module/'src/main/resources']+[expand(s.text) for s in pom.findall('.//m:configuration/m:resources/m:resource/m:directory',ns)]
     build=module/'build';classes=build/'classes/java/main';tests=build/'classes/java/test';libs=build/'libs'
     for path in [classes,tests,libs]:shutil.rmtree(path,ignore_errors=True);path.mkdir(parents=True)
-    sources=[module/'src/main/java']+[(module/s).resolve() for s in re.findall(r'java\.srcDir\("([^"]+)"\)',gradle)]
-    resource_roots=[module/'src/main/resources']+[(module/s).resolve() for s in re.findall(r'resources\.srcDir\("([^"]+)"\)',gradle)]
     files=sorted({f for root in sources for f in root.rglob('*.java')})
     subprocess.run([str(java/'javac'),'--release','17','-encoding','UTF-8','-cp',cp,'-d',str(classes),*map(str,files)],check=True)
     for root in resource_roots:

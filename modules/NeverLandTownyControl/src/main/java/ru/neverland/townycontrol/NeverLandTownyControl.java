@@ -88,7 +88,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             if(action.equals("disable")) {
                 stop(blocked);
                 sender.sendMessage("§eПриостановлены с зависимостями: §f"+shortNames(blocked));
-                sender.sendMessage("§7Прогресс, денежные журналы и оставшееся время сохранены. Провалы за время отключения не начисляются.");
+                sender.sendMessage("§7Завершаем сохранение; после подтверждения аддоны отключатся. Провалы за время паузы не начисляются.");
             } else {
                 sender.sendMessage("§aЗапуск разрешён после полного перезапуска сервера.");
                 if(!blocked.isEmpty())sender.sendMessage("§eОстаются отключёнными: §f"+shortNames(blocked)+" §7(их зависимость ещё выключена)");
@@ -108,20 +108,24 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
         Runnable acknowledged=()->{
             if(remaining.decrementAndGet()!=0)return;
             SuiteScheduler.get().runTask(this,()->{
-                applying=true;
-                try {
-                    List<Plugin> plugins=new ArrayList<>();
-                    for(Plugin p:getServer().getPluginManager().getPlugins())
-                        if(names.contains(p.getName())&&!p.getName().equals(originating)&&p.isEnabled())plugins.add(p);
-                    Collections.reverse(plugins);
-                    for(Plugin p:plugins)getServer().getPluginManager().disablePlugin(p);
-                } finally {applying=false;}
+                List<Plugin> plugins=new ArrayList<>();
+                for(Plugin p:getServer().getPluginManager().getPlugins())
+                    if(names.contains(p.getName())&&!p.getName().equals(originating)&&p.isEnabled())plugins.add(p);
+                Collections.reverse(plugins);disablePrepared(plugins,0);
             });
         };
         for(var player:players)SuiteScheduler.entityLater(this,player,()->{
             try { player.closeInventory(); } finally { acknowledged.run(); }
         },acknowledged,1);
         acknowledged.run();
+    }
+    private void disablePrepared(List<Plugin> plugins,int index){
+        if(index>=plugins.size())return;Plugin target=plugins.get(index);
+        ModuleShutdown.prepare(target).whenComplete((value,error)->SuiteScheduler.get().runTask(this,()->{
+            if(error!=null){getLogger().log(java.util.logging.Level.SEVERE,"Аддоны остаются на паузе: не подтверждено сохранение "+target.getName(),error);return;}
+            applying=true;try{if(target.isEnabled())getServer().getPluginManager().disablePlugin(target);}finally{applying=false;}
+            disablePrepared(plugins,index+1);
+        }));
     }
     @EventHandler(priority=EventPriority.MONITOR) public void onDisable(PluginDisableEvent event) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if(applying||graph==null||!isEnabled()||!graph.modules().contains(event.getPlugin().getName())||Bukkit.isStopping())return;

@@ -28,6 +28,7 @@ public final class Camp {
     private long burnUntil;
     private boolean mobsDisabled;
     private final Map<UUID, String> trusted = new LinkedHashMap<>();
+    private final Map<UUID,GuestAccess> guests=new LinkedHashMap<>();
     private ItemStack[] stash;
     private final Map<BlockPos, BlockSnapshot> snapshots = new LinkedHashMap<>();
     private final Set<BlockPos> placedBlocks = new LinkedHashSet<>();
@@ -67,6 +68,10 @@ public final class Camp {
     public boolean mobsDisabled() { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) { return mobsDisabled; } }
     public void mobsDisabled(boolean value) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) { mobsDisabled = value; } }
     public Map<UUID, String> trusted() { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) { return trusted; } }
+    public Map<UUID,GuestAccess> guests(){try(var guard=ru.neverland.core.SuiteState.guard()){return guests;}}
+    public boolean allows(UUID player,GuestAccess.Right right,long now){try(var guard=ru.neverland.core.SuiteState.guard()){
+        return canAccess(player)||guests.containsKey(player)&&guests.get(player).allows(right,now);
+    }}
     public ItemStack[] stash() { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) { return stash; } }
     public void stash(ItemStack[] value, int size) { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {
         ItemStack[] resized = new ItemStack[Math.max(9, size)];

@@ -102,7 +102,7 @@ public final class MintTownyCamps extends JavaPlugin {
         startTasks();
         holograms.start();
         protection.start();
-        getLogger().info("NeverLandTownyCamps 0.1.6 включён: процедурные лагеря готовы.");
+        getLogger().info("NeverLandTownyCamps "+getPluginMeta().getVersion()+" включён: процедурные лагеря готовы.");
     } }
 
     @Override

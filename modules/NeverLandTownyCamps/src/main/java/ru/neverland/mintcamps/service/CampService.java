@@ -265,7 +265,8 @@ public final class CampService {
         if (owner.getUniqueId().equals(targetId)) { messages.send(owner, "self-trust"); return false; }
         if (camp.trusted().containsKey(targetId)) { messages.send(owner, "already-trusted", Map.of("player", targetName)); return false; }
         int max = maxTrusted(camp.level());
-        if (camp.trusted().size() >= max) { messages.send(owner, "trust-full", Map.of("max", max)); return false; }
+        long temporary=camp.guests().entrySet().stream().filter(e->!e.getKey().equals(targetId)&&e.getValue().active(System.currentTimeMillis())).count();
+        if (camp.trusted().size()+temporary >= max) { messages.send(owner, "trust-full", Map.of("max", max)); return false; }
         camp.trusted().put(targetId, targetName);
         repository.markDirty();
         repository.saveIfDirty();
@@ -289,6 +290,29 @@ public final class CampService {
         if (online != null) messages.send(online, "trust-notify-removed", Map.of("owner", owner.getName()));
         return true;
     } }
+
+    public boolean guest(Player owner,UUID target,String name,java.util.Set<ru.neverland.mintcamps.model.GuestAccess.Right> rights,int minutes){try(var guard=ru.neverland.core.SuiteState.guard()){
+        Camp camp=repository.get(owner.getUniqueId()).orElseThrow(()->new IllegalArgumentException("Сначала создайте свой лагерь"));
+        if(target.equals(owner.getUniqueId()))throw new IllegalArgumentException("Владелец уже имеет все права");
+        if(camp.trusted().containsKey(target))throw new IllegalArgumentException("Игрок имеет полный постоянный доступ. Сначала уберите его: /camp untrust "+name);
+        if(minutes<1||minutes>10080)throw new IllegalArgumentException("Срок гостевого доступа: от 1 до 10080 минут (7 дней)");
+        long now=System.currentTimeMillis();var previous=camp.guests().get(target);
+        long active=camp.guests().entrySet().stream().filter(e->!e.getKey().equals(target)&&e.getValue().active(now)).count();
+        if(active+camp.trusted().size()>=maxTrusted(camp.level()))throw new IllegalArgumentException("В лагере не осталось мест для гостей");
+        var grant=new ru.neverland.mintcamps.model.GuestAccess(name,now,Math.addExact(now,minutes*60000L),rights);
+        camp.guests().put(target,grant);repository.markDirty();
+        try{repository.saveOrThrow();}catch(java.io.IOException error){if(previous==null)camp.guests().remove(target);else camp.guests().put(target,previous);throw new IllegalStateException("Права не изменены: не удалось сохранить лагерь",error);}
+        ru.neverland.core.AuditTrail.record(plugin,"grant",UUID.randomUUID().toString(),"CAMP_GUEST","GRANTED",ru.neverland.core.AuditTrail.player(owner.getUniqueId()),ru.neverland.core.AuditTrail.player(owner.getUniqueId()),ru.neverland.core.AuditTrail.player(target),"",0,"","expires="+grant.expiresAt()+"; rights="+rights);
+        owner.sendMessage("§aДоступ для "+name+" сохранён на "+minutes+" мин.: "+rights.stream().map(r->r.label).sorted().collect(java.util.stream.Collectors.joining(", ")));
+        return true;
+    }}
+    public boolean revokeGuest(Player owner,UUID target){try(var guard=ru.neverland.core.SuiteState.guard()){
+        Camp camp=repository.get(owner.getUniqueId()).orElseThrow(()->new IllegalArgumentException("У вас нет лагеря"));
+        var previous=camp.guests().remove(target);if(previous==null)throw new IllegalArgumentException("У игрока нет гостевого доступа");repository.markDirty();
+        try{repository.saveOrThrow();}catch(java.io.IOException error){camp.guests().put(target,previous);throw new IllegalStateException("Не удалось сохранить отмену доступа",error);}
+        ru.neverland.core.AuditTrail.record(plugin,"revoke",UUID.randomUUID().toString(),"CAMP_GUEST","REVOKED",ru.neverland.core.AuditTrail.player(owner.getUniqueId()),ru.neverland.core.AuditTrail.player(owner.getUniqueId()),ru.neverland.core.AuditTrail.player(target),"",0,"","");
+        owner.sendMessage("§eГостевой доступ отменён.");return true;
+    }}
 
     public void toggleBarrier(Player player) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         Camp camp = repository.get(player.getUniqueId()).orElse(null);

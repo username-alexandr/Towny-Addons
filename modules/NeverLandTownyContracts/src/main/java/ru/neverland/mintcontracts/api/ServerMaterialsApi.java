@@ -6,7 +6,8 @@ import ru.neverland.core.ApiContract;
 
 /** Server construction integrations: asynchronous, immutable results; never join on a Folia thread. */
 public interface ServerMaterialsApi extends ApiContract {
-    @Override default Set<String> capabilities(){return Set.of("balances","reserve","consume","release");}
+    @Override default Set<String> capabilities(){return Set.of("balances","reserve","consume","release","demand");}
+    default CompletionStage<Map<String,Long>> demand(){return java.util.concurrent.CompletableFuture.completedFuture(Map.of());}
     CompletionStage<Map<String,Long>> balances();
     CompletionStage<String> reserve(UUID operation,String project,Map<String,Long> costs,String actor,String reason);
     CompletionStage<String> consume(UUID operation,String actor,String reason);

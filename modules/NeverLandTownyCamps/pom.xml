@@ -6,7 +6,7 @@
 
     <groupId>ru.neverland</groupId>
     <artifactId>neverlandtownycamps</artifactId>
-    <version>0.1.23</version>
+    <version>0.2.0</version>
     <name>NeverLandTownyCamps</name>
 
     <properties>

@@ -1,0 +1,4 @@
+PASS real Camps enabled
+PASS closing revoked storage persists real items through full restart
+PASS expired permission is not renewed by restart
+PASS final chronicle snapshot survives full server restart

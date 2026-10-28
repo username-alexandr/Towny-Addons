@@ -1,0 +1,32 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 13 assertions; genuine Folia inventories/event handlers, timed camp rights, item serialization and Chronicle shutdown; explicit networkless actors and inventory-view stand-ins; no GUI client claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyControl-0.5.1.jar": "935571c71d819152cc159c0ee3d6f3cfe9a88bc9e51891f33b750fe15a4b2472",
+      "NeverLandTownyContracts-0.6.0.jar": "de0b1b8000395ba78b51569da41c8fab6796714a6039d621cf88e93132500294",
+      "NeverLandTownyBuilds-0.9.2.jar": "4c417d27490e9b0c8fef650058c8233da7f3c2d047ff6c918c74b32bacb08257",
+      "TntRuntimeProbe.jar": "6d76ca522e6fa852c2da0d7d2c7230b56d0aed0cf30cc9872d25ed9c54cb2b76",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCamps-0.2.0.jar": "810c6dc00e912eddf46deaa2941d6447e97b64484ce3f938673c71ed8fdbf254",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64",
+      "NeverLandTownyChronicles-0.2.1.jar": "17355e74c6dc9a523eeffd676075be33843a63a2d8cc8cd903743d82478d1799"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 4 assertions; genuine Folia inventories/event handlers, timed camp rights, item serialization and Chronicle shutdown; explicit networkless actors and inventory-view stand-ins; no GUI client claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyControl-0.5.1.jar": "935571c71d819152cc159c0ee3d6f3cfe9a88bc9e51891f33b750fe15a4b2472",
+      "NeverLandTownyContracts-0.6.0.jar": "de0b1b8000395ba78b51569da41c8fab6796714a6039d621cf88e93132500294",
+      "NeverLandTownyBuilds-0.9.2.jar": "4c417d27490e9b0c8fef650058c8233da7f3c2d047ff6c918c74b32bacb08257",
+      "TntRuntimeProbe.jar": "6d76ca522e6fa852c2da0d7d2c7230b56d0aed0cf30cc9872d25ed9c54cb2b76",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCamps-0.2.0.jar": "810c6dc00e912eddf46deaa2941d6447e97b64484ce3f938673c71ed8fdbf254",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64",
+      "NeverLandTownyChronicles-0.2.1.jar": "17355e74c6dc9a523eeffd676075be33843a63a2d8cc8cd903743d82478d1799"
+    }
+  }
+]

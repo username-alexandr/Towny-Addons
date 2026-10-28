@@ -16,6 +16,8 @@ public final class PersonalOrderBoards {
     private final Clock clock;
     private final Random random;
     private final Map<UUID,DailyOrderBoard> cache = new LinkedHashMap<>(32, .75f, true);
+    private java.util.function.ToIntFunction<Template> priority=t->1;
+    public void priority(java.util.function.ToIntFunction<Template> value){try(var guard=SuiteState.guard()){priority=Objects.requireNonNull(value);cache.values().forEach(board->board.priority(priority));}}
 
     public PersonalOrderBoards(Path directory,List<Template> catalog,int size,Map<OrderRarity,Integer> weights) throws IOException {
         this(directory,catalog,size,weights,Clock.systemUTC(),new java.security.SecureRandom());
@@ -33,7 +35,7 @@ public final class PersonalOrderBoards {
             Objects.requireNonNull(player,"player");
             var board=cache.get(player);
             if(board==null) {
-                board=new DailyOrderBoard(directory.resolve(player+".yml"),catalog,size,weights,clock,random);
+                board=new DailyOrderBoard(directory.resolve(player+".yml"),catalog,size,weights,clock,random).priority(priority);
                 cache.put(player,board);
                 if(cache.size()>256)cache.remove(cache.keySet().iterator().next());
             }

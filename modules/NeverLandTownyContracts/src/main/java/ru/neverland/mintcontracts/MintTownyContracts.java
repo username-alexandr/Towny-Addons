@@ -30,6 +30,9 @@ public final class MintTownyContracts extends JavaPlugin {
     private ContractRepository repository;
     private ContractService contracts;
     private ru.neverland.mintcontracts.orders.PublicOrders publicOrders;
+    private ru.neverland.mintcontracts.fishing.FishingProtection fishing;
+    public ru.neverland.mintcontracts.fishing.FishingProtection fishing(){return fishing;}
+    public boolean fishingReady(){return fishing!=null&&fishing.ready();}
 
     @Override public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
@@ -55,24 +58,37 @@ public final class MintTownyContracts extends JavaPlugin {
 ru.neverland.core.ActivityAdmin.attach(this,"townycontracts","mintcontracts.admin",contracts::adminTargets);
         getCommand("orders").setExecutor((sender,cmd,label,args)->{sender.sendMessage("Раздел заработка приостановлен: проверьте конфигурацию и журнал запуска.");return true;});try { publicOrders=new ru.neverland.mintcontracts.orders.PublicOrders(this,names); } catch(Exception ex) { getLogger().log(java.util.logging.Level.SEVERE,"Публичные заказы приостановлены; городские контракты продолжают работать",ex); }
         new ru.neverland.mintcontracts.service.BuildOrders(this,towny,contracts);
+        try{fishing=new ru.neverland.mintcontracts.fishing.FishingProtection(this,id->contracts.hasFishingTask(id)||(publicOrders!=null&&publicOrders.hasFishingTask(id)));}
+        catch(Exception ex){getLogger().log(java.util.logging.Level.SEVERE,"Рыбалка заданий приостановлена; остальные контракты работают",ex);}
+        ru.neverland.core.ModuleShutdown.register(this,this::prepareShutdown);
         contracts.start();
         getLogger().info("NeverLandTownyContracts "+getPluginMeta().getVersion()+" включён: шаблонов " + registry.all().size()
                 + ", склад=" + warehouse.available() + ", PlaceholderAPI=" + placeholders + ".");
     } }
 
-    @Override public void onDisable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
-        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
-
-        if (publicOrders != null) publicOrders.shutdown();
-        if (contracts != null) contracts.shutdown();
-        if (towny != null) {towny.unregister("contracts");towny.unregister("buildorders");}
-        getServer().getServicesManager().unregisterAll(this);
-    } }
+    private java.util.concurrent.CompletionStage<Void> prepareShutdown(){
+        var orders=publicOrders==null?java.util.concurrent.CompletableFuture.<Void>completedFuture(null):publicOrders.shutdownAsync();
+        var fish=fishing==null?java.util.concurrent.CompletableFuture.<Void>completedFuture(null):fishing.shutdownAsync();
+        return java.util.concurrent.CompletableFuture.allOf(orders.toCompletableFuture(),fish.toCompletableFuture());
+    }
+    @Override public void onDisable(){
+        try(var guard=ru.neverland.core.SuiteState.guard()){
+            if(!ru.neverland.core.ModuleLifecycle.end(this))return;
+            prepareShutdown();if(contracts!=null)contracts.shutdown();
+            if(towny!=null){towny.unregister("contracts");towny.unregister("buildorders");}
+            getServer().getServicesManager().unregisterAll(this);
+        }
+        // Control has already awaited this receipt before disabling. Server shutdown has no outer guard.
+        try{prepareShutdown().toCompletableFuture().get(5,java.util.concurrent.TimeUnit.SECONDS);}
+        catch(InterruptedException error){Thread.currentThread().interrupt();getLogger().log(java.util.logging.Level.SEVERE,"Остановка хранилищ контрактов прервана",error);}
+        catch(Exception error){getLogger().log(java.util.logging.Level.SEVERE,"Не подтверждена остановка хранилищ контрактов; проверьте базы перед запуском",error);}
+    }
 
     public ContractService companyContracts() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return contracts; } }
 
     public void reloadPlugin() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         reloadConfig(); messages.reload(); itemsAdder.reload(); names.reload(); registry.reload(); contracts.reloadRuntime();
+        if(fishing!=null)try{fishing.reload();}catch(Exception ex){getLogger().log(java.util.logging.Level.SEVERE,"Настройки рыбалки не применены; прежние правила сохранены",ex);}
     } }
     private void copy(String name) { if (!new File(getDataFolder(), name).exists()) saveResource(name, false); }
 }

@@ -45,6 +45,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class MenuManager implements Listener {
+    private record Bench(UUID camp,Inventory inventory,long started){}
+    private final java.util.Map<UUID,Bench> benches=new java.util.HashMap<>();
     private final JavaPlugin plugin;
     private final CampRepository repository;
     private final CostStore costs;
@@ -113,7 +115,7 @@ public final class MenuManager implements Listener {
     } }
 
     public void openStorage(Player player, Camp camp) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
-        if (!camp.canAccess(player.getUniqueId()) && !player.hasPermission("mintcamps.admin")) {
+        if (!storageAccess(player,camp)) {
             messages.send(player, "protection.interact");
             return;
         }
@@ -122,7 +124,64 @@ public final class MenuManager implements Listener {
         if (!repository.openStash(camp.ownerId(),inventory)) { player.sendMessage("§eСклад лагеря уже открыт другим игроком."); return; }
         inventory.setContents(Arrays.stream(camp.stash()).map(item -> item == null ? null : item.clone()).toArray(ItemStack[]::new));
         try{player.openInventory(inventory);}finally{if(player.getOpenInventory().getTopInventory()!=inventory)repository.closeStash(camp.ownerId(),inventory);}
+        watchAccess(player,camp,inventory,ru.neverland.mintcamps.model.GuestAccess.Right.STORAGE);
     } }
+
+    private boolean storageAccess(Player player,Camp camp){return repository.writable()&&(player.hasPermission("mintcamps.admin")||camp.allows(player.getUniqueId(),ru.neverland.mintcamps.model.GuestAccess.Right.STORAGE,System.currentTimeMillis()));}
+    private void watchAccess(Player player,Camp camp,Inventory inventory,ru.neverland.mintcamps.model.GuestAccess.Right right){
+        ru.neverland.core.SuiteScheduler.entityLater(plugin,player,()->{
+            if(player.getOpenInventory().getTopInventory()!=inventory)return;
+            if(repository.get(camp.ownerId()).orElse(null)!=camp||!repository.writable()||!player.hasPermission("mintcamps.admin")&&!camp.allows(player.getUniqueId(),right,System.currentTimeMillis())){
+                player.closeInventory();player.sendMessage("§eДоступ к лагерю закончился или был отменён.");return;
+            }
+            watchAccess(player,camp,inventory,right);
+        },null,20);
+    }
+    private static final class GuestView implements InventoryHolder,CampInventoryHolder{
+        final UUID owner;final java.util.Map<Integer,UUID> slots=new java.util.HashMap<>();Inventory inventory;
+        GuestView(UUID owner){this.owner=owner;}public UUID campOwner(){return owner;}public Inventory getInventory(){return inventory;}
+    }
+    public void openGuests(Player player){try(var guard=ru.neverland.core.SuiteState.guard()){
+        var camp=repository.get(player.getUniqueId()).orElse(null);if(camp==null){player.sendMessage("§eСначала создайте лагерь.");return;}
+        var holder=new GuestView(player.getUniqueId());holder.inventory=ru.neverland.core.MenuStyle.inventory(plugin,holder,54,"Гости лагеря");long now=System.currentTimeMillis();int slot=0;
+        for(var entry:camp.guests().entrySet().stream().sorted(java.util.Comparator.comparing((java.util.Map.Entry<UUID,ru.neverland.mintcamps.model.GuestAccess> e)->!e.getValue().active(now)).thenComparing(e->e.getValue().name())).toList()){
+            if(slot>=45)break;var grant=entry.getValue();holder.slots.put(slot,entry.getKey());
+            holder.inventory.setItem(slot++,icon(null,grant.active(now)?Material.LIME_DYE:Material.GRAY_DYE,grant.name(),List.of(
+                Component.text("Права: "+grant.rights().stream().map(r->r.label).sorted().collect(java.util.stream.Collectors.joining(", "))),
+                Component.text(grant.active(now)?"Осталось: "+Math.max(1,(grant.expiresAt()-now+59999)/60000)+" мин.":"Доступ закончился"),Component.text("Нажмите, чтобы отменить доступ"))));
+        }
+        for(var trusted:camp.trusted().entrySet())if(slot<45)holder.inventory.setItem(slot++,icon(null,Material.PLAYER_HEAD,trusted.getValue(),List.of(Component.text("Полный постоянный доступ"),Component.text("Отменить: /camp untrust "+trusted.getValue()))));
+        holder.inventory.setItem(49,icon(null,Material.BOOK,"Как пригласить гостя",List.of(Component.text("/camp guest <ник> sleep,workbench 60"),Component.text("sleep — сон; workbench — верстаки"),Component.text("storage — склад; срок — в минутах"),Component.text("Постоянный полный доступ: /camp trust <ник>"))));
+        player.openInventory(holder.inventory);
+    }}
+    @EventHandler public void guestClick(InventoryClickEvent event){
+        if(!(event.getView().getTopInventory().getHolder() instanceof GuestView view))return;event.setCancelled(true);
+        if(!(event.getWhoClicked() instanceof Player player)||!view.owner.equals(player.getUniqueId())||ru.neverland.core.SuiteState.frozen(plugin.getName()))return;
+        UUID guest=view.slots.get(event.getRawSlot());if(guest==null)return;
+        ru.neverland.core.SuiteScheduler.player(plugin,player,p->{try{camps.revokeGuest(p,guest);openGuests(p);}catch(Exception error){p.sendMessage("§e"+error.getMessage());}});
+    }
+    private static boolean workbench(Material material){return java.util.Set.of(Material.CRAFTING_TABLE,Material.LOOM,Material.STONECUTTER,Material.SMITHING_TABLE,Material.CARTOGRAPHY_TABLE,Material.GRINDSTONE,Material.ANVIL,Material.CHIPPED_ANVIL,Material.DAMAGED_ANVIL,Material.ENCHANTING_TABLE).contains(material);}
+    @EventHandler(priority=EventPriority.HIGH,ignoreCancelled=true)
+    public void benchOpen(org.bukkit.event.inventory.InventoryOpenEvent event){try(var guard=ru.neverland.core.SuiteState.guard()){
+        if(!(event.getPlayer() instanceof Player player))return;var bench=benches.get(player.getUniqueId());if(bench==null||bench.inventory()!=null)return;
+        var camp=repository.get(bench.camp()).orElse(null);
+        if(camp==null||System.currentTimeMillis()-bench.started()>1000||!camp.allows(player.getUniqueId(),ru.neverland.mintcamps.model.GuestAccess.Right.WORKBENCH,System.currentTimeMillis())&&!player.hasPermission("mintcamps.admin")){
+            event.setCancelled(true);benches.remove(player.getUniqueId());return;
+        }
+        benches.put(player.getUniqueId(),new Bench(bench.camp(),event.getInventory(),bench.started()));
+        watchAccess(player,camp,event.getInventory(),ru.neverland.mintcamps.model.GuestAccess.Right.WORKBENCH);
+    }}
+    private boolean benchAllowed(Player player,Inventory inventory){
+        var bench=benches.get(player.getUniqueId());if(bench==null||bench.inventory()!=inventory)return true;
+        var camp=repository.get(bench.camp()).orElse(null);return camp!=null&&repository.writable()&&(player.hasPermission("mintcamps.admin")||camp.allows(player.getUniqueId(),ru.neverland.mintcamps.model.GuestAccess.Right.WORKBENCH,System.currentTimeMillis()));
+    }
+    @EventHandler(priority=EventPriority.HIGH,ignoreCancelled=true)
+    public void bed(org.bukkit.event.player.PlayerBedEnterEvent event){try(var guard=ru.neverland.core.SuiteState.guard()){
+        var camp=repository.findAt(event.getBed().getLocation()).orElse(null);
+        if(camp!=null&&!event.getPlayer().hasPermission("mintcamps.admin")&&!camp.allows(event.getPlayer().getUniqueId(),ru.neverland.mintcamps.model.GuestAccess.Right.SLEEP,System.currentTimeMillis())){
+            event.setCancelled(true);event.getPlayer().sendMessage("§eВладелец лагеря не разрешил вам пользоваться кроватью, либо срок доступа закончился.");
+        }
+    }}
 
     public void openEditor(Player player) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         MenuHolder holder = new MenuHolder(MenuType.EDITOR_LEVELS, player.getUniqueId(), 0);
@@ -175,16 +234,23 @@ public final class MenuManager implements Listener {
             addFuel(event.getPlayer(), camp);
             return;
         }
-        if (!camp.canAccess(event.getPlayer().getUniqueId()) && !event.getPlayer().hasPermission("mintcamps.admin")) {
+        var right=org.bukkit.Tag.BEDS.isTagged(block.getType())?ru.neverland.mintcamps.model.GuestAccess.Right.SLEEP:workbench(block.getType())?ru.neverland.mintcamps.model.GuestAccess.Right.WORKBENCH:null;
+        boolean allowed=right==null?camp.canAccess(event.getPlayer().getUniqueId()):camp.allows(event.getPlayer().getUniqueId(),right,System.currentTimeMillis());
+        if (!allowed && !event.getPlayer().hasPermission("mintcamps.admin")) {
             event.setCancelled(true);
             messages.send(event.getPlayer(), "protection.interact");
+        }else if(right==ru.neverland.mintcamps.model.GuestAccess.Right.WORKBENCH){
+            benches.put(event.getPlayer().getUniqueId(),new Bench(camp.ownerId(),null,System.currentTimeMillis()));
         }
     } }
 
     @EventHandler
     public void onClick(InventoryClickEvent event) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+        if(event.getWhoClicked() instanceof Player p&&!benchAllowed(p,event.getView().getTopInventory())){event.setCancelled(true);ru.neverland.core.SuiteScheduler.player(plugin,p,player->player.closeInventory());return;}
         if (!(event.getInventory().getHolder() instanceof MenuHolder holder) || !(event.getWhoClicked() instanceof Player player)) return;
-        if (holder.type() == MenuType.STORAGE) return;
+        if (holder.type() == MenuType.STORAGE) {
+            var camp=repository.get(holder.owner()).orElse(null);if(camp==null||!storageAccess(player,camp)){event.setCancelled(true);ru.neverland.core.SuiteScheduler.player(plugin,player,p->p.closeInventory());}return;
+        }
         if (holder.type() == MenuType.EDITOR_COST) {
             handleCostClick(event, player, holder);
             return;
@@ -208,7 +274,10 @@ public final class MenuManager implements Listener {
 
     @EventHandler
     public void onDrag(InventoryDragEvent event) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCamps")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+        if(event.getWhoClicked() instanceof Player p&&!benchAllowed(p,event.getView().getTopInventory())){event.setCancelled(true);ru.neverland.core.SuiteScheduler.player(plugin,p,player->player.closeInventory());return;}
+        if(event.getView().getTopInventory().getHolder() instanceof GuestView){event.setCancelled(true);return;}
         if (!(event.getInventory().getHolder() instanceof MenuHolder holder)) return;
+        if(holder.type()==MenuType.STORAGE&&event.getWhoClicked() instanceof Player player){var camp=repository.get(holder.owner()).orElse(null);if(camp==null||!storageAccess(player,camp)){event.setCancelled(true);ru.neverland.core.SuiteScheduler.player(plugin,player,p->p.closeInventory());}return;}
         if (holder.type() != MenuType.EDITOR_COST) {
             if (holder.type() != MenuType.STORAGE) event.setCancelled(true);
             return;
@@ -218,6 +287,7 @@ public final class MenuManager implements Listener {
 
     @EventHandler
     public void onClose(InventoryCloseEvent event) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
+        var bench=benches.get(event.getPlayer().getUniqueId());if(bench!=null&&bench.inventory()==event.getInventory())benches.remove(event.getPlayer().getUniqueId());
         if (!(event.getInventory().getHolder() instanceof MenuHolder holder) || holder.type() != MenuType.STORAGE) return;
         if (!repository.closeStash(holder.owner(),event.getInventory())) return;
         repository.get(holder.owner()).ifPresent(camp -> {
@@ -226,6 +296,7 @@ public final class MenuManager implements Listener {
             repository.saveIfDirty();
         });
     } }
+    @EventHandler public void quit(org.bukkit.event.player.PlayerQuitEvent event){try(var guard=ru.neverland.core.SuiteState.guard()){benches.remove(event.getPlayer().getUniqueId());}}
 
     private void handleMain(Player player, int slot) {
         Camp camp = repository.get(player.getUniqueId()).orElse(null);
@@ -238,6 +309,7 @@ public final class MenuManager implements Listener {
             case 12 -> addFuel(player, camp);
             case 13 -> openStorage(player, camp);
             case 14 -> { player.closeInventory(); teleports.teleport(player, null); }
+            case 15 -> openGuests(player);
             case 16 -> { camps.toggleBarrier(player); openMain(player); }
             case 22 -> openPackConfirmation(player);
             default -> { }

@@ -21,6 +21,7 @@ public final class ServerMaterials implements AutoCloseable {
     }
     public record Balance(String material,long received,long available) {}
     public record Allocation(UUID id,String project,String actor,String reason,String state,Map<String,Long> items) {public Allocation{items=Map.copyOf(items);}}
+    public record Project(String id,String title,String actor,String state,Map<String,Long> needs){public Project{needs=Map.copyOf(needs);}}
     @FunctionalInterface private interface Sql<T>{T run()throws Exception;}
     private final Path file;
     private final ThreadPoolExecutor worker;
@@ -53,13 +54,16 @@ public final class ServerMaterials implements AutoCloseable {
             s.execute("PRAGMA busy_timeout=5000");s.execute("PRAGMA foreign_keys=ON");
             try(var r=s.executeQuery("PRAGMA journal_mode=WAL")){if(!r.next()||!r.getString(1).equalsIgnoreCase("wal"))throw new IOException("Склад требует файловую систему с поддержкой SQLite WAL");}
             s.execute("PRAGMA synchronous=FULL");
-            try(var r=s.executeQuery("PRAGMA user_version")){if(!r.next()||r.getInt(1)>1)throw new IOException("Неизвестная версия базы склада");}
+            try(var r=s.executeQuery("PRAGMA user_version")){if(!r.next()||r.getInt(1)>2)throw new IOException("Неизвестная версия базы склада");}
             try(var r=s.executeQuery("PRAGMA quick_check")){if(!r.next()||!r.getString(1).equals("ok"))throw new IOException("База склада повреждена");}
             s.execute("CREATE TABLE IF NOT EXISTS deliveries (id TEXT PRIMARY KEY,player TEXT NOT NULL,player_name TEXT NOT NULL,template TEXT NOT NULL,material TEXT NOT NULL,amount INTEGER NOT NULL CHECK(amount>0),cents INTEGER NOT NULL CHECK(cents>0),rarity TEXT NOT NULL,created INTEGER NOT NULL,state TEXT NOT NULL CHECK(state IN ('PREPARED','CONFIRMED','VOID')),settled INTEGER NOT NULL DEFAULT 0,confirmed INTEGER NOT NULL DEFAULT 0,decision TEXT NOT NULL DEFAULT '')");
             s.execute("CREATE TABLE IF NOT EXISTS balances (material TEXT PRIMARY KEY,received INTEGER NOT NULL CHECK(received>=0),available INTEGER NOT NULL CHECK(available>=0 AND available<=received))");
             s.execute("CREATE TABLE IF NOT EXISTS allocations (id TEXT PRIMARY KEY,project TEXT NOT NULL,actor TEXT NOT NULL,reason TEXT NOT NULL,state TEXT NOT NULL CHECK(state IN ('RESERVED','SPENT','RETURNED')),created INTEGER NOT NULL,decision TEXT NOT NULL DEFAULT '')");
             s.execute("CREATE TABLE IF NOT EXISTS allocation_items (id TEXT NOT NULL REFERENCES allocations(id),material TEXT NOT NULL,amount INTEGER NOT NULL CHECK(amount>0),PRIMARY KEY(id,material))");
-            s.execute("CREATE INDEX IF NOT EXISTS deliveries_pending ON deliveries(settled,state)");s.execute("PRAGMA user_version=1");
+            s.execute("CREATE TABLE IF NOT EXISTS projects (id TEXT PRIMARY KEY,title TEXT NOT NULL,actor TEXT NOT NULL,state TEXT NOT NULL CHECK(state IN ('OPEN','CANCELLED','ALLOCATED')),created INTEGER NOT NULL)");
+            s.execute("CREATE TABLE IF NOT EXISTS project_needs (project TEXT NOT NULL REFERENCES projects(id),material TEXT NOT NULL,amount INTEGER NOT NULL CHECK(amount>0),PRIMARY KEY(project,material))");
+            s.execute("CREATE TABLE IF NOT EXISTS project_actions (project TEXT NOT NULL REFERENCES projects(id),action TEXT NOT NULL,actor TEXT NOT NULL,reason TEXT NOT NULL,at INTEGER NOT NULL,PRIMARY KEY(project,action))");
+            s.execute("CREATE INDEX IF NOT EXISTS deliveries_pending ON deliveries(settled,state)");s.execute("PRAGMA user_version=2");
         }
     }
     private <T> T transaction(Sql<T> task)throws Exception{
@@ -96,6 +100,51 @@ public final class ServerMaterials implements AutoCloseable {
     public CompletionStage<Void> settled(UUID id){return submit(()->{try(var s=connection.prepareStatement("UPDATE deliveries SET settled=1 WHERE id=? AND state!='PREPARED'")){s.setString(1,id.toString());s.executeUpdate();}return null;});}
     public CompletionStage<List<Delivery>> unsettled(){return submit(()->{var result=new ArrayList<Delivery>();try(var s=connection.createStatement();var r=s.executeQuery("SELECT * FROM deliveries WHERE settled=0 AND state!='PREPARED' ORDER BY created LIMIT 20")){while(r.next())result.add(row(r));}return List.copyOf(result);});}
     public CompletionStage<List<Balance>> balances(){return submit(()->{var result=new ArrayList<Balance>();try(var s=connection.createStatement();var r=s.executeQuery("SELECT material,received,available FROM balances ORDER BY material")){while(r.next())result.add(new Balance(r.getString(1),r.getLong(2),r.getLong(3)));}return List.copyOf(result);});}
+    private Project project(String id)throws SQLException{
+        try(var s=connection.prepareStatement("SELECT * FROM projects WHERE id=?")){s.setString(1,id);try(var r=s.executeQuery()){
+            if(!r.next())return null;var needs=new TreeMap<String,Long>();try(var q=connection.prepareStatement("SELECT material,amount FROM project_needs WHERE project=?")){q.setString(1,id);try(var n=q.executeQuery()){while(n.next())needs.put(n.getString(1),n.getLong(2));}}
+            return new Project(id,r.getString("title"),r.getString("actor"),r.getString("state"),needs);
+        }}
+    }
+    private void projectLog(String project,String action,String actor,String reason)throws SQLException{
+        try(var s=connection.prepareStatement("INSERT OR IGNORE INTO project_actions VALUES(?,?,?,?,?)")){s.setString(1,project);s.setString(2,action);s.setString(3,actor);s.setString(4,reason);s.setLong(5,System.currentTimeMillis());s.executeUpdate();}
+    }
+    public CompletionStage<List<String>> projectHistory(String id){return submit(()->{var out=new ArrayList<String>();try(var s=connection.prepareStatement("SELECT action,actor,reason,at FROM project_actions WHERE project=? ORDER BY at,action")){s.setString(1,id);try(var r=s.executeQuery()){while(r.next())out.add(r.getString(1)+" | "+r.getString(2)+" | "+r.getString(3)+" | "+r.getLong(4));}}return List.copyOf(out);});}
+    public CompletionStage<Project> plan(String id,String title,String actor,Map<String,Long> costs){
+        var needs=Map.copyOf(costs);
+        if(id==null||!id.matches("[a-z0-9_]{1,48}")||title==null||title.isBlank()||title.length()>128||actor==null||actor.isBlank()||actor.length()>64||needs.isEmpty()||needs.size()>256||needs.entrySet().stream().anyMatch(e->!e.getKey().matches("[A-Z0-9_]{1,64}")||e.getValue()<1||e.getValue()>1000000000L))return CompletableFuture.failedFuture(new IllegalArgumentException("Неверный проект или список материалов"));
+        return submit(()->transaction(()->{
+            var old=project(id);if(old!=null){if(!old.title().equals(title)||!old.actor().equals(actor)||!old.needs().equals(needs))throw new IllegalArgumentException("ID проекта уже занят. Для другой сметы нужен новый ID");return old;}
+            try(var q=connection.createStatement();var r=q.executeQuery("SELECT count(*) FROM projects WHERE state='OPEN'")){if(r.next()&&r.getInt(1)>=1000)throw new IllegalArgumentException("Сначала завершите один из открытых серверных проектов");}
+            try(var s=connection.prepareStatement("INSERT INTO projects VALUES(?,?,?,'OPEN',?)")){s.setString(1,id);s.setString(2,title);s.setString(3,actor);s.setLong(4,System.currentTimeMillis());s.executeUpdate();}
+            for(var entry:needs.entrySet())try(var s=connection.prepareStatement("INSERT INTO project_needs VALUES(?,?,?)")){s.setString(1,id);s.setString(2,entry.getKey());s.setLong(3,entry.getValue());s.executeUpdate();}
+            projectLog(id,"PLAN",actor,title);
+            return project(id);
+        }));
+    }
+    public CompletionStage<Map<String,Long>> demand(){return submit(()->{
+        var out=new TreeMap<String,Long>();try(var s=connection.createStatement();var r=s.executeQuery("SELECT n.material,SUM(n.amount)-COALESCE(b.available,0) AS missing FROM project_needs n JOIN projects p ON p.id=n.project LEFT JOIN balances b ON b.material=n.material WHERE p.state='OPEN' GROUP BY n.material HAVING missing>0")){while(r.next())out.put(r.getString(1),r.getLong(2));}return Map.copyOf(out);
+    });}
+    public CompletionStage<List<Project>> projects(int page){
+        if(page<1||page>100000)return CompletableFuture.failedFuture(new IllegalArgumentException("Неверная страница"));
+        return submit(()->{var ids=new ArrayList<String>();try(var s=connection.prepareStatement("SELECT id FROM projects ORDER BY created DESC,id LIMIT 20 OFFSET ?")){s.setLong(1,(page-1L)*20);try(var r=s.executeQuery()){while(r.next())ids.add(r.getString(1));}}var out=new ArrayList<Project>();for(String id:ids)out.add(project(id));return List.copyOf(out);});
+    }
+    public CompletionStage<Project> cancelProject(String id,String actor,String reason){
+        if(actor==null||actor.isBlank()||reason==null||reason.trim().length()<8)return CompletableFuture.failedFuture(new IllegalArgumentException("Нужны автор и основание отмены"));
+        return submit(()->transaction(()->{
+        var row=project(id);if(row==null)throw new IllegalArgumentException("Проект не найден");if(row.state().equals("ALLOCATED"))throw new IllegalArgumentException("Материалы уже в резерве. Завершите или верните резерв по его ID");
+        try(var s=connection.prepareStatement("UPDATE projects SET state='CANCELLED' WHERE id=? AND state='OPEN'")){s.setString(1,id);s.executeUpdate();}projectLog(id,"CANCEL",actor,reason);return project(id);
+    }));}
+    public static UUID projectReservation(String id){return UUID.nameUUIDFromBytes(("neverland-server-project:"+id).getBytes(StandardCharsets.UTF_8));}
+    public CompletionStage<Allocation> reserveProject(String id,String actor,String reason){
+        if(actor==null||actor.isBlank()||reason==null||reason.trim().length()<8)return CompletableFuture.failedFuture(new IllegalArgumentException("Нужны автор и основание резерва"));
+        return submit(()->transaction(()->{
+            var row=project(id);if(row==null||row.state().equals("CANCELLED"))throw new IllegalArgumentException("Открытый проект не найден");UUID receipt=projectReservation(id);
+            if(row.state().equals("ALLOCATED")){var old=allocation(receipt);if(old==null||!old.project().equals(id)||!old.items().equals(row.needs()))throw new IOException("Резерв проекта требует сверки");return old;}
+            var allocation=allocateNow(receipt,id,actor,reason,row.needs());
+            try(var s=connection.prepareStatement("UPDATE projects SET state='ALLOCATED' WHERE id=? AND state='OPEN'")){s.setString(1,id);s.executeUpdate();}projectLog(id,"RESERVE",actor,reason);return allocation;
+        }));
+    }
     public CompletionStage<List<Delivery>> history(int page){if(page<1||page>100000)return CompletableFuture.failedFuture(new IllegalArgumentException("Неверная страница"));return submit(()->{var result=new ArrayList<Delivery>();try(var s=connection.prepareStatement("SELECT * FROM deliveries ORDER BY created DESC,id LIMIT 20 OFFSET ?")){s.setLong(1,(page-1L)*20);try(var r=s.executeQuery()){while(r.next())result.add(row(r));}}return List.copyOf(result);});}
     private Allocation allocation(UUID id)throws SQLException{
         try(var s=connection.prepareStatement("SELECT * FROM allocations WHERE id=?")){s.setString(1,id.toString());try(var r=s.executeQuery()){
@@ -106,14 +155,15 @@ public final class ServerMaterials implements AutoCloseable {
     public CompletionStage<Allocation> allocate(UUID id,String project,String actor,String reason,Map<String,Long> costs){
         Map<String,Long> items=Map.copyOf(costs);
         if(id==null||project==null||!project.matches("[a-zA-Z0-9_-]{1,48}")||actor==null||actor.isBlank()||reason==null||reason.trim().length()<8||items.isEmpty()||items.size()>256||items.entrySet().stream().anyMatch(e->!e.getKey().matches("[A-Z0-9_]{1,64}")||e.getValue()<1))return CompletableFuture.failedFuture(new IllegalArgumentException("Неверный резерв стройки"));
-        return submit(()->transaction(()->{
+        return submit(()->transaction(()->allocateNow(id,project,actor,reason,items)));
+    }
+    private Allocation allocateNow(UUID id,String project,String actor,String reason,Map<String,Long> items)throws Exception{
             Allocation old=allocation(id);if(old!=null){if(!old.project().equals(project)||!old.actor().equals(actor)||!old.reason().equals(reason)||!old.items().equals(items))throw new IllegalArgumentException("ID резерва уже использован");return old;}
             try(var s=connection.prepareStatement("INSERT INTO allocations(id,project,actor,reason,state,created) VALUES(?,?,?,?,'RESERVED',?)")){s.setString(1,id.toString());s.setString(2,project);s.setString(3,actor);s.setString(4,reason);s.setLong(5,System.currentTimeMillis());s.executeUpdate();}
             for(var e:items.entrySet()){
                 try(var s=connection.prepareStatement("UPDATE balances SET available=available-? WHERE material=? AND available>=?")){s.setLong(1,e.getValue());s.setString(2,e.getKey());s.setLong(3,e.getValue());if(s.executeUpdate()!=1)throw new IllegalArgumentException("На серверном складе недостаточно "+e.getKey());}
                 try(var s=connection.prepareStatement("INSERT INTO allocation_items(id,material,amount) VALUES(?,?,?)")){s.setString(1,id.toString());s.setString(2,e.getKey());s.setLong(3,e.getValue());s.executeUpdate();}
             }return allocation(id);
-        }));
     }
     public CompletionStage<Allocation> allocation(UUID id,String decision,String proof){
         if(!Set.of("consume","return").contains(decision)||proof==null||proof.trim().length()<8)return CompletableFuture.failedFuture(new IllegalArgumentException("consume | return и основание"));

@@ -1,0 +1,21 @@
+--- a/server/src/main/java/cc/crafto/ui/server/CivicWorkbench.java
++++ b/server/src/main/java/cc/crafto/ui/server/CivicWorkbench.java
+@@ -264,6 +264,7 @@
+             if(v.rows.isEmpty())v.rows.add(Row.info("Активных заказов нет","Выберите подходящий на доске."));
+         }else{
+             boolean offer=s.route.equals("offer");var r=find(data,offer?"offers":"mine",s.id);v.title=str(r,"title","");
++            if(r.has("instructions"))for(var instruction:r.getAsJsonArray("instructions"))v.lines.add(instruction.getAsString());
+             v.lines.add(typeName(str(r,"type",""))+" · "+rarityName(str(r,"rarity",""))+" · награда "+money(cents(r)));v.rows.add(new Row("","Требуется "+integer(r,"goal",0)+" · у вас "+carried(p,r),target(r),null,""));
+             if(offer)v.rows.add(new Row("Принять заказ","Стоимость принятия: 0","",new Action("review-order-accept",s.id),str(r,"reason","")));
+             else{boolean ready=str(r,"type","").equals("DELIVERY")?carried(p,r)>=integer(r,"goal",0):integer(r,"progress",0)>=integer(r,"goal",0);
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -1,7 +1,7 @@
+ org.gradle.jvmargs=-Xmx2G
+ org.gradle.parallel=false
+ org.gradle.workers.max=2
+-version=0.8.19
++version=0.8.20
+ client_version=0.8.19
+ minecraft_version=26.2
+ loader_version=0.19.4

@@ -1,0 +1,1 @@
+PASS 13 assertions; genuine Folia inventories/event handlers, timed camp rights, item serialization and Chronicle shutdown; explicit networkless actors and inventory-view stand-ins; no GUI client claimed

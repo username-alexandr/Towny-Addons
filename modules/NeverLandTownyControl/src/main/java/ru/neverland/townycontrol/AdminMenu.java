@@ -17,7 +17,7 @@ import ru.neverland.core.*;
 final class AdminMenu implements Listener {
     @FunctionalInterface private interface Action {void run()throws Exception;}
     private static final int PAGE_SIZE=36;
-    private static final DateTimeFormatter TIME=DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss").withZone(ZoneOffset.UTC);
+    private static final DateTimeFormatter TIME=DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss").withZone(ZoneId.of("Europe/Moscow"));
     private final NeverLandTownyControl plugin;
     private final AdminRouter router;
     private final ActivityBridge activities;
@@ -202,8 +202,8 @@ final class AdminMenu implements Listener {
         back(s,()->modules(player,1,reference));show(player,s);
     }
     void logs(Player player){
-        var s=screen(player,"Журналы • Категории",AdminAccess.AUDIT);int slot=10;
-        for(var category:AuditCategory.values()){if(slot%9==8)slot+=2;button(s,slot++,Material.valueOf(category.icon),category.title,List.of("Нажмите для просмотра","Даты и время в UTC"),()->logPage(player,category,new AuditQuery(Map.of("category",category.name()),1)));}
+        var s=screen(player,"Журналы • Категории",AdminAccess.AUDIT);int slot=0;
+        for(var category:AuditCategory.values()){button(s,slot++,Material.valueOf(category.icon),category.title,List.of("Нажмите для просмотра","Даты и время по Москве"),()->logPage(player,category,new AuditQuery(Map.of("category",category.name()),1)));}
         button(s,40,Material.KNOWLEDGE_BOOK,"Как читать журнал",List.of("Сделка показывает товар и его цену","Списания, переводы и сделки — разные записи","Их суммы нельзя складывать","OBSERVED — команда, не доказательство оплаты"),null);
         button(s,53,Material.SPYGLASS,"Проверить журналы",List.of("Проверка целостности всех файлов","Результат будет отправлен в чат"),()->audit.onCommand(player,plugin.getCommand("nltaudit"),"nltaudit",new String[]{"status"}));back(s,()->home(player));show(player,s);
     }
@@ -228,8 +228,8 @@ final class AdminMenu implements Listener {
         var s=screen(player,"Журналы • Фильтры",AdminAccess.AUDIT);button(s,4,Material.HOPPER,"Выбранные фильтры",filterLore(query),null);
         button(s,10,Material.COMPASS,"Между городами",List.of(query.filters().containsKey("intercity")?"Включён • нажмите, чтобы снять":"Показать только передачу между городами"),()->logPage(player,category,with(query,"intercity",query.filters().containsKey("intercity")?null:"true")));
         button(s,12,Material.OAK_SIGN,"Выбрать город",List.of("Отправитель, получатель или город инициатора"),()->towns(player,category,query,1));
-        button(s,14,Material.CLOCK,"Сегодня",List.of("С начала текущего дня UTC"),()->logPage(player,category,with(query,"since",LocalDate.now(ZoneOffset.UTC).toString())));
-        button(s,16,Material.CLOCK,"Последние 7 дней",List.of("Сегодня и шесть предыдущих дней UTC"),()->logPage(player,category,with(query,"since",LocalDate.now(ZoneOffset.UTC).minusDays(6).toString())));
+        button(s,14,Material.CLOCK,"Сегодня",List.of("С начала текущего дня по Москве"),()->logPage(player,category,with(query,"since",LocalDate.now(ZoneId.of("Europe/Moscow")).toString())));
+        button(s,16,Material.CLOCK,"Последние 7 дней",List.of("Сегодня и шесть предыдущих дней МСК"),()->logPage(player,category,with(query,"since",LocalDate.now(ZoneId.of("Europe/Moscow")).minusDays(6).toString())));
         button(s,28,Material.LIME_DYE,"Результат операции",List.of("Выполнено, доставлено, отменено и другие статусы","Выбрать точный статус записи"),()->outcomes(player,category,query));
         button(s,30,Material.MILK_BUCKET,"Сбросить фильтры",List.of("Сохранить выбранную категорию"),()->logPage(player,category,new AuditQuery(Map.of("category",category.name()),1)));
         button(s,32,Material.PAPER,"Точный поиск",List.of("/nltaudit search town=… player=… id=…","Также доступны даты, тип, модуль и текст","ID удалённого города можно указать вручную"),()->{player.sendMessage("§b/nltaudit search category="+category.name()+" [town=UUID] [player=UUID] [id=UUID] [since=YYYY-MM-DD] [until=YYYY-MM-DD]");player.closeInventory();});back(s,()->logPage(player,category,query));show(player,s);
@@ -250,9 +250,9 @@ final class AdminMenu implements Listener {
         button(s,40,Material.WRITABLE_BOOK,"ID в чат",List.of("Вывести ID записи и операции для копирования"),()->player.sendMessage("§7id="+record.id()+" operation="+record.operation()));back(s,()->logPage(player,category,query));show(player,s);
     }
     private void party(Screen screen,int slot,String label,AuditRecord.Party party){button(screen,slot,Material.OAK_SIGN,label,List.of(clean(party.name()),"Тип: "+party.type(),"ID: "+party.id(),"Город: "+party.town()),null);}
-    private static List<String> summary(AuditRecord r){return List.of(TIME.format(Instant.ofEpochMilli(r.at()))+" UTC","От: "+clean(r.from().name()),"Кому: "+clean(r.to().name()),"Инициатор: "+clean(r.actor().name()),"Предмет: "+(r.asset().isEmpty()?"—":r.quantity()+" × "+clean(r.asset().split(":",2)[0])),"Сумма / цена: "+(r.money().isEmpty()?"—":r.money()),"Результат: "+AuditCategory.outcome(r.outcome()));}
+    private static List<String> summary(AuditRecord r){return List.of(TIME.format(Instant.ofEpochMilli(r.at()))+" МСК","От: "+clean(r.from().name()),"Кому: "+clean(r.to().name()),"Инициатор: "+clean(r.actor().name()),"Предмет: "+(r.asset().isEmpty()?"—":r.quantity()+" × "+clean(r.asset().split(":",2)[0])),"Сумма / цена: "+(r.money().isEmpty()?"—":r.money()),"Результат: "+AuditCategory.outcome(r.outcome()));}
     private static AuditQuery with(AuditQuery q,String key,String value){var filters=new HashMap<>(q.filters());if(value==null)filters.remove(key);else filters.put(key,value);return new AuditQuery(filters,1);}
-    private static List<String> filterLore(AuditQuery query){var result=new ArrayList<String>();result.add("Категория: "+AuditCategory.valueOf(query.filters().get("category")).title);query.filters().entrySet().stream().filter(e->!e.getKey().equals("category")).sorted(Map.Entry.comparingByKey()).forEach(e->result.add(switch(e.getKey()){case "town"->"Город";case "intercity"->"Между городами";case "since"->"С даты UTC";case "outcome"->"Результат";default->e.getKey();}+": "+e.getValue()));if(result.size()==1)result.add("Все города и даты");return result;}
+    private static List<String> filterLore(AuditQuery query){var result=new ArrayList<String>();result.add("Категория: "+AuditCategory.valueOf(query.filters().get("category")).title);query.filters().entrySet().stream().filter(e->!e.getKey().equals("category")).sorted(Map.Entry.comparingByKey()).forEach(e->result.add(switch(e.getKey()){case "town"->"Город";case "intercity"->"Между городами";case "since"->"С даты МСК";case "outcome"->"Результат";default->e.getKey();}+": "+e.getValue()));if(result.size()==1)result.add("Все города и даты");return result;}
     private static String clean(String text){if(text==null)return "";String clean=text.replaceAll("[\\p{Cntrl}§&]"," ");return clean.substring(0,Math.min(300,clean.length()));}
     private static String actionName(String action){return switch(action){case "cancel"->"Отмена без провала";case "restart"->"Перезапуск / проверка";case "pause"->"Приостановить";case "resume"->"Продолжить";case "extend"->"Продлить";default->"Статус задач";};}
     private static Material actionIcon(String action){return switch(action){case "cancel"->Material.REDSTONE;case "restart","extend"->Material.CLOCK;case "pause"->Material.REPEATER;case "resume"->Material.LIME_DYE;default->Material.BOOK;};}

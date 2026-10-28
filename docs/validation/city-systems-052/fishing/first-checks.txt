@@ -1,0 +1,41 @@
+PASS native fishing authority and durable stock enabled
+PASS native Minecraft habitat calculation used
+PASS ordinary fishing without a quest keeps vanilla rules
+PASS native Minecraft habitat calculation used
+PASS single water block cannot begin quest fishing
+PASS single-water fish and experience cancelled
+PASS single-water catch grants no task progress
+PASS native Minecraft habitat calculation used
+PASS stock initially approves cancellation fixture
+PASS final foreign cancellation grants no quest progress
+PASS native Minecraft habitat calculation used
+PASS sufficient open pond passes habitat
+PASS valid pond bite reaches stock reservation
+PASS available stock permits caught fish
+PASS replayed catch cannot receive another approval
+PASS catch credits exactly once or stays unchanged
+PASS native Minecraft habitat calculation used
+PASS sufficient open pond passes habitat
+PASS valid pond bite reaches stock reservation
+PASS available stock permits caught fish
+PASS replayed catch cannot receive another approval
+PASS catch credits exactly once or stays unchanged
+PASS native Minecraft habitat calculation used
+PASS sufficient open pond passes habitat
+PASS valid pond bite reaches stock reservation
+PASS depleted shared stock blocks caught fish
+PASS catch credits exactly once or stays unchanged
+PASS chunk-edge recast does not reset depleted stock
+PASS native Minecraft habitat calculation used
+PASS sufficient open pond passes habitat
+PASS valid pond bite reaches stock reservation
+PASS available stock permits caught fish
+PASS replayed catch cannot receive another approval
+PASS catch credits exactly once or stays unchanged
+PASS moving to other water grants one legitimate catch
+PASS city-only fishing task activates the same protection
+PASS native Minecraft habitat calculation used
+PASS valid city catch uses remaining shared stock
+PASS one city catch credits city progress and never a cancelled personal task
+PASS unavailable stock neutrally pauses city fishing deadline
+PASS unavailable minute cannot expire or fail city fishing task

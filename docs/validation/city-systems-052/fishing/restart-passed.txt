@@ -1,0 +1,1 @@
+PASS 9 assertions; genuine Folia/Minecraft pond calculation, caught events, stock depletion and restart; explicit offline actor; no network client
