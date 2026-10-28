@@ -1,0 +1,36 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 13 assertions; genuine Folia/Towny tax commands, account observers, SQLite, controlled unload and scheduled re-enable after restart, formula receipts and reconciliation; explicit deterministic provider/player fixtures and injected lost acknowledgement; no real Vault or GUI client claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyTaxes-0.2.0.jar": "b72d217ed5f0347e003cedd66760702f1c9ebadd2ce763ce764b3c2a61be8156",
+      "NeverLandTownyContracts-0.6.0.jar": "991d6a8119fb8377e357546df9c02d16ab516f4ae87054297225bed8e5c08501",
+      "NeverLandTownyBuilds-0.10.1.jar": "f004882b1f0f473c019eaad9f2e2e2f881979da5b8de95c5b81f108e04af4e9f",
+      "TntRuntimeProbe.jar": "34198c69114f51323e3248f421953607c7911f00e1762940865cf3aeb74e8b22",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyUpkeep-0.2.0.jar": "a3591a7585a8f08d436c7474f161c2e8d8dca88fdd0d5cdfb24ad79718af6d79",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64",
+      "NeverLandTownyTreasuryPlus-0.2.0.jar": "216dcafc176b0628432f525e406bc482941b1eb484b4b81bd8b711dbc8382894",
+      "NeverLandTownyControl-0.5.4.jar": "3458809c78da6a40dc04dfbeb3b990460f31f173829d54a667821d004ae89d65",
+      "NeverLandTownyResources-0.2.0.jar": "429acb89e07546b1eb268af80685da3aede905bd8f06cea6c18000432b89f7b9"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 7 assertions; genuine Folia/Towny tax commands, account observers, SQLite, controlled unload and scheduled re-enable after restart, formula receipts and reconciliation; explicit deterministic provider/player fixtures and injected lost acknowledgement; no real Vault or GUI client claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyTaxes-0.2.0.jar": "b72d217ed5f0347e003cedd66760702f1c9ebadd2ce763ce764b3c2a61be8156",
+      "NeverLandTownyContracts-0.6.0.jar": "991d6a8119fb8377e357546df9c02d16ab516f4ae87054297225bed8e5c08501",
+      "NeverLandTownyBuilds-0.10.1.jar": "f004882b1f0f473c019eaad9f2e2e2f881979da5b8de95c5b81f108e04af4e9f",
+      "TntRuntimeProbe.jar": "34198c69114f51323e3248f421953607c7911f00e1762940865cf3aeb74e8b22",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyUpkeep-0.2.0.jar": "a3591a7585a8f08d436c7474f161c2e8d8dca88fdd0d5cdfb24ad79718af6d79",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64",
+      "NeverLandTownyTreasuryPlus-0.2.0.jar": "216dcafc176b0628432f525e406bc482941b1eb484b4b81bd8b711dbc8382894",
+      "NeverLandTownyControl-0.5.4.jar": "3458809c78da6a40dc04dfbeb3b990460f31f173829d54a667821d004ae89d65",
+      "NeverLandTownyResources-0.2.0.jar": "429acb89e07546b1eb268af80685da3aede905bd8f06cea6c18000432b89f7b9"
+    }
+  }
+]

@@ -27,7 +27,7 @@ import ru.neverland.townytreasury.api.TownyTreasuryApi;
 import ru.neverland.townytreasury.gui.TreasuryMenu;
 
 /** Genuine addon APIs/commands/inventories. Explicit registered-site, player and deterministic bank fixtures. */
-public final class ForecastProbe extends TntRuntimeProbe {
+public class ForecastProbe extends TntRuntimeProbe {
     UpkeepService upkeep;TreasuryService treasury;JavaPlugin owner;DataStore data;Inventory top=Bukkit.createInventory(null,9);Player mayor,resident;long due;final Map<UUID,Double> balances=new HashMap<>();
     Player actor(UUID id,String name){return(Player)Proxy.newProxyInstance(Player.class.getClassLoader(),new Class<?>[]{Player.class},(p,m,a)->switch(m.getName()){
         case "getUniqueId"->id;case "getName"->name;case "getServer"->Bukkit.getServer();case "getWorld"->world;case "getLocation"->origin;case "isOnline"->true;case "isOp"->false;

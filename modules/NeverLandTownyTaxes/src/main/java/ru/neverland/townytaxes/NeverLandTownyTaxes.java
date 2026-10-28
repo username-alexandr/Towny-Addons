@@ -24,15 +24,19 @@ public final class NeverLandTownyTaxes extends JavaPlugin {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 saveDefaultConfig();copy("messages.yml");towny=new TownyHook(this);messages=new MessageService(this);repository=new CivicRepository(this);repository.load();fiscal=new FiscalService(this,towny,repository,messages);
         TownTaxesCommand taxes=new TownTaxesCommand(towny,fiscal,messages);TownSanctionsCommand sanctions=new TownSanctionsCommand(towny,fiscal,messages);TownAgreementsCommand agreements=new TownAgreementsCommand(towny,fiscal,messages);
+        var personal=getCommand("mytaxes");if(personal!=null)personal.setExecutor(taxes);
         register("taxes",taxes);register("tax",taxes);register("sanctions",sanctions);register("agreements",agreements);register("deals",agreements);
         registerNation("taxes",new NationEconomyCommand(NationEconomyCommand.View.TAXES,towny,fiscal,messages));registerNation("tax",new NationEconomyCommand(NationEconomyCommand.View.TAXES,towny,fiscal,messages));registerNation("sanctions",new NationEconomyCommand(NationEconomyCommand.View.SANCTIONS,towny,fiscal,messages));registerNation("agreements",new NationEconomyCommand(NationEconomyCommand.View.AGREEMENTS,towny,fiscal,messages));registerNation("deals",new NationEconomyCommand(NationEconomyCommand.View.AGREEMENTS,towny,fiscal,messages));
         PluginCommand admin=getCommand("townytaxes");if(admin!=null){AdminCommand executor=new AdminCommand(this,towny,fiscal,messages);admin.setExecutor(executor);admin.setTabCompleter(executor);}
         getServer().getPluginManager().registerEvents(new EconomyListener(fiscal),this);getServer().getPluginManager().registerEvents(new RestrictionListener(towny,fiscal,messages),this);
         getServer().getServicesManager().register(NeverLandTownyTaxesApi.class,fiscal,this,ServicePriority.Normal);boolean papi=PlaceholderHook.register(this,towny,fiscal);fiscal.start();long autosave=Math.max(20,getConfig().getLong("scheduler.autosave-seconds",60)*20);ru.neverland.core.SuiteScheduler.get().runTaskTimer(this,repository::saveIfDirty,autosave,autosave);
         getLogger().info("NeverLandTownyTaxes "+getPluginMeta().getVersion()+" включён: налоговых политик "+repository.policies().size()+", санкций "+repository.sanctions().size()+", соглашений "+repository.agreements().size()+", PlaceholderAPI="+papi+".");} }
-    @Override public void onDisable(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
-        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
-if(fiscal!=null)fiscal.shutdown();if(towny!=null){for(String name:TOWN_COMMANDS)towny.unregister(name);for(String name:NATION_COMMANDS)towny.unregisterNation(name);}getServer().getServicesManager().unregisterAll(this);} }
+    @Override public void onDisable(){
+        try{try(var guard=ru.neverland.core.SuiteState.guard()){
+            if(!ru.neverland.core.ModuleLifecycle.end(this))return;
+            if(fiscal!=null)fiscal.shutdown();if(towny!=null){for(String name:TOWN_COMMANDS)towny.unregister(name);for(String name:NATION_COMMANDS)towny.unregisterNation(name);}getServer().getServicesManager().unregisterAll(this);
+        }}finally{if(fiscal!=null)fiscal.awaitClosed();}
+    }
     public void reloadPlugin(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {reloadConfig();messages.reload();fiscal.start();} }
     public boolean isTradeBlocked(UUID firstTown,UUID secondTown){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return fiscal!=null&&fiscal.isTradeBlocked(firstTown,secondTown);} }public double tradePreferenceMultiplier(UUID firstTown,UUID secondTown){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {return fiscal==null?1:fiscal.tradePreferenceMultiplier(firstTown,secondTown);} }
     private void register(String name,org.bukkit.command.CommandExecutor executor){if(!towny.register(name,executor))getLogger().severe("Не удалось зарегистрировать /t "+name+".");}

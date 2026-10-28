@@ -33,6 +33,8 @@ server-bank: "&#FFD166Серверный резерв: &f%amount%"
 help-taxes:
   - "&#FFD45A&lГородские налоги"
   - "&f/t taxes &7— состояние налогов и задолженности"
+  - "&f/mytaxes preview [доход] [перевод] &7— предварительный расчёт без списания"
+  - "&f/mytaxes receipts &7— ваши квитанции и формула налога"
   - "&f/t taxes policies &7— действующие политики"
   - "&f/t taxes create <fixed|income|transaction> <значение> [интервал]"
   - "&f/t taxes remove <ID>"

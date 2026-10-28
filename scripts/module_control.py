@@ -31,7 +31,8 @@ def dependencies():
 
 def lifecycle_guard(source, method, hook):
     wrapper = r"(?:synchronized\s*\(ru\.neverland\.core\.SuiteState\.lock\(\)\)\s*\{\s*|try\s*\(\s*var\s+\w+\s*=\s*ru\.neverland\.core\.SuiteState\.guard\(\)\s*\)\s*\{\s*)?"
-    return bool(re.search(r"void\s+"+method+r"\s*\(\s*\)\s*\{\s*"+wrapper+r"if\s*\(!ru\.neverland\.core\.ModuleLifecycle\."+hook+r"\(this\)\)\s*return;", source))
+    # A try/finally may surround the guard so a database can close after the ledger lock is released.
+    return bool(re.search(r"void\s+"+method+r"\s*\(\s*\)\s*\{\s*(?:try\s*\{\s*)?"+wrapper+r"if\s*\(!ru\.neverland\.core\.ModuleLifecycle\."+hook+r"\(this\)\)\s*return;", source))
 
 def validate():
     if not TARGET.exists() or yaml.safe_load(TARGET.read_text())!={'schema':1,'modules':dependencies()}:
