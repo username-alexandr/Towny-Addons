@@ -22,12 +22,12 @@ public final class UpkeepMenu implements Listener {
         if(!access(p,town)){tell(p,"&cНет доступа к обслуживанию этого города.");return;}
         var buildings=service.buildings(town);int pages=Math.max(1,(buildings.size()+35)/36);int page=Math.max(0,Math.min(pages-1,requested));var v=new View(town,page,project);
         v.inventory=ru.neverland.core.MenuStyle.inventory(plugin, v,54,color("&6Обслуживание города"));
-        if(project!=null){var b=buildings.stream().filter(s->s.key().project().equals(project)).findFirst().orElse(null);if(b==null){tell(p,"Построенное здание не найдено.");return;}detail(p,v,b);}
+        if(project!=null){String key=project.startsWith("pause/")?project.substring(6):project;var b=buildings.stream().filter(s->s.key().project().equals(key)).findFirst().orElse(null);if(b==null){tell(p,"Построенное здание не найдено.");return;}if(project.startsWith("pause/"))pausePreview(p,v,b);else detail(p,v,b);}
         else {
             for(int i=page*36;i<Math.min(buildings.size(),(page+1)*36);i++){var b=buildings.get(i);var lore=lore(b);lore.add("Нажмите: расходы и повтор оплаты.");button(v,i%36,icon(b.icon()),(b.active()?"&a":"&c")+b.name(),lore,()->open(p,town,page,b.key().project()));}
-            long active=buildings.stream().filter(UpkeepSnapshot::active).count();long money=buildings.stream().filter(b->service.settings().profiles().get(b.key().project()).enabled()).mapToLong(b->b.cost().money()).sum();
+            long active=buildings.stream().filter(UpkeepSnapshot::active).count();long money=buildings.stream().filter(b->service.settings().profiles().get(b.key().project()).enabled()&&!service.paused(town,b.key().project())).mapToLong(b->b.cost().money()).sum();
             button(v,40,Material.BELL,"&eСостояние города",List.of("Обслуживается: "+active+"; без обслуживания: "+(buildings.size()-active),"Оценка денег за период: "+Cost.format(money,2),"Период: "+service.settings().period()+" сек. работы сервера","Расход растёт с размером города и уровнем зданий.",service.fault()?"Ошибка расчёта — обратитесь к администратору":"Здания сохраняются при неоплате."),null);
-            Map<String,Long> totals=new TreeMap<>();for(var b:buildings)if(service.settings().profiles().get(b.key().project()).enabled())b.cost().resources().forEach((id,n)->totals.merge(id,n,Math::addExact));
+            Map<String,Long> totals=new TreeMap<>();for(var b:buildings)if(service.settings().profiles().get(b.key().project()).enabled()&&!service.paused(town,b.key().project()))b.cost().resources().forEach((id,n)->totals.merge(id,n,Math::addExact));
             var costs=new ArrayList<String>();for(var row:totals.entrySet())if(row.getValue()>0)costs.add(resourceName(row.getKey())+": "+Cost.format(row.getValue(),3));if(costs.isEmpty())costs.add("Нет расхода стратегических ресурсов.");costs.add("Оценка полного периода для всех зданий города.");
             button(v,41,Material.PAPER,"&eРасход ресурсов города",costs,null);
             if(buildings.isEmpty())button(v,22,Material.BRICKS,"&eНет завершённых зданий",List.of("Нужна построенная площадка на территории города."),null);
@@ -44,7 +44,20 @@ public final class UpkeepMenu implements Listener {
             var town=service.town(p);if(town==null||!town.getUUID().equals(v.town)||!service.manager(p,town)){tell(p,"&cНужны права мэра, помощника или управляющего.");return;}
             try{service.retry(v.town,b.key().project());tell(p,"Здание поставлено в очередь оплаты.");open(p,v.town,v.page,v.project);}catch(Exception ex){tell(p,"&c"+ex.getMessage());}
         });
+        boolean paused=service.paused(v.town,b.key().project());
+        button(v,33,paused?Material.LIME_DYE:Material.RED_DYE,paused?"&aВозобновить здание":"&eПроверить экономию и остановку",List.of(paused?"Вернуть обычную оплату и работу здания.":"Показать расходы и последствия до подтверждения.","Оплаченный срок не продлевается и не возвращается.","Управление доступно мэру и уполномоченным."),()->{
+            if(!manager(p,v))return;if(!paused){open(p,v.town,v.page,"pause/"+b.key().project());return;}
+            try{service.suspend(v.town,b.key().project(),false,p.getUniqueId());open(p,v.town,v.page,b.key().project());}catch(Exception error){tell(p,"&e"+error.getMessage());}
+        });
         button(v,45,Material.ARROW,"&aВсе здания",List.of(),()->open(p,v.town,v.page,null));
+    }
+    private boolean manager(Player p,View v){var town=service.town(p);if(town==null||!town.getUUID().equals(v.town)||!service.manager(p,town)){tell(p,"&cНужны полномочия управления содержанием своего города.");return false;}return true;}
+    private void pausePreview(Player p,View v,UpkeepSnapshot b){
+        var lines=new ArrayList<String>();try{var summary=service.savings(v.town,Set.of(b.key().project()),86400);lines.add("Экономия за ближайшие сутки: "+Cost.format(((Number)summary.get("savingCents")).longValue(),2)+" монет.");if(!Boolean.TRUE.equals(summary.get("known")))lines.add("Есть незавершённые счета; прогноз неполный.");}catch(Exception error){lines.add("Прогноз недоступен: "+error.getMessage());}
+        lines.add("Производство, рабочие места и бонусы отключатся.");lines.add("Вместимость и защита могут уменьшиться.");lines.add("Здание и накопленные запасы сохранятся.");lines.add("Оплаченный срок продолжит идти без возврата.");lines.add("Возобновление не даёт новый льготный срок.");
+        button(v,13,icon(b.icon()),"&eОстановка: "+b.name(),lines,null);
+        button(v,31,Material.RED_DYE,"&eПодтвердить остановку",List.of("Новые счета этого здания не будут создаваться.","Незавершённую оплату сначала нужно закрыть."),()->{if(!manager(p,v))return;try{service.suspend(v.town,b.key().project(),true,p.getUniqueId());open(p,v.town,v.page,b.key().project());}catch(Exception error){tell(p,"&e"+error.getMessage());}});
+        button(v,45,Material.ARROW,"&aВернуться без остановки",List.of(),()->open(p,v.town,v.page,b.key().project()));
     }
     private void button(View v,int slot,Material icon,String name,List<String> lore,Runnable action){var item=new ItemStack(icon);var meta=item.getItemMeta();meta.setDisplayName(ru.neverland.core.MenuStyle.nameLegacy(color(name)));meta.setLore(ru.neverland.core.MenuStyle.loreStrings(lore.stream().map(s->color("&7"+s)).toList()));item.setItemMeta(meta);v.inventory.setItem(slot,item);if(action!=null)v.actions.put(slot,action);}
     @EventHandler public void click(InventoryClickEvent e){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyUpkeep")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(!(e.getView().getTopInventory().getHolder() instanceof View v))return;e.setCancelled(true);if(!(e.getWhoClicked() instanceof Player p))return;if(!access(p,v.town)){p.closeInventory();return;}var action=v.actions.get(e.getRawSlot());if(action!=null)ru.neverland.core.SuiteScheduler.entity(plugin, p,()->{if(p.isOnline()&&p.getOpenInventory().getTopInventory().getHolder()==v&&access(p,v.town))action.run();});} }

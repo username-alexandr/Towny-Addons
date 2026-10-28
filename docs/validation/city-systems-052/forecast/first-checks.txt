@@ -1,0 +1,13 @@
+PASS real Upkeep/Treasury services enabled with current Builds API
+PASS native Towny economy readiness uses explicit deterministic provider fixture
+PASS forecast combines actual selected blueprint price and exact future billing periods
+PASS repeated planning never debits the real Towny account
+PASS savings and treasury share identical billing boundary
+PASS native confirmation explains production/job consequences before stopping
+PASS ordinary resident cannot suspend city benefits
+PASS command requires explicit confirmation
+PASS approved stop disables shared operational benefits immediately
+PASS stop neither refunds nor extends paid time nor creates a bill
+PASS treasury excludes future charges for suspended building
+PASS native forecast menu separates horizon, categories and completeness
+PASS disabled provider is an explicit gap rather than zero complete costs

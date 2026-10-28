@@ -1,0 +1,7 @@
+PASS real Upkeep/Treasury services enabled with current Builds API
+PASS native Towny economy readiness uses explicit deterministic provider fixture
+PASS manual stop and original paid deadline survive full restart
+PASS paused upkeep creates no duplicate future obligation after restart
+PASS resume restores existing paid interval without new grace
+PASS in-progress bank receipt cannot be hidden by suspension
+PASS uncertain upkeep receipt makes full treasury forecast incomplete

@@ -1,0 +1,6 @@
+name: TntRuntimeProbe
+version: 9.0
+main: ru.neverland.runtime.ForecastProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyContracts, NeverLandTownySiegesPlus, NeverLandTownyResources, NeverLandTownyUpkeep, NeverLandTownyTreasuryPlus, NeverLandTownyControl]

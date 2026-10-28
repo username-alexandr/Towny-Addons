@@ -1,0 +1,1 @@
+PASS 7 assertions; native Folia/Towny addon APIs, future billing, suspensions, menus and confirmed permissions; explicit deterministic economy adapter/provider, registered-site and player fixtures; no real Vault or GUI client claimed

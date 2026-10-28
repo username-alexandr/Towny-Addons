@@ -39,7 +39,7 @@ public final class UpkeepService implements TownyUpkeepApi,PaymentProcessor.Stor
     private void pulse(){if(fault)return;try{
         clock=Math.addExact(clock,1);if(clock%5==0)scan();
         List<Key> due=repo.entries().entrySet().stream().filter(e->{var bill=e.getValue().invoice();if(bill!=null)return bill.phase()!=Phase.MONEY_PENDING;
-            var p=settings.profiles().get(e.getKey().project());return p!=null&&p.enabled()&&SpecializationAccess.allowed(e.getKey().town(),e.getKey().project())&&levels.containsKey(e.getKey())&&e.getValue().due()<=clock;})
+            var p=settings.profiles().get(e.getKey().project());return !repo.paused().contains(e.getKey())&&p!=null&&p.enabled()&&SpecializationAccess.allowed(e.getKey().town(),e.getKey().project())&&levels.containsKey(e.getKey())&&e.getValue().due()<=clock;})
             .sorted(Comparator.<Map.Entry<Key,Entry>>comparingLong(e->e.getValue().due()).thenComparingInt(e->{var p=settings.profiles().get(e.getKey().project());return p==null?50:p.priority();}).thenComparing(e->e.getKey().town()+"/"+e.getKey().project())).map(Map.Entry::getKey).limit(settings.budget()).toList();
         for(var key:due){var e=get(key);if(e.invoice()==null){var p=settings.profiles().get(key.project());put(key,new Entry(false,clock,"Оплата содержания",new Invoice(UUID.randomUUID(),baseQuotes.get(key).policy(ru.neverland.integration.PoliciesAccess.upkeep(key.town(),key.project())),settings.period(),Phase.PREPARED)));}
             else if(e.invoice().phase()==Phase.PREPARED&&(!SpecializationAccess.allowed(key.town(),key.project())||!levels.containsKey(key)||!settings.profiles().containsKey(key.project())||!settings.profiles().get(key.project()).enabled()))payments.cancel(key,"Здание недоступно или обслуживание отключено");
@@ -48,13 +48,14 @@ public final class UpkeepService implements TownyUpkeepApi,PaymentProcessor.Stor
     }catch(Exception|LinkageError ex){fault=true;publish();plugin.getLogger().log(java.util.logging.Level.SEVERE,"Обслуживание приостановлено. Устраните причину и выполните /townyupkeep reload. Счета сохранены.",ex);}}
     private void publish(){Map<Key,UpkeepSnapshot> next=new HashMap<>();for(var row:levels.entrySet()){
         Key key=row.getKey();var p=settings.profiles().get(key.project());var e=get(key);if(p==null||e==null)continue;
-        boolean active=!fault&&e.invoice()==null&&(!p.enabled()||(e.active()&&e.due()>clock));
-        String status=fault?"Ошибка обслуживания — обратитесь к администратору":e.invoice()!=null&&e.invoice().phase()==Phase.MONEY_PENDING?"Списание требует сверки администратора":!p.enabled()?"Обслуживание отключено в настройках":active?e.reason():e.invoice()!=null?"Оплата ещё не завершена":e.active()?"Ожидает оплаты":e.reason();
+        boolean active=!fault&&!repo.paused().contains(key)&&e.invoice()==null&&(!p.enabled()||(e.active()&&e.due()>clock));
+        String status=fault?"Ошибка обслуживания — обратитесь к администратору":repo.paused().contains(key)?"Остановлено городом: производство и бонусы отключены":e.invoice()!=null&&e.invoice().phase()==Phase.MONEY_PENDING?"Списание требует сверки администратора":!p.enabled()?"Обслуживание отключено в настройках":active?e.reason():e.invoice()!=null?"Оплата ещё не завершена":e.active()?"Ожидает оплаты":e.reason();
         next.put(key,new UpkeepSnapshot(key,p.name(),p.icon(),row.getValue(),p.priority(),active,status,Math.max(0,e.due()-clock),quotes.get(key),e.invoice()));}views=Map.copyOf(next);}
     @Override public Entry get(Key key){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {return repo.entries().get(key);} }
     @Override public void put(Key key,Entry value)throws Exception{ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {var next=new HashMap<>(repo.entries());next.put(key,value);repo.save(clock,next);publish();} }
     public void retry(UUID town,String project)throws Exception{ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         thread();var key=new Key(town,project);var view=views.get(key);if(view==null)throw new IllegalArgumentException("Построенное здание не найдено");var e=get(key);
+        if(repo.paused().contains(key))throw new IllegalArgumentException("Сначала возобновите здание: /t upkeep resume "+project);
         if(e.invoice()!=null)throw new IllegalArgumentException("Предыдущий счёт ещё обрабатывается; при необходимости обратитесь к администратору");
         if(view.active())throw new IllegalArgumentException("Здание уже активно; следующий период ещё не наступил");put(key,new Entry(false,clock,"Поставлено в очередь оплаты",null));
     } }
@@ -67,4 +68,20 @@ public final class UpkeepService implements TownyUpkeepApi,PaymentProcessor.Stor
     public boolean manager(Player p,Town t){ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {var r=TownyAPI.getInstance().getResident(p);return r!=null&&t.equals(r.getTownOrNull())&&(t.isMayor(r)||ru.neverland.core.CouncilAccess.check(p,t.getUUID(),"upkeep",r.hasTownRank("assistant")||p.hasPermission("neverlandtownyupkeep.manage")));} }
     @Override public boolean active(UUID town,String project){ try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {if(town==null||project==null)return false;var v=views.get(new Key(town,project));return v!=null?v.active():!fault&&!settings.profiles().containsKey(project);} }
     @Override public List<UpkeepSnapshot> buildings(UUID town){ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {return views.values().stream().filter(v->v.key().town().equals(town)).sorted(Comparator.comparingInt(UpkeepSnapshot::priority).thenComparing(v->v.key().project())).toList();} }
+    public boolean paused(UUID town,String project){try(var guard=ru.neverland.core.SuiteState.guard()){return repo.paused().contains(new Key(town,project));}}
+    public void suspend(UUID town,String project,boolean stop,UUID actor)throws Exception{try(var guard=ru.neverland.core.SuiteState.guard()){
+        thread();var key=new Key(town,project);if(!views.containsKey(key)||TownyAPI.getInstance().getTown(town)==null)throw new IllegalArgumentException("Построенное здание не найдено");if(repo.paused().contains(key)==stop)return;
+        repo.suspend(clock,key,stop);publish();String operation=UUID.randomUUID().toString();
+        if(!ru.neverland.core.AuditTrail.record(plugin,"upkeep",operation,"UPKEEP_SAVINGS",stop?"SUSPENDED":"RESUMED",actor==null?ru.neverland.core.AuditRecord.Party.system():ru.neverland.core.AuditTrail.player(actor),ru.neverland.core.AuditTrail.town(town),ru.neverland.core.AuditTrail.town(town),"",0,"","Здание: "+project+"; оплаченный срок не продлевается и не возвращается"))plugin.getLogger().warning("Остановка здания сохранена; общий журнал требует проверки: "+operation);
+    }}
+    @Override public Collection<Map<String,Object>> plannedBills(UUID town,int seconds){try(var guard=ru.neverland.core.SuiteState.guard()){
+        thread();BillingPreview.charges(0,settings.period(),seconds);if(!plugin.isEnabled()||ru.neverland.core.SuiteState.frozen(plugin.getName())||TownyAPI.getInstance().getTown(town)==null)throw new IllegalStateException("Прогноз обслуживания недоступен");
+        var out=new ArrayList<Map<String,Object>>();for(var row:buildings(town)){
+            var profile=settings.profiles().get(row.key().project());boolean stopped=repo.paused().contains(row.key()),enabled=profile!=null&&profile.enabled()&&SpecializationAccess.allowed(town,row.key().project());
+            boolean known=row.invoice()==null;long count=enabled&&!stopped&&known?BillingPreview.charges(row.seconds(),settings.period(),seconds):0;
+            var required=new TreeMap<String,Long>();row.cost().resources().forEach((id,n)->required.put(id,Math.multiplyExact(n,count)));
+            out.add(Map.of("project",row.key().project(),"title",row.name(),"cents",Math.multiplyExact(row.cost().money(),count),"resources",Map.copyOf(required),"payments",count,"period",settings.period(),"due",row.seconds(),"known",known,"paused",stopped));
+        }return List.copyOf(out);
+    }}
+    @Override public Map<String,Object> savings(UUID town,Set<String> stop,int seconds){try(var guard=ru.neverland.core.SuiteState.guard()){return BillingPreview.summary(plannedBills(town,seconds),Set.copyOf(stop));}}
 }
