@@ -146,7 +146,9 @@ public final class BuildingBlueprintGenerator {
         return new BlueprintPlan(projectId, level, stageName(projectId, level), builder.blocks);
     } }
 
-    public BlueprintPlan generateForArchitecture(String projectId, int level, int architectureVersion) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
+    public BlueprintPlan generateForStyle(String projectId,int level,BuildingStyle style){return generateForArchitecture(projectId,level,style.architecture(ConstructionSite.CURRENT_ARCHITECTURE_VERSION));}
+    public BlueprintPlan generateForArchitecture(String projectId,int level,int architectureVersion){try(var guard=ru.neverland.core.SuiteState.guard()){return BuildingStyle.ofArchitecture(architectureVersion).apply(generateBaseForArchitecture(projectId,level,BuildingStyle.baseArchitecture(architectureVersion)));}}
+    private BlueprintPlan generateBaseForArchitecture(String projectId, int level, int architectureVersion) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         String normalized = projectId == null ? "" : projectId.toLowerCase(Locale.ROOT);
         if (WONDERS.contains(normalized)) return generateCurrent(normalized, level, architectureVersion);
         if (IMPORTED_BUILDINGS.contains(normalized)) return architectureVersion < 6
@@ -713,7 +715,7 @@ public final class BuildingBlueprintGenerator {
             b.block(-8, 2, z, Material.SEA_LANTERN, BlockRole.DECORATION, 1);
             b.block(8, 2, z, Material.SEA_LANTERN, BlockRole.DECORATION, 1);
         }
-        b.block(0, 9, 13, Material.HEART_OF_THE_SEA, BlockRole.DECORATION, 1);
+        b.block(0, 9, 13, Material.SEA_LANTERN, BlockRole.DECORATION, 1);
         b.block(0, 10, 13, Material.CONDUIT, BlockRole.DECORATION, 1);
     }
 

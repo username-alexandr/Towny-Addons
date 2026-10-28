@@ -1,0 +1,6 @@
+name: TntRuntimeProbe
+version: 5.0
+main: ru.neverland.runtime.DevelopmentProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyContracts, NeverLandTownyCompanies, NeverLandTownyJobs, NeverLandTownyArmy, NeverLandTownyLogistics, NeverLandTownySiegesPlus, NeverLandTownyChronicles, NeverLandTownyEnvironment, NeverLandTownyQuests, NeverLandTownyPolicies, NeverLandTownyControl]

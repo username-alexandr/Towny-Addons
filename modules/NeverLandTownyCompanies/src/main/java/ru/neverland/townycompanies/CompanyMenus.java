@@ -39,6 +39,7 @@ public final class CompanyMenus implements Listener {
             put(v,20,Material.GOLD_INGOT,"Общий счёт",List.of("Баланс: "+format(c.balance()),"/company deposit <сумма>","Владелец: /company withdraw <сумма>","Нажмите: журнал платежей"),()->payments(p,0));
             put(v,22,Material.PLAYER_HEAD,"Участники",List.of("Пригласить: /company invite <игрок>","Нажмите для управления ролями"),()->members(p,0));
             put(v,24,Material.PAPER,"Городские контракты",List.of("Доступные и принятые заказы","Награда поступает на общий счёт"),()->contracts(p,0));
+            put(v,30,Material.EMERALD,"Зарплаты за работу",List.of("Ставки, лимит и незавершённые начисления","Оплачиваются со счёта предприятия"),()->service.payroll.open(p));
             put(v,29,Material.CLOCK,"Налог городу",List.of("Ставка: "+format(service.rate(c.kind())),"Период: "+service.interval()/3_600_000+" ч","Следующее начисление: "+date(c.nextTax()),"Долг: "+format(c.debt()),"Оплата автоматически с общего счёта","При долге новые заказы недоступны"),null);
             if(c.owner().equals(p.getUniqueId()))put(v,33,Material.BARRIER,"Закрыть предприятие",List.of("Сначала завершите заказы и расчёты","Передача: /company transfer <участник>"),()->command.quote(p,"Закрыть «"+c.name()+"»",()->service.disband(p)));
             else put(v,33,Material.OAK_DOOR,"Выйти из компании",List.of("Общий счёт останется компании"),()->command.quote(p,"Выйти из «"+c.name()+"»",()->service.remove(p,p.getUniqueId())));
@@ -80,7 +81,7 @@ public final class CompanyMenus implements Listener {
         for(int i=page*45;i<Math.min(list.size(),(page+1)*45);i++){Payment pay=list.get(i);put(v,i%45,pay.phase()==Phase.DONE?Material.LIME_DYE:Material.PAPER,purpose(pay.purpose()),List.of("Сумма: "+format(pay.amount()),"Статус: "+phase(pay.phase()),"Дата: "+date(pay.created()),"ID: "+pay.id()),null);}pages(p,v,page,list.size(),n->payments(p,n));show(p,v);
     } }
     private int page(int n,int size){return Math.max(0,Math.min(n,Math.max(0,(size-1)/45)));}
-    private String purpose(Purpose p){return switch(p){case DEPOSIT->"Пополнение";case WITHDRAW->"Вывод владельцу";case TAX->"Налог в городскую казну";case REFUND->"Возврат остатка награды городу";};}
+    private String purpose(Purpose p){return switch(p){case SALARY->"Зарплата сотруднику";case DEPOSIT->"Пополнение";case WITHDRAW->"Вывод владельцу";case TAX->"Налог в городскую казну";case REFUND->"Возврат остатка награды городу";};}
     private String phase(Phase p){return switch(p){case READY->"В очереди";case PENDING->"Нужна банковская сверка";case DONE->"Выполнен";case REJECTED->"Отклонён банком";};}
     @EventHandler public void click(InventoryClickEvent e){ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCompanies")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(!(e.getView().getTopInventory().getHolder() instanceof View v))return;e.setCancelled(true);if(!(e.getWhoClicked() instanceof Player p)||!v.player.equals(p.getUniqueId())||e.getRawSlot()<0||e.getRawSlot()>=v.inventory.getSize())return;
         var action=v.actions.get(e.getRawSlot());if(action==null)return;ru.neverland.core.SuiteScheduler.entity(plugin, p,()->{if(p.isOnline()&&p.getOpenInventory().getTopInventory()==v.inventory)command.safe(p,action);});} }

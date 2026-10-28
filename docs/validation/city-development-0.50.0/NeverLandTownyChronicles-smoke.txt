@@ -1,0 +1,9 @@
+TEST NeverLandTownyChronicles ru.neverland.townychronicles.ChronicleSmoke
+ChronicleSmoke OK
+TEST NeverLandTownyChronicles ru.neverland.townychronicles.CityContributionsSmoke
+CityContributionsSmoke PASS: exact attribution, dedupe, safe public fields and separate city repair spending
+TEST NeverLandTownyChronicles ru.neverland.townychronicles.LinkageSmoke
+LinkageSmoke OK: 6
+TEST NeverLandTownyChronicles ru.neverland.townychronicles.StartupAnnouncementSmoke
+StartupAnnouncementSmoke OK
+SMOKE PASS: 4 executable tests

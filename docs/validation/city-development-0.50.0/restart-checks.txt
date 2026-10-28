@@ -1,0 +1,23 @@
+PASS updated module enabled: Builds
+PASS updated module enabled: Contracts
+PASS updated module enabled: Companies
+PASS updated module enabled: Jobs
+PASS updated module enabled: Army
+PASS updated module enabled: Logistics
+PASS updated module enabled: SiegesPlus
+PASS updated module enabled: Chronicles
+PASS updated module enabled: Environment
+PASS updated module enabled: Quests
+PASS updated module enabled: Policies
+PASS updated module enabled: Control
+PASS updated module enabled: Resources
+PASS native APIs and SQLite ready
+PASS city styles survive native full restart
+PASS old and themed site identities both preserved
+PASS salary payments not repeated at startup
+PASS completed salary receipt restored
+PASS announced vulnerability schedule survives restart
+PASS camp reserves survive restart independently of camp lifetime
+PASS old destination delivery receipt restored
+PASS restart never resets cancelled branch selection
+PASS funded dynamic construction order snapshot survives restart

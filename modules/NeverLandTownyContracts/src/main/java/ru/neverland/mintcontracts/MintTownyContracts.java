@@ -54,8 +54,9 @@ public final class MintTownyContracts extends JavaPlugin {
         boolean placeholders = PlaceholderHook.register(this, towny, contracts);
 ru.neverland.core.ActivityAdmin.attach(this,"townycontracts","mintcontracts.admin",contracts::adminTargets);
         getCommand("orders").setExecutor((sender,cmd,label,args)->{sender.sendMessage("Раздел заработка приостановлен: проверьте конфигурацию и журнал запуска.");return true;});try { publicOrders=new ru.neverland.mintcontracts.orders.PublicOrders(this,names); } catch(Exception ex) { getLogger().log(java.util.logging.Level.SEVERE,"Публичные заказы приостановлены; городские контракты продолжают работать",ex); }
+        new ru.neverland.mintcontracts.service.BuildOrders(this,towny,contracts);
         contracts.start();
-        getLogger().info("NeverLandTownyContracts 0.3.0 включён: шаблонов " + registry.all().size()
+        getLogger().info("NeverLandTownyContracts "+getPluginMeta().getVersion()+" включён: шаблонов " + registry.all().size()
                 + ", склад=" + warehouse.available() + ", PlaceholderAPI=" + placeholders + ".");
     } }
 
@@ -64,7 +65,7 @@ ru.neverland.core.ActivityAdmin.attach(this,"townycontracts","mintcontracts.admi
 
         if (publicOrders != null) publicOrders.shutdown();
         if (contracts != null) contracts.shutdown();
-        if (towny != null) towny.unregister("contracts");
+        if (towny != null) {towny.unregister("contracts");towny.unregister("buildorders");}
         getServer().getServicesManager().unregisterAll(this);
     } }
 

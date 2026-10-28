@@ -35,6 +35,7 @@ public final class SiegeMenu implements Listener {
         inv.setItem(31,item(Material.TNT,"&eРейды и прочность",List.of("&f"+plugin.raids().phase(town),"&f/sieges camp <город> — лагерь у цели","&f/sieges camp — сбор и начало рейда","&f/sieges hp — прочность блока под прицелом","","&fБоевой TNT доступен мобилизованным.","&fЧем дальше взрыв, тем меньше урон.","&fЩит новичка и союз запрещают нападение.","&7Нажмите, чтобы посмотреть текущие рейды.")));
         if(plugin.camps().settings().enabled())inv.setItem(30,item(Material.CAMPFIRE,"&6Осадный лагерь",List.of("&fПостройте костёр и знамя у чужого города.","&fПосмотрите на костёр: /sieges camp <город>","&fЗдесь можно открыть меню своего лагеря.")));
         inv.setItem(32,item(Material.FILLED_MAP,"&eЗахват участка",List.of("&fPvP между воюющими городами — с объявления.","&fTNT поджигайте за границей города.","&fВнутри — после захвата этого чанка.","&fЧасти городских зданий нужно разрушить.","&fПустой чанк нужно удерживать без защитников.","&7Нажмите: правила и прогресс здесь.")));
+        inv.setItem(33,item(Material.CLOCK,"&eЧасы нападения",List.of("&f"+plugin.hours().describe(town),"&7Нажмите: посмотреть и настроить расписание")));
         inv.setItem(40,item(Material.BOOK,"&eПравила осады",List.of("&fОборона работает на территории города.","&fНезавершённые и отключённые здания","&fне предоставляют защиту.","","&fЗдания ремонтируются за счёт казны.","&fЦена зависит от утраченной прочности.","&fОбычные блоки восстанавливают HP после затишья.","&fСодержимое хранилищ защищено.")));
         inv.setItem(45,item(Material.ARROW,"&e← Назад",List.of("Вернуться в предыдущее меню")));
         inv.setItem(49,item(Material.CLOCK,"&aОбновить",List.of("Нажмите для обновления состояния")));
@@ -44,6 +45,7 @@ public final class SiegeMenu implements Listener {
     @EventHandler public void click(InventoryClickEvent e){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(!(e.getView().getTopInventory().getHolder() instanceof Holder h))return;e.setCancelled(true);if(!(e.getWhoClicked() instanceof Player p)||!p.getUniqueId().equals(h.viewer))return;
         if(!p.hasPermission("neverlandtownysiegesplus.use")){p.closeInventory();return;}
         if(e.getRawSlot()==45)MenuStyle.returnTo(p,h.previous);
+        else if(e.getRawSlot()==33)try{plugin.hours().menu(p);}catch(Exception ex){p.sendMessage(ex.getMessage());}
         else if(e.getRawSlot()==32)plugin.warControl().status(p);
         else if(e.getRawSlot()==31)plugin.raids().status(p);
         else if(e.getRawSlot()==30)try{plugin.camps().menu(p);}catch(Exception ex){p.sendMessage(MenuStyle.decode("&e"+ex.getMessage()));}

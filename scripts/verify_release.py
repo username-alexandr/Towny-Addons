@@ -493,8 +493,8 @@ def main() -> int:
     for group, profile in policies.items():
         options = profile.get("options", {})
         standard = options.get(profile.get("default"), {})
-        if len(options) != 3 or standard.get("effects") != {} or standard.get("requires") != []:
-            errors.append(f"Policy {group} needs three modes and a neutral default")
+        if not 3 <= len(options) <= 6 or standard.get("effects") != {} or standard.get("requires") != []:
+            errors.append(f"Policy {group} needs 3–6 modes and a neutral default")
         for mode, option in options.items():
             if not re.search(r"[А-Яа-яЁё]", str(option.get("name", ""))) or not option.get("advantages") or not option.get("disadvantages"):
                 errors.append(f"Policy mode {group}/{mode} requires Russian name, advantages and disadvantages")
@@ -509,7 +509,7 @@ def main() -> int:
         errors.append("Import modes must be open, same nation and closed")
     quests = load_yaml(modules_dir / "NeverLandTownyQuests/src/main/resources/quests.yml").get("projects", {})
     unlocks = {p.get("unlock") for p in quests.values()}
-    if set(quests) != {"sanitation", "public_health"} or unlocks != {"sanitation_reform", "public_health"}:
+    if not {"sanitation", "public_health", "industrial_future", "green_future"} <= set(quests) or len(unlocks) != len(quests):
         errors.append("Quests must include both city infrastructure chains and distinct reform unlocks")
     for quest, project in quests.items():
         if set(project.get("requires", [])) - set(quests):

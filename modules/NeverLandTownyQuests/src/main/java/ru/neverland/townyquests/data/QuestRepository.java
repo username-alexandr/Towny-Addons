@@ -35,6 +35,7 @@ public final class QuestRepository {
         towns = Map.copyOf(next); AtomicFiles.loaded(file); writable = true;
     } }
     private static void validate(Map<String, CityProject> runs) {
+        ru.neverland.townyquests.model.ProjectBranches.validate(runs.values());
         if (runs.values().stream().filter(r -> r.status() == CityProject.Status.ACTIVE || r.status() == CityProject.Status.PAUSED).count() > 1)
             throw new IllegalArgumentException("В городе уже есть текущий проект");
         runs.forEach((id, run) -> { if (!id.equals(run.definition().id())) throw new IllegalArgumentException("ID проекта не совпадает"); });

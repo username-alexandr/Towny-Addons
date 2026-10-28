@@ -42,6 +42,7 @@ public final class QuestMenu implements Listener {
             if (run != null) lore.add("Завершено этапов: " + run.stage() + "/" + p.stages().size());
             if (!p.requires().isEmpty()) lore.add("После проектов: " + String.join(", ", p.requires().stream()
                     .map(id -> definitions.containsKey(id) ? definitions.get(id).name() : id).toList()));
+            if(!p.choiceGroup().isEmpty()){String reason=service.branchReason(v.town,p);lore.add(reason.isEmpty()?"Альтернативное продолжение: выбор закрепится за городом":reason);}
             lore.add(p.reward()); lore.add("Нажмите, чтобы увидеть этапы");
             button(v, slot++, p.icon(), p.name(), lore, () -> project(player, p.id()));
         }
@@ -70,12 +71,18 @@ public final class QuestMenu implements Listener {
         button(v, 47, "COMPASS", "Обновить прогресс", List.of(), () -> project(player, id));
         if (run == null || run.status() == CityProject.Status.CANCELLED || run.status() == CityProject.Status.PAUSED)
             button(v, 49, "EMERALD", run == null ? "Начать городской проект" : "Продолжить проект", List.of("Для мэра или уполномоченного", "Один текущий проект на город", "Выполненные этапы сохраняются"), () -> {
-                try { service.begin(player, id); project(player, id); } catch (Exception ex) { player.sendMessage("§c" + ex.getMessage()); }
+                try { if(run==null&&!p.choiceGroup().isEmpty()){confirmBranch(player,p);return;}service.begin(player, id); project(player, id); } catch (Exception ex) { player.sendMessage("§c" + ex.getMessage()); }
             });
         if (run != null && run.status() == CityProject.Status.COMPLETED)
-            button(v, 51, "WRITABLE_BOOK", "Открыть городские политики", List.of("Санитарная реформа разблокирована", "Выбор и стоимость указаны в политиках"), () -> { player.closeInventory(); player.performCommand("town policies"); });
+            button(v, 51, "WRITABLE_BOOK", "Открыть городские политики", List.of("Результат проекта разблокирован", "Выбор и издержки указаны в политиках"), () -> { player.closeInventory(); player.performCommand("town policies"); });
         player.openInventory(v.inventory);
     } }
+    private void confirmBranch(Player player,Project project){
+        var v=view(player,"Выбор продолжения города");String reason=service.branchReason(v.town,project);
+        button(v,13,project.icon(),project.name(),List.of(project.reward(),reason.isEmpty()?"Выбор сохранится за городом":reason,"Другая ветвь этой группы будет закрыта","Отмена проекта не меняет выбранное направление"),null);
+        if(reason.isEmpty())button(v,20,"LIME_DYE","Подтвердить направление",List.of("Для мэра или уполномоченного"),()->{try{service.begin(player,project.id(),true);project(player,project.id());}catch(Exception ex){player.sendMessage("§e"+ex.getMessage());}});
+        button(v,24,"ARROW","Вернуться",List.of("Продолжение пока не выбрано"),()->project(player,project.id()));player.openInventory(v.inventory);
+    }
     @EventHandler public void click(InventoryClickEvent event) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyQuests")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getView().getTopInventory().getHolder() instanceof View v)) return;
         event.setCancelled(true);

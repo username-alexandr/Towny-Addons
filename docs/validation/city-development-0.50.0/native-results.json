@@ -1,0 +1,46 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 53 assertions; real Folia/Towny/SQLite/block data/inventories; explicit offline actor and test economy, no authenticated clients\n",
+    "jar_sha256": {
+      "NeverLandTownyChronicles-0.2.0.jar": "32d6b63f4466e259d2fd3c70d5dbf2c2fe83edd40c6809aa728ad08af20be7b4",
+      "NeverLandTownyContracts-0.5.0.jar": "88f7edcec22c5ae475c134d4672c5932e2c1c73adb79cefebdbcd71469efcbaf",
+      "NeverLandTownyCompanies-0.2.0.jar": "188df5e545c72772c15dd755aa4ef42a19e3f9d8eff9825c719094dde778a239",
+      "NeverLandTownyLogistics-0.2.0.jar": "a54ee8650e04a4005e7aba8b1c8d9f0e1208c9adc3bade432d7ca10ad9401cc8",
+      "NeverLandTownySiegesPlus-0.6.0.jar": "8b842ff0cf24be03c21c0747e766a5d1eccc42c1d7c859eb155bdedb73a2f7fd",
+      "NeverLandTownyResources-0.1.24.jar": "0e2237ef7f8a8aa694d1b44284fcb7fa24d07b9a3635332a6936f3b1540f5482",
+      "TntRuntimeProbe.jar": "07ef352516b050d8dc33a7de77cdf4d33e4f8e077b17f5dcf6d976388ee9da84",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyBuilds-0.9.0.jar": "18c07a30e775593a7514910ed16600ae82238353ba62c0a486853be560f17f47",
+      "NeverLandTownyEnvironment-0.2.0.jar": "1711a24dd227e906d1493d354f43676e0248c33bc0dfd2387aa4e2f9c4321651",
+      "NeverLandTownyJobs-0.2.0.jar": "c5ef14ed601a0cbae45cbee0790167c5354496fa7fb0c5b8741a44dcbd5ad923",
+      "NeverLandTownyArmy-0.2.0.jar": "db95e90f78b60a38e3bfeb8966bffe66a8e3798bfb7a020ca9164f2d7f11f03c",
+      "NeverLandTownyControl-0.5.0.jar": "653ef0eb88d49642cf2e97da7d2c5e53ba27b09898bcad17abb7a59dbeb05e43",
+      "NeverLandTownyPolicies-0.2.0.jar": "f8bbd1413034fcca0bb5225949104de2080bd8129d4318f8dfa2880874b699f0",
+      "NeverLandTownyQuests-0.2.0.jar": "6c705241b91ae2e2fcb371aff062a1d272faca7ca5be4de431c483edad0c4271"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 23 assertions; real Folia/Towny/SQLite/block data/inventories; explicit offline actor and test economy, no authenticated clients\n",
+    "jar_sha256": {
+      "NeverLandTownyChronicles-0.2.0.jar": "32d6b63f4466e259d2fd3c70d5dbf2c2fe83edd40c6809aa728ad08af20be7b4",
+      "NeverLandTownyContracts-0.5.0.jar": "88f7edcec22c5ae475c134d4672c5932e2c1c73adb79cefebdbcd71469efcbaf",
+      "NeverLandTownyCompanies-0.2.0.jar": "188df5e545c72772c15dd755aa4ef42a19e3f9d8eff9825c719094dde778a239",
+      "NeverLandTownyLogistics-0.2.0.jar": "a54ee8650e04a4005e7aba8b1c8d9f0e1208c9adc3bade432d7ca10ad9401cc8",
+      "NeverLandTownySiegesPlus-0.6.0.jar": "8b842ff0cf24be03c21c0747e766a5d1eccc42c1d7c859eb155bdedb73a2f7fd",
+      "NeverLandTownyResources-0.1.24.jar": "0e2237ef7f8a8aa694d1b44284fcb7fa24d07b9a3635332a6936f3b1540f5482",
+      "TntRuntimeProbe.jar": "07ef352516b050d8dc33a7de77cdf4d33e4f8e077b17f5dcf6d976388ee9da84",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyBuilds-0.9.0.jar": "18c07a30e775593a7514910ed16600ae82238353ba62c0a486853be560f17f47",
+      "NeverLandTownyEnvironment-0.2.0.jar": "1711a24dd227e906d1493d354f43676e0248c33bc0dfd2387aa4e2f9c4321651",
+      "NeverLandTownyJobs-0.2.0.jar": "c5ef14ed601a0cbae45cbee0790167c5354496fa7fb0c5b8741a44dcbd5ad923",
+      "NeverLandTownyArmy-0.2.0.jar": "db95e90f78b60a38e3bfeb8966bffe66a8e3798bfb7a020ca9164f2d7f11f03c",
+      "NeverLandTownyControl-0.5.0.jar": "653ef0eb88d49642cf2e97da7d2c5e53ba27b09898bcad17abb7a59dbeb05e43",
+      "NeverLandTownyPolicies-0.2.0.jar": "f8bbd1413034fcca0bb5225949104de2080bd8129d4318f8dfa2880874b699f0",
+      "NeverLandTownyQuests-0.2.0.jar": "6c705241b91ae2e2fcb371aff062a1d272faca7ca5be4de431c483edad0c4271"
+    }
+  }
+]

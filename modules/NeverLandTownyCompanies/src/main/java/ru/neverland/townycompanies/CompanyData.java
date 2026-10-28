@@ -23,7 +23,7 @@ public final class CompanyData {
     public enum Role { OWNER("Владелец"), MANAGER("Управляющий"), WORKER("Участник");
         public final String label; Role(String label) { this.label=label; }
     }
-    public enum Purpose { DEPOSIT, WITHDRAW, TAX, REFUND }
+    public enum Purpose { DEPOSIT, WITHDRAW, TAX, REFUND, SALARY }
     public enum Phase { READY, PENDING, DONE, REJECTED }
     public record Company(UUID id, UUID town, String name, Kind kind, UUID owner,
                           Map<UUID,Role> members, Map<UUID,Long> invitations, UUID successor,

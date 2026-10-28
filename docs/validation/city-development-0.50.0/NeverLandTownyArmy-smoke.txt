@@ -1,0 +1,11 @@
+TEST NeverLandTownyArmy ru.neverland.townyarmy.ArmyMigrationSmoke
+Army migration: durable import, lost handoff reply, restart, no roster resurrection and failed-save barrier PASS
+TEST NeverLandTownyArmy ru.neverland.townyarmy.ArmyRaidSupplySmoke
+ArmyRaidSupplySmoke PASS: atomic debit, insufficient stock, replay, restart, mismatch and disk failure
+TEST NeverLandTownyArmy ru.neverland.townyarmy.ArmyRepositorySmoke
+Army repository: restart, atomic credit, strict corruption, failed writes and invariants PASS
+TEST NeverLandTownyArmy ru.neverland.townyarmy.ArmyRulesSmoke
+Army rules: 31 capacity, readiness, rank, training and discipline assertions PASS
+TEST NeverLandTownyArmy ru.neverland.townyarmy.ArmySuppliesSmoke
+Army supply: 16 crash boundaries, declined stock and unknown result PASS
+SMOKE PASS: 5 executable tests

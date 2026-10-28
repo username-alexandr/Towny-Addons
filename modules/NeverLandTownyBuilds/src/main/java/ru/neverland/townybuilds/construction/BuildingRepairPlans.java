@@ -29,6 +29,7 @@ public final class BuildingRepairPlans implements BuildingRepairPlansApi {
         ready();var state=data.town(town);var site=state.constructionSite(project);var definition=definitions.project(project);
         int level=site==null?0:war&&site.active()?Math.max(site.completedStage(),site.targetStage()):Math.min(state.level(project),site.completedStage());if(definition==null||site==null||level<1||definition.level(level)==null)return Map.of();
         var blueprint=generator.generateForArchitecture(project,level,site.architectureVersion());if(blueprint==null)return Map.of();
+        var base=generator.generateForArchitecture(project,level,BuildingStyle.baseArchitecture(site.architectureVersion()));
         var core=project.equals("town_hall")?Bukkit.getServicesManager().load(RaidStorageApi.class).core(town).orElse(null):null;var cells=new ArrayList<Map<String,Object>>();
         for(var e:blueprint.blocks().entrySet()){
             var expected=e.getValue();var material=expected.material();var blockData=material.createBlockData();ConstructionService.orientExpectedState(blockData,expected,site);
@@ -37,7 +38,7 @@ public final class BuildingRepairPlans implements BuildingRepairPlansApi {
             if(tiles.computeIfAbsent(material,m->m.createBlockData().createBlockState() instanceof TileState)&&!main)continue;
             if(blockData instanceof Door door&&door.getHalf()==Bisected.Half.TOP)continue;
             String top="";if(blockData instanceof Door){var upper=blueprint.blocks().get(new BlockOffset(e.getKey().x(),e.getKey().y()+1,e.getKey().z()));if(upper==null||upper.material()!=material)continue;var bd=material.createBlockData();ConstructionService.orientExpectedState(bd,upper,site);top=bd.getAsString();}
-            cells.add(Map.of("x",at.getBlockX(),"y",at.getBlockY(),"z",at.getBlockZ(),"material",material.name(),"data",blockData.getAsString(),"top",top));
+            cells.add(Map.of("x",at.getBlockX(),"y",at.getBlockY(),"z",at.getBlockZ(),"material",material.name(),"baseMaterial",base.blocks().get(e.getKey()).material().name(),"data",blockData.getAsString(),"top",top));
         }
         cells.sort(Comparator.comparingInt((Map<String,Object> c)->(int)c.get("y")).thenComparingInt(c->(int)c.get("x")).thenComparingInt(c->(int)c.get("z")));
         long price=BigDecimal.valueOf(definition.level(level).money()).movePointRight(2).setScale(0,RoundingMode.UNNECESSARY).longValueExact();

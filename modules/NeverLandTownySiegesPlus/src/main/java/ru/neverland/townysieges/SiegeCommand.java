@@ -39,6 +39,7 @@ public final class SiegeCommand implements TabExecutor {
                     }
                     throw new IllegalArgumentException("/sieges repair <здание> | /sieges repair admin list|show|resolve");
                 }
+                case "hours"->{if(!(sender instanceof Player p))throw new IllegalArgumentException("Расписание доступно в игре");if(args.length==1)plugin.hours().menu(p);else if(args.length==5&&args[1].equalsIgnoreCase("set")&&args[4].equalsIgnoreCase("confirm"))plugin.hours().set(p,new RaidWindow(RaidWindow.minute(args[2]),RaidWindow.minute(args[3])));else throw new IllegalArgumentException("/sieges hours | /sieges hours set ЧЧ:ММ ЧЧ:ММ confirm");}
                 case "chunk"->{if(!(sender instanceof Player p))throw new IllegalArgumentException("Проверка участка доступна в игре: /sieges chunk");plugin.warControl().status(p);}
                 case "hp"->{if(!(sender instanceof Player p))throw new IllegalArgumentException("Посмотрите на блок в игре и выполните /sieges hp");plugin.tnt().health(p);}
                 case "camp"->{if(!(sender instanceof Player p))throw new IllegalArgumentException("Осадный лагерь доступен в игре");if(args.length==1)plugin.camps().menu(p);else if(args.length==2)plugin.camps().register(p,args[1]);else throw new IllegalArgumentException("/sieges camp [город]");}
@@ -59,7 +60,7 @@ public final class SiegeCommand implements TabExecutor {
     } }
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(!sender.hasPermission("neverlandtownysiegesplus.use"))return List.of();
-        var out=new ArrayList<String>();if(args.length==1){out.addAll(List.of("menu","help","camp","raid","hp","repair","chunk"));if(sender.hasPermission("neverlandtownysiegesplus.admin")||sender.isOp())out.addAll(List.of("status","reload","loot"));}
+        var out=new ArrayList<String>();if(args.length==1){out.addAll(List.of("menu","help","camp","raid","hp","repair","chunk","hours"));if(sender.hasPermission("neverlandtownysiegesplus.admin")||sender.isOp())out.addAll(List.of("status","reload","loot"));}
         if(args.length==2&&(args[0].equalsIgnoreCase("menu")||args[0].equalsIgnoreCase("raid")||args[0].equalsIgnoreCase("camp")))TownyAPI.getInstance().getTowns().forEach(t->out.add(t.getName()));
         if(args.length==2&&args[0].equalsIgnoreCase("raid")){out.add("status");if(sender.hasPermission("neverlandtownysiegesplus.admin"))out.addAll(List.of("cancel","history"));}
         if(args.length==3&&args[0].equalsIgnoreCase("raid")&&Set.of("cancel","history").contains(args[1].toLowerCase(Locale.ROOT))&&sender.hasPermission("neverlandtownysiegesplus.admin"))TownyAPI.getInstance().getTowns().forEach(t->out.add(t.getName()));

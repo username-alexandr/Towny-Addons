@@ -4,9 +4,11 @@ import java.util.*;
 
 /** A run keeps this immutable definition even after administrators edit quests.yml. */
 public record Project(String id, String name, String icon, List<String> requires,
-                      String unlock, String reward, List<Stage> stages) {
+                      String unlock, String reward, List<Stage> stages,String choiceGroup) {
+    public Project(String id,String name,String icon,List<String> requires,String unlock,String reward,List<Stage> stages){this(id,name,icon,requires,unlock,reward,stages,"");}
     public Project {
         identifier(id); identifier(unlock);
+        Objects.requireNonNull(choiceGroup);if(!choiceGroup.isEmpty())identifier(choiceGroup);
         if (name == null || name.isBlank() || reward == null || reward.isBlank()
                 || icon == null || icon.isBlank()) throw new IllegalArgumentException("Нужны название, значок и результат проекта");
         requires = List.copyOf(requires); stages = List.copyOf(stages);

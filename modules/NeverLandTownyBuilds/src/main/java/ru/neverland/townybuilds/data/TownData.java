@@ -38,6 +38,11 @@ public final class TownData {
     private final Map<String,ru.neverland.townybuilds.construction.PlacementDraft> placements=new HashMap<>();
     public Map<String,ru.neverland.townybuilds.construction.PlacementDraft> placements(){try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()){return Map.copyOf(placements);}}
     public void placement(String project,ru.neverland.townybuilds.construction.PlacementDraft draft){try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()){if(draft==null)placements.remove(project);else placements.put(project,draft);}}
+    private String buildingStyle="medieval";
+    private boolean styleChosen;
+    public String buildingStyle(){try(var g=ru.neverland.core.SuiteState.guard()){return buildingStyle;}}
+    public boolean styleChosen(){try(var g=ru.neverland.core.SuiteState.guard()){return styleChosen;}}
+    public void buildingStyle(String id,boolean chosen){try(var g=ru.neverland.core.SuiteState.guard()){buildingStyle=ru.neverland.townybuilds.construction.BuildingStyle.parse(id).id();styleChosen=chosen;}}
     private final Map<String, Integer> levels = new HashMap<>();
     private final Map<String, ConstructionSite> constructionSites = new HashMap<>();
     private final Map<String, ru.neverland.townybuilds.construction.ConstructionReceipt> constructionReceipts = new HashMap<>();

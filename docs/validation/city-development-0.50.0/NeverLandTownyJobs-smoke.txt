@@ -1,0 +1,3 @@
+TEST NeverLandTownyJobs ru.neverland.townyjobs.JobsSmoke
+JOBS_SMOKE_PASS: 78 checks
+SMOKE PASS: 1 executable tests

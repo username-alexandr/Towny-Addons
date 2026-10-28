@@ -9,9 +9,10 @@ public final class NeverLandTownyCompanies extends JavaPlugin {
     @Override public void onEnable(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
-        saveDefaultConfig();
+        saveDefaultConfig();getConfig().options().copyDefaults(true);saveConfig();
         try {
             CompanyRepository repo=new CompanyRepository(getDataFolder().toPath().resolve("companies.yml"));repo.load();service=new CompanyService(this,repo);
+            service.payroll=new CompanyPayroll(this,service);
             for(var kind:CompanyData.Kind.values())service.rate(kind);
             CompanyCommand command=new CompanyCommand(this,service);menus=new CompanyMenus(this,service,command);command.menus(menus);
             getCommand("townycompanies").setExecutor(command);getCommand("townycompanies").setTabCompleter(command);
@@ -25,5 +26,5 @@ public final class NeverLandTownyCompanies extends JavaPlugin {
     public CompaniesApi companies(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return service;} }
     @Override public void onDisable(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
-if(menus!=null)menus.close();TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"companies");getServer().getServicesManager().unregisterAll(this);} }
+if(service!=null&&service.payroll!=null)service.payroll.close();if(menus!=null)menus.close();TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"companies");getServer().getServicesManager().unregisterAll(this);} }
 }

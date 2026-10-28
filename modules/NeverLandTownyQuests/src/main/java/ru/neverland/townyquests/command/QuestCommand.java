@@ -20,7 +20,7 @@ public final class QuestCommand implements TabExecutor {
             if (!p.hasPermission("neverlandtownyquests.use")) throw new IllegalArgumentException("Нет доступа к городским проектам");
             if (args.length == 0 || args.length == 1 && args[0].equalsIgnoreCase("menu")) menu.home(p);
             else if (args.length == 2 && args[0].equalsIgnoreCase("info")) menu.project(p, args[1]);
-            else if (args.length == 2 && args[0].equalsIgnoreCase("start")) { service.begin(p, args[1]); menu.project(p, args[1]); }
+            else if ((args.length==2||args.length==3&&args[2].equalsIgnoreCase("confirm")) && args[0].equalsIgnoreCase("start")) { service.begin(p, args[1],args.length==3); menu.project(p, args[1]); }
             else sender.sendMessage("§e/t quests [menu|info <проект>|start <проект>] — городские проекты");
         } catch (Exception ex) { sender.sendMessage("§c" + ex.getMessage()); }
         return true;

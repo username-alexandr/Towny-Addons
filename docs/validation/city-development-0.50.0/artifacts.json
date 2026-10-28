@@ -1,0 +1,110 @@
+[
+  {
+    "module": "NeverLandTownyBuilds",
+    "version": "0.9.0",
+    "file": "NeverLandTownyBuilds-0.9.0.jar",
+    "bytes": 874313,
+    "sha256": "18c07a30e775593a7514910ed16600ae82238353ba62c0a486853be560f17f47",
+    "classes": 285,
+    "bytecode_major": 61
+  },
+  {
+    "module": "NeverLandTownyContracts",
+    "version": "0.5.0",
+    "file": "NeverLandTownyContracts-0.5.0.jar",
+    "bytes": 463358,
+    "sha256": "88f7edcec22c5ae475c134d4672c5932e2c1c73adb79cefebdbcd71469efcbaf",
+    "classes": 169,
+    "bytecode_major": 61
+  },
+  {
+    "module": "NeverLandTownyCompanies",
+    "version": "0.2.0",
+    "file": "NeverLandTownyCompanies-0.2.0.jar",
+    "bytes": 260841,
+    "sha256": "188df5e545c72772c15dd755aa4ef42a19e3f9d8eff9825c719094dde778a239",
+    "classes": 99,
+    "bytecode_major": 61
+  },
+  {
+    "module": "NeverLandTownyJobs",
+    "version": "0.2.0",
+    "file": "NeverLandTownyJobs-0.2.0.jar",
+    "bytes": 273189,
+    "sha256": "c5ef14ed601a0cbae45cbee0790167c5354496fa7fb0c5b8741a44dcbd5ad923",
+    "classes": 98,
+    "bytecode_major": 61
+  },
+  {
+    "module": "NeverLandTownyArmy",
+    "version": "0.2.0",
+    "file": "NeverLandTownyArmy-0.2.0.jar",
+    "bytes": 238157,
+    "sha256": "db95e90f78b60a38e3bfeb8966bffe66a8e3798bfb7a020ca9164f2d7f11f03c",
+    "classes": 96,
+    "bytecode_major": 61
+  },
+  {
+    "module": "NeverLandTownyLogistics",
+    "version": "0.2.0",
+    "file": "NeverLandTownyLogistics-0.2.0.jar",
+    "bytes": 255168,
+    "sha256": "a54ee8650e04a4005e7aba8b1c8d9f0e1208c9adc3bade432d7ca10ad9401cc8",
+    "classes": 94,
+    "bytecode_major": 61
+  },
+  {
+    "module": "NeverLandTownySiegesPlus",
+    "version": "0.6.0",
+    "file": "NeverLandTownySiegesPlus-0.6.0.jar",
+    "bytes": 401112,
+    "sha256": "8b842ff0cf24be03c21c0747e766a5d1eccc42c1d7c859eb155bdedb73a2f7fd",
+    "classes": 158,
+    "bytecode_major": 61
+  },
+  {
+    "module": "NeverLandTownyChronicles",
+    "version": "0.2.0",
+    "file": "NeverLandTownyChronicles-0.2.0.jar",
+    "bytes": 219617,
+    "sha256": "32d6b63f4466e259d2fd3c70d5dbf2c2fe83edd40c6809aa728ad08af20be7b4",
+    "classes": 91,
+    "bytecode_major": 61
+  },
+  {
+    "module": "NeverLandTownyEnvironment",
+    "version": "0.2.0",
+    "file": "NeverLandTownyEnvironment-0.2.0.jar",
+    "bytes": 183807,
+    "sha256": "1711a24dd227e906d1493d354f43676e0248c33bc0dfd2387aa4e2f9c4321651",
+    "classes": 79,
+    "bytecode_major": 61
+  },
+  {
+    "module": "NeverLandTownyQuests",
+    "version": "0.2.0",
+    "file": "NeverLandTownyQuests-0.2.0.jar",
+    "bytes": 189078,
+    "sha256": "6c705241b91ae2e2fcb371aff062a1d272faca7ca5be4de431c483edad0c4271",
+    "classes": 81,
+    "bytecode_major": 61
+  },
+  {
+    "module": "NeverLandTownyPolicies",
+    "version": "0.2.0",
+    "file": "NeverLandTownyPolicies-0.2.0.jar",
+    "bytes": 196943,
+    "sha256": "f8bbd1413034fcca0bb5225949104de2080bd8129d4318f8dfa2880874b699f0",
+    "classes": 83,
+    "bytecode_major": 61
+  },
+  {
+    "module": "NeverLandTownyControl",
+    "version": "0.5.0",
+    "file": "NeverLandTownyControl-0.5.0.jar",
+    "bytes": 277681,
+    "sha256": "653ef0eb88d49642cf2e97da7d2c5e53ba27b09898bcad17abb7a59dbeb05e43",
+    "classes": 96,
+    "bytecode_major": 61
+  }
+]

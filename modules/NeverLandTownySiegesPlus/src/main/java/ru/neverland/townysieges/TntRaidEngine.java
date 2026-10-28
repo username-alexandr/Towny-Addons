@@ -156,8 +156,8 @@ public final class TntRaidEngine implements Listener,AutoCloseable {
             var state=block.getState(false);if((state instanceof TileState||state instanceof InventoryHolder)&&!core)continue;
             // A door is one object. Its nearest half receives one hit, never two hits from one blast.
             if(block.getBlockData() instanceof Door)amount=Math.max(amount,TntRules.damage(TntRules.distance(origin.x(),origin.y(),origin.z(),block.getX(),block.getY()+1,block.getZ()),settings));
-            String project;try{project=repairPlans.project(town.getUUID(),k,material.name());}catch(Exception unavailable){plugin.getLogger().warning("Урон зданию отложен: "+RaidController.problem(unavailable));return;}
-            damaged.add(k.id());hits.add(new RaidStore.Hit(k,town.getUUID(),material.name(),watch(k),settings.hp(material.name()),amount,project));
+            RepairPlans.Target registered;try{registered=repairPlans.target(town.getUUID(),k,material.name());}catch(Exception unavailable){plugin.getLogger().warning("Урон зданию отложен: "+RaidController.problem(unavailable));return;}
+            damaged.add(k.id());hits.add(new RaidStore.Hit(k,town.getUUID(),material.name(),watch(k),settings.hp(registered.hpMaterial()),amount,registered.project()));
             }
         }
         if(hits.isEmpty())return;
@@ -216,7 +216,7 @@ public final class TntRaidEngine implements Listener,AutoCloseable {
         Block block=canonical(raw);var town=TownyAPI.getInstance().getTown(block.getLocation());if(town==null)throw new IllegalArgumentException("Этот блок находится за пределами города");
         var type=block.getType();var k=key(block);
         if((TntRules.protectedMaterial(type.name())||block.getState(false) instanceof TileState||block.getState(false) instanceof InventoryHolder)&&!plugin.loot().core(town.getUUID(),block)){raids.reply(player,"Этот блок защищён от боевого TNT");return;}
-        var settings=raids.settings();store.health(k,type.name(),settings.hp(type.name()),System.currentTimeMillis(),settings.repairSeconds())
+        var settings=raids.settings();String hpMaterial;try{hpMaterial=repairPlans.target(town.getUUID(),k,type.name()).hpMaterial();}catch(Exception error){throw new IllegalArgumentException("Не удалось проверить чертёж здания");}store.health(k,type.name(),settings.hp(hpMaterial),System.currentTimeMillis(),settings.repairSeconds())
                 .whenComplete((value,error)->{if(error!=null){raids.reply(player,RaidController.problem(error));return;}raids.reply(player,"Прочность блока: "+(long)Math.ceil(value.hp())+" / "+(long)Math.ceil(value.maximum())+" HP. Здания ремонтируются за счёт казны через меню здания; обычные блоки восстанавливают HP после затишья.");});
     }
     public void repaired(Collection<RaidStore.Key> keys){for(var k:keys){watches.computeIfPresent(k,(unused,w)->new Watch(epochs.incrementAndGet(),w.references()));damaged.remove(k.id());}}

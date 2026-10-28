@@ -57,6 +57,7 @@ public final class BuildService {
     }
 
     public ru.neverland.townybuilds.construction.BlueprintPlan previewPlan(String project,int level,ru.neverland.townybuilds.construction.ConstructionSite site){return construction==null?null:construction.previewPlan(project,level,site);}
+    public ru.neverland.townybuilds.construction.BlueprintPlan previewPlan(String project,int level,ru.neverland.townybuilds.construction.ConstructionSite site,String style){return construction==null?null:construction.previewPlan(project,level,site,style);}
     public void setConstruction(ConstructionService construction) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         this.construction = construction;
     } }
@@ -470,6 +471,16 @@ public final class BuildService {
         return copy;
     }
 
+    @SuppressWarnings("unchecked") public List<String> environmentForecast(Town town,ProjectDefinition project){
+        if(!org.bukkit.Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyEnvironment"))return List.of();int target=dataStore.town(town.getUUID()).level(project.id())+1;if(target>project.maxLevel())return List.of();
+        try{var api=ru.neverland.core.ApiServices.require("NeverLandTownyEnvironment","ru.neverland.townyenvironment.api.TownyEnvironmentApi","forecast");
+            var row=(Map<String,Object>)api.invoke("forecast",new Class<?>[]{java.util.UUID.class,String.class,int.class,int.class},town.getUUID(),project.id(),target,3600);
+            if(!Boolean.TRUE.equals(row.get("ready")))return List.of("&eЭкологический прогноз временно недоступен");if(!Boolean.TRUE.equals(row.get("relevant")))return List.of();
+            var out=new ArrayList<String>();out.add("");out.add("&bЭкология через час при работающем здании:");out.add("&7Без улучшения: &f"+String.format(java.util.Locale.ROOT,"%.1f",row.get("baseline"))+" &7/ с улучшением: &f"+String.format(java.util.Locale.ROOT,"%.1f",row.get("projected"))+" &7из 100");
+            out.add("&7Довольство: &f"+String.format(java.util.Locale.ROOT,"%.1f",row.get("happiness"))+" &7/ сельское хозяйство: &f"+String.format(java.util.Locale.ROOT,"%.0f%%",((Number)row.get("agriculture")).doubleValue()*100));
+            if(((Number)row.get("change")).doubleValue()>0)out.add("&7Помогут очистке: &f"+String.join(", ",(List<String>)row.get("cleaners")));return List.copyOf(out);
+        }catch(Exception|LinkageError ex){return List.of("&eЭкологический прогноз временно недоступен");}
+    }
     private List<String> missing(List<ItemStack> requirements, ResourceFund fund) {
         List<String> missing = new ArrayList<>();
         for (ItemStack required : requirements) {

@@ -54,7 +54,7 @@ public final class LogisticsService {
         if(!builds.unload(town,id,true))return false;npcs.remove(id);var copy=new LinkedHashMap<>(jobs);copy.remove(id);repository.save(networks,copy);jobs=copy;builds.acknowledge(town,id);return true;
     } }
     public void validateNode(UUID town,Node node)throws IOException{ try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
-        if(!CourierNpcs.owned(town,node.point())||!CourierNpcs.standable(node.point()))throw new IllegalArgumentException("Встаньте на безопасный проход на территории своего города");
+        if(!CourierNpcs.owned(town,node.point())||!CourierNpcs.standable(node.point()))throw new IllegalArgumentException("Встаньте на безопасный проход своего города или у своего осадного лагеря");
         if(node.kind()==Kind.BUILDING){var depot=depots(town).get(node.project());if(depot==null||!depot.contains(node.point()))throw new IllegalArgumentException("Точка погрузки должна быть у выбранного построенного здания");}
     } }
     public void validateLink(UUID town,Node a,Node b){ try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {
@@ -66,6 +66,7 @@ public final class LogisticsService {
         var hub=n.node(r.hub());var source=n.node(r.source());var target=n.node(r.target());var stock=depots(n.town());
         for(var node:List.of(hub,source,target)){if(node.kind()!=Kind.BUILDING||!stock.containsKey(node.project()))throw new IllegalArgumentException("Нет построенного здания для узла "+node.id());if(!stock.get(node.project()).contains(node.point())||!CourierNpcs.owned(n.town(),node.point()))throw new IllegalArgumentException("Точка здания потеряла привязку или территорию");}
         if(!settings.hubs().contains(hub.project()))throw new IllegalArgumentException("Узел отправки должен быть складом, терминалом, караван-сараем или портом");
+        if(source.project().startsWith("raid_camp:"))throw new IllegalArgumentException("Лагерь может быть только получателем снабжения");
         if(source.project().equals(target.project()))throw new IllegalArgumentException("Отправитель и получатель должны быть разными зданиями");
         BuildsStorage.decode(r.filter());
         var out=n.path(r.hub(),r.source(),settings.routeDistance());var delivery=n.path(r.source(),r.target(),settings.routeDistance());var home=n.path(r.target(),r.hub(),settings.routeDistance());
@@ -122,7 +123,7 @@ public final class LogisticsService {
         }
         if(now-saved>=settings.checkpoint()*1000L)save();schedule(now);
     }catch(Exception ex){fault=true;npcs.stop();plugin.getLogger().log(java.util.logging.Level.SEVERE,"Логистика приостановлена, груз остаётся в журнале складов",ex);}}
-    private boolean working(UUID town,String project){return ru.neverland.integration.BuildingOperations.active(town,project);}
+    private boolean working(UUID town,String project){if(project.startsWith("raid_camp:"))return depots.getOrDefault(town,Map.of()).containsKey(project);return ru.neverland.integration.BuildingOperations.active(town,project);}
     private void schedule(long now)throws IOException{
         if(jobs.size()>=settings.active())return;
         record Candidate(Network network,Route route){}List<Candidate> all=new ArrayList<>();for(var n:networks.values())for(var r:n.routes().values())if(r.enabled())all.add(new Candidate(n,r));

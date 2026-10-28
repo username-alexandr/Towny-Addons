@@ -1,0 +1,9 @@
+{
+  "plugins/NeverLandTownySiegesPlus/raids.db": {
+    "integrity_check": "ok"
+  },
+  "plugins/NeverLandTownyCompanies/payroll.sqlite": {
+    "integrity_check": "ok",
+    "work": []
+  }
+}

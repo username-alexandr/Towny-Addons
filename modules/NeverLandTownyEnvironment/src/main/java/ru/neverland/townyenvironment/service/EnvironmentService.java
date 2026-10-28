@@ -90,6 +90,11 @@ public final class EnvironmentService implements TownyEnvironmentApi {
                 Map.entry("cleaning", view.pressure().cleaning()), Map.entry("happiness", effects.happiness()), Map.entry("agriculture", effects.agriculture()),
                 Map.entry("levels", view.levels()), Map.entry("secondsUntilCycle", settings.interval() - elapsed.getOrDefault(town, 0)));
     } }
+    @Override public Map<String,Object> forecast(UUID town,String building,int targetLevel,int horizonSeconds){try(var guard=SuiteState.guard()){
+        ApiServices.primaryThread();if(town==null||TownyAPI.getInstance().getTown(town)==null)throw new IllegalArgumentException("Город не найден");
+        var view=observation(town);if(storageFault||!view.ready()||state(town).paused()||SuiteState.frozen(plugin.getName()))return Map.of("ready",false,"status","Расчёт экологии приостановлен");
+        return EnvironmentForecast.calculate(state(town),view.levels(),settings,building,targetLevel,horizonSeconds,elapsed.getOrDefault(town,0));
+    }}
     public List<ActivityAdmin.Target> adminTargets() { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); var list = new ArrayList<ActivityAdmin.Target>();
         for (Town town : TownyAPI.getInstance().getTowns()) {

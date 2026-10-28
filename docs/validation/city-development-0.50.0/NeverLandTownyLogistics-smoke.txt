@@ -1,0 +1,5 @@
+TEST NeverLandTownyLogistics ru.neverland.townylogistics.LogisticsHelpSmoke
+LogisticsHelpSmoke PASS
+TEST NeverLandTownyLogistics ru.neverland.townylogistics.LogisticsSmoke
+LogisticsSmoke OK: five levels, network paths, full arrival, unsafe path rejection, return path, active-tick timing, limits and restart persistence
+SMOKE PASS: 2 executable tests

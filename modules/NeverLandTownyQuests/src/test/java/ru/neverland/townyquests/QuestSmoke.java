@@ -22,7 +22,7 @@ public final class QuestSmoke {
     }
     public static void main(String[] args) throws Exception {
         var settings = QuestSettings.load(yaml("config.yml"), yaml("quests.yml"));
-        check(settings.projects().size() == 2, "two real city chains");
+        check(settings.projects().size() == 4, "two city chains and two exclusive continuations");
         var project = settings.projects().get("sanitation"); var run = CityProject.start(project);
         check(run.stage() == 0 && run.status() == CityProject.Status.ACTIVE, "starts at first stage");
         check(ProjectEngine.advance(run, new Observation(true, 0, "absent"), 5).equals(run), "missing aqueduct cannot skip");

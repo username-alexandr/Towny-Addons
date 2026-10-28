@@ -29,6 +29,10 @@ def dependencies():
         result[name]=sorted((providers & metadata.keys())-{name})
     return result
 
+def lifecycle_guard(source, method, hook):
+    wrapper = r"(?:synchronized\s*\(ru\.neverland\.core\.SuiteState\.lock\(\)\)\s*\{\s*|try\s*\(\s*var\s+\w+\s*=\s*ru\.neverland\.core\.SuiteState\.guard\(\)\s*\)\s*\{\s*)?"
+    return bool(re.search(r"void\s+"+method+r"\s*\(\s*\)\s*\{\s*"+wrapper+r"if\s*\(!ru\.neverland\.core\.ModuleLifecycle\."+hook+r"\(this\)\)\s*return;", source))
+
 def validate():
     if not TARGET.exists() or yaml.safe_load(TARGET.read_text())!={'schema':1,'modules':dependencies()}:
         raise RuntimeError('Stale module safety graph: run python scripts/module_control.py --write')
@@ -44,9 +48,9 @@ def validate():
     for name in dependencies():
         p=ROOT/'modules'/name/'src/main/java'
         enabled=[f for f in p.rglob('*.java') if re.search(r'void\s+onEnable\s*\(',f.read_text())]
-        if len(enabled)!=1 or not re.search(r'void\s+onEnable\s*\(\s*\)\s*\{\s*(?:synchronized\s*\(ru\.neverland\.core\.SuiteState\.lock\(\)\)\s*\{\s*)?if\s*\(!ru\.neverland\.core\.ModuleLifecycle\.begin\(this\)\)\s*return;',enabled[0].read_text()):
+        if len(enabled)!=1 or not lifecycle_guard(enabled[0].read_text(), 'onEnable', 'begin'):
             raise RuntimeError('Missing lifecycle guard: '+name)
-        if not re.search(r'void\s+onDisable\s*\(\s*\)\s*\{\s*(?:synchronized\s*\(ru\.neverland\.core\.SuiteState\.lock\(\)\)\s*\{\s*)?if\s*\(!ru\.neverland\.core\.ModuleLifecycle\.end\(this\)\)\s*return;',enabled[0].read_text()):
+        if not lifecycle_guard(enabled[0].read_text(), 'onDisable', 'end'):
             raise RuntimeError('Missing shutdown guard: '+name)
 
 if __name__=='__main__':

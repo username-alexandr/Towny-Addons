@@ -36,6 +36,14 @@ public final class CompanyCommand implements CommandExecutor,TabCompleter {
                 case "members" -> menus.members(p,0);
                 case "contracts" -> menus.contracts(p,0);
                 case "payments" -> menus.payments(p,0);
+                case "payroll" -> {
+                    if(args.length==1){service.payroll.open(p);break;}
+                    service.manage(p,true,true);String a=args[1].toLowerCase(Locale.ROOT);String profession="";long amount=0;
+                    if(a.equals("rate")){need(args,4);profession=args[2].toLowerCase(Locale.ROOT);amount=args[3].equals("0")?0:cents(args[3]);}
+                    else if(a.equals("budget")){need(args,3);amount=args[2].equals("0")?0:cents(args[2]);}
+                    else if(!a.equals("on")&&!a.equals("off"))throw new IllegalArgumentException("/company payroll [rate <профессия> <сумма>|budget <сумма>|on|off]");
+                    String job=profession;long money=amount;quote(p,"Изменить зарплаты предприятия: "+a+" "+(job.isEmpty()?"":CompanyPayroll.title(job)+" ")+format(money)+". Уже начисленные выплаты сохраняются",()->service.payroll.configure(p,a,job,money));
+                }
                 case "invitations" -> menus.invitations(p,0);
                 case "confirm" -> confirm(p);
                 case "cancel" -> {quotes.remove(p.getUniqueId());menus.open(p);}
@@ -77,12 +85,12 @@ public final class CompanyCommand implements CommandExecutor,TabCompleter {
         message(p,"/company — предприятие; /company list — компании города");
         message(p,"/company create <shop|mine|farm|transport> <название>");
         message(p,"/company invite <игрок>; join <ID>; role <игрок> <manager|worker>; kick <игрок>; leave");
-        message(p,"/company deposit <сумма>; withdraw <сумма>; payments");
+        message(p,"/company deposit <сумма>; withdraw <сумма>; payments; payroll — зарплаты сотрудникам");
         message(p,"/company contracts; take <UUID>; release <UUID>; /t contracts — выполнение заказов");
         message(p,"/company transfer <игрок>; acceptowner; disband; confirm; cancel");
     }
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
-        List<String> values=args.length==1?List.of("help","list","create","members","invite","invitations","join","role","kick","leave","deposit","withdraw","payments","contracts","take","release","transfer","acceptowner","disband","confirm","cancel")
+        List<String> values=args.length==1?List.of("help","list","create","members","invite","invitations","join","role","kick","leave","deposit","withdraw","payments","payroll","contracts","take","release","transfer","acceptowner","disband","confirm","cancel")
                 :args.length==2&&args[0].equalsIgnoreCase("create")?List.of("shop","mine","farm","transport")
                 :args.length==3&&args[0].equalsIgnoreCase("role")?List.of("manager","worker"):List.of();
         String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return values.stream().filter(s->s.startsWith(prefix)).toList();

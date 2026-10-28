@@ -1,0 +1,4 @@
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: /workspace/scratch/eb47b830f6d4/Towny-Addons/modules/NeverLandTownyJobs/src/main/java/ru/neverland/townyjobs/CityBridge.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.

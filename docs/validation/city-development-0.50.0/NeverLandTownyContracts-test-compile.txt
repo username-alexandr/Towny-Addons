@@ -1,0 +1,16 @@
+/workspace/scratch/eb47b830f6d4/Towny-Addons/modules/NeverLandTownyContracts/src/test/java/ru/neverland/earnings/HuntingSmoke.java:34: warning: [removal] EntityDamageByEntityEvent(@org.jetbrains.annotations.NotNull Entity,@org.jetbrains.annotations.NotNull Entity,@org.jetbrains.annotations.NotNull DamageCause,@org.jetbrains.annotations.NotNull DamageSource,double) in EntityDamageByEntityEvent has been deprecated and marked for removal
+        last.set(new EntityDamageByEntityEvent(direct,victim,cause,source,10));
+                 ^
+/workspace/scratch/eb47b830f6d4/Towny-Addons/modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/MountedOrdersSmoke.java:36: warning: Unsafe is internal proprietary API and may be removed in a future release
+    private static sun.misc.Unsafe unsafe;
+                           ^
+/workspace/scratch/eb47b830f6d4/Towny-Addons/modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/MountedOrdersSmoke.java:78: warning: [removal] EntityDamageByEntityEvent(@org.jetbrains.annotations.NotNull Entity,@org.jetbrains.annotations.NotNull Entity,@org.jetbrains.annotations.NotNull DamageCause,@org.jetbrains.annotations.NotNull DamageSource,double) in EntityDamageByEntityEvent has been deprecated and marked for removal
+        last[0]=new EntityDamageByEntityEvent(direct,victim,cause,source,10);
+                ^
+/workspace/scratch/eb47b830f6d4/Towny-Addons/modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/MountedOrdersSmoke.java:85: warning: Unsafe is internal proprietary API and may be removed in a future release
+        var uf=sun.misc.Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);unsafe=(sun.misc.Unsafe)uf.get(null);
+                       ^
+/workspace/scratch/eb47b830f6d4/Towny-Addons/modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/MountedOrdersSmoke.java:85: warning: Unsafe is internal proprietary API and may be removed in a future release
+        var uf=sun.misc.Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);unsafe=(sun.misc.Unsafe)uf.get(null);
+                                                                                                          ^
+5 warnings

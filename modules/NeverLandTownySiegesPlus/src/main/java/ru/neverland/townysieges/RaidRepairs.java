@@ -42,7 +42,7 @@ public final class RaidRepairs implements TownyRaidRepairApi,Listener {
     private void checkTerritory(UUID town,Block b){var city=TownyAPI.getInstance().getTown(b.getLocation());if(city==null||!city.getUUID().equals(town))throw new IllegalArgumentException("Место здания больше не принадлежит городу");}
     public CompletionStage<Quote> quote(UUID town,String project)throws Exception {
         if(!active())throw new IllegalArgumentException("Ремонт временно недоступен");var plan=plans.plan(town,project);if(plan.active())throw new IllegalArgumentException("Сначала завершите текущее строительство");
-        double maximum=plan.cells().stream().mapToDouble(c->raids.settings().hp(c.material())).sum();if(maximum<=0)throw new IllegalArgumentException("В здании нет ремонтируемых блоков");
+        double maximum=plan.cells().stream().mapToDouble(c->raids.settings().hp(c.hpMaterial())).sum();if(maximum<=0)throw new IllegalArgumentException("В здании нет ремонтируемых блоков");
         var result=new CompletableFuture<Quote>();damage.list(town,project).whenComplete((rows,error)->{if(error!=null){result.completeExceptionally(error);return;}
             global(()->{var expected=new HashMap<String,RepairPlans.Cell>();for(var c:plan.cells())expected.put(c.key().id(),c);
                 var groups=new LinkedHashMap<String,List<BuildingDamageStore.Damage>>();for(var d:rows)if(expected.containsKey(d.key().id()))groups.computeIfAbsent((d.key().x()>>4)+":"+(d.key().z()>>4),k->new ArrayList<>()).add(d);
@@ -59,7 +59,7 @@ public final class RaidRepairs implements TownyRaidRepairApi,Listener {
                     }catch(Throwable e){f.completeExceptionally(e);}});
                 }
                 CompletableFuture.allOf(tasks.toArray(CompletableFuture[]::new)).whenComplete((v,e)->{if(e!=null){result.completeExceptionally(e);return;}global(()->{try{
-                    output.sort(Comparator.comparing(c->c.block().key().id()));double lost=output.stream().mapToDouble(c->raids.settings().hp(c.block().material())*(c.missing()?1:1-Math.max(0,Math.min(1,c.remaining()/c.maximum())))).sum();
+                    output.sort(Comparator.comparing(c->c.block().key().id()));double lost=output.stream().mapToDouble(c->raids.settings().hp(c.block().hpMaterial())*(c.missing()?1:1-Math.max(0,Math.min(1,c.remaining()/c.maximum())))).sum();
                     long cents=RepairRules.cost(plan.price(),lost,maximum);String signature=UUID.nameUUIDFromBytes((plan.fingerprint()+":"+output).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();result.complete(new Quote(plan,output,maximum,lost,cents,signature));
                 }catch(Throwable ex){result.completeExceptionally(ex);}});});
             });

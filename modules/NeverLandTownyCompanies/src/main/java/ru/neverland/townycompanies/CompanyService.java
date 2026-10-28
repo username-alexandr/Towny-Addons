@@ -12,7 +12,7 @@ import ru.neverland.townycompanies.api.CompaniesApi;
 
 public final class CompanyService implements CompaniesApi {
     private final JavaPlugin plugin;public final CompanyLedger ledger;public final ContractsBridge contracts=new ContractsBridge();
-    private final CompanyRepository repository;private boolean ready;
+    public CompanyPayroll payroll;private final CompanyRepository repository;private boolean ready;
     public CompanyService(JavaPlugin plugin,CompanyRepository repository) {this.plugin=plugin;this.repository=repository;ledger=new CompanyLedger(repository,new CompanyBank());repository.audit((a,b)->CompanyAudit.changed(plugin,a,b));CompanyAudit.changed(plugin,CompanyLedger.State.empty(),repository.state());}
     public static Town town(UUID player) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {var r=TownyAPI.getInstance().getResident(player);return r==null?null:r.getTownOrNull();} }
     public long interval(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return Math.max(1,Math.min(168,plugin.getConfig().getLong("tax.interval-hours",24)))*3_600_000L;} }
@@ -72,12 +72,13 @@ public final class CompanyService implements CompaniesApi {
     } }
     public void money(Player p,Purpose purpose,long amount)throws IOException { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {
         Company c=purpose==Purpose.WITHDRAW?manage(p,true,false):own(p);
+        if(purpose==Purpose.WITHDRAW&&payroll!=null&&payroll.obligations(c.id()))throw new IllegalArgumentException("Сначала выплатите заработанное сотрудникам или завершите сверку зарплат");
         if(purpose==Purpose.WITHDRAW&&(c.debt()>0||System.currentTimeMillis()>=c.nextTax()))throw new IllegalArgumentException("Сначала дождитесь расчёта и погасите налог компании");
         Payment pay=ledger.begin(c.id(),p.getUniqueId(),purpose,amount,System.currentTimeMillis());ledger.process(pay.id());
         Payment done=ledger.state().payments().get(pay.id());message(p,done.phase()==Phase.DONE?"Платёж выполнен: "+format(amount):done.phase()==Phase.PENDING?"Платёж ожидает сверки администратором: "+pay.id():"Банк отклонил платёж");
     } }
     public void disband(Player p)throws IOException { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {
-        Company c=manage(p,true,false);if(c.balance()!=0||c.debt()!=0||ledger.busy(c.id())||contracts.count(c.id())>0)throw new IllegalArgumentException("Сначала завершите контракты и платежи, погасите налог и выведите остаток");ledger.put(c.close());
+        Company c=manage(p,true,false);if(c.balance()!=0||c.debt()!=0||(payroll!=null&&payroll.obligations(c.id()))||ledger.busy(c.id())||contracts.count(c.id())>0)throw new IllegalArgumentException("Сначала завершите контракты и платежи, погасите налог и выведите остаток");ledger.put(c.close());
     } }
     public void take(Player p,UUID contract){ try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {Company c=manage(p,false,true);if(!contracts.take(p,c.id(),contract))throw new IllegalArgumentException("Контракт уже занят, начат, просрочен или недоступен компании");} }
     public void release(Player p,UUID contract){ try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) {Company c=manage(p,false,true);if(!contracts.release(p,c.id(),contract))throw new IllegalArgumentException("Освободить можно только свой контракт с нулевым прогрессом");} }

@@ -8,6 +8,7 @@ import org.bukkit.permissions.PermissionAttachment;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
 import ru.neverland.core.CouncilAccess;
+import ru.neverland.core.SuiteState;
 import ru.neverland.townyarmy.api.TownyArmyApi;
 import static ru.neverland.townyarmy.ArmyModel.*;
 
@@ -269,7 +270,7 @@ public final class ArmyService implements TownyArmyApi {
                 }
                 }catch(Exception ex){report(ex);}});
             }
-            for (var tx : repository.state().transfers().values()) if (tx.phase() != Phase.CLOSED && tx.phase() != Phase.CANCELLED) try { process(tx.id()); } catch (Exception e) { report(e); }
+            for (var tx : repository.state().transfers().values()) if (tx.phase() != Phase.CLOSED && tx.phase() != Phase.CANCELLED && tx.phase()!=Phase.RAID_SPENT) try { process(tx.id()); } catch (Exception e) { report(e); }
             for (UUID town : List.copyOf(repository.state().cities().keySet())) upkeep(town, now);
             refresh();
         } catch (Exception | LinkageError e) { clearPermissions(); duty.clear(); training.clear(); report(e); }
@@ -311,6 +312,7 @@ public final class ArmyService implements TownyArmyApi {
     }
     @Override public Optional<Map<String, Object>> serviceRecord(UUID id) { try (var suiteGuard34 = ru.neverland.core.SuiteState.guard()) { mainThread(); writable(); return id == null ? Optional.empty() : Optional.ofNullable(repository.state().soldiers().get(id)).map(this::record); } }
     @Override public Collection<Map<String, Object>> roster(UUID town) { try (var suiteGuard35 = ru.neverland.core.SuiteState.guard()) { mainThread(); writable(); return members(town).stream().map(this::record).toList(); } }
+    @Override public boolean consumeRaidSupplies(UUID town,UUID receipt,Map<String,Long> amounts)throws Exception{try(var guard=SuiteState.guard()){mainThread();writable();if(SuiteState.frozen(plugin.getName()))return false;if(repository.transfer(receipt)==null)room(1);boolean applied=repository.spendRaid(town,receipt,amounts,System.currentTimeMillis());if(applied)refresh();return applied;}}
     @Override public Map<String, Long> reserves(UUID town) { try (var suiteGuard36 = ru.neverland.core.SuiteState.guard()) { mainThread(); writable(); return town == null ? Map.of() : repository.state().cities().getOrDefault(town, City.empty(town)).stock(); } }
     @Override public Optional<Map<String, Object>> garrison(UUID town) { try (var suiteGuard37 = ru.neverland.core.SuiteState.guard()) {
         mainThread(); writable(); if (town == null || TownyAPI.getInstance().getTown(town) == null) return Optional.empty();

@@ -20,12 +20,16 @@ public final class CompanyLedger {
     public void put(Company c)throws IOException { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { var cs=new LinkedHashMap<>(state().companies());cs.put(c.id(),c);store.save(new State(cs,state().payments(),state().receipts())); } }
     public boolean busy(UUID company) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { return state().payments().values().stream().anyMatch(p->p.company().equals(company)&&(p.phase()==Phase.READY||p.phase()==Phase.PENDING)); } }
     public Payment begin(UUID company, UUID account, Purpose purpose, long amount,long now)throws IOException { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
+        return begin(UUID.randomUUID(),company,account,purpose,amount,now);
+    } }
+    public Payment begin(UUID id,UUID company,UUID account,Purpose purpose,long amount,long now)throws IOException {try(var guard=ru.neverland.core.SuiteState.guard()){
+        Payment old=state().payments().get(id);if(old!=null){if(!old.company().equals(company)||!old.account().equals(account)||old.purpose()!=purpose||old.amount()!=amount)throw new IllegalArgumentException("Условия повторного платежа отличаются");return old;}
         Company c=Objects.requireNonNull(company(company));if(c.closed()||busy(company))throw new IllegalStateException("Предыдущий платёж компании ещё не завершён");
         if(purpose==Purpose.REFUND)throw new IllegalArgumentException("Возврат создаётся только расчётом контракта");
         if(purpose==Purpose.DEPOSIT)money(Math.addExact(c.balance(),amount));
         if(purpose!=Purpose.DEPOSIT){if(amount>c.balance())throw new IllegalArgumentException("Недостаточно средств компании");c=c.funds(c.balance()-amount,c.debt(),c.nextTax());}
         if(purpose==Purpose.TAX&&(amount>c.debt()||!account.equals(c.town())))throw new IllegalArgumentException("Некорректный налог");
-        Payment p=new Payment(UUID.randomUUID(),company,account,purpose,amount,Phase.READY,now);
+        Payment p=new Payment(id,company,account,purpose,amount,Phase.READY,now);
         var cs=new LinkedHashMap<>(state().companies());cs.put(c.id(),c);var ps=new LinkedHashMap<>(state().payments());ps.put(p.id(),p);
         store.save(new State(cs,ps,state().receipts()));return p;
     } }
@@ -41,7 +45,7 @@ public final class CompanyLedger {
         Company c=company(p.company());long balance=c.balance(),debt=c.debt();
         if(success&&p.purpose()==Purpose.DEPOSIT)balance=Math.addExact(balance,p.amount());
         if(success&&p.purpose()==Purpose.TAX)debt-=p.amount();
-        if(!success&&(p.purpose()==Purpose.WITHDRAW||p.purpose()==Purpose.TAX))balance=Math.addExact(balance,p.amount());
+        if(!success&&(p.purpose()==Purpose.WITHDRAW||p.purpose()==Purpose.SALARY||p.purpose()==Purpose.TAX))balance=Math.addExact(balance,p.amount());
         var cs=new LinkedHashMap<>(state().companies());cs.put(c.id(),c.funds(balance,debt,c.nextTax()));
         var ps=new LinkedHashMap<>(state().payments());
         // A definitively rejected city refund remains held and can be retried safely.
@@ -71,7 +75,7 @@ public final class CompanyLedger {
         ps.forEach((id,p)->{Company c=cs.get(p.company());if(!id.equals(p.id())||c==null)throw new IllegalArgumentException("Платёж без компании");
             if((p.purpose()==Purpose.TAX||p.purpose()==Purpose.REFUND)&&!p.account().equals(c.town()))throw new IllegalArgumentException("Платёж другому городу");
             if(p.phase()==Phase.READY||p.phase()==Phase.PENDING){if(c.closed())throw new IllegalArgumentException("Закрытая компания с платежом");
-                if(p.purpose()==Purpose.DEPOSIT||p.purpose()==Purpose.WITHDRAW||p.purpose()==Purpose.TAX)held.merge(c.id(),p.amount(),Math::addExact);
+                if(p.purpose()==Purpose.DEPOSIT||p.purpose()==Purpose.WITHDRAW||p.purpose()==Purpose.SALARY||p.purpose()==Purpose.TAX)held.merge(c.id(),p.amount(),Math::addExact);
                 if(p.purpose()==Purpose.TAX&&p.amount()>c.debt())throw new IllegalArgumentException("Налог превышает долг");}});
         held.forEach((id,n)->money(Math.addExact(cs.get(id).balance(),n)));
         rs.forEach((id,r)->{Company c=cs.get(r.company());if(!id.equals(r.contract())||c==null||!c.town().equals(r.town()))throw new IllegalArgumentException("Квитанция без компании");

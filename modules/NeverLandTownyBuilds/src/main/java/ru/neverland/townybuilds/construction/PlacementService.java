@@ -91,8 +91,8 @@ public final class PlacementService implements Listener,CommandExecutor {
         if(!p.getWorld().getUID().equals(choice.world()))throw new IllegalArgumentException("Перейдите в мир площадки");
         var anchor=new Location(p.getWorld(),choice.x(),choice.y(),choice.z());
         if(anchor.distanceSquared(p.getLocation())>64*64||!SuiteScheduler.owns(anchor))throw new IllegalArgumentException("Подойдите ближе к выбранному месту");
-        var plan=construction.previewPlan(projectId,draft.level(),old);if(plan==null)throw new IllegalArgumentException("Чертёж здания недоступен");
-        var site=new ConstructionSite(projectId,choice.world(),choice.x(),choice.y(),choice.z(),choice.facing(),state.level(projectId),draft.level(),old==null?1:draft.level(),true,old==null?ConstructionSite.CURRENT_ARCHITECTURE_VERSION:old.architectureVersion());
+        var plan=construction.previewPlan(projectId,draft.level(),old,state.buildingStyle());if(plan==null)throw new IllegalArgumentException("Чертёж здания недоступен");
+        var site=new ConstructionSite(projectId,choice.world(),choice.x(),choice.y(),choice.z(),choice.facing(),state.level(projectId),draft.level(),old==null?1:draft.level(),true,old==null?BuildingStyle.parse(state.buildingStyle()).architecture(ConstructionSite.CURRENT_ARCHITECTURE_VERSION):old.architectureVersion());
         int current=free(state,project,draft.level())?0:state.level(projectId);
         var checked=construction.prepare(p,town,project,current,draft.level(),choice);
         var previous=sessions.get(p.getUniqueId());boolean reuse=previous!=null&&previous.controls==controls;

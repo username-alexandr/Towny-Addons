@@ -1,0 +1,12 @@
+TEST NeverLandTownyPolicies ru.neverland.townypolicies.PoliciesSmoke
+Oct 28, 2026 2:19:34 PM ru.neverland.core.ApiServices report
+WARNING: [NeverLand API] NeverLandTownyQuests SERVICE_UNAVAILABLE:
+Oct 28, 2026 2:19:34 PM ru.neverland.core.ApiServices report
+WARNING: [NeverLand API] NeverLandTownyTaxes SERVICE_UNAVAILABLE:
+Oct 28, 2026 2:19:34 PM ru.neverland.core.ApiServices report
+WARNING: [NeverLand API] NeverLandTownyPolicies DISABLED:
+Oct 28, 2026 2:19:34 PM ru.neverland.core.ApiServices report
+WARNING: [NeverLand API] NeverLandTownyPolicies SERVICE_UNAVAILABLE:
+GateSmoke OK: actual PoliciesService/Bukkit bridge, city isolation, costs, municipal levy readiness, current nation context, tariff cap and provider outages
+PoliciesSmoke OK: 7 categories / 23 modes, own-city roles, independent cooldowns, stale confirmations, history, atomic persistence, production/army/trade bounds and real Bukkit integration
+SMOKE PASS: 1 executable tests

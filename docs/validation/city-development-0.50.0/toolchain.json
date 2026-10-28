@@ -1,0 +1,15 @@
+{
+  "java": "Azul Zulu 25.0.5+8",
+  "folia": "26.2 build 7 (14b7fee)",
+  "towny": "0.103.2.0",
+  "binaries": {
+    "folia": {
+      "file": "folia-26.2-7.jar",
+      "sha256": "128a634192261cd38bb4a5dc54075018a0f896fd6c6f529e37dca6e99e32b3b3"
+    },
+    "towny": {
+      "file": "Towny-0.103.2.0.jar",
+      "sha256": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  }
+}

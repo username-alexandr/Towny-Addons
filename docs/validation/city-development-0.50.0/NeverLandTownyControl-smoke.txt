@@ -1,0 +1,17 @@
+TEST NeverLandTownyControl ru.neverland.core.SuiteSchedulerSmoke
+SuiteSchedulerSmoke PASS: 31 checks; contention, affinity, retries, cancellation, freeze, exceptions, reentrancy and retirement
+TEST NeverLandTownyControl ru.neverland.townycontrol.ActivityAdminSmoke
+ActivityAdminSmoke PASS: persistent pause, restart, extension, module pause composition, strict IDs, overflow, newcomer registration
+TEST NeverLandTownyControl ru.neverland.townycontrol.AdminMenuSmoke
+AdminMenuSmoke PASS: permission inheritance, Events adapter, exclusive categories, bounded pagination, filters, corrupt source refusal
+TEST NeverLandTownyControl ru.neverland.townycontrol.AuditSmoke
+AuditSmoke PASS: 28 checks; restart, collision, corruption, filters and CSV
+TEST NeverLandTownyControl ru.neverland.townycontrol.DeletionSafetySmoke
+DELETION_SAFETY_PASS: 22 checks
+TEST NeverLandTownyControl ru.neverland.townycontrol.ModuleSafetySmoke
+ModuleSafetySmoke PASS: graph, durable group, time freeze, journal recovery, corruption and financial preservation
+TEST NeverLandTownyControl ru.neverland.townycontrol.PersonalHistorySmoke
+PersonalHistorySmoke PASS 10 checks
+TEST NeverLandTownyControl ru.neverland.townycontrol.RaidAuditSmoke
+RaidAuditSmoke PASS: 11 assertions; category, labels and review
+SMOKE PASS: 8 executable tests

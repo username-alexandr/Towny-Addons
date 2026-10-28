@@ -50,3 +50,11 @@ progress:
 # Светлый заголовок для тёмного ресурспака; для ванильного светлого окна: "#273247".
 menu-style:
   title-color: "#F4F7FC"
+
+# Городские поставки для строительства. Источник наград — казна города.
+building-orders:
+  enabled: true
+  default-unit-reward: "0.10"
+  maximum-reward: "50000.00"
+  duration-seconds: 86400
+  unit-rewards: {}

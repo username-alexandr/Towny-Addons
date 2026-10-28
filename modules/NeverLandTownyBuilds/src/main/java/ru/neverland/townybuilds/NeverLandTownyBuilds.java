@@ -24,6 +24,7 @@ import ru.neverland.townybuilds.construction.ConstructionService;
 import java.io.File;
 
 public final class NeverLandTownyBuilds extends JavaPlugin {
+    private ru.neverland.townybuilds.construction.CityStyles cityStyles;
     private static final String[] TOWN_COMMANDS = {"builds", "wonderd", "wonders", "inv", "civic", "shop", "army"};
     private MessageService messages;
     private ItemsAdderHook itemsAdder;
@@ -80,6 +81,8 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         new ru.neverland.townybuilds.storage.WarehouseService(this,dataStore);
         new ru.neverland.townybuilds.storage.RaidStorageService(this,dataStore,storage);
         new ru.neverland.townybuilds.construction.BuildingRepairPlans(this,dataStore,definitions);
+        new ru.neverland.townybuilds.service.BuildingMaterials(this,dataStore,definitions,itemNames);
+        cityStyles=new ru.neverland.townybuilds.construction.CityStyles(this,dataStore,towny);
         BuildService builds = new BuildService(this, towny, dataStore, messages, new ArchaeologyBridge(this), itemNames, definitions);
         construction = new ConstructionService(this, towny, dataStore, messages, itemNames,
                 new BuildingBlueprintGenerator(), builds::completeConstruction);
@@ -139,6 +142,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
     public void onDisable() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
+        if(cityStyles!=null)cityStyles.close();
         if (effects != null) effects.stop();
         if(thumbnails!=null)thumbnails.clear();
         if (placements != null) placements.stop();

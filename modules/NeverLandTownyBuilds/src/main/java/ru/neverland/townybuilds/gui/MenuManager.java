@@ -170,8 +170,13 @@ public final class MenuManager implements Listener {
         Inventory inventory=holder.inventory;inventory.clear();
         decorate(inventory);
         ItemStack summary=projectIcon(project,current,town.getUUID());
+        var summaryMeta=summary.getItemMeta();var summaryLore=new ArrayList<>(summaryMeta.lore()==null?List.<net.kyori.adventure.text.Component>of():summaryMeta.lore());
+        summaryLore.addAll(ru.neverland.core.MenuStyle.loreComponents(builds.environmentForecast(town,project).stream().map(ru.neverland.core.MenuStyle::decode).toList()));
+        summaryLore.add(ru.neverland.core.MenuStyle.decode("&7Стиль новых зданий: &f"+ru.neverland.townybuilds.construction.BuildingStyle.parse(data.buildingStyle()).title()));summaryMeta.lore(summaryLore);summary.setItemMeta(summaryMeta);
         role(summary,"building-preview");
         inventory.setItem(11,summary);
+        if(current<project.maxLevel()&&!construction.active()&&town.isMayor(com.palmergames.bukkit.towny.TownyAPI.getInstance().getResident(player))&&org.bukkit.Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyContracts"))
+            inventory.setItem(17,actionItem("build-orders",new ItemStack(Material.WRITABLE_BOOK),"&eЗаказать материалы горожанам",List.of("&7Заказ на то, чего не хватает для здания","&7Награду оплачивает городская казна","&eНажмите, чтобы проверить условия")));
         if (project.id().equals("army")) inventory.setItem(16, actionItem("army", new ItemStack(Material.NETHERITE_HELMET),
                 "&#B65CFFСостав армии", List.of("&7Реестр и мобилизация граждан с 18 лет")));
         if (construction.active()) {
@@ -330,6 +335,8 @@ public final class MenuManager implements Listener {
                 openDetails(player,project,details.page(),details.category());
             } else if ("army".equals(action) && project.id().equals("army")) {
                 ((ru.neverland.townybuilds.NeverLandTownyBuilds) plugin).army().open(player, 0);
+            } else if ("build-orders".equals(action)) {
+                player.performCommand("town buildorders "+project.id());
             } else if ("upgrade".equals(action)) {
                 var reasons=builds.unavailableReasons(player,project);
                 if(!reasons.isEmpty()){player.sendMessage(ColorUtil.component("&e"+String.join("\n",reasons)));openDetails(player,project,details.page(),details.category());return;}
@@ -644,7 +651,7 @@ public final class MenuManager implements Listener {
         if(player.getOpenInventory().getTopInventory()!=inventory||!(inventory.getHolder() instanceof DetailsHolder holder)||!player.hasPermission("neverlandtownybuilds.use"))return null;
         var town=towny.town(player);var project=definitions.project(holder.projectId());if(town==null||project==null)return null;
         var state=dataStore.town(town.getUUID());int level=Math.min(project.maxLevel(),state.level(project.id())+1);
-        return builds.previewPlan(project.id(),level,state.constructionSite(project.id()));
+        return builds.previewPlan(project.id(),level,state.constructionSite(project.id()),state.buildingStyle());
     }}
     private record CategoryHolder() implements MenuHolder { }
     private record ProjectListHolder(ProjectType type, ProjectCategory category, int page) implements MenuHolder { }

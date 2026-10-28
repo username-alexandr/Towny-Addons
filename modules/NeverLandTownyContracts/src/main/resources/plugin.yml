@@ -1,5 +1,5 @@
 name: NeverLandTownyContracts
-version: 0.4.2
+version: 0.5.0
 main: ru.neverland.mintcontracts.MintTownyContracts
 folia-supported: true
 api-version: '26.2'
@@ -10,6 +10,10 @@ provides: [MintTownyContracts]
 depend: [Towny, NeverLandTownyBuilds]
 softdepend: [NeverLandTownyReputation, PlaceholderAPI, ItemsAdder]
 commands:
+  townybuildorders:
+    description: Заказать недостающие материалы здания из казны города
+    usage: /townybuildorders <building>
+    permission: mintcontracts.buildorders
   orders:
     description: Государственные заказы для всех игроков
     usage: /orders [accept|mine|claim|cancel|admin]
@@ -20,6 +24,8 @@ commands:
     aliases: [mintcontracts, mcontracts, neverlandtownycontracts, nltcontracts]
     permission: mintcontracts.admin
 permissions:
+  mintcontracts.buildorders:
+    default: true
   neverland.orders.use:
     default: true
   neverland.orders.admin:

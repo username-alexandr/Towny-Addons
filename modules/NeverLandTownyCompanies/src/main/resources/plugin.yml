@@ -1,5 +1,5 @@
 name: NeverLandTownyCompanies
-version: 0.1.16
+version: 0.2.0
 main: ru.neverland.townycompanies.NeverLandTownyCompanies
 folia-supported: true
 api-version: '26.2'
@@ -13,6 +13,10 @@ commands:
     description: Предприятия игроков
     usage: /company [help|create|members|contracts|deposit|withdraw]
 permissions:
+  neverlandtownycompanies.salary:
+    default: true
+  neverlandtownycompanies.payroll:
+    default: true
   neverlandtownycompanies.use:
     default: true
   neverlandtownycompanies.create:

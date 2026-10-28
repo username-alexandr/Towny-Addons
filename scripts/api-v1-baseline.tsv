@@ -971,3 +971,71 @@ ru.neverland.townysieges.api.TownyWarChunkApi	default integrationDiagnostics()
 ru.neverland.townysieges.api.TownyWarChunkApi	default storageMetrics()
 ru.neverland.townysieges.api.TownyWarChunkApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
 ru.neverland.townysieges.api.TownyWarChunkApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+# Additive city development APIs in v0.50.0
+ru.neverland.townybuilds.api.BuildingMaterialsApi	apiVersion():int throws []
+ru.neverland.townybuilds.api.BuildingMaterialsApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townybuilds.api.BuildingMaterialsApi	capability needs
+ru.neverland.townybuilds.api.BuildingMaterialsApi	default apiVersion()
+ru.neverland.townybuilds.api.BuildingMaterialsApi	default capabilities()
+ru.neverland.townybuilds.api.BuildingMaterialsApi	default integrationDiagnostics()
+ru.neverland.townybuilds.api.BuildingMaterialsApi	default storageMetrics()
+ru.neverland.townybuilds.api.BuildingMaterialsApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.BuildingMaterialsApi	needs(java.util.UUID,java.lang.String):java.util.Map<java.lang.String, java.lang.Object> throws []
+ru.neverland.townybuilds.api.BuildingMaterialsApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	capability registeredBuildingBlocks
+ru.neverland.townybuilds.api.TownyBuildsApi	default registeredBuildingBlocks(java.util.UUID)
+ru.neverland.townybuilds.api.TownyBuildsApi	record ru.neverland.townybuilds.api.RegisteredBuildingBlock [worldId:java.util.UUID, x:int, y:int, z:int, project:java.lang.String, material:java.lang.String]
+ru.neverland.townybuilds.api.TownyBuildsApi	registeredBuildingBlocks(java.util.UUID):java.util.List<ru.neverland.townybuilds.api.RegisteredBuildingBlock> throws []
+ru.neverland.mintcontracts.api.MintTownyContractsApi	capability companyActiveCount
+ru.neverland.mintcontracts.api.MintTownyContractsApi	capability companyOffers
+ru.neverland.mintcontracts.api.MintTownyContractsApi	capability releaseCompanyContract
+ru.neverland.mintcontracts.api.MintTownyContractsApi	capability takeCompanyContract
+ru.neverland.mintcontracts.api.MintTownyContractsApi	companyActiveCount(java.util.UUID):int throws []
+ru.neverland.mintcontracts.api.MintTownyContractsApi	companyOffers(java.util.UUID):java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.mintcontracts.api.MintTownyContractsApi	default companyActiveCount(java.util.UUID)
+ru.neverland.mintcontracts.api.MintTownyContractsApi	default companyOffers(java.util.UUID)
+ru.neverland.mintcontracts.api.MintTownyContractsApi	default releaseCompanyContract(org.bukkit.entity.Player,java.util.UUID,java.util.UUID)
+ru.neverland.mintcontracts.api.MintTownyContractsApi	default takeCompanyContract(org.bukkit.entity.Player,java.util.UUID,java.util.UUID)
+ru.neverland.mintcontracts.api.MintTownyContractsApi	releaseCompanyContract(org.bukkit.entity.Player,java.util.UUID,java.util.UUID):boolean throws []
+ru.neverland.mintcontracts.api.MintTownyContractsApi	takeCompanyContract(org.bukkit.entity.Player,java.util.UUID,java.util.UUID):boolean throws []
+ru.neverland.townycompanies.api.CompanyPayrollApi	apiVersion():int throws []
+ru.neverland.townycompanies.api.CompanyPayrollApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townycompanies.api.CompanyPayrollApi	capability recordWork
+ru.neverland.townycompanies.api.CompanyPayrollApi	default apiVersion()
+ru.neverland.townycompanies.api.CompanyPayrollApi	default capabilities()
+ru.neverland.townycompanies.api.CompanyPayrollApi	default integrationDiagnostics()
+ru.neverland.townycompanies.api.CompanyPayrollApi	default storageMetrics()
+ru.neverland.townycompanies.api.CompanyPayrollApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townycompanies.api.CompanyPayrollApi	recordWork(org.bukkit.entity.Player,java.util.UUID,java.lang.String,int):void throws []
+ru.neverland.townycompanies.api.CompanyPayrollApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyarmy.api.TownyArmyApi	capability consumeRaidSupplies
+ru.neverland.townyarmy.api.TownyArmyApi	consumeRaidSupplies(java.util.UUID,java.util.UUID,java.util.Map<java.lang.String, java.lang.Long>):boolean throws [java.lang.Exception]
+ru.neverland.townyarmy.api.TownyArmyApi	default consumeRaidSupplies(java.util.UUID,java.util.UUID,java.util.Map)
+ru.neverland.townysieges.api.SiegesCampSupplyApi	allowsTransit(java.util.UUID,java.util.UUID,double,double,double):boolean throws []
+ru.neverland.townysieges.api.SiegesCampSupplyApi	apiVersion():int throws []
+ru.neverland.townysieges.api.SiegesCampSupplyApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townysieges.api.SiegesCampSupplyApi	capability allowsTransit
+ru.neverland.townysieges.api.SiegesCampSupplyApi	capability depot
+ru.neverland.townysieges.api.SiegesCampSupplyApi	capability hasReceipt
+ru.neverland.townysieges.api.SiegesCampSupplyApi	capability open
+ru.neverland.townysieges.api.SiegesCampSupplyApi	capability receive
+ru.neverland.townysieges.api.SiegesCampSupplyApi	capability received
+ru.neverland.townysieges.api.SiegesCampSupplyApi	capability stock
+ru.neverland.townysieges.api.SiegesCampSupplyApi	default apiVersion()
+ru.neverland.townysieges.api.SiegesCampSupplyApi	default capabilities()
+ru.neverland.townysieges.api.SiegesCampSupplyApi	default integrationDiagnostics()
+ru.neverland.townysieges.api.SiegesCampSupplyApi	default storageMetrics()
+ru.neverland.townysieges.api.SiegesCampSupplyApi	depot(java.util.UUID):java.util.Map<java.lang.String, java.lang.Object> throws []
+ru.neverland.townysieges.api.SiegesCampSupplyApi	hasReceipt(java.util.UUID,java.util.UUID):boolean throws []
+ru.neverland.townysieges.api.SiegesCampSupplyApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townysieges.api.SiegesCampSupplyApi	open(org.bukkit.entity.Player):void throws []
+ru.neverland.townysieges.api.SiegesCampSupplyApi	receive(java.util.UUID,java.util.UUID,java.util.UUID,org.bukkit.inventory.ItemStack[]):boolean throws [java.lang.Exception]
+ru.neverland.townysieges.api.SiegesCampSupplyApi	received(java.util.UUID,java.util.UUID,java.util.UUID,org.bukkit.inventory.ItemStack[]):boolean throws [java.lang.Exception]
+ru.neverland.townysieges.api.SiegesCampSupplyApi	stock(java.util.UUID):org.bukkit.inventory.ItemStack[] throws []
+ru.neverland.townysieges.api.SiegesCampSupplyApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townysieges.api.TownySiegesApi	capability raids
+ru.neverland.townysieges.api.TownySiegesApi	default raids()
+ru.neverland.townysieges.api.TownySiegesApi	raids():java.util.Collection<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	capability forecast
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	default forecast(java.util.UUID,java.lang.String,int,int)
+ru.neverland.townyenvironment.api.TownyEnvironmentApi	forecast(java.util.UUID,java.lang.String,int,int):java.util.Map<java.lang.String, java.lang.Object> throws []

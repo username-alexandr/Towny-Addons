@@ -1,0 +1,5 @@
+TEST NeverLandTownyEnvironment ru.neverland.townyenvironment.EnvironmentForecastSmoke
+EnvironmentForecastSmoke PASS: real profiles, upgrades, mitigation, clamping and immutable simulation
+TEST NeverLandTownyEnvironment ru.neverland.townyenvironment.EnvironmentSmoke
+EnvironmentSmoke PASS: 34 assertions
+SMOKE PASS: 2 executable tests

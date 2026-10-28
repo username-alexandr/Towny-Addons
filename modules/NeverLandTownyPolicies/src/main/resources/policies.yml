@@ -247,6 +247,35 @@ policies:
         - NeverLandTownyUpkeep
         production-projects: *id002
         upkeep-projects: *id002
+      green_standard:
+        name: Зелёный стандарт
+        icon: FLOWERING_AZALEA
+        advantages:
+        - Довольство +6 пунктов; выпуск сельского хозяйства +15%.
+        disadvantages:
+        - Содержание сельскохозяйственных зданий +10%.
+        effects:
+          happiness: 6
+          production: 0.15
+          upkeep: 0.1
+        requires:
+        - NeverLandTownyQuests
+        - NeverLandTownyResources
+        - NeverLandTownyPopulation
+        - NeverLandTownyUpkeep
+        requires-unlock: green_future
+        production-projects:
+        - agrarian_complex
+        - apiary
+        - irrigation_station
+        - seed_vault
+        - botanical
+        upkeep-projects:
+        - agrarian_complex
+        - apiary
+        - irrigation_station
+        - seed_vault
+        - botanical
   imports:
     name: Ограничения импорта
     icon: HOPPER
@@ -377,3 +406,32 @@ policies:
         - NeverLandTownyPopulation
         production-projects: *id003
         upkeep-projects: *id003
+      innovation:
+        name: Инновационная промышленность
+        icon: CRAFTER
+        advantages:
+        - Выпуск промышленных зданий +20%.
+        disadvantages:
+        - Содержание этих зданий +10%.
+        effects:
+          production: 0.2
+          upkeep: 0.1
+        requires:
+        - NeverLandTownyQuests
+        - NeverLandTownyResources
+        - NeverLandTownyUpkeep
+        requires-unlock: industrial_future
+        production-projects:
+        - sawmill
+        - quarry
+        - foundry
+        - forge
+        - recycling_yard
+        - industrial_works
+        upkeep-projects:
+        - sawmill
+        - quarry
+        - foundry
+        - forge
+        - recycling_yard
+        - industrial_works

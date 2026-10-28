@@ -9,7 +9,7 @@ public record QuestSettings(int interval, int resourceMaxAge, Map<String, Projec
     public QuestSettings {
         projects = Collections.unmodifiableMap(new LinkedHashMap<>(projects));
         if (interval < 1 || interval > 60 || resourceMaxAge < 60 || resourceMaxAge > 3600
-                || projects.isEmpty() || projects.size() > 45) throw new IllegalArgumentException("Неверные настройки проектов");
+                || projects.isEmpty() || projects.size() > 128) throw new IllegalArgumentException("Неверные настройки проектов");
         if (projects.values().stream().map(Project::unlock).distinct().count() != projects.size())
             throw new IllegalArgumentException("Результаты проектов должны быть уникальны");
         for (var p : projects.values()) visit(p.id(), projects, new HashSet<>(), new HashSet<>());
@@ -43,7 +43,7 @@ public record QuestSettings(int interval, int resourceMaxAge, Map<String, Projec
                     stage.getString("building", ""), integer(stage.get("target")), integer(stage.get("hold-seconds", 0))));
         }
         return new Project(id, s.getString("name"), s.getString("icon"), strings(s.get("requires")),
-                s.getString("unlock"), s.getString("reward"), stages);
+                s.getString("unlock"), s.getString("reward"), stages,s.getString("choice-group",""));
     } }
     public static QuestSettings load(ConfigurationSection config, ConfigurationSection quests) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         Map<String, Project> projects = new LinkedHashMap<>(); var root = section(quests, "projects");
@@ -52,7 +52,7 @@ public record QuestSettings(int interval, int resourceMaxAge, Map<String, Projec
                 integer(config.get("simulation.resource-max-age-seconds", 180)), projects);
     } }
     public static void writeProject(ConfigurationSection s, Project p) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
-        s.set("name", p.name()); s.set("icon", p.icon()); s.set("requires", p.requires());
+        s.set("name", p.name()); s.set("icon", p.icon()); s.set("requires", p.requires());s.set("choice-group",p.choiceGroup());
         s.set("unlock", p.unlock()); s.set("reward", p.reward()); var stages = s.createSection("stages");
         for (var stage : p.stages()) {
             var v = stages.createSection(stage.id()); v.set("name", stage.name()); v.set("type", stage.kind().name());

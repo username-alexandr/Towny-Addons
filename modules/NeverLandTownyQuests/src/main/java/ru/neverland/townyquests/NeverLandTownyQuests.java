@@ -41,7 +41,7 @@ public final class NeverLandTownyQuests extends JavaPlugin {
         }
         return y;
     }
-    private QuestSettings settings() throws Exception { return QuestSettings.load(read("config.yml", true), read("quests.yml", false)); }
+    private QuestSettings settings() throws Exception { return QuestSettings.load(read("config.yml", true), read("quests.yml", true)); }
     public void reloadQuests() throws Exception { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { var next = settings(); service.reload(next); menu.close(); } }
     @Override public void onDisable() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;

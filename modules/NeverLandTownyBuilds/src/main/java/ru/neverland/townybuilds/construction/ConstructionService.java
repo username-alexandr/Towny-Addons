@@ -153,7 +153,7 @@ public final class ConstructionService implements Listener {
                 if(target==null||!target.getType().isSolid())return ConstructionPreparation.failed(ConstructionPreparation.Status.NO_GROUND_TARGET,"Наведитесь на твёрдый блок земли");
                 choice=new PlacementChoice(target.getWorld().getUID(),target.getX(),target.getY()+1,target.getZ(),player.getFacing());
             }
-            site=new ConstructionSite(project.id(),choice.world(),choice.x(),choice.y(),choice.z(),choice.facing(),0,targetLevel,1,true);
+            site=new ConstructionSite(project.id(),choice.world(),choice.x(),choice.y(),choice.z(),choice.facing(),0,targetLevel,1,true,BuildingStyle.parse(data.buildingStyle()).architecture(ConstructionSite.CURRENT_ARCHITECTURE_VERSION));
         } else {
             site = new ConstructionSite(existing.projectId(), existing.worldId(), existing.originX(), existing.originY(),
                     existing.originZ(), existing.facing(), existing.completedStage(), targetLevel, targetLevel, true);
@@ -446,6 +446,7 @@ public final class ConstructionService implements Listener {
         return true;
     }
     public BlueprintPlan previewPlan(String project,int level,ConstructionSite existing){try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()){return existing==null?generator.generate(project,level):planForSite(existing,level);}}
+    public BlueprintPlan previewPlan(String project,int level,ConstructionSite existing,String style){return existing==null?generator.generateForStyle(project,level,BuildingStyle.parse(style)):planForSite(existing,level); }
     private BlueprintPlan planForSite(ConstructionSite site, int level) {
         return generator.generateForArchitecture(site.projectId(), level, site.architectureVersion());
     }
@@ -516,12 +517,12 @@ public final class ConstructionService implements Listener {
         for (TownData town : dataStore.towns().values()) {
             if (towny.town(town.townId()) == null) continue;
             for (ConstructionSite site : town.constructionSites().values()) {
-                if (site.architectureVersion() >= ConstructionSite.CURRENT_ARCHITECTURE_VERSION) continue;
+                if (BuildingStyle.baseArchitecture(site.architectureVersion()) >= ConstructionSite.CURRENT_ARCHITECTURE_VERSION) continue;
                 World world = Bukkit.getWorld(site.worldId());
                 int visibleLevel = site.active() ? site.targetStage() : site.completedStage();
                 BlueprintPlan legacy = visibleLevel <= 0 ? null
                         : generator.generateForArchitecture(site.projectId(), visibleLevel, site.architectureVersion());
-                BlueprintPlan modern = visibleLevel <= 0 ? null : generator.generate(site.projectId(), visibleLevel);
+                BlueprintPlan modern = visibleLevel <= 0 ? null : generator.generateForStyle(site.projectId(), visibleLevel,BuildingStyle.ofArchitecture(site.architectureVersion()));
                 if (world == null || (visibleLevel > 0 && (legacy == null || modern == null))) continue;
 
                 if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId(),site,legacy) || ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId(),site,modern)) continue;
@@ -543,7 +544,7 @@ public final class ConstructionService implements Listener {
                 }
 
                 int restoreLevel = site.active() ? site.completedStage() : visibleLevel;
-                BlueprintPlan completedPlan = restoreLevel <= 0 ? null : generator.generate(site.projectId(), restoreLevel);
+                BlueprintPlan completedPlan = restoreLevel <= 0 ? null : generator.generateForStyle(site.projectId(), restoreLevel,BuildingStyle.ofArchitecture(site.architectureVersion()));
                 if (completedPlan != null) {
                     for (Map.Entry<BlockOffset, BlueprintBlock> entry : orderedEntries(completedPlan)) {
                         Block block = site.location(world, entry.getKey()).getBlock();
@@ -557,7 +558,7 @@ public final class ConstructionService implements Listener {
                         applyExpectedState(block, entry.getValue(), site);
                     }
                 }
-                site.setArchitectureVersion(ConstructionSite.CURRENT_ARCHITECTURE_VERSION);
+                site.setArchitectureVersion(BuildingStyle.ofArchitecture(site.architectureVersion()).architecture(ConstructionSite.CURRENT_ARCHITECTURE_VERSION));
                 migrated++;
                 changed = true;
             }

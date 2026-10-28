@@ -4,7 +4,8 @@ import java.util.*;
 
 /** Main-thread, read-only API. Immutable JDK values; queries never start wars or modify buildings. */
 public interface TownySiegesApi extends ru.neverland.core.ApiContract {
-    @Override default Set<String> capabilities() { return Set.of("healthy","warStatus","defenses","restrictions"); }
+    @Override default Set<String> capabilities() { return Set.of("raids","healthy","warStatus","defenses","restrictions"); }
+    default Collection<Map<String,Object>> raids(){return List.of();}
     boolean healthy();
     Map<String,String> warStatus();
     Collection<Map<String,Object>> defenses(UUID town);

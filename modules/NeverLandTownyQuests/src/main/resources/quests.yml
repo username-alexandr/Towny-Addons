@@ -45,3 +45,50 @@ projects:
         type: WATER_DISTRICTS
         target: 5
         hold-seconds: 600
+
+  industrial_future:
+    name: Индустриальное продолжение
+    icon: BLAST_FURNACE
+    requires: [sanitation]
+    choice-group: city_future
+    unlock: industrial_future
+    reward: 'Открывает в /t policies инновационную промышленность: выпуск +20%, содержание +10%. Альтернатива зелёному городу.'
+    stages:
+      workshop:
+        name: Развить мастерскую
+        type: BUILDING
+        building: workshop
+        target: 2
+      forge:
+        name: Модернизировать кузницу
+        type: BUILDING
+        building: forge
+        target: 2
+      power:
+        name: Открыть электростанцию
+        type: BUILDING
+        building: power_station
+        target: 1
+  green_future:
+    name: Зелёное продолжение
+    icon: FLOWERING_AZALEA
+    requires: [sanitation]
+    choice-group: city_future
+    unlock: green_future
+    reward: 'Открывает в /t policies зелёный стандарт: довольство +6, выпуск сельского хозяйства +15%, его содержание +10%. Альтернатива индустриальному городу.'
+    stages:
+      park:
+        name: Развить городской парк
+        type: BUILDING
+        building: park
+        target: 2
+      forestry:
+        name: Развить лесничество
+        type: BUILDING
+        building: forestry
+        target: 2
+      recycling:
+        name: Открыть перерабатывающий двор
+        type: BUILDING
+        building: recycling_yard
+        target: 1

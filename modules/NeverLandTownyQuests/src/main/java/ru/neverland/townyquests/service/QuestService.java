@@ -39,7 +39,9 @@ public final class QuestService implements TownyQuestsApi {
     private void schedule() { task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::tick, 20L, settings.interval() * 20L); }
     public void stop() { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { if (task != null) task.cancel(); observations.clear(); details.clear(); } }
     public void reload(QuestSettings next) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) { ApiServices.primaryThread(); stop(); settings = next; schedule(); } }
-    public void begin(Player player, String id) throws Exception { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
+    public String branchReason(UUID town,Project project){return ProjectBranches.alternative(project,state(town).values()).map(p->"Город уже выбрал продолжение: "+p.name()).orElse("");}
+    public void begin(Player player,String id)throws Exception{begin(player,id,false);}
+    public void begin(Player player, String id,boolean confirmed) throws Exception { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); var town = town(player);
         if (!player.hasPermission("neverlandtownyquests.use") || town == null || !manager(player, town))
             throw new IllegalArgumentException("Начать проект может мэр или уполномоченный своего города");
@@ -47,6 +49,8 @@ public final class QuestService implements TownyQuestsApi {
         if (existing != null) { control(city, id, "resume"); return; }
         var definition = settings.projects().get(id);
         if (definition == null) throw new IllegalArgumentException("Проект не найден");
+        String branch=branchReason(city,definition);if(!branch.isEmpty())throw new IllegalArgumentException(branch);
+        if(!definition.choiceGroup().isEmpty()&&!confirmed)throw new IllegalArgumentException("Подтвердите выбор продолжения в /t quests. Другие ветви этой группы станут недоступны");
         for (String required : definition.requires()) {
             var completed = state(city).get(required);
             if (completed == null || completed.status() != CityProject.Status.COMPLETED)

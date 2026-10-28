@@ -77,3 +77,23 @@ war-chunks:
   # Непрерывное удержание пустого участка мобилизованным нападающим в выживании.
   # Защитник, уход, смерть или пропущенные проверки сбрасывают отсчёт.
   empty-hold-seconds: 120
+
+# До выбора мэром город открыт круглосуточно. Менять начатую войну расписание не может.
+raid-hours:
+  enabled: true
+  timezone: Europe/Moscow
+  default-start: '00:00'
+  default-end: '00:00'
+  minimum-hours: 4
+  change-notice-hours: 24
+
+# Снабжение оплачивает нападающий город. Запасы не пропадают при потере лагеря.
+camp-supplies:
+  enabled: true
+  cargo-per-minute:
+    BREAD: 2
+    IRON_INGOT: 1
+  # Запасной источник: единицы военных ресурсов /t army.
+  army-per-minute:
+    food: '1.000'
+    metal: '0.250'

@@ -1,0 +1,5 @@
+TEST NeverLandTownyQuests ru.neverland.townyquests.ProjectBranchesSmoke
+ProjectBranchesSmoke PASS: alternative rewards, neutral cancellation, old chains and conflicting-history rejection
+TEST NeverLandTownyQuests ru.neverland.townyquests.QuestSmoke
+QuestSmoke PASS: 44 checks; city stages, water topology, safe stops, strict config and durable completion
+SMOKE PASS: 2 executable tests

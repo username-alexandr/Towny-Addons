@@ -34,8 +34,8 @@ public final class BuildingStorageService implements BuildingStorageApi,Listener
         int used=town.civicOccupiedSlots(project);
         return Math.min(54,Math.max(((used+8)/9)*9,configured));
     } }
-    public ItemStack[] read(TownData town,String id){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {return id.equals("warehouse")?town.storage():town.civicInventory(id,size(town,id));} }
-    public void write(TownData town,String id,ItemStack[] items){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {if(id.equals("warehouse"))town.setStorage(items,town.storage().length);else town.setCivicInventory(id,items);data.markDirty();} }
+    public ItemStack[] read(TownData town,String id){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {if(CampDeliveries.camp(id))try{return (ItemStack[])campCall("stock",new Class<?>[]{UUID.class},town.townId());}catch(Exception ex){throw new IllegalStateException("Военный склад лагеря недоступен",ex);}return id.equals("warehouse")?town.storage():town.civicInventory(id,size(town,id));} }
+    public void write(TownData town,String id,ItemStack[] items){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {if(CampDeliveries.camp(id))throw new IllegalArgumentException("Грузы лагеря передаются только по квитанции");if(id.equals("warehouse"))town.setStorage(items,town.storage().length);else town.setCivicInventory(id,items);data.markDirty();} }
     public boolean busy(UUID town,String id){ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {return data.storageBusy(town,id);} }
     @Override public Map<String,BuildingDepot> depots(UUID townId){ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         thread();if(towny.town(townId)==null)return Map.of();var town=data.town(townId);Map<String,BuildingDepot> result=new TreeMap<>();
@@ -44,6 +44,7 @@ public final class BuildingStorageService implements BuildingStorageApi,Listener
             var bounds=footprints.footprint(e.getValue(),town.level(e.getKey())).orElse(null);if(bounds==null)continue;
             result.put(e.getKey(),new BuildingDepot(e.getKey(),def.name().replaceAll("(?i)[&§]#[0-9a-f]{6}|[&§][0-9a-fk-orx]", ""),def.icon().name(),bounds.worldId(),bounds.minX(),bounds.minZ(),bounds.maxX(),bounds.maxZ(),e.getValue().originY(),level,size(town,e.getKey())));
         }
+        if(Bukkit.getPluginManager().isPluginEnabled("NeverLandTownySiegesPlus"))try{Object raw=campCall("depot",new Class<?>[]{UUID.class},townId);if(raw instanceof Map<?,?> camp&&!camp.isEmpty()){String id=(String)camp.get("id");int x=((Number)camp.get("x")).intValue(),z=((Number)camp.get("z")).intValue();result.put(id,new BuildingDepot(id,(String)camp.get("name"),"CAMPFIRE",(UUID)camp.get("world"),x,z,x,z,((Number)camp.get("y")).intValue(),1,54));}}catch(Exception unavailable){/* Existing local depots remain usable. */}
         return Map.copyOf(result);
     } }
     @Override public ItemStack[] stock(UUID town,String project){ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {thread();return read(data.town(town),project);} }
@@ -56,11 +57,16 @@ public final class BuildingStorageService implements BuildingStorageApi,Listener
         public void commit()throws IOException{ try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {data.saveOrThrow();} }
     };}
     @Override public CargoShipment pickup(UUID town,UUID id,String route,String from,String to,ItemStack filter,int limit,int keep)throws IOException{ try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
-        thread();var depots=depots(town);if(!depots.containsKey(from)||!depots.containsKey(to))return null;
+        thread();if(CampDeliveries.camp(from))throw new IllegalArgumentException("Из военного склада лагеря грузы не вывозятся");var depots=depots(town);if(!depots.containsKey(from)||!depots.containsKey(to))return null;
+        if(CampDeliveries.camp(to)){if(filter==null||filter.hasItemMeta()||!Set.of(Material.BREAD,Material.IRON_INGOT).contains(filter.getType()))throw new IllegalArgumentException("В лагерь доставляют обычный хлеб или обычные железные слитки");try{if(Boolean.TRUE.equals(campCall("hasReceipt",new Class<?>[]{UUID.class,UUID.class},town,id)))throw new IllegalArgumentException("Этот груз уже передан лагерю");}catch(ReflectiveOperationException ex){throw new IOException("Военный склад лагеря недоступен",ex);}}
         return ShipmentTransactions.pickup(data.town(town),access(town),id,route,from,to,filter,limit,keep);
     } }
     @Override public boolean unload(UUID town,UUID id,boolean returned)throws IOException{ try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {
         thread();var s=data.town(town).shipments().get(id);if(s==null)return false;
+        if(CampDeliveries.camp(s.target()))return CampDeliveries.unload(town,data.town(town),access(town),new CampDeliveries.Receiver(){
+            public boolean received(UUID t,UUID shipment,UUID camp,ItemStack[] cargo)throws Exception{return Boolean.TRUE.equals(campCall("received",new Class<?>[]{UUID.class,UUID.class,UUID.class,ItemStack[].class},t,shipment,camp,cargo));}
+            public boolean receive(UUID t,UUID shipment,UUID camp,ItemStack[] cargo)throws Exception{return Boolean.TRUE.equals(campCall("receive",new Class<?>[]{UUID.class,UUID.class,UUID.class,ItemStack[].class},t,shipment,camp,cargo));}
+        },id,returned);
         // Emergency return remains possible after a building/town is lost. Cargo is never dropped.
         if(!returned&&!depots(town).containsKey(s.target()))return false;
         return ShipmentTransactions.unload(data.town(town),access(town),id,returned);
@@ -84,7 +90,7 @@ public final class BuildingStorageService implements BuildingStorageApi,Listener
     private boolean auditTrade(UUID seller,UUID id){var r=data.town(seller).tradeCargo().get(id);if(r==null||r.status().equals("RESERVED"))return true;return ru.neverland.core.AuditTrail.record(plugin,r.status(),id.toString(),"WAREHOUSE_TRADE",r.status(),ru.neverland.core.AuditRecord.Party.system(),ru.neverland.core.AuditTrail.town(seller),ru.neverland.core.AuditTrail.town(r.status().equals("DELIVERED")?r.buyer():seller),ru.neverland.core.AuditTrail.item(r.sample()),r.amount(),"","Ресурсная квитанция API; buyer="+r.buyer());}
     @Override public void acknowledgeTrade(UUID seller,UUID id)throws IOException { try (var suiteGuard26 = ru.neverland.core.SuiteState.guard()) {thread();ru.neverland.core.AuditTrail.require(auditTrade(seller,id));TradeStorageTransactions.acknowledge(data.town(seller),tradeAccess(),id);} }
     @Override public void openStorage(Player player,String project){ try (var suiteGuard27 = ru.neverland.core.SuiteState.guard()) {
-        thread();var town=towny.town(player);if(town==null){tell(player,"Вы не состоите в городе.");return;}
+        thread();if(CampDeliveries.camp(project)){try{campCall("open",new Class<?>[]{Player.class},player);}catch(Exception ex){tell(player,"Снабжение лагеря сейчас недоступно");}return;}var town=towny.town(player);if(town==null){tell(player,"Вы не состоите в городе.");return;}
         if(!ru.neverland.core.CitizensAccess.allows(town.getUUID(),player.getUniqueId(),"STORAGE")){tell(player,"Ваш статус не даёт доступа к муниципальному складу.");return;}
         var t=data.town(town.getUUID());var def=definitions.all().stream().filter(d->d.id().equals(project)).findFirst().orElse(null);
         if(!project.equals("warehouse")&&(def==null||level(t,project)<1)){tell(player,"У здания ещё нет завершённого этапа.");return;}
@@ -94,6 +100,7 @@ public final class BuildingStorageService implements BuildingStorageApi,Listener
         try{v.inventory=ru.neverland.core.MenuStyle.inventory(plugin, v,size(t,project),ru.neverland.townybuilds.util.ColorUtil.component("&2"+name+" &8• Склад"));v.auditBefore=StockMath.copy(read(t,project));v.inventory.setContents(v.auditBefore);player.openInventory(v.inventory);if(player.getOpenInventory().getTopInventory()!=v.inventory)data.unlockStorage(v.town,v.project,v.session);}
         catch(RuntimeException ex){data.unlockStorage(v.town,v.project,v.session);throw ex;}
     } }
+    private Object campCall(String method,Class<?>[] signature,Object... args)throws ReflectiveOperationException{return ru.neverland.core.ApiServices.call("NeverLandTownySiegesPlus","ru.neverland.townysieges.api.SiegesCampSupplyApi",method,signature,args);}
     private void tell(Player p,String message){p.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&aNeverLand &8• &fСклады&8] &r"+message));}
     private boolean citizen(Player p,View v){var t=towny.town(p);return t!=null&&t.getUUID().equals(v.town)&&ru.neverland.core.CitizensAccess.allows(v.town,p.getUniqueId(),"STORAGE");}
     @EventHandler public void click(InventoryClickEvent e){ try (var suiteGuard28 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(e);return;}

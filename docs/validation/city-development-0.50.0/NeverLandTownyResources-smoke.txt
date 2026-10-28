@@ -1,0 +1,4 @@
+TEST NeverLandTownyResources ru.neverland.townyresources.ResourcesSmoke
+ProductionHistorySmoke OK: actual cycle counts, UTC rollover, upkeep consume/refund deduplication, schema 2 migration and atomic stock/report persistence
+ResourcesSmoke OK: eight resources, 101 profiles, 1000 city cycles, conservation, reserves, priorities, shortages, capacity, district fractions durable restart and upkeep escrow
+SMOKE PASS: 1 executable tests

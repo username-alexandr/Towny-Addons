@@ -1,0 +1,50 @@
+TEST NeverLandTownySiegesPlus ru.neverland.townysieges.CampSettingsDefaultsSmoke
+CampSettingsDefaultsSmoke PASS: fresh and old configs with defaults produce identical complete costs
+TEST NeverLandTownySiegesPlus ru.neverland.townysieges.CampSupplySmoke
+CampSupplySmoke PASS: exact stock, delivery replay, immutable receipts, pending external consumption, restart and disk failure
+TEST NeverLandTownySiegesPlus ru.neverland.townysieges.LootMigrationSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/war-toolchain/folia-libs/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+LootMigrationSmoke PASS: legacy loot receipt, amount, state and book retained with additive defense policy
+TEST NeverLandTownySiegesPlus ru.neverland.townysieges.RaidLootSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/war-toolchain/folia-libs/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+RaidLootSmoke PASS: 21 assertions; SQLite saga, crash points, review, book retention and unique capture
+TEST NeverLandTownySiegesPlus ru.neverland.townysieges.RaidRepairsStoreSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/war-toolchain/folia-libs/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+RaidRepairsStoreSmoke PASS: 15 assertions; real SQLite, half-price payment, crash states, no replay, durable HP
+TEST NeverLandTownySiegesPlus ru.neverland.townysieges.RaidStoreSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/war-toolchain/folia-libs/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+RaidStoreSmoke PASS: 22 assertions; actual SQLite, crash recovery, replay, cooldown, attribution and audit
+TEST NeverLandTownySiegesPlus ru.neverland.townysieges.RaidWindowSmoke
+RaidWindowSmoke PASS: full battle duration, Moscow, midnight, boundaries and both DST transitions
+TEST NeverLandTownySiegesPlus ru.neverland.townysieges.RepairRulesSmoke
+RepairRulesSmoke PASS: 49 assertions; exact proportional repair and monotonic protected loot
+TEST NeverLandTownySiegesPlus ru.neverland.townysieges.SiegeRulesSmoke
+SiegeRulesSmoke PASS
+TEST NeverLandTownySiegesPlus ru.neverland.townysieges.SiegeSettingsSmoke
+SiegeSettingsSmoke PASS
+TEST NeverLandTownySiegesPlus ru.neverland.townysieges.TntRulesSmoke
+TntRulesSmoke PASS: 137 assertions
+TEST NeverLandTownySiegesPlus ru.neverland.townysieges.WarChunksSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/war-toolchain/folia-libs/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+WarChunksSmoke PASS: 31 assertions; occupation, contest, lag, SQLite migration/restart, replay and war isolation
+SMOKE PASS: 12 executable tests

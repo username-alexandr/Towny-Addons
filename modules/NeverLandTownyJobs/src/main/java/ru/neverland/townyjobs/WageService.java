@@ -45,7 +45,7 @@ public final class WageService implements Listener,CommandExecutor,TabCompleter 
     }
     private static long money(org.bukkit.configuration.ConfigurationSection c,String key,int d){double n=SafeYaml.doubleValue(c,key,d);if(n<=0||n>1000000||Math.abs(n*100-Math.rint(n*100))>0.00001)throw new IllegalArgumentException("Некорректная зарплата "+key);return Math.round(n*100);}
     private boolean eligible(Player p,Profession profession){
-        if(!income.enabled()||!ActionGuard.survival(p)||!p.hasPermission("neverlandtownyjobs.earn")||jobs.career(p.getUniqueId()).profession()!=profession||!jobs.onDuty(p.getUniqueId()))return false;
+        if(SuiteState.frozen(plugin.getName())||!plugin.isEnabled()||!ActionGuard.survival(p)||!p.hasPermission("neverlandtownyjobs.earn")||jobs.career(p.getUniqueId()).profession()!=profession||!jobs.onDuty(p.getUniqueId()))return false;
         // Real action refreshes activity, but the actual shift still has to pass warmup/worksite checks.
         jobs.signal(p.getUniqueId(),profession);return jobs.status(p.getUniqueId()).equals("На смене");
     }
@@ -53,7 +53,9 @@ public final class WageService implements Listener,CommandExecutor,TabCompleter 
         if(!eligible(p,profession))return;long now=System.currentTimeMillis();if(now-last.getOrDefault(p.getUniqueId(),0L)<cooldown)return;
         UUID id=UUID.nameUUIDFromBytes(("salary:"+p.getUniqueId()+":"+proof).getBytes(StandardCharsets.UTF_8));if(income.ledger().get(id)!=null)return;
         long amount=Math.round(rates.get(profession)*multipliers.get(jobs.settings().level(jobs.career(p.getUniqueId()))-1));
-        if(income.ledger().remaining(p.getUniqueId())<amount)return;
+        last.put(p.getUniqueId(),now);
+        if(Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyCompanies"))try{ApiServices.call("NeverLandTownyCompanies","ru.neverland.townycompanies.api.CompanyPayrollApi","recordWork",new Class<?>[]{Player.class,UUID.class,String.class,int.class},p,id,profession.id(),jobs.settings().level(jobs.career(p.getUniqueId())));}catch(Exception ex){plugin.getLogger().warning("Начисление от компании сейчас недоступно: "+ex.getMessage());}
+        if(!income.enabled()||income.ledger().remaining(p.getUniqueId())<amount)return;
         try{income.ledger().reserve(id,p.getUniqueId(),amount,"jobs:"+profession.id()+":"+proof,false);last.put(p.getUniqueId(),now);}
         catch(IOException ex){plugin.getLogger().severe("Зарплата приостановлена: "+ex.getMessage());}
     }}

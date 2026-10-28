@@ -1,0 +1,53 @@
+PASS updated module enabled: Builds
+PASS updated module enabled: Contracts
+PASS updated module enabled: Companies
+PASS updated module enabled: Jobs
+PASS updated module enabled: Army
+PASS updated module enabled: Logistics
+PASS updated module enabled: SiegesPlus
+PASS updated module enabled: Chronicles
+PASS updated module enabled: Environment
+PASS updated module enabled: Quests
+PASS updated module enabled: Policies
+PASS updated module enabled: Control
+PASS updated module enabled: Resources
+PASS native APIs and SQLite ready
+PASS Towny active with explicitly installed deterministic test provider
+PASS native Towny treasury seeded
+PASS real CraftPlayer handle belongs to current Folia region
+PASS mayor chooses future-city style once
+PASS saved existing site remains medieval
+PASS second style choice refused
+PASS Towny creation intercepted before price confirmation
+PASS confirmed choice resumes ordinary Towny creation command
+PASS Towny NewTownEvent applies durable style reservation
+PASS all themed BlockData families and orientations accepted by actual Folia
+PASS modern completed building has native repair plan
+PASS repair geometry carries base HP material alongside actual theme
+PASS all repair targets retain balance material
+PASS native materials API computes actual next-level deficit
+PASS large requirement serializes only a legal one-item sample
+PASS large requirement serializes only a legal one-item sample
+PASS large requirement serializes only a legal one-item sample
+PASS warehouse change invalidates city-order quote
+PASS material order uses real municipal escrow
+PASS only city treasury funds material reward
+PASS duplicate build-order template denied
+PASS native environment provider computes pre-build forecast: {current=0.0, baseline=0.0, relevant=true, projected=4.8, agriculture=1.0, cleaners=[Мировое древо, Висячие Сады, Лесничество], happiness=-0.0, change=4.8, horizonSeconds=3600, netPerCycle=0.39999999999999997, ready=true}
+PASS paused environment cannot pretend to supply a live forecast
+PASS exclusive project branch needs explicit confirmation
+PASS cancelled branch still excludes incompatible alternative
+PASS native branch history supplies readable exclusion reason
+PASS new daily window queued with advance notice
+PASS pending notice cannot be replaced to evade attackers
+PASS actual camp accepts physical shipment idempotently
+PASS camp inventory has one cargo credit
+PASS source recovery can prove destination received
+PASS existing Logistics storage API exposes camp depot
+PASS only small own-camp wilderness corridor opens to couriers
+PASS production CompanyBank pays salary through native Towny account observers
+PASS employer balance funds exactly one personal credit
+PASS repeated salary UUID cannot debit company again
+PASS actual SQLite persists verified company work
+PASS payroll replay processor pays exact level-multiplied employer wage
+PASS mayor commendation appears in native public chronicle
