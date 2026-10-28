@@ -154,10 +154,12 @@ public final class ConstructionService implements Listener {
                 choice=new PlacementChoice(target.getWorld().getUID(),target.getX(),target.getY()+1,target.getZ(),player.getFacing());
             }
             site=new ConstructionSite(project.id(),choice.world(),choice.x(),choice.y(),choice.z(),choice.facing(),0,targetLevel,1,true,BuildingStyle.parse(data.buildingStyle()).architecture(ConstructionSite.CURRENT_ARCHITECTURE_VERSION));
+            var draft=data.placements().get(project.id());site.blueprintSet(draft!=null&&draft.level()==targetLevel?draft.blueprintSet():BlueprintCatalog.currentPin(project.id(),BuildingStyle.parse(data.buildingStyle())));
         } else {
             site = new ConstructionSite(existing.projectId(), existing.worldId(), existing.originX(), existing.originY(),
                     existing.originZ(), existing.facing(), existing.completedStage(), targetLevel, targetLevel, true);
             site.setArchitectureVersion(existing.architectureVersion());
+            site.blueprintSet(existing.blueprintSet());
         }
 
         plan = planForSite(site, targetLevel);
@@ -445,10 +447,11 @@ public final class ConstructionService implements Listener {
         for (BlockOffset offset : plan.blocks().keySet()) if (!ru.neverland.core.SuiteScheduler.owns(site.location(world,offset))) return false;
         return true;
     }
-    public BlueprintPlan previewPlan(String project,int level,ConstructionSite existing){try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()){return existing==null?generator.generate(project,level):planForSite(existing,level);}}
-    public BlueprintPlan previewPlan(String project,int level,ConstructionSite existing,String style){return existing==null?generator.generateForStyle(project,level,BuildingStyle.parse(style)):planForSite(existing,level); }
+    public BlueprintPlan previewPlan(String project,int level,ConstructionSite existing){try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()){return BlueprintCatalog.preview(project,level,existing,BuildingStyle.MEDIEVAL,null,generator);}}
+    public BlueprintPlan previewPlan(String project,int level,ConstructionSite existing,String style){return previewPlan(project,level,existing,style,null);}
+    public BlueprintPlan previewPlan(String project,int level,ConstructionSite existing,String style,String pin){return BlueprintCatalog.preview(project,level,existing,BuildingStyle.parse(style),pin,generator);}
     private BlueprintPlan planForSite(ConstructionSite site, int level) {
-        return generator.generateForArchitecture(site.projectId(), level, site.architectureVersion());
+        return BlueprintCatalog.sitePlan(site,level,generator);
     }
 
     static boolean isCompletedBlock(BlueprintPlan previous, BlockOffset offset, Material actual) {
@@ -517,7 +520,7 @@ public final class ConstructionService implements Listener {
         for (TownData town : dataStore.towns().values()) {
             if (towny.town(town.townId()) == null) continue;
             for (ConstructionSite site : town.constructionSites().values()) {
-                if (BuildingStyle.baseArchitecture(site.architectureVersion()) >= ConstructionSite.CURRENT_ARCHITECTURE_VERSION) continue;
+                if (!site.blueprintSet().isEmpty()||BuildingStyle.baseArchitecture(site.architectureVersion()) >= ConstructionSite.CURRENT_ARCHITECTURE_VERSION) continue;
                 World world = Bukkit.getWorld(site.worldId());
                 int visibleLevel = site.active() ? site.targetStage() : site.completedStage();
                 BlueprintPlan legacy = visibleLevel <= 0 ? null
@@ -638,11 +641,16 @@ public final class ConstructionService implements Listener {
     private void applyExpectedState(Block block, BlueprintBlock expected, ConstructionSite site) {
         BlockData data = block.getBlockData();
         orientExpectedState(data, expected, site);
-        if (data instanceof MultipleFacing multipleFacing) connect(block, multipleFacing);
+        if (expected.blockData()==null&&data instanceof MultipleFacing multipleFacing) connect(block, multipleFacing);
         block.setBlockData(data, false);
     }
 
     static void orientExpectedState(BlockData data, BlueprintBlock expected, ConstructionSite site) {
+        if(expected.blockData()!=null){
+            var imported=Bukkit.createBlockData(expected.blockData());
+            imported.rotate(switch(site.facing()){case EAST->org.bukkit.block.structure.StructureRotation.CLOCKWISE_90;case SOUTH->org.bukkit.block.structure.StructureRotation.CLOCKWISE_180;case WEST->org.bukkit.block.structure.StructureRotation.COUNTERCLOCKWISE_90;default->org.bukkit.block.structure.StructureRotation.NONE;});
+            imported.copyTo(data);return;
+        }
         if(site.projectId().equals("seed_vault")&&data instanceof org.bukkit.block.data.type.Leaves leaves)leaves.setPersistent(true);
         if (data instanceof Orientable orientable && expected.axis() != null) {
             org.bukkit.Axis axis = site.worldAxis(expected.axis());

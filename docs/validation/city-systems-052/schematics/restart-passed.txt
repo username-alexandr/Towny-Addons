@@ -1,0 +1,1 @@
+PASS 18 assertions; native Folia/Towny/Sponge v3 imports, BlockData, immutable archives, site/draft persistence, cancellation and public protection/repair APIs; no player client claimed

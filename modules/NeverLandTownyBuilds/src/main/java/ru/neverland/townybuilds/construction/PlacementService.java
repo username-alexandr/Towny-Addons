@@ -61,7 +61,7 @@ public final class PlacementService implements Listener,CommandExecutor {
         if(level!=state.level(project.id())+1&&!free(state,project,level))throw new IllegalArgumentException("Уровень здания изменился");
         if(!resources(state,project,level))throw new IllegalArgumentException("Сначала сдайте все необходимые ресурсы");
         var r=state.constructionReceipts().get(project.id());if(r!=null&&(!Set.of("DONE","COMPLETE").contains(r.state())||!r.remaining().isEmpty()))throw new IllegalArgumentException("Дождитесь завершения возврата предыдущей стройки");
-        var old=state.placements().get(project.id());var draft=old!=null&&old.level()==level?old:PlacementDraft.create(level);
+        var old=state.placements().get(project.id());var draft=old!=null&&old.level()==level?old:PlacementDraft.create(level,site==null?BlueprintCatalog.currentPin(project.id(),BuildingStyle.parse(state.buildingStyle())):site.blueprintSet());
         if(draft!=old){state.placement(project.id(),draft);try{data.saveOrThrow();}catch(Exception e){state.placement(project.id(),old);throw new IllegalStateException("Не удалось сохранить чертёж",e);}}
         for(var item:player.getInventory().getStorageContents())if(matches(item,draft.id())){player.sendMessage("§aЧертёж уже у вас. ПКМ по земле — показать здание; Shift + ПКМ — открыть меню перемещения и подтверждения. /nltplace — то же меню.");return;}
         ItemStack item=new ItemStack(Material.STRUCTURE_VOID);var meta=item.getItemMeta();
@@ -91,8 +91,9 @@ public final class PlacementService implements Listener,CommandExecutor {
         if(!p.getWorld().getUID().equals(choice.world()))throw new IllegalArgumentException("Перейдите в мир площадки");
         var anchor=new Location(p.getWorld(),choice.x(),choice.y(),choice.z());
         if(anchor.distanceSquared(p.getLocation())>64*64||!SuiteScheduler.owns(anchor))throw new IllegalArgumentException("Подойдите ближе к выбранному месту");
-        var plan=construction.previewPlan(projectId,draft.level(),old,state.buildingStyle());if(plan==null)throw new IllegalArgumentException("Чертёж здания недоступен");
+        var plan=construction.previewPlan(projectId,draft.level(),old,state.buildingStyle(),draft.blueprintSet());if(plan==null)throw new IllegalArgumentException("Чертёж здания недоступен");
         var site=new ConstructionSite(projectId,choice.world(),choice.x(),choice.y(),choice.z(),choice.facing(),state.level(projectId),draft.level(),old==null?1:draft.level(),true,old==null?BuildingStyle.parse(state.buildingStyle()).architecture(ConstructionSite.CURRENT_ARCHITECTURE_VERSION):old.architectureVersion());
+        site.blueprintSet(old==null?draft.blueprintSet():old.blueprintSet());
         int current=free(state,project,draft.level())?0:state.level(projectId);
         var checked=construction.prepare(p,town,project,current,draft.level(),choice);
         var previous=sessions.get(p.getUniqueId());boolean reuse=previous!=null&&previous.controls==controls;

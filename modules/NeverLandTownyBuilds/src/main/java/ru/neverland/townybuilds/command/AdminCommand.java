@@ -34,6 +34,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         if(args.length>0&&args[0].equalsIgnoreCase("refund")){plugin.constructionRefunds().admin(sender,args);return true;}
         if(args.length>0&&args[0].equalsIgnoreCase("shop")){civic.shops().admin(sender,args);return true;}
         if(args.length==1&&args[0].equalsIgnoreCase("diagnostics")){ru.neverland.core.Diagnostics.show(sender);return true;}
+        if(args.length==1&&args[0].equalsIgnoreCase("blueprints")){ru.neverland.townybuilds.construction.BlueprintCatalog.diagnostics().forEach(sender::sendMessage);sender.sendMessage("Новые схемы загружаются при полном перезапуске; уже выданные чертежи сохраняют свои версии.");return true;}
         if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
             plugin.reloadPlugin();
             messages.send(sender, "reload-success");
@@ -60,7 +61,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
                                                  @NotNull String label, @NotNull String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
-        if (args.length == 1) return List.of("reload", "stall", "shop", "diagnostics", "refund");
+        if (args.length == 1) return List.of("reload", "stall", "shop", "diagnostics", "blueprints", "refund");
         if (args.length == 2 && args[0].equalsIgnoreCase("refund")) return List.of("list", "legacy", "resolve");
         if (args.length == 2 && args[0].equalsIgnoreCase("stall")) return List.of("set", "remove", "list");
         if (args.length == 3 && args[0].equalsIgnoreCase("stall") && args[1].equalsIgnoreCase("remove")) {

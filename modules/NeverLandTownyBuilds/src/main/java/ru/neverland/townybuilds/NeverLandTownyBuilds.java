@@ -74,6 +74,8 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         int storageSize = normalizedStorageSize(getConfig().getInt("settings.storage.size", 54));
         dataStore = new DataStore(this, storageSize);
         dataStore.load();
+        try{ru.neverland.townybuilds.construction.BlueprintCatalog.initialize(this,dataStore);}
+        catch(java.io.IOException error){throw new IllegalStateException("Не удалось загрузить закреплённые чертежи; городские данные сохранены",error);}
         storage = new ru.neverland.townybuilds.storage.BuildingStorageService(this,dataStore,definitions);
         storage.start();
         new ru.neverland.townybuilds.storage.MarketStorageService(this,dataStore);

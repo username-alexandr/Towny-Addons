@@ -58,6 +58,7 @@ public final class BuildService {
 
     public ru.neverland.townybuilds.construction.BlueprintPlan previewPlan(String project,int level,ru.neverland.townybuilds.construction.ConstructionSite site){return construction==null?null:construction.previewPlan(project,level,site);}
     public ru.neverland.townybuilds.construction.BlueprintPlan previewPlan(String project,int level,ru.neverland.townybuilds.construction.ConstructionSite site,String style){return construction==null?null:construction.previewPlan(project,level,site,style);}
+    public ru.neverland.townybuilds.construction.BlueprintPlan previewPlan(String project,int level,ru.neverland.townybuilds.construction.ConstructionSite site,String style,String pin){return construction==null?null:construction.previewPlan(project,level,site,style,pin);}
     public void setConstruction(ConstructionService construction) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         this.construction = construction;
     } }

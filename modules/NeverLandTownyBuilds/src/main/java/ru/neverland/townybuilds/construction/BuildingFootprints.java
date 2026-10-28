@@ -8,9 +8,9 @@ public final class BuildingFootprints {
     private final Map<String,int[]> bounds=new HashMap<>();
     public Optional<BuildingFootprint> footprint(ConstructionSite site,int savedLevel){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         int required=generator.maximumStage(site.projectId());if(required==0)return Optional.empty();
-        String key=site.projectId()+":"+site.architectureVersion();
+        String key=site.projectId()+":"+site.architectureVersion()+":"+site.blueprintSet();
         int[] local=bounds.computeIfAbsent(key,k->{
-            var plan=generator.generateForArchitecture(site.projectId(),required,site.architectureVersion());
+            var plan=BlueprintCatalog.sitePlan(site,required,generator);
             if(plan==null||plan.blocks().isEmpty())return null;
             int minX=Integer.MAX_VALUE,minZ=Integer.MAX_VALUE,maxX=Integer.MIN_VALUE,maxZ=Integer.MIN_VALUE;
             for(var offset:plan.blocks().keySet()){minX=Math.min(minX,offset.x());minZ=Math.min(minZ,offset.z());maxX=Math.max(maxX,offset.x());maxZ=Math.max(maxZ,offset.z());}

@@ -1,0 +1,70 @@
+--- a/server/src/main/java/cc/crafto/ui/server/CityBuildSchema.java
++++ b/server/src/main/java/cc/crafto/ui/server/CityBuildSchema.java
+@@ -27,8 +27,15 @@
+     static int architecture(ConfigurationSection site,int current){
+         if(site.contains("architecture-version")&&!site.isInt("architecture-version"))throw new IllegalArgumentException("Invalid architecture version");
+         int value=site.getInt("architecture-version",1);
+-        if(value<1||value>current)throw new IllegalArgumentException("Unsupported architecture: "+value);
++        String pin=blueprintSet(site);int local=value>=10000?value-10000:value;
++        if(value<1||local/1000>2||local%1000<1||local%1000>current||(value>=10000)!=!pin.isEmpty())throw new IllegalArgumentException("Unsupported architecture: "+value);
+         return value;
++    }
++    static String blueprintSet(ConfigurationSection site){
++        if(site.contains("blueprint-set")&&!site.isString("blueprint-set"))throw new IllegalArgumentException("Invalid blueprint identity");
++        String pin=site.getString("blueprint-set","");
++        if(!pin.isEmpty()&&!pin.matches("[a-f0-9]{64}"))throw new IllegalArgumentException("Invalid blueprint identity");
++        return pin;
+     }
+     private static void section(ConfigurationSection root,String path){if(root.contains(path)&&!root.isConfigurationSection(path))throw new IllegalArgumentException("Invalid builds section: "+path);}
+ }
+--- a/server/src/main/java/cc/crafto/ui/server/CityBuildReader.java
++++ b/server/src/main/java/cc/crafto/ui/server/CityBuildReader.java
+@@ -55,10 +55,16 @@
+             Class<?> siteType=Class.forName(base+"ConstructionSite",true,loader);
+             int architecture=CityBuildSchema.architecture(s,siteType.getField("CURRENT_ARCHITECTURE_VERSION").getInt(null));
+             Object generator=Class.forName(base+"BuildingBlueprintGenerator",true,loader).getConstructor().newInstance();
+-            Object plan=generator.getClass().getMethod("generateForArchitecture",String.class,int.class,int.class).invoke(generator,id,s.getInt("target-stage"),architecture);if(plan==null)throw new IllegalArgumentException("Blueprint unavailable");
+-            var blocks=(Map<?,?>)call(plan,"blocks");if(blocks.size()>24000)throw new IllegalArgumentException("Blueprint too large");
+             Object site=siteType.getConstructor(String.class,UUID.class,int.class,int.class,int.class,BlockFace.class,int.class,int.class,int.class,boolean.class,int.class)
+                 .newInstance(id,worldId,s.getInt("x"),s.getInt("y"),s.getInt("z"),BlockFace.valueOf(s.getString("facing","NORTH")),s.getInt("completed-stage"),s.getInt("target-stage"),s.getInt("build-from-stage",1),true,architecture);
++            String pin=CityBuildSchema.blueprintSet(s);Object plan;
++            if(pin.isEmpty())plan=generator.getClass().getMethod("generateForArchitecture",String.class,int.class,int.class).invoke(generator,id,s.getInt("target-stage"),architecture);
++            else{
++                siteType.getMethod("blueprintSet",String.class).invoke(site,pin);
++                plan=Class.forName(base+"BlueprintCatalog",true,loader).getMethod("sitePlan",siteType,int.class,generator.getClass()).invoke(null,site,s.getInt("target-stage"),generator);
++            }
++            if(plan==null)throw new IllegalArgumentException("Blueprint unavailable");
++            var blocks=(Map<?,?>)call(plan,"blocks");if(blocks.size()>30000)throw new IllegalArgumentException("Blueprint too large");
+             var locate=site.getClass().getMethod("location",World.class,Class.forName(base+"BlockOffset",true,loader));
+             var supply=Class.forName("ru.neverland.townybuilds.service.ConstructionSupply",true,loader).getMethod("material",Material.class);
+             Map<Material,Material> materials=new EnumMap<>(Material.class);
+--- a/server/src/test/java/cc/crafto/ui/server/CityBuildSchemaTest.java
++++ b/server/src/test/java/cc/crafto/ui/server/CityBuildSchemaTest.java
+@@ -20,4 +20,16 @@
+         for(int version:new int[]{1,2,3,4,5,6}){site.set("architecture-version",version);assertEquals(version,CityBuildSchema.architecture(site,6));}
+         site.set("architecture-version",7);assertThrows(IllegalArgumentException.class,()->CityBuildSchema.architecture(site,6));
+     }
++    @Test void themedAndPinnedArchitecturesPreserveTheirIdentity(){
++        var site=new YamlConfiguration();
++        for(int version:new int[]{1001,1006,2001,2006}){site.set("architecture-version",version);assertEquals(version,CityBuildSchema.architecture(site,6));}
++        site.set("blueprint-set","a".repeat(64));
++        for(int version:new int[]{10001,10006,11006,12006}){site.set("architecture-version",version);assertEquals(version,CityBuildSchema.architecture(site,6));}
++        for(int version:new int[]{6,3006,10007,13006,20006}){site.set("architecture-version",version);assertThrows(IllegalArgumentException.class,()->CityBuildSchema.architecture(site,6));}
++    }
++    @Test void damagedPinsNeverFallBackToProceduralGeometry(){
++        var site=new YamlConfiguration();site.set("architecture-version",11006);
++        for(Object pin:new Object[]{"","bad",42,"A".repeat(64)}){site.set("blueprint-set",pin);assertThrows(IllegalArgumentException.class,()->CityBuildSchema.architecture(site,6));}
++        site.set("blueprint-set",null);assertThrows(IllegalArgumentException.class,()->CityBuildSchema.architecture(site,6));
++    }
+ }
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -1,7 +1,7 @@
+ org.gradle.jvmargs=-Xmx2G
+ org.gradle.parallel=false
+ org.gradle.workers.max=2
+-version=0.8.20
++version=0.8.21
+ client_version=0.8.19
+ minecraft_version=26.2
+ loader_version=0.19.4

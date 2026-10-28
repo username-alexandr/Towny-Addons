@@ -99,6 +99,7 @@ public final class DataStore {
                                     site.getInt("completed-stage"), site.getInt("target-stage"),
                                     site.getInt("build-from-stage", 1), site.getBoolean("active"),
                                     site.getInt("architecture-version", 1)));
+                            sites.get(projectId).blueprintSet(ru.neverland.core.SafeYaml.stringValue(site,"blueprint-set",""));
                             sites.get(projectId).adminPaused(ru.neverland.core.SafeYaml.booleanValue(site,"admin-paused",false));
                         } catch (IllegalArgumentException exception) {
                             throw new IOException("Повреждена строительная площадка " + projectId + " города " + townId,exception);
@@ -115,7 +116,7 @@ public final class DataStore {
                 var drafts=ru.neverland.core.SafeYaml.section(section,"placement-drafts");
                 if(drafts!=null)for(String project:drafts.getKeys(false)){
                     var draft=drafts.getConfigurationSection(project);if(draft==null)throw new IOException("Повреждён чертёж размещения");
-                    data.placement(project,new ru.neverland.townybuilds.construction.PlacementDraft(UUID.fromString(ru.neverland.core.SafeYaml.stringValue(draft,"id")),ru.neverland.core.SafeYaml.intValue(draft,"level")));
+                    data.placement(project,new ru.neverland.townybuilds.construction.PlacementDraft(UUID.fromString(ru.neverland.core.SafeYaml.stringValue(draft,"id")),ru.neverland.core.SafeYaml.intValue(draft,"level"),ru.neverland.core.SafeYaml.stringValue(draft,"blueprint-set","")));
                 }
                 Map<String, ResourceFund> funds = new HashMap<>();
                 ConfigurationSection fundSection = section == null ? null : section.getConfigurationSection("resource-funds");
@@ -216,8 +217,10 @@ public final class DataStore {
                 yaml.set(root + ".build-from-stage", site.buildFromStage());yaml.set(root+".admin-paused",site.adminPaused());
                 yaml.set(root + ".active", site.active());
                 yaml.set(root + ".architecture-version", site.architectureVersion());
+                yaml.set(root + ".blueprint-set",site.blueprintSet().isEmpty()?null:site.blueprintSet());
             }
             for(var draft:data.placements().entrySet()){
+                yaml.set(path+".placement-drafts."+draft.getKey()+".blueprint-set",draft.getValue().blueprintSet().isEmpty()?null:draft.getValue().blueprintSet());
                 String root=path+".placement-drafts."+draft.getKey();yaml.set(root+".id",draft.getValue().id().toString());yaml.set(root+".level",draft.getValue().level());
             }
             for (var receipt : data.constructionReceipts().entrySet())

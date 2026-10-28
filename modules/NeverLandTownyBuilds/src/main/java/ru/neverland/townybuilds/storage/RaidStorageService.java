@@ -21,7 +21,7 @@ public final class RaidStorageService implements RaidStorageApi {
         check();if(town==null||TownyAPI.getInstance().getTown(town)==null)return Optional.empty();
         var state=data.town(town);var site=state.constructionSite("town_hall");if(site==null)return Optional.empty();
         int level=Math.min(state.level("town_hall"),site.completedStage());if(level<1)return Optional.empty();
-        var plan=new BuildingBlueprintGenerator().generateForArchitecture("town_hall",level,site.architectureVersion());if(plan==null)return Optional.empty();
+        var plan=BlueprintCatalog.sitePlan(site,level,new BuildingBlueprintGenerator());if(plan==null)return Optional.empty();
         return plan.blocks().entrySet().stream().filter(e->e.getValue().material()==Material.LECTERN)
             .min(Comparator.<Map.Entry<BlockOffset,BlueprintBlock>>comparingInt(e->e.getValue().stage()).thenComparingInt(e->e.getKey().y()).thenComparingInt(e->e.getKey().x()).thenComparingInt(e->e.getKey().z()))
             .map(e->{var at=site.location(null,e.getKey());return new RegisteredBuildingBlock(site.worldId(),at.getBlockX(),at.getBlockY(),at.getBlockZ(),"town_hall","LECTERN");});

@@ -169,7 +169,10 @@ public final class ConstructionRefunds {
             ConstructionSite old=town.constructionSite(project);
             if(old!=null) {
                 if(old.completedStage()==0)town.removeConstructionSite(project);
-                else town.setConstructionSite(new ConstructionSite(project,old.worldId(),old.originX(),old.originY(),old.originZ(),old.facing(),old.completedStage(),old.completedStage(),old.completedStage()+1,false,old.architectureVersion()));
+                else {
+                    var restored=new ConstructionSite(project,old.worldId(),old.originX(),old.originY(),old.originZ(),old.facing(),old.completedStage(),old.completedStage(),old.completedStage()+1,false,old.architectureVersion());
+                    restored.blueprintSet(old.blueprintSet());town.setConstructionSite(restored);
+                }
             }
             try{write(town,project,r.state("DONE"));}catch(Exception ex){if(old!=null)town.setConstructionSite(old);throw ex;}
         } else if(r.state().equals("COMPLETE")&&r.remaining().isEmpty())write(town,project,r.state("DONE"));

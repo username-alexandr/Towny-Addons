@@ -69,7 +69,7 @@ public final class CivicEffectsService implements TownyBuildsApi {
             if(stage<=0)continue;
             // An unfinished upgrade can contain blocks from both the completed and target stage.
             for(int level:site.active()&&site.completedStage()>0&&site.completedStage()!=stage?new int[]{site.completedStage(),stage}:new int[]{stage}){
-            var plan=generator.generateForArchitecture(site.projectId(),level,site.architectureVersion());
+            var plan=ru.neverland.townybuilds.construction.BlueprintCatalog.sitePlan(site,level,generator);
             if(plan==null)throw new IllegalStateException("Нет чертежа зарегистрированного здания: "+site.projectId());
             for(var entry:plan.blocks().entrySet()){
                 var position=site.location(null,entry.getKey());

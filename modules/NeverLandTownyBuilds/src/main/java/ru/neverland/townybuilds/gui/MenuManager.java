@@ -651,7 +651,7 @@ public final class MenuManager implements Listener {
         if(player.getOpenInventory().getTopInventory()!=inventory||!(inventory.getHolder() instanceof DetailsHolder holder)||!player.hasPermission("neverlandtownybuilds.use"))return null;
         var town=towny.town(player);var project=definitions.project(holder.projectId());if(town==null||project==null)return null;
         var state=dataStore.town(town.getUUID());int level=Math.min(project.maxLevel(),state.level(project.id())+1);
-        return builds.previewPlan(project.id(),level,state.constructionSite(project.id()),state.buildingStyle());
+        var draft=state.placements().get(project.id());return builds.previewPlan(project.id(),level,state.constructionSite(project.id()),state.buildingStyle(),draft!=null&&draft.level()==level?draft.blueprintSet():null);
     }}
     private record CategoryHolder() implements MenuHolder { }
     private record ProjectListHolder(ProjectType type, ProjectCategory category, int page) implements MenuHolder { }

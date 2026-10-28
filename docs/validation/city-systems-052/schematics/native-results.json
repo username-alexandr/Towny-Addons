@@ -1,0 +1,26 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 16 assertions; native Folia/Towny/Sponge v3 imports, BlockData, immutable archives, site/draft persistence, cancellation and public protection/repair APIs; no player client claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyContracts-0.6.0.jar": "991d6a8119fb8377e357546df9c02d16ab516f4ae87054297225bed8e5c08501",
+      "NeverLandTownyBuilds-0.10.0.jar": "79a44a7a87bb59553b39329f85c04c8041e62aac7f44818999c0b3b230fa187e",
+      "TntRuntimeProbe.jar": "f0708fb036fe67da792a2b27b7a15e1724e15e288cc3969358b6fd1ae66cd994",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 18 assertions; native Folia/Towny/Sponge v3 imports, BlockData, immutable archives, site/draft persistence, cancellation and public protection/repair APIs; no player client claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyContracts-0.6.0.jar": "991d6a8119fb8377e357546df9c02d16ab516f4ae87054297225bed8e5c08501",
+      "NeverLandTownyBuilds-0.10.0.jar": "79a44a7a87bb59553b39329f85c04c8041e62aac7f44818999c0b3b230fa187e",
+      "TntRuntimeProbe.jar": "f0708fb036fe67da792a2b27b7a15e1724e15e288cc3969358b6fd1ae66cd994",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64"
+    }
+  }
+]

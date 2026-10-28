@@ -13,7 +13,7 @@ public enum BuildingStyle {
     public String id(){return id;}public String title(){return title;}public Material icon(){return icon;}
     public int architecture(int base){if(base<1||base>=1000)throw new IllegalArgumentException("Неверная базовая версия чертежа");return prefix+base;}
     public static BuildingStyle parse(String id){for(var style:values())if(style.id.equalsIgnoreCase(id)||style.title.equalsIgnoreCase(id))return style;throw new IllegalArgumentException("Выберите: Средневековье, Современный или Фэнтези");}
-    public static BuildingStyle ofArchitecture(int version){return switch(version/1000){case 0->MEDIEVAL;case 1->MODERN;case 2->FANTASY;default->throw new IllegalArgumentException("Неизвестный стиль чертежа");};}
+    public static BuildingStyle ofArchitecture(int version){int local=version>=10000?version-10000:version;return switch(local/1000){case 0->MEDIEVAL;case 1->MODERN;case 2->FANTASY;default->throw new IllegalArgumentException("Неизвестный стиль чертежа");};}
     public static int baseArchitecture(int version){ofArchitecture(version);int base=version%1000;if(base<1)throw new IllegalArgumentException("Неверная версия чертежа");return base;}
     public BlueprintPlan apply(BlueprintPlan source){
         if(source==null||this==MEDIEVAL)return source;var blocks=new LinkedHashMap<BlockOffset,BlueprintBlock>();

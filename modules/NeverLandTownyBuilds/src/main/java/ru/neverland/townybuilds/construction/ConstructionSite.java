@@ -20,6 +20,12 @@ public final class ConstructionSite {
     private int buildFromStage;
     private boolean active;
     private int architectureVersion;
+    private String blueprintSet="";
+    public String blueprintSet(){try(var guard=ru.neverland.core.SuiteState.guard()){return blueprintSet;}}
+    public void blueprintSet(String pin){try(var guard=ru.neverland.core.SuiteState.guard()){
+        if(pin==null||!pin.isEmpty()&&!pin.matches("[a-f0-9]{64}")||!blueprintSet.isEmpty()&&!blueprintSet.equals(pin)||pin.isEmpty()&&architectureVersion>=10000)throw new IllegalArgumentException("Повреждена закреплённая версия чертежа");
+        BuildingStyle.baseArchitecture(architectureVersion);blueprintSet=pin;if(!pin.isEmpty()&&architectureVersion<10000)architectureVersion+=10000;
+    }}
 
     public ConstructionSite(String projectId, UUID worldId, int originX, int originY, int originZ,
                             BlockFace facing, int completedStage, int targetStage,
@@ -57,7 +63,7 @@ public final class ConstructionSite {
     public int architectureVersion() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) { return architectureVersion; } }
 
     public void setArchitectureVersion(int version) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
-        architectureVersion = Math.max(1, version);
+        architectureVersion = Math.max(1, version);if(!blueprintSet.isEmpty()&&architectureVersion<10000)architectureVersion+=10000;
     } }
 
     public void activate(int targetStage, int buildFromStage) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {

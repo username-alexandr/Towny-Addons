@@ -1,0 +1,18 @@
+PASS Builds enabled with genuine Sponge v3 models
+PASS current imported family has content hash
+PASS source replacement creates a new version after full restart
+PASS existing site retains archived version through restart
+PASS issued draft retains archived version through restart
+PASS old site uses four original blocks and ignores arbitrary world offset
+PASS import marker preserves style and rejects old procedural interpretation
+PASS new preview uses currently imported source
+PASS unversioned legacy site remains procedural after importing new family
+PASS footprint uses pinned maximum-stage geometry and saved rotation
+PASS raid lectern core follows pinned model and rotation
+PASS public building protection API uses imported site geometry
+PASS raid repair plan uses imported states and rotated log axis
+PASS stairs retain half, waterlogging and rotated facing
+PASS schematic geometry does not alter configured money price
+PASS issued placement preview stays on selected archived version
+PASS missing historical archive fails closed without replacing active catalog
+PASS incompatible upgrade blocks new drafts while preserving existing archived sites
