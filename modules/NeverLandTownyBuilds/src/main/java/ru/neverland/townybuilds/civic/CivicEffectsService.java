@@ -79,6 +79,11 @@ public final class CivicEffectsService implements TownyBuildsApi {
         }
         return java.util.List.copyOf(result);
     } }
+    @Override public boolean armyEstablished(UUID townId){try(var g=ru.neverland.core.SuiteState.guard()){
+        ru.neverland.core.ApiServices.primaryThread();
+        if(!dataStore.writable()||townId==null||towny.town(townId)==null)throw new IllegalStateException("История армии города недоступна");
+        return dataStore.town(townId).armyEstablished();
+    }}
     @Override
     public int projectLevel(UUID townId, String projectId) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {ru.neverland.core.ApiServices.primaryThread();
         return townId == null || projectId == null ? 0 : dataStore.town(townId).level(projectId.toLowerCase(Locale.ROOT));

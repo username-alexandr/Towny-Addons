@@ -63,13 +63,13 @@ public final class PlacementService implements Listener,CommandExecutor {
         var r=state.constructionReceipts().get(project.id());if(r!=null&&(!Set.of("DONE","COMPLETE").contains(r.state())||!r.remaining().isEmpty()))throw new IllegalArgumentException("Дождитесь завершения возврата предыдущей стройки");
         var old=state.placements().get(project.id());var draft=old!=null&&old.level()==level?old:PlacementDraft.create(level);
         if(draft!=old){state.placement(project.id(),draft);try{data.saveOrThrow();}catch(Exception e){state.placement(project.id(),old);throw new IllegalStateException("Не удалось сохранить чертёж",e);}}
-        for(var item:player.getInventory().getStorageContents())if(matches(item,draft.id())){player.sendMessage("§aЧертёж уже у вас. ПКМ по земле — показать здание; Shift + ПКМ — повернуть; /nltplace — подтвердить место.");return;}
+        for(var item:player.getInventory().getStorageContents())if(matches(item,draft.id())){player.sendMessage("§aЧертёж уже у вас. ПКМ по земле — показать здание; Shift + ПКМ — открыть меню перемещения и подтверждения. /nltplace — то же меню.");return;}
         ItemStack item=new ItemStack(Material.STRUCTURE_VOID);var meta=item.getItemMeta();
         meta.displayName(MenuStyle.nameComponent(MenuStyle.decode("&bЧертёж: "+ColorUtil.plain(project.name())+" · "+level+" ур.")));
-        meta.lore(MenuStyle.loreComponents(List.of("ПКМ по земле — показать всё здание","Shift + ПКМ — повернуть проекцию","/nltplace — сдвинуть или подтвердить место","Ресурсы сохранены в фонде города","Деньги спишутся только после подтверждения").stream().map(MenuStyle::decode).toList()));
+        meta.lore(MenuStyle.loreComponents(List.of("ПКМ по земле — показать всё здание","Shift + ПКМ — меню перемещения и поворота","/nltplace — открыть это же меню","Ресурсы сохранены в фонде города","Деньги спишутся только после подтверждения").stream().map(MenuStyle::decode).toList()));
         var pdc=meta.getPersistentDataContainer();pdc.set(token,PersistentDataType.STRING,draft.id().toString());pdc.set(townKey,PersistentDataType.STRING,town.getUUID().toString());pdc.set(projectKey,PersistentDataType.STRING,project.id());item.setItemMeta(meta);
         if(player.getInventory().firstEmpty()<0){player.sendMessage("§eЧертёж готов. Освободите ячейку и получите его в меню здания. Ресурсы сохранены.");return;}
-        player.getInventory().addItem(item);player.sendMessage("§aЧертёж выдан. ПКМ по земле — проекция, Shift + ПКМ — поворот, /nltplace — настройка и подтверждение.");
+        player.getInventory().addItem(item);player.sendMessage("§aЧертёж выдан. ПКМ по земле — проекция, Shift + ПКМ — меню перемещения, поворота и подтверждения. /nltplace — то же меню.");
     }}
     private boolean matches(ItemStack item,UUID id){return item!=null&&item.hasItemMeta()&&id.toString().equals(item.getItemMeta().getPersistentDataContainer().get(token,PersistentDataType.STRING));}
     private void use(Player p,ItemStack item,Location clicked){
@@ -77,7 +77,7 @@ public final class PlacementService implements Listener,CommandExecutor {
         if(!town.getUUID().toString().equals(meta.get(townKey,PersistentDataType.STRING)))throw new IllegalArgumentException("Этот чертёж относится к другому городу");
         var draft=data.town(town.getUUID()).placements().get(project);if(draft==null||!matches(item,draft.id()))throw new IllegalArgumentException("Этот чертёж больше не действует. Получите новый в меню здания.");
         var old=sessions.get(p.getUniqueId());
-        if(p.isSneaking()&&old!=null&&old.draft.equals(draft)){select(p,town,project,draft,old.choice.rotate());return;}
+        if(p.isSneaking()&&old!=null&&old.draft.equals(draft)){menu(p,old);return;}
         if(clicked==null){if(old!=null)menu(p,old);else throw new IllegalArgumentException("Нажмите чертежом на землю");return;}
         select(p,town,project,draft,new PlacementChoice(clicked.getWorld().getUID(),clicked.getBlockX(),clicked.getBlockY()+1,clicked.getBlockZ(),p.getFacing()));
     }
@@ -104,7 +104,7 @@ public final class PlacementService implements Listener,CommandExecutor {
         if(reserved+projection.required()>global)throw new IllegalArgumentException("Сейчас открыто много проекций. Повторите немного позже.");
         if(reuse)projection.retarget(site,checked.status()==ConstructionPreparation.Status.READY);else close(p.getUniqueId());
         var session=new Session(town.getUUID(),projectId,draft,choice,checked,projection,controls);session.notified=!announce;sessions.put(p.getUniqueId(),session);
-        if(announce)p.sendMessage("§bПоказываю здание целиком. /nltplace — настройка и подтверждение. Для другого места снова нажмите по земле.");
+        if(announce)p.sendMessage("§bПоказываю здание целиком. Shift + ПКМ чертежом — меню перемещения и подтверждения (/nltplace). Для другого места снова нажмите по земле.");
         if(announce&&checked.status()!=ConstructionPreparation.Status.READY)p.sendMessage("§eМесто пока не подходит: "+String.join("; ",checked.details()));
     }
     /** Optional CraftoUI bridge. Called only on the player's owning region. */
@@ -123,17 +123,8 @@ public final class PlacementService implements Listener,CommandExecutor {
             return s;
         }catch(RuntimeException error){return null;}
     }
-    public boolean nudge(Player p,String key,long sequence,String action){try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()){
-        var s=controlled(p);if(s==null||!s.controls.id.toString().equals(key)||data.town(s.town).constructionSite(s.project)!=null)return false;
-        var view=p.getOpenInventory();var holder=view.getTopInventory().getHolder(false);
-        boolean editing=holder instanceof PlacementMenu menu&&menu.viewer.equals(p.getUniqueId())&&menu.session==s&&!menu.used;
-        if(view.getType()!=InventoryType.CRAFTING&&!editing)return false;
-        final PlacementNudge move;try{move=PlacementNudge.of(action,p.getFacing());}catch(RuntimeException invalid){return false;}
-        if(sequence<=s.controls.sequence||sequence-s.controls.sequence>1000)return false;
-        s.controls.sequence=sequence;long now=System.nanoTime();if(now<s.controls.nextInput)return false;s.controls.nextInput=now+180_000_000L;
-        try{select(p,resident(p),s.project,s.draft,s.choice.move(move.x(),move.y(),move.z()),s.controls,false);if(editing)menu(p,sessions.get(p.getUniqueId()));return true;}
-        catch(RuntimeException blocked){p.sendActionBar(net.kyori.adventure.text.Component.text(blocked.getMessage()==null?"Не удалось сдвинуть здание":blocked.getMessage()));return false;}
-    }}
+    /** Kept for older UI bridges. Movement is authorized only by placement-menu buttons. */
+    public boolean nudge(Player p,String key,long sequence,String action){return false;}
     private void tick(){
         for(var entry:List.copyOf(sessions.entrySet())){
             Player p=Bukkit.getPlayer(entry.getKey());Session s=entry.getValue();if(p==null){close(entry.getKey());continue;}
@@ -141,7 +132,7 @@ public final class PlacementService implements Listener,CommandExecutor {
                 if(sessions.get(p.getUniqueId())!=s)return;
                 try{Town t=resident(p);if(!t.getUUID().equals(s.town)||!s.projection.near()||System.currentTimeMillis()>s.expires||!s.draft.equals(data.town(s.town).placements().get(s.project))){close(p.getUniqueId());return;}
                     int batch=Math.max(1,Math.min(256,plugin.getConfig().getInt("settings.construction.placement.displays-per-tick",96)));s.projection.render(batch);
-                    if(s.projection.complete()&&!s.notified){s.notified=true;p.sendMessage("§aПроекция готова. Осмотрите её со всех сторон. /nltplace — подтвердить или сдвинуть.");}
+                    if(s.projection.complete()&&!s.notified){s.notified=true;p.sendMessage("§aПроекция готова. Shift + ПКМ чертежом — меню перемещения, поворота и подтверждения (/nltplace).");}
                 }catch(Exception e){close(p.getUniqueId());p.sendMessage("§eПредпросмотр закрыт: "+e.getMessage());}
             });
         }
@@ -201,7 +192,7 @@ public final class PlacementService implements Listener,CommandExecutor {
         try{Town t=resident(p);var s=sessions.get(p.getUniqueId());if(s==null)throw new IllegalArgumentException("Сначала нажмите чертежом по земле. Получить его можно в меню здания после сдачи ресурсов.");
             String action=args.length==0?"menu":args[0].toLowerCase(Locale.ROOT);
             if(action.equals("close")){close(p.getUniqueId());p.sendMessage("§aРазмещение отложено. Ресурсы сохранены.");}
-            else if(action.equals("rotate"))select(p,t,s.project,s.draft,s.choice.rotate());else menu(p,s);
+            else menu(p,s);
         }catch(RuntimeException e){p.sendMessage("§e"+e.getMessage());}return true;
     }}
 }

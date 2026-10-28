@@ -40,6 +40,10 @@ public final class TownData {
     public void placement(String project,ru.neverland.townybuilds.construction.PlacementDraft draft){try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()){if(draft==null)placements.remove(project);else placements.put(project,draft);}}
     private String buildingStyle="medieval";
     private boolean styleChosen;
+    private boolean armyEstablished;
+    /** A completed army permanently ends this town's pre-army raid protection. */
+    public boolean armyEstablished(){try(var g=ru.neverland.core.SuiteState.guard()){return armyEstablished;}}
+    public void loadArmyEstablished(boolean value){try(var g=ru.neverland.core.SuiteState.guard()){armyEstablished|=value;}}
     public String buildingStyle(){try(var g=ru.neverland.core.SuiteState.guard()){return buildingStyle;}}
     public boolean styleChosen(){try(var g=ru.neverland.core.SuiteState.guard()){return styleChosen;}}
     public void buildingStyle(String id,boolean chosen){try(var g=ru.neverland.core.SuiteState.guard()){buildingStyle=ru.neverland.townybuilds.construction.BuildingStyle.parse(id).id();styleChosen=chosen;}}
@@ -78,6 +82,7 @@ public final class TownData {
     } }
 
     public void setLevel(String projectId, int level) { try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) {
+        if("army".equals(projectId)&&level>0)armyEstablished=true;
         if (level <= 0) {
             levels.remove(projectId);
         } else {
@@ -92,6 +97,7 @@ public final class TownData {
     public void loadLevels(Map<String, Integer> loaded) { try (var suiteGuard26 = ru.neverland.core.SuiteState.guard()) {
         levels.clear();
         levels.putAll(loaded);
+        if(level("army")>0)armyEstablished=true;
     } }
 
     public ConstructionSite constructionSite(String projectId) { try (var suiteGuard27 = ru.neverland.core.SuiteState.guard()) {
@@ -100,6 +106,7 @@ public final class TownData {
 
     public void setConstructionSite(ConstructionSite site) { try (var suiteGuard28 = ru.neverland.core.SuiteState.guard()) {
         constructionSites.put(site.projectId(), site);
+        if("army".equals(site.projectId())&&site.completedStage()>0)armyEstablished=true;
     } }
 
     public Map<String, ConstructionSite> constructionSites() { try (var suiteGuard29 = ru.neverland.core.SuiteState.guard()) {
@@ -109,6 +116,7 @@ public final class TownData {
     public void loadConstructionSites(Map<String, ConstructionSite> loaded) { try (var suiteGuard30 = ru.neverland.core.SuiteState.guard()) {
         constructionSites.clear();
         constructionSites.putAll(loaded);
+        var army=constructionSites.get("army");if(army!=null&&army.completedStage()>0)armyEstablished=true;
     } }
 
     public ResourceFund resourceFund(String projectId, int targetLevel) { try (var suiteGuard31 = ru.neverland.core.SuiteState.guard()) {

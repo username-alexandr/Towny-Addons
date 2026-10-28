@@ -1039,3 +1039,6 @@ ru.neverland.townysieges.api.TownySiegesApi	raids():java.util.Collection<java.ut
 ru.neverland.townyenvironment.api.TownyEnvironmentApi	capability forecast
 ru.neverland.townyenvironment.api.TownyEnvironmentApi	default forecast(java.util.UUID,java.lang.String,int,int)
 ru.neverland.townyenvironment.api.TownyEnvironmentApi	forecast(java.util.UUID,java.lang.String,int,int):java.util.Map<java.lang.String, java.lang.Object> throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	armyEstablished(java.util.UUID):boolean throws []
+ru.neverland.townybuilds.api.TownyBuildsApi	capability armyEstablished
+ru.neverland.townybuilds.api.TownyBuildsApi	default armyEstablished(java.util.UUID)

@@ -1,0 +1,32 @@
+{
+  "suite": "0.51.0",
+  "date": "2026-10-28",
+  "native": {
+    "folia": "26.2 build 7 (14b7fee)",
+    "towny": "0.103.2.0",
+    "java": "Azul Zulu 25.0.5+8",
+    "first_assertions": 25,
+    "restart_assertions": 7,
+    "fixture": "Loopback only; real CraftPlayer handles without login; explicit deterministic Towny economy adapter; no external economy/live clients claimed"
+  },
+  "smoke_programs": {
+    "NeverLandTownyBuilds": 44,
+    "NeverLandTownyContracts": 11,
+    "NeverLandTownySiegesPlus": 12
+  },
+  "python_tests": 15,
+  "api_contracts": {
+    "Builds": 9,
+    "Contracts": 2,
+    "SiegesPlus": 4
+  },
+  "craftoui": {
+    "version": "0.8.19",
+    "common_junit": 90,
+    "server_junit": 149,
+    "placement_adapter_assertions": 18,
+    "client_runtime": "UI logic with explicit Minecraft/input/transport adapters; graphics client not launched"
+  },
+  "build_method": "javac against original Folia runtime API/libraries, official Towny and PlaceholderAPI; no stubs in shipped JARs",
+  "limits": "Same catalog, three active orders and existing configured reward limits; legacy orders retain immutable terms."
+}

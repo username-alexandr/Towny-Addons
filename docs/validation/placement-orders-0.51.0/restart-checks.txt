@@ -1,0 +1,7 @@
+PASS native actor runs on owning Folia region
+PASS public orders initialized with personal boards
+PASS army history persists after demolition and full restart
+PASS established cities stay eligible after restart
+PASS mayor personal offers survive native restart
+PASS townless player's offers survive native restart
+PASS accepted terms, rarity and progress survive restart

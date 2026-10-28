@@ -70,6 +70,7 @@ public final class DataStore {
                 ConfigurationSection section = root.getConfigurationSection(rawId);
                 if(section==null)throw new IOException("Повреждена запись города");
                 data.buildingStyle(section.getString("building-style","medieval"),section.getBoolean("style-chosen",false));
+                data.loadArmyEstablished(ru.neverland.core.SafeYaml.booleanValue(section,"army-established",false));
                 Map<String, Integer> levels = new HashMap<>();
                 ConfigurationSection levelSection = section == null ? null : section.getConfigurationSection("levels");
                 if (levelSection != null) {
@@ -199,6 +200,7 @@ public final class DataStore {
                 yaml.set(p+".item",ItemCodec.encodeSingle(m.sample()));yaml.set(p+".amount",m.amount());yaml.set(p+".incoming",m.incoming());
             }
             yaml.set(path+".building-style",data.buildingStyle());yaml.set(path+".style-chosen",data.styleChosen());
+            yaml.set(path+".army-established",data.armyEstablished());
             for (Map.Entry<String, Integer> level : data.levels().entrySet()) {
                 yaml.set(path + ".levels." + level.getKey(), level.getValue());
             }

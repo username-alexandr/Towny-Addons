@@ -1,0 +1,6 @@
+name: TntRuntimeProbe
+version: 6.0
+main: ru.neverland.runtime.MenuOrdersProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyContracts, NeverLandTownySiegesPlus]

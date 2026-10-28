@@ -37,14 +37,15 @@ settings:
     preview-block-scale: 0.85
     # Ближайший требуемый блок выделяется контуром; больше точек делают чертёж нечитаемым.
     guide-points-per-edge: 4
-    # Персональная подпись над ближайшей точкой: название блока, координаты и расстояние.
-    guide-label-enabled: true
-    guide-label-height: 1.35
-    # Размер подписи над строительным блоком. Работает и со старым config.yml.
+    # Текст над строительными блоками выключен. Старый guide-label-enabled больше не используется.
+    # Краткие подсказки остаются в меню и интерфейсе CraftoUI.
+    block-label:
+      enabled: false
+      height: 1.35
+      scale: 0.35
+      width: 200
     # Разрушенные в рейде здания не восстанавливаются при перезапуске.
     restore-missing-completed-blocks: false
-    guide-label-scale: 0.45
-    guide-label-width: 200
   civic:
     # Автоматизация работает только в уже загруженных чанках и никогда не загружает их принудительно.
     automation-interval-ticks: 1200

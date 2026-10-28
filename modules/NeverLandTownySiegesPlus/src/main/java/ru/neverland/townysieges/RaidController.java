@@ -53,6 +53,13 @@ public final class RaidController {
             throw new IllegalArgumentException("Союзный, мирный или нейтральный город нельзя атаковать");
         if(NewcomerProtection.remaining(plugin,own.getUUID())>0||NewcomerProtection.remaining(plugin,target.getUUID())>0)
             throw new IllegalArgumentException("Рейд недоступен, пока у одного из городов действует щит новичка");
+        if(plugin.getConfig().getBoolean("tnt.raid.require-army-building",true)){
+            var buildings=ApiServices.require("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","armyEstablished");
+            if(!Boolean.TRUE.equals(buildings.invoke("armyEstablished",new Class<?>[]{UUID.class},target.getUUID())))
+                throw new IllegalArgumentException("Этот город ещё не построил здание армии и защищён от нападений");
+            if(!Boolean.TRUE.equals(buildings.invoke("armyEstablished",new Class<?>[]{UUID.class},own.getUUID())))
+                throw new IllegalArgumentException("Ваш город защищён от рейдов. Для участия в войнах сначала постройте здание армии");
+        }
     }
     private long online(UUID town) {return Bukkit.getOnlinePlayers().stream().filter(p->{var t=SiegeService.town(p.getUniqueId());return t!=null&&t.getUUID().equals(town);}).count();}
     private void defenders(Town town){if(online(town.getUUID())<settings.defendersOnline())throw new IllegalArgumentException("В городе недостаточно защитников в сети");}

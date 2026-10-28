@@ -1,0 +1,25 @@
+PASS native actor runs on owning Folia region
+PASS public orders initialized with personal boards
+PASS public raid declaration denies town without army
+PASS unfinished army still protects newcomer
+PASS completed army permits relation gate
+PASS demolishing army cannot restore protection
+PASS 24h shield remains after army completion
+PASS published Builds history capability available
+PASS native UI exposes separate personal random boards
+PASS second order actor has no town
+PASS opening another player's board does not change mayor offers
+PASS command suggestions use same personal board
+PASS foreign board quote cannot accept another player's offer
+PASS townless player accepts personal order
+PASS personal accepted hunting objective advances once
+PASS repeat acceptance rejected
+PASS native blueprint issued after resource funding
+PASS native blueprint creates placement session
+PASS legacy direct movement API cannot move placement
+PASS Shift-right-click opens menu without moving or rotating
+PASS movement menu path changes selected location by one block
+PASS moving preview does not start construction or consume resources
+PASS old enabled label config cannot create large text display
+PASS explicit opt-in uses small 0.35 text label
+PASS turning label off removes it

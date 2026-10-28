@@ -41,7 +41,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         Order state(String s){return new Order(id,player,template,title,type,target,goal,progress,cents,remaining,cycle,s,rarity,boardDay);}
     }
     private final JavaPlugin plugin;private final java.nio.file.Path file;private final Map<UUID,Order> orders=new LinkedHashMap<>();
-    private final DailyOrderBoard dailyBoard;private final IncomeRuntime income;private final ActionGuard guard;private final RussianNames names;
+    private final PersonalOrderBoards dailyBoard;private final IncomeRuntime income;private final ActionGuard guard;private final RussianNames names;
     private final ServerMaterials materials;private final ResourceDeliveries resourceDeliveries;private final ResourceAdmin resourceAdmin;
     private final Set<UUID> delivering=new HashSet<>();private volatile boolean closed;private boolean reconciling;
     private final int maximum;private boolean fault;
@@ -62,8 +62,8 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         var templates=OrderCatalog.templates(cfg);OrderCatalog.validateItems(templates);
         long playerLimit=limits.playerCents(),serverLimit=limits.serverCents();
         if(templates.stream().anyMatch(t->t.cents()>Math.min(playerLimit,serverLimit)))plugin.getLogger().warning("В каталоге есть награда выше лимита выплат: такой заказ нельзя оплатить до изменения limits");
-        dailyBoard=new DailyOrderBoard(plugin.getDataFolder().toPath().resolve("orders-board.yml"),templates,boardSize,OrderCatalog.weights(cfg));
-        load();OrderCatalog.validateItems(dailyBoard.snapshot().templates());
+        dailyBoard=new PersonalOrderBoards(plugin.getDataFolder().toPath().resolve("orders-boards"),templates,boardSize,OrderCatalog.weights(cfg));
+        load();
         if(migrated){OrderCatalog.saveMigration(configFile,cfg);plugin.getLogger().info("Каталог заказов обновлён: шаблонов "+templates.size()+", мест на следующей доске "+boardSize+", личный лимит за 24 ч. "+AuditTrail.cents(playerLimit)+"; резервная копия "+OrderCatalog.MIGRATION_BACKUP);}
         guard=new ActionGuard(plugin,"order-blocks.log");plugin.getServer().getPluginManager().registerEvents(guard,plugin);plugin.getServer().getPluginManager().registerEvents(this,plugin);
         var command=Objects.requireNonNull(plugin.getCommand("orders"));command.setExecutor(this);command.setTabCompleter(this);
@@ -81,7 +81,6 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         materials.ready().whenComplete((value,error)->{if(error!=null)plugin.getLogger().log(java.util.logging.Level.SEVERE,"Публичные сдачи приостановлены: база серверного склада не открыта",error);});
         SuiteScheduler.get().runTaskTimer(plugin,()->{if(!closed&&materials.available()&&!reconciling){reconciling=true;resourceDeliveries.reconcile().whenComplete((v,error)->owner(null).call(()->{reconciling=false;if(error!=null)plugin.getLogger().warning("Сверка серверного склада: "+failure(error));return null;}));}},20,200);
         income.start();SuiteScheduler.get().runTaskTimer(plugin,this::tick,200,200);
-        SuiteScheduler.get().runTaskTimer(plugin,()->{try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){if(!fault)try{boardSnapshot();}catch(IOException ex){plugin.getLogger().severe(ex.getMessage());}}},20,20);
     }
     private static int positive(org.bukkit.configuration.ConfigurationSection c,String k,int d,int max){int n=SafeYaml.intValue(c,k,d);if(n<=0||n>max)throw new IllegalArgumentException(k+": 1.."+max);return n;}
     public static long money(org.bukkit.configuration.ConfigurationSection c,String k,int d){double v=SafeYaml.doubleValue(c,k,d);if(v<=0||v>1_000_000||Math.abs(v*100-Math.rint(v*100))>0.00001)throw new IllegalArgumentException("Неверная сумма "+k);return Math.round(v*100);}
@@ -137,7 +136,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         SuiteScheduler.player(plugin,player,p->{if(error!=null)p.sendMessage("§e"+failure(error));else p.sendMessage("§aРесурсы переданы на серверный склад. Награда ожидает зачисления на личный счёт.");var order=orders.get(id);if(order!=null)showOrder(p,order);});return null;
     });}
     private boolean open(Order o){return o.state().equals("ACTIVE")&&income.ledger().get(o.id())==null;}
-    private DailyOrderBoard.Snapshot boardSnapshot()throws IOException{try{return dailyBoard.snapshot();}catch(IOException ex){fault=true;throw ex;}}
+    private DailyOrderBoard.Snapshot boardSnapshot(UUID player)throws IOException{try{var snapshot=dailyBoard.snapshot(player);OrderCatalog.validateItems(snapshot.templates());return snapshot;}catch(IOException ex){fault=true;throw ex;}}
     private Set<String> paidTemplates(UUID player,LocalDate day){
         Set<String> paid=new HashSet<>();String boardDay=day.toString();
         for(Order order:orders.values())if(order.player().equals(player)&&order.boardDay().equals(boardDay)){
@@ -161,7 +160,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         if(!p.hasPermission("neverland.orders.use"))throw new IllegalArgumentException("Нет прав на заказы");
         if(!active())throw new IllegalArgumentException("Заказы приостановлены; прогресс сохранён");
         if(orders.values().stream().filter(o->o.player().equals(p.getUniqueId())&&open(o)).count()>=maximum)throw new IllegalArgumentException("Одновременно разрешено "+maximum+" заказа");
-        var board=boardSnapshot();
+        var board=boardSnapshot(p.getUniqueId());
         if(displayedDay!=null&&!displayedDay.equals(board.day()))throw new IllegalArgumentException("Доска обновилась. Откройте /orders и выберите заказ заново.");
         if(orders.values().stream().anyMatch(o->o.player().equals(p.getUniqueId())&&o.template().equals(template)&&o.boardDay().equals(board.day().toString())))throw new IllegalArgumentException("Этот заказ уже принят сегодня. Повторно взять его можно на новой доске после 00:00 МСК.");
         Template t=board.templates().stream().filter(v->v.id().equals(template)).findFirst().orElseThrow(()->new IllegalArgumentException("Заказ отсутствует на доске"));
@@ -236,7 +235,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
     /** Public UI integration. Real board, own orders only, no private-field reflection. */
     public Map<String,Object> uiSnapshot(Player p)throws Exception { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         if(!p.hasPermission("neverland.orders.use"))throw new IllegalArgumentException("Нет прав на заказы");
-        var board=boardSnapshot();var rows=new ArrayList<Map<String,Object>>();
+        var board=boardSnapshot(p.getUniqueId());var rows=new ArrayList<Map<String,Object>>();
         long count=orders.values().stream().filter(o->o.player().equals(p.getUniqueId())&&open(o)).count();
         for(var t:visibleTemplates(p.getUniqueId(),board)){
             String reason=!active()?"Заказы временно приостановлены":count>=maximum?"Достигнут лимит активных заказов":
@@ -262,7 +261,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
     } }
     private record Board(LocalDate day,Map<Integer,String> slots) implements InventoryHolder{public Inventory getInventory(){return null;}}
     private void menu(Player p)throws IOException{
-        Map<Integer,String> slots=new HashMap<>();var snapshot=boardSnapshot();var board=visibleTemplates(p.getUniqueId(),snapshot);
+        Map<Integer,String> slots=new HashMap<>();var snapshot=boardSnapshot(p.getUniqueId());var board=visibleTemplates(p.getUniqueId(),snapshot);
         for(int i=0;i<board.size();i++)slots.put(i,board.get(i).id());
         var holder=new Board(snapshot.day(),slots);
         Inventory inv=MenuStyle.inventory(plugin,holder,54,"Государственные заказы");
@@ -428,5 +427,5 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
     }
     @EventHandler public void click(InventoryClickEvent e){if(!(e.getView().getTopInventory().getHolder() instanceof Board board))return;e.setCancelled(true);if(e.getWhoClicked() instanceof Player p)try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()){try{if(e.getRawSlot()==45)SuiteScheduler.entity(plugin,p,()->{p.closeInventory();showMine(p);});else if(board.slots().containsKey(e.getRawSlot()))accept(p,board.slots().get(e.getRawSlot()),board.day());}catch(Exception ex){p.sendMessage("§c"+ex.getMessage());}}}
     @EventHandler public void drag(InventoryDragEvent e){if(e.getView().getTopInventory().getHolder() instanceof Board)e.setCancelled(true);}
-    @Override public List<String> onTabComplete(CommandSender s,Command c,String a,String[] args){try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()){try{if(args.length==1)return List.of("board","accept","mine","claim","cancel","admin");if(args.length==2&&args[0].equals("accept")&&s instanceof Player p)return visibleTemplates(p.getUniqueId(),boardSnapshot()).stream().map(Template::id).toList();if(args.length==2&&Set.of("claim","cancel").contains(args[0])&&s instanceof Player p)return orders.values().stream().filter(o->o.player().equals(p.getUniqueId())&&open(o)).map(o->o.id().toString()).toList();}catch(IOException ex){plugin.getLogger().severe(ex.getMessage());}return List.of();}}
+    @Override public List<String> onTabComplete(CommandSender s,Command c,String a,String[] args){try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()){try{if(args.length==1)return List.of("board","accept","mine","claim","cancel","admin");if(args.length==2&&args[0].equals("accept")&&s instanceof Player p)return visibleTemplates(p.getUniqueId(),boardSnapshot(p.getUniqueId())).stream().map(Template::id).toList();if(args.length==2&&Set.of("claim","cancel").contains(args[0])&&s instanceof Player p)return orders.values().stream().filter(o->o.player().equals(p.getUniqueId())&&open(o)).map(o->o.id().toString()).toList();}catch(IOException ex){plugin.getLogger().severe(ex.getMessage());}return List.of();}}
 }

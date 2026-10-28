@@ -11,7 +11,7 @@ import ru.neverland.core.SuiteState;
 import ru.neverland.mintcontracts.orders.PublicOrders.Template;
 import ru.neverland.mintcontracts.orders.PublicOrders.Type;
 
-/** A durable daily snapshot, shared by all players. No world/entity access. */
+/** One durable daily draw. PersonalOrderBoards owns one instance per player. */
 public final class DailyOrderBoard {
     public static final ZoneId MOSCOW = ZoneId.of("Europe/Moscow");
     public record Snapshot(LocalDate day, List<Template> templates) {
@@ -33,11 +33,7 @@ public final class DailyOrderBoard {
     public DailyOrderBoard(Path file, List<Template> catalog, int size, Map<OrderRarity, Integer> weights, Clock clock, Random random) throws IOException {
         this.file = file; this.catalog = List.copyOf(catalog); this.size = size;
         this.weights = Map.copyOf(weights); this.clock = clock; this.random = random;
-        if (size < 1 || size > 45) throw new IllegalArgumentException("board-size: 1..45");
-        if (catalog.stream().map(Template::id).distinct().count() != catalog.size()) throw new IllegalArgumentException("Повторяющийся ID заказа");
-        for (OrderRarity rarity : OrderRarity.values()) if (weights.getOrDefault(rarity, -1) < 0 || weights.get(rarity) > 100000)
-            throw new IllegalArgumentException("Неверный вес редкости " + rarity);
-        if (catalog.stream().noneMatch(t -> weights.get(t.rarity()) > 0)) throw new IllegalArgumentException("Нет заказов с положительным весом");
+        validate(catalog,size,weights);
         if (Files.exists(file)) {
             var y = SafeYaml.load(file);
             if (SafeYaml.intValue(y, "schema") != 1) throw new IOException("Неизвестная схема ежедневной доски");
@@ -46,6 +42,14 @@ public final class DailyOrderBoard {
             current = new Snapshot(LocalDate.parse(SafeYaml.text(y, "day")), templates);
         }
         AtomicFiles.loaded(file);
+    }
+
+    static void validate(List<Template> catalog,int size,Map<OrderRarity,Integer> weights) {
+        if (size < 1 || size > 45) throw new IllegalArgumentException("board-size: 1..45");
+        if (catalog.stream().map(Template::id).distinct().count() != catalog.size()) throw new IllegalArgumentException("Повторяющийся ID заказа");
+        for (OrderRarity rarity : OrderRarity.values()) if (weights.getOrDefault(rarity, -1) < 0 || weights.get(rarity) > 100000)
+            throw new IllegalArgumentException("Неверный вес редкости " + rarity);
+        if (catalog.stream().noneMatch(t -> weights.get(t.rarity()) > 0)) throw new IllegalArgumentException("Нет заказов с положительным весом");
     }
 
     public Snapshot snapshot() throws IOException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {

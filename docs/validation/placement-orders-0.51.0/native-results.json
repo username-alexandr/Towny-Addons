@@ -1,0 +1,26 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 25 assertions; native Folia 26.2/Towny, personal boards, placement and protection; explicit offline actor/economy fixtures; no authenticated client\n",
+    "jar_sha256": {
+      "NeverLandTownyBuilds-0.9.1.jar": "ee933fcc5feb1f4cbf4741ef66484cfbd188d012d7518797c9dc1a4decab57ac",
+      "TntRuntimeProbe.jar": "c43b74f4141173872e540d6cdc070bef7b69cde0a56b3316bfde426cc0217817",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64",
+      "NeverLandTownyContracts-0.5.1.jar": "5a6c8f92cc0dbc1284490e0d669982356ce6f34516cff0e8c5eae0f1a3493e7a"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 7 assertions; native Folia 26.2/Towny, personal boards, placement and protection; explicit offline actor/economy fixtures; no authenticated client\n",
+    "jar_sha256": {
+      "NeverLandTownyBuilds-0.9.1.jar": "ee933fcc5feb1f4cbf4741ef66484cfbd188d012d7518797c9dc1a4decab57ac",
+      "TntRuntimeProbe.jar": "c43b74f4141173872e540d6cdc070bef7b69cde0a56b3316bfde426cc0217817",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64",
+      "NeverLandTownyContracts-0.5.1.jar": "5a6c8f92cc0dbc1284490e0d669982356ce6f34516cff0e8c5eae0f1a3493e7a"
+    }
+  }
+]

@@ -809,11 +809,11 @@ public final class ConstructionService implements Listener {
 
     private void renderGuideDisplay(Player player, PreviewTarget target) {
         if (!ru.neverland.core.WorldTasks.ownsBox(target.location(), 2)) { removeGuide(player.getUniqueId()); return; }
-        if (!plugin.getConfig().getBoolean("settings.construction.guide-label-enabled", true)) {
+        if (!plugin.getConfig().getBoolean("settings.construction.block-label.enabled", false)) {
             removeGuide(player.getUniqueId());
             return;
         }
-        double height = plugin.getConfig().getDouble("settings.construction.guide-label-height", 1.35);
+        double height = plugin.getConfig().getDouble("settings.construction.block-label.height", 1.35);
         Location labelLocation = target.location().clone().add(0.5, Math.max(0.6, height), 0.5);
         TextDisplay display = guideDisplays.get(player.getUniqueId());
         if (display == null || !ru.neverland.core.SuiteScheduler.owns(display) || !display.isValid() || !display.getWorld().equals(labelLocation.getWorld())) {
@@ -836,10 +836,10 @@ public final class ConstructionService implements Listener {
         } else {
             display.teleportAsync(labelLocation);
         }
-        double labelScale=plugin.getConfig().getDouble("settings.construction.guide-label-scale",0.45);
-        if(!Double.isFinite(labelScale))labelScale=0.45;
-        display.setTransformationMatrix(new org.joml.Matrix4f().scale((float)Math.max(0.2,Math.min(0.8,labelScale))));
-        display.setLineWidth(Math.max(100,Math.min(300,plugin.getConfig().getInt("settings.construction.guide-label-width",200))));
+        double labelScale=plugin.getConfig().getDouble("settings.construction.block-label.scale",0.35);
+        if(!Double.isFinite(labelScale))labelScale=0.35;
+        display.setTransformationMatrix(new org.joml.Matrix4f().scale((float)Math.max(0.2,Math.min(0.5,labelScale))));
+        display.setLineWidth(Math.max(100,Math.min(300,plugin.getConfig().getInt("settings.construction.block-label.width",200))));
         display.text(messages.component("construction-layer-guide-display", guideValues(target)));
         player.showEntity(plugin, display);
     }
