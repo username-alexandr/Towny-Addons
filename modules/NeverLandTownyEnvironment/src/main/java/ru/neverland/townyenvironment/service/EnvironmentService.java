@@ -19,12 +19,14 @@ public final class EnvironmentService implements TownyEnvironmentApi {
         public Observation { levels = Map.copyOf(levels); }
     }
     private final Plugin plugin; private final EnvironmentRepository repository; private final EnvironmentMetrics metrics;
-    private EnvironmentSettings settings; private BukkitTask task; private boolean storageFault;
+    private EnvironmentSettings settings; private BukkitTask task; private boolean storageFault; private volatile boolean running;
+    private final DistrictEnvironmentViews districtViews; private final ru.neverland.townyenvironment.integration.DistrictEnvironmentBridge districtBridge=new ru.neverland.townyenvironment.integration.DistrictEnvironmentBridge();
+    private final Map<UUID,Long> observedAt=new HashMap<>();
     private final Map<UUID, Observation> observations = new HashMap<>();
     private final Map<UUID, Integer> elapsed = new HashMap<>(); private long lastWarning;
     public EnvironmentService(Plugin plugin, EnvironmentRepository repository, EnvironmentSettings settings) { this(plugin, repository, settings, new EnvironmentMetrics()); }
     public EnvironmentService(Plugin plugin, EnvironmentRepository repository, EnvironmentSettings settings, EnvironmentMetrics metrics) {
-        this.plugin = plugin; this.repository = repository; this.settings = settings; this.metrics = metrics;
+        this.plugin = plugin; this.repository = repository; this.settings = settings; this.metrics = metrics; this.districtViews=new DistrictEnvironmentViews(error->plugin.getLogger().warning("Оценка экологии районов: "+error.getMessage()));
     }
     public EnvironmentSettings settings() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return settings; } }
     public EnvironmentState state(UUID town) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return repository.get(town); } }
@@ -35,8 +37,8 @@ public final class EnvironmentService implements TownyEnvironmentApi {
     public Town requireTown(Player player) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         Town town = town(player); if (town == null || !player.hasPermission("neverlandtownyenvironment.use")) throw new IllegalArgumentException("Нужен свой город и доступ к экологии"); return town;
     } }
-    public void start() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { refresh(false); task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, () -> refresh(true), 100, 100); } }
-    public void stop() { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { if (task != null) task.cancel(); elapsed.clear(); observations.clear(); } }
+    public void start() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { running=true; refresh(false); task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, () -> refresh(true), 100, 100); } }
+    public void stop() { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { running=false; if (task != null) task.cancel(); elapsed.clear(); observations.clear(); observedAt.clear(); } }
     public void reload(EnvironmentSettings next) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); if (storageFault) throw new IllegalStateException("Ошибка хранилища: восстановите данные и перезапустите модуль");
         stop(); settings = next; start();
@@ -51,7 +53,7 @@ public final class EnvironmentService implements TownyEnvironmentApi {
             try {
                 var levels = metrics.active(id, settings); var pressure = EnvironmentEngine.pressure(levels, settings);
                 boolean wasReady = observation(id).ready();
-                observations.put(id, new Observation(true, "Расчёт работает", levels, pressure));
+                observations.put(id, new Observation(true, "Расчёт работает", levels, pressure)); observedAt.put(id,System.currentTimeMillis());
                 if (advance && wasReady) {
                     int seconds = elapsed.getOrDefault(id, 0) + 5;
                     if (seconds >= settings.interval()) { next.put(id, EnvironmentEngine.advance(state, pressure)); seconds = 0; }
@@ -59,7 +61,7 @@ public final class EnvironmentService implements TownyEnvironmentApi {
                 }
             } catch (Exception | LinkageError ex) { suspend(id, "Расчёт приостановлен: " + ex.getMessage()); warn(ex); }
         }
-        observations.keySet().retainAll(existing); elapsed.keySet().retainAll(existing);
+        observations.keySet().retainAll(existing); elapsed.keySet().retainAll(existing); observedAt.keySet().retainAll(existing);
         // Keep deleted cities' historical data isolated by UUID; never transfer pollution to a new city with the same name.
         try {
             var previous = repository.towns(); repository.replace(next);
@@ -71,7 +73,26 @@ public final class EnvironmentService implements TownyEnvironmentApi {
         } catch (Exception ex) {
             storageFault = true; for (UUID id : existing) suspend(id, "Ошибка сохранения; штрафы отключены"); warn(ex);
         }
+        for(UUID id:districtViews.wanted())captureDistricts(id);
     }
+    /** Capture only published city observations; the optional section never invokes a simulation/save. */
+    public void refreshDistricts(UUID town){try(var guard=SuiteState.guard()){if(running&&town!=null){districtViews.watch(town);captureDistricts(town);}}}
+    private void captureDistricts(UUID town){
+        var view=observation(town);long at=observedAt.getOrDefault(town,0L);boolean paused=!view.ready()||storageFault||state(town).paused();Object enabled=plugin.getConfig().get("districts.enabled",true);
+        if(!(enabled instanceof Boolean value)){districtViews.unavailable(town,"Настройки оценки районов требуют проверки",false,at,paused);return;}
+        if(!value){districtViews.unavailable(town,"Оценка экологии районов сейчас отключена",false,at,paused);return;}
+        if(TownyAPI.getInstance().getTown(town)==null){districtViews.unavailable(town,"Город не найден",false,at,paused);return;}
+        if(paused){districtViews.unavailable(town,"Расчёт экологии приостановлен; загрязнение сохранено",false,at,true);return;}
+        var districts=districtBridge.read(town,System.currentTimeMillis());if(!districts.available()){districtViews.unavailable(town,districts.issue(),districts.pending(),at,false);return;}
+        try{var sources=new HashMap<String,DistrictEnvironment.Source>();sources.put(DistrictEnvironment.NATURE,new DistrictEnvironment.Source(DistrictEnvironment.NATURE,"Природное восстановление",0,java.math.BigDecimal.ZERO,java.math.BigDecimal.valueOf(settings.naturalRecovery())));
+            for(var entry:view.levels().entrySet()){var profile=settings.buildings().get(entry.getKey());int level=entry.getValue();if(profile==null||level==0)continue;sources.put(entry.getKey(),new DistrictEnvironment.Source(entry.getKey(),profile.name(),level,java.math.BigDecimal.valueOf(profile.emission()*level),java.math.BigDecimal.valueOf(profile.cleaning()*level)));}
+            districtViews.capture(town,new DistrictEnvironment.Input(java.math.BigDecimal.valueOf(view.pressure().emissions()),java.math.BigDecimal.valueOf(view.pressure().cleaning()),sources,districts.districts(),districts.assignments()),Math.min(at,districts.sourceAt()),false);
+        }catch(RuntimeException error){districtViews.unavailable(town,"Источники экологии требуют проверки",false,at,false);warn(error);}
+    }
+    /** New optional API is cached and safe for async readers, unlike the existing simulation API. */
+    @Override public Map<String,Object> districts(UUID town){return !running||SuiteState.frozen(plugin.getName())?DistrictEnvironmentViews.unavailable("Раздел экологии приостановлен",false,0,true):districtViews.read(town);}
+    public java.util.concurrent.CompletionStage<Void> prepareClose(){running=false;return districtViews.prepareClose();}
+    public void awaitClosed(){districtViews.awaitClosed();}
     private int band(double pollution) { return pollution <= settings.threshold() ? 0 : pollution < 80 ? 1 : 2; }
     private void suspend(UUID town, String reason) {
         elapsed.remove(town); var old = observation(town); observations.put(town, new Observation(false, reason, old.levels(), old.pressure()));

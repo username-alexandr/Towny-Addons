@@ -9,8 +9,8 @@ import org.bukkit.inventory.*;
 import ru.neverland.townyenvironment.service.EnvironmentService;
 
 public final class EnvironmentMenu implements Listener {
-    private final EnvironmentService service;private final org.bukkit.plugin.Plugin plugin;
-    public EnvironmentMenu(org.bukkit.plugin.Plugin plugin,EnvironmentService service) { this.service = service;this.plugin=plugin; }
+    private final EnvironmentService service;private final org.bukkit.plugin.Plugin plugin; private final DistrictEnvironmentMenu districtMenu;
+    public EnvironmentMenu(org.bukkit.plugin.Plugin plugin,EnvironmentService service) { this.service = service;this.plugin=plugin;this.districtMenu=new DistrictEnvironmentMenu(plugin,service,this::home); }
     private static final class View implements InventoryHolder {
         final UUID player, town; final Map<Integer, Runnable> buttons = new HashMap<>(); Inventory inventory;
         View(UUID player, UUID town) { this.player = player; this.town = town; }
@@ -37,8 +37,10 @@ public final class EnvironmentMenu implements Listener {
                 "Аграрный выпуск еды: " + f((double)snapshot.get("agriculture") * 100) + "%", "Предел: −" + f(settings.maximumHappinessPenalty()) + " довольства",
                 "Предел снижения еды: " + f(settings.maximumAgriculturePenalty() * 100) + "%", "Запасы и другие ресурсы сохраняются"), null);
         button(view, 31, "CLOCK", "Прогноз следующего цикла", List.of(observation.ready() ? "Изменение: " + f(pressure.change()) : "Пауза: изменения и штрафы отключены", "Парки и лесничество очищают город постепенно", "Учитываются завершённые действующие здания"), null);
+        button(view, 47, "FILLED_MAP", "Экология районов", List.of("Источники загрязнения и зелёные здания по месту постройки", "Общий показатель города остаётся прежним"), () -> districts(player,0));
         button(view, 49, "COMPASS", "Обновить", List.of(), () -> home(player)); player.openInventory(view.inventory);
     } }
+    public void districts(Player player,int page){districtMenu.open(player,page);}
     public void sources(Player player, boolean cleaning, int requested) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         var view = view(player, cleaning ? "Экология: очистка" : "Экология: промышленность"); var observation = service.observation(view.town);
         var entries = service.settings().buildings().entrySet().stream().filter(e -> cleaning ? e.getValue().cleaning() > 0 : e.getValue().emission() > 0).toList();
@@ -54,12 +56,13 @@ public final class EnvironmentMenu implements Listener {
         player.openInventory(view.inventory);
     } }
     @EventHandler public void click(InventoryClickEvent event) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEnvironment")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+        if(districtMenu.click(event))return;
         if (!(event.getView().getTopInventory().getHolder() instanceof View view)) return; event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player) || !view.player.equals(player.getUniqueId())) return;
         var town = service.town(player);
         if (town == null || !view.town.equals(town.getUUID()) || !player.hasPermission("neverlandtownyenvironment.use")) { player.closeInventory(); return; }
         var action = view.buttons.get(event.getRawSlot()); if (action != null) try { action.run(); } catch (Exception ex) { player.sendMessage("§c" + ex.getMessage()); }
     } }
-    @EventHandler public void drag(InventoryDragEvent event) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEnvironment")){ru.neverland.core.ModuleGate.stopEvent(event);return;} if (event.getView().getTopInventory().getHolder() instanceof View) event.setCancelled(true); } }
-    public void close() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { ru.neverland.core.SuiteScheduler.cleanupPlayers(plugin, player -> {if (player.getOpenInventory().getTopInventory().getHolder() instanceof View) player.closeInventory();}); } }
+    @EventHandler public void drag(InventoryDragEvent event) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyEnvironment")){ru.neverland.core.ModuleGate.stopEvent(event);return;} if(districtMenu.drag(event))return; if (event.getView().getTopInventory().getHolder() instanceof View) event.setCancelled(true); } }
+    public void close() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { districtMenu.close(); ru.neverland.core.SuiteScheduler.cleanupPlayers(plugin, player -> {if (player.getOpenInventory().getTopInventory().getHolder() instanceof View) player.closeInventory();}); } }
 }

@@ -13,6 +13,22 @@ class LifecycleGuardTest(unittest.TestCase):
             self.assertFalse(module_control.lifecycle_guard(f'void {method}() {{ try {{ loadData(); {body} }} finally {{ close(); }} }}', method, hook))
             self.assertFalse(module_control.lifecycle_guard(f'void {method}() {{ if (!ru.neverland.core.ModuleLifecycle.wrong(this)) return; }}', method, hook))
 
+    def test_quests_isolation_is_narrow_and_hard_dependencies_remain(self):
+        graph=module_control.dependencies()
+        def closure(root):
+            found={root}
+            while True:
+                next_set=found|{name for name,deps in graph.items() if found.intersection(deps)}
+                if next_set==found:return found
+                found=next_set
+        self.assertEqual(closure('NeverLandTownyQuests'),{'NeverLandTownyQuests'})
+        self.assertGreater(len(closure('NeverLandTownyBuilds')),1)
+        self.assertEqual(module_control.ISOLATED_EDGES,{('NeverLandTownyPolicies','NeverLandTownyQuests')})
+        self.assertEqual(module_control.shutdown_dependencies('NewConsumer',{'NeverLandTownyQuests'}),['NeverLandTownyQuests'])
+        self.assertEqual(module_control.shutdown_dependencies('NeverLandTownyPolicies',{'NeverLandTownyQuests','NeverLandTownyUpkeep'}),['NeverLandTownyUpkeep'])
+        with self.assertRaises(RuntimeError):
+            module_control.shutdown_dependencies('NeverLandTownyPolicies',{'NeverLandTownyQuests'},['NeverLandTownyQuests'])
+
     def test_current_dependency_graph_and_lifecycle(self):
         module_control.validate()
 

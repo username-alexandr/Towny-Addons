@@ -8,6 +8,7 @@ public record DistrictSettings(int maxDistricts,int maxCells,int maxSelection,do
     public DistrictSettings{requires=Set.copyOf(requires);projects=Collections.unmodifiableMap(new LinkedHashMap<>(projects));}
     public Map<String,DistrictType> types(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {Map<String,DistrictType> result=new HashMap<>();projects.forEach((k,v)->result.put(k,v.type()));return result;} }
     public static DistrictSettings load(YamlConfiguration c,YamlConfiguration catalog){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
+        c=materialized(c);catalog=materialized(catalog);
         Map<String,Project> projects=new LinkedHashMap<>();var section=catalog.getConfigurationSection("projects");
         if(section==null)throw new IllegalArgumentException("Нет раздела projects");
         for(String id:section.getKeys(false)){
@@ -22,6 +23,9 @@ public record DistrictSettings(int maxDistricts,int maxCells,int maxSelection,do
                 number(c,"bonuses.industrial-combination",0,2),number(c,"bonuses.maximum-multiplier",1,3),requires,
                 c.getBoolean("production.industrial-furnaces",true),c.getBoolean("production.agricultural-crops",true),projects);
     } }
+    /** Explicit getter fallbacks bypass inherited Bukkit defaults; resolve without modifying the administrator's files. */
+    private static YamlConfiguration materialized(org.bukkit.configuration.ConfigurationSection source){var result=new YamlConfiguration();copyValues(source,result);return result;}
+    private static void copyValues(org.bukkit.configuration.ConfigurationSection source,org.bukkit.configuration.ConfigurationSection target){for(String key:source.getKeys(false)){Object value=source.get(key);if(value instanceof org.bukkit.configuration.ConfigurationSection child)copyValues(child,target.createSection(key));else target.set(key,value);}}
     private static int integer(YamlConfiguration c,String key,int min,int max){double n=number(c,key,min,max);if(n!=Math.rint(n))throw new IllegalArgumentException(key+": требуется целое число");return(int)n;}
     private static double number(YamlConfiguration c,String key,double min,double max){Object raw=c.get(key);if(!(raw instanceof Number n)||!Double.isFinite(n.doubleValue())||n.doubleValue()<min||n.doubleValue()>max)throw new IllegalArgumentException(key+": требуется число "+min+".."+max);return n.doubleValue();}
 }

@@ -20,14 +20,14 @@ addons:
   NeverLandTownyTaxes: 0.2.0
   NeverLandTownyTrade: 0.2.20
   NeverLandTownyPopulation: 0.2.1
-  NeverLandTownyDistricts: 0.2.1
+  NeverLandTownyDistricts: 0.2.2
   NeverLandTownyLogistics: 0.2.0
   NeverLandTownyResources: 0.2.1
   NeverLandTownyUpkeep: 0.2.0
   NeverLandTownyPower: 0.2.0
   NeverLandTownyResearch: 0.1.18
   NeverLandTownySpecialization: 0.1.17
-  NeverLandTownyPolicies: 0.3.0
+  NeverLandTownyPolicies: 0.3.1
   NeverLandTownyTreasuryPlus: 0.2.0
   NeverLandTownyMarket: 0.1.18
   NeverLandTownyCompanies: 0.3.0
@@ -38,10 +38,10 @@ addons:
   NeverLandTownyDiplomacy: 0.1.13
   NeverLandTownyCrime: 0.1.10
   NeverLandTownyJustice: 0.1.10
-  NeverLandTownyArmy: 0.2.0
+  NeverLandTownyArmy: 0.2.1
   NeverLandTownySiegesPlus: 0.6.1
   NeverLandTownySeasons: 0.1.10
-  NeverLandTownyControl: 0.5.6
-  NeverLandTownyQuests: 0.2.0
+  NeverLandTownyControl: 0.5.7
+  NeverLandTownyQuests: 0.2.1
   NeverLandTownyAchievements: 0.1.5
-  NeverLandTownyEnvironment: 0.2.0
+  NeverLandTownyEnvironment: 0.2.1

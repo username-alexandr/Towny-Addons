@@ -1,5 +1,5 @@
 name: NeverLandTownyEnvironment
-version: 0.2.0
+version: 0.2.1
 main: ru.neverland.townyenvironment.NeverLandTownyEnvironment
 folia-supported: true
 api-version: '26.2'
@@ -11,13 +11,14 @@ depend:
 - Towny
 softdepend:
 - NeverLandTownyBuilds
+- NeverLandTownyDistricts
 commands:
   townyenvironment:
     aliases:
     - nltenvironment
     - cityenvironment
     description: Экология города
-    usage: /townyenvironment [menu|sources|cleaning|reload|admin]
+    usage: /townyenvironment [menu|sources|cleaning|districts|reload|admin]
 permissions:
   neverlandtownyenvironment.use:
     default: true

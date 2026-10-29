@@ -6,6 +6,17 @@ from pathlib import Path
 import yaml
 ROOT=Path(__file__).resolve().parents[1]
 TARGET=ROOT/'modules/NeverLandTownyControl/src/main/resources/module-dependencies.yml'
+# Audited optional edges, not a blanket softdepend exclusion. Policies preserves an already
+# acknowledged quest-gated choice during Quests failure while refusing any new choice;
+# Quests is an unlock prerequisite, not the provider that charges its ongoing costs.
+ISOLATED_EDGES={('NeverLandTownyPolicies','NeverLandTownyQuests')}
+def shutdown_dependencies(name, providers, hard=()):
+    result=set(providers)
+    for consumer, provider in ISOLATED_EDGES:
+        if name==consumer:
+            if provider in hard:raise RuntimeError('Audited optional edge became a hard dependency: '+consumer+' -> '+provider)
+            result.discard(provider)
+    return sorted(result)
 @lru_cache(maxsize=1)
 def dependencies():
     metadata={}
@@ -26,7 +37,7 @@ def dependencies():
         source+='\n'+'\n'.join(shared[key] for key in sorted(expanded))
         providers=set(meta.get('depend',[])+meta.get('softdepend',[]))
         providers.update(n for n in metadata if n in source)
-        result[name]=sorted((providers & metadata.keys())-{name})
+        result[name]=shutdown_dependencies(name,(providers & metadata.keys())-{name},meta.get('depend',[]))
     return result
 
 def lifecycle_guard(source, method, hook):

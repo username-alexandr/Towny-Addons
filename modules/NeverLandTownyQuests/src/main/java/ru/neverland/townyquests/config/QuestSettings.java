@@ -3,6 +3,7 @@ package ru.neverland.townyquests.config;
 import java.math.BigDecimal;
 import java.util.*;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import ru.neverland.townyquests.model.Project;
 
 public record QuestSettings(int interval, int resourceMaxAge, Map<String, Project> projects) {
@@ -39,13 +40,41 @@ public record QuestSettings(int interval, int resourceMaxAge, Map<String, Projec
         var stages = new ArrayList<Project.Stage>(); var root = section(s, "stages");
         for (String key : root.getKeys(false)) {
             var stage = section(root, key);
-            stages.add(new Project.Stage(key, stage.getString("name"), Project.Kind.valueOf(stage.getString("type", "")),
+            stages.add(new Project.Stage(key, stage.getString("name"), kind(stage),
                     stage.getString("building", ""), integer(stage.get("target")), integer(stage.get("hold-seconds", 0))));
         }
         return new Project(id, s.getString("name"), s.getString("icon"), strings(s.get("requires")),
                 s.getString("unlock"), s.getString("reward"), stages,s.getString("choice-group",""));
     } }
+    private static Project.Kind kind(ConfigurationSection stage) {
+        String raw = stage.getString("type");
+        String path = stage.getCurrentPath() + ".type";
+        if (raw == null || raw.isBlank())
+            throw new IllegalArgumentException("Не указан тип этапа " + path
+                    + " (пусто). Допустимо: BUILDING, WATER_DISTRICTS");
+        try { return Project.Kind.valueOf(raw); }
+        catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Неизвестный тип этапа " + path + ": " + raw
+                    + ". Допустимо: BUILDING, WATER_DISTRICTS", ex);
+        }
+    }
+    /** Explicit getter fallbacks bypass Bukkit's inherited defaults; resolve the tree first. */
+    private static ConfigurationSection materialized(ConfigurationSection source) {
+        var result = new YamlConfiguration();
+        copyValues(source, result);
+        return result;
+    }
+    private static void copyValues(ConfigurationSection source, ConfigurationSection target) {
+        for (String key : source.getKeys(false)) {
+            Object value = source.get(key);
+            if (value instanceof ConfigurationSection child)
+                copyValues(child, target.createSection(key));
+            else target.set(key, value);
+        }
+    }
     public static QuestSettings load(ConfigurationSection config, ConfigurationSection quests) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
+        config = materialized(config);
+        quests = materialized(quests);
         Map<String, Project> projects = new LinkedHashMap<>(); var root = section(quests, "projects");
         for (String id : root.getKeys(false)) projects.put(id, project(id, section(root, id)));
         return new QuestSettings(integer(config.get("simulation.interval-seconds", 5)),

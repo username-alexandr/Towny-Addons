@@ -18,7 +18,7 @@ public final class NeverLandTownyEnvironment extends JavaPlugin {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
         try {
             saveDefaultConfig(); var repository = new EnvironmentRepository(getDataFolder().toPath().resolve("environment-data.yml")); repository.load();
-            service = new EnvironmentService(this, repository, settings()); menu = new EnvironmentMenu(this,service);
+            service = new EnvironmentService(this, repository, settings()); menu = new EnvironmentMenu(this,service); ru.neverland.core.ModuleShutdown.register(this,service::prepareClose);
             var command = new EnvironmentCommand(this, menu); var direct = java.util.Objects.requireNonNull(getCommand("townyenvironment"));
             direct.setExecutor(command); direct.setTabCompleter(command);
             ru.neverland.core.ActivityAdmin.attach(this, "townyenvironment", "neverlandtownyenvironment.admin", service::adminTargets);
@@ -34,10 +34,10 @@ public final class NeverLandTownyEnvironment extends JavaPlugin {
     private EnvironmentSettings settings() throws Exception {
         var yaml = new YamlConfiguration(); yaml.load(new File(getDataFolder(), "config.yml")); return EnvironmentSettings.load(yaml);
     }
-    public void reloadEnvironment() throws Exception { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { var next = settings(); service.reload(next); menu.close(); } }
-    @Override public void onDisable() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
+    public void reloadEnvironment() throws Exception { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { var next = settings(); reloadConfig(); service.reload(next); menu.close(); } }
+    @Override public void onDisable() { try {try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
         if (service != null) service.stop(); if (menu != null) menu.close(); getServer().getServicesManager().unregisterAll(this);
         if (townCommand) TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN, "environment");
-    } }
+    } }finally{if(service!=null){service.prepareClose();service.awaitClosed();}ru.neverland.core.ModuleShutdown.remove(this);} }
 }

@@ -1,0 +1,9 @@
+# Quests isolation — actual Folia failure
+
+24 first +13 malformed-startup +12 repaired-restart assertions on Folia26.2build7/Java25.0.5/Towny0.103.2.0. Exact JAR hashes in native-results.json. Quests0.2.1, Control0.5.7, Policies0.3.1 (before separate inherited-policy-loader fix), Builds0.10.1 and actual Citizens/Districts/Population/Resources/Upkeep.
+
+Oldtwo-project quests.yml inherits newbranches/customname. The fixture seeds one completed quest as explicitly artificial progress, then uses actual acknowledged policy selection. Disabling real Quests raises actual PluginDisableEvent; Control persists quarantine for Quests only; all8otheraddoninstances stay enabled/unfrozen. Benefits AND costs of saved policy remain, newgatedchoice refused. Next boot a genuinely invalid stage type fails onEnable; unrelatedaddons and savedpolicy/data survive. Only Quests is permitted to restart via nltmodules enable Quests; thirdbootrecovers completedquest andexactpolicyrevision with no newreward.
+
+ExplicitofflinePlayer/InventoryView/EntityScheduler actor, no banktransaction/clientclaim. Log broken intentionallycontains Quests configurationERROR; runner rejects otheraddonERRORs and allwatchdog/lifecycleerrors. Original8-pluginserver was tested, not all40liveinstances. Cold ModuleSafetySmoke verifies shipped39modulegraph and obsolete33modulepause recovery preserving timestamps/otheradminrequests. Inheritedfixture logs broken and restart share restart-checks.txt; separate passedmarkers preserve counts.
+
+First fixture failed due probe reflection loading optionalPlaceholderAPI type, second due direct class reference to intentionallydisabledQuests. Corrected probe uses publicPolicies service and skips disabledQuests class access; productionJARs unchanged between those failedfixtures and successfulthirdfixture.

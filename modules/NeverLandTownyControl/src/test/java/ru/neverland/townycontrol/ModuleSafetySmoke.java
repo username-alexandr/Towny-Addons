@@ -9,6 +9,15 @@ public final class ModuleSafetySmoke {
         var graph=new ModuleGraph(Map.of("A",Set.of("B"),"B",Set.of("A"),"C",Set.of("B"),"D",Set.of()));
         check(graph.closure(Set.of("A")).equals(Set.of("A","B","C")),"cycles/dependent closure");
         check(graph.closure(Set.of("D")).equals(Set.of("D")),"independent plugin stays enabled");
+        var configured=new YamlConfiguration();try(var input=ModuleSafetySmoke.class.getResourceAsStream("/module-dependencies.yml")){configured.load(new java.io.InputStreamReader(java.util.Objects.requireNonNull(input),java.nio.charset.StandardCharsets.UTF_8));}var actual=new HashMap<String,Set<String>>();var section=configured.getConfigurationSection("modules");for(String module:section.getKeys(false))actual.put(module,Set.copyOf(section.getStringList(module)));var production=new ModuleGraph(actual);
+        check(production.closure(Set.of("NeverLandTownyQuests")).equals(Set.of("NeverLandTownyQuests")),"actual shipped graph quarantines failed Quests without cascading into Policies and Builds");
+        check(production.closure(Set.of("NeverLandTownyBuilds")).contains("NeverLandTownyQuests")&&production.closure(Set.of("NeverLandTownyBuilds")).size()>1,"actual hard building dependencies still stop together");
+        check(production.closure(production.modules()).equals(production.modules()),"explicit all-module shutdown remains complete");
+        var legacyGraph=new HashMap<>(actual);var oldPolicyDependencies=new HashSet<>(actual.get("NeverLandTownyPolicies"));oldPolicyDependencies.add("NeverLandTownyQuests");legacyGraph.put("NeverLandTownyPolicies",oldPolicyDependencies);var oldGroup=new ModuleGraph(legacyGraph).closure(Set.of("NeverLandTownyQuests"));
+        var oldCascade=ModulePauseStore.request(new ModulePauseStore.State(Set.of(),Map.of()),Set.of("NeverLandTownyQuests"),oldGroup,1000);var recovered=ModulePauseStore.request(oldCascade,oldCascade.requests(),production.closure(oldCascade.requests()),2000);
+        check(recovered.modules().get("NeverLandTownyQuests").disabled()&&recovered.requests().equals(Set.of("NeverLandTownyQuests")),"old explicit root is never silently re-enabled");
+        check(oldGroup.size()>1&&oldGroup.stream().filter(n->!n.equals("NeverLandTownyQuests")).allMatch(n->!recovered.modules().get(n).disabled()&&recovered.modules().get(n).pausedAt()==1000),"obsolete broad dependency pause releases dependents but preserves their clock recovery");
+        var explicit=ModulePauseStore.request(oldCascade,Set.of("NeverLandTownyQuests","NeverLandTownyBuilds"),production.closure(Set.of("NeverLandTownyQuests","NeverLandTownyBuilds")),2000);check(explicit.modules().get("NeverLandTownyBuilds").disabled(),"independent administrator request remains disabled during cascade recovery");
         Path dir=Files.createTempDirectory("module-pause-");Path state=dir.resolve("modules.yml");
         var empty=ModulePauseStore.load(state);
         var disabled=ModulePauseStore.request(empty,Set.of("NeverLandTownyEvents"),Set.of("NeverLandTownyEvents","NeverLandTownyBuilds"),1000);

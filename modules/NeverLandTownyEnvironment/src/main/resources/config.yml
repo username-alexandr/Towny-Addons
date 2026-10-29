@@ -117,3 +117,7 @@ buildings:
     icon: FLOWERING_AZALEA_LEAVES
     emission: 0.0
     cleaning: 0.7
+
+# Только оценка существующих источников по районам; не меняет штрафы и расчёт города.
+districts:
+  enabled: true
