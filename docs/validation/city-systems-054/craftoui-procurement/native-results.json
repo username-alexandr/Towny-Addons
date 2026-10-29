@@ -1,0 +1,32 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 20 assertions; actual CraftoUI CivicWorkbench JSON actions, Folia/Towny/Builds/Contracts/Treasury, explicit confirmation, permission and mayor change, replay, exact funding/refund and full JVM restart; server-side plan seed, offline Player/EntityScheduler and deterministic economy substitutes, no rendered network client or live Vault claimed\n",
+    "jar_sha256": {
+      "CraftoUI-Folia-26.2-0.9.0-dev.jar": "c7aedd2f1650473f642afbdeef4a41639ecfd3032eac6b5b3c0aae1335364cf2",
+      "CraftoUIProcurementProbe.jar": "a5affa29b032ce926d2de78099e720252ff7c7529bb068e7f9d7cc1444a04b57",
+      "NeverLandTownyBuilds-0.11.2.jar": "f3e7b52b688ede80e2cba74e65647af3fbfc00dc41dc279a324124566db71953",
+      "NeverLandTownyCitizens-0.2.0.jar": "09668613aa725866628b2174a6ab6be4fbd3df83e4379aed16228adcb6f4fb32",
+      "NeverLandTownyContracts-0.8.1.jar": "2bda41c19cd3efd36f506ed91788f5801ed572d053f631a59b6ccf04bf7c391c",
+      "NeverLandTownyControl-0.6.4.jar": "697563d4076866c43f689d700716538e74915c1d0aeead509512e05307aeff62",
+      "NeverLandTownyTreasuryPlus-0.3.3.jar": "7707edb20af499b05deadd0886f0ba983039067eabf5af389eff4f6c8e07d91f",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 7 assertions; actual CraftoUI CivicWorkbench JSON actions, Folia/Towny/Builds/Contracts/Treasury, explicit confirmation, permission and mayor change, replay, exact funding/refund and full JVM restart; server-side plan seed, offline Player/EntityScheduler and deterministic economy substitutes, no rendered network client or live Vault claimed\n",
+    "jar_sha256": {
+      "CraftoUI-Folia-26.2-0.9.0-dev.jar": "c7aedd2f1650473f642afbdeef4a41639ecfd3032eac6b5b3c0aae1335364cf2",
+      "CraftoUIProcurementProbe.jar": "a5affa29b032ce926d2de78099e720252ff7c7529bb068e7f9d7cc1444a04b57",
+      "NeverLandTownyBuilds-0.11.2.jar": "f3e7b52b688ede80e2cba74e65647af3fbfc00dc41dc279a324124566db71953",
+      "NeverLandTownyCitizens-0.2.0.jar": "09668613aa725866628b2174a6ab6be4fbd3df83e4379aed16228adcb6f4fb32",
+      "NeverLandTownyContracts-0.8.1.jar": "2bda41c19cd3efd36f506ed91788f5801ed572d053f631a59b6ccf04bf7c391c",
+      "NeverLandTownyControl-0.6.4.jar": "697563d4076866c43f689d700716538e74915c1d0aeead509512e05307aeff62",
+      "NeverLandTownyTreasuryPlus-0.3.3.jar": "7707edb20af499b05deadd0886f0ba983039067eabf5af389eff4f6c8e07d91f",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  }
+]

@@ -1,0 +1,1 @@
+PASS 20 assertions; actual CraftoUI CivicWorkbench JSON actions, Folia/Towny/Builds/Contracts/Treasury, explicit confirmation, permission and mayor change, replay, exact funding/refund and full JVM restart; server-side plan seed, offline Player/EntityScheduler and deterministic economy substitutes, no rendered network client or live Vault claimed

@@ -1,0 +1,7 @@
+PASS real Contracts, Builds materials and Treasury providers are enabled
+PASS actual CraftoUI planner plugin enabled
+PASS full JVM restart preserves paid and published receipts without bank replay
+PASS new mayor finds funded request from empty session plan via city purchases
+PASS financial action awaits real server-owned review ticket
+PASS new mayor explicitly publishes preserved funding through UI without debit replay
+PASS refund receipt and disabled financial actions survive full restart

@@ -1,0 +1,20 @@
+PASS real Contracts, Builds materials and Treasury providers are enabled
+PASS actual CraftoUI planner plugin enabled
+PASS opening actual planner supply and provider offers never spends money
+PASS UI selection persists an exact quote without paying it
+PASS UI opens separate confirmation with city funding source and exact terms
+PASS asynchronous review retains the existing client token used by unchanged client
+PASS permission revoked after review prevents payment
+PASS financial action awaits real server-owned review ticket
+PASS UI funding acknowledged one exact debit before contract publication
+PASS financial action awaits real server-owned review ticket
+PASS second confirmed UI step publishes backed contract without another debit
+PASS published order explains why full refund is no longer available here
+PASS replayed network-shaped confirmation cannot duplicate debit or contract
+PASS financial action awaits real server-owned review ticket
+PASS paid cancellation requires a distinct refund review
+PASS financial action awaits real server-owned review ticket
+PASS UI cancellation returns exactly the funded reserve once
+PASS completed refund is visible and no further refund action is offered
+PASS financial action awaits real server-owned review ticket
+PASS mayor replacement revokes UI access without spending or releasing the paid reserve
