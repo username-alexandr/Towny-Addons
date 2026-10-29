@@ -3,6 +3,7 @@ import argparse
 import os
 from pathlib import Path
 import subprocess
+import yaml
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--server-dir', type=Path, required=True)
@@ -18,6 +19,11 @@ jars = sorted((server / 'versions').rglob('*.jar')) + sorted((server / 'librarie
 jars = [p for p in jars if p.name != 'QuestsIsolationRuntimeProbe.jar']
 subprocess.run([str(args.java_home / 'bin/javac'), '-encoding', 'UTF-8', '-d', str(classes),
                 '-classpath', os.pathsep.join(map(str, jars)), str(source.parent/'admissions-runtime-probe/AdmissionsProbe.java'),str(source/'QuestsIsolationProbe.java')], check=True)
+descriptor=yaml.safe_load((source/'plugin.yml').read_text())
+expected=server/'plugins/QuestsIsolationRuntimeProbe/expected-versions.yml'
+if expected.exists():
+    descriptor['softdepend']=sorted(set(descriptor.get('softdepend',[])) | (set(yaml.safe_load(expected.read_text()))-set(descriptor['depend'])))
+(classes/'plugin.yml').write_text(yaml.safe_dump(descriptor))
 subprocess.run([str(args.java_home / 'bin/jar'), '--create', '--file', str(server / 'plugins/QuestsIsolationRuntimeProbe.jar'),
-                '-C', str(classes), '.', '-C', str(source), 'plugin.yml'], check=True)
+                '-C', str(classes), '.'], check=True)
 print('Probe compiled into the explicitly marked disposable server.')

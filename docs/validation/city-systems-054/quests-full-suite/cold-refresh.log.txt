@@ -1,0 +1,200 @@
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownyReputation ru.neverland.reputation.ColorUtilSmoke
+TEST NeverLandTownyReputation ru.neverland.reputation.ConfigurationSmoke
+TEST NeverLandTownyReputation ru.neverland.reputation.ExplanationSmoke
+ExplanationSmoke PASS 18 checks and 10000 time/page decompositions
+TEST NeverLandTownyReputation ru.neverland.reputation.OptionalDependencySmoke
+TEST NeverLandTownyReputation ru.neverland.reputation.RelationKeySmoke
+TEST NeverLandTownyReputation ru.neverland.reputation.ReputationMathSmoke
+TEST NeverLandTownyReputation ru.neverland.reputation.ReputationProfilesSmoke
+ReputationProfilesSmoke OK: 29 checks
+BUILD AND SMOKE PASS NeverLandTownyReputation-0.3.0.jar 7 programs
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+/dev/shm/neverland-source-actor-1/modules/NeverLandTownyTaxes/src/test/java/ru/neverland/townytaxes/integration/EconomyUnavailableSmoke.java:37: warning: Unsafe is internal proprietary API and may be removed in a future release
+        var unsafeField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+                                  ^
+/dev/shm/neverland-source-actor-1/modules/NeverLandTownyTaxes/src/test/java/ru/neverland/townytaxes/integration/EconomyUnavailableSmoke.java:39: warning: Unsafe is internal proprietary API and may be removed in a future release
+        var plugin = (Fixture) ((sun.misc.Unsafe) unsafeField.get(null)).allocateInstance(Fixture.class);
+                                         ^
+2 warnings
+TEST NeverLandTownyTaxes ru.neverland.townytaxes.DomainSmoke
+Domain smoke: OK
+TEST NeverLandTownyTaxes ru.neverland.townytaxes.MunicipalTaxesSmoke
+MunicipalTaxesSmoke OK: three tax types / sixteen scope pairs, own treasury and foreign/global/national exclusions
+TEST NeverLandTownyTaxes ru.neverland.townytaxes.TaxCalculationSmoke
+TaxCalculationSmoke PASS 12 checks
+TEST NeverLandTownyTaxes ru.neverland.townytaxes.TaxPaymentsSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/folia-bootstrap/libraries/org/xerial/sqlite-jdbc/3.49.1.0/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+TaxPaymentsSmoke PASS 31 checks
+TEST NeverLandTownyTaxes ru.neverland.townytaxes.integration.EconomyUnavailableSmoke
+EconomyUnavailableSmoke PASS: 21 assertions
+BUILD AND SMOKE PASS NeverLandTownyTaxes-0.2.0.jar 5 programs
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownyPopulation ru.neverland.townypopulation.CohortBoundarySmoke
+CohortBoundarySmoke PASS 21 checks
+TEST NeverLandTownyPopulation ru.neverland.townypopulation.DistrictCohortsSmoke
+DistrictCohortsSmoke PASS 22 checks and 10000 conserved allocations
+TEST NeverLandTownyPopulation ru.neverland.townypopulation.PopulationPersistenceSmoke
+PopulationPersistenceSmoke PASS 18 checks
+TEST NeverLandTownyPopulation ru.neverland.townypopulation.PopulationSmoke
+PopulationSmoke OK: 101 profiles, growth/decline, shortages, employment, fractions, custom settings, restart and corrupt database
+BUILD AND SMOKE PASS NeverLandTownyPopulation-0.2.1.jar 4 programs
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownyDistricts ru.neverland.townydistricts.DistrictAssessmentSmoke
+DistrictAssessmentSmoke PASS 27 checks and 1000 source permutations
+TEST NeverLandTownyDistricts ru.neverland.townydistricts.DistrictDefaultsSmoke
+DistrictDefaultsSmoke PASS 10 inherited upgrade checks
+TEST NeverLandTownyDistricts ru.neverland.townydistricts.DistrictsSmoke
+DistrictsSmoke OK: seven types, 101 profiles, ownership, overlaps, complete footprints, combinations, capacity-safe output, persistence
+TEST NeverLandTownyDistricts ru.neverland.townydistricts.MobFarmPolicySmoke
+MobFarmPolicySmoke PASS: 14 checks
+TEST NeverLandTownyDistricts ru.neverland.townydistricts.service.DistrictPlannerSmoke
+DistrictPlannerSmoke PASS 11 checks
+TEST NeverLandTownyDistricts ru.neverland.townydistricts.service.PatrolLayoutSmoke
+PatrolLayoutSmoke PASS 12 checks
+BUILD AND SMOKE PASS NeverLandTownyDistricts-0.2.3.jar 6 programs
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownyLogistics ru.neverland.townylogistics.LogisticsHelpSmoke
+LogisticsHelpSmoke PASS
+TEST NeverLandTownyLogistics ru.neverland.townylogistics.LogisticsPersistenceSmoke
+LogisticsPersistenceSmoke PASS 14 checks
+TEST NeverLandTownyLogistics ru.neverland.townylogistics.LogisticsSmoke
+LogisticsSmoke OK: five levels, network paths, full arrival, unsafe path rejection, return path, active-tick timing, limits and restart persistence
+TEST NeverLandTownyLogistics ru.neverland.townylogistics.RoutePlanningSmoke
+RoutePlanningSmoke PASS 1175 checks (150 exhaustive graphs, 1000 shuffled graphs)
+BUILD AND SMOKE PASS NeverLandTownyLogistics-0.3.0.jar 4 programs
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownyResources ru.neverland.townyresources.PowerProductionSmoke
+PowerProductionSmoke PASS 15 checks including 10000 partial resource cycles
+TEST NeverLandTownyResources ru.neverland.townyresources.ResourceRequestsSmoke
+ResourceRequestsSmoke PASS 26 checks
+TEST NeverLandTownyResources ru.neverland.townyresources.ResourcesDefaultsSmoke
+ResourcesDefaultsSmoke PASS 10 inherited upgrade checks
+TEST NeverLandTownyResources ru.neverland.townyresources.ResourcesSmoke
+ProductionHistorySmoke OK: actual cycle counts, UTC rollover, upkeep consume/refund deduplication, schema 2 migration and atomic stock/report persistence
+ResourcesSmoke OK: eight resources, 101 profiles, 1000 city cycles, conservation, reserves, priorities, shortages, capacity, district fractions durable restart and upkeep escrow
+BUILD AND SMOKE PASS NeverLandTownyResources-0.2.2.jar 4 programs
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownyPolicies ru.neverland.townypolicies.PoliciesSmoke
+Oct 30, 2026 7:29:14 AM ru.neverland.core.ApiServices report
+WARNING: [NeverLand API] NeverLandTownyQuests DISABLED: 
+Oct 30, 2026 7:29:14 AM ru.neverland.core.ApiServices report
+INFO: [NeverLand API] NeverLandTownyQuests: связь восстановлена
+Oct 30, 2026 7:29:14 AM ru.neverland.core.ApiServices report
+WARNING: [NeverLand API] NeverLandTownyQuests SERVICE_UNAVAILABLE: 
+Oct 30, 2026 7:29:14 AM ru.neverland.core.ApiServices report
+WARNING: [NeverLand API] NeverLandTownyTaxes SERVICE_UNAVAILABLE: 
+Oct 30, 2026 7:29:14 AM ru.neverland.core.ApiServices report
+INFO: [NeverLand API] NeverLandTownyQuests: связь восстановлена
+Oct 30, 2026 7:29:14 AM ru.neverland.core.ApiServices report
+WARNING: [NeverLand API] NeverLandTownyQuests INVOCATION_ERROR: java.lang.IllegalStateException: simulated quest API failure
+Oct 30, 2026 7:29:14 AM ru.neverland.core.ApiServices report
+WARNING: [NeverLand API] NeverLandTownyPolicies DISABLED: 
+Oct 30, 2026 7:29:14 AM ru.neverland.core.ApiServices report
+WARNING: [NeverLand API] NeverLandTownyPolicies SERVICE_UNAVAILABLE: 
+GateSmoke OK: actual PoliciesService/Bukkit bridge, city isolation, costs, municipal levy readiness, current nation context, tariff cap and provider outages
+PoliciesSmoke OK: 7 categories / 23 modes, own-city roles, independent cooldowns, stale confirmations, history, atomic persistence, production/army/trade bounds and real Bukkit integration
+TEST NeverLandTownyPolicies ru.neverland.townypolicies.PolicyDefaultsSmoke
+PolicyDefaultsSmoke PASS 13 inherited upgrade checks
+TEST NeverLandTownyPolicies ru.neverland.townypolicies.PresetsSmoke
+PresetsSmoke PASS 17 checks
+BUILD AND SMOKE PASS NeverLandTownyPolicies-0.3.1.jar 3 programs
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownyCompanies ru.neverland.townycompanies.CompaniesSmoke
+CompaniesSmoke OK: banking, escrow, tax, restart, write failures, roles, persistence and bank evidence
+TEST NeverLandTownyCompanies ru.neverland.townycompanies.CompanyPayrollSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/folia-bootstrap/libraries/org/xerial/sqlite-jdbc/3.49.1.0/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+CompanyPayrollSmoke PASS: 23 SQLite, budget, rate, restart, conservation and ambiguity assertions
+TEST NeverLandTownyCompanies ru.neverland.townycompanies.ContractAccountingSmoke
+ContractAccountingSmoke PASS 22 checks and 10000 payment splits
+BUILD AND SMOKE PASS NeverLandTownyCompanies-0.3.0.jar 3 programs
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: /dev/shm/neverland-source-actor-1/modules/NeverLandTownyJobs/src/main/java/ru/neverland/townyjobs/CityBridge.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+TEST NeverLandTownyJobs ru.neverland.townyjobs.CraftEvidenceSmoke
+CraftEvidenceSmoke PASS 10 checks including 10000 adversarial inventory deltas
+TEST NeverLandTownyJobs ru.neverland.townyjobs.JobsSmoke
+JOBS_SMOKE_PASS: 78 checks
+TEST NeverLandTownyJobs ru.neverland.townyjobs.MasterySmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/folia-bootstrap/libraries/org/xerial/sqlite-jdbc/3.49.1.0/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+MasterySmoke PASS 32 checks
+BUILD AND SMOKE PASS NeverLandTownyJobs-0.3.0.jar 3 programs
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownyCitizens ru.neverland.townycitizens.AdmissionsSmoke
+AdmissionsSmoke PASS 34 checks
+TEST NeverLandTownyCitizens ru.neverland.townycitizens.CitizensSmoke
+CitizensSmoke: 16 status, persistence and policy checks passed
+BUILD AND SMOKE PASS NeverLandTownyCitizens-0.2.0.jar 2 programs
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownyElections ru.neverland.townyelections.ElectionProgramsSmoke
+ElectionProgramsSmoke PASS 24 checks
+TEST NeverLandTownyElections ru.neverland.townyelections.ElectionSmoke
+ElectionSmoke PASS: deadlines, duplicate/replaced ballots, eligibility, quorum, ties, multiple seats, isolation
+TEST NeverLandTownyElections ru.neverland.townyelections.ElectionsRepositorySmoke
+ElectionsRepositorySmoke PASS: restart, corruption, atomic failure, no retry, strict settings
+BUILD AND SMOKE PASS NeverLandTownyElections-0.2.0.jar 3 programs
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownyCrime ru.neverland.townycrime.CrimeEngineSmoke
+CrimeEngineSmoke OK
+TEST NeverLandTownyCrime ru.neverland.townycrime.CrimePatrolsSmoke
+CrimePatrolsSmoke PASS 25 checks
+TEST NeverLandTownyCrime ru.neverland.townycrime.CrimeRepositorySmoke
+CrimeRepositorySmoke OK
+TEST NeverLandTownyCrime ru.neverland.townycrime.TheftRecoverySmoke
+TheftRecoverySmoke OK
+BUILD AND SMOKE PASS NeverLandTownyCrime-0.2.0.jar 4 programs
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownyQuests ru.neverland.townyquests.ProjectBranchesSmoke
+ProjectBranchesSmoke PASS: alternative rewards, neutral cancellation, old chains and conflicting-history rejection
+TEST NeverLandTownyQuests ru.neverland.townyquests.QuestDefaultsSmoke
+QuestDefaultsSmoke PASS: 22 checks
+TEST NeverLandTownyQuests ru.neverland.townyquests.QuestSmoke
+QuestSmoke PASS: 44 checks; city stages, water topology, safe stops, strict config and durable completion
+TEST NeverLandTownyQuests ru.neverland.townyquests.cooperative.CooperativeAuditSmoke
+CooperativeAuditSmoke PASS 11 checks
+TEST NeverLandTownyQuests ru.neverland.townyquests.cooperative.CooperativeTemplatesSmoke
+CooperativeTemplatesSmoke PASS: 11 checks; bundled templates, immutable budgets, identifier limits, isolated unlock namespace and material validation
+TEST NeverLandTownyQuests ru.neverland.townyquests.cooperative.CooperativeUnlockCacheSmoke
+CooperativeUnlockCacheSmoke PASS: 158 checks;128-city fairness, bounded in-flight reads, acknowledged false vs unknown, stale/failed cache and neutral shutdown
+BUILD AND SMOKE PASS NeverLandTownyQuests-0.3.0.jar 6 programs
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownyAchievements ru.neverland.townyachievements.AchievementTiersSmoke
+AchievementTiersSmoke PASS: 68 assertions
+TEST NeverLandTownyAchievements ru.neverland.townyachievements.AchievementsSmoke
+AchievementsSmoke PASS: 33 assertions
+BUILD AND SMOKE PASS NeverLandTownyAchievements-0.2.0.jar 2 programs
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownyEnvironment ru.neverland.townyenvironment.DistrictEnvironmentSmoke
+DistrictEnvironmentSmoke PASS 21 checks plus 10000 conserved allocations
+TEST NeverLandTownyEnvironment ru.neverland.townyenvironment.EnvironmentForecastSmoke
+EnvironmentForecastSmoke PASS: real profiles, upgrades, mitigation, clamping and immutable simulation
+TEST NeverLandTownyEnvironment ru.neverland.townyenvironment.EnvironmentSmoke
+EnvironmentSmoke PASS: 34 assertions
+BUILD AND SMOKE PASS NeverLandTownyEnvironment-0.2.1.jar 3 programs

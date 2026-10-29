@@ -1,0 +1,126 @@
+PASS exact installed version NeverLandTownyAchievements 0.2.0
+PASS exact installed version NeverLandTownyArchaeology 0.2.0
+PASS exact installed version NeverLandTownyArmy 0.3.0
+PASS exact installed version NeverLandTownyBuilds 0.11.2
+PASS exact installed version NeverLandTownyCamps 0.2.0
+PASS exact installed version NeverLandTownyChronicles 0.3.0
+PASS exact installed version NeverLandTownyCitizens 0.2.0
+PASS exact installed version NeverLandTownyCompanies 0.3.0
+PASS exact installed version NeverLandTownyContracts 0.8.1
+PASS exact installed version NeverLandTownyControl 0.6.4
+PASS exact installed version NeverLandTownyCouncil 0.3.0
+PASS exact installed version NeverLandTownyCrime 0.2.0
+PASS exact installed version NeverLandTownyDiplomacy 0.2.0
+PASS exact installed version NeverLandTownyDistricts 0.2.3
+PASS exact installed version NeverLandTownyElections 0.2.0
+PASS exact installed version NeverLandTownyEnvironment 0.2.1
+PASS exact installed version NeverLandTownyEspionage 0.2.1
+PASS exact installed version NeverLandTownyEvents 0.5.0
+PASS exact installed version NeverLandTownyExpeditions 0.2.0
+PASS exact installed version NeverLandTownyGovernance 0.2.2
+PASS exact installed version NeverLandTownyIdeologies 0.2.1
+PASS exact installed version NeverLandTownyJobs 0.3.0
+PASS exact installed version NeverLandTownyJustice 0.2.1
+PASS exact installed version NeverLandTownyLogistics 0.3.0
+PASS exact installed version NeverLandTownyMarket 0.2.1
+PASS exact installed version NeverLandTownyPolicies 0.3.1
+PASS exact installed version NeverLandTownyPopulation 0.2.1
+PASS exact installed version NeverLandTownyPower 0.2.1
+PASS exact installed version NeverLandTownyQuests 0.3.0
+PASS exact installed version NeverLandTownyReputation 0.3.0
+PASS exact installed version NeverLandTownyResearch 0.2.0
+PASS exact installed version NeverLandTownyResources 0.2.2
+PASS exact installed version NeverLandTownySeasons 0.2.0
+PASS exact installed version NeverLandTownySiegesPlus 0.6.5
+PASS exact installed version NeverLandTownySpecialization 0.3.0
+PASS exact installed version NeverLandTownyStick 0.2.0
+PASS exact installed version NeverLandTownyTaxes 0.2.0
+PASS exact installed version NeverLandTownyTrade 0.3.1
+PASS exact installed version NeverLandTownyTreasuryPlus 0.3.3
+PASS exact installed version NeverLandTownyUpkeep 0.2.3
+PASS native first keeps Achievements enabled and unfrozen
+PASS native first keeps Archaeology enabled and unfrozen
+PASS native first keeps Army enabled and unfrozen
+PASS native first keeps Builds enabled and unfrozen
+PASS native first keeps Camps enabled and unfrozen
+PASS native first keeps Chronicles enabled and unfrozen
+PASS native first keeps Citizens enabled and unfrozen
+PASS native first keeps Companies enabled and unfrozen
+PASS native first keeps Contracts enabled and unfrozen
+PASS native first keeps Control enabled and unfrozen
+PASS native first keeps Council enabled and unfrozen
+PASS native first keeps Crime enabled and unfrozen
+PASS native first keeps Diplomacy enabled and unfrozen
+PASS native first keeps Districts enabled and unfrozen
+PASS native first keeps Elections enabled and unfrozen
+PASS native first keeps Environment enabled and unfrozen
+PASS native first keeps Espionage enabled and unfrozen
+PASS native first keeps Events enabled and unfrozen
+PASS native first keeps Expeditions enabled and unfrozen
+PASS native first keeps Governance enabled and unfrozen
+PASS native first keeps Ideologies enabled and unfrozen
+PASS native first keeps Jobs enabled and unfrozen
+PASS native first keeps Justice enabled and unfrozen
+PASS native first keeps Logistics enabled and unfrozen
+PASS native first keeps Market enabled and unfrozen
+PASS native first keeps Policies enabled and unfrozen
+PASS native first keeps Population enabled and unfrozen
+PASS native first keeps Power enabled and unfrozen
+PASS native first keeps Reputation enabled and unfrozen
+PASS native first keeps Research enabled and unfrozen
+PASS native first keeps Resources enabled and unfrozen
+PASS native first keeps Seasons enabled and unfrozen
+PASS native first keeps SiegesPlus enabled and unfrozen
+PASS native first keeps Specialization enabled and unfrozen
+PASS native first keeps Stick enabled and unfrozen
+PASS native first keeps Taxes enabled and unfrozen
+PASS native first keeps Trade enabled and unfrozen
+PASS native first keeps TreasuryPlus enabled and unfrozen
+PASS native first keeps Upkeep enabled and unfrozen
+PASS legacy two-project config inherits both new branches without resetting custom name
+PASS explicit completed-project fixture provides real public unlock
+PASS actual acknowledged policy selection applies earned benefits and costs
+PASS real unexpected plugin disable event fired for Quests
+PASS Quests disable does not cascade into Achievements
+PASS Quests disable does not cascade into Archaeology
+PASS Quests disable does not cascade into Army
+PASS Quests disable does not cascade into Builds
+PASS Quests disable does not cascade into Camps
+PASS Quests disable does not cascade into Chronicles
+PASS Quests disable does not cascade into Citizens
+PASS Quests disable does not cascade into Companies
+PASS Quests disable does not cascade into Contracts
+PASS Quests disable does not cascade into Control
+PASS Quests disable does not cascade into Council
+PASS Quests disable does not cascade into Crime
+PASS Quests disable does not cascade into Diplomacy
+PASS Quests disable does not cascade into Districts
+PASS Quests disable does not cascade into Elections
+PASS Quests disable does not cascade into Environment
+PASS Quests disable does not cascade into Espionage
+PASS Quests disable does not cascade into Events
+PASS Quests disable does not cascade into Expeditions
+PASS Quests disable does not cascade into Governance
+PASS Quests disable does not cascade into Ideologies
+PASS Quests disable does not cascade into Jobs
+PASS Quests disable does not cascade into Justice
+PASS Quests disable does not cascade into Logistics
+PASS Quests disable does not cascade into Market
+PASS Quests disable does not cascade into Policies
+PASS Quests disable does not cascade into Population
+PASS Quests disable does not cascade into Power
+PASS Quests disable does not cascade into Reputation
+PASS Quests disable does not cascade into Research
+PASS Quests disable does not cascade into Resources
+PASS Quests disable does not cascade into Seasons
+PASS Quests disable does not cascade into SiegesPlus
+PASS Quests disable does not cascade into Specialization
+PASS Quests disable does not cascade into Stick
+PASS Quests disable does not cascade into Taxes
+PASS Quests disable does not cascade into Trade
+PASS Quests disable does not cascade into TreasuryPlus
+PASS Quests disable does not cascade into Upkeep
+PASS durable quarantine contains only Quests, not 33 unrelated modules
+PASS accepted sanitation benefits and costs remain unchanged while quest provider is down
+PASS new quest-gated policy selection stays unavailable
+PASS provider failure never rewrites accepted policy choice or history

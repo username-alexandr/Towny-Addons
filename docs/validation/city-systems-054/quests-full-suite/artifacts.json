@@ -1,0 +1,563 @@
+{
+  "NeverLandTownyAchievements-0.2.0.jar": {
+    "sha256": "1f3beea8156ca98677f07ae179ae8ff6b1097904077ef593c69315337d1d8695",
+    "version": "0.2.0",
+    "tests": [
+      "ru.neverland.townyachievements.AchievementTiersSmoke",
+      "ru.neverland.townyachievements.AchievementsSmoke"
+    ],
+    "inputs_digest": "936318ddc1a41945bd13e3d809f8360e26fef9c2aaacfb3c51232c58305a5854"
+  },
+  "NeverLandTownyArchaeology-0.2.0.jar": {
+    "sha256": "d652017d7913fba0e49ae01169ad85ddf0ca9d709e81c3542d2fbe0cbfb87651",
+    "version": "0.2.0",
+    "tests": [
+      "ru.neverland.archaeology.ArtifactBatchSmoke",
+      "ru.neverland.archaeology.CryptoSmoke",
+      "ru.neverland.archaeology.JournalSmoke",
+      "ru.neverland.archaeology.MuseumDataSmoke",
+      "ru.neverland.archaeology.OptionalDependencySmoke",
+      "ru.neverland.archaeology.RepositorySmoke",
+      "ru.neverland.archaeology.RestorationBookSmoke",
+      "ru.neverland.archaeology.TargetedSearchSmoke",
+      "ru.neverland.archaeology.restoration.RestorationStorageSmoke"
+    ],
+    "inputs_digest": "8acf2877407a91ccfdb665ca05a82c3897825f76be9ffb2e424097e9c7a39ead"
+  },
+  "NeverLandTownyArmy-0.3.0.jar": {
+    "sha256": "f7a52c63fe1aff74cbde36825ef064977c744cff4d7e437d504a719fd226898c",
+    "version": "0.3.0",
+    "tests": [
+      "ru.neverland.townyarmy.ArmyAcknowledgementSmoke",
+      "ru.neverland.townyarmy.ArmyDefaultsSmoke",
+      "ru.neverland.townyarmy.ArmyEquipmentStockSmoke",
+      "ru.neverland.townyarmy.ArmyMigrationSmoke",
+      "ru.neverland.townyarmy.ArmyRaidSupplySmoke",
+      "ru.neverland.townyarmy.ArmyRepositorySmoke",
+      "ru.neverland.townyarmy.ArmyRulesSmoke",
+      "ru.neverland.townyarmy.ArmySuppliesSmoke",
+      "ru.neverland.townyarmy.TacticsBookSmoke",
+      "ru.neverland.townyarmy.TacticsRepositorySmoke"
+    ],
+    "inputs_digest": "6c3791b38ce097bef522be8bf68433406a83c2fe5ef243046ab455068a137f13"
+  },
+  "NeverLandTownyBuilds-0.11.2.jar": {
+    "sha256": "f3e7b52b688ede80e2cba74e65647af3fbfc00dc41dc279a324124566db71953",
+    "version": "0.11.2",
+    "tests": [
+      "ru.neverland.townybuilds.ArmyEstablishedSmoke",
+      "ru.neverland.townybuilds.BlockOrientationSmoke",
+      "ru.neverland.townybuilds.BlueprintDump",
+      "ru.neverland.townybuilds.BlueprintGeometrySmoke",
+      "ru.neverland.townybuilds.BlueprintLocalizationSmoke",
+      "ru.neverland.townybuilds.BlueprintSeamSmoke",
+      "ru.neverland.townybuilds.BuildingFootprintsSmoke",
+      "ru.neverland.townybuilds.BuildingStylesSmoke",
+      "ru.neverland.townybuilds.CampDeliverySmoke",
+      "ru.neverland.townybuilds.CivicExpansionSmoke",
+      "ru.neverland.townybuilds.ColorCompatibilitySmoke",
+      "ru.neverland.townybuilds.ConstructionPoliciesSmoke",
+      "ru.neverland.townybuilds.EffectJournalSmoke",
+      "ru.neverland.townybuilds.ExcavationPlannerSmoke",
+      "ru.neverland.townybuilds.ExpansionIntegrationSmoke",
+      "ru.neverland.townybuilds.FoliaConcurrencySmoke",
+      "ru.neverland.townybuilds.ImportedModelsSmoke",
+      "ru.neverland.townybuilds.MarketStorageSmoke",
+      "ru.neverland.townybuilds.MaterialLocalizationSmoke",
+      "ru.neverland.townybuilds.MenuStyleSmoke",
+      "ru.neverland.townybuilds.MobilizationSmoke",
+      "ru.neverland.townybuilds.MunicipalStorageSmoke",
+      "ru.neverland.townybuilds.OptionalArchaeologySmoke",
+      "ru.neverland.townybuilds.PowerBlueprintSmoke",
+      "ru.neverland.townybuilds.ProjectIconsSmoke",
+      "ru.neverland.townybuilds.RaidStockSmoke",
+      "ru.neverland.townybuilds.ResourceBalanceSmoke",
+      "ru.neverland.townybuilds.ResourceFundSmoke",
+      "ru.neverland.townybuilds.ResourceTransferSmoke",
+      "ru.neverland.townybuilds.RoofSupportSmoke",
+      "ru.neverland.townybuilds.SchematicArchiveSmoke",
+      "ru.neverland.townybuilds.SchematicReaderSmoke",
+      "ru.neverland.townybuilds.ShipmentStorageSmoke",
+      "ru.neverland.townybuilds.ShopCrimeSmoke",
+      "ru.neverland.townybuilds.ShopReliabilitySmoke",
+      "ru.neverland.townybuilds.SpecializationBlueprintSmoke",
+      "ru.neverland.townybuilds.TradeStorageSmoke",
+      "ru.neverland.townybuilds.WonderBlueprintSmoke",
+      "ru.neverland.townybuilds.WonderPreviewRenderer",
+      "ru.neverland.townybuilds.construction.ConstructionDisplaysSmoke",
+      "ru.neverland.townybuilds.construction.ConstructionLayersSmoke",
+      "ru.neverland.townybuilds.construction.ConstructionRefundSmoke",
+      "ru.neverland.townybuilds.construction.ObstructionValidationSmoke",
+      "ru.neverland.townybuilds.construction.PlacementNudgeSmoke",
+      "ru.neverland.townybuilds.payments.BuildPaymentsSmoke",
+      "ru.neverland.townybuilds.planning.DevelopmentPlanSmoke",
+      "ru.neverland.townybuilds.service.DefinitionOverlaySmoke",
+      "ru.neverland.townybuilds.storage.StorageAccessSmoke"
+    ],
+    "inputs_digest": "9851243ab8ae93704be2d38a070e59ff3c0052a14f9d3c7c8c4212bc80074bda"
+  },
+  "NeverLandTownyCamps-0.2.0.jar": {
+    "sha256": "d1947690953e1b78732acc5544b9fac90b10cb7ad5ae688fc601f331819e4dce",
+    "version": "0.2.0",
+    "tests": [
+      "ru.neverland.mintcamps.CampIntegrationSmoke",
+      "ru.neverland.mintcamps.ColorUtilSmoke",
+      "ru.neverland.mintcamps.GuestAccessSmoke",
+      "ru.neverland.mintcamps.HologramLifecycleSmoke",
+      "ru.neverland.mintcamps.OptionalDependencySmoke",
+      "ru.neverland.mintcamps.StructureGeneratorSmoke"
+    ],
+    "inputs_digest": "d2c9f96fe624aba23da381c665a1336f96b209f1a940fad63aef9c7df1a75031"
+  },
+  "NeverLandTownyChronicles-0.3.0.jar": {
+    "sha256": "2059dd22aad86654bb15edb44fad507d857286536ab58c2b791d0799fab92bf7",
+    "version": "0.3.0",
+    "tests": [
+      "ru.neverland.townychronicles.ChronicleSmoke",
+      "ru.neverland.townychronicles.CityChaptersSmoke",
+      "ru.neverland.townychronicles.CityContributionsSmoke",
+      "ru.neverland.townychronicles.LinkageSmoke",
+      "ru.neverland.townychronicles.SnapshotPersistenceSmoke",
+      "ru.neverland.townychronicles.StartupAnnouncementSmoke",
+      "ru.neverland.townychronicles.service.ContributionAuditSmoke",
+      "ru.neverland.townychronicles.service.ContributionHistorySmoke"
+    ],
+    "inputs_digest": "6359bdd8c68af34538d95eed968bdb169548783f5a2f0321586d78c1765de84d"
+  },
+  "NeverLandTownyCitizens-0.2.0.jar": {
+    "sha256": "09668613aa725866628b2174a6ab6be4fbd3df83e4379aed16228adcb6f4fb32",
+    "version": "0.2.0",
+    "tests": [
+      "ru.neverland.townycitizens.AdmissionsSmoke",
+      "ru.neverland.townycitizens.CitizensSmoke"
+    ],
+    "inputs_digest": "1637f673a89307fea613ac7afaeec2022c95ddc4e97c4161d37bcf4e5696d5fc"
+  },
+  "NeverLandTownyCompanies-0.3.0.jar": {
+    "sha256": "f4cce5a98c6fe0f3b8c67b54b5e8c87e5292ed7adcead6847597e7aaaf461796",
+    "version": "0.3.0",
+    "tests": [
+      "ru.neverland.townycompanies.CompaniesSmoke",
+      "ru.neverland.townycompanies.CompanyPayrollSmoke",
+      "ru.neverland.townycompanies.ContractAccountingSmoke"
+    ],
+    "inputs_digest": "5c0ecb4c4e9d51a724c1a6b85181f3789e42d878d8d57dd7f3b7f3982de1036f"
+  },
+  "NeverLandTownyContracts-0.8.1.jar": {
+    "sha256": "2bda41c19cd3efd36f506ed91788f5801ed572d053f631a59b6ccf04bf7c391c",
+    "version": "0.8.1",
+    "tests": [
+      "ru.neverland.earnings.HuntingSmoke",
+      "ru.neverland.mintcontracts.CompanyContractsSmoke",
+      "ru.neverland.mintcontracts.ContractMathSmoke",
+      "ru.neverland.mintcontracts.MunicipalContractsSmoke",
+      "ru.neverland.mintcontracts.MunicipalTreasurySmoke",
+      "ru.neverland.mintcontracts.RewardLedgerSmoke",
+      "ru.neverland.mintcontracts.fishing.FishStockSmoke",
+      "ru.neverland.mintcontracts.orders.CooperativeProjectsSmoke",
+      "ru.neverland.mintcontracts.orders.DailyOrdersSmoke",
+      "ru.neverland.mintcontracts.orders.MountedOrdersSmoke",
+      "ru.neverland.mintcontracts.orders.PayoutLimitsSmoke",
+      "ru.neverland.mintcontracts.orders.PersonalOrderBoardsSmoke",
+      "ru.neverland.mintcontracts.orders.ResourceDeliveriesSmoke",
+      "ru.neverland.mintcontracts.orders.ServerMaterialsShutdownSmoke",
+      "ru.neverland.mintcontracts.orders.ServerMaterialsSmoke",
+      "ru.neverland.mintcontracts.orders.ServerProjectsSmoke",
+      "ru.neverland.mintcontracts.procurement.ProcurementAuditSmoke",
+      "ru.neverland.mintcontracts.procurement.ProcurementSmoke"
+    ],
+    "inputs_digest": "21996805c29d33223ae85be98e5dafbe570b9ab999cb1ccf942c6ef047a1eedd"
+  },
+  "NeverLandTownyControl-0.6.4.jar": {
+    "sha256": "697563d4076866c43f689d700716538e74915c1d0aeead509512e05307aeff62",
+    "version": "0.6.4",
+    "tests": [
+      "ru.neverland.core.SuiteSchedulerSmoke",
+      "ru.neverland.townycontrol.AcknowledgedStateSmoke",
+      "ru.neverland.townycontrol.ActivityAdminSmoke",
+      "ru.neverland.townycontrol.AdminMenuSmoke",
+      "ru.neverland.townycontrol.ArmyAuditSmoke",
+      "ru.neverland.townycontrol.AuditIndexSmoke",
+      "ru.neverland.townycontrol.AuditMoscowDatesSmoke",
+      "ru.neverland.townycontrol.AuditPathIsolationSmoke",
+      "ru.neverland.townycontrol.AuditSmoke",
+      "ru.neverland.townycontrol.BankAuditQueueSmoke",
+      "ru.neverland.townycontrol.DeletionSafetySmoke",
+      "ru.neverland.townycontrol.ModuleSafetySmoke",
+      "ru.neverland.townycontrol.PersonalHistorySmoke",
+      "ru.neverland.townycontrol.RaidAuditSmoke",
+      "ru.neverland.townycontrol.ShutdownHooksSmoke"
+    ],
+    "inputs_digest": "8ce66ba5bfe59ea7a465ba9932d42ecb3346cb0f6f3b77d830dac2bc6b5d9480"
+  },
+  "NeverLandTownyCouncil-0.3.0.jar": {
+    "sha256": "6c0c82e5d570db4769e827a1d6372191ecc56551df7a0953c00027c32a5ce40a",
+    "version": "0.3.0",
+    "tests": [
+      "ru.neverland.townycouncil.AccessRulesSmoke",
+      "ru.neverland.townycouncil.CouncilRepositorySmoke",
+      "ru.neverland.townycouncil.CouncilSettingsSmoke",
+      "ru.neverland.townycouncil.DelegationsSmoke",
+      "ru.neverland.townycouncil.SpendingPoliciesSmoke"
+    ],
+    "inputs_digest": "d7a3dc3a22d19713c3df536afb3a62fa3c0e540fcc5eb93b657b099d8d665ac4"
+  },
+  "NeverLandTownyCrime-0.2.0.jar": {
+    "sha256": "3451e8ae0fb8bd217a49458dac5c3b5f16ec755849e37df5d7710a9d54058878",
+    "version": "0.2.0",
+    "tests": [
+      "ru.neverland.townycrime.CrimeEngineSmoke",
+      "ru.neverland.townycrime.CrimePatrolsSmoke",
+      "ru.neverland.townycrime.CrimeRepositorySmoke",
+      "ru.neverland.townycrime.TheftRecoverySmoke"
+    ],
+    "inputs_digest": "ca05db8f78553fc42dedbbec2d92788da7b59248fb34deb250c6ea6f7f50d6ee"
+  },
+  "NeverLandTownyDiplomacy-0.2.0.jar": {
+    "sha256": "d3da7f26fd07575c083f7a5118d40dbe6693ebee75be274bc274b428cc07472b",
+    "version": "0.2.0",
+    "tests": [
+      "ru.neverland.townydiplomacy.AidAuditSmoke",
+      "ru.neverland.townydiplomacy.AidSmoke",
+      "ru.neverland.townydiplomacy.DiplomacyRepositorySmoke",
+      "ru.neverland.townydiplomacy.DiplomacyRulesSmoke"
+    ],
+    "inputs_digest": "f9ab8aecd5af7089d784e4b47035ba4938eeb6bdc1adb4fa8a7d5033c908c887"
+  },
+  "NeverLandTownyDistricts-0.2.3.jar": {
+    "sha256": "58a36d9d56aa39e70d7e2b328c2f5982447b0a69aa6763682e33a90110f9a4d0",
+    "version": "0.2.3",
+    "tests": [
+      "ru.neverland.townydistricts.DistrictAssessmentSmoke",
+      "ru.neverland.townydistricts.DistrictDefaultsSmoke",
+      "ru.neverland.townydistricts.DistrictsSmoke",
+      "ru.neverland.townydistricts.MobFarmPolicySmoke",
+      "ru.neverland.townydistricts.service.DistrictPlannerSmoke",
+      "ru.neverland.townydistricts.service.PatrolLayoutSmoke"
+    ],
+    "inputs_digest": "08c11f81c93fe4df6af5c70ab3e0dc4bae1e4e9ace6c87f7f7b86e10672fe1ed"
+  },
+  "NeverLandTownyElections-0.2.0.jar": {
+    "sha256": "fcdfda71e924da32962858c9938011cae0c4361bf35a359257ff105a0a178ccb",
+    "version": "0.2.0",
+    "tests": [
+      "ru.neverland.townyelections.ElectionProgramsSmoke",
+      "ru.neverland.townyelections.ElectionSmoke",
+      "ru.neverland.townyelections.ElectionsRepositorySmoke"
+    ],
+    "inputs_digest": "bb4ea81d967bce1e0d99537fe0c2e1aae3c4892541ce29d12b16ca1f5a722b8b"
+  },
+  "NeverLandTownyEnvironment-0.2.1.jar": {
+    "sha256": "94df592dbb4f7dca16615cccd0e3177cd4bd0af53e9eb650930470e915576743",
+    "version": "0.2.1",
+    "tests": [
+      "ru.neverland.townyenvironment.DistrictEnvironmentSmoke",
+      "ru.neverland.townyenvironment.EnvironmentForecastSmoke",
+      "ru.neverland.townyenvironment.EnvironmentSmoke"
+    ],
+    "inputs_digest": "33fadbdd598245aa9c93f58d8e8dcd9fe933dad8d16e55bb93a0104ff62a47de"
+  },
+  "NeverLandTownyEspionage-0.2.1.jar": {
+    "sha256": "3251b68e907a9a54b289143cd87fca7298392d2fc371e2b16cf31a3f8b7ed9ca",
+    "version": "0.2.1",
+    "tests": [
+      "ru.neverland.mintespionage.EspionageMathSmoke",
+      "ru.neverland.mintespionage.IntelEvidenceSmoke",
+      "ru.neverland.mintespionage.IntelPersistenceSmoke",
+      "ru.neverland.mintespionage.service.IntelCompletionSmoke",
+      "ru.neverland.mintespionage.service.SpyPurchasesSmoke"
+    ],
+    "inputs_digest": "af3980b58ed9f235075c44755395c8bb6db4ef126390b1732369d7a358c7cf15"
+  },
+  "NeverLandTownyEvents-0.5.0.jar": {
+    "sha256": "e632f4d2805b98920e97c80c2ac948a165a234f71e9472d585629a77bcb54fb8",
+    "version": "0.5.0",
+    "tests": [
+      "ru.neverland.mintevents.EventMathSmoke",
+      "ru.neverland.mintevents.EventPauseSmoke",
+      "ru.neverland.mintevents.FireDamageSmoke",
+      "ru.neverland.mintevents.LinkageSmoke",
+      "ru.neverland.mintevents.RaidDefaultsSmoke",
+      "ru.neverland.mintevents.RaidKillAndMessagesSmoke",
+      "ru.neverland.mintevents.RaidScalingSmoke",
+      "ru.neverland.mintevents.RaidSpawnPlannerSmoke",
+      "ru.neverland.mintevents.RaidVictoriesSmoke",
+      "ru.neverland.mintevents.RaidWavesSmoke",
+      "ru.neverland.mintevents.WeatherEconomySmoke",
+      "ru.neverland.mintevents.scenarios.ScenariosSmoke"
+    ],
+    "inputs_digest": "133da53113a9465bdc7c996ed13f30e257cb732d5d371166f6f4b4451ac9f0ba"
+  },
+  "NeverLandTownyExpeditions-0.2.0.jar": {
+    "sha256": "74ca348daff3cfe31cbce0d37f2af5f59cfa332f6be99ab42fdc32fb1cfb7b1b",
+    "version": "0.2.0",
+    "tests": [
+      "ru.neverland.mintexpeditions.LinkageTest",
+      "ru.neverland.mintexpeditions.SiteGeneratorTest",
+      "ru.neverland.mintexpeditions.journey.JourneyPersistenceSmoke",
+      "ru.neverland.mintexpeditions.journey.JourneySmoke",
+      "ru.neverland.mintexpeditions.service.ExpeditionAccessSmoke",
+      "ru.neverland.mintexpeditions.service.ExpeditionAsyncSmoke",
+      "ru.neverland.mintexpeditions.service.MessageServiceSmoke",
+      "ru.neverland.mintexpeditions.service.RewardPersistenceSmoke"
+    ],
+    "inputs_digest": "c371be393e02d61b899e8eb27e3242a3c29c156e004dde71a98840101da04787"
+  },
+  "NeverLandTownyGovernance-0.2.2.jar": {
+    "sha256": "e5cb81b00cc561b0115e3d855985b6da364348939f090d269faa9189832d4ce7",
+    "version": "0.2.2",
+    "tests": [
+      "ru.neverland.governance.GovernanceMathSmoke",
+      "ru.neverland.governance.LawImpactSmoke",
+      "ru.neverland.governance.OfficeMenuSmoke",
+      "ru.neverland.governance.OptionalDependencySmoke",
+      "ru.neverland.governance.ProposalSmoke"
+    ],
+    "inputs_digest": "722f84dfbfaf56b3c0ede9611ea6afb2412b1832bddbd8646d0a515ecb80451d"
+  },
+  "NeverLandTownyIdeologies-0.2.1.jar": {
+    "sha256": "f886b922fb79f0e2e0461aa2e1f7903b5676442cdb1e24397c949ee9e8cf68f1",
+    "version": "0.2.1",
+    "tests": [
+      "ru.neverland.townyideologies.EffectFormatterSmoke",
+      "ru.neverland.townyideologies.ReformTreasurySmoke",
+      "ru.neverland.townyideologies.ReformsSmoke"
+    ],
+    "inputs_digest": "d0c8534fe0e39f86a9addff257b2a304da9f42179e01b4c40ba31b7236078e10"
+  },
+  "NeverLandTownyJobs-0.3.0.jar": {
+    "sha256": "4d31fafa201e4c52229861f12752006f863cce6b616f368f331b6e682959d799",
+    "version": "0.3.0",
+    "tests": [
+      "ru.neverland.townyjobs.CraftEvidenceSmoke",
+      "ru.neverland.townyjobs.JobsSmoke",
+      "ru.neverland.townyjobs.MasterySmoke"
+    ],
+    "inputs_digest": "10b7eab7c3c90231811a887ed776f8ac4394a4808e97d503884e9a21818482b7"
+  },
+  "NeverLandTownyJustice-0.2.1.jar": {
+    "sha256": "7064882b2c77aacbf1db766417a2873554582403030eb22607a1269ab13aa3de",
+    "version": "0.2.1",
+    "tests": [
+      "ru.neverland.townyjustice.CaptureRulesSmoke",
+      "ru.neverland.townyjustice.JusticeDossiersSmoke",
+      "ru.neverland.townyjustice.JusticePaymentsSmoke",
+      "ru.neverland.townyjustice.JusticeRepositorySmoke",
+      "ru.neverland.townyjustice.JusticeTreasurySmoke"
+    ],
+    "inputs_digest": "499fd8b76268ed2b6aff73ec9abf72f101c04d9a11ac2cecdbe2158a324df74f"
+  },
+  "NeverLandTownyLogistics-0.3.0.jar": {
+    "sha256": "ef46bbdaf09aaeed7fbe07ed50525ee3054ef005c6b36287d4267158cf2a99ee",
+    "version": "0.3.0",
+    "tests": [
+      "ru.neverland.townylogistics.LogisticsHelpSmoke",
+      "ru.neverland.townylogistics.LogisticsPersistenceSmoke",
+      "ru.neverland.townylogistics.LogisticsSmoke",
+      "ru.neverland.townylogistics.RoutePlanningSmoke"
+    ],
+    "inputs_digest": "7d22431c7f6482693088494f6fc2c02b868c067563d93ac3c4b6bf37e30b2a2c"
+  },
+  "NeverLandTownyMarket-0.2.1.jar": {
+    "sha256": "f879090982e66570119126c98c5d12b6cd8522cd74fb22f984361fb50ca9b8c7",
+    "version": "0.2.1",
+    "tests": [
+      "ru.neverland.townymarket.MarketFundingSmoke",
+      "ru.neverland.townymarket.MarketJournalSmoke",
+      "ru.neverland.townymarket.MarketSmoke",
+      "ru.neverland.townymarket.PersonalLimitBookSmoke",
+      "ru.neverland.townymarket.PersonalLimitPersistenceSmoke",
+      "ru.neverland.townymarket.PlayerDataMarkersSmoke",
+      "ru.neverland.townymarket.personal.PersonalAuditSmoke"
+    ],
+    "inputs_digest": "0df37f9aea5b212db979ad0b18f493cc24e541701334c9b9a93aa91ddf41aab1"
+  },
+  "NeverLandTownyPolicies-0.3.1.jar": {
+    "sha256": "4899f2d3655987504cbe601cc0f38fd67aa1b19d4e7c1d24a4bfd259aba78327",
+    "version": "0.3.1",
+    "tests": [
+      "ru.neverland.townypolicies.PoliciesSmoke",
+      "ru.neverland.townypolicies.PolicyDefaultsSmoke",
+      "ru.neverland.townypolicies.PresetsSmoke"
+    ],
+    "inputs_digest": "0bcb9d1d342bbac14cfb8239956ecb67d85217be13f195e2987c47d6d17c9f3f"
+  },
+  "NeverLandTownyPopulation-0.2.1.jar": {
+    "sha256": "fb7f1a0ad2e98f00b072d8393251f90572811568e2e4a16e0695a2c439874d52",
+    "version": "0.2.1",
+    "tests": [
+      "ru.neverland.townypopulation.CohortBoundarySmoke",
+      "ru.neverland.townypopulation.DistrictCohortsSmoke",
+      "ru.neverland.townypopulation.PopulationPersistenceSmoke",
+      "ru.neverland.townypopulation.PopulationSmoke"
+    ],
+    "inputs_digest": "51f0ddebc95d2dabf08ffe7f4b63fc8bd818bcb636d7c49e21b4c0d7ac325a7c"
+  },
+  "NeverLandTownyPower-0.2.1.jar": {
+    "sha256": "6dca8c649f72a5a7bbf965e9de26ef1d31a962b162252828ea2e42e2da45f5c5",
+    "version": "0.2.1",
+    "tests": [
+      "ru.neverland.townypower.DevelopmentSmoke",
+      "ru.neverland.townypower.EnergyStorageSmoke",
+      "ru.neverland.townypower.PowerSmoke",
+      "ru.neverland.townypower.PowerUptimeSmoke"
+    ],
+    "inputs_digest": "6baee29635e314a2776669910de5a2a437ec48bf9d589c558e93997fce3acd5b"
+  },
+  "NeverLandTownyQuests-0.3.0.jar": {
+    "sha256": "51c3616859cbb29db1c665760956e8f80e31bfa3d32e82da3cc49cbf895da1a6",
+    "version": "0.3.0",
+    "tests": [
+      "ru.neverland.townyquests.ProjectBranchesSmoke",
+      "ru.neverland.townyquests.QuestDefaultsSmoke",
+      "ru.neverland.townyquests.QuestSmoke",
+      "ru.neverland.townyquests.cooperative.CooperativeAuditSmoke",
+      "ru.neverland.townyquests.cooperative.CooperativeTemplatesSmoke",
+      "ru.neverland.townyquests.cooperative.CooperativeUnlockCacheSmoke"
+    ],
+    "inputs_digest": "187b8706d0ba01b358ffc3dbf3830299e3d1f6363b049057ab496f989fb14077"
+  },
+  "NeverLandTownyReputation-0.3.0.jar": {
+    "sha256": "297209ad831999c3895d444c4907cde2b24816cbcf1e2103cd0c06c0c3b8de2c",
+    "version": "0.3.0",
+    "tests": [
+      "ru.neverland.reputation.ColorUtilSmoke",
+      "ru.neverland.reputation.ConfigurationSmoke",
+      "ru.neverland.reputation.ExplanationSmoke",
+      "ru.neverland.reputation.OptionalDependencySmoke",
+      "ru.neverland.reputation.RelationKeySmoke",
+      "ru.neverland.reputation.ReputationMathSmoke",
+      "ru.neverland.reputation.ReputationProfilesSmoke"
+    ],
+    "inputs_digest": "decc027de40ae374ddc819a00b030d037a2d81146ef434f2bc942901a64c711f"
+  },
+  "NeverLandTownyResearch-0.2.0.jar": {
+    "sha256": "83e4bc1350c35eae7630bc9e8c4abc2a3099d755c2704b7a83794f0e49ddb318",
+    "version": "0.2.0",
+    "tests": [
+      "ru.neverland.townyresearch.ResearchSmoke",
+      "ru.neverland.townyresearch.licenses.LicensePersistenceSmoke"
+    ],
+    "inputs_digest": "e2ae85f946178355a80c12cf8e601997aba1dbd2a031627ca92a4b4f9f0b1142"
+  },
+  "NeverLandTownyResources-0.2.2.jar": {
+    "sha256": "339a3693de0a3e12f838d657d7d51ed223cb5a5f958cbf1e91a56e3381695f37",
+    "version": "0.2.2",
+    "tests": [
+      "ru.neverland.townyresources.PowerProductionSmoke",
+      "ru.neverland.townyresources.ResourceRequestsSmoke",
+      "ru.neverland.townyresources.ResourcesDefaultsSmoke",
+      "ru.neverland.townyresources.ResourcesSmoke"
+    ],
+    "inputs_digest": "25c57650a1b5fa2b870d87d6c5090ea9ab07f3c88cb3cdd378ed29e2afd96378"
+  },
+  "NeverLandTownySeasons-0.2.0.jar": {
+    "sha256": "d089be07138d9a721065938eda81e160fbcefad7b9e284108acac94ec5780db7",
+    "version": "0.2.0",
+    "tests": [
+      "ru.neverland.townyseasons.SeasonClockSmoke",
+      "ru.neverland.townyseasons.SeasonMarketsSmoke",
+      "ru.neverland.townyseasons.SeasonStorageSmoke"
+    ],
+    "inputs_digest": "47d605f5b3a7a39b8c2d89bbe62f2f69db69d734eee553f4915436c0d55c2ca2"
+  },
+  "NeverLandTownySiegesPlus-0.6.5.jar": {
+    "sha256": "8dcad015964849a8c2b87ea3ce578d862bb22406f4ada5b4b52f4229fce3b13e",
+    "version": "0.6.5",
+    "tests": [
+      "ru.neverland.townysieges.CampSettingsDefaultsSmoke",
+      "ru.neverland.townysieges.CampSupplySmoke",
+      "ru.neverland.townysieges.LootMigrationSmoke",
+      "ru.neverland.townysieges.RaidLootSmoke",
+      "ru.neverland.townysieges.RaidRepairsStoreSmoke",
+      "ru.neverland.townysieges.RaidStoreSmoke",
+      "ru.neverland.townysieges.RaidWindowSmoke",
+      "ru.neverland.townysieges.RepairDebtSmoke",
+      "ru.neverland.townysieges.RepairRulesSmoke",
+      "ru.neverland.townysieges.RepairTreasurySmoke",
+      "ru.neverland.townysieges.SiegeRulesSmoke",
+      "ru.neverland.townysieges.SiegeSettingsSmoke",
+      "ru.neverland.townysieges.TntRulesSmoke",
+      "ru.neverland.townysieges.WarChunksSmoke",
+      "ru.neverland.townysieges.WarConclusionSmoke"
+    ],
+    "inputs_digest": "303c8dec702617c43c353b6daeb4a54b52ec2297a3182f41aaf8582b9820a055"
+  },
+  "NeverLandTownySpecialization-0.3.0.jar": {
+    "sha256": "3ac2f54fd0e1a496d38fee9dfc51444bf1b30b4ed2928089819cc04c89b2ff3a",
+    "version": "0.3.0",
+    "tests": [
+      "ru.neverland.townyspecialization.SpecializationSmoke",
+      "ru.neverland.townyspecialization.production.ProductionAuditSmoke",
+      "ru.neverland.townyspecialization.production.ProductionSmoke",
+      "ru.neverland.townyspecialization.production.ProfileGoodsSmoke"
+    ],
+    "inputs_digest": "019771373289b2f8ad4b88525ddf8c1806bd774473bd01619c6ae95798365db5"
+  },
+  "NeverLandTownyStick-0.2.0.jar": {
+    "sha256": "293ba6bfbd251280694f6fbb2a07cf92a9fd99d558a9c91aff681537d2ab6c37",
+    "version": "0.2.0",
+    "tests": [
+      "ru.neverland.morstownstick.SelectionClickGateSmoke",
+      "ru.neverland.morstownstick.SmokeTest",
+      "ru.neverland.morstownstick.plan.ExpansionPlanSmoke",
+      "ru.neverland.morstownstick.plan.ExpansionRepositorySmoke"
+    ],
+    "inputs_digest": "0a97d4d006afa225f18ae58e6ed4de9af949f283480bee9ef661abdb2103859e"
+  },
+  "NeverLandTownyTaxes-0.2.0.jar": {
+    "sha256": "9b3c2719bb393239268e0fc5091dabb4087b805b371b92e98733d667264c76e4",
+    "version": "0.2.0",
+    "tests": [
+      "ru.neverland.townytaxes.DomainSmoke",
+      "ru.neverland.townytaxes.MunicipalTaxesSmoke",
+      "ru.neverland.townytaxes.TaxCalculationSmoke",
+      "ru.neverland.townytaxes.TaxPaymentsSmoke",
+      "ru.neverland.townytaxes.integration.EconomyUnavailableSmoke"
+    ],
+    "inputs_digest": "59d1812a762e1d7300a93fb9b08e93ee9a169a410f934e62c4543151375f76ce"
+  },
+  "NeverLandTownyTrade-0.3.1.jar": {
+    "sha256": "e25cd20ce0a1b4e598b54009adcc2b95472a815372f5881cd7d1a35f347cad26",
+    "version": "0.3.1",
+    "tests": [
+      "ru.neverland.minttrade.CaravanEffectsSmoke",
+      "ru.neverland.minttrade.CaravanReliabilitySmoke",
+      "ru.neverland.minttrade.CaravanWarrantySmoke",
+      "ru.neverland.minttrade.GuaranteeTermsSmoke",
+      "ru.neverland.minttrade.SupplyContractSmoke",
+      "ru.neverland.minttrade.SupplyJournalSmoke",
+      "ru.neverland.minttrade.SupplyReputationSmoke",
+      "ru.neverland.minttrade.TradeAcknowledgementSmoke",
+      "ru.neverland.minttrade.TradeMathSmoke",
+      "ru.neverland.minttrade.TreasuryFundingSmoke"
+    ],
+    "inputs_digest": "5beed9a7732a23d95b85ad2bdc9beb97c6181ff01d0798cd119f9e16d094b528"
+  },
+  "NeverLandTownyTreasuryPlus-0.3.3.jar": {
+    "sha256": "7707edb20af499b05deadd0886f0ba983039067eabf5af389eff4f6c8e07d91f",
+    "version": "0.3.3",
+    "tests": [
+      "ru.neverland.townytreasury.AsyncBudgetPersistenceSmoke",
+      "ru.neverland.townytreasury.BankFlowsSmoke",
+      "ru.neverland.townytreasury.CategoryResolutionSmoke",
+      "ru.neverland.townytreasury.ForecastSmoke",
+      "ru.neverland.townytreasury.SpendingAdmissionSmoke",
+      "ru.neverland.townytreasury.TreasuryAccessSmoke",
+      "ru.neverland.townytreasury.TreasurySmoke"
+    ],
+    "inputs_digest": "09d3c63fc92246f62abfea01cf9fd9dc8fff2fb8cefb818044c8e9f1bcfa2ac4"
+  },
+  "NeverLandTownyUpkeep-0.2.3.jar": {
+    "sha256": "fe16c414cd2d287f2ecc9367ed02bb13a488d2f3c646a7055db2a05e01bbc6c0",
+    "version": "0.2.3",
+    "tests": [
+      "ru.neverland.townyupkeep.DevelopmentSmoke",
+      "ru.neverland.townyupkeep.SavingsSmoke",
+      "ru.neverland.townyupkeep.UpkeepDefaultsSmoke",
+      "ru.neverland.townyupkeep.UpkeepSmoke",
+      "ru.neverland.townyupkeep.UpkeepTreasurySmoke"
+    ],
+    "inputs_digest": "e55d8ecd39b91e2b81be508ac7e901e88a753b7cc7f45e74ca984dbcb091a7ce"
+  }
+}

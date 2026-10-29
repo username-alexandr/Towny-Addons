@@ -1,0 +1,84 @@
+PASS exact installed version NeverLandTownyAchievements 0.2.0
+PASS exact installed version NeverLandTownyArchaeology 0.2.0
+PASS exact installed version NeverLandTownyArmy 0.3.0
+PASS exact installed version NeverLandTownyBuilds 0.11.2
+PASS exact installed version NeverLandTownyCamps 0.2.0
+PASS exact installed version NeverLandTownyChronicles 0.3.0
+PASS exact installed version NeverLandTownyCitizens 0.2.0
+PASS exact installed version NeverLandTownyCompanies 0.3.0
+PASS exact installed version NeverLandTownyContracts 0.8.1
+PASS exact installed version NeverLandTownyControl 0.6.4
+PASS exact installed version NeverLandTownyCouncil 0.3.0
+PASS exact installed version NeverLandTownyCrime 0.2.0
+PASS exact installed version NeverLandTownyDiplomacy 0.2.0
+PASS exact installed version NeverLandTownyDistricts 0.2.3
+PASS exact installed version NeverLandTownyElections 0.2.0
+PASS exact installed version NeverLandTownyEnvironment 0.2.1
+PASS exact installed version NeverLandTownyEspionage 0.2.1
+PASS exact installed version NeverLandTownyEvents 0.5.0
+PASS exact installed version NeverLandTownyExpeditions 0.2.0
+PASS exact installed version NeverLandTownyGovernance 0.2.2
+PASS exact installed version NeverLandTownyIdeologies 0.2.1
+PASS exact installed version NeverLandTownyJobs 0.3.0
+PASS exact installed version NeverLandTownyJustice 0.2.1
+PASS exact installed version NeverLandTownyLogistics 0.3.0
+PASS exact installed version NeverLandTownyMarket 0.2.1
+PASS exact installed version NeverLandTownyPolicies 0.3.1
+PASS exact installed version NeverLandTownyPopulation 0.2.1
+PASS exact installed version NeverLandTownyPower 0.2.1
+PASS exact installed version NeverLandTownyQuests 0.3.0
+PASS exact installed version NeverLandTownyReputation 0.3.0
+PASS exact installed version NeverLandTownyResearch 0.2.0
+PASS exact installed version NeverLandTownyResources 0.2.2
+PASS exact installed version NeverLandTownySeasons 0.2.0
+PASS exact installed version NeverLandTownySiegesPlus 0.6.5
+PASS exact installed version NeverLandTownySpecialization 0.3.0
+PASS exact installed version NeverLandTownyStick 0.2.0
+PASS exact installed version NeverLandTownyTaxes 0.2.0
+PASS exact installed version NeverLandTownyTrade 0.3.1
+PASS exact installed version NeverLandTownyTreasuryPlus 0.3.3
+PASS exact installed version NeverLandTownyUpkeep 0.2.3
+PASS native broken keeps Achievements enabled and unfrozen
+PASS native broken keeps Archaeology enabled and unfrozen
+PASS native broken keeps Army enabled and unfrozen
+PASS native broken keeps Builds enabled and unfrozen
+PASS native broken keeps Camps enabled and unfrozen
+PASS native broken keeps Chronicles enabled and unfrozen
+PASS native broken keeps Citizens enabled and unfrozen
+PASS native broken keeps Companies enabled and unfrozen
+PASS native broken keeps Contracts enabled and unfrozen
+PASS native broken keeps Control enabled and unfrozen
+PASS native broken keeps Council enabled and unfrozen
+PASS native broken keeps Crime enabled and unfrozen
+PASS native broken keeps Diplomacy enabled and unfrozen
+PASS native broken keeps Districts enabled and unfrozen
+PASS native broken keeps Elections enabled and unfrozen
+PASS native broken keeps Environment enabled and unfrozen
+PASS native broken keeps Espionage enabled and unfrozen
+PASS native broken keeps Events enabled and unfrozen
+PASS native broken keeps Expeditions enabled and unfrozen
+PASS native broken keeps Governance enabled and unfrozen
+PASS native broken keeps Ideologies enabled and unfrozen
+PASS native broken keeps Jobs enabled and unfrozen
+PASS native broken keeps Justice enabled and unfrozen
+PASS native broken keeps Logistics enabled and unfrozen
+PASS native broken keeps Market enabled and unfrozen
+PASS native broken keeps Policies enabled and unfrozen
+PASS native broken keeps Population enabled and unfrozen
+PASS native broken keeps Power enabled and unfrozen
+PASS native broken keeps Reputation enabled and unfrozen
+PASS native broken keeps Research enabled and unfrozen
+PASS native broken keeps Resources enabled and unfrozen
+PASS native broken keeps Seasons enabled and unfrozen
+PASS native broken keeps SiegesPlus enabled and unfrozen
+PASS native broken keeps Specialization enabled and unfrozen
+PASS native broken keeps Stick enabled and unfrozen
+PASS native broken keeps Taxes enabled and unfrozen
+PASS native broken keeps Trade enabled and unfrozen
+PASS native broken keeps TreasuryPlus enabled and unfrozen
+PASS native broken keeps Upkeep enabled and unfrozen
+PASS malformed explicit stage type really fails Quests startup before service registration
+PASS startup failure persists no unrelated protective pause
+PASS confirmed policy survives full restart with failed Quests provider
+PASS failed configuration load leaves completed projects untouched
+PASS invalid administrator value is rejected without silently overwriting file

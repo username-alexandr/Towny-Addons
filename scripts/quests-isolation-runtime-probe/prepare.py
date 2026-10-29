@@ -1,16 +1,30 @@
 #!/usr/bin/env python3
 """Fresh loopback-only native fixture. Requires validated JARs and an explicitly marked stopped template."""
 from pathlib import Path
-import argparse,shutil,yaml,hashlib,uuid,time
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--template',type=Path,required=True);p.add_argument('--server',type=Path,required=True);p.add_argument('--towny',type=Path,required=True)
+import argparse,shutil,yaml,hashlib,uuid,time,json,zipfile
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--template',type=Path,required=True);p.add_argument('--server',type=Path,required=True);p.add_argument('--towny',type=Path,required=True);p.add_argument('--full-suite',action='store_true')
 a=p.parse_args();template=a.template.resolve();server=a.server.resolve();root=Path(__file__).resolve().parents[2]
 assert not server.exists(),'Refusing to overwrite existing server'
 assert (template/'ALLOW_DISPOSABLE_RAID_PROBE').is_file() and 'server-ip=127.0.0.1' in (template/'server.properties').read_text()
-shutil.copytree(template,server,ignore=shutil.ignore_patterns('logs','plugins','crash-reports','validation','probe-classes','session.lock'))
+def copy_runtime(src,dst):
+    if Path(src).suffix=='.jar':
+        Path(dst).symlink_to(Path(src).resolve(strict=True));return str(dst)
+    return shutil.copy2(src,dst)
+shutil.copytree(template,server,copy_function=copy_runtime,ignore=shutil.ignore_patterns('logs','plugins','crash-reports','validation','probe-classes','session.lock'))
 plugins=server/'plugins';plugins.mkdir();shutil.copy2(a.towny,plugins/'Towny-0.103.2.0.jar')
 versions=yaml.safe_load((root/'versions.yml').read_text())['addons']
-for short in ['Citizens','Control','Builds','Districts','Population','Resources','Upkeep','Quests','Policies']:
-    name='NeverLandTowny'+short;jar=root/'modules'/name/'build/libs'/f'{name}-{versions[name]}.jar';assert jar.is_file(),jar;shutil.copy2(jar,plugins)
+names=sorted(versions) if a.full_suite else ['NeverLandTowny'+short for short in ['Citizens','Control','Builds','Districts','Population','Resources','Upkeep','Quests','Policies']]
+expected={}
+for name in names:
+    jar=root/'modules'/name/'build/libs'/f'{name}-{versions[name]}.jar';assert jar.is_file(),jar
+    with zipfile.ZipFile(jar) as archive:
+        manifest=json.loads(archive.read('META-INF/neverland-build.json'))
+        assert manifest['module']==name and manifest['version']==versions[name],name
+        assert all((root/path).is_file() and hashlib.sha256((root/path).read_bytes()).hexdigest()==sha for path,sha in manifest['inputs'].items()),'Stale validated JAR: '+name
+        assert all(str(path.relative_to(root)) in manifest['inputs'] for path in (root/'modules'/name/'src').rglob('*') if path.is_file()),'Uncompiled source: '+name
+    shutil.copy2(jar,plugins);expected[name]=versions[name]
+probe=plugins/'QuestsIsolationRuntimeProbe';probe.mkdir();(probe/'expected-versions.yml').write_text(yaml.safe_dump(expected))
+(server/'fixture.json').write_text(json.dumps({'full_suite':a.full_suite,'versions':expected},indent=2)+'\n')
 for rel,data in [('Towny/settings/config.yml',{'economy':{'using_economy':False},'plugin':{'update_notifications':False}}),('bStats/config.yml',{'enabled':False})]:
     path=plugins/rel;path.parent.mkdir(parents=True,exist_ok=True);path.write_text(yaml.safe_dump(data))
 path=plugins/'faststats/config.properties';path.parent.mkdir(exist_ok=True);path.write_text('enabled=false\n')
