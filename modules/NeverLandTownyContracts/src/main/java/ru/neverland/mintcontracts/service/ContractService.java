@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class ContractService implements MintTownyContractsApi {
-    public enum ActivateResult { SUCCESS, MAX_ACTIVE, DUPLICATE, NO_MONEY, ECONOMY_ERROR, WAREHOUSE_UNAVAILABLE, SAVE_ERROR }
+    public enum ActivateResult { SUCCESS, PENDING, MAX_ACTIVE, DUPLICATE, NO_MONEY, ECONOMY_ERROR, WAREHOUSE_UNAVAILABLE, SAVE_ERROR }
     public record DeliveryResult(WarehouseBridge.Status status, int amount, int progress) {}
 
     private final JavaPlugin plugin;
@@ -54,10 +54,10 @@ public final class ContractService implements MintTownyContractsApi {
             public void result(MunicipalPayment p,boolean paid)throws Exception{ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
                 repository.payment(p);
                 if(p.kind()==MunicipalPayment.Kind.RESERVE){ActiveContract c=find(p.town(),p.contract().toString());if(c==null)throw new IllegalStateException("Нет задания для резерва");
-                    if(paid)c.funded(true);else repository.addHistory(c,ContractStatus.CANCELLED,0,0,30,System.currentTimeMillis());}
-                repository.changed();repository.saveOrThrow();auditPayment(p);
+                    if(paid){c.funded(true);if(c.fundingPaused()){if(c.timer().paused())c.timer(c.timer().edit("resume",0,System.currentTimeMillis()));c.fundingPaused(false);}}else repository.addHistory(c,ContractStatus.CANCELLED,0,0,30,System.currentTimeMillis());}
+                repository.changed();repository.saveOrThrow();auditPayment(p);if(paid&&p.kind()==MunicipalPayment.Kind.RESERVE){var c=find(p.town(),p.contract().toString());var town=towny.town(p.town());if(c!=null&&town!=null)announce(town,"contract-start-town",definition(c),c,c.escrow());}
             } }
-        },new ru.neverland.mintcontracts.integration.MunicipalBank());
+        },new ru.neverland.mintcontracts.integration.MunicipalBank(plugin));
         deliveries=new MunicipalDeliveries(new MunicipalDeliveries.Store(){
             public DeliveryIntent get(UUID id){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return repository.deliveries().get(id);} }
             public void put(DeliveryIntent d)throws Exception{ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {repository.delivery(d);repository.saveOrThrow();auditDelivery(d);} }
@@ -100,12 +100,34 @@ public final class ContractService implements MintTownyContractsApi {
         long now=System.currentTimeMillis();ActiveContract c=new ActiveContract(UUID.randomUUID(),town.getUUID(),definition.id(),now,now+definition.durationSeconds()*1000,0,definition.goal(),definition.reward(),Map.of());
         c.snapshot(definition);if(area!=null)c.area(area);c.funded(definition.reward()==0);repository.add(c);
         MunicipalPayment reserve=null;
-        if(definition.reward()>0){reserve=new MunicipalPayment(MunicipalPayment.key(c.id(),"reserve"),c.id(),c.townId(),c.townId(),MunicipalPayment.Kind.RESERVE,Math.round(c.escrow()*100),MunicipalPayment.Phase.READY,now);repository.payment(reserve);}
+        if(definition.reward()>0){c.timer(c.timer().edit("pause",0,now));c.fundingPaused(true);reserve=new MunicipalPayment(MunicipalPayment.key(c.id(),"reserve"),c.id(),c.townId(),c.townId(),MunicipalPayment.Kind.RESERVE,Math.round(c.escrow()*100),MunicipalPayment.Phase.READY,now);repository.payment(reserve);}
         try{repository.saveOrThrow();if(reserve!=null)payments.process(reserve.id());}
         catch(Exception ex){plugin.getLogger().severe("Публикация заказа остановлена: "+ex.getMessage());return ActivateResult.SAVE_ERROR;}
-        if(!c.funded())return ActivateResult.ECONOMY_ERROR;
-        announce(town,"contract-start-town",definition,c,c.escrow());return ActivateResult.SUCCESS;
+        if(!c.funded())return find(town.getUUID(),c.id().toString())==null?ActivateResult.ECONOMY_ERROR:ActivateResult.PENDING;
+        if(reserve==null)announce(town,"contract-start-town",definition,c,c.escrow());return ActivateResult.SUCCESS;
     } }
+
+    /** Procurement never passes a caller-supplied bank flag: query the authoritative Treasury receipt. */
+    public String publishProcurement(UUID request,UUID townId,ContractDefinition definition,long created,UUID actor,String bankReason)throws Exception{try(var guard=ru.neverland.core.SuiteState.guard()){
+        if(!plugin.isEnabled()||ru.neverland.core.SuiteState.frozen(plugin.getName())||!repository.writable())throw new IllegalStateException("Городские контракты временно недоступны; резерв сохранён");
+        Town town=towny.town(townId);if(town==null)throw new IllegalArgumentException("Город удалён; резерв требует сверки");long cents=java.math.BigDecimal.valueOf(definition.reward()).movePointRight(2).longValueExact();
+        if(!definition.id().equals("procure_"+request.toString().replace("-",""))||definition.type()!=ContractType.DELIVERY||cents<=0||created<=0)throw new IllegalArgumentException("Неверные условия обеспеченной закупки");
+        Object raw=ru.neverland.core.ApiServices.require("NeverLandTownyTreasuryPlus","ru.neverland.townytreasury.api.TownyTreasuryApi","debitStatus").invoke("debitStatus",new Class<?>[]{UUID.class},request);
+        if(!(raw instanceof Map<?,?> proof)||!"PAID".equals(proof.get("status"))||!Boolean.TRUE.equals(proof.get("backingAvailable"))||!request.toString().equals(String.valueOf(proof.get("operation")))||!townId.toString().equals(String.valueOf(proof.get("town")))||!actor.toString().equals(String.valueOf(proof.get("actor")))||!"infrastructure".equals(proof.get("category"))||!"contracts".equals(proof.get("source"))||!plugin.getName().equals(proof.get("owner"))||!bankReason.equals(proof.get("reason"))||new java.math.BigDecimal(String.valueOf(proof.get("cents"))).longValueExact()!=cents||proof.containsKey("kind")&&!"DEBIT".equals(proof.get("kind")))throw new IllegalArgumentException("Казна не подтвердила точную оплату этой закупки");
+        var paymentId=MunicipalPayment.key(request,"reserve");var reservation=repository.payments().get(paymentId);var existing=repository.allActive().stream().filter(c->c.id().equals(request)).findFirst().orElse(null);
+        if(reservation!=null){if(!reservation.town().equals(townId)||reservation.cents()!=cents||reservation.phase()!=MunicipalPayment.Phase.DONE||reservation.kind()!=MunicipalPayment.Kind.RESERVE)throw new IllegalArgumentException("Квитанция публикации требует сверки");if(existing==null)return "SETTLED";if(!existing.townId().equals(townId)||!existing.templateId().equals(definition.id())||existing.goal()!=definition.goal()||!existing.funded()||existing.createdAt()!=created||!definition.equals(existing.snapshot()))throw new IllegalArgumentException("Сохранённый контракт не совпадает с закупкой");return "PUBLISHED";}
+        if(existing!=null)throw new IllegalStateException("Контракт существует без квитанции обеспеченной закупки");
+        if(repository.active(townId).size()>=Math.max(1,Math.min(45,plugin.getConfig().getInt("contracts.max-active-per-town",3)))||repository.allActive().size()>=Math.max(1,plugin.getConfig().getInt("contracts.max-active-server",500)))throw new IllegalArgumentException("Все места городских контрактов заняты; оплаченный резерв сохранён");
+        if(!warehouse.available())throw new IllegalArgumentException("Городской склад временно недоступен; оплаченный резерв сохранён");
+        var contract=new ActiveContract(request,townId,definition.id(),created,Math.addExact(created,Math.multiplyExact(definition.durationSeconds(),1000)),0,definition.goal(),definition.reward(),Map.of());contract.snapshot(definition);contract.funded(true);
+        repository.add(contract);repository.payment(new MunicipalPayment(paymentId,request,townId,townId,MunicipalPayment.Kind.RESERVE,cents,MunicipalPayment.Phase.DONE,created));repository.saveOrThrow();
+        announce(town,"contract-start-town",definition,contract,contract.escrow());return "PUBLISHED";
+    }}
+    public void verifyProcurementTarget(UUID town,String project)throws Exception{try(var guard=ru.neverland.core.SuiteState.guard()){
+        if(towny.town(town)==null)throw new IllegalArgumentException("Город удалён; резерв требует сверки");Object supported=ru.neverland.core.ApiServices.require("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","supportedProjects").invoke("supportedProjects",new Class<?>[0]);if(!(supported instanceof java.util.Set<?> projects)||!projects.contains(project))throw new IllegalArgumentException("Проект здания удалён; оплаченный резерв сохранён для возврата");
+    }}
+    /** A durable municipal reserve receipt survives pruned display history. */
+    public boolean procurementPublished(UUID request){try(var guard=ru.neverland.core.SuiteState.guard()){if(!repository.writable())throw new IllegalStateException("Журнал контрактов требует сверки");var receipt=repository.payments().get(MunicipalPayment.key(request,"reserve"));return receipt!=null||repository.allActive().stream().anyMatch(c->c.id().equals(request));}}
 
     public DeliveryResult deliver(Player player,ActiveContract contract,boolean all) { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
         if(!eligibleMode(player)||!canContribute(contract,player.getUniqueId())||!player.hasPermission("mintcontracts.contribute")||repository.deliveryBusy(contract.id()))return new DeliveryResult(WarehouseBridge.Status.UNAVAILABLE,0,contract==null?0:contract.progress());
@@ -174,7 +196,7 @@ public final class ContractService implements MintTownyContractsApi {
             for(var d:repository.deliveries().values())if(d.phase()==DeliveryIntent.Phase.TAKEN||d.phase()==DeliveryIntent.Phase.COMPLETE&&!d.acknowledged()){
                 try{deliveries.process(d.id());}catch(Exception ex){if(!repository.writable())throw ex;}
             }
-            for(var p:repository.payments().values())if(p.phase()==MunicipalPayment.Phase.READY)payments.process(p.id());
+            for(var p:repository.payments().values())if(p.phase()==MunicipalPayment.Phase.READY||p.phase()==MunicipalPayment.Phase.TREASURY)payments.process(p.id());
             long now=System.currentTimeMillis();
             for(ActiveContract c:repository.allActive()){
                 if(!c.funded()||repository.deliveryBusy(c.id())||c.timer().paused()&&c.settlementStatus()==null)continue;

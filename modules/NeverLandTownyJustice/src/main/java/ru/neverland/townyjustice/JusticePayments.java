@@ -8,10 +8,11 @@ public final class JusticePayments {
     private JusticePayments(){}
     public static void advance(UUID id,long now,long retry,Store store,Bank bank)throws Exception{ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var p=store.get(id);if(p==null)throw new IllegalArgumentException("Платёж не найден");
+        if(p.route()==JusticePayment.Route.TREASURY)throw new IllegalArgumentException("Квитанцию казны обрабатывает подтверждаемый шлюз");
         if(p.step()==READY){if(p.debitRequired()){store.put(p.step(DEBIT_PENDING,now));boolean result=bank.debit(p);store.put(p.step(result?DEBITED:CANCELLED,result?0:now));}else store.put(p.step(DEBITED,0));return;}
         if(p.step()==DEBITED){if(!p.creditRequired()){store.put(p.step(COMPLETE,now));return;}if(p.check()!=0&&now-p.check()<retry)return;store.put(p.step(CREDIT_PENDING,now));boolean result=bank.credit(p);store.put(p.step(result?COMPLETE:DEBITED,now));}
     } }
-    public static JusticePayment resolve(JusticePayment p,String result,long now){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return switch(result){
+    public static JusticePayment resolve(JusticePayment p,String result,long now){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(p.route()==JusticePayment.Route.TREASURY)throw new IllegalArgumentException("Квитанция казны сверяется в казне");return switch(result){
         case "debit-applied"->{if(p.step()!=DEBIT_PENDING||!p.debitRequired())throw new IllegalArgumentException("Нет спорного списания");yield p.step(DEBITED,0);}
         case "debit-not-applied"->{if(p.step()!=DEBIT_PENDING||!p.debitRequired())throw new IllegalArgumentException("Нет спорного списания");yield p.step(CANCELLED,now);}
         case "credit-applied"->{if(p.step()!=CREDIT_PENDING||!p.creditRequired())throw new IllegalArgumentException("Нет спорного зачисления");yield p.step(COMPLETE,now);}

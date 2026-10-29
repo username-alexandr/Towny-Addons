@@ -24,6 +24,8 @@ public final class TownEspionageCommand implements CommandExecutor,TabCompleter 
         if(!(sender instanceof Player player)){messages.send(sender,"players-only");return true;}if(!player.hasPermission("mintespionage.use")){messages.send(player,"no-permission");return true;}Town own=towny.town(player);if(own==null){messages.send(player,"no-town");return true;}
         if(args.length==0){menus.open(player);return true;}switch(args[0].toLowerCase(Locale.ROOT)){
             case "help","помощь"->messages.help(player);case "targets","цели"->menus.openTargets(player);case "reports","report","отчёты"->{if(service.repository().reports(own.getUUID()).isEmpty())messages.send(player,"no-reports");menus.openReports(player);}case "active","активные"->{if(service.repository().active(own.getUUID()).isEmpty())messages.send(player,"no-active");menus.openActive(player);}
+            case "refund","возврат"->{if(!manager(player,own))return true;if(args.length!=3||!args[2].equalsIgnoreCase("confirm")){player.sendMessage("/espionage refund <полный UUID покупки> confirm — отменить оплаченную, но ещё не исполненную покупку");return true;}try{service.purchases().requestRefund(own.getUUID(),java.util.UUID.fromString(args[1]));player.sendMessage("§eЗапрос возврата сохраняется. Проверьте состояние в разделе оплат.");}catch(IllegalArgumentException|IllegalStateException error){player.sendMessage("§e"+error.getMessage());}}
+            case "payments","оплаты"->menus.openPurchases(player);
             case "defense","контрразведка"->menus.openDefense(player);
             case "verify","сверить"->{if(args.length<2){player.sendMessage("/espionage verify <ID отчёта>");return true;}try{menus.openReport(player,java.util.UUID.fromString(args[1]),true);}catch(IllegalArgumentException invalid){player.sendMessage("§eУкажите полный ID отчёта.");}}
             case "start","начать"->start(player,own,args);case "upgrade","улучшить"->upgrade(player,own,args);default->messages.help(player);
@@ -33,12 +35,12 @@ public final class TownEspionageCommand implements CommandExecutor,TabCompleter 
         if(!manager(player,own))return;if(args.length<3){messages.help(player);return;}Town target=towny.town(args[1]);if(target==null){messages.send(player,"town-not-found",Map.of("town",args[1]));return;}OperationDefinition definition=service.registry().get(args[2]);if(definition==null){messages.send(player,"operation-not-found",Map.of("operation",args[2]));return;}menus.sendStart(player,service.start(player,target,definition),definition,target);
     }
     private void upgrade(Player player,Town town,String[] args){
-        if(!manager(player,town))return;if(args.length<2){messages.send(player,"invalid-upgrade");return;}String type=args[1].toLowerCase(Locale.ROOT);boolean network=type.equals("network")||type.equals("сеть");boolean defense=type.equals("defense")||type.equals("counterintelligence")||type.equals("защита");if(!network&&!defense){messages.send(player,"invalid-upgrade");return;}menus.sendUpgrade(player,service.upgrade(town,network),network);
+        if(!manager(player,town))return;if(args.length<2){messages.send(player,"invalid-upgrade");return;}String type=args[1].toLowerCase(Locale.ROOT);boolean network=type.equals("network")||type.equals("сеть");boolean defense=type.equals("defense")||type.equals("counterintelligence")||type.equals("защита");if(!network&&!defense){messages.send(player,"invalid-upgrade");return;}menus.sendUpgrade(player,service.upgrade(player,town,network),network);
     }
     private boolean manager(Player player,Town town){if(!player.hasPermission("mintespionage.manage")||!towny.isManager(player,town)){messages.send(player,"only-manager");return false;}return true;}
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(!sender.hasPermission("mintespionage.use"))return List.of();
-        if(args.length==1)return filter(List.of("start","reports","active","targets","upgrade","defense","verify","help"),args[0]);
+        if(args.length==1)return filter(List.of("start","reports","active","targets","upgrade","defense","verify","payments","refund","help"),args[0]);
         if(args.length==2&&args[0].equalsIgnoreCase("start"))return filter(towny.towns().stream().map(Town::getName).toList(),args[1]);
         if(args.length==3&&args[0].equalsIgnoreCase("start"))return filter(service.registry().all().stream().map(OperationDefinition::id).toList(),args[2]);
         if(args.length==2&&args[0].equalsIgnoreCase("upgrade"))return filter(List.of("network","defense"),args[1]);return List.of();

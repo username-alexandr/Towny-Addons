@@ -1,0 +1,128 @@
+schema: 1
+licenses:
+  0bbe6a53-880d-4fc6-b041-07a174215d2e:
+    seller: 8a3a3371-fcee-32e4-8eb0-ddbaacc12dfa
+    buyer: 07725b59-7337-3246-bc21-636a081d6696
+    seller-actor: b31d0149-a4c4-3d59-8634-54ba80ed0967
+    buyer-actor: 45da9d21-d90a-32f8-85a4-826084721282
+    technology: irrigation
+    level: 2
+    bonus: 0.2
+    cents: 5000
+    duration: 60
+    phase: EXPIRED
+    remaining: 0
+    offer-remaining: 86400
+    cancel-requested: false
+    revision: 7
+    created-at: 1793295694583
+    note: Оплаченный срок завершён
+    audited: true
+    event: STATE
+    actor:
+      kind: SYSTEM
+      id: ''
+      name: NeverLandTownyResearch
+      town: ''
+    changed-at: 1793295721509
+  ae91f052-3284-4e6e-978a-2e992dbb1cdb:
+    seller: 8a3a3371-fcee-32e4-8eb0-ddbaacc12dfa
+    buyer: 07725b59-7337-3246-bc21-636a081d6696
+    seller-actor: b31d0149-a4c4-3d59-8634-54ba80ed0967
+    buyer-actor: 45da9d21-d90a-32f8-85a4-826084721282
+    technology: walls
+    level: 2
+    bonus: 0.1
+    cents: 5000
+    duration: 60
+    phase: EXPIRED
+    remaining: 0
+    offer-remaining: 86400
+    cancel-requested: false
+    revision: 6
+    created-at: 1793295695983
+    note: Оплаченный срок завершён
+    audited: true
+    event: STATE
+    actor:
+      kind: SYSTEM
+      id: ''
+      name: NeverLandTownyResearch
+      town: ''
+    changed-at: 1793295721509
+  42031a98-1954-4902-aa52-99d13a795b20:
+    seller: 8a3a3371-fcee-32e4-8eb0-ddbaacc12dfa
+    buyer: 07725b59-7337-3246-bc21-636a081d6696
+    seller-actor: b31d0149-a4c4-3d59-8634-54ba80ed0967
+    buyer-actor: 45da9d21-d90a-32f8-85a4-826084721282
+    technology: irrigation
+    level: 2
+    bonus: 0.2
+    cents: 5000
+    duration: 60
+    phase: EXPIRED
+    remaining: 0
+    offer-remaining: 86400
+    cancel-requested: false
+    revision: 8
+    created-at: 1793295690983
+    note: Оплаченный срок завершён
+    audited: true
+    event: STATE
+    actor:
+      kind: SYSTEM
+      id: ''
+      name: NeverLandTownyResearch
+      town: ''
+    changed-at: 1793295692832
+  a423d397-5c38-4b88-9b72-e573f856a3b8:
+    seller: 8a3a3371-fcee-32e4-8eb0-ddbaacc12dfa
+    buyer: 07725b59-7337-3246-bc21-636a081d6696
+    seller-actor: b31d0149-a4c4-3d59-8634-54ba80ed0967
+    buyer-actor: 45da9d21-d90a-32f8-85a4-826084721282
+    technology: irrigation
+    level: 2
+    bonus: 0.2
+    cents: 5000
+    duration: 60
+    phase: CANCELLED
+    remaining: 60
+    offer-remaining: 86400
+    cancel-requested: false
+    revision: 7
+    created-at: 1793295692933
+    note: Подтверждён полный возврат в исходную статью бюджета покупателя
+    audited: true
+    event: REFUND
+    actor:
+      kind: SYSTEM
+      id: ''
+      name: NeverLandTownyResearch
+      town: ''
+    changed-at: 1793295694482
+  7bbfb978-2e7a-4193-80f8-125928aeff39:
+    seller: 8a3a3371-fcee-32e4-8eb0-ddbaacc12dfa
+    buyer: 07725b59-7337-3246-bc21-636a081d6696
+    seller-actor: b31d0149-a4c4-3d59-8634-54ba80ed0967
+    buyer-actor: 45da9d21-d90a-32f8-85a4-826084721282
+    technology: irrigation
+    level: 2
+    bonus: 0.2
+    cents: 5000
+    duration: 60
+    phase: REJECTED
+    remaining: 60
+    offer-remaining: 86400
+    cancel-requested: false
+    revision: 2
+    created-at: 1793295690238
+    note: 'Полномочия или условия изменились до списания: Подтвердить условия может
+      управляющий своего города'
+    audited: true
+    event: STATE
+    actor:
+      kind: SYSTEM
+      id: ''
+      name: NeverLandTownyResearch
+      town: ''
+    changed-at: 1793295690882

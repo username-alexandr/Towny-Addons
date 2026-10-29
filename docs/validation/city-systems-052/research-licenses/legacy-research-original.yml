@@ -1,0 +1,22 @@
+schema: 1
+towns:
+  07725b59-7337-3246-bc21-636a081d6696:
+    learned:
+      walls: 1
+    cleanup: []
+    active:
+      invoice: a2fe8e06-4312-3e1b-a0fe-0837900a992f
+      technology: alchemy
+      level: 1
+      cost: 1000
+      duration: 120
+      remaining: 90
+      fraction: 0
+      buildings:
+        library: 1
+      phase: PAUSED
+  8a3a3371-fcee-32e4-8eb0-ddbaacc12dfa:
+    learned:
+      irrigation: 2
+      walls: 2
+    cleanup: []

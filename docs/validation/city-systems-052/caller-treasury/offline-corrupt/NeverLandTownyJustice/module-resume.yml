@@ -1,0 +1,284 @@
+schema: 1
+paused-at: 1793296124316
+resumed-at: 1793296134272
+files:
+  '0':
+    name: justice-data.yml
+    before: |
+      schema: 1
+      cases:
+        646932a4-e785-4eba-b128-072bc4f7ea80:
+          town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+          subject: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          issuer: 51f54aaa-5987-3ee3-9631-d46bacd509aa
+          kind: WARRANT
+          amount: 700
+          hours: 1
+          reason: Native unknown funding
+          created: 1793296101225
+          due: 1793900901225
+          phase: CANCELLED
+          payment: 23e30b69-27e2-4007-80ab-edad102289b2
+          payout: fcb4ac18-1631-4f28-a728-b4e4e97faf77
+          hunter: ''
+          prison: ''
+          capture-started: 0
+          captured-at: 0
+        57267c19-7f54-4801-ab26-2d07afbe4ae9:
+          town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+          subject: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          issuer: 51f54aaa-5987-3ee3-9631-d46bacd509aa
+          kind: WARRANT
+          amount: 2500
+          hours: 1
+          reason: Native delayed funding
+          created: 1793296099375
+          due: 1793900899375
+          phase: CANCELLED
+          payment: 6192a49a-4908-4ede-a4fd-6a704e0895cc
+          payout: a2c25a82-0298-497e-9dbb-c6dc089d8abb
+          hunter: ''
+          prison: ''
+          capture-started: 0
+          captured-at: 0
+        eb5a62a7-fed0-484a-b82c-6fbcb9f19b66:
+          town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+          subject: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          issuer: 51f54aaa-5987-3ee3-9631-d46bacd509aa
+          kind: WARRANT
+          amount: 500
+          hours: 1
+          reason: Native rejected funding
+          created: 1793296100724
+          due: 1793900900724
+          phase: CANCELLED
+          payment: 72e96586-c341-4a01-abb1-a4aee3050473
+          payout: ''
+          hunter: ''
+          prison: ''
+          capture-started: 0
+          captured-at: 0
+        d84aad3e-2501-392f-ac4f-98fef832e21e:
+          town: bb4726ad-97de-3af8-a5e1-7d0e74e272ce
+          subject: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          issuer: 51f54aaa-5987-3ee3-9631-d46bacd509aa
+          kind: WARRANT
+          amount: 900
+          hours: 1
+          reason: Explicit historical unknown payment fixture
+          created: 1
+          due: 9223372036854775807
+          phase: FUNDING
+          payment: ccf4c0a0-bed9-385a-bdc6-4669a42ed68b
+          payout: ''
+          hunter: ''
+          prison: ''
+          capture-started: 0
+          captured-at: 0
+      payments:
+        23e30b69-27e2-4007-80ab-edad102289b2:
+          case: 646932a4-e785-4eba-b128-072bc4f7ea80
+          town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+          resident: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          kind: BOUNTY_FUND
+          amount: 700
+          step: COMPLETE
+          created: 1793296101225
+          check: 1793296122215
+          route: TREASURY
+          treasury-attempt: 0
+        fcb4ac18-1631-4f28-a728-b4e4e97faf77:
+          case: 646932a4-e785-4eba-b128-072bc4f7ea80
+          town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+          resident: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          kind: BOUNTY_REFUND
+          amount: 700
+          step: COMPLETE
+          created: 1793296122265
+          check: 1793296124017
+          route: TREASURY
+          treasury-attempt: 1
+        a2c25a82-0298-497e-9dbb-c6dc089d8abb:
+          case: 57267c19-7f54-4801-ab26-2d07afbe4ae9
+          town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+          resident: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          kind: BOUNTY_REFUND
+          amount: 2500
+          step: COMPLETE
+          created: 1793296099978
+          check: 1793296100324
+          route: TREASURY
+          treasury-attempt: 0
+        ccf4c0a0-bed9-385a-bdc6-4669a42ed68b:
+          case: d84aad3e-2501-392f-ac4f-98fef832e21e
+          town: bb4726ad-97de-3af8-a5e1-7d0e74e272ce
+          resident: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          kind: BOUNTY_FUND
+          amount: 900
+          step: DEBIT_PENDING
+          created: 1
+          check: 1
+          route: LEGACY
+          treasury-attempt: 0
+        6192a49a-4908-4ede-a4fd-6a704e0895cc:
+          case: 57267c19-7f54-4801-ab26-2d07afbe4ae9
+          town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+          resident: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          kind: BOUNTY_FUND
+          amount: 2500
+          step: COMPLETE
+          created: 1793296099375
+          check: 1793296099924
+          route: TREASURY
+          treasury-attempt: 0
+        72e96586-c341-4a01-abb1-a4aee3050473:
+          case: eb5a62a7-fed0-484a-b82c-6fbcb9f19b66
+          town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+          resident: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          kind: BOUNTY_FUND
+          amount: 500
+          step: CANCELLED
+          created: 1793296100724
+          check: 1793296101174
+          route: TREASURY
+          treasury-attempt: 0
+      prisons: {}
+    after: |
+      schema: 1
+      cases:
+        646932a4-e785-4eba-b128-072bc4f7ea80:
+          town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+          subject: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          issuer: 51f54aaa-5987-3ee3-9631-d46bacd509aa
+          kind: WARRANT
+          amount: 700
+          hours: 1
+          reason: Native unknown funding
+          created: 1793296101225
+          due: 1793900901225
+          phase: CANCELLED
+          payment: 23e30b69-27e2-4007-80ab-edad102289b2
+          payout: fcb4ac18-1631-4f28-a728-b4e4e97faf77
+          hunter: ''
+          prison: ''
+          capture-started: 0
+          captured-at: 0
+        57267c19-7f54-4801-ab26-2d07afbe4ae9:
+          town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+          subject: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          issuer: 51f54aaa-5987-3ee3-9631-d46bacd509aa
+          kind: WARRANT
+          amount: 2500
+          hours: 1
+          reason: Native delayed funding
+          created: 1793296099375
+          due: 1793900899375
+          phase: CANCELLED
+          payment: 6192a49a-4908-4ede-a4fd-6a704e0895cc
+          payout: a2c25a82-0298-497e-9dbb-c6dc089d8abb
+          hunter: ''
+          prison: ''
+          capture-started: 0
+          captured-at: 0
+        eb5a62a7-fed0-484a-b82c-6fbcb9f19b66:
+          town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+          subject: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          issuer: 51f54aaa-5987-3ee3-9631-d46bacd509aa
+          kind: WARRANT
+          amount: 500
+          hours: 1
+          reason: Native rejected funding
+          created: 1793296100724
+          due: 1793900900724
+          phase: CANCELLED
+          payment: 72e96586-c341-4a01-abb1-a4aee3050473
+          payout: ''
+          hunter: ''
+          prison: ''
+          capture-started: 0
+          captured-at: 0
+        d84aad3e-2501-392f-ac4f-98fef832e21e:
+          town: bb4726ad-97de-3af8-a5e1-7d0e74e272ce
+          subject: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          issuer: 51f54aaa-5987-3ee3-9631-d46bacd509aa
+          kind: WARRANT
+          amount: 900
+          hours: 1
+          reason: Explicit historical unknown payment fixture
+          created: 1
+          due: 9223372036854775807
+          phase: FUNDING
+          payment: ccf4c0a0-bed9-385a-bdc6-4669a42ed68b
+          payout: ''
+          hunter: ''
+          prison: ''
+          capture-started: 0
+          captured-at: 0
+      payments:
+        23e30b69-27e2-4007-80ab-edad102289b2:
+          case: 646932a4-e785-4eba-b128-072bc4f7ea80
+          town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+          resident: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          kind: BOUNTY_FUND
+          amount: 700
+          step: COMPLETE
+          created: 1793296101225
+          check: 1793296122215
+          route: TREASURY
+          treasury-attempt: 0
+        fcb4ac18-1631-4f28-a728-b4e4e97faf77:
+          case: 646932a4-e785-4eba-b128-072bc4f7ea80
+          town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+          resident: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          kind: BOUNTY_REFUND
+          amount: 700
+          step: COMPLETE
+          created: 1793296122265
+          check: 1793296124017
+          route: TREASURY
+          treasury-attempt: 1
+        a2c25a82-0298-497e-9dbb-c6dc089d8abb:
+          case: 57267c19-7f54-4801-ab26-2d07afbe4ae9
+          town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+          resident: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          kind: BOUNTY_REFUND
+          amount: 2500
+          step: COMPLETE
+          created: 1793296099978
+          check: 1793296100324
+          route: TREASURY
+          treasury-attempt: 0
+        ccf4c0a0-bed9-385a-bdc6-4669a42ed68b:
+          case: d84aad3e-2501-392f-ac4f-98fef832e21e
+          town: bb4726ad-97de-3af8-a5e1-7d0e74e272ce
+          resident: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          kind: BOUNTY_FUND
+          amount: 900
+          step: DEBIT_PENDING
+          created: 1
+          check: 1
+          route: LEGACY
+          treasury-attempt: 0
+        6192a49a-4908-4ede-a4fd-6a704e0895cc:
+          case: 57267c19-7f54-4801-ab26-2d07afbe4ae9
+          town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+          resident: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          kind: BOUNTY_FUND
+          amount: 2500
+          step: COMPLETE
+          created: 1793296099375
+          check: 1793296099924
+          route: TREASURY
+          treasury-attempt: 0
+        72e96586-c341-4a01-abb1-a4aee3050473:
+          case: eb5a62a7-fed0-484a-b82c-6fbcb9f19b66
+          town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+          resident: d16666a2-f1b6-3e93-bcf0-57667a97825d
+          kind: BOUNTY_FUND
+          amount: 500
+          step: CANCELLED
+          created: 1793296100724
+          check: 1793296101174
+          route: TREASURY
+          treasury-attempt: 0
+      prisons: {}

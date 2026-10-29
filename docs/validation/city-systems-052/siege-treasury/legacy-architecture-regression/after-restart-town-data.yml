@@ -1,0 +1,21 @@
+towns:
+  7679d191-2771-3be5-9227-d1fbfb6d17e1:
+    building-style: medieval
+    style-chosen: false
+    army-established: false
+    levels:
+      town_hall: 1
+    construction:
+      town_hall:
+        world: 30d49e23-00c4-4830-84ba-437924fa2108
+        x: 1
+        y: 140
+        z: 1
+        facing: NORTH
+        completed-stage: 1
+        target-stage: 1
+        build-from-stage: 2
+        admin-paused: false
+        active: false
+        architecture-version: 6
+    inventory: AQAAADYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=

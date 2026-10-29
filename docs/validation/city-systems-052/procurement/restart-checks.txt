@@ -1,0 +1,9 @@
+PASS real Contracts, Builds materials and Treasury providers are enabled
+PASS full restart preserves published municipal escrow and separate paid reserve
+PASS new mayor reads restored funding without replaying bank
+PASS unrelated resident cannot read another resident's procurement
+PASS current mayor explicitly resumes funded quote after full restart without debit
+PASS refund final receipt survives restart without deposit replay
+PASS configuration pause blocks new procurement
+PASS new-work pause preserves existing city contracts and receipt access
+PASS native shutdown begins while a separate real SQLite writer holds the procurement file

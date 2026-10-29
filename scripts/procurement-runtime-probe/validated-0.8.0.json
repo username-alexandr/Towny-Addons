@@ -1,0 +1,307 @@
+{
+  "jar": "NeverLandTownyContracts-0.8.0.jar",
+  "sha256": "2988780ae00179be81d6d468b0d6e552875de4de9e6afb59f4ff3bbcb3bc866a",
+  "build": {
+    "expected_runtime": "Folia 26.2",
+    "inputs": {
+      "modules/NeverLandTownyContracts/build.gradle.kts": "6b3c055a1e4b02527c5ab0b2a46c224cc52e3e136373020521a8e60b45721184",
+      "modules/NeverLandTownyContracts/pom.xml": "19863f87075a322fe52136e7dec39a455cb94a9d9a856b70998815e33afa6af1",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/MintTownyContracts.java": "b129c1842f5c0ee97c5399271b209075e1120eeffe4486ab02813fe71d876027",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/api/BuildingProcurementApi.java": "c60a22d35bb39eb6ef39885393cb28fbe5f3be2bf126236f871058b1aba4ff8c",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/api/ContractSnapshot.java": "fe818cdb4829f03a517457a95238870b2875e3ed37973a830f3ccef5a9924cf1",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/api/MintTownyContractsApi.java": "e9a6e875031c853faa2023f23472d7b1b19e7d5d38ada747e9cedeea13a6a440",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/api/ServerMaterialsApi.java": "6b6ab2015c1edc88159d064393dd4a54ebc4bfcf46c22ccc59f27a85f2d8b4e8",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/command/AdminCommand.java": "273470d860675c68d1308442105db83e5491bc3db5168537a7740ba61378562d",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/command/TownContractsCommand.java": "e709b7835b26f12b77c5db9723154bff05039d9797ca02fb93e496ba62cece43",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/fishing/FishStock.java": "b8d983b33e1c6206808ad6a59d449defcd2956b9f74fd4c6b1ea029cfa702c60",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/fishing/FishingProtection.java": "c5b746170ac830c6ce93665532cb01f48be5b0f8c8a61d06de61058e5ba91d46",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/fishing/FishingSettings.java": "bd1bb43dfe9bf39995deeea27476b4d71bf0c9daf795cac9007e78171740e85c",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/gui/ContractMenuHolder.java": "c1c6b254b56b0dc79651f002a7b908fc803636ff313f6c132a429616e78b86bd",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/gui/ContractMenuManager.java": "b967b95351862cee5507860d428e7bc073992d967a3c6adbda666eda165fc87a",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/integration/CompaniesBridge.java": "dd4295b0ae8f24c442c694d95097ec379024b9afe14b4fc01cc100d8d9d277da",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/integration/ItemsAdderHook.java": "350bcc61135986e3797b2915176dd8a7244052f03a40b3a605d0e7223d791c4f",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/integration/MintContractsExpansion.java": "4725084b42b6b51e45eb62775701adbf23bb67433581dd1d8f1bc3a74cd8fc3d",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/integration/MunicipalBank.java": "b7df36b899dfabc70f46a9860d9a97382962987c5abd51506bce7b9d9090ffd4",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/integration/PaymentEvidence.java": "ac77fa1891591bc7252989148f27e7baed1c5198418404008105847dab9e2939",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/integration/PlaceholderHook.java": "95a31f305c871a1e56ca0502b91f509f51a6e5047a7eb403c11b9b60b0b35238",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/integration/TownyHook.java": "4308c5da5b8ca50ab6169406b363ea6f820256e7e3237f198a89f8ef9a6cd8a7",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/integration/WarehouseBridge.java": "73fa64f558ccb8815c5a6685a8f9d933178384766af1f55a1a88dbe81a311e63",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/listener/ProgressListener.java": "c7854ae637e5aabcf08c5a2ccdd859ad0ce9e1398b5c2091de4975021eebcd2e",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/model/ActiveContract.java": "e2a3052711501ffd5f29066669b7e69e55e86b193ee0340a6fbb63ba528a0288",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/model/ContractDefinition.java": "d12c0b22f0c045ff30cf3bdffeb1ac855c8019c504006a468fc7c28e78685b92",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/model/ContractHistory.java": "8951912945b11e2d2acde18ed3b4c2fe2c072708d2f56fdf3a04abdf6331d842",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/model/ContractStatus.java": "5ab26117a95e179f99c9637e6b7c5965dd90c7569d505bef5977357fd951c497",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/model/ContractType.java": "630a07251015c709b375d0b9cf509a72fdece53a2889dfd1ebe54ad901876ac3",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/model/DeliveryIntent.java": "28ec892d35df391ac67a4503abd4bb34d2ee6c54febdb54e7b0ace8e65c0e473",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/model/MunicipalPayment.java": "02189b34729ae73c5adc3dc10642e7812c298399508a9cbce8862a0e0c3f67c4",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/model/WorkArea.java": "63915b735d7b6bf77c175a1ee791aa60537b7fd2dab3a55e0f9005c23572190d",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/model/WorkProof.java": "18212dfa3c0babad8a3469920325cb4df3fce3e099b82a9ddf0b6d9cab01bfbb",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/orders/CooperativeProjects.java": "0aad9837e221e704a247d13251adaa2405a8fc0954f2b9fce2fdb88d2e66b376",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/orders/DailyOrderBoard.java": "2c838f12843e78475259aa37f07f058fc2415d213b6daaffc84fd9d73a267107",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/orders/DemandPriority.java": "4ff91933dbcfadda523ee940a58c3d2de5ef7fe77de4cdb65e95c839d93f25a4",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/orders/OrderCatalog.java": "3285ebec99daa2cbef96cd284d942d181950572c743ed851505eaaadf79d22af",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/orders/OrderRarity.java": "c884031fb71d85e1cf8918aef65f5efd378fee2c271262e2cd608f5405cce348",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/orders/PayoutLimits.java": "0189e34c8ee60bdb365f94c07beae50a367cb09f788dfcabe33b630f46ac2aad",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/orders/PersonalOrderBoards.java": "85cb68bb460509fce80dff871b185e6373fc7d428e428918010b92def4b22c33",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/orders/PublicOrders.java": "9a807904695a726d29bfa9738f605bc6bff7a9d72fa0bc70d67f40ea5eb86a89",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/orders/ResourceAdmin.java": "2c0c96bc37ba9b2e2a5501b5c6ea7c1632cad9136e7b3036791cd5197bf99635",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/orders/ResourceDeliveries.java": "12d86f42f1db390af869d0f7993880aac218f2d0c882d4432062fd8ed36d861b",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/orders/ServerMaterials.java": "44ddc0ad4508667f6e5513c42f4e19cba9759fac964620b22fdbcc72db52be5d",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/procurement/ProcurementAudit.java": "d7d2ee0ac2a5b9d004ae3965a54f6ce5b84afb6ece9656fb4aaf465442a581f9",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/procurement/ProcurementOrder.java": "f12fb09f6307b50e03cdfc9ef6e7d9b019377e85684808122f6ddbb946d865a9",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/procurement/ProcurementRepository.java": "586f53fb3e2f3ac42c7acdd8edab487a5fd9549038dbb531b0ec6205f1e39e3f",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/procurement/ProcurementService.java": "01ab1915bdcba5ecd8cfe5abf66a79b14406e1399ba6400057989df10862eb33",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/service/BuildOrders.java": "fb9bb361730ef85effd00934dd8a22e864b7f13970bb2dd6c19418f51d8e3392",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/service/ContractCodec.java": "41b94021403cf83167f0aae89fcb9e651d7c82f6a899a54baa76d911b23bd078",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/service/ContractRegistry.java": "8ad222dee6b53846004733bb4efa5fbd018a776688f3389b2abaa293ba6803b9",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/service/ContractRepository.java": "aa288d6f4595c0466ddfc81c9230c68d9d4743bec8af102d8ef0d5fae2420cb6",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/service/ContractService.java": "99e5c05538e4beb02908c7be8527ded178b0454229197f1a454128926331aa16",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/service/EconomyService.java": "64336a65f83c165a3f2e6695334c6f73b4158041125e57bc79450226634a666f",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/service/FieldWorkService.java": "af179245b54b5d309701f9bffe7898f5d3acdfc594e33f1cc763ffa1613c981b",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/service/MessageService.java": "fccd7798e816d623e877f6a9f4a0051f42ad14b01ccfef0ae3741871ea1e456d",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/service/MunicipalDeliveries.java": "dcdbaa2082a736b2b9ee43f2b7bdc4b541a34b682b465447e79b963515b21bac",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/service/MunicipalDrafts.java": "88e58c17c9a88ac74185dbaa09311759941b1ddf4078f5c8f6faf57d09bad31c",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/service/MunicipalPayments.java": "ad3c74774b22d31ff3ea0280e8e31f5dd9b2286a34a682f051d1955365de73cf",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/service/RoadAudit.java": "ff7e1b659fd60507d2650be0381857d8c95226f229e399815eead1bf83b1a60d",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/service/RussianNames.java": "525ab11cd62c880841a252cc82ae0d99b39c43bbbd34ee14084766f6d2bd429b",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/service/ScoutTracker.java": "6294412ebd7a77fe283bf3a1ade6a80039df52f684f7585a0281880ad9df6ebe",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/util/ColorUtil.java": "ca83d35c3e47b43a3d2c0aa917a8105b5e5f4ea145dc7e17f20c7dd387ad2e3f",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/util/LegacyDataMigrator.java": "a03fd6b4c284a747a690e5122a6205d1df4607641ccbca5fc046d5cb4f105b5b",
+      "modules/NeverLandTownyContracts/src/main/java/ru/neverland/mintcontracts/util/TimeUtil.java": "7ff368675b30fe9302f673ebacbc5d1abe0355e86de6a3a1324232e5d22e1924",
+      "modules/NeverLandTownyContracts/src/main/resources/config.yml": "6da9963da8264ab903246dcdb9db6e2e410cad6955c4f49e1c3ddcd26e4e37b7",
+      "modules/NeverLandTownyContracts/src/main/resources/contracts.yml": "71b626f5a234b9fdbc9907e50f19cf4ffd21d5fef4fb37100c8ceab4366c8c78",
+      "modules/NeverLandTownyContracts/src/main/resources/fishing.yml": "76bde77b56650f802cf16b399680fef3a4f109f12610eb5280186e8e36756c4a",
+      "modules/NeverLandTownyContracts/src/main/resources/item-names.yml": "a13c6c223b7a76c683e3846c29ea8cf6a793061c19634b996d22efd3ac8e761a",
+      "modules/NeverLandTownyContracts/src/main/resources/messages-0.2.0.yml": "f6a6440f66a0979aaa4c9e000402a53179734faed09c2fd937581a870d05d1be",
+      "modules/NeverLandTownyContracts/src/main/resources/messages.yml": "1337dab201f019aac52c10a33c6a60ad727167417f94e7a55801d6256799f76f",
+      "modules/NeverLandTownyContracts/src/main/resources/orders.yml": "6de7df9751fc7482d01edd2a9ac11a85c06c3b1a00aa740223270270c192684f",
+      "modules/NeverLandTownyContracts/src/main/resources/plugin.yml": "27955189e199c12d0a2254d245b7de343d6591269740b4c1fe5ff110b7daa66d",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/earnings/HuntingSmoke.java": "3a9f6a0278a9e15f5626f524d09f51afd07e50134e65813988e84e5ee8238568",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/CompanyContractsSmoke.java": "588710bc8d87d5e2478081beb2ad4044a26098fd344ddb986329f8dabe80e471",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/ContractMathSmoke.java": "1afc89534595699c9afd95663e9ff7b69735e5bf442b8525fccfb6fa4ad1b890",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/MunicipalContractsSmoke.java": "d4957767280ae421e1c07a8de5ca4ebb7c419578c1c2b99c568e37e70e77ed05",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/MunicipalTreasurySmoke.java": "f451e6e173516b6164bcfe003e66f196b3396a35a245aebb31b35c47951fd982",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/RewardLedgerSmoke.java": "0c61c0fa86575f969fb29615644d26cd4be168820e34a93c10e1ffdea58680e6",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/fishing/FishStockSmoke.java": "521cc31309b21af3ce62aaccde3af9eccefa29e66fb156dc7069b501a0bd36d2",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/CooperativeProjectsSmoke.java": "597001b0fdf30310c8995b8bf4562c47776fef9a12bd4907e35223b53bfcd8a4",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/DailyOrdersSmoke.java": "798b762c6e33b5677db1f148e342d99085a888c4101f6dea0b27c1029df2422f",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/MountedOrdersSmoke.java": "6e15e673505dd5b19ea42a0c191f372a017bbbc351023b25d072090743fd680f",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/PayoutLimitsSmoke.java": "16ca0aa12172e1dd30ffdee4b0070f2afb4d4a6c515ed88d567308c95d7f2c9f",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/PersonalOrderBoardsSmoke.java": "bd94f83ff8d65ca65de93a5b6cb26b275b09634db477d8d8fdeb3db7bac9546a",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/ResourceDeliveriesSmoke.java": "ab3089bb2c4cacbdb2f5c5309258788437c9e73f5072c4c8481c3cbe0c7065da",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/ServerMaterialsShutdownSmoke.java": "09b9f73a5d4c285904fb63586b7ed65fdc760042cabef1779071aec01b1a0201",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/ServerMaterialsSmoke.java": "7ee6b8b8edf40188c7bf824edca02c3994e6764862337226816242eb8f264c9a",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/ServerProjectsSmoke.java": "c2534bac2d2dcaa3946006bc9ae29708dba3eb9bf57fd02b94e3d6985844920e",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/procurement/ProcurementAuditSmoke.java": "5b3be4bcbbe5a7f6d926b0902ae28f88487c7be745c33866a2fbc12aeafd2567",
+      "modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/procurement/ProcurementSmoke.java": "c62e8785414d74261d2eed94599370b9e312430713fbffb18adc542c6a040e3a",
+      "scripts/build_pinned_folia.py": "0ed73d46a1c176aa28e2d8fdca883c7ab36641f9bc943c0ca821aeb8a1e5f591",
+      "scripts/pinned_artifacts.py": "433a549016100a9e5611f1284a339a946f347c2744fa0461b6de7ab264c928ea",
+      "scripts/run_smoke.py": "22b31328573baf601220f1c1524d07e8e045a5fec6217c43c0215dbc3ebf4afe",
+      "shared/core/src/main/java/ru/neverland/core/AchievementBonuses.java": "d2e7418ac5f835eb540373e2490726ccc8ad6a39942df6d8ad99f5ddd2222b44",
+      "shared/core/src/main/java/ru/neverland/core/AcknowledgedState.java": "f6d53af2dd5d8bc781ba7252edf45d05c1c355920b6b0f06970c27fc411a6cf5",
+      "shared/core/src/main/java/ru/neverland/core/ActivityAdmin.java": "b783f0cd9158cda5243d91e4e41c2dd64bbe3dab7183eb844aea1541c98956e5",
+      "shared/core/src/main/java/ru/neverland/core/ActivityTimer.java": "94110e72bd19297f3b6c3d5b14097f94f84c81a172b283b1f5131aa77180710f",
+      "shared/core/src/main/java/ru/neverland/core/ApiContract.java": "02bff8048650fb3785358755201d883c133340347aaddf576e9a0efbcc183daa",
+      "shared/core/src/main/java/ru/neverland/core/ApiServices.java": "5943463ececdf506b64f853ea9fdddf8199bb55fc1ed366e9778439c32a06d76",
+      "shared/core/src/main/java/ru/neverland/core/AtomicFiles.java": "89cdcf3ffb03e805237108f5c8cfbf98e29d9a92216522b8bdfeffe2615ad0c4",
+      "shared/core/src/main/java/ru/neverland/core/AuditJournal.java": "322f3b7d2dbd10bca639f3e34f39ca3a125a01f71919d739148ea4ded1ea0c15",
+      "shared/core/src/main/java/ru/neverland/core/AuditRecord.java": "16eda7354bf2c6e19674b14c565ee97576e200940409e4dd91aee1fd84daf26d",
+      "shared/core/src/main/java/ru/neverland/core/AuditTrail.java": "8804581c07722129ccc924243e68468106984d55b888320e077715ab775ee9fc",
+      "shared/core/src/main/java/ru/neverland/core/CitizensAccess.java": "bd40bf0e0a26fa97eb9c76be3ffaa77c49eb979ab7c347911bfe567339d399b8",
+      "shared/core/src/main/java/ru/neverland/core/CommandOutbox.java": "cff2909065e4c830eb8faf0cfd536468a8e0ac1b55751b04911ea06c36149de6",
+      "shared/core/src/main/java/ru/neverland/core/CouncilAccess.java": "efcf2ce7472e5ad180bdb7c81d0369ebfe6e68e6b57480fce21eea7d7153b13b",
+      "shared/core/src/main/java/ru/neverland/core/CrimeAccess.java": "c4e2f6f8b1af3109e5eff2d9f6177143f94da07ee035adad8ee13cea1ec356c9",
+      "shared/core/src/main/java/ru/neverland/core/DerivedViewCache.java": "c29ee15b7129ada3a85a662c8dc3225aa1525a91b3ffb808ca6ae76e253b5ed6",
+      "shared/core/src/main/java/ru/neverland/core/Diagnostics.java": "08acd21f132439696be1532a000deab1e26a7418e73aa7d56649b4002bb39b0c",
+      "shared/core/src/main/java/ru/neverland/core/DiplomacyAccess.java": "b35b859b620f5735c2f4a2cb98c021d2804517f9789e29e6ebe9a20b0da893dd",
+      "shared/core/src/main/java/ru/neverland/core/DurableSnapshots.java": "fab10aaca4cd55908e88e23c1595f8a2178aff91c5f0ebfab07c9252cd4077f6",
+      "shared/core/src/main/java/ru/neverland/core/EffectJournal.java": "0f8a6f1638f8e7b7439ae2770bf8f521f9d557c494ee6bf05bdc286878cc9900",
+      "shared/core/src/main/java/ru/neverland/core/EnvironmentAccess.java": "3c5cc86b5dc1d0f07e4e5681e75b51aaa42ad8a9aa64445da5800cda9531f347",
+      "shared/core/src/main/java/ru/neverland/core/InventoryPlan.java": "482ebe58351f61cc3a7caaf8e43b164246be078a88497f369c7642c066a29409",
+      "shared/core/src/main/java/ru/neverland/core/LocalDiagnostics.java": "6bb6d0218508a09ebdb2992397a0d46824522b870d6ef01c57a5b40b8610f3d2",
+      "shared/core/src/main/java/ru/neverland/core/MenuStyle.java": "0a84b75a43874e447c79405587763a25d37269bf6d6c946a2003c696e85adce5",
+      "shared/core/src/main/java/ru/neverland/core/ModuleGate.java": "c88228e1e2e766f32b377998f87921df4c422dd68a70f15fa1adc15578699d23",
+      "shared/core/src/main/java/ru/neverland/core/ModuleLifecycle.java": "f6dc99212292873917d49a21750db189d32260888f8394ebc6130b70a7c47d29",
+      "shared/core/src/main/java/ru/neverland/core/ModulePauseStore.java": "5c3255ec0206e75c3779db0ee0943d35b4eff18b4f695116b3c2f4f065097cbf",
+      "shared/core/src/main/java/ru/neverland/core/ModuleShutdown.java": "c67650e97a237982d90fbd71a8eb8bacb1b16ea3e570663645b6d8fedfcbc018",
+      "shared/core/src/main/java/ru/neverland/core/ModuleTimers.java": "1b21a35a1fd3d3e734e575adfd581ae348ee9d9ab08a0afb96b3c808eca54e80",
+      "shared/core/src/main/java/ru/neverland/core/NewcomerProtection.java": "065dd578a5e30406d58306c18634eae17fd6417b51d6a3c7372006b7127a2100",
+      "shared/core/src/main/java/ru/neverland/core/PaymentEvidence.java": "08b430d03ac7da2b87b942d4cbb5627fc47b580abc978a1041d0c5212850e954",
+      "shared/core/src/main/java/ru/neverland/core/PlayerDataMarkers.java": "e3cf2e977b8bd3e8fb2132e3e25ea9e4743331ea4521d9b1ff4df170850bdbfc",
+      "shared/core/src/main/java/ru/neverland/core/PlayerSaveReceipt.java": "0ca1b110bd279885aa4fd8650d892d5e34422a1fa9396e483cd521dbb88b956a",
+      "shared/core/src/main/java/ru/neverland/core/PurchaseSaga.java": "57d44bdcf5b40e3d5143aadee6d0b7a5994771b74fc549319f9738aa92e53e3a",
+      "shared/core/src/main/java/ru/neverland/core/ReputationAccess.java": "29bad3f2520fde37aef2a3c92b349ad9652181b6ecd99a3721da95dae78e5eae",
+      "shared/core/src/main/java/ru/neverland/core/ReputationOutbox.java": "4a5f365d5698da4b350b195edf6ef028b08a9ee0f921230364a16d4addce2314",
+      "shared/core/src/main/java/ru/neverland/core/ReputationOutcome.java": "d8fa8370d6cd89c936687f32647fcdd2c8a87f39933cf2015f091bb74774ba91",
+      "shared/core/src/main/java/ru/neverland/core/SafeYaml.java": "1948f4f0b160e960454915d432e2b38dc121fb17213672513f44a35b505cfda7",
+      "shared/core/src/main/java/ru/neverland/core/SeasonsAccess.java": "e962abd197296eb4bf904791e62984772dc9250cebc648979b4b3586e7442850",
+      "shared/core/src/main/java/ru/neverland/core/SuiteProtocol.java": "de7a32f4ffbabbfc8cf04df08689fb7f431daef9470d6355180e4afb311034b7",
+      "shared/core/src/main/java/ru/neverland/core/SuiteRunnable.java": "5aba054769903ff66480303bbafec5bfead19241fcd746013d849193fba92424",
+      "shared/core/src/main/java/ru/neverland/core/SuiteScheduler.java": "8a087796eda57f77c70e0de3da1f27619970f5cd0346d2b1cbcd7371c8386b50",
+      "shared/core/src/main/java/ru/neverland/core/SuiteState.java": "a6d626919bb3bc0ee2946749c75a5ffc40b5a1f1d6fb0b629842e189e765fa64",
+      "shared/core/src/main/java/ru/neverland/core/WorldTasks.java": "292c3e75164fc337dd690621d50e46a85e7b5fbf6ce0bda33d856c296c36a967",
+      "shared/earnings/src/main/java/ru/neverland/earnings/ActionGuard.java": "84e1d874d9b3965ca6a979a4d46ab21e4bc5260926a9804016e7fabb63946e61",
+      "shared/earnings/src/main/java/ru/neverland/earnings/HuntingCredit.java": "578713aee51aec402c22aac6b1dde7274818650eb6fed4cd06f81e73d602a379",
+      "shared/earnings/src/main/java/ru/neverland/earnings/IncomeRuntime.java": "bffad24295fc3a67b0028cc19398721c65a56fd53474c2ac2a871bd26fcf4256",
+      "shared/earnings/src/main/java/ru/neverland/earnings/RewardLedger.java": "510a7ba5f44e8321272d72e546a965b3b9c1355ef6350705d4b73f0e0eb59558",
+      "shared/earnings/src/main/java/ru/neverland/earnings/TownyRewardBank.java": "ebe6fb10c18ad9bb09c85cdb257fb7cbdc2084aad226f27c3e41f2fe8b985908",
+      "shared/localization/src/main/java/ru/neverland/localization/MaterialLabels.java": "3a3566eac980c8f39ab8044e0e88d782f2aa0fda80b66c406e869070759158f4",
+      "shared/localization/src/main/java/ru/neverland/localization/MaterialNameConfig.java": "9fa7abe6877c8fd22ecdef95a7ea6cbfb71c815031882a4ce7191358c0b18d41",
+      "shared/localization/src/main/resources/neverland-localization/materials-ru.properties": "1d2ed66f4755d74caa5149127f991a2ebec93f9bb1cb4823da40099e48c2cdab",
+      "shared/treasury/src/main/java/ru/neverland/integration/TreasuryAccess.java": "4c597b9bcc0a29ae711089fad4250eb65c32d87f9ec6064591e32c77a9352ad7"
+    },
+    "java_target": 17,
+    "module": "NeverLandTownyContracts",
+    "schema": 1,
+    "source_sha256": "a41500034567de0ee572eaf11c7c7b5d0aa6b2d2a6155c7f393cf9f4354756cc",
+    "tests": [
+      "ru.neverland.earnings.HuntingSmoke",
+      "ru.neverland.mintcontracts.CompanyContractsSmoke",
+      "ru.neverland.mintcontracts.ContractMathSmoke",
+      "ru.neverland.mintcontracts.MunicipalContractsSmoke",
+      "ru.neverland.mintcontracts.MunicipalTreasurySmoke",
+      "ru.neverland.mintcontracts.RewardLedgerSmoke",
+      "ru.neverland.mintcontracts.fishing.FishStockSmoke",
+      "ru.neverland.mintcontracts.orders.CooperativeProjectsSmoke",
+      "ru.neverland.mintcontracts.orders.DailyOrdersSmoke",
+      "ru.neverland.mintcontracts.orders.MountedOrdersSmoke",
+      "ru.neverland.mintcontracts.orders.PayoutLimitsSmoke",
+      "ru.neverland.mintcontracts.orders.PersonalOrderBoardsSmoke",
+      "ru.neverland.mintcontracts.orders.ResourceDeliveriesSmoke",
+      "ru.neverland.mintcontracts.orders.ServerMaterialsShutdownSmoke",
+      "ru.neverland.mintcontracts.orders.ServerMaterialsSmoke",
+      "ru.neverland.mintcontracts.orders.ServerProjectsSmoke",
+      "ru.neverland.mintcontracts.procurement.ProcurementAuditSmoke",
+      "ru.neverland.mintcontracts.procurement.ProcurementSmoke"
+    ],
+    "tests_passed": true,
+    "version": "0.8.0"
+  },
+  "scope": "Isolated tmpfs Folia26.2 fixture with actual addon APIs and Towny Account/Observer; persistent deterministic EconomyAdapter, no live Vault or network client, no complete suite claim.",
+  "native": [
+    {
+      "phase": "first",
+      "result": "PASS 21 assertions; actual Folia/Towny/Contracts/Builds/Treasury APIs, exact needs/funding/refund, permission changes, optional database isolation and restart; explicit offline Player/EntityScheduler and persistent deterministic bank substitutes, no live Vault/client claimed\n",
+      "exit_code": 0,
+      "jar_sha256": {
+        "ProcurementRuntimeProbe.jar": "572a37fb59205cbaa9744931dd0e20338847068fc117bef3e7f6973cde0b90d0",
+        "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+        "NeverLandTownyContracts-0.8.0.jar": "2988780ae00179be81d6d468b0d6e552875de4de9e6afb59f4ff3bbcb3bc866a",
+        "NeverLandTownyBuilds-0.11.0.jar": "9a3a0498da738c5a3f0b2edcf386e251f1a6a2303f25496bfe5ab1b9b86e13b6",
+        "NeverLandTownyControl-0.6.2.jar": "cfb68b0ff0dc4fc3da4d2e2f4c8e1762cf7229605e1033262069e41ed9c1414c",
+        "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+        "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+      },
+      "physical": {
+        "NeverLandTownyContracts/procurement.sqlite": {
+          "sha256": "f35b8fbe1a11485e7c18c278c13f56d16aa078901d21f3834330bff9bb5b12a9",
+          "bytes": 40960,
+          "requests": [
+            [
+              "35420919-4a00-41ab-8be0-3a663b34cfb4",
+              "REFUNDED",
+              272,
+              2720
+            ],
+            [
+              "373471c7-dbd8-46f9-9fe2-1bdf2dcb74f0",
+              "FUNDED",
+              288,
+              2880
+            ],
+            [
+              "e9e76d42-b2f8-40a5-bb56-8c0dedbf48c6",
+              "PUBLISHED",
+              172,
+              1720
+            ]
+          ],
+          "history": 10,
+          "audit_pending": 0
+        },
+        "NeverLandTownyContracts/contract-data.yml": {
+          "sha256": "342414aa7aef5141b3f804fce74602d3f13a172dd7eac829e7ca71562ca6eec1",
+          "bytes": 2403
+        },
+        "NeverLandTownyTreasuryPlus/treasury-data.yml": {
+          "sha256": "c02562e8afb94cb39c68e18a5676c928835df3b0c44fa0fc754c97dbc49bb023",
+          "bytes": 3117
+        }
+      }
+    },
+    {
+      "phase": "broken",
+      "result": "PASS 4 assertions; actual Folia/Towny/Contracts/Builds/Treasury APIs, exact needs/funding/refund, permission changes, optional database isolation and restart; explicit offline Player/EntityScheduler and persistent deterministic bank substitutes, no live Vault/client claimed\n",
+      "exit_code": 0,
+      "jar_sha256": {
+        "ProcurementRuntimeProbe.jar": "572a37fb59205cbaa9744931dd0e20338847068fc117bef3e7f6973cde0b90d0",
+        "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+        "NeverLandTownyContracts-0.8.0.jar": "2988780ae00179be81d6d468b0d6e552875de4de9e6afb59f4ff3bbcb3bc866a",
+        "NeverLandTownyBuilds-0.11.0.jar": "9a3a0498da738c5a3f0b2edcf386e251f1a6a2303f25496bfe5ab1b9b86e13b6",
+        "NeverLandTownyControl-0.6.2.jar": "cfb68b0ff0dc4fc3da4d2e2f4c8e1762cf7229605e1033262069e41ed9c1414c",
+        "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+        "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+      },
+      "physical": {
+        "NeverLandTownyContracts/contract-data.yml": {
+          "sha256": "342414aa7aef5141b3f804fce74602d3f13a172dd7eac829e7ca71562ca6eec1",
+          "bytes": 2403
+        },
+        "NeverLandTownyTreasuryPlus/treasury-data.yml": {
+          "sha256": "c02562e8afb94cb39c68e18a5676c928835df3b0c44fa0fc754c97dbc49bb023",
+          "bytes": 3117
+        }
+      }
+    },
+    {
+      "phase": "restart",
+      "result": "PASS 9 assertions; actual Folia/Towny/Contracts/Builds/Treasury APIs, exact needs/funding/refund, permission changes, optional database isolation and restart; explicit offline Player/EntityScheduler and persistent deterministic bank substitutes, no live Vault/client claimed\n",
+      "exit_code": 0,
+      "jar_sha256": {
+        "ProcurementRuntimeProbe.jar": "572a37fb59205cbaa9744931dd0e20338847068fc117bef3e7f6973cde0b90d0",
+        "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+        "NeverLandTownyContracts-0.8.0.jar": "2988780ae00179be81d6d468b0d6e552875de4de9e6afb59f4ff3bbcb3bc866a",
+        "NeverLandTownyBuilds-0.11.0.jar": "9a3a0498da738c5a3f0b2edcf386e251f1a6a2303f25496bfe5ab1b9b86e13b6",
+        "NeverLandTownyControl-0.6.2.jar": "cfb68b0ff0dc4fc3da4d2e2f4c8e1762cf7229605e1033262069e41ed9c1414c",
+        "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+        "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+      },
+      "physical": {
+        "NeverLandTownyContracts/procurement.sqlite": {
+          "sha256": "16bd2318bfa6cbbe747d2eb2f3fbb672c38106cfd079cdb64ab9f2553952740f",
+          "bytes": 40960,
+          "requests": [
+            [
+              "35420919-4a00-41ab-8be0-3a663b34cfb4",
+              "REFUNDED",
+              272,
+              2720
+            ],
+            [
+              "373471c7-dbd8-46f9-9fe2-1bdf2dcb74f0",
+              "PUBLISHED",
+              288,
+              2880
+            ],
+            [
+              "e9e76d42-b2f8-40a5-bb56-8c0dedbf48c6",
+              "PUBLISHED",
+              172,
+              1720
+            ]
+          ],
+          "history": 12,
+          "audit_pending": 0
+        },
+        "NeverLandTownyContracts/contract-data.yml": {
+          "sha256": "2faabd40cd9683853c8c272807f49a6dbf8425bba2771b3aa39e0b9b2e68a963",
+          "bytes": 3853
+        },
+        "NeverLandTownyTreasuryPlus/treasury-data.yml": {
+          "sha256": "4264092d5e18ed9b75560b72ac293c5455563cd70d8fad4423e70baaf64c6009",
+          "bytes": 3116
+        }
+      }
+    }
+  ]
+}

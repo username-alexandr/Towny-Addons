@@ -1,0 +1,1 @@
+java.lang.NoClassDefFoundError: ru/neverland/townytreasury/NeverLandTownyTreasuryPlus

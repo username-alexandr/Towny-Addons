@@ -1,0 +1,263 @@
+Starting org.bukkit.craftbukkit.Main
+[02:48:07 INFO]: [bootstrap] Running Java 25 (OpenJDK 64-Bit Server VM 25.0.5+8-LTS; Azul Systems, Inc. Zulu25.38+107-CA) on Linux 6.18.55 (amd64)
+[02:48:07 INFO]: [bootstrap] Loading Folia 26.2-7-ver/26.2.x@14b7fee (2026-08-25T13:29:28Z) for Minecraft 26.2
+[02:48:07 INFO]: [PluginInitializerManager] Initializing plugins...
+[02:48:08 INFO]: [PluginInitializerManager] Initialized 6 plugins
+[02:48:08 INFO]: [PluginInitializerManager] Bukkit plugins (6):
+ - CallerTreasuryRuntimeProbe (1.0), NeverLandTownyControl (0.6.2), NeverLandTownyEspionage (0.2.1), NeverLandTownyJustice (0.2.1), NeverLandTownyTreasuryPlus (0.3.2), Towny (0.103.2.0)
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.joml.MemUtil$MemUtilUnsafe (file:/dev/shm/folia-caller-treasury-4/libraries/org/joml/joml/1.10.8/joml-1.10.8.jar)
+WARNING: Please consider reporting this to the maintainers of class org.joml.MemUtil$MemUtilUnsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[02:48:11 INFO]: [ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry] Initialising converters for DataConverter...
+[02:48:11 INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, profilesHost=https://api.mojang.com, name=PROD]
+[02:48:12 ERROR]: Failed to request yggdrasil public key
+com.mojang.authlib.exceptions.MinecraftClientException: Failed to read from https://api.minecraftservices.com/publickeys due to api.minecraftservices.com
+	at com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:151) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.getWithEtag(MinecraftClient.java:81) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:65) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilServicesKeyInfo.fetch(YggdrasilServicesKeyInfo.java:114) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilServicesKeyInfo$1.run(YggdrasilServicesKeyInfo.java:89) ~[authlib-9.0.75.jar:?]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:545) ~[?:?]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:328) ~[?:?]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:309) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614) ~[?:?]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+Caused by: java.net.UnknownHostException: api.minecraftservices.com
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:569) ~[?:?]
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:307) ~[?:?]
+	at java.base/java.net.Socket.connect(Socket.java:659) ~[?:?]
+	at java.base/sun.security.ssl.SSLSocketImpl.connect(SSLSocketImpl.java:304) ~[?:?]
+	at java.base/sun.net.NetworkClient.doConnect(NetworkClient.java:161) ~[?:?]
+	at java.base/sun.net.www.http.HttpClient.openServer(HttpClient.java:524) ~[?:?]
+	at java.base/sun.net.www.http.HttpClient.openServer(HttpClient.java:612) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsClient.<init>(HttpsClient.java:207) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsClient.New(HttpsClient.java:289) ~[?:?]
+	at java.base/sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.getNewHttpClient(AbstractDelegateHttpsURLConnection.java:196) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1012) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:903) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:876) ~[?:?]
+	at java.base/sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.connect(AbstractDelegateHttpsURLConnection.java:181) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1380) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1306) ~[?:?]
+	at java.base/java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:493) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsURLConnectionImpl.getResponseCode(HttpsURLConnectionImpl.java:307) ~[?:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:130) ~[authlib-9.0.75.jar:?]
+	... 10 more
+[02:48:12 INFO]: [ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry] Finished initialising converters for DataConverter in 402.0ms
+[02:48:13 INFO]: Loaded 1585 recipes
+[02:48:13 INFO]: Loaded 1688 advancements
+[02:48:13 INFO]: Starting minecraft server version 26.2
+[02:48:13 WARN]: ****************************
+[02:48:13 WARN]: YOU ARE RUNNING THIS SERVER AS AN ADMINISTRATIVE OR ROOT USER. THIS IS NOT ADVISED.
+[02:48:13 WARN]: YOU ARE OPENING YOURSELF UP TO POTENTIAL RISKS WHEN DOING THIS.
+[02:48:13 WARN]: FOR MORE INFORMATION, SEE https://madelinemiller.dev/blog/root-minecraft-server/
+[02:48:13 WARN]: ****************************
+[02:48:13 INFO]: Loading properties
+[02:48:13 INFO]: This server is running Folia version 26.2-7-ver/26.2.x@14b7fee (2026-08-25T13:29:28Z) (Implementing API version 26.2.build.7-beta)
+[02:48:13 INFO]: [spark] This server bundles the spark profiler. For more information please visit https://docs.papermc.io/paper/profiling
+[02:48:14 INFO]: Server Ping Player Sample Count: 12
+[02:48:14 INFO]: Using 4 threads for Netty based IO
+[02:48:14 INFO]: [MoonriseCommon] Paper is using 1 worker threads, 1 I/O threads
+[02:48:14 INFO]: [io.papermc.paper.threadedregions.TickRegions] Initialised EDF Folia scheduler with initial 2 target thread(s)
+[02:48:14 INFO]: Default game type: SURVIVAL
+[02:48:14 INFO]: Generating keypair
+[02:48:14 INFO]: Starting Minecraft server on 127.0.0.1:25676
+[02:48:14 INFO]: Paper: Using libdeflate (Linux x86_64) compression from Velocity.
+[02:48:14 INFO]: Paper: Using OpenSSL 3.x.x (Linux x86_64) cipher from Velocity.
+[02:48:14 WARN]: [io.netty.util.internal.MacAddressUtil] Failed to find a usable hardware address from the network interfaces; using random bytes: 13:7c:2b:13:17:44:80:2f
+[02:48:14 INFO]: [Towny] Loading server plugin Towny v0.103.2.0
+[02:48:14 INFO]: [NeverLandTownyControl] Loading server plugin NeverLandTownyControl v0.6.2
+[02:48:14 INFO]: [NeverLandTownyEspionage] Loading server plugin NeverLandTownyEspionage v0.2.1
+[02:48:14 INFO]: [NeverLandTownyTreasuryPlus] Loading server plugin NeverLandTownyTreasuryPlus v0.3.2
+[02:48:14 INFO]: [NeverLandTownyJustice] Loading server plugin NeverLandTownyJustice v0.2.1
+[02:48:14 INFO]: [CallerTreasuryRuntimeProbe] Loading server plugin CallerTreasuryRuntimeProbe v1.0
+[02:48:14 WARN]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[02:48:14 WARN]: The server will make no attempt to authenticate usernames. Beware.
+[02:48:14 WARN]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[02:48:14 WARN]: To change this, set "online-mode" to "true" in the server.properties file.
+[02:48:14 INFO]: Preparing level "world"
+[02:48:15 INFO]: Loading 0 persistent chunks for level 'minecraft:overworld'...
+[02:48:15 INFO]: Prepared spawn area in 0 ms
+[02:48:15 INFO]: Loading 0 persistent chunks for level 'minecraft:the_nether'...
+[02:48:15 INFO]: Prepared spawn area in 0 ms
+[02:48:15 INFO]: Loading 0 persistent chunks for level 'minecraft:the_end'...
+[02:48:15 INFO]: Prepared spawn area in 0 ms
+[02:48:15 INFO]: Done preparing level "world" (0.306s)
+[02:48:15 INFO]: [Towny] Enabling Towny v0.103.2.0
+[02:48:15 INFO]: ====================      Towny      ========================
+[02:48:15 INFO]: [Towny] Config: 0.97.5.10 applying 1 automatic update...
+[02:48:15 INFO]: [Towny] Config: 0.98.0.1 applying 1 automatic update...
+[02:48:15 INFO]: [Towny] Config: 0.98.1.12 applying 2 automatic updates...
+[02:48:15 INFO]: [Towny] Config: 0.98.3.3 applying 1 automatic update...
+[02:48:15 INFO]: [Towny] Config: 0.98.3.4 applying 1 automatic update...
+[02:48:15 INFO]: [Towny] Config: 0.98.3.13 applying 8 automatic updates...
+[02:48:15 INFO]: [Towny] Config: 0.99.5.16 applying 1 automatic update...
+[02:48:15 INFO]: [Towny] Config: 0.100.0.9 applying 1 automatic update...
+[02:48:15 INFO]: [Towny] Config: 0.100.0.16 applying 61 automatic updates...
+[02:48:15 INFO]: [Towny] Config: 0.100.1.15 applying 1 automatic update...
+[02:48:15 INFO]: [Towny] Config: 0.100.2.10 applying 1 automatic update...
+[02:48:15 INFO]: [Towny] Config: 0.100.4.6 applying 1 automatic update...
+[02:48:15 INFO]: [Towny] Config: 0.101.1.2 applying 1 automatic update...
+[02:48:15 INFO]: [Towny] Successfully loaded translations for 45 languages.
+[02:48:16 INFO]: [Towny] Config: Loaded 9 townblock types: default, bank, shop, wilds, inn, farm, embassy, arena, jail.
+[02:48:16 INFO]: [Towny] Database: [Load] flatfile [Save] flatfile
+[02:48:16 INFO]: [Towny] Database: Loaded in 34ms.
+[02:48:16 INFO]: [Towny] Cleaning up old backups...
+[02:48:16 INFO]: [Towny] Could not delete old backups.
+[02:48:16 INFO]: [Towny] Making backup...
+[02:48:16 INFO]: [Towny] Time until a New Day: 9 hours, 11 minutes, 44 seconds
+[02:48:16 INFO]: [Towny] Searching for third-party plugins...
+[02:48:16 INFO]: [Towny] Plugins found: 
+[02:48:16 INFO]: [Towny] Checking for updates...
+[02:48:16 INFO]: [Towny]   Permissions: TownyPerms, BukkitPermissions
+[02:48:16 INFO]: [Towny] No new updates found.
+[02:48:16 INFO]: [Towny] Towny flatfiles and settings successfully backed up.
+[02:48:16 INFO]: =============================================================
+[02:48:16 INFO]: [Towny] Version: 0.103.2.0 - Plugin Enabled
+[02:48:16 INFO]: =============================================================
+[02:48:16 INFO]: [NeverLandTownyControl] Enabling NeverLandTownyControl v0.6.2
+[02:48:16 INFO]: [NeverLandTownyControl] Управление модулями: 39; отключено с зависимостями: 0
+[02:48:16 INFO]: [NeverLandTownyEspionage] Enabling NeverLandTownyEspionage v0.2.1
+[02:48:16 INFO]: [NeverLandTownyEspionage] NeverLandTownyEspionage 0.2.1 включён: операций 5, активных 0, PlaceholderAPI=false.
+[02:48:16 INFO]: [NeverLandTownyTreasuryPlus] Enabling NeverLandTownyTreasuryPlus v0.3.2
+[02:48:16 INFO]: [NeverLandTownyTreasuryPlus] Казна и недельные отчёты включены.
+[02:48:16 INFO]: [NeverLandTownyJustice] Enabling NeverLandTownyJustice v0.2.1
+[02:48:16 INFO]: [CallerTreasuryRuntimeProbe] Enabling CallerTreasuryRuntimeProbe v1.0
+[02:48:16 INFO]: [spark] The spark plugin has been preferred but was not loaded. The bundled spark profiler will enabled instead.
+[02:48:16 INFO]: [spark] The spark profiler will not be enabled because it is currently disabled in the configuration.
+[02:48:16 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+[02:48:16 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_nether
+[02:48:16 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_end
+[02:48:16 INFO]: ThreadedAnvilChunkStorage (world): All chunks are saved
+[02:48:16 INFO]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[02:48:16 INFO]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[02:48:16 INFO]: ThreadedAnvilChunkStorage: All dimensions are saved
+[02:48:16 INFO]: Done (9.249s)! For help, type "help"
+[02:48:19 INFO]: [CallerTreasuryRuntimeProbe] CHECK actual Justice0.2.1 Espionage0.2.1 Treasury0.3.2 enable together on Folia
+[02:48:19 INFO]: [CallerTreasuryRuntimeProbe] CHECK physical NeverLandTownyJustice writer held before accepted action
+[02:48:19 INFO]: [CallerTreasuryRuntimeProbe] CHECK Justice intent ACK gates both case publication and first bank invocation
+[02:48:19 INFO]: [CallerTreasuryRuntimeProbe] CHECK unrelated Suite work remains available during Justice file delay
+[02:48:19 INFO]: [CallerTreasuryRuntimeProbe] CHECK funded warrant waits exact Treasury PAID and core ACK once
+[02:48:20 INFO]: [CallerTreasuryRuntimeProbe] CHECK cancellation returns only backing paid bounty once through requestRefund
+[02:48:20 INFO]: [CallerTreasuryRuntimeProbe] CHECK completed Justice funding and refund do not replay
+[02:48:21 INFO]: [CallerTreasuryRuntimeProbe] CHECK negative backend without exact observer remains REVIEW rather than assuming rejection
+[02:48:21 INFO]: [CallerTreasuryRuntimeProbe] CHECK proven unpaid Treasury rejection cancels unfinanced case without reward or debit
+[02:48:21 INFO]: [CallerTreasuryRuntimeProbe] CHECK unknown Justice debit stays unactivated and does not replay
+[02:48:21 INFO]: [CallerTreasuryRuntimeProbe] CHECK physical NeverLandTownyEspionage writer held before accepted action
+[02:48:21 INFO]: [CallerTreasuryRuntimeProbe] CHECK upgrade click reports pending rather than immediate success
+[02:48:22 INFO]: [CallerTreasuryRuntimeProbe] CHECK Spy intent file ACK gates request and level publication
+[02:48:22 INFO]: [CallerTreasuryRuntimeProbe] CHECK repeated click while saving cannot create another purchase
+[02:48:22 WARN]: [NeverLand API] NeverLandTownyTreasuryPlus INVOCATION_ERROR: java.lang.IllegalStateException: Есть новые банковские операции; дождитесь сверки казны и повторите тот же ID
+[02:48:22 WARN]: [NeverLandTownyEspionage] Покупка разведки ожидает восстановления или сверки. Сохранённый ID не меняется
+java.lang.reflect.InvocationTargetException
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:119) ~[?:?]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[?:?]
+	at NeverLandTownyEspionage-0.2.1.jar//ru.neverland.core.ApiServices$Connection.invoke(ApiServices.java:146) ~[?:?]
+	at NeverLandTownyEspionage-0.2.1.jar//ru.neverland.mintespionage.service.EconomyService.request(EconomyService.java:19) ~[?:?]
+	at NeverLandTownyEspionage-0.2.1.jar//ru.neverland.mintespionage.service.SpyPurchaseController.pulse(SpyPurchaseController.java:16) ~[?:?]
+	at CallerTreasuryRuntimeProbe.jar//ru.neverland.runtime.CallerTreasuryProbe.lambda$spyBusy$1(CallerTreasuryProbe.java:41) ~[?:?]
+	at CallerTreasuryRuntimeProbe.jar//ru.neverland.runtime.CallerTreasuryProbe.lambda$later$1(CallerTreasuryProbe.java:15) ~[?:?]
+	at NeverLandTownyControl-0.6.2.jar//ru.neverland.core.SuiteState.tryRun(SuiteState.java:48) ~[?:?]
+	at CallerTreasuryRuntimeProbe.jar//ru.neverland.runtime.CallerTreasuryProbe.lambda$later$0(CallerTreasuryProbe.java:15) ~[?:?]
+	at io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler$GlobalScheduledTask.run(FoliaGlobalRegionScheduler.java:178) ~[folia-26.2.jar:?]
+	at io.papermc.paper.threadedregions.scheduler.FoliaGlobalRegionScheduler.tick(FoliaGlobalRegionScheduler.java:36) ~[folia-26.2.jar:?]
+	at io.papermc.paper.threadedregions.RegionizedServer.globalTick(RegionizedServer.java:241) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at io.papermc.paper.threadedregions.RegionizedServer$GlobalTickTickHandle.tickRegion(RegionizedServer.java:185) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at io.papermc.paper.threadedregions.TickRegionScheduler$RegionScheduleHandle.runTick(TickRegionScheduler.java:481) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at ca.spottedleaf.concurrentutil.scheduler.EDFSchedulerThreadPool$TickThreadRunner.run(EDFSchedulerThreadPool.java:528) ~[leafpile-1.2.0.jar:?]
+	at ca.spottedleaf.concurrentutil.util.LazyRunnable.run(LazyRunnable.java:25) ~[leafpile-1.2.0.jar:?]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+Caused by: java.lang.IllegalStateException: Есть новые банковские операции; дождитесь сверки казны и повторите тот же ID
+	at NeverLandTownyTreasuryPlus-0.3.2.jar//ru.neverland.townytreasury.service.TreasuryService.requireAsyncReady(TreasuryService.java:100) ~[?:?]
+	at NeverLandTownyTreasuryPlus-0.3.2.jar//ru.neverland.townytreasury.service.AsyncBudgetGateway.request(AsyncBudgetGateway.java:28) ~[?:?]
+	at NeverLandTownyTreasuryPlus-0.3.2.jar//ru.neverland.townytreasury.service.TreasuryService.requestDebit(TreasuryService.java:110) ~[?:?]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[?:?]
+	... 16 more
+[02:48:22 INFO]: [NeverLand API] NeverLandTownyTreasuryPlus: связь восстановлена
+[02:48:22 WARN]: [NeverLand API] NeverLandTownyTreasuryPlus INVOCATION_ERROR: java.lang.IllegalStateException: Есть новые банковские операции; дождитесь сверки казны и повторите тот же ID
+[02:48:22 INFO]: [NeverLand API] NeverLandTownyTreasuryPlus: связь восстановлена
+[02:48:22 WARN]: [NeverLand API] NeverLandTownyTreasuryPlus INVOCATION_ERROR: java.lang.IllegalStateException: Есть новые банковские операции; дождитесь сверки казны и повторите тот же ID
+[02:48:22 INFO]: [CallerTreasuryRuntimeProbe] CHECK synchronous Treasury busy on unflushed bank flow leaves same caller UUID pending and module enabled
+[02:48:22 INFO]: [NeverLand API] NeverLandTownyTreasuryPlus: связь восстановлена
+[02:48:22 WARN]: [NeverLand API] NeverLandTownyTreasuryPlus INVOCATION_ERROR: java.lang.IllegalStateException: Есть новые банковские операции; дождитесь сверки казны и повторите тот же ID
+[02:48:22 INFO]: [NeverLand API] NeverLandTownyTreasuryPlus: связь восстановлена
+[02:48:22 INFO]: [CallerTreasuryRuntimeProbe] CHECK same purchase UUID recovers after bank observations flush with exact one level and debit
+[02:48:23 INFO]: [CallerTreasuryRuntimeProbe] CHECK physical NeverLandTownyEspionage writer held before accepted action
+[02:48:23 INFO]: [CallerTreasuryRuntimeProbe] CHECK bank PAID alone cannot publish defense level before own core file ACK
+[02:48:23 INFO]: [CallerTreasuryRuntimeProbe] CHECK defense level and exact applied UUID publish together after ACK
+[02:48:23 INFO]: [CallerTreasuryRuntimeProbe] CHECK proven unpaid spy purchase leaves paid levels and city balance unchanged
+[02:48:23 INFO]: [CallerTreasuryRuntimeProbe] CHECK real mission service accepts durable paid request
+[02:48:24 INFO]: [CallerTreasuryRuntimeProbe] CHECK administrative owner pause keeps accepted terms without debit or mission activation
+[02:48:24 INFO]: [CallerTreasuryRuntimeProbe] CHECK paid mission and frozen target terms have exact matching durable core receipt
+[02:48:24 INFO]: [CallerTreasuryRuntimeProbe] CHECK unsubmitted purchase accepted into own durable journal
+[02:48:24 INFO]: [CallerTreasuryRuntimeProbe] CHECK exact ABSENT cancellation precondition has no in-flight own submit
+[02:48:24 INFO]: [Towny] [Global Message] The town of CancelledSpyTarget has been deleted!
+[02:48:24 INFO]: [CallerTreasuryRuntimeProbe] CHECK deleted target before bank intent cancels neutrally with no debit and releases town
+[02:48:24 INFO]: [CallerTreasuryRuntimeProbe] CHECK second mission accepts saved terms before target deletion
+[02:48:25 INFO]: [CallerTreasuryRuntimeProbe] CHECK bank can acknowledge payment while caller has not applied mission yet
+[02:48:25 INFO]: [Towny] [Global Message] The town of DeletedSpyTarget has been deleted!
+[02:48:25 INFO]: [CallerTreasuryRuntimeProbe] CHECK real Towny target removed after bank PAID
+[02:48:25 INFO]: [CallerTreasuryRuntimeProbe] CHECK deleted target converts paid purchase to backed refund and unknown refund is not repeated
+[02:48:26 INFO]: [CallerTreasuryRuntimeProbe] CHECK known unpaid refund gets durable next attempt, restores funds and releases city purchase lock
+[02:48:26 INFO]: [CallerTreasuryRuntimeProbe] CHECK lost spy bank response keeps one unresolved UUID and grants no level
+[02:48:26 INFO]: [CallerTreasuryRuntimeProbe] CHECK actual caller onDisable under outer Suite returns without waiting on filesystem
+[02:48:26 INFO]: [RegionShutdownThread] Awaiting scheduler termination for 60s...
+[02:48:26 INFO]: [RegionShutdownThread] Scheduler halted
+[02:48:26 INFO]: Stopping server
+[02:48:26 INFO]: [CallerTreasuryRuntimeProbe] Disabling CallerTreasuryRuntimeProbe v1.0
+[02:48:26 INFO]: [NeverLandTownyJustice] Disabling NeverLandTownyJustice v0.2.1
+[02:48:26 INFO]: [NeverLandTownyTreasuryPlus] Disabling NeverLandTownyTreasuryPlus v0.3.2
+[02:48:26 INFO]: [NeverLandTownyEspionage] Disabling NeverLandTownyEspionage v0.2.1
+[02:48:26 INFO]: [NeverLandTownyControl] Disabling NeverLandTownyControl v0.6.2
+[02:48:26 INFO]: [Towny] Disabling Towny v0.103.2.0
+[02:48:26 INFO]: ==============================================================
+[02:48:26 INFO]: [Towny] Finishing File IO Tasks...
+[02:48:26 INFO]: [Towny] Finishing Universe Tasks...
+[02:48:26 INFO]: [Towny] Version: 0.103.2.0 - Plugin Disabled
+[02:48:26 INFO]: =============================================================
+[02:48:26 INFO]: [RegionShutdownThread] Halting chunk systems...
+[02:48:26 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:overworld'
+[02:48:26 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:overworld'
+[02:48:26 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:the_nether'
+[02:48:26 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:the_nether'
+[02:48:26 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:the_end'
+[02:48:26 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:the_end'
+[02:48:26 INFO]: [RegionShutdownThread] Halted chunk systems
+[02:48:26 INFO]: [RegionShutdownThread] Finishing pending teleports...
+[02:48:26 INFO]: [RegionShutdownThread] Finished pending teleports
+[02:48:26 INFO]: [RegionShutdownThread] Saving all worlds
+[02:48:26 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:overworld'
+[02:48:26 INFO]: [RegionShutdownThread] Closing player inventories...
+[02:48:26 INFO]: [RegionShutdownThread] Closed player inventories
+[02:48:26 INFO]: [RegionShutdownThread] Saving chunks...
+[02:48:26 INFO]: [RegionShutdownThread] Saved chunks
+[02:48:26 INFO]: [RegionShutdownThread] Saving level data...
+[02:48:26 INFO]: [RegionShutdownThread] Saved level data
+[02:48:26 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:overworld'
+[02:48:26 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:the_nether'
+[02:48:26 INFO]: [RegionShutdownThread] Closing player inventories...
+[02:48:26 INFO]: [RegionShutdownThread] Closed player inventories
+[02:48:26 INFO]: [RegionShutdownThread] Saving chunks...
+[02:48:26 INFO]: [RegionShutdownThread] Saved chunks
+[02:48:26 INFO]: [RegionShutdownThread] Saving level data...
+[02:48:26 INFO]: [RegionShutdownThread] Saved level data
+[02:48:26 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:the_nether'
+[02:48:26 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:the_end'
+[02:48:26 INFO]: [RegionShutdownThread] Closing player inventories...
+[02:48:26 INFO]: [RegionShutdownThread] Closed player inventories
+[02:48:26 INFO]: [RegionShutdownThread] Saving chunks...
+[02:48:26 INFO]: [RegionShutdownThread] Saved chunks
+[02:48:26 INFO]: [RegionShutdownThread] Saving level data...
+[02:48:26 INFO]: [RegionShutdownThread] Saved level data
+[02:48:26 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:the_end'
+[02:48:26 INFO]: [RegionShutdownThread] Saved all worlds
+[02:48:26 INFO]: [RegionShutdownThread] Saving global world data...
+[02:48:26 INFO]: [RegionShutdownThread] Saved global world data.
+[02:48:26 INFO]: [RegionShutdownThread] Saving all player data...
+[02:48:26 INFO]: [RegionShutdownThread] Saved all player data
+[02:48:26 INFO]: Waiting for all RegionFile I/O tasks to complete...
+[02:48:26 INFO]: All RegionFile I/O tasks to complete
+[02:48:26 INFO]: [MoonriseCommon] Awaiting termination of worker pool for up to 60s...
+[02:48:26 INFO]: [MoonriseCommon] Awaiting termination of I/O pool for up to 60s...

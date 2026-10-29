@@ -1,0 +1,1 @@
+started=true class=PluginClassLoader{plugin=NeverLandTownyContracts v0.8.0, pluginEnabled=true, url=plugins/NeverLandTownyContracts-0.8.0.jar}

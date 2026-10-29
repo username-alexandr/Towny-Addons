@@ -1,0 +1,30 @@
+package ru.neverland.townyresearch.licenses;
+import java.util.*;import java.util.concurrent.*;import java.nio.file.*;import java.io.IOException;
+import org.bukkit.configuration.*;import org.bukkit.configuration.file.YamlConfiguration;import ru.neverland.core.*;
+
+/** A separate bounded ACK journal; no permanent research data is rewritten here. */
+public final class LicenseRepository {
+    public static final long MAX_BYTES=32L*1024*1024;private final Path file;private final DurableSnapshots writer;private volatile Map<UUID,TechLicense> rows=Map.of();private boolean writable,busy,closing;
+    public LicenseRepository(Path file){this.file=file;writer=new DurableSnapshots(file,"nlt-research-licenses",2);}
+    public Map<UUID,TechLicense> rows(){return rows;}
+    public boolean writable(){try(var g=SuiteState.guard()){return writable&&!closing&&AtomicFiles.writable(file);}}
+    public boolean busy(){try(var g=SuiteState.guard()){return busy;}}
+    public void load()throws Exception{
+        if(SuiteState.held())throw new IllegalStateException("Лицензии загружаются вне общей блокировки");writable=false;
+        if(!Files.exists(file)){AtomicFiles.loaded(file);writable=true;return;}if(Files.size(file)>MAX_BYTES)throw new IOException("Журнал лицензий превышает допустимый размер");var yaml=new YamlConfiguration();yaml.load(file.toFile());if(integer(yaml,"schema")!=1)throw new IOException("Неизвестная схема лицензий");var root=section(yaml,"licenses");if(root.getKeys(false).size()>TechLicense.MAX_RECORDS)throw new IOException("Слишком много лицензий");var next=new HashMap<UUID,TechLicense>();
+        for(String key:root.getKeys(false)){var s=section(root,key);UUID id=UUID.fromString(key);var t=new TechLicense.Terms(id,uuid(s,"seller"),uuid(s,"buyer"),uuid(s,"seller-actor"),s.getString("technology"),Math.toIntExact(integer(s,"level")),decimal(s,"bonus"),integer(s,"cents"),Math.toIntExact(integer(s,"duration")));String actor=s.getString("buyer-actor","");next.put(id,new TechLicense(t,actor.isEmpty()?null:UUID.fromString(actor),TechLicense.Phase.valueOf(s.getString("phase")),Math.toIntExact(integer(s,"remaining")),Math.toIntExact(integer(s,"offer-remaining")),bool(s,"cancel-requested"),integer(s,"revision"),integer(s,"created-at"),s.getString("note",""),bool(s,"audited"),TechLicense.Event.valueOf(s.getString("event","STATE")),new LicenseActor(s.getString("actor.kind","SYSTEM"),s.getString("actor.id",""),s.getString("actor.name","NeverLandTownyResearch"),s.getString("actor.town","")),s.contains("changed-at")?integer(s,"changed-at"):integer(s,"created-at")));}
+        rows=validate(next);AtomicFiles.loaded(file);writable=true;
+    }
+    public static Map<UUID,TechLicense> validate(Map<UUID,TechLicense> input){if(input.size()>TechLicense.MAX_RECORDS)throw new IllegalArgumentException("Архив лицензий достиг предела");var slots=new HashSet<String>();for(var e:input.entrySet()){var row=e.getValue();if(!e.getKey().equals(row.terms().id()))throw new IllegalArgumentException("ID лицензии не совпадает");if(row.reservesSlot()&&!slots.add(row.terms().buyer()+"/"+row.terms().technology()))throw new IllegalArgumentException("Две действующие лицензии одной технологии");}return Map.copyOf(input);}
+    public CompletionStage<Map<UUID,TechLicense>> commit(Map<UUID,TechLicense> before,Map<UUID,TechLicense> requested){try(var g=SuiteState.guard()){
+        if(!writable()||busy||rows!=before)return CompletableFuture.failedFuture(new IllegalStateException("Лицензии сохраняются или недоступны; обновите меню"));var next=validate(requested);if(next.equals(rows))return CompletableFuture.completedFuture(rows);busy=true;
+        return writer.submit(()->encode(next)).handle((v,error)->{try(var lock=SuiteState.guard()){busy=false;if(error!=null){writable=false;throw new CompletionException(error);}rows=next;return rows;}});
+    }}
+    public CompletionStage<Void> closeAsync(){try(var g=SuiteState.guard()){closing=true;return writer.closeAsync();}}
+    private static ConfigurationSection section(ConfigurationSection s,String key)throws IOException{var value=s.getConfigurationSection(key);if(value==null)throw new IOException("Нет раздела "+key);return value;}
+    private static long integer(ConfigurationSection s,String key){return new java.math.BigDecimal(String.valueOf(s.get(key))).longValueExact();}
+    private static double decimal(ConfigurationSection s,String key){return Double.parseDouble(String.valueOf(s.get(key)));}
+    private static boolean bool(ConfigurationSection s,String key){if(!(s.get(key) instanceof Boolean value))throw new IllegalArgumentException("Неверный флаг "+key);return value;}
+    private static UUID uuid(ConfigurationSection s,String key){return UUID.fromString(Objects.requireNonNull(s.getString(key)));}
+    private static String encode(Map<UUID,TechLicense> rows){var y=new YamlConfiguration();y.set("schema",1);y.createSection("licenses");for(var e:rows.entrySet()){var r=e.getValue();var t=r.terms();String p="licenses."+e.getKey()+".";y.set(p+"seller",t.seller().toString());y.set(p+"buyer",t.buyer().toString());y.set(p+"seller-actor",t.sellerActor().toString());y.set(p+"buyer-actor",r.buyerActor()==null?"":r.buyerActor().toString());y.set(p+"technology",t.technology());y.set(p+"level",t.level());y.set(p+"bonus",t.bonus());y.set(p+"cents",t.cents());y.set(p+"duration",t.duration());y.set(p+"phase",r.phase().name());y.set(p+"remaining",r.remaining());y.set(p+"offer-remaining",r.offerRemaining());y.set(p+"cancel-requested",r.cancelRequested());y.set(p+"revision",r.revision());y.set(p+"created-at",r.createdAt());y.set(p+"note",r.note());y.set(p+"audited",r.audited());y.set(p+"event",r.event().name());y.set(p+"actor.kind",r.actor().kind());y.set(p+"actor.id",r.actor().id());y.set(p+"actor.name",r.actor().name());y.set(p+"actor.town",r.actor().town());y.set(p+"changed-at",r.changedAt());}String text=y.saveToString();if(text.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>MAX_BYTES)throw new IllegalStateException("Журнал лицензий превышает допустимый размер");return text;}
+}

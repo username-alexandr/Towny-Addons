@@ -65,7 +65,7 @@ public final class ContractRepository {
                     contract.administrativeCancellation(ru.neverland.core.SafeYaml.booleanValue(yaml,path+"admin-cancelled",false));
                     String company=yaml.getString(path+"company", "");
                     if(!company.isEmpty())contract.restoreCompany(UUID.fromString(company));
-                    if(yaml.contains(path+"funded")&&!yaml.isBoolean(path+"funded"))throw new IllegalArgumentException("Повреждён статус резерва");contract.funded(yaml.getBoolean(path+"funded",true));
+                    if(yaml.contains(path+"funded")&&!yaml.isBoolean(path+"funded"))throw new IllegalArgumentException("Повреждён статус резерва");contract.funded(yaml.getBoolean(path+"funded",true));contract.fundingPaused(ru.neverland.core.SafeYaml.booleanValue(yaml,path+"funding-paused",false));
                     if(yaml.contains(path+"terms"))contract.snapshot(ContractCodec.read(yaml.getConfigurationSection(path+"terms")));
                     if(yaml.contains(path+"area"))contract.area(ContractCodec.area(yaml.getConfigurationSection(path+"area")));
                     var proofs=yaml.getConfigurationSection(path+"proofs");
@@ -94,7 +94,7 @@ public final class ContractRepository {
             if(money!=null)for(String key:money.getKeys(false)){var v=money.getConfigurationSection(key);if(v==null||!integral(v.get("cents"))||!integral(v.get("created")))throw new IllegalArgumentException("Повреждён платёж");UUID id=UUID.fromString(key);String c=v.getString("contract","");payments.put(id,new MunicipalPayment(id,c.isEmpty()?null:UUID.fromString(c),UUID.fromString(v.getString("town","")),UUID.fromString(v.getString("account","")),MunicipalPayment.Kind.valueOf(v.getString("kind","")),v.getLong("cents"),MunicipalPayment.Phase.valueOf(v.getString("phase","")),v.getLong("created")));}
             var items=yaml.getConfigurationSection("deliveries");
             if(items!=null)for(String key:items.getKeys(false)){var v=items.getConfigurationSection(key);if(v==null||!v.isInt("amount")||!integral(v.get("created"))||!v.isBoolean("acknowledged"))throw new IllegalArgumentException("Повреждена поставка");UUID id=UUID.fromString(key);deliveries.put(id,new DeliveryIntent(id,UUID.fromString(v.getString("contract","")),UUID.fromString(v.getString("town","")),UUID.fromString(v.getString("actor","")),v.getString("sample",""),v.getInt("amount"),DeliveryIntent.Phase.valueOf(v.getString("phase","")),v.getLong("created"),v.getBoolean("acknowledged")));}
-            for(ActiveContract c:allActive())if(!c.funded()&&payments.values().stream().noneMatch(m->c.id().equals(m.contract())&&m.kind()==MunicipalPayment.Kind.RESERVE&&(m.phase()==MunicipalPayment.Phase.READY||m.phase()==MunicipalPayment.Phase.PENDING)))throw new IllegalArgumentException("Нет резерва неоплаченного задания");
+            for(ActiveContract c:allActive())if(!c.funded()&&payments.values().stream().noneMatch(m->c.id().equals(m.contract())&&m.kind()==MunicipalPayment.Kind.RESERVE&&(m.phase()==MunicipalPayment.Phase.READY||m.phase()==MunicipalPayment.Phase.PENDING||m.phase()==MunicipalPayment.Phase.TREASURY)))throw new IllegalArgumentException("Нет резерва неоплаченного задания");
             for(DeliveryIntent d:deliveries.values())if(d.phase()==DeliveryIntent.Phase.PLAYER_PENDING||d.phase()==DeliveryIntent.Phase.TAKEN){ActiveContract c=find(d.town(),d.contract().toString());if(c==null||!c.funded()||c.settlementStatus()!=null)throw new IllegalArgumentException("Поставка без действующего контракта");}
         }catch(RuntimeException ex){writable=false;throw new IllegalStateException("Повреждён журнал операций контрактов",ex);}
         dirty = false;ru.neverland.core.AtomicFiles.loaded(file.toPath());writable=true;
@@ -161,7 +161,7 @@ public final class ContractRepository {
             yaml.set(path + "template", contract.templateId()); yaml.set(path + "created-at", contract.createdAt());
             yaml.set(path + "expires-at", contract.expiresAt()); contract.timer().write(yaml,path);yaml.set(path+"admin-cancelled",contract.administrativeCancellation()); yaml.set(path + "progress", contract.progress());
             yaml.set(path + "goal", contract.goal()); yaml.set(path + "escrow", contract.escrow());
-            yaml.set(path+"funded",contract.funded());
+            yaml.set(path+"funded",contract.funded());yaml.set(path+"funding-paused",contract.fundingPaused());
             yaml.set(path+"fishing-paused",contract.fishingPaused());
             if(contract.snapshot()!=null)ContractCodec.write(yaml.createSection(path+"terms"),contract.snapshot());
             if(contract.area()!=null)ContractCodec.write(yaml.createSection(path+"area"),contract.area());

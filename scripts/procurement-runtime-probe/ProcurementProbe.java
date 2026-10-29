@@ -1,0 +1,108 @@
+package ru.neverland.runtime;
+
+import java.lang.reflect.*;
+import java.nio.file.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import org.bukkit.*;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.*;
+import org.bukkit.plugin.java.JavaPlugin;
+import com.palmergames.bukkit.towny.*;
+import com.palmergames.bukkit.towny.object.*;
+import com.palmergames.bukkit.towny.object.economy.Account;
+import com.palmergames.bukkit.towny.object.economy.adapter.EconomyAdapter;
+import com.palmergames.bukkit.towny.object.economy.provider.EconomyProvider;
+import io.papermc.paper.threadedregions.scheduler.*;
+import ru.neverland.core.*;
+import ru.neverland.mintcontracts.api.*;
+import ru.neverland.mintcontracts.procurement.*;
+import ru.neverland.mintcontracts.service.*;
+import ru.neverland.mintcontracts.integration.TownyHook;
+import ru.neverland.townybuilds.api.BuildingMaterialsApi;
+import ru.neverland.townybuilds.data.DataStore;
+import ru.neverland.townytreasury.api.TownyTreasuryApi;
+import ru.neverland.townytreasury.service.TreasuryService;
+
+/** Native Folia/addon APIs; explicitly substituted offline players, scheduler and deterministic bank. */
+public final class ProcurementProbe extends JavaPlugin {
+ static UUID id(String k){return UUID.nameUUIDFromBytes(("procurement-052-"+k).getBytes(java.nio.charset.StandardCharsets.UTF_8));}
+ static final UUID T=id("town"),M=id("mayor"),N=id("next-mayor"),R=id("resident");
+ Path proof;String phase;int checks;World world;Location origin;Town town;JavaPlugin owner;ProcurementService procurement;ContractService contracts;BuildingMaterialsApi materials;TreasuryService treasury;DataStore data;Player mayor,next,resident;ItemStack sample;String key;UUID published,refunded,pending;long firstCents,pendingCents;Map<UUID,Double> balances=new HashMap<>();int deposits,withdrawals;boolean permission=true;
+ interface Work{void run()throws Exception;}
+ static Object field(Object o,String name)throws Exception{var f=o.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(o);}
+ void check(boolean good,String why)throws Exception{if(!good)throw new AssertionError(why);checks++;Files.writeString(proof.resolve(phase+"-checks.txt"),"PASS "+why+"\n",StandardOpenOption.CREATE,StandardOpenOption.APPEND);getLogger().info("CHECK "+why);}
+ void later(long ticks,Work work){Bukkit.getRegionScheduler().runDelayed(this,origin,t->{if(!SuiteState.tryRun("Procurement native check",()->{try{work.run();}catch(Throwable e){fail(e);}}))later(1,work);},ticks);}
+ <V>void await(CompletionStage<V> f,Consumer<V> next){f.whenComplete((v,e)->{if(SuiteState.held()){fail(new AssertionError("Public future completed while holding SuiteState"));return;}if(e!=null)fail(e);else later(1,()->next.accept(v));});}
+ <V>void denied(CompletionStage<V> f,String why,Work next){f.whenComplete((v,e)->later(1,()->{check(e!=null,why);next.run();}));}
+ void fail(Throwable e){getLogger().log(java.util.logging.Level.SEVERE,"PROCUREMENT PROBE FAILED",e);try{Files.writeString(proof.resolve("failed.txt"),e.toString());}catch(Exception ignored){}Bukkit.getGlobalRegionScheduler().run(this,t->Bukkit.shutdown());}
+ @Override public void onEnable(){if(!Files.isRegularFile(Path.of("ALLOW_DISPOSABLE_RAID_PROBE"))||!"127.0.0.1".equals(getServer().getIp())){Bukkit.getPluginManager().disablePlugin(this);return;}proof=getDataFolder().toPath();Bukkit.getGlobalRegionScheduler().runDelayed(this,t->{try{Files.createDirectories(proof);phase=Files.exists(proof.resolve("broken-passed.txt"))?"restart":Files.exists(proof.resolve("first-passed.txt"))?"broken":"first";world=Bukkit.getWorlds().getFirst();origin=new Location(world,8.5,120,8.5);world.getChunkAtAsync(0,0).whenComplete((c,e)->{if(e!=null)fail(e);else later(2,this::setup);});}catch(Throwable e){fail(e);}},40);}
+ @SuppressWarnings("unchecked")Player actor(UUID id,String name){var scheduler=(EntityScheduler)Proxy.newProxyInstance(EntityScheduler.class.getClassLoader(),new Class<?>[]{EntityScheduler.class},(p,m,a)->switch(m.getName()){case "runDelayed"->Bukkit.getRegionScheduler().runDelayed(this,origin,(Consumer<ScheduledTask>)a[1],(Long)a[3]);case "run"->Bukkit.getRegionScheduler().run(this,origin,(Consumer<ScheduledTask>)a[1]);default->throw new UnsupportedOperationException(m.getName());});return(Player)Proxy.newProxyInstance(Player.class.getClassLoader(),new Class<?>[]{Player.class},(p,m,a)->switch(m.getName()){case "getUniqueId"->id;case "getName"->name;case "getServer"->Bukkit.getServer();case "getWorld"->world;case "getLocation"->origin;case "isOnline"->true;case "isOp"->false;case "getScheduler"->scheduler;case "hasPermission"->permission&&!a[0].equals("mintcontracts.admin");case "sendMessage","closeInventory"->null;case "getGameMode"->GameMode.SURVIVAL;case "hashCode"->id.hashCode();case "equals"->p==a[0];default->null;});}
+ void bank()throws Exception{if(Files.exists(proof.resolve("bank.properties"))){var p=new Properties();try(var in=Files.newInputStream(proof.resolve("bank.properties"))){p.load(in);}p.forEach((k,v)->balances.put(UUID.fromString(k.toString()),Double.parseDouble(v.toString())));}
+  var adapter=(EconomyAdapter)Proxy.newProxyInstance(EconomyAdapter.class.getClassLoader(),new Class<?>[]{EconomyAdapter.class},(p,m,a)->{Account account=a!=null&&a.length>0&&a[0] instanceof Account x?x:null;UUID id=account==null?null:account.getUUID();double old=balances.getOrDefault(id,0.0);return switch(m.getName()){case "name","toString"->"Procurement deterministic native bank fixture";case "hasAccount"->true;case "getBalance"->old;case "newAccount","deleteAccount"->null;case "getFormattedBalance"->String.valueOf(a[0]);case "setBalance"->{balances.put(id,(Double)a[1]);yield true;}case "renameAccount"->true;case "add","subtract"->{double n=(Double)a[1];boolean add=m.getName().equals("add");if(!add&&old<n)yield false;balances.put(id,old+(add?n:-n));if(add)deposits++;else withdrawals++;yield true;}default->throw new UnsupportedOperationException(m.getName());};});
+  var f=sun.misc.Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);var unsafe=(sun.misc.Unsafe)f.get(null);EconomyProvider provider=(EconomyProvider)unsafe.allocateInstance(Class.forName("com.palmergames.bukkit.towny.object.economy.provider.ReserveEconomyProvider",false,Towny.class.getClassLoader()));for(var e:Map.of("economy",adapter,"provider",provider).entrySet()){var x=TownyEconomyHandler.class.getDeclaredField(e.getKey());x.setAccessible(true);x.set(null,e.getValue());}TownySettings.setProperty("economy.using_economy",true);if(phase.equals("first"))town.getAccount().deposit(100000,"disposable procurement seed");deposits=withdrawals=0;
+ }
+ @SuppressWarnings("unchecked")void setup()throws Exception{owner=(JavaPlugin)Bukkit.getPluginManager().getPlugin("NeverLandTownyContracts");procurement=(ProcurementService)Bukkit.getServicesManager().load(BuildingProcurementApi.class);materials=Bukkit.getServicesManager().load(BuildingMaterialsApi.class);treasury=(TreasuryService)Bukkit.getServicesManager().load(TownyTreasuryApi.class);contracts=(ContractService)field(owner,"contracts");data=(DataStore)field(Bukkit.getPluginManager().getPlugin("NeverLandTownyBuilds"),"dataStore");mayor=actor(M,"ProcurementMayor");next=actor(N,"ProcurementNext");resident=actor(R,"ProcurementResident");
+  lifecycleEvidence();
+  check(owner.isEnabled()&&procurement!=null&&materials!=null&&treasury!=null,"real Contracts, Builds materials and Treasury providers are enabled");
+  if(phase.equals("first")){var u=TownyUniverse.getInstance();u.newTownInternal("ProcurementCity",T);town=TownyAPI.getInstance().getTown(T);for(var e:Map.of(M,"ProcurementMayor",N,"ProcurementNext",R,"ProcurementResident").entrySet()){var r=u.getDataSource().newResident(e.getValue(),e.getKey());r.setTown(town);r.save();}town.setMayor(TownyAPI.getInstance().getResident(M));var claim=new TownBlock(0,0,u.getWorld(world.getName()));u.addTownBlock(claim);claim.setTown(town);town.setHomeBlock(claim);claim.save();town.setSpawn(origin);town.save();}
+  else town=TownyAPI.getInstance().getTown(T);bank();waitTreasury(100);
+ }
+ void waitTreasury(int tries)throws Exception{try{treasury.sync(town);}catch(IllegalStateException busy){if(tries<=0)throw busy;later(1,()->waitTreasury(tries-1));return;}afterBank();}
+ @SuppressWarnings("unchecked")void afterBank()throws Exception{
+  if(phase.equals("broken")){check(!procurement.repository().available(),"invalid procurement database disables only optional procurement feature");check(contracts.active(T).size()==1&&owner.isEnabled()&&Bukkit.getPluginManager().getPlugin("NeverLandTownyBuilds").isEnabled(),"legacy published city contract and Builds stay enabled after optional ledger failure");denied(procurement.requests(next,1),"corrupt optional ledger refuses new requests without touching bank",this::finish);return;}
+  if(phase.equals("restart")){resume();return;}
+  var rows=(List<Map<String,Object>>)materials.needs(T,"forge").get("materials");var original=rows.stream().filter(r->((Number)r.get("amount")).intValue()>12).findFirst().orElseThrow();sample=ContractCodec.item(String.valueOf(original.get("item")));int initial=((Number)original.get("amount")).intValue();var stored=sample.clone();stored.setAmount(5);data.town(T).setStorage(new ItemStack[]{stored},54);data.town(T).resourceFund("forge",1).add(sample,7);data.markDirty();data.saveOrThrow();var reduced=(List<Map<String,Object>>)materials.needs(T,"forge").get("materials");check(reduced.stream().filter(r->r.get("item").equals(original.get("item"))).mapToInt(r->((Number)r.get("amount")).intValue()).sum()==initial-12,"actual building needs subtract existing fund and common warehouse exactly once");
+  denied(procurement.offers(resident,"forge"),"ordinary resident cannot request city procurement",()->await(procurement.offers(mayor,"forge"),offers->{try{var offer=offers.stream().filter(r->r.get("name").equals(original.get("name"))).findFirst().orElseThrow();key=offer.get("itemKey").toString();check(((Number)offer.get("amount")).intValue()==initial-12&&balance()==100000,"read-only offer matches actual missing amount and never debits bank");await(procurement.quote(mayor,"forge",key),q->{try{published=UUID.fromString(q.get("requestId").toString());firstCents=((Number)q.get("rewardCents")).longValue();check(q.get("status").equals("QUOTE")&&contracts.active(T).isEmpty(),"exact immutable quote is durable before any public contract");await(procurement.confirm(mayor,published),r->pollFunded(mayor,published,100,this::publishFirst));}catch(Exception e){fail(e);}});}catch(Exception e){fail(e);}}));
+ }
+ double balance(){return town.getAccount().getHoldingBalance(true);}
+ void pollFunded(Player p,UUID id,int tries,Work done){await(procurement.status(p,id),r->{try{if(r.get("status").equals("FUNDED")){done.run();return;}if(tries<=0)throw new AssertionError("funding timeout: "+r);later(1,()->pollFunded(p,id,tries-1,done));}catch(Exception e){fail(e);}});}
+ void publishFirst()throws Exception{check(withdrawals==1&&balance()==100000-firstCents/100.0&&contracts.active(T).isEmpty(),"one exact observed debit funds escrow before publishing any city contract");data.town(T).resourceFund("forge",1).add(sample,1);data.markDirty();data.saveOrThrow();await(procurement.confirm(mayor,published),r->{try{check(r.get("status").equals("PUBLISHED")&&contracts.active(T).size()==1&&withdrawals==1,"accepted paid quote publishes once even if shortage changed after payment");check(data.town(T).existingResourceFund("forge").count(sample)==8&&data.town(T).storage()[0].getAmount()==5,"quote and publication do not consume building fund or common stock");await(procurement.confirm(mayor,published),again->{try{check(contracts.active(T).size()==1&&withdrawals==1&&again.get("contractId").equals(published.toString()),"repeated confirmation reuses same contract and never repeats reserve");denied(procurement.cancel(mayor,published),"published escrow cannot request full procurement refund",()->createRefund());}catch(Exception e){fail(e);}});}catch(Exception e){fail(e);}});}
+ void createRefund(){await(procurement.offers(mayor,"town_hall"),offers->await(procurement.quote(mayor,"town_hall",offers.getFirst().get("itemKey").toString()),q->{refunded=UUID.fromString(q.get("requestId").toString());await(procurement.confirm(mayor,refunded),r->pollFunded(mayor,refunded,100,()->await(procurement.cancel(mayor,refunded),refund->pollRefund(100))));}));}
+ void pollRefund(int tries){await(procurement.status(mayor,refunded),r->{try{if(!r.get("status").equals("REFUNDED")){if(tries<=0)throw new AssertionError("refund timeout: "+r);later(1,()->pollRefund(tries-1));return;}check(withdrawals==2&&deposits==1&&balance()==100000-firstCents/100.0,"unpublished funded cancellation returns exact original amount once");check(Boolean.FALSE.equals(treasury.debitStatus(refunded).get("backingAvailable")),"authoritative original debit no longer backs publication after full refund");await(procurement.cancel(mayor,refunded),again->{try{check(deposits==1&&again.get("status").equals("REFUNDED"),"repeated cancellation never deposits twice");legacyFunding();}catch(Exception e){fail(e);}});}catch(Exception e){fail(e);}});}
+ boolean timerPaused(Object contract)throws Exception{Object timer=contract.getClass().getMethod("timer").invoke(contract);return (Boolean)timer.getClass().getMethod("paused").invoke(timer);}
+ void legacyFunding()throws Exception{
+  var definition=new ru.neverland.mintcontracts.model.ContractDefinition("legacy_gateway","Обычный городской заказ",ru.neverland.mintcontracts.model.ContractType.MOB_KILL,Material.IRON_SWORD,0,List.of(),"ZOMBIE",null,3,12.34,600);
+  var result=contracts.activate(town,definition);var contract=contracts.active(T).stream().filter(c->c.templateId().equals("legacy_gateway")).findFirst().orElseThrow();
+  check(result==ContractService.ActivateResult.PENDING&&!contract.funded()&&contract.fundingPaused()&&timerPaused(contract),"ordinary city contract remains paused until asynchronous treasury payment is acknowledged");
+  contracts.record(mayor,ru.neverland.mintcontracts.model.ContractType.MOB_KILL,"ZOMBIE",1);check(contract.progress()==0,"unfunded municipal contract refuses gameplay progress");pollLegacy(contract,200);
+ }
+ void pollLegacy(ru.neverland.mintcontracts.model.ActiveContract contract,int tries)throws Exception{
+  if(!contract.funded()){if(tries<=0)throw new AssertionError("ordinary municipal treasury funding timeout");later(1,()->pollLegacy(contract,tries-1));return;}
+  check(!contract.fundingPaused()&&!timerPaused(contract)&&withdrawals==3&&balance()==100000-firstCents/100.0-12.34,"ordinary municipal funding uses one exact treasury debit and resumes its preserved term");
+  check(contracts.cancelAdministrative(town,contract),"ordinary paid contract still supports administrative cancellation");pollLegacyReturn(contract.id(),200);
+ }
+ void pollLegacyReturn(UUID contract,int tries)throws Exception{
+  if(contracts.find(T,contract.toString())!=null){if(tries<=0)throw new AssertionError("ordinary municipal escrow refund timeout");later(1,()->pollLegacyReturn(contract,tries-1));return;}
+  check(deposits==2&&balance()==100000-firstCents/100.0&&contracts.active(T).size()==1,"ordinary municipal cancellation returns only actual escrow and preserves procurement contract");createPending();
+ }
+ void confirmAfterReconcile(Player actor,UUID request,int tries,Work next){
+  procurement.confirm(actor,request).whenComplete((row,error)->later(1,()->{
+   if(error==null){next.run();return;}
+   Throwable cause=error;while(cause.getCause()!=null)cause=cause.getCause();
+   if(tries<=0||!String.valueOf(cause.getMessage()).contains("дождитесь сверки"))throw new IllegalStateException("Unexpected procurement funding failure",error);
+   check(treasury.debitStatus(request).get("status").equals("ABSENT"),"busy bank reconciliation refuses before creating another debit receipt");
+   later(2,()->confirmAfterReconcile(actor,request,tries-1,next));
+  }));
+ }
+ void createPending(){await(procurement.offers(mayor,"market"),offers->await(procurement.quote(mayor,"market",offers.getFirst().get("itemKey").toString()),q->{pending=UUID.fromString(q.get("requestId").toString());pendingCents=((Number)q.get("rewardCents")).longValue();confirmAfterReconcile(mayor,pending,100,()->pollFunded(mayor,pending,100,()->{town.setMayor(TownyAPI.getInstance().getResident(N));town.save();denied(procurement.confirm(mayor,pending),"former mayor cannot publish already paid quote after permission change",()->{check(contracts.active(T).size()==1&&balance()==100000-(firstCents+pendingCents)/100.0,"paid reserve remains durable without unintended publication or refund");Files.writeString(proof.resolve("expected.txt"),published+"\n"+refunded+"\n"+pending+"\n"+firstCents+"\n"+pendingCents+"\n");finish();});}));}));}
+ void resume()throws Exception{var expected=Files.readAllLines(proof.resolve("expected.txt"));published=UUID.fromString(expected.get(0));refunded=UUID.fromString(expected.get(1));pending=UUID.fromString(expected.get(2));firstCents=Long.parseLong(expected.get(3));pendingCents=Long.parseLong(expected.get(4));check(contracts.active(T).size()==1&&balance()==100000-(firstCents+pendingCents)/100.0,"full restart preserves published municipal escrow and separate paid reserve");await(procurement.status(next,pending),r->{try{check(r.get("status").equals("FUNDED")&&withdrawals==0&&deposits==0,"new mayor reads restored funding without replaying bank");denied(procurement.status(resident,pending),"unrelated resident cannot read another resident's procurement",()->await(procurement.confirm(next,pending),publishedRow->{try{check(publishedRow.get("status").equals("PUBLISHED")&&contracts.active(T).size()==2&&withdrawals==0,"current mayor explicitly resumes funded quote after full restart without debit");await(procurement.status(next,refunded),returned->{try{check(returned.get("status").equals("REFUNDED")&&deposits==0,"refund final receipt survives restart without deposit replay");owner.getConfig().set("building-orders.enabled",false);denied(procurement.offers(next,"forge"),"configuration pause blocks new procurement",()->await(procurement.status(next,pending),read->{try{check(read.get("status").equals("PUBLISHED")&&contracts.active(T).size()==2,"new-work pause preserves existing city contracts and receipt access");finish();}catch(Exception e){fail(e);}}));}catch(Exception e){fail(e);}});}catch(Exception e){fail(e);}}));}catch(Exception e){fail(e);}});}
+ void lifecycleEvidence()throws Exception{
+  Class<?> lifecycle=Class.forName("ru.neverland.core.ModuleLifecycle",true,owner.getClass().getClassLoader());var started=lifecycle.getDeclaredField("started");started.setAccessible(true);Object entries=started.get(null);
+  Files.writeString(proof.resolve(phase+"-lifecycle-before.txt"),"started="+((Set<?>)entries).contains(owner)+" class="+lifecycle.getClassLoader());
+  Runtime.getRuntime().addShutdownHook(new Thread(()->{try{Object repo=procurement.repository();Object connection=field(repo,"db");Files.writeString(proof.resolve(phase+"-lifecycle-after.txt"),"started="+((Set<?>)started.get(null)).contains(owner)+" closing="+field(repo,"closing")+" stopped="+field(procurement,"stopped")+" terminated="+((java.util.concurrent.ThreadPoolExecutor)field(repo,"worker")).isTerminated()+" dbClosed="+(connection==null||((java.sql.Connection)connection).isClosed()));}catch(Exception e){try{Files.writeString(proof.resolve(phase+"-lifecycle-error.txt"),e.toString());}catch(Exception ignored){}}},"procurement-lifecycle-proof"));
+ }
+ void shutdownGate()throws Exception{
+  if(phase.equals("broken"))return;
+  var lock=java.sql.DriverManager.getConnection("jdbc:sqlite:"+owner.getDataFolder().toPath().resolve("procurement.sqlite"));try(var sql=lock.createStatement()){sql.execute("PRAGMA busy_timeout=1000");sql.execute("BEGIN IMMEDIATE");}
+  check(!lock.isClosed(),"native shutdown begins while a separate real SQLite writer holds the procurement file");
+  var release=new Thread(()->{boolean free=false;try{
+   long until=System.nanoTime()+5_000_000_000L;while(owner.isEnabled()&&System.nanoTime()<until)Thread.sleep(10);
+   while(System.nanoTime()<until&&!(free=SuiteState.tryRun("Procurement shutdown waits outside Suite",()->{})))Thread.sleep(10);
+   Thread.sleep(100);try(var sql=lock.createStatement()){sql.execute("ROLLBACK");}lock.close();
+   Files.writeString(proof.resolve(phase+"-shutdown-writer.txt"),"disabled="+!owner.isEnabled()+" suiteFree="+free+" released="+lock.isClosed());
+  }catch(Exception error){try{lock.close();Files.writeString(proof.resolve(phase+"-shutdown-writer-error.txt"),error.toString());}catch(Exception ignored){}}},"procurement-native-writer-release");release.start();
+ }
+ void finish()throws Exception{shutdownGate();var values=new Properties();balances.forEach((k,v)->values.setProperty(k.toString(),v.toString()));try(var out=Files.newOutputStream(proof.resolve("bank.properties"))){values.store(out,"Explicit deterministic native economy fixture, not a live Vault provider");}TownySettings.setProperty("economy.using_economy",false);TownyUniverse.getInstance().getDataSource().saveAll();Files.writeString(proof.resolve(phase+"-passed.txt"),"PASS "+checks+" assertions; actual Folia/Towny/Contracts/Builds/Treasury APIs, exact needs/funding/refund, permission changes, optional database isolation and restart; explicit offline Player/EntityScheduler and persistent deterministic bank substitutes, no live Vault/client claimed\n");Bukkit.getGlobalRegionScheduler().run(this,t->Bukkit.shutdown());}
+}

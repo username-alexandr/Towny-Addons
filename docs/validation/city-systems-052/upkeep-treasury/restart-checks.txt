@@ -1,0 +1,6 @@
+PASS actual Upkeep, Resources and category-aware Treasury providers are installed
+PASS full JVM restart restores exact new invoice route and real resource escrow
+PASS owner pause holds prepared bank call during restart without replay
+PASS old unknown bank call and its collateral remain available for administrator reconciliation
+PASS restored request commits exactly once through original receipt without second resource consumption
+PASS both paid intervals ignore reprocessing after restart

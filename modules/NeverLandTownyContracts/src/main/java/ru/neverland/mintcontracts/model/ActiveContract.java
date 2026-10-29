@@ -22,6 +22,9 @@ public final class ActiveContract {
     private final Map<String,WorkProof> proofs=new LinkedHashMap<>();
     private boolean funded=true;
     private boolean fishingPaused;
+    private boolean fundingPaused;
+    public boolean fundingPaused(){try(var g=ru.neverland.core.SuiteState.guard()){return fundingPaused;}}
+    public void fundingPaused(boolean value){try(var g=ru.neverland.core.SuiteState.guard()){fundingPaused=value;}}
     public boolean fishingPaused(){try(var g=ru.neverland.core.SuiteState.guard()){return fishingPaused;}}
     public void fishingPaused(boolean value){try(var g=ru.neverland.core.SuiteState.guard()){fishingPaused=value;}}
 

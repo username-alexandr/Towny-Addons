@@ -13,16 +13,18 @@ import ru.neverland.townyresearch.model.*;
 import java.util.*;
 public final class ResearchService implements TownyResearchApi {
     private final Plugin plugin;private final ResearchRepository repository;private final CityBridge bridge=new CityBridge();private final ResearchProcessor processor;
-    private volatile ResearchSettings settings;private BukkitTask task;private long warned;
+    private final ru.neverland.townyresearch.licenses.LicenseService licenses;private volatile ResearchSettings settings;private BukkitTask task;private long warned;
     private record Cache(Map<UUID,ResearchSnapshot> towns,Map<UUID,UUID> residents){Cache{towns=Map.copyOf(towns);residents=Map.copyOf(residents);}}
     private volatile Cache cache=new Cache(Map.of(),Map.of());
-    public ResearchService(Plugin plugin,ResearchRepository repository,ResearchSettings settings){this.plugin=plugin;this.repository=repository;this.settings=settings;processor=new ResearchProcessor(repository,bridge);}
+    public ResearchService(Plugin plugin,ResearchRepository repository,ResearchSettings settings,ru.neverland.townyresearch.licenses.LicenseRepository licenseRepository,ru.neverland.townyresearch.licenses.LicenseSettings licenseSettings){this.plugin=plugin;this.repository=repository;this.settings=settings;processor=new ResearchProcessor(repository,bridge);licenses=new ru.neverland.townyresearch.licenses.LicenseService(plugin,this,licenseRepository,licenseSettings);}
+    public ru.neverland.townyresearch.licenses.LicenseService licenses(){return licenses;}
+    public ResearchSettings settingsSnapshot(){return settings;}
     public ResearchSettings settings(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return settings;} }
     private void primary(){if(!ru.neverland.core.SuiteState.held())throw new IllegalStateException("Нужен основной поток сервера");}
-    public void start()throws Exception{ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {primary();bridge.verify();refresh(0);schedule();} }
+    public void start()throws Exception{ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {primary();bridge.verify();refresh(0);schedule();licenses.start();} }
     private void schedule(){task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,()->refresh(settings.interval()),20L*settings.interval(),20L*settings.interval());}
     public void reload(ResearchSettings next){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {primary();settings=next;if(task!=null)task.cancel();refresh(0);schedule();} }
-    public void stop(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(task!=null)task.cancel();cache=new Cache(Map.of(),Map.of());} }
+    public java.util.concurrent.CompletionStage<Void> stop(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(task!=null)task.cancel();cache=new Cache(Map.of(),Map.of());return licenses.stop();} }
     private void warn(Exception ex){long now=System.currentTimeMillis();if(now-warned>=60000){warned=now;plugin.getLogger().log(java.util.logging.Level.WARNING,"Исследование приостановлено; журнал и знания сохранены",ex);}}
     public void refresh(int seconds){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {primary();Map<UUID,ResearchSnapshot> towns=new HashMap<>();Map<UUID,UUID> residents=new HashMap<>();
         try{for(Town town:List.copyOf(TownyAPI.getInstance().getTowns())){
@@ -45,7 +47,7 @@ public final class ResearchService implements TownyResearchApi {
     public void cancel(UUID town)throws Exception{ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {primary();try{processor.cancel(town);}finally{refresh(0);}} }
     @Override public String name(String id){ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {var t=settings.technologies().get(id);return t==null?"Исследование":t.name();} }
     @Override public int level(UUID town,String id){ try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {var snapshot=cache.towns().get(town);return snapshot==null?0:snapshot.state().learned().getOrDefault(id,0);} }
-    @Override public double bonus(UUID town,String id){ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {var technology=settings.technologies().get(id);int level=level(town,id);return technology==null||!technology.enabled()||level<=0?0:technology.levels().get(Math.min(level,technology.levels().size())-1).bonus();} }
+    @Override public double bonus(UUID town,String id){ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {var technology=settings.technologies().get(id);int level=level(town,id);double owned=technology==null||!technology.enabled()||level<=0?0:technology.levels().get(Math.min(level,technology.levels().size())-1).bonus();return Math.max(owned,licenses.bonus(town,id));} }
     @Override public Optional<ResearchSnapshot> research(UUID town){ try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {return Optional.ofNullable(cache.towns().get(town));} }
     @Override public Optional<ResearchSnapshot> residentResearch(UUID resident){ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {var current=cache;UUID town=current.residents().get(resident);return Optional.ofNullable(town==null?null:current.towns().get(town));} }
     @Override public Collection<ResearchSnapshot> towns(){ try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {return cache.towns().values();} }

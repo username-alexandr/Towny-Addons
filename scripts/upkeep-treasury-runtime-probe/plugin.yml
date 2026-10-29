@@ -1,0 +1,6 @@
+name: UpkeepTreasuryRuntimeProbe
+version: 0.52-upkeep
+main: ru.neverland.runtime.UpkeepTreasuryProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyResources, NeverLandTownyUpkeep, NeverLandTownyTreasuryPlus]

@@ -1,0 +1,1 @@
+PASS 6 checks; actual Folia/Towny/Upkeep/Resources/Treasury integration, persistent bank substitute, frozen categories, paid/rejected receipts, old uncertainty isolation and complete restart; no Vault provider or network player claimed

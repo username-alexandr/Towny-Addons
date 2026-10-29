@@ -32,6 +32,8 @@ public final class MintTownyContracts extends JavaPlugin {
     private ru.neverland.mintcontracts.orders.PublicOrders publicOrders;
     private ru.neverland.mintcontracts.fishing.FishingProtection fishing;
     public ru.neverland.mintcontracts.fishing.FishingProtection fishing(){return fishing;}
+    private ru.neverland.mintcontracts.procurement.ProcurementService procurement;
+    private ru.neverland.mintcontracts.service.BuildOrders buildOrders;
     public boolean fishingReady(){return fishing!=null&&fishing.ready();}
 
     @Override public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
@@ -57,7 +59,8 @@ public final class MintTownyContracts extends JavaPlugin {
         boolean placeholders = PlaceholderHook.register(this, towny, contracts);
 ru.neverland.core.ActivityAdmin.attach(this,"townycontracts","mintcontracts.admin",contracts::adminTargets);
         getCommand("orders").setExecutor((sender,cmd,label,args)->{sender.sendMessage("Раздел заработка приостановлен: проверьте конфигурацию и журнал запуска.");return true;});try { publicOrders=new ru.neverland.mintcontracts.orders.PublicOrders(this,names); } catch(Exception ex) { getLogger().log(java.util.logging.Level.SEVERE,"Публичные заказы приостановлены; городские контракты продолжают работать",ex); }
-        new ru.neverland.mintcontracts.service.BuildOrders(this,towny,contracts);
+        try{procurement=new ru.neverland.mintcontracts.procurement.ProcurementService(this,towny,contracts);getServer().getServicesManager().register(ru.neverland.mintcontracts.api.BuildingProcurementApi.class,procurement,this,ServicePriority.Normal);}catch(Exception|LinkageError optional){if(procurement!=null)procurement.closeAsync();procurement=null;getLogger().log(java.util.logging.Level.WARNING,"Закупки материалов приостановлены; прежние контракты сохранены",optional);}
+        buildOrders=new ru.neverland.mintcontracts.service.BuildOrders(this,towny,procurement);
         try{fishing=new ru.neverland.mintcontracts.fishing.FishingProtection(this,id->contracts.hasFishingTask(id)||(publicOrders!=null&&publicOrders.hasFishingTask(id)));}
         catch(Exception ex){getLogger().log(java.util.logging.Level.SEVERE,"Рыбалка заданий приостановлена; остальные контракты работают",ex);}
         ru.neverland.core.ModuleShutdown.register(this,this::prepareShutdown);
@@ -69,12 +72,13 @@ ru.neverland.core.ActivityAdmin.attach(this,"townycontracts","mintcontracts.admi
     private java.util.concurrent.CompletionStage<Void> prepareShutdown(){
         var orders=publicOrders==null?java.util.concurrent.CompletableFuture.<Void>completedFuture(null):publicOrders.shutdownAsync();
         var fish=fishing==null?java.util.concurrent.CompletableFuture.<Void>completedFuture(null):fishing.shutdownAsync();
-        return java.util.concurrent.CompletableFuture.allOf(orders.toCompletableFuture(),fish.toCompletableFuture());
+        var purchases=procurement==null?java.util.concurrent.CompletableFuture.<Void>completedFuture(null):procurement.closeAsync();
+        return java.util.concurrent.CompletableFuture.allOf(orders.toCompletableFuture(),fish.toCompletableFuture(),purchases.toCompletableFuture());
     }
     @Override public void onDisable(){
         try(var guard=ru.neverland.core.SuiteState.guard()){
             if(!ru.neverland.core.ModuleLifecycle.end(this))return;
-            prepareShutdown();if(contracts!=null)contracts.shutdown();
+            prepareShutdown();if(buildOrders!=null)buildOrders.close();if(contracts!=null)contracts.shutdown();
             if(towny!=null){towny.unregister("contracts");towny.unregister("buildorders");}
             getServer().getServicesManager().unregisterAll(this);
         }

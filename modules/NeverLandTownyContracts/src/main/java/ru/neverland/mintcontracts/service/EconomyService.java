@@ -20,31 +20,6 @@ public final class EconomyService {
         try { return amount <= 0 || TownyEconomyHandler.isActive() && ru.neverland.integration.TreasuryAccess.canSpend(town,"infrastructure",amount); }
         catch (RuntimeException exception) { return false; }
     } }
-    public boolean reserve(Town town, ContractDefinition definition) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
-        if (definition.reward() <= 0) return true;
-        if (!TownyEconomyHandler.isActive()) return false;
-        String reason = reason("economy.reserve-reason", definition);
-        try { return ru.neverland.integration.TreasuryAccess.withdraw(town,"infrastructure","contracts",definition.reward(),reason); }
-        catch (RuntimeException exception) { return false; }
-    } }
-    public boolean pay(UUID residentId, double amount, ContractDefinition definition) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
-        if (amount <= 0) return true;
-        if (!TownyEconomyHandler.isActive()) return false;
-        try {
-            Resident resident = towny.resident(residentId);
-            Account account = resident == null ? null : resident.getAccount();
-            return account != null && account.deposit(amount, reason("economy.payout-reason", definition));
-        } catch (RuntimeException exception) { return false; }
-    } }
-    public boolean refund(Town town, double amount, ContractDefinition definition) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
-        if (amount <= 0) return true;
-        if (!TownyEconomyHandler.isActive()) return false;
-        try { return town != null && ru.neverland.integration.TreasuryAccess.deposit(town,"infrastructure","contracts",true,amount,reason("economy.refund-reason",definition)); }
-        catch (RuntimeException exception) { return false; }
-    } }
-    private String reason(String path, ContractDefinition definition) {
-        return plugin.getConfig().getString(path, "Городской заказ").replace("%contract%", definition.id());
-    }
     public String format(double amount) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         try { return TownyEconomyHandler.isActive() ? TownyEconomyHandler.getFormattedBalance(amount) : FALLBACK.format(amount); }
         catch (RuntimeException exception) { return FALLBACK.format(amount); }

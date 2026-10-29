@@ -1,0 +1,10 @@
+PASS actual Upkeep, Resources and category-aware Treasury providers are installed
+PASS fixture seeds exact real town account and strategic resources
+PASS frozen category and held strategic resources are durable before an external debit
+PASS changing Treasury project mapping cannot rewrite an accepted invoice category
+PASS one acknowledged debit activates upkeep and consumes only its held resources
+PASS bank receipt retains the original configured budget after reload
+PASS reprocessing a completed upkeep interval cannot debit again
+PASS confirmed budget rejection releases strategic escrow without charging city
+PASS legacy ambiguous invoice never becomes a new Treasury request
+PASS restart fixture retains exact pending amount category and reserved resources

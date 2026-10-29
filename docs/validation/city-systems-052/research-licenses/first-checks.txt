@@ -1,0 +1,21 @@
+PASS actual Research0.2 and Treasury gateway enabled on real Folia
+PASS buyer starts with no owned or licensed irrigation
+PASS permission revoked before acceptance prevents funding intent
+PASS unaccepted offer never grants free technology or charges money
+PASS license physical writer deliberately held
+PASS buyer confirmation is durable before any Treasury request or bank mutation
+PASS revocation after acceptance submit but before its ACK prevents the subsequent bank request
+PASS exact buyer escrow and seller payout transfer existing50 with no emission
+PASS funded license grants frozen effect while owned research level remains zero
+PASS licensed effect cannot be resold as a learned technology
+PASS administrative pause disables effect without spending paid duration
+PASS disabled technology neutrally pauses effect and paid time
+PASS paid active seconds expire without creating permanent research
+PASS seller payment intent writer deliberately held
+PASS seller payout is gated by its persisted PAYING intent
+PASS license config pause after PAYING submit prevents a later bank call
+PASS cancel before seller payout restores full buyer escrow with no licensed benefit
+PASS unknown seller response stays REVIEW without duplicate payout or free license
+PASS actual Research onDisable under outer Suite returns without waiting for bank or writer
+PASS seller result after shutdown request receives durable ACTIVE without repeating bank
+PASS licenses leave all permanent levels and paused legacy research bytes unchanged

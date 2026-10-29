@@ -6,6 +6,10 @@ import ru.neverland.townyupkeep.model.PaymentProcessor.Gateway;
 import java.util.*;
 import java.lang.reflect.*;
 public final class CityBridge implements Gateway {
+    private final UpkeepTreasury treasury=new UpkeepTreasury();
+    @Override public boolean asynchronous(){return Bukkit.getPluginManager().getPlugin("NeverLandTownyTreasuryPlus")!=null;}
+    @Override public String category(ru.neverland.townyupkeep.model.Entry.Key key)throws Exception{return treasury.category(key.project());}
+    @Override public ru.neverland.townyupkeep.model.PaymentProcessor.Outcome poll(ru.neverland.townyupkeep.model.Entry.Key key,ru.neverland.townyupkeep.model.Entry.Invoice invoice)throws Exception{return treasury.poll(key,invoice);}
     public record Site(int completedLevel,boolean owned,boolean specialized){}
     private Object resource(String method,Class<?>[] types,Object... args)throws Exception{
         try{return ru.neverland.core.ApiServices.call("NeverLandTownyResources","ru.neverland.townyresources.api.TownyResourcesApi",method,types,args);}
@@ -36,7 +40,7 @@ public final class CityBridge implements Gateway {
         if(!consume&&status.equals("NONE"))return;resource("settleResources",new Class<?>[]{UUID.class,boolean.class},id,consume);
     } }
     @Override public boolean canPay(UUID id,long cents){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {Town town=TownyAPI.getInstance().getTown(id);return town!=null&&TownyEconomyHandler.isActive()&&town.getAccount().canPayFromHoldings(cents/100.0);} }
-    @Override public boolean withdraw(UUID id,long cents,UUID invoice){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {Town town=TownyAPI.getInstance().getTown(id);return town!=null&&TownyEconomyHandler.isActive()&&ru.neverland.integration.TreasuryAccess.withdraw(town,"infrastructure","upkeep",cents/100.0,"NeverLand Upkeep "+invoice);} }
-    @Override public boolean withdraw(UUID id,long cents,UUID invoice,String project){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {Town town=TownyAPI.getInstance().getTown(id);return town!=null&&TownyEconomyHandler.isActive()&&ru.neverland.integration.TreasuryAccess.withdraw(town,"project/"+project,"upkeep",cents/100.0,"NeverLand Upkeep "+invoice);} }
+    @Override public boolean withdraw(UUID id,long cents,UUID invoice){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {if(asynchronous())throw new IllegalStateException("Для установленной казны нужен подтверждённый счёт");Town town=TownyAPI.getInstance().getTown(id);return town!=null&&TownyEconomyHandler.isActive()&&town.getAccount().withdraw(cents/100.0,"NeverLand Upkeep "+invoice);} }
+    @Override public boolean withdraw(UUID id,long cents,UUID invoice,String project){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {return withdraw(id,cents,invoice);} }
     @Override public void forget(UUID id)throws Exception{ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {resource("forgetReservation",new Class<?>[]{UUID.class},id);} }
 }

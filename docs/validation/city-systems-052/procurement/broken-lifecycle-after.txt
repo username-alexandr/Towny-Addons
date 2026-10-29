@@ -1,0 +1,1 @@
+started=false closing=true stopped=java.util.concurrent.CompletableFuture@5697ad12[Completed normally] terminated=true dbClosed=true

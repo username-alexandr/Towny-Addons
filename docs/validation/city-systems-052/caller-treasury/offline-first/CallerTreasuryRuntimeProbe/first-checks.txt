@@ -1,0 +1,33 @@
+PASS actual Justice0.2.1 Espionage0.2.1 Treasury0.3.2 enable together on Folia
+PASS physical NeverLandTownyJustice writer held before accepted action
+PASS Justice intent ACK gates both case publication and first bank invocation
+PASS unrelated Suite work remains available during Justice file delay
+PASS funded warrant waits exact Treasury PAID and core ACK once
+PASS cancellation returns only backing paid bounty once through requestRefund
+PASS completed Justice funding and refund do not replay
+PASS negative backend without exact observer remains REVIEW rather than assuming rejection
+PASS proven unpaid Treasury rejection cancels unfinanced case without reward or debit
+PASS unknown Justice debit stays unactivated and does not replay
+PASS physical NeverLandTownyEspionage writer held before accepted action
+PASS upgrade click reports pending rather than immediate success
+PASS Spy intent file ACK gates request and level publication
+PASS repeated click while saving cannot create another purchase
+PASS synchronous Treasury busy on unflushed bank flow leaves same caller UUID pending and module enabled
+PASS same purchase UUID recovers after bank observations flush with exact one level and debit
+PASS physical NeverLandTownyEspionage writer held before accepted action
+PASS bank PAID alone cannot publish defense level before own core file ACK
+PASS defense level and exact applied UUID publish together after ACK
+PASS proven unpaid spy purchase leaves paid levels and city balance unchanged
+PASS real mission service accepts durable paid request
+PASS administrative owner pause keeps accepted terms without debit or mission activation
+PASS paid mission and frozen target terms have exact matching durable core receipt
+PASS unsubmitted purchase accepted into own durable journal
+PASS exact ABSENT cancellation precondition has no in-flight own submit
+PASS deleted target before bank intent cancels neutrally with no debit and releases town
+PASS second mission accepts saved terms before target deletion
+PASS bank can acknowledge payment while caller has not applied mission yet
+PASS real Towny target removed after bank PAID
+PASS deleted target converts paid purchase to backed refund and unknown refund is not repeated
+PASS known unpaid refund gets durable next attempt, restores funds and releases city purchase lock
+PASS lost spy bank response keeps one unresolved UUID and grants no level
+PASS actual caller onDisable under outer Suite returns without waiting on filesystem

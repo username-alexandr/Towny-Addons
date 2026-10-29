@@ -6,3 +6,9 @@ simulation:
 # Светлый заголовок для тёмного ресурспака; для ванильного светлого окна: "#273247".
 menu-style:
   title-color: "#F4F7FC"
+
+# Временные эффекты за реальную оплату между городами, через TreasuryPlus с ACK.
+licenses:
+  enabled: true
+  offer-seconds: 86400
+  max-open-offers: 16

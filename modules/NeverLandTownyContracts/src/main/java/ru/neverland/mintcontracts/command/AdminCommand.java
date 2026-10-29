@@ -82,6 +82,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     private void sendActivate(CommandSender sender, ContractDefinition definition, ContractService.ActivateResult result) {
         switch (result) {
             case SUCCESS -> messages.send(sender, "activated", Map.of("contract", ColorUtil.strip(definition.name()), "reward", contracts.economy().format(definition.reward())));
+            case PENDING -> messages.send(sender,"activation-pending");
             case MAX_ACTIVE -> messages.send(sender, "max-active"); case DUPLICATE -> messages.send(sender, "duplicate-template");
             case NO_MONEY -> messages.send(sender, "not-enough-treasury", Map.of("reward", contracts.economy().format(definition.reward())));
             case WAREHOUSE_UNAVAILABLE -> messages.send(sender, "warehouse-unavailable");

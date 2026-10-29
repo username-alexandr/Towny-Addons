@@ -1,0 +1,96 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 33 assertions; real Folia/Towny Account/Observer, Justice and Espionage Treasury requestDebit/refund, caller/core physical ACK, neutral pause, rejection, unknown receipt/restart/manual reconciliation and optional-corruption isolation. Explicit deterministic economy adapter and offline actor proxies; no real Vault backend or live client claimed.\n",
+    "jar_sha256": {
+      "CallerTreasuryRuntimeProbe.jar": "942e549b207c7c67e9fc5ee83ec604c31dd6cf6a10dc050107c86c96fc506c9b",
+      "NeverLandTownyEspionage-0.2.1.jar": "3251b68e907a9a54b289143cd87fca7298392d2fc371e2b16cf31a3f8b7ed9ca",
+      "NeverLandTownyJustice-0.2.1.jar": "7064882b2c77aacbf1db766417a2873554582403030eb22607a1269ab13aa3de",
+      "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+      "NeverLandTownyControl-0.6.2.jar": "cfb68b0ff0dc4fc3da4d2e2f4c8e1762cf7229605e1033262069e41ed9c1414c",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    },
+    "offline_sha256": {
+      "CallerTreasuryRuntimeProbe/first-checks.txt": "48894591df93b1f5b606e871e231eecfe0e66f960895489bccd6f92933b02e33",
+      "CallerTreasuryRuntimeProbe/fixture.yml": "887dcb9047a3561eeeb0e0885b09ed9edf72b79c1c1056f4e327c409ddef2cfe",
+      "CallerTreasuryRuntimeProbe/first-passed.txt": "eb4109b8f6c6a21f9146585d8eedf6918ec69df4a4bbbdd113978a6c27fa41af",
+      "NeverLandTownyTreasuryPlus/config.yml": "7f504e20fafca414ee96111e313f3a6a429bd5e55bbfdf7a220dcdc57aca2e37",
+      "NeverLandTownyTreasuryPlus/treasury-data.yml": "d8d30923acde28c065b9dc2b0ada2275cb66ec580f22d28378ef8be2c8b08619",
+      "NeverLandTownyEspionage/config.yml": "7b15c4b391266faed9dcab98f1ed65dea71d6d6afdb3bb5e40d9090d57c9396a",
+      "NeverLandTownyEspionage/messages.yml": "3eec3f786ae14cc1aa82246f2a61eaffadd1dac90571297b005af40a647a069c",
+      "NeverLandTownyEspionage/operations.yml": "3942e4ee111a92285e4b72048c121534492fd0aea2e35a4e62d912ce4fff9d76",
+      "NeverLandTownyEspionage/data.yml": "4d53070a1a5604d0bde2a1e659287325620526f0c29a00d8593c2d02c68b6826",
+      "NeverLandTownyEspionage/purchases.yml": "a5fc1f972bf6c87909d1dc26c7cc26cf2fc2f201eeef72013e2757149896c60c",
+      "NeverLandTownyJustice/config.yml": "beebad90fd187aa5a72f360ead3fdf11b6b7aa1dc4d42d41d2f036724586ed39",
+      "NeverLandTownyJustice/justice-data.yml": "523f2df87d0ac578ce90feaed884483f599bee692bc127ee17930d873459e700",
+      "NeverLandTownyTreasuryPlus/audit/2026-10.tsv": "e6f3c95767d98f0da52a2d75549c4cc7694011a88ac4014306c90bfb53edd164"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 11 assertions; real Folia/Towny Account/Observer, Justice and Espionage Treasury requestDebit/refund, caller/core physical ACK, neutral pause, rejection, unknown receipt/restart/manual reconciliation and optional-corruption isolation. Explicit deterministic economy adapter and offline actor proxies; no real Vault backend or live client claimed.\n",
+    "jar_sha256": {
+      "CallerTreasuryRuntimeProbe.jar": "942e549b207c7c67e9fc5ee83ec604c31dd6cf6a10dc050107c86c96fc506c9b",
+      "NeverLandTownyEspionage-0.2.1.jar": "3251b68e907a9a54b289143cd87fca7298392d2fc371e2b16cf31a3f8b7ed9ca",
+      "NeverLandTownyJustice-0.2.1.jar": "7064882b2c77aacbf1db766417a2873554582403030eb22607a1269ab13aa3de",
+      "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+      "NeverLandTownyControl-0.6.2.jar": "cfb68b0ff0dc4fc3da4d2e2f4c8e1762cf7229605e1033262069e41ed9c1414c",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    },
+    "offline_sha256": {
+      "CallerTreasuryRuntimeProbe/first-checks.txt": "48894591df93b1f5b606e871e231eecfe0e66f960895489bccd6f92933b02e33",
+      "CallerTreasuryRuntimeProbe/fixture.yml": "04ecadc62631e9b51a50e4b5d29e776c6682acdd1f042dc7e556002f7346615b",
+      "CallerTreasuryRuntimeProbe/first-passed.txt": "eb4109b8f6c6a21f9146585d8eedf6918ec69df4a4bbbdd113978a6c27fa41af",
+      "CallerTreasuryRuntimeProbe/restart-checks.txt": "e7075e4b6eb98ff7b3eaa23b5b6e2e9ecceeb6d3ce634ff920976ebc01db7e89",
+      "CallerTreasuryRuntimeProbe/restart-passed.txt": "6341bdfdd933eb4b995e0ac322a255a8775fe35bc24256f97639bbcbbe8e0975",
+      "NeverLandTownyTreasuryPlus/config.yml": "7f504e20fafca414ee96111e313f3a6a429bd5e55bbfdf7a220dcdc57aca2e37",
+      "NeverLandTownyTreasuryPlus/treasury-data.yml": "6b93db000da46d5db7658f71842ccc4651f5c0093b9a345d2e8aa1c6703008ad",
+      "NeverLandTownyEspionage/config.yml": "7b15c4b391266faed9dcab98f1ed65dea71d6d6afdb3bb5e40d9090d57c9396a",
+      "NeverLandTownyEspionage/messages.yml": "3eec3f786ae14cc1aa82246f2a61eaffadd1dac90571297b005af40a647a069c",
+      "NeverLandTownyEspionage/operations.yml": "3942e4ee111a92285e4b72048c121534492fd0aea2e35a4e62d912ce4fff9d76",
+      "NeverLandTownyEspionage/data.yml": "9d31ef9d2e9b598b97a79acc2011505bd264d21281a33ddbd440fa317cba9e8e",
+      "NeverLandTownyEspionage/purchases.yml": "89ebc63101003518fb3faa11a6af6d461e67c41acecf1609ca587f63d8dfba3e",
+      "NeverLandTownyJustice/config.yml": "beebad90fd187aa5a72f360ead3fdf11b6b7aa1dc4d42d41d2f036724586ed39",
+      "NeverLandTownyJustice/justice-data.yml": "678bef847a3cff770fe1acf1d49958317b282fd43de41b1fa0d5dc773ce05b82",
+      "NeverLandTownyTreasuryPlus/audit/2026-10.tsv": "71f339e50e20670eaba15b4aced7cfe74f7187f15dced2a6e44f9dc5c42f321f"
+    }
+  },
+  {
+    "phase": "corrupt",
+    "exit_code": 0,
+    "result": "PASS 4 assertions; real Folia/Towny Account/Observer, Justice and Espionage Treasury requestDebit/refund, caller/core physical ACK, neutral pause, rejection, unknown receipt/restart/manual reconciliation and optional-corruption isolation. Explicit deterministic economy adapter and offline actor proxies; no real Vault backend or live client claimed.\n",
+    "jar_sha256": {
+      "CallerTreasuryRuntimeProbe.jar": "942e549b207c7c67e9fc5ee83ec604c31dd6cf6a10dc050107c86c96fc506c9b",
+      "NeverLandTownyEspionage-0.2.1.jar": "3251b68e907a9a54b289143cd87fca7298392d2fc371e2b16cf31a3f8b7ed9ca",
+      "NeverLandTownyJustice-0.2.1.jar": "7064882b2c77aacbf1db766417a2873554582403030eb22607a1269ab13aa3de",
+      "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+      "NeverLandTownyControl-0.6.2.jar": "cfb68b0ff0dc4fc3da4d2e2f4c8e1762cf7229605e1033262069e41ed9c1414c",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    },
+    "offline_sha256": {
+      "CallerTreasuryRuntimeProbe/first-checks.txt": "48894591df93b1f5b606e871e231eecfe0e66f960895489bccd6f92933b02e33",
+      "CallerTreasuryRuntimeProbe/fixture.yml": "04ecadc62631e9b51a50e4b5d29e776c6682acdd1f042dc7e556002f7346615b",
+      "CallerTreasuryRuntimeProbe/first-passed.txt": "eb4109b8f6c6a21f9146585d8eedf6918ec69df4a4bbbdd113978a6c27fa41af",
+      "CallerTreasuryRuntimeProbe/restart-checks.txt": "e7075e4b6eb98ff7b3eaa23b5b6e2e9ecceeb6d3ce634ff920976ebc01db7e89",
+      "CallerTreasuryRuntimeProbe/restart-passed.txt": "6341bdfdd933eb4b995e0ac322a255a8775fe35bc24256f97639bbcbbe8e0975",
+      "CallerTreasuryRuntimeProbe/corrupt-mode": "af9b58a9645942146c3de65e598bb52d718973baae1e5eb1cd95b61ca5dc15ad",
+      "CallerTreasuryRuntimeProbe/corrupt-checks.txt": "c41156e085961c22ac6faa3fd8f578fa90d17cc59de05341cec9e898354cbc80",
+      "CallerTreasuryRuntimeProbe/corrupt-passed.txt": "7555ddb220e16d980f13cb630f9e8ef069577e11eb873ee239e5d239136d4e31",
+      "NeverLandTownyTreasuryPlus/config.yml": "7f504e20fafca414ee96111e313f3a6a429bd5e55bbfdf7a220dcdc57aca2e37",
+      "NeverLandTownyTreasuryPlus/treasury-data.yml": "6b93db000da46d5db7658f71842ccc4651f5c0093b9a345d2e8aa1c6703008ad",
+      "NeverLandTownyTreasuryPlus/module-resume.yml": "fd2d1cfb25d62f4012dacbe0684e192fe7e2fed32aef00ff5451384c3641c122",
+      "NeverLandTownyEspionage/config.yml": "7b15c4b391266faed9dcab98f1ed65dea71d6d6afdb3bb5e40d9090d57c9396a",
+      "NeverLandTownyEspionage/messages.yml": "3eec3f786ae14cc1aa82246f2a61eaffadd1dac90571297b005af40a647a069c",
+      "NeverLandTownyEspionage/operations.yml": "3942e4ee111a92285e4b72048c121534492fd0aea2e35a4e62d912ce4fff9d76",
+      "NeverLandTownyEspionage/purchases.yml": "41a57b641bb738cee4dc7993758b1bf242f1b7cb0e5a5bb9b0b5ff5907e3903a",
+      "NeverLandTownyEspionage/module-resume.yml": "558138d27da6d13752b658279c4e856453ac67f82186f15f794fb6d961d91dd5",
+      "NeverLandTownyEspionage/data.yml": "dfbcd359d0ef82ae922c3fb0a529db8985fc509ec7a7bf6de1432ac4320e490a",
+      "NeverLandTownyJustice/config.yml": "beebad90fd187aa5a72f360ead3fdf11b6b7aa1dc4d42d41d2f036724586ed39",
+      "NeverLandTownyJustice/justice-data.yml": "678bef847a3cff770fe1acf1d49958317b282fd43de41b1fa0d5dc773ce05b82",
+      "NeverLandTownyJustice/module-resume.yml": "ce2a65be0f74f54a1193604855a0f142d581e1dce5a40c0e9fd9d68b00cebac7",
+      "NeverLandTownyTreasuryPlus/audit/2026-10.tsv": "71f339e50e20670eaba15b4aced7cfe74f7187f15dced2a6e44f9dc5c42f321f"
+    }
+  }
+]

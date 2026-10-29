@@ -1,0 +1,61 @@
+operations:
+  reconnaissance:
+    name: "&#63E6BE&lОбщая разведка"
+    icon: SPYGLASS
+    itemsadder-icon: "neverland:espionage_reconnaissance"
+    slot: 10
+    description: ["Население, территория и глава города."]
+    cost: 1500
+    duration-seconds: 180
+    cooldown-seconds: 1800
+    report-lifetime-hours: 72
+    success-chance: 0.88
+    detection-chance: 0.14
+  treasury:
+    name: "&#FFD45A&lАудит казны"
+    icon: GOLD_INGOT
+    itemsadder-icon: "neverland:espionage_treasury"
+    slot: 12
+    description: ["Точный баланс казны и финансовая оценка."]
+    cost: 4000
+    duration-seconds: 360
+    cooldown-seconds: 7200
+    report-lifetime-hours: 48
+    success-chance: 0.62
+    detection-chance: 0.34
+  military:
+    name: "&#FF6B6B&lВоенная разведка"
+    icon: IRON_SWORD
+    itemsadder-icon: "neverland:espionage_military"
+    slot: 14
+    description: ["Гарнизон, PvP и оборонительный потенциал."]
+    cost: 5500
+    duration-seconds: 480
+    cooldown-seconds: 10800
+    report-lifetime-hours: 48
+    success-chance: 0.58
+    detection-chance: 0.42
+  infrastructure:
+    name: "&#65B8FF&lИнфраструктурная разведка"
+    icon: BRICKS
+    itemsadder-icon: "neverland:espionage_infrastructure"
+    slot: 16
+    description: ["Уровни ключевых городских построек."]
+    cost: 5000
+    duration-seconds: 420
+    cooldown-seconds: 9000
+    report-lifetime-hours: 72
+    success-chance: 0.68
+    detection-chance: 0.31
+  diplomacy:
+    name: "&#C58CFF&lДипломатическая разведка"
+    icon: WRITABLE_BOOK
+    itemsadder-icon: "neverland:espionage_diplomacy"
+    slot: 22
+    description: ["Нация, союзники, противники и отношения."]
+    cost: 4500
+    duration-seconds: 300
+    cooldown-seconds: 7200
+    report-lifetime-hours: 96
+    success-chance: 0.74
+    detection-chance: 0.24

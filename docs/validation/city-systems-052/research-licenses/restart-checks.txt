@@ -1,0 +1,10 @@
+PASS actual Research0.2 and Treasury gateway enabled on real Folia
+PASS full restart retains ambiguous seller payout and known shutdown-paid license
+PASS restart does not repeat unknown or acknowledged money movements
+PASS exact paid reconciliation activates backed benefit without new money
+PASS already reconciled payout cannot be resolved twice
+PASS licensed higher effect coexists with unchanged owned lower level
+PASS prepaid clock writer deliberately held
+PASS exhausted prepaid window disables bonus until the next clock ACK
+PASS outer-Suite shutdown remains nonblocking while a prepaid clock write is pending
+PASS graceful shutdown returns only unused ACKed window and preserves consumed seconds

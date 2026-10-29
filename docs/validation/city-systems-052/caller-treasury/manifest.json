@@ -1,0 +1,42 @@
+{
+  "fixture": "folia-caller-treasury-4 on /dev/shm; three sequential boots in one foreground runner",
+  "runtime": "Folia 26.2 build 7 / 14b7fee; Towny 0.103.2.0",
+  "phase_checks": [
+    33,
+    11,
+    4
+  ],
+  "jvm_exit_codes": [
+    0,
+    0,
+    0
+  ],
+  "artifacts": [
+    {
+      "jar": "modules/NeverLandTownyJustice/build/libs/NeverLandTownyJustice-0.2.1.jar",
+      "sha256": "7064882b2c77aacbf1db766417a2873554582403030eb22607a1269ab13aa3de",
+      "source_drift": []
+    },
+    {
+      "jar": "modules/NeverLandTownyEspionage/build/libs/NeverLandTownyEspionage-0.2.1.jar",
+      "sha256": "3251b68e907a9a54b289143cd87fca7298392d2fc371e2b16cf31a3f8b7ed9ca",
+      "source_drift": []
+    }
+  ],
+  "native_results": "native-results.json",
+  "source_build_inputs": "build-manifest.json",
+  "source_gate": "PASS: 40 modules, 267 YAML files, 90 buildings / 11 wonders",
+  "scope_limits": [
+    "deterministic economy adapter; not a real Vault backend",
+    "offline actor proxies; no live client/UI validation",
+    "historical synchronous personal Justice paths remain outside new async Treasury guarantees"
+  ],
+  "probe_sources": {
+    "scripts/caller-treasury-runtime-probe/README.md": "e32fcc8aa4059d7913ee193d9a554fb55e5c5f7f8f090655efc9ccaf83c32a17",
+    "scripts/caller-treasury-runtime-probe/build.py": "f6be716bf9e82c552ee66f17063a1cb8995227c225d1b2d95ff15a5b8de2bfc9",
+    "scripts/caller-treasury-runtime-probe/prepare.py": "727e05a9845c5fc11cdcd4005b6b1a97b641533e249803712048025623b0c6bf",
+    "scripts/caller-treasury-runtime-probe/plugin.yml": "5b61dc8688be685f8993f04853b6d9c7d94fe3ef869abd6a01ee620afc876878",
+    "scripts/caller-treasury-runtime-probe/CallerTreasuryProbe.java": "d31b023ffd2c61a1aba0babc67d764da096b879a1cbb05b0e1f378b00a8b6bdd",
+    "scripts/caller-treasury-runtime-probe/run.py": "8f77ba908e36f6d588fe0bdfa029da59ada5bdf0ababf491db12e200b17cd925"
+  }
+}

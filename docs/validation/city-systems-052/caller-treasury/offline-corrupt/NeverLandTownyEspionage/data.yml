@@ -1,0 +1,38 @@
+purchases:
+  30494e73-8a48-4744-be2f-8956e0d468e3: 6cfb3ca2e6c3bd99e0bfbb6e0f29eed8d38c50c9ec9204247e832a582d2a1954
+  260d52b0-6219-4ef6-b4d0-bf067a6c58e4: c186f6053969814ccb78bef2738f0400449f3ff9e1cc701aad6f4ecc5451ae6c
+  e00bd4bd-6014-4935-a2a3-e896a16903eb: 3200655b995124c1746ea52f1e38b079300d66879bce0657653309007ba4fa4a
+  42ac4c98-e3e4-44b9-b392-a441a854348c: 059688566cac2bdd78757cb7bf0d057e018ecd050b14e92220914838e27b3512
+towns:
+  088b1f1e-4735-34e1-8c36-d1348912995b:
+    network-level: 2
+    defense-level: 1
+    cooldowns:
+      bb4726ad-97de-3af8-a5e1-7d0e74e272ce_reconnaissance: 1793297904674
+  bb4726ad-97de-3af8-a5e1-7d0e74e272ce:
+    network-level: 0
+    defense-level: 0
+  42e53e3b-f577-324d-97df-5e15f438a7aa:
+    network-level: 0
+    defense-level: 0
+  20ab7ac8-3b6d-3d8f-ab5a-057b34e086e0:
+    network-level: 0
+    defense-level: 0
+operations:
+  e00bd4bd-6014-4935-a2a3-e896a16903eb:
+    attacker-id: 088b1f1e-4735-34e1-8c36-d1348912995b
+    attacker-name: CallerSpy
+    target-id: bb4726ad-97de-3af8-a5e1-7d0e74e272ce
+    target-name: CallerTarget
+    actor-id: 9d031e25-d0f7-3221-b2b2-f2ad557f6c64
+    actor-name: SpyMayor
+    type: reconnaissance
+    started-at: 1793296104674
+    completes-at: 1793296285527
+    admin-paused-at: 0
+    admin-duration: 171000
+    success-chance: 0.92
+    detection-chance: 0.14
+    cost: 1500.0
+    status: ACTIVE
+    detected: false

@@ -4,9 +4,10 @@ import java.math.BigDecimal;
 
 public record MunicipalPayment(UUID id,UUID contract,UUID town,UUID account,Kind kind,long cents,Phase phase,long created) {
     public enum Kind { RESERVE, REWARD, REFUND }
-    public enum Phase { READY, PENDING, DONE, REJECTED }
+    public enum Phase { READY, PENDING, TREASURY, DONE, REJECTED }
     public MunicipalPayment {
         Objects.requireNonNull(id);Objects.requireNonNull(town);Objects.requireNonNull(account);Objects.requireNonNull(kind);Objects.requireNonNull(phase);
+        if(phase==Phase.TREASURY&&kind!=Kind.RESERVE)throw new IllegalArgumentException("Асинхронная казна допустима только для резерва");
         if(cents<=0||cents>100_000_000_000L||created<0||kind!=Kind.REWARD&&!town.equals(account)||kind==Kind.RESERVE&&contract==null)throw new IllegalArgumentException("Некорректный платёж контракта");
     }
     public MunicipalPayment phase(Phase value){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return new MunicipalPayment(id,contract,town,account,kind,cents,value,created);} }

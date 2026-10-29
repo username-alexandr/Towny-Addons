@@ -1,0 +1,12 @@
+PASS actual repair journal and Treasury services enabled
+PASS real completed Builds plan supplies frozen repair geometry and level price
+PASS positive repair charge derived from real building price and damaged share
+PASS repair intent durable before bank and world effects
+PASS missing installed Treasury API holds repair without direct bank fallback
+PASS legacy synchronous debit cannot bypass installed Treasury
+PASS owner pause preserves pending debit and leaves damaged block untouched
+PASS one confirmed debit precedes real regional block restoration
+PASS original exact Treasury receipt preserved after completed repair
+PASS completed repair cannot charge again
+PASS positive repair charge derived from real building price and damaged share
+PASS second repair remains unpaid and physically damaged for full restart

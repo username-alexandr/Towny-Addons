@@ -1,0 +1,6 @@
+name: ResearchLicenseRuntimeProbe
+version: 0.1.0
+main: ru.neverland.runtime.ResearchLicenseProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyResources, NeverLandTownyTreasuryPlus, NeverLandTownyResearch, NeverLandTownyControl]

@@ -3,6 +3,7 @@ import java.util.*;
 import static ru.neverland.townyupkeep.model.Entry.*;
 /** Durable saga. An interrupted external money call is never guessed or retried. */
 public final class PaymentProcessor {
+    public enum Outcome { PAID, REJECTED, WAITING, REVIEW }
     public interface Store { Entry get(Key key);void put(Key key,Entry value)throws Exception; }
     public interface Gateway {
         boolean reserve(UUID id,UUID town,Map<String,Long> amounts)throws Exception;
@@ -10,6 +11,9 @@ public final class PaymentProcessor {
         boolean canPay(UUID town,long cents)throws Exception;
         boolean withdraw(UUID town,long cents,UUID invoice)throws Exception;
         default boolean withdraw(UUID town,long cents,UUID invoice,String project)throws Exception{return withdraw(town,cents,invoice);}
+        default boolean asynchronous(){return false;}
+        default String category(Key key)throws Exception{return "infrastructure";}
+        default Outcome poll(Key key,Invoice invoice)throws Exception{throw new UnsupportedOperationException("Подтверждаемая казна недоступна");}
         void forget(UUID id)throws Exception;
     }
     private final Store store;private final Gateway gateway;
@@ -22,7 +26,11 @@ public final class PaymentProcessor {
             if(!gateway.reserve(bill.id(),key.town(),bill.cost().resources())){
                 store.put(key,new Entry(false,clock+retry,"Не хватает ресурсов с учётом резерва города",null));return;}
             if(bill.cost().money()>0){
-                if(!gateway.canPay(key.town(),bill.cost().money())){cancel(key,"Не хватает денег или экономика недоступна");}
+                if(gateway.asynchronous()){
+                    String category;try{category=gateway.category(key);}catch(Exception unavailable){return;}
+                    store.put(key,entry.requested(category));
+                }
+                else if(!gateway.canPay(key.town(),bill.cost().money())){cancel(key,"Не хватает денег или экономика недоступна");}
                 else {
                     store.put(key,entry.phase(Phase.MONEY_PENDING));
                     boolean paid=gateway.withdraw(key.town(),bill.cost().money(),bill.id(),key.project());
@@ -31,6 +39,13 @@ public final class PaymentProcessor {
             }else store.put(key,entry.phase(Phase.MONEY_PAID));
         }
         entry=store.get(key);bill=entry.invoice();
+        if(bill.phase()==Phase.MONEY_REQUESTED){
+            Outcome result;try{result=gateway.poll(key,bill);}catch(Exception unavailable){return;} // Keep the exact ID and held resources; an exception is not a rejected debit.
+            if(result==Outcome.PAID)store.put(key,entry.phase(Phase.MONEY_PAID));
+            else if(result==Outcome.REJECTED)cancel(key,"Казна или статья бюджета не оплатила содержание");
+            else return;
+            entry=store.get(key);bill=entry.invoice();
+        }
         if(bill.phase()==Phase.MONEY_PAID){
             gateway.settle(bill.id(),true);
             store.put(key,new Entry(true,clock+bill.period(),"Содержание оплачено",null));

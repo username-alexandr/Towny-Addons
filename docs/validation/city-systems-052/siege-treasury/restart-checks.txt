@@ -1,0 +1,7 @@
+PASS actual repair journal and Treasury services enabled
+PASS real completed Builds plan supplies frozen repair geometry and level price
+PASS restart restores original ID, actor, route, terms and pending damage
+PASS restart has neither repeated payment nor free block repair
+PASS Treasury keeps exact pending debit while repair owner is paused
+PASS saved repair settles once and restores its block after full JVM restart
+PASS restored completed job remains replay-safe

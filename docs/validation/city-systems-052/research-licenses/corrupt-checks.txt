@@ -1,0 +1,5 @@
+PASS actual Research0.2 and Treasury gateway enabled on real Folia
+PASS corrupt optional licenses leave Research API and learned technologies enabled
+PASS only corrupt optional license subsystem is isolated
+PASS corrupt license journal leaves old started research and bytes intact
+PASS shutdown preserves corrupt license bytes without any bank call

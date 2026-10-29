@@ -1,0 +1,28 @@
+{
+  "module": "NeverLandTownyResearch",
+  "version": "0.2.0",
+  "jar_sha256": "83e4bc1350c35eae7630bc9e8c4abc2a3099d755c2704b7a83794f0e49ddb318",
+  "source_sha256": "e2ae85f946178355a80c12cf8e601997aba1dbd2a031627ca92a4b4f9f0b1142",
+  "cold_programs": 2,
+  "license_persistence_checks": 34,
+  "artifact_boundary_checks": 7,
+  "native_checks": [
+    21,
+    10,
+    6,
+    5
+  ],
+  "fixture": "/dev/shm/nlt-research-license-3",
+  "jvm_exit_codes": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "limitations": [
+    "Controlled EconomyAdapter, not a real Vault provider",
+    "Proxy player identities with entity scheduler delegated to real global scheduler, no live client UI",
+    "Explicit test-only 60-second license terms",
+    "Crash may lose at most five unused prepaid seconds; graceful shutdown preserves remainder"
+  ]
+}

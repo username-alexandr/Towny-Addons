@@ -1,12 +1,12 @@
 name: NeverLandTownyResearch
-version: 0.1.18
+version: 0.2.0
 main: ru.neverland.townyresearch.NeverLandTownyResearch
 folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Городские исследования, знания и технологии.
 depend: [Towny, NeverLandTownyBuilds, NeverLandTownyResources]
-softdepend: [NeverLandTownyPower, NeverLandTownyUpkeep, PlaceholderAPI]
+softdepend: [NeverLandTownyTreasuryPlus, NeverLandTownyPower, NeverLandTownyUpkeep, PlaceholderAPI]
 commands:
   townyresearch:
     aliases: [nltresearch, cityresearch]
@@ -19,3 +19,6 @@ permissions:
     default: false
   neverlandtownyresearch.admin:
     default: op
+  neverlandtownyresearch.licenses:
+    description: Просмотр и управление технологическими лицензиями в рамках городской должности
+    default: true

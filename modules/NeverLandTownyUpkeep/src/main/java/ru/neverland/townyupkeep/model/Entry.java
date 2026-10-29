@@ -1,13 +1,16 @@
 package ru.neverland.townyupkeep.model;
 import java.util.*;
 public record Entry(boolean active,long due,String reason,Invoice invoice) {
-    public enum Phase { PREPARED, MONEY_PENDING, MONEY_PAID, CANCELLED }
+    public enum Phase { PREPARED, MONEY_PENDING, MONEY_REQUESTED, MONEY_PAID, CANCELLED }
     public record Key(UUID town,String project) {public Key{Objects.requireNonNull(town);if(project==null||!project.matches("[a-z0-9_-]{1,64}"))throw new IllegalArgumentException("Неверный ID здания");}}
-    public record Invoice(UUID id,Cost cost,int period,Phase phase){
-        public Invoice{Objects.requireNonNull(id);Objects.requireNonNull(cost);Objects.requireNonNull(phase);if(period<60||period>604800)throw new IllegalArgumentException("Неверный период счёта");}
-        public Invoice phase(Phase value){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return new Invoice(id,cost,period,value);} }
+    public record Invoice(UUID id,Cost cost,int period,Phase phase,String category){
+        public Invoice(UUID id,Cost cost,int period,Phase phase){this(id,cost,period,phase,"");}
+        public Invoice{Objects.requireNonNull(id);Objects.requireNonNull(cost);Objects.requireNonNull(phase);Objects.requireNonNull(category);if(period<60||period>604800)throw new IllegalArgumentException("Неверный период счёта");if(!category.isEmpty()&&!Set.of("construction","army","infrastructure","social","free").contains(category)||phase==Phase.MONEY_REQUESTED&&category.isEmpty())throw new IllegalArgumentException("Не сохранена статья счёта казны");}
+        public Invoice phase(Phase value){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return new Invoice(id,cost,period,value,category);} }
+        public Invoice requested(String category){if(phase!=Phase.PREPARED)throw new IllegalStateException("Счёт уже принят");return new Invoice(id,cost,period,Phase.MONEY_REQUESTED,category);}
     }
     public Entry{if(due<0||reason==null||reason.isBlank()||(active&&invoice!=null))throw new IllegalArgumentException("Неверное состояние обслуживания");}
     public Entry phase(Phase value){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return new Entry(false,due,reason,invoice.phase(value));} }
+    public Entry requested(String category){return new Entry(false,due,reason,invoice.requested(category));}
     public static Entry grace(long due){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return new Entry(true,due,"Льготный период",null);} }
 }

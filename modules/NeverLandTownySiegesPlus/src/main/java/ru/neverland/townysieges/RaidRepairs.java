@@ -25,7 +25,7 @@ public final class RaidRepairs implements TownyRaidRepairApi,Listener {
     }
     private final NeverLandTownySiegesPlus plugin;private final RaidController raids;private final RepairPlans plans=new RepairPlans();
     private final BuildingDamageStore damage;private final RaidRepairsStore store;private RepairBank bank=new RepairBank();
-    private final Set<UUID> working=new HashSet<>();private final Map<UUID,Long> started=new HashMap<>(),busyUntil=new HashMap<>();private long polling;
+    private final Set<UUID> funding=ConcurrentHashMap.newKeySet();private final Set<UUID> working=new HashSet<>();private final Map<UUID,Long> started=new HashMap<>(),busyUntil=new HashMap<>();private long polling,fundingWarning;
     public RaidRepairs(NeverLandTownySiegesPlus plugin,RaidController raids){this.plugin=plugin;this.raids=raids;damage=new BuildingDamageStore(raids.store());store=new RaidRepairsStore(raids.store());Bukkit.getServicesManager().register(TownyRaidRepairApi.class,this,plugin,ServicePriority.Normal);Bukkit.getPluginManager().registerEvents(this,plugin);}
     public RaidRepairsStore store(){return store;}
     public boolean busy(UUID town){return System.currentTimeMillis()<busyUntil.getOrDefault(town,0L);}
@@ -93,9 +93,10 @@ public final class RaidRepairs implements TownyRaidRepairApi,Listener {
         var current=plans.plan(q.plan().town(),q.plan().project());if(!current.fingerprint().equals(q.plan().fingerprint()))throw new IllegalArgumentException("Условия здания изменились");
         if(q.cents()>0&&!bank.allowed(q.plan().town(),q.cents()))throw new IllegalArgumentException("В казне недостаточно денег или расход запрещён бюджетом");
         long before=q.cents()==0?0:bank.balance(q.plan().town());busyUntil.put(q.plan().town(),System.currentTimeMillis()+15000);
-        store.create(player.getUniqueId(),q.plan(),q.maximum(),q.lost(),q.cents(),before,q.cells()).whenComplete((job,error)->{
+        store.create(player.getUniqueId(),q.plan(),q.maximum(),q.lost(),q.cents(),before,q.cells(),bank.asynchronous()).whenComplete((job,error)->{
             if(error!=null){raids.reply(player,RaidController.problem(error));return;}
             if(job.cents()==0){global(()->{log(job);drive(job);});return;}
+            if(job.treasury()){global(()->{log(job);fund(job);});raids.reply(player,"Оплата ремонта сохранена. Восстановление начнётся после подтверждения казны.");return;}
             SuiteScheduler.entityLater(plugin,player,()->pay(player,job),()->store.change(job.id(),"PAYING","CANCELLED","Игрок вышел до списания"),1);
         });
     }
@@ -105,8 +106,25 @@ public final class RaidRepairs implements TownyRaidRepairApi,Listener {
         after(store.change(job.id(),"PAYING",confirmed?"PAID":"REVIEW_BANK",confirmed?"Списание подтверждено квитанцией Towny":note),saved->{log(saved);if(saved.state().equals("PAID")){raids.reply(player,"Ремонт оплачен из казны: "+saved.cents()/100.0+" монет");drive(saved);}else raids.reply(player,"Результат оплаты сохранён и ожидает проверки администратора");},job.id());
     }catch(Exception error){after(store.change(job.id(),"PAYING","REVIEW_BANK",RaidController.problem(error)),this::log,job.id());}}
     public void pulse(){if(!active()){working.clear();return;}long now=System.currentTimeMillis();working.removeIf(id->now-started.getOrDefault(id,0L)>30000);if(now-polling<3000)return;polling=now;
-        after(store.list(true),jobs->{polling=0;for(var job:jobs){if(job.state().startsWith("REVIEW"))log(job);else if(job.state().equals("PAYING")&&now-job.created()>30000)after(store.change(job.id(),"PAYING","REVIEW_BANK","Прервано ожидание оплаты; нужна сверка"),this::log,job.id());else if(job.state().equals("PAID"))drive(job);}},null);
+        after(store.list(true),jobs->{polling=0;for(var job:jobs){if(job.state().equals("TREASURY_PENDING")||job.state().equals("TREASURY_REVIEW"))fund(job);else if(job.state().startsWith("REVIEW"))log(job);else if(job.state().equals("PAYING")&&now-job.created()>30000)after(store.change(job.id(),"PAYING","REVIEW_BANK","Прервано ожидание оплаты; нужна сверка"),this::log,job.id());else if(job.state().equals("PAID"))drive(job);}},null);
     }
+    private void fund(RaidRepairsStore.Job job){
+        if(!active()||!job.treasury()||!Set.of("TREASURY_PENDING","TREASURY_REVIEW").contains(job.state())||!funding.add(job.id()))return;
+        try{
+            // Read an existing bank receipt even if the building changed after payment.
+            boolean submit=false;
+            try{submit=!raids.managed(job.town())&&plans.plan(job.town(),job.project()).fingerprint().equals(job.fingerprint());}catch(Exception unavailable){}
+            var outcome=bank.poll(job,submit);
+            if(outcome==RepairTreasury.Outcome.WAITING){funding.remove(job.id());return;}
+            String next=switch(outcome){case PAID->"PAID";case REJECTED->"CANCELLED";case REVIEW->"TREASURY_REVIEW";default->throw new IllegalStateException();};
+            if(job.state().equals(next)){funding.remove(job.id());return;}
+            store.funding(job.id(),outcome).whenComplete((saved,error)->{funding.remove(job.id());global(()->{
+                // A missing local ACK is retried by receipt polling, never reclassified as world damage.
+                if(error!=null){fundingWarning(job.id(),error);return;}log(saved);if(saved.state().equals("PAID"))drive(saved);
+            });});
+        }catch(Exception error){funding.remove(job.id());fundingWarning(job.id(),error);}
+    }
+    private void fundingWarning(UUID id,Throwable error){if(System.currentTimeMillis()-fundingWarning>60000){fundingWarning=System.currentTimeMillis();plugin.getLogger().warning("Оплата ремонта "+id+" ожидает подтверждения: "+RaidController.problem(error));}}
     private void drive(RaidRepairsStore.Job job){if(!active()||raids.managed(job.town())||!working.add(job.id()))return;started.put(job.id(),System.currentTimeMillis());
         try{if(!plans.plan(job.town(),job.project()).fingerprint().equals(job.fingerprint())){review(job,"Чертёж или уровень здания изменился");return;}
             after(store.steps(job.id()),steps->{var pending=job.cells().stream().filter(c->!"DONE".equals(steps.get(c.block().key().id()))).toList();if(pending.isEmpty()){after(store.change(job.id(),"PAID","DONE","Здание восстановлено"),done->{log(done);release(done.id());busyUntil.remove(done.town());raids.notifyTown(done.town(),"Отремонтировано: "+done.title()+". Из казны: "+done.cents()/100.0+" монет.");},job.id());return;}
@@ -126,8 +144,8 @@ public final class RaidRepairs implements TownyRaidRepairApi,Listener {
         }catch(Exception error){global(()->review(job,RaidController.problem(error)));}
     });}
     private void review(RaidRepairsStore.Job job,String note){after(store.change(job.id(),"PAID","REVIEW_WORLD",note),saved->{log(saved);release(job.id());busyUntil.remove(job.town());},job.id());}
-    private static String state(String value){return switch(value){case "PAYING"->"Проверяется списание";case "PAID"->"Оплачено, восстанавливается";case "DONE"->"Отремонтировано";case "CANCELLED"->"Оплата отменена";case "REVIEW_BANK"->"Нужна сверка банка";case "REVIEW_WORLD"->"Нужна проверка здания";default->value;};}
-    private void log(RaidRepairsStore.Job job){AuditTrail.record(plugin,"repair:"+job.state(),job.id().toString(),job.state().startsWith("REVIEW")?"BUILDING_REPAIR_REVIEW":"BUILDING_REPAIR",job.state(),AuditTrail.player(job.actor()),AuditTrail.town(job.town()),AuditRecord.Party.system(),"",0,AuditTrail.cents(job.cents()),job.title()+"; уровень "+job.level()+"; цена уровня="+job.levelPrice()/100.0+"; повреждено="+String.format(Locale.ROOT,"%.2f",job.lost()/job.maximum()*100)+"%; "+state(job.state())+"; "+job.note());}
+    private static String state(String value){return switch(value){case "PAYING","TREASURY_PENDING"->"Ожидается подтверждение оплаты";case "TREASURY_REVIEW"->"Нужна сверка операции в казне";case "PAID"->"Оплачено, восстанавливается";case "DONE"->"Отремонтировано";case "CANCELLED"->"Оплата отменена";case "REVIEW_BANK"->"Нужна сверка банка";case "REVIEW_WORLD"->"Нужна проверка здания";default->value;};}
+    private void log(RaidRepairsStore.Job job){AuditTrail.record(plugin,"repair:"+job.state(),job.id().toString(),(job.state().startsWith("REVIEW")||job.state().equals("TREASURY_REVIEW"))?"BUILDING_REPAIR_REVIEW":"BUILDING_REPAIR",job.state(),AuditTrail.player(job.actor()),AuditTrail.town(job.town()),AuditRecord.Party.system(),"",0,AuditTrail.cents(job.cents()),job.title()+"; уровень "+job.level()+"; цена уровня="+job.levelPrice()/100.0+"; повреждено="+String.format(Locale.ROOT,"%.2f",job.lost()/job.maximum()*100)+"%; "+state(job.state())+"; "+job.note());}
     public void list(CommandSender sender){after(store.list(false),jobs->{if(jobs.isEmpty())raids.reply(sender,"Квитанций ремонта пока нет");for(var job:jobs)raids.reply(sender,job.id()+" | "+job.title()+" | "+state(job.state())+" | "+job.cents()/100.0+" монет");},null);}
     public void show(CommandSender sender,UUID id){after(store.get(id),job->{if(job==null){raids.reply(sender,"Квитанция не найдена");return;}raids.reply(sender,id+" | "+job.title()+" | "+state(job.state())+" | списание="+job.cents()/100.0+"; баланс до="+job.before()/100.0+"; "+job.note());},null);}
     public void resolve(CommandSender sender,UUID id,String decision,String reason){after(store.resolve(id,decision,sender.getName(),reason),job->{log(job);AuditTrail.record(plugin,"repair-resolve:"+UUID.randomUUID(),id.toString(),"BUILDING_REPAIR_RECONCILE",job.state(),sender instanceof Player p?AuditTrail.player(p.getUniqueId()):AuditRecord.Party.system(),AuditTrail.town(job.town()),AuditRecord.Party.system(),"",0,AuditTrail.cents(job.cents()),decision+"; "+reason);raids.reply(sender,"Сверка ремонта сохранена: "+state(job.state()));},null);}

@@ -1,0 +1,21 @@
+PASS real Contracts, Builds materials and Treasury providers are enabled
+PASS actual building needs subtract existing fund and common warehouse exactly once
+PASS ordinary resident cannot request city procurement
+PASS read-only offer matches actual missing amount and never debits bank
+PASS exact immutable quote is durable before any public contract
+PASS one exact observed debit funds escrow before publishing any city contract
+PASS accepted paid quote publishes once even if shortage changed after payment
+PASS quote and publication do not consume building fund or common stock
+PASS repeated confirmation reuses same contract and never repeats reserve
+PASS published escrow cannot request full procurement refund
+PASS unpublished funded cancellation returns exact original amount once
+PASS authoritative original debit no longer backs publication after full refund
+PASS repeated cancellation never deposits twice
+PASS ordinary city contract remains paused until asynchronous treasury payment is acknowledged
+PASS unfunded municipal contract refuses gameplay progress
+PASS ordinary municipal funding uses one exact treasury debit and resumes its preserved term
+PASS ordinary paid contract still supports administrative cancellation
+PASS ordinary municipal cancellation returns only actual escrow and preserves procurement contract
+PASS former mayor cannot publish already paid quote after permission change
+PASS paid reserve remains durable without unintended publication or refund
+PASS native shutdown begins while a separate real SQLite writer holds the procurement file

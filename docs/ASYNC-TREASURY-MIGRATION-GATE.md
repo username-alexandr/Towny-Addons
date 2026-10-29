@@ -6,15 +6,15 @@
 
 | Область | Вызывающие классы | Состояние |
 |---|---|---|
-| Builds | BuildService, ConstructionRefunds, CivicService | Требует миграции |
-| Contracts | MunicipalBank, EconomyService | Требует миграции; новый Procurement использует async API |
-| Espionage | EconomyService | Требует миграции |
+| Builds | BuildService, ConstructionRefunds, CivicService | Требует миграции; также OPEN: legacy architecture может заделать повреждение до оплаты ремонта |
+| Contracts | MunicipalBank, EconomyService | Готово 0.8.0: cold 18, Folia 21+4+9; прежняя файловая запись остаётся синхронной |
+| Espionage | EconomyService | Готово 0.2.1: cold 5, совместная Folia 33+11+4 |
 | Ideologies | ReformBank | Готово 0.2.1: cold 3, Folia 19+11; полный пак ещё не проверен |
-| Justice | JusticeBank | Требует миграции |
+| Justice | JusticeBank | Готово 0.2.1: cold 5, совместная Folia 33+11+4 |
 | Market | MarketGateway | Требует миграции |
-| SiegesPlus | RepairBank | Требует миграции |
+| SiegesPlus | RepairBank | Готово 0.6.2: cold 13, Folia 12+7 на архитектуре6; дефект старой архитектуры Builds остаётся открытым |
 | Trade | SupplyGateway, EconomyService | Требует миграции |
-| Upkeep | CityBridge | Требует миграции |
+| Upkeep | CityBridge | Готово 0.2.3: cold 5, Folia 10+6; старые неизвестные оплаты только на сверке |
 
 Проверять нужно весь вызов, а не замену имени метода: намерение до денег, отдельные подтверждения банка и состояния аддона, один UUID для повтора, отказ от слепого повторения неизвестного результата, возврат только реально удержанной суммы. Исторические операции сохраняют прежние условия. Закрытие требует тестов каждой ветки (успех, отказ, задержка, рестарт, сверка) и совместного Folia-стенда с TreasuryPlus.
 

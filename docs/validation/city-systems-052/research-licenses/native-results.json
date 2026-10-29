@@ -1,0 +1,58 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 21 assertions; actual Research licenses and Treasury async budget pipeline, Towny Account/Observer, intent ACK, owned-level isolation, finite active clock, neutral pauses, backed cancel/refund, uncertain payout, exact review, outer-Suite shutdown and JVM restart. Controlled EconomyAdapter, proxy player identities/entity-scheduler delegation, fixture-shortened60s license terms and accelerated active-clock calls; no real Vault backend or clicked/network client GUI claimed.\n",
+    "jar_sha256": {
+      "ResearchLicenseRuntimeProbe.jar": "d0cab9635132f9e8429ca0a04c4f3bb0980894168d9b355974a67456b2b8d805",
+      "NeverLandTownyControl-0.6.2.jar": "cfb68b0ff0dc4fc3da4d2e2f4c8e1762cf7229605e1033262069e41ed9c1414c",
+      "NeverLandTownyResearch-0.2.0.jar": "83e4bc1350c35eae7630bc9e8c4abc2a3099d755c2704b7a83794f0e49ddb318",
+      "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+      "NeverLandTownyResources-0.2.2.jar": "b61c7227857638b6e5ceb1f89b4843dbf4e619b9599e72a1643c91738febf05e",
+      "NeverLandTownyBuilds-0.11.0.jar": "9a3a0498da738c5a3f0b2edcf386e251f1a6a2303f25496bfe5ab1b9b86e13b6",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 10 assertions; actual Research licenses and Treasury async budget pipeline, Towny Account/Observer, intent ACK, owned-level isolation, finite active clock, neutral pauses, backed cancel/refund, uncertain payout, exact review, outer-Suite shutdown and JVM restart. Controlled EconomyAdapter, proxy player identities/entity-scheduler delegation, fixture-shortened60s license terms and accelerated active-clock calls; no real Vault backend or clicked/network client GUI claimed.\n",
+    "jar_sha256": {
+      "ResearchLicenseRuntimeProbe.jar": "d0cab9635132f9e8429ca0a04c4f3bb0980894168d9b355974a67456b2b8d805",
+      "NeverLandTownyControl-0.6.2.jar": "cfb68b0ff0dc4fc3da4d2e2f4c8e1762cf7229605e1033262069e41ed9c1414c",
+      "NeverLandTownyResearch-0.2.0.jar": "83e4bc1350c35eae7630bc9e8c4abc2a3099d755c2704b7a83794f0e49ddb318",
+      "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+      "NeverLandTownyResources-0.2.2.jar": "b61c7227857638b6e5ceb1f89b4843dbf4e619b9599e72a1643c91738febf05e",
+      "NeverLandTownyBuilds-0.11.0.jar": "9a3a0498da738c5a3f0b2edcf386e251f1a6a2303f25496bfe5ab1b9b86e13b6",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  },
+  {
+    "phase": "clock",
+    "exit_code": 0,
+    "result": "PASS 6 assertions; actual Research licenses and Treasury async budget pipeline, Towny Account/Observer, intent ACK, owned-level isolation, finite active clock, neutral pauses, backed cancel/refund, uncertain payout, exact review, outer-Suite shutdown and JVM restart. Controlled EconomyAdapter, proxy player identities/entity-scheduler delegation, fixture-shortened60s license terms and accelerated active-clock calls; no real Vault backend or clicked/network client GUI claimed.\n",
+    "jar_sha256": {
+      "ResearchLicenseRuntimeProbe.jar": "d0cab9635132f9e8429ca0a04c4f3bb0980894168d9b355974a67456b2b8d805",
+      "NeverLandTownyControl-0.6.2.jar": "cfb68b0ff0dc4fc3da4d2e2f4c8e1762cf7229605e1033262069e41ed9c1414c",
+      "NeverLandTownyResearch-0.2.0.jar": "83e4bc1350c35eae7630bc9e8c4abc2a3099d755c2704b7a83794f0e49ddb318",
+      "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+      "NeverLandTownyResources-0.2.2.jar": "b61c7227857638b6e5ceb1f89b4843dbf4e619b9599e72a1643c91738febf05e",
+      "NeverLandTownyBuilds-0.11.0.jar": "9a3a0498da738c5a3f0b2edcf386e251f1a6a2303f25496bfe5ab1b9b86e13b6",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  },
+  {
+    "phase": "corrupt",
+    "exit_code": 0,
+    "result": "PASS 5 assertions; actual Research licenses and Treasury async budget pipeline, Towny Account/Observer, intent ACK, owned-level isolation, finite active clock, neutral pauses, backed cancel/refund, uncertain payout, exact review, outer-Suite shutdown and JVM restart. Controlled EconomyAdapter, proxy player identities/entity-scheduler delegation, fixture-shortened60s license terms and accelerated active-clock calls; no real Vault backend or clicked/network client GUI claimed.\n",
+    "jar_sha256": {
+      "ResearchLicenseRuntimeProbe.jar": "d0cab9635132f9e8429ca0a04c4f3bb0980894168d9b355974a67456b2b8d805",
+      "NeverLandTownyControl-0.6.2.jar": "cfb68b0ff0dc4fc3da4d2e2f4c8e1762cf7229605e1033262069e41ed9c1414c",
+      "NeverLandTownyResearch-0.2.0.jar": "83e4bc1350c35eae7630bc9e8c4abc2a3099d755c2704b7a83794f0e49ddb318",
+      "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+      "NeverLandTownyResources-0.2.2.jar": "b61c7227857638b6e5ceb1f89b4843dbf4e619b9599e72a1643c91738febf05e",
+      "NeverLandTownyBuilds-0.11.0.jar": "9a3a0498da738c5a3f0b2edcf386e251f1a6a2303f25496bfe5ab1b9b86e13b6",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  }
+]

@@ -34,3 +34,5 @@ admin-help:
   - "&#FFFFFF/townycontracts deliveries — незавершённые поставки"
   - "&#FFFFFF/townycontracts resolve <UUID> applied|rejected confirm"
   - "&#FFFFFF/townycontracts resolve-delivery <UUID> taken|untouched confirm"
+
+activation-pending: "&eЗаказ сохранён. Казна подтверждает награду; он откроется после оплаты. Повторно создавать его не нужно."

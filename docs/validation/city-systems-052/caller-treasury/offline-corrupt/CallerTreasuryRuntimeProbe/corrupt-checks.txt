@@ -1,0 +1,4 @@
+PASS actual Justice0.2.1 Espionage0.2.1 Treasury0.3.2 enable together on Folia
+PASS damaged optional purchase ledger isolates new purchases and preserves accepted missions
+PASS corrupt optional purchase bytes remain untouched
+PASS purchase journal corruption does not disable Justice Treasury or Control

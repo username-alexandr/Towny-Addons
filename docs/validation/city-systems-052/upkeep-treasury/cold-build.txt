@@ -1,0 +1,15 @@
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: /workspace/scratch/eb47b830f6d4/Towny-Addons/modules/NeverLandTownyUpkeep/src/test/java/ru/neverland/townyupkeep/DevelopmentSmoke.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+TEST NeverLandTownyUpkeep ru.neverland.townyupkeep.DevelopmentSmoke
+DevelopmentSmoke PASS 20 checks
+TEST NeverLandTownyUpkeep ru.neverland.townyupkeep.SavingsSmoke
+SavingsSmoke PASS 19 checks
+TEST NeverLandTownyUpkeep ru.neverland.townyupkeep.UpkeepDefaultsSmoke
+UpkeepDefaultsSmoke PASS 9 inherited upgrade checks
+TEST NeverLandTownyUpkeep ru.neverland.townyupkeep.UpkeepSmoke
+UpkeepSmoke OK: 101 tariffs, scaling, grace, partial shortages, refusals, every journal boundary, ambiguous money recovery, resource refunds and atomic persistence
+TEST NeverLandTownyUpkeep ru.neverland.townyupkeep.UpkeepTreasurySmoke
+UpkeepTreasurySmoke PASS 40 checks; durable intent, old receipt isolation, ACK recovery, resource preservation and exact proof
+BUILD AND SMOKE PASS NeverLandTownyUpkeep-0.2.3.jar 5 programs

@@ -1,0 +1,320 @@
+schema: 1
+flow-gap: false
+cities:
+  9aa2a110-06e2-391f-9d2a-166a37f0182e:
+    balance: 100000
+    enabled: true
+    revision: 15
+    started: 1793296099227
+    notified: ''
+    history:
+    - 'explicit caller fixture budget seed: включил распределение бюджета'
+    funds:
+      construction: 40000
+      army: 20000
+      infrastructure: 25000
+      social: 15000
+      free: 0
+    shares:
+      construction: 40
+      army: 20
+      infrastructure: 25
+      social: 15
+      free: 0
+    weeks:
+      '2026-10-26':
+        income: {}
+        expenses:
+          justice: 3200
+        production: {}
+        production-known: false
+        refunds: 3200
+        adjustments: 0
+        categories:
+          construction: 0
+          army: 3200
+          infrastructure: 0
+          social: 0
+          free: 0
+  20ab7ac8-3b6d-3d8f-ab5a-057b34e086e0:
+    balance: 0
+    enabled: false
+    revision: 0
+    started: 1793296105023
+    notified: ''
+    history: []
+    funds:
+      construction: 0
+      army: 0
+      infrastructure: 0
+      social: 0
+      free: 0
+    shares:
+      construction: 40
+      army: 20
+      infrastructure: 25
+      social: 15
+      free: 0
+    weeks: {}
+  bb4726ad-97de-3af8-a5e1-7d0e74e272ce:
+    balance: 100000
+    enabled: true
+    revision: 1
+    started: 1793296099237
+    notified: ''
+    history:
+    - 'explicit caller fixture budget seed: включил распределение бюджета'
+    funds:
+      construction: 40000
+      army: 20000
+      infrastructure: 25000
+      social: 15000
+      free: 0
+    shares:
+      construction: 40
+      army: 20
+      infrastructure: 25
+      social: 15
+      free: 0
+    weeks: {}
+  088b1f1e-4735-34e1-8c36-d1348912995b:
+    balance: 9846501
+    enabled: true
+    revision: 19
+    started: 1793296099237
+    notified: ''
+    history:
+    - 'explicit caller fixture budget seed: включил распределение бюджета'
+    funds:
+      construction: 4000000
+      army: 1846500
+      infrastructure: 2500000
+      social: 1500000
+      free: 1
+    shares:
+      construction: 40
+      army: 20
+      infrastructure: 25
+      social: 15
+      free: 0
+    weeks:
+      '2026-10-26':
+        income:
+          other: 1
+        expenses:
+          espionage: 303500
+        production: {}
+        production-known: false
+        refunds: 150000
+        adjustments: 0
+        categories:
+          construction: 0
+          army: 303500
+          infrastructure: 0
+          social: 0
+          free: 0
+async-debits:
+  42ac4c98-e3e4-44b9-b392-a441a854348c:
+    town: 088b1f1e-4735-34e1-8c36-d1348912995b
+    category: army
+    source: espionage
+    cents: 2000
+    reason: Развитие городской разведсети
+    actor: 9d031e25-d0f7-3221-b2b2-f2ad557f6c64
+    owner: NeverLandTownyEspionage
+    kind: DEBIT
+    audited: true
+    state: PAID
+    created-at: 1793296106224
+    changed-at: 1793296124065
+    review: 'Ручная сверка native exact fixture spy debit inspection: списание подтверждено'
+  283093ac-161d-4535-af6c-094164b91a62:
+    town: 088b1f1e-4735-34e1-8c36-d1348912995b
+    category: army
+    source: espionage
+    cents: 2000
+    reason: Развитие городской разведсети
+    actor: 9d031e25-d0f7-3221-b2b2-f2ad557f6c64
+    owner: NeverLandTownyEspionage
+    kind: DEBIT
+    audited: true
+    state: REJECTED
+    created-at: 1793296103525
+    changed-at: 1793296103774
+    review: 'Ручная сверка native exact proof rejected backend had no effect: списания
+      не было'
+  818a7809-cb5c-41d5-8f65-75505e1e6ce6:
+    town: 088b1f1e-4735-34e1-8c36-d1348912995b
+    category: army
+    source: espionage
+    cents: 150000
+    reason: 'Разведывательная операция: Общая разведка против DeletedSpyTarget'
+    actor: 9d031e25-d0f7-3221-b2b2-f2ad557f6c64
+    owner: NeverLandTownyEspionage
+    kind: DEBIT
+    audited: true
+    state: PAID
+    created-at: 1793296104924
+    changed-at: 1793296105177
+    review: ''
+  6192a49a-4908-4ede-a4fd-6a704e0895cc:
+    town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+    category: army
+    source: justice
+    cents: 2500
+    reason: 'Суд: резерв награды по делу 57267c19-7f54-4801-ab26-2d07afbe4ae9'
+    actor: 51f54aaa-5987-3ee3-9631-d46bacd509aa
+    owner: NeverLandTownyJustice
+    kind: DEBIT
+    audited: true
+    state: PAID
+    created-at: 1793296099679
+    changed-at: 1793296099881
+    review: ''
+  e00bd4bd-6014-4935-a2a3-e896a16903eb:
+    town: 088b1f1e-4735-34e1-8c36-d1348912995b
+    category: army
+    source: espionage
+    cents: 150000
+    reason: 'Разведывательная операция: Общая разведка против CallerTarget'
+    actor: 9d031e25-d0f7-3221-b2b2-f2ad557f6c64
+    owner: NeverLandTownyEspionage
+    kind: DEBIT
+    audited: true
+    state: PAID
+    created-at: 1793296104024
+    changed-at: 1793296104576
+    review: ''
+  72e96586-c341-4a01-abb1-a4aee3050473:
+    town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+    category: army
+    source: justice
+    cents: 500
+    reason: 'Суд: резерв награды по делу eb5a62a7-fed0-484a-b82c-6fbcb9f19b66'
+    actor: 51f54aaa-5987-3ee3-9631-d46bacd509aa
+    owner: NeverLandTownyJustice
+    kind: DEBIT
+    audited: true
+    state: REJECTED
+    created-at: 1793296100824
+    changed-at: 1793296101074
+    review: 'Ручная сверка native exact proof backend returned false without debit:
+      списания не было'
+  30494e73-8a48-4744-be2f-8956e0d468e3:
+    town: 088b1f1e-4735-34e1-8c36-d1348912995b
+    category: army
+    source: espionage
+    cents: 1000
+    reason: Развитие городской разведсети
+    actor: 9d031e25-d0f7-3221-b2b2-f2ad557f6c64
+    owner: NeverLandTownyEspionage
+    kind: DEBIT
+    audited: true
+    state: PAID
+    created-at: 1793296102424
+    changed-at: 1793296102626
+    review: ''
+  23e30b69-27e2-4007-80ab-edad102289b2:
+    town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+    category: army
+    source: justice
+    cents: 700
+    reason: 'Суд: резерв награды по делу 646932a4-e785-4eba-b128-072bc4f7ea80'
+    actor: 51f54aaa-5987-3ee3-9631-d46bacd509aa
+    owner: NeverLandTownyJustice
+    kind: DEBIT
+    audited: true
+    state: PAID
+    created-at: 1793296101323
+    changed-at: 1793296122117
+    review: 'Ручная сверка native exact fixture bank receipt inspection: списание
+      подтверждено'
+  097fa1e0-3b4f-3237-972a-385b0cfef669:
+    town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+    category: army
+    source: justice
+    cents: 700
+    reason: 'Суд: возврат резерва по делу 646932a4-e785-4eba-b128-072bc4f7ea80'
+    actor: 51f54aaa-5987-3ee3-9631-d46bacd509aa
+    owner: NeverLandTownyJustice
+    kind: REFUND
+    backing-debit: 23e30b69-27e2-4007-80ab-edad102289b2
+    audited: true
+    state: PAID
+    created-at: 1793296123765
+    changed-at: 1793296123969
+    review: ''
+  fcb4ac18-1631-4f28-a728-b4e4e97faf77:
+    town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+    category: army
+    source: justice
+    cents: 700
+    reason: 'Суд: возврат резерва по делу 646932a4-e785-4eba-b128-072bc4f7ea80'
+    actor: 51f54aaa-5987-3ee3-9631-d46bacd509aa
+    owner: NeverLandTownyJustice
+    kind: REFUND
+    backing-debit: 23e30b69-27e2-4007-80ab-edad102289b2
+    audited: true
+    state: REJECTED
+    created-at: 1793296122366
+    changed-at: 1793296122615
+    review: 'Ручная сверка native exact proof no credit happened: списания не было'
+  260d52b0-6219-4ef6-b4d0-bf067a6c58e4:
+    town: 088b1f1e-4735-34e1-8c36-d1348912995b
+    category: army
+    source: espionage
+    cents: 500
+    reason: Развитие городской контрразведки
+    actor: 9d031e25-d0f7-3221-b2b2-f2ad557f6c64
+    owner: NeverLandTownyEspionage
+    kind: DEBIT
+    audited: true
+    state: PAID
+    created-at: 1793296102824
+    changed-at: 1793296103026
+    review: ''
+  c09edd25-0c4a-3759-92d5-f9ea6cbde41b:
+    town: 088b1f1e-4735-34e1-8c36-d1348912995b
+    category: army
+    source: espionage
+    cents: 150000
+    reason: Возврат покупки разведки 818a7809-cb5c-41d5-8f65-75505e1e6ce6
+    actor: 9d031e25-d0f7-3221-b2b2-f2ad557f6c64
+    owner: NeverLandTownyEspionage
+    kind: REFUND
+    backing-debit: 818a7809-cb5c-41d5-8f65-75505e1e6ce6
+    audited: true
+    state: REJECTED
+    created-at: 1793296105374
+    changed-at: 1793296105624
+    review: 'Ручная сверка native proven credit was not applied: списания не было'
+  a2c25a82-0298-497e-9dbb-c6dc089d8abb:
+    town: 9aa2a110-06e2-391f-9d2a-166a37f0182e
+    category: army
+    source: justice
+    cents: 2500
+    reason: 'Суд: возврат резерва по делу 57267c19-7f54-4801-ab26-2d07afbe4ae9'
+    actor: 51f54aaa-5987-3ee3-9631-d46bacd509aa
+    owner: NeverLandTownyJustice
+    kind: REFUND
+    backing-debit: 6192a49a-4908-4ede-a4fd-6a704e0895cc
+    audited: true
+    state: PAID
+    created-at: 1793296100077
+    changed-at: 1793296100280
+    review: ''
+  9a3cf5a4-0d1d-332c-9761-cde09bfa34bf:
+    town: 088b1f1e-4735-34e1-8c36-d1348912995b
+    category: army
+    source: espionage
+    cents: 150000
+    reason: Возврат покупки разведки 818a7809-cb5c-41d5-8f65-75505e1e6ce6
+    actor: 9d031e25-d0f7-3221-b2b2-f2ad557f6c64
+    owner: NeverLandTownyEspionage
+    kind: REFUND
+    backing-debit: 818a7809-cb5c-41d5-8f65-75505e1e6ce6
+    audited: true
+    state: PAID
+    created-at: 1793296105824
+    changed-at: 1793296106026
+    review: ''

@@ -1,0 +1,11 @@
+PASS actual Justice0.2.1 Espionage0.2.1 Treasury0.3.2 enable together on Folia
+PASS full JVM restart keeps both unknown caller payments and Treasury REVIEW
+PASS restart does not replay paid/unknown payments or convert historical pending bank call
+PASS Justice consumes manually reconciled bank receipt without another withdrawal
+PASS Justice known unpaid refund uses next saved attempt and returns only held amount once
+PASS Spy reconciliation applies one saved upgrade without a second debit
+PASS duplicate confirmed purchase cannot grant another level after restart
+PASS already applied purchase cannot be refunded from a stale PAID bank receipt
+PASS installed disabled Treasury reports payment unavailable without direct-bank bypass
+PASS existing accepted mission survives payment provider unavailability
+PASS normal admin enable schedules next-boot recovery after deliberate provider-disable test

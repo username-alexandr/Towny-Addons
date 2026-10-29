@@ -1,0 +1,6 @@
+name: SiegeTreasuryRuntimeProbe
+version: 0.52-repair
+main: ru.neverland.runtime.SiegeTreasuryProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownySiegesPlus, NeverLandTownyTreasuryPlus]
