@@ -66,3 +66,25 @@ ranks:
   general: {title: Генерал, training: 90, duty-minutes: 240}
 menu-style:
   title-color: '#F4F7FC'
+
+# Новые специальности и физические комплекты. Состав, звания и стратегическая экипировка остаются прежними.
+tactics:
+  enabled: true
+  kits-per-24h: 2
+  kit-cooldown-seconds: 3600
+  order-duration-seconds: 1800
+  arrival-radius: 16.0
+  max-active-orders: 8
+  kits:
+    soldier:
+      cost: {metal: 13.000, wood: 6.000, food: 8.000}
+      items: {IRON_SWORD: 1, IRON_HELMET: 1, IRON_CHESTPLATE: 1, SHIELD: 1, BREAD: 8}
+    sapper:
+      cost: {metal: 4.000, wood: 2.000, materials: 20.000}
+      items: {IRON_PICKAXE: 1, FLINT_AND_STEEL: 1, TNT: 4}
+    medic:
+      cost: {knowledge: 8.000, water: 4.000, food: 8.000, materials: 4.000}
+      items: {SPLASH_POTION_HEALING: 4, BREAD: 8}
+    supplier:
+      cost: {food: 32.000, wood: 8.000, materials: 8.000}
+      items: {BREAD: 32, ARROW: 32}

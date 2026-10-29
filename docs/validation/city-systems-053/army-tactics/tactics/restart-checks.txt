@@ -1,0 +1,17 @@
+PASS restart provider enabled and unfrozen: Builds
+PASS restart provider enabled and unfrozen: Resources
+PASS restart provider enabled and unfrozen: Citizens
+PASS restart provider enabled and unfrozen: Army
+PASS restart provider enabled and unfrozen: SiegesPlus
+PASS restart provider enabled and unfrozen: Control
+PASS exact new Army and administrator category versions
+PASS optional tactics service loaded
+PASS real restart retains specialty and acknowledged order history
+PASS restart refunds funded untouched kit once
+PASS restart never resends or refunds armed uncertain inventory
+PASS already refunded crash boundary never mints stock twice
+PASS ordinary soldier cannot resolve uncertain issue
+PASS confirmation rechecks revoked administrator permission
+PASS manual verified no-effect decision returns exact frozen cost
+PASS real admin log menu exposes separate readable Army category
+PASS actual administrator and exact kit operation persist in audit outbox

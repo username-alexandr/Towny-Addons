@@ -1,0 +1,10 @@
+PASS corrupt provider enabled and unfrozen: Builds
+PASS corrupt provider enabled and unfrozen: Resources
+PASS corrupt provider enabled and unfrozen: Citizens
+PASS corrupt provider enabled and unfrozen: Army
+PASS corrupt provider enabled and unfrozen: SiegesPlus
+PASS corrupt provider enabled and unfrozen: Control
+PASS exact new Army and administrator category versions
+PASS malformed optional tactics file leaves core roster, stock and API available
+PASS damaged tactics journal is preserved without empty overwrite
+PASS existing army menu opens with tactics unavailable

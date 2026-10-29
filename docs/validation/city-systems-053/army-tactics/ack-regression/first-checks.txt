@@ -1,0 +1,36 @@
+PASS native provider enabled and unfrozen: Builds
+PASS native provider enabled and unfrozen: Resources
+PASS native provider enabled and unfrozen: Citizens
+PASS native provider enabled and unfrozen: Army
+PASS native provider enabled and unfrozen: SiegesPlus
+PASS exact expected Army/Sieges0.6.4 pair loads on Folia
+PASS legacy import and retirement acknowledged before army actions
+PASS real Builds supplies operational HQ and retained verified age
+PASS own admission refused even with wildcard permissions
+PASS native application, admission, base and oath persist in order
+PASS supply intent ACK precedes any city withdrawal or army credit
+PASS real Resources debit and acknowledged army credit occur once
+PASS credit receipt remains until provider forget and close ACK
+PASS closed supply replay makes no second debit or credit
+PASS real command record exposes equipment action
+PASS actual click cannot publish equipment or spend stock before delayed disk ACK
+PASS read-only APIs remain usable during accepted write
+PASS second equipment click rejected while first is saving
+PASS quitting stops duty immediately during another write
+PASS equipment and exact kit debit publish together after ACK
+PASS quit-time service credit survives outstanding equipment write
+PASS movement after expired idle deadline cannot revive an AFK duty session
+PASS late movement never credits service beyond the idle deadline
+PASS legacy boolean API cannot enqueue an unobserved debit
+PASS camp stays unsupplied while Army disk receipt is pending
+PASS camp polling cannot duplicate a pending debit
+PASS camp becomes supplied only after exact Army debit receipt
+PASS paid raid minute replays without charging again
+PASS expired never-accepted minute is replaced before requesting current minute
+PASS active war charges only current minute, never the missed minute
+PASS disabled camp clears never-accepted intent without retrospective charge
+PASS ended war never starts a new army debit
+PASS malformed asynchronous provider reply is not treated as a declined debit
+PASS unknown reply retains exact pending receipt for reconciliation
+PASS restart fixture reserves real city stock
+PASS accepted Army receipt survives before camp-side publication

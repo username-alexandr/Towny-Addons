@@ -253,7 +253,7 @@ public final class ArmyService implements TownyArmyApi {
             for(var soldier:repository.state().soldiers().values()){var resident=TownyAPI.getInstance().getResident(soldier.resident());if(soldier.status()!=Status.DISCHARGED&&(resident==null||resident.getTownOrNull()==null||!soldier.town().equals(resident.getTownOrNull().getUUID()))){d.soldier(soldier.status(Status.DISCHARGED));d.audit.add(new Audit(UUID.randomUUID(),soldier.town(),SYSTEM,soldier.resident(),"LEFT_TOWN","Служба прекращена после выхода из города",now));endSession(soldier.resident());changed=true;}}
             if(changed){while(d.audit.size()>settings.auditLimit())d.audit.remove(0);track(after(repository.commit(d),()->refresh()));return;}
             accountDuty(false);if(busy())return;
-            var transfers=repository.state().transfers().values().stream().filter(t->t.phase()!=Phase.CLOSED&&t.phase()!=Phase.CANCELLED&&t.phase()!=Phase.RAID_SPENT).toList();
+            var transfers=repository.state().transfers().values().stream().filter(t->t.phase()!=Phase.CLOSED&&t.phase()!=Phase.CANCELLED&&t.phase()!=Phase.RAID_SPENT&&t.phase()!=Phase.KIT_SPENT&&t.phase()!=Phase.KIT_RETURNED).toList();
             if(!transfers.isEmpty()){var transfer=transfers.get(Math.floorMod(supplyCursor++,transfers.size()));try{process(transfer.id());}catch(Exception error){report(error);}if(busy())return;}
             var cities=List.copyOf(repository.state().cities().keySet());if(!cities.isEmpty()){upkeep(cities.get(Math.floorMod(upkeepCursor++,cities.size())),now);if(busy())return;}
             for(UUID id:List.copyOf(duty.keySet())){if(!onDuty(id))continue;var player=Bukkit.getPlayer(id);if(player==null){endSession(id);continue;}ru.neverland.core.SuiteScheduler.player(plugin,player,online->{try{activity(online);}catch(Exception error){report(error);}});}
@@ -288,6 +288,7 @@ public final class ArmyService implements TownyArmyApi {
             UUID id = p.getUniqueId(); var s = repository.state().soldiers().get(id); var nodes = new HashSet<String>();
             try {
                 if (s != null && s.serving() && eligible(s, now)) {
+                    if(plugin.tactics()!=null&&plugin.tactics().available())nodes.add("neverlandtownyarmy.specialty."+plugin.tactics().role(s.town(),s.resident()).id());
                     nodes.add("neverlandtownyarmy.rank." + s.rank().id()); nodes.add("neverlandtownyarmy.unit." + s.unit().id());
                     if (onDuty(id)) nodes.add("neverlandtownyarmy.duty");
                     if (!effective.containsKey(s.town())) effective.put(s.town(), result(s.town()).active());
@@ -310,10 +311,20 @@ public final class ArmyService implements TownyArmyApi {
     @Override public Optional<Map<String, Object>> serviceRecord(UUID id) { try (var suiteGuard34 = ru.neverland.core.SuiteState.guard()) { mainThread(); readable(); return id == null ? Optional.empty() : Optional.ofNullable(repository.state().soldiers().get(id)).map(this::record); } }
     @Override public Collection<Map<String, Object>> roster(UUID town) { try (var suiteGuard35 = ru.neverland.core.SuiteState.guard()) { mainThread(); readable(); return members(town).stream().map(this::record).toList(); } }
     /** A boolean caller may only observe an already confirmed receipt; it cannot enqueue a hidden withdrawal. */
-    @Override public boolean raidSupplyReceipt(UUID town,UUID receipt,Map<String,Long> amounts){try(var guard=SuiteState.guard()){var old=repository.transfer(receipt);if(old==null)return false;if(!old.town().equals(town)||old.phase()!=Phase.RAID_SPENT||!old.amounts().equals(ArmyModel.stock(amounts)))throw new IllegalArgumentException("Квитанция снабжения не совпадает");return true;}}
+    @Override public boolean raidSupplyReceipt(UUID town,UUID receipt,Map<String,Long> amounts){try(var guard=SuiteState.guard()){if(!repository.writable())throw new IllegalStateException("Военные запасы требуют проверки");var old=repository.transfer(receipt);if(old==null)return false;if(!old.town().equals(town)||old.phase()!=Phase.RAID_SPENT||!old.amounts().equals(ArmyModel.stock(amounts)))throw new IllegalArgumentException("Квитанция снабжения не совпадает");return true;}}
     @Override public boolean consumeRaidSupplies(UUID town,UUID receipt,Map<String,Long> amounts)throws Exception{try(var guard=SuiteState.guard()){var old=repository.transfer(receipt);if(old==null)throw new IllegalStateException("Обновите осадный аддон: снабжение требует подтверждаемого requestRaidSupplies; запасы не списаны");if(!old.town().equals(town)||old.phase()!=Phase.RAID_SPENT||!old.amounts().equals(ArmyModel.stock(amounts)))throw new IllegalArgumentException("Квитанция снабжения не совпадает");return true;}}
     @Override public CompletionStage<Boolean> requestRaidSupplies(UUID town,UUID receipt,Map<String,Long> amounts)throws Exception{try(var guard=SuiteState.guard()){
         if(repository.transfer(receipt)!=null)return CompletableFuture.completedFuture(consumeRaidSupplies(town,receipt,amounts));writable();if(SuiteState.frozen(plugin.getName()))throw new IllegalStateException("Армия приостановлена");room(1);return track(after(repository.spendRaid(town,receipt,amounts,System.currentTimeMillis()),()->{if(!stopping)refresh();}));
+    }}
+    /** Internal optional tactics integration; no equipment is minted by these stock-only methods. */
+    public Soldier participant(Player p)throws Exception{try(var guard=SuiteState.guard()){return self(p);}}
+    public UUID commander(Player p,Rank minimum){try(var guard=SuiteState.guard()){return manage(p,minimum);}}
+    public String equipmentReceipt(UUID town,UUID id,UUID player,Map<String,Long> cost){try(var guard=SuiteState.guard()){if(!repository.writable())throw new IllegalStateException("Военные запасы ожидают восстановления; результат списания нельзя считать отсутствующим");return repository.equipmentReceipt(town,id,player,cost);}}
+    public CompletionStage<Boolean> fundEquipment(UUID town,UUID id,UUID player,Map<String,Long> cost)throws Exception{try(var guard=SuiteState.guard()){
+        String receipt=equipmentReceipt(town,id,player,cost);if(receipt.equals("SPENT"))return CompletableFuture.completedFuture(true);if(receipt.equals("RETURNED"))throw new IllegalArgumentException("Средства этого комплекта уже возвращены");writable();room(1);return track(repository.fundEquipment(town,id,player,cost,System.currentTimeMillis()));
+    }}
+    public CompletionStage<Void> returnEquipment(UUID town,UUID id,UUID player,Map<String,Long> cost)throws Exception{try(var guard=SuiteState.guard()){
+        String receipt=equipmentReceipt(town,id,player,cost);if(receipt.equals("NONE")||receipt.equals("RETURNED"))return CompletableFuture.completedFuture(null);writable();return track(repository.returnEquipment(town,id,player,cost,System.currentTimeMillis()));
     }}
     @Override public Map<String, Long> reserves(UUID town) { try (var suiteGuard36 = ru.neverland.core.SuiteState.guard()) { mainThread(); readable(); return town == null ? Map.of() : repository.state().cities().getOrDefault(town, City.empty(town)).stock(); } }
     @Override public Optional<Map<String, Object>> garrison(UUID town) { try (var suiteGuard37 = ru.neverland.core.SuiteState.guard()) {

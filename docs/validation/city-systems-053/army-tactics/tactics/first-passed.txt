@@ -1,0 +1,1 @@
+PASS 49 assertions; native Folia/Towny/Army/Control, real item stacks and player.dat, immutable disk ACKs, failure and restart. Network presence, view, entity scheduler, accepted roster/base and interrupted receipt states are explicit fixtures; no real client or PvP session claimed.

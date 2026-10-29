@@ -1,0 +1,47 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 49 assertions; native Folia/Towny/Army/Control, real item stacks and player.dat, immutable disk ACKs, failure and restart. Network presence, view, entity scheduler, accepted roster/base and interrupted receipt states are explicit fixtures; no real client or PvP session claimed.\n",
+    "jar_sha256": {
+      "ArmyTacticsRuntimeProbe.jar": "28741acbe22a48974d593517639af5a0f146c31ae470b2aabcc3c204d78d037d",
+      "NeverLandTownyControl-0.6.4.jar": "697563d4076866c43f689d700716538e74915c1d0aeead509512e05307aeff62",
+      "NeverLandTownySiegesPlus-0.6.4.jar": "4b4509a7ec7f4dd7bfb8396b3cd32bf4cc642ee7717c0240ac4c73ba6e9b1bde",
+      "NeverLandTownyArmy-0.3.0.jar": "f7a52c63fe1aff74cbde36825ef064977c744cff4d7e437d504a719fd226898c",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyResources-0.2.2.jar": "b61c7227857638b6e5ceb1f89b4843dbf4e619b9599e72a1643c91738febf05e",
+      "NeverLandTownyBuilds-0.11.2.jar": "f3e7b52b688ede80e2cba74e65647af3fbfc00dc41dc279a324124566db71953",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 17 assertions; native Folia/Towny/Army/Control, real item stacks and player.dat, immutable disk ACKs, failure and restart. Network presence, view, entity scheduler, accepted roster/base and interrupted receipt states are explicit fixtures; no real client or PvP session claimed.\n",
+    "jar_sha256": {
+      "ArmyTacticsRuntimeProbe.jar": "28741acbe22a48974d593517639af5a0f146c31ae470b2aabcc3c204d78d037d",
+      "NeverLandTownyControl-0.6.4.jar": "697563d4076866c43f689d700716538e74915c1d0aeead509512e05307aeff62",
+      "NeverLandTownySiegesPlus-0.6.4.jar": "4b4509a7ec7f4dd7bfb8396b3cd32bf4cc642ee7717c0240ac4c73ba6e9b1bde",
+      "NeverLandTownyArmy-0.3.0.jar": "f7a52c63fe1aff74cbde36825ef064977c744cff4d7e437d504a719fd226898c",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyResources-0.2.2.jar": "b61c7227857638b6e5ceb1f89b4843dbf4e619b9599e72a1643c91738febf05e",
+      "NeverLandTownyBuilds-0.11.2.jar": "f3e7b52b688ede80e2cba74e65647af3fbfc00dc41dc279a324124566db71953",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  },
+  {
+    "phase": "corrupt",
+    "exit_code": 0,
+    "result": "PASS 10 assertions; native Folia/Towny/Army/Control, real item stacks and player.dat, immutable disk ACKs, failure and restart. Network presence, view, entity scheduler, accepted roster/base and interrupted receipt states are explicit fixtures; no real client or PvP session claimed.\n",
+    "jar_sha256": {
+      "ArmyTacticsRuntimeProbe.jar": "28741acbe22a48974d593517639af5a0f146c31ae470b2aabcc3c204d78d037d",
+      "NeverLandTownyControl-0.6.4.jar": "697563d4076866c43f689d700716538e74915c1d0aeead509512e05307aeff62",
+      "NeverLandTownySiegesPlus-0.6.4.jar": "4b4509a7ec7f4dd7bfb8396b3cd32bf4cc642ee7717c0240ac4c73ba6e9b1bde",
+      "NeverLandTownyArmy-0.3.0.jar": "f7a52c63fe1aff74cbde36825ef064977c744cff4d7e437d504a719fd226898c",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyResources-0.2.2.jar": "b61c7227857638b6e5ceb1f89b4843dbf4e619b9599e72a1643c91738febf05e",
+      "NeverLandTownyBuilds-0.11.2.jar": "f3e7b52b688ede80e2cba74e65647af3fbfc00dc41dc279a324124566db71953",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  }
+]

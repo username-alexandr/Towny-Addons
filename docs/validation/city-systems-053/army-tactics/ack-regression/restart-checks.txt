@@ -1,0 +1,15 @@
+PASS native provider enabled and unfrozen: Builds
+PASS native provider enabled and unfrozen: Resources
+PASS native provider enabled and unfrozen: Citizens
+PASS native provider enabled and unfrozen: Army
+PASS native provider enabled and unfrozen: SiegesPlus
+PASS exact expected Army/Sieges0.6.4 pair loads on Folia
+PASS legacy import and retirement acknowledged before army actions
+PASS restart retains equipment and earned duty without restarting a session
+PASS restart finishes consumed Resources receipt once without second city debit
+PASS ended raid recovers already accepted Army receipt without another charge
+PASS replayed receipt with changed cost refused after restart
+PASS never-accepted expired raid does not charge on recovery
+PASS onDisable under external Suite returns while actual disk is blocked
+PASS shutdown drains accepted raid debit then final duty credit
+PASS closed army rejects subsequent mutations

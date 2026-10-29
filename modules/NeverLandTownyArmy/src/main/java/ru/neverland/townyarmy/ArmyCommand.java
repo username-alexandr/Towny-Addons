@@ -38,6 +38,7 @@ public final class ArmyCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
             if (!sender.hasPermission("neverlandtownyarmy.use")) throw new IllegalArgumentException("Недостаточно прав");
+            if(Set.of("tactics","specialty","orders","order","kit","kitreview").contains(action)){if(plugin.tacticsMenus()==null)throw new IllegalArgumentException("Дополнительный раздел армии временно недоступен; основной состав и запасы сохранены");return plugin.tacticsMenus().command(sender,args);}
             if (action.equals("help")) { help(sender); return true; }
             if (!(sender instanceof Player p)) throw new IllegalArgumentException("Команда доступна в игре");
             switch (action) {
@@ -83,6 +84,7 @@ public final class ArmyCommand implements CommandExecutor, TabCompleter {
         say(p, "&b/army duty <on|off> &f— дежурство; &b/army train &f— подготовка");
         say(p, "&b/army roster &f— состав; &bunits &f— подразделения; &branks &f— звания");
         say(p, "&b/army stock &f— снабжение; &brecord <игрок> &f— служебная карточка");
+        say(p,"&b/army tactics &f— специальности, полевые комплекты и приказы");
         say(p, "&b/army radio <сообщение> &f— рация армии своего города");
         if (p instanceof Player player && officer(player, Rank.SERGEANT)) {
             say(p, "&b/army supply <ресурс> <количество> &f— перевод со склада города");
@@ -105,22 +107,25 @@ public final class ArmyCommand implements CommandExecutor, TabCompleter {
     @Override public List<String> onTabComplete(CommandSender s, Command command, String alias, String[] a) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         var choices = new ArrayList<String>();
         if (a.length == 1) {
-            if (s.hasPermission("neverlandtownyarmy.use")) choices.addAll(List.of("menu", "help", "apply", "oath", "duty", "train", "roster", "record", "stock", "units", "ranks", "radio"));
+            if (s.hasPermission("neverlandtownyarmy.use")) choices.addAll(List.of("menu", "help", "apply", "oath", "duty", "train", "roster", "record", "stock", "units", "ranks", "radio", "tactics", "orders", "kit"));
             if (s instanceof Player p) {
                 if (officer(p, Rank.SERGEANT)) choices.addAll(List.of("supply", "equip"));
-                if (officer(p, Rank.LIEUTENANT)) choices.addAll(List.of("approve", "mobilize", "release", "history"));
-                if (officer(p, Rank.CAPTAIN)) choices.addAll(List.of("promote", "demote", "assign", "warn", "pardon", "dismiss"));
+                if (officer(p, Rank.LIEUTENANT)) choices.addAll(List.of("approve", "mobilize", "release", "history", "order"));
+                if (officer(p, Rank.CAPTAIN)) choices.addAll(List.of("promote", "demote", "assign", "warn", "pardon", "dismiss", "specialty"));
                 if (officer(p, Rank.GENERAL)) choices.addAll(List.of("base", "alert"));
                 try { if (service.executive(p, service.ownTown(p).getUUID())) choices.add("commission"); } catch (IllegalArgumentException ignored) { }
             }
-            if (s.hasPermission("neverlandtownyarmy.admin")) choices.addAll(List.of("reload", "transfers"));
+            if (s.hasPermission("neverlandtownyarmy.admin")) choices.addAll(List.of("reload", "transfers", "kitreview"));
             if (s.hasPermission("neverlandtownybuilds.army.age")) choices.add("age");
         } else if (s instanceof Player p && s.hasPermission("neverlandtownyarmy.use")) {
             if (a.length == 2 && a[0].equals("apply") || a.length == 3 && a[0].equals("assign") && officer(p, Rank.CAPTAIN)) for (Unit u : Unit.values()) choices.add(u.id());
             if (a.length == 2 && (a[0].equals("duty") || a[0].equals("alert") && officer(p, Rank.GENERAL))) choices.addAll(List.of("on", "off"));
             if (a.length == 2 && a[0].equals("base") && officer(p, Rank.GENERAL)) choices.add("set");
+            if(a.length==2&&a[0].equals("order")&&officer(p,Rank.LIEUTENANT))choices.addAll(List.of("rally","attack","defend","supply"));
+            if(a.length==3&&a[0].equals("order")&&officer(p,Rank.LIEUTENANT))choices.addAll(List.of("all","infantry","cavalry","navy","air"));
+            if(a.length==3&&a[0].equals("specialty")&&officer(p,Rank.CAPTAIN))choices.addAll(List.of("soldier","sapper","medic","supplier"));
             if (a.length == 2 && a[0].equals("supply") && officer(p, Rank.SERGEANT)) choices.addAll(RESOURCES);
-            if (a.length == 2 && (a[0].equals("record") || Set.of("approve", "mobilize", "release", "equip", "promote", "demote", "assign", "warn", "pardon", "dismiss", "commission").contains(a[0]) && officer(p, Rank.SERGEANT))) {
+            if (a.length == 2 && (a[0].equals("record") || Set.of("approve", "mobilize", "release", "equip", "promote", "demote", "assign", "warn", "pardon", "dismiss", "commission", "specialty").contains(a[0]) && officer(p, Rank.SERGEANT))) {
                 try { UUID town = service.ownTown(p).getUUID(); for (var member : service.repository().state().soldiers().values()) if (member.town().equals(town)) choices.add(ArmyMenu.name(member.resident())); } catch (IllegalArgumentException ignored) { }
             }
         }

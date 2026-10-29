@@ -1,5 +1,5 @@
 name: NeverLandTownyArmy
-version: 0.2.2
+version: 0.3.0
 main: ru.neverland.townyarmy.NeverLandTownyArmy
 folia-supported: true
 api-version: '26.2'
@@ -51,4 +51,15 @@ permissions:
   neverlandtownyarmy.unit.navy:
     default: false
   neverlandtownyarmy.unit.air:
+    default: false
+  neverlandtownyarmy.kit:
+    description: Получение оплаченного военными запасами комплекта после присяги на базе
+    default: true
+  neverlandtownyarmy.specialty.soldier:
+    default: false
+  neverlandtownyarmy.specialty.sapper:
+    default: false
+  neverlandtownyarmy.specialty.medic:
+    default: false
+  neverlandtownyarmy.specialty.supplier:
     default: false

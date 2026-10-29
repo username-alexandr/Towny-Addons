@@ -1,0 +1,316 @@
+Starting org.bukkit.craftbukkit.Main
+[07:00:20 INFO]: [bootstrap] Running Java 25 (OpenJDK 64-Bit Server VM 25.0.5+8-LTS; Azul Systems, Inc. Zulu25.38+107-CA) on Linux 6.18.55 (amd64)
+[07:00:20 INFO]: [bootstrap] Loading Folia 26.2-7-ver/26.2.x@14b7fee (2026-08-25T13:29:28Z) for Minecraft 26.2
+[07:00:20 INFO]: [PluginInitializerManager] Initializing plugins...
+[07:00:20 WARN]: Failed to get system info for Process Loads
+java.lang.NullPointerException: Cannot invoke "oshi.software.os.OSProcess.getUserTime()" because "process" is null
+	at net.minecraft.SystemReport.lambda$putProcessDetails$0(SystemReport.java:191) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.setDetail(SystemReport.java:96) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putProcessDetails(SystemReport.java:188) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$putSoftware$0(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putSoftware(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$new$7(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.<init>(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.<init>(CrashReport.java:32) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.preload(CrashReport.java:240) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+[07:00:20 WARN]: Failed to get system info for Process Virtual Size (MiB)
+java.lang.NullPointerException: Cannot invoke "oshi.software.os.OSProcess.getVirtualSize()" because "process" is null
+	at net.minecraft.SystemReport.lambda$putProcessDetails$1(SystemReport.java:208) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.setDetail(SystemReport.java:96) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putProcessDetails(SystemReport.java:208) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$putSoftware$0(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putSoftware(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$new$7(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.<init>(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.<init>(CrashReport.java:32) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.preload(CrashReport.java:240) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+[07:00:20 WARN]: Failed to get system info for Process Resident Size (MiB)
+java.lang.NullPointerException: Cannot invoke "oshi.software.os.OSProcess.getResidentSetSize()" because "process" is null
+	at net.minecraft.SystemReport.lambda$putProcessDetails$2(SystemReport.java:209) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.setDetail(SystemReport.java:96) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putProcessDetails(SystemReport.java:209) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$putSoftware$0(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putSoftware(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$new$7(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.<init>(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.<init>(CrashReport.java:32) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.preload(CrashReport.java:240) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+[07:00:20 INFO]: [PluginInitializerManager] Initialized 8 plugins
+[07:00:20 INFO]: [PluginInitializerManager] Bukkit plugins (8):
+ - ArmyTacticsRuntimeProbe (0.52), NeverLandTownyArmy (0.3.0), NeverLandTownyBuilds (0.11.2), NeverLandTownyCitizens (0.2.0), NeverLandTownyControl (0.6.4), NeverLandTownyResources (0.2.2), NeverLandTownySiegesPlus (0.6.4), Towny (0.103.2.0)
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.joml.MemUtil$MemUtilUnsafe (file:/dev/shm/neverland-army-tactics-2/libraries/org/joml/joml/1.10.8/joml-1.10.8.jar)
+WARNING: Please consider reporting this to the maintainers of class org.joml.MemUtil$MemUtilUnsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[07:00:23 INFO]: [ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry] Initialising converters for DataConverter...
+[07:00:23 INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, profilesHost=https://api.mojang.com, name=PROD]
+[07:00:24 ERROR]: Failed to request yggdrasil public key
+com.mojang.authlib.exceptions.MinecraftClientException: Failed to read from https://api.minecraftservices.com/publickeys due to api.minecraftservices.com
+	at com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:151) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.getWithEtag(MinecraftClient.java:81) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:65) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilServicesKeyInfo.fetch(YggdrasilServicesKeyInfo.java:114) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilServicesKeyInfo$1.run(YggdrasilServicesKeyInfo.java:89) ~[authlib-9.0.75.jar:?]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:545) ~[?:?]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:328) ~[?:?]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:309) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614) ~[?:?]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+Caused by: java.net.UnknownHostException: api.minecraftservices.com
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:569) ~[?:?]
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:307) ~[?:?]
+	at java.base/java.net.Socket.connect(Socket.java:659) ~[?:?]
+	at java.base/sun.security.ssl.SSLSocketImpl.connect(SSLSocketImpl.java:304) ~[?:?]
+	at java.base/sun.net.NetworkClient.doConnect(NetworkClient.java:161) ~[?:?]
+	at java.base/sun.net.www.http.HttpClient.openServer(HttpClient.java:524) ~[?:?]
+	at java.base/sun.net.www.http.HttpClient.openServer(HttpClient.java:612) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsClient.<init>(HttpsClient.java:207) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsClient.New(HttpsClient.java:289) ~[?:?]
+	at java.base/sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.getNewHttpClient(AbstractDelegateHttpsURLConnection.java:196) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1012) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:903) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:876) ~[?:?]
+	at java.base/sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.connect(AbstractDelegateHttpsURLConnection.java:181) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1380) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1306) ~[?:?]
+	at java.base/java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:493) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsURLConnectionImpl.getResponseCode(HttpsURLConnectionImpl.java:307) ~[?:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:130) ~[authlib-9.0.75.jar:?]
+	... 10 more
+[07:00:24 INFO]: [ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry] Finished initialising converters for DataConverter in 365.7ms
+[07:00:25 INFO]: Loaded 1585 recipes
+[07:00:25 INFO]: Loaded 1688 advancements
+[07:00:25 INFO]: Starting minecraft server version 26.2
+[07:00:25 WARN]: ****************************
+[07:00:25 WARN]: YOU ARE RUNNING THIS SERVER AS AN ADMINISTRATIVE OR ROOT USER. THIS IS NOT ADVISED.
+[07:00:25 WARN]: YOU ARE OPENING YOURSELF UP TO POTENTIAL RISKS WHEN DOING THIS.
+[07:00:25 WARN]: FOR MORE INFORMATION, SEE https://madelinemiller.dev/blog/root-minecraft-server/
+[07:00:25 WARN]: ****************************
+[07:00:25 INFO]: Loading properties
+[07:00:25 INFO]: This server is running Folia version 26.2-7-ver/26.2.x@14b7fee (2026-08-25T13:29:28Z) (Implementing API version 26.2.build.7-beta)
+[07:00:25 INFO]: [spark] This server bundles the spark profiler. For more information please visit https://docs.papermc.io/paper/profiling
+[07:00:25 INFO]: Server Ping Player Sample Count: 12
+[07:00:25 INFO]: Using 4 threads for Netty based IO
+[07:00:26 INFO]: [MoonriseCommon] Paper is using 1 worker threads, 1 I/O threads
+[07:00:26 INFO]: [io.papermc.paper.threadedregions.TickRegions] Initialised EDF Folia scheduler with initial 2 target thread(s)
+[07:00:26 INFO]: Default game type: SURVIVAL
+[07:00:26 INFO]: Generating keypair
+[07:00:26 INFO]: Starting Minecraft server on 127.0.0.1:25687
+[07:00:26 INFO]: Paper: Using libdeflate (Linux x86_64) compression from Velocity.
+[07:00:26 INFO]: Paper: Using OpenSSL 3.x.x (Linux x86_64) cipher from Velocity.
+[07:00:26 WARN]: [io.netty.util.internal.MacAddressUtil] Failed to find a usable hardware address from the network interfaces; using random bytes: ec:c4:18:01:d2:79:25:87
+[07:00:26 INFO]: [Towny] Loading server plugin Towny v0.103.2.0
+[07:00:26 INFO]: [NeverLandTownyControl] Loading server plugin NeverLandTownyControl v0.6.4
+[07:00:26 INFO]: [NeverLandTownyCitizens] Loading server plugin NeverLandTownyCitizens v0.2.0
+[07:00:26 INFO]: [NeverLandTownyBuilds] Loading server plugin NeverLandTownyBuilds v0.11.2
+[07:00:26 INFO]: [NeverLandTownyResources] Loading server plugin NeverLandTownyResources v0.2.2
+[07:00:26 INFO]: [NeverLandTownyArmy] Loading server plugin NeverLandTownyArmy v0.3.0
+[07:00:26 INFO]: [NeverLandTownySiegesPlus] Loading server plugin NeverLandTownySiegesPlus v0.6.4
+[07:00:26 INFO]: [ArmyTacticsRuntimeProbe] Loading server plugin ArmyTacticsRuntimeProbe v0.52
+[07:00:26 WARN]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[07:00:26 WARN]: The server will make no attempt to authenticate usernames. Beware.
+[07:00:26 WARN]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[07:00:26 WARN]: To change this, set "online-mode" to "true" in the server.properties file.
+[07:00:26 INFO]: Preparing level "world"
+[07:00:26 INFO]: Loading 0 persistent chunks for level 'minecraft:overworld'...
+[07:00:26 INFO]: Preparing spawn area: 100%
+[07:00:26 INFO]: Prepared spawn area in 1 ms
+[07:00:26 INFO]: Loading 0 persistent chunks for level 'minecraft:the_nether'...
+[07:00:26 INFO]: Prepared spawn area in 0 ms
+[07:00:26 INFO]: Loading 0 persistent chunks for level 'minecraft:the_end'...
+[07:00:26 INFO]: Prepared spawn area in 0 ms
+[07:00:26 INFO]: Done preparing level "world" (0.257s)
+[07:00:26 INFO]: [Towny] Enabling Towny v0.103.2.0
+[07:00:26 INFO]: ====================      Towny      ========================
+[07:00:27 INFO]: [Towny] Config: 0.97.5.10 applying 1 automatic update...
+[07:00:27 INFO]: [Towny] Config: 0.98.0.1 applying 1 automatic update...
+[07:00:27 INFO]: [Towny] Config: 0.98.1.12 applying 2 automatic updates...
+[07:00:27 INFO]: [Towny] Config: 0.98.3.3 applying 1 automatic update...
+[07:00:27 INFO]: [Towny] Config: 0.98.3.4 applying 1 automatic update...
+[07:00:27 INFO]: [Towny] Config: 0.98.3.13 applying 8 automatic updates...
+[07:00:27 INFO]: [Towny] Config: 0.99.5.16 applying 1 automatic update...
+[07:00:27 INFO]: [Towny] Config: 0.100.0.9 applying 1 automatic update...
+[07:00:27 INFO]: [Towny] Config: 0.100.0.16 applying 61 automatic updates...
+[07:00:27 INFO]: [Towny] Config: 0.100.1.15 applying 1 automatic update...
+[07:00:27 INFO]: [Towny] Config: 0.100.2.10 applying 1 automatic update...
+[07:00:27 INFO]: [Towny] Config: 0.100.4.6 applying 1 automatic update...
+[07:00:27 INFO]: [Towny] Config: 0.101.1.2 applying 1 automatic update...
+[07:00:27 INFO]: [Towny] Successfully loaded translations for 45 languages.
+[07:00:27 INFO]: [Towny] Config: Loaded 9 townblock types: default, bank, shop, wilds, inn, farm, embassy, arena, jail.
+[07:00:27 INFO]: [Towny] Database: [Load] flatfile [Save] flatfile
+[07:00:27 INFO]: [Towny] Database: Loaded in 28ms.
+[07:00:27 INFO]: [Towny] Cleaning up old backups...
+[07:00:27 INFO]: [Towny] Could not delete old backups.
+[07:00:27 INFO]: [Towny] Making backup...
+[07:00:27 INFO]: [Towny] Time until a New Day: 4 hours, 59 minutes, 33 seconds
+[07:00:27 INFO]: [Towny] Searching for third-party plugins...
+[07:00:27 INFO]: [Towny] Checking for updates...
+[07:00:27 INFO]: [Towny] Plugins found: 
+[07:00:27 INFO]: [Towny]   Permissions: TownyPerms, BukkitPermissions
+[07:00:27 INFO]: [Towny] No new updates found.
+[07:00:27 INFO]: [Towny] Towny flatfiles and settings successfully backed up.
+[07:00:27 INFO]: =============================================================
+[07:00:27 INFO]: [Towny] Version: 0.103.2.0 - Plugin Enabled
+[07:00:27 INFO]: =============================================================
+[07:00:27 INFO]: [NeverLandTownyControl] Enabling NeverLandTownyControl v0.6.4
+[07:00:27 INFO]: [NeverLandTownyControl] Управление модулями: 39; отключено с зависимостями: 0
+[07:00:27 INFO]: [NeverLandTownyCitizens] Enabling NeverLandTownyCitizens v0.2.0
+[07:00:28 INFO]: [NeverLandTownyCitizens] Реестр гражданства загружен. Четыре статуса; /t citizens.
+[07:00:28 INFO]: [NeverLandTownyBuilds] Enabling NeverLandTownyBuilds v0.11.2
+[07:00:28 INFO]: [NeverLandTownyBuilds] Загружено городских проектов: 101
+[07:00:28 INFO]: [NeverLandTownyBuilds] Семейств схем: 0; сохранённых версий: 0; ошибок новых схем: 0
+[07:00:28 INFO]: [NeverLandTownyBuilds] NeverLandTownyBuilds 0.11.2 включён: процедурные здания и Чудеса, фонды ресурсов и совместное строительство готовы.
+[07:00:28 INFO]: [NeverLandTownyResources] Enabling NeverLandTownyResources v0.2.2
+[07:00:28 INFO]: [NeverLandTownyResources] Городские ресурсы включены: восемь запасов, 101 профилей.
+[07:00:28 INFO]: [NeverLandTownyArmy] Enabling NeverLandTownyArmy v0.3.0
+[07:00:28 INFO]: [NeverLandTownySiegesPlus] Enabling NeverLandTownySiegesPlus v0.6.4
+[07:00:28 INFO]: [NeverLandTownySiegesPlus] Sieges+: SiegeWar не установлен; армейские рейды и прочность TNT включены по настройкам
+[07:00:28 INFO]: [ArmyTacticsRuntimeProbe] Enabling ArmyTacticsRuntimeProbe v0.52
+[07:00:28 INFO]: [spark] The spark plugin has been preferred but was not loaded. The bundled spark profiler will enabled instead.
+[07:00:28 INFO]: [spark] The spark profiler will not be enabled because it is currently disabled in the configuration.
+[07:00:28 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+[07:00:28 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_nether
+[07:00:28 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_end
+[07:00:28 INFO]: ThreadedAnvilChunkStorage (world): All chunks are saved
+[07:00:28 INFO]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[07:00:28 INFO]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[07:00:28 INFO]: ThreadedAnvilChunkStorage: All dimensions are saved
+[07:00:29 INFO]: Done (9.619s)! For help, type "help"
+[07:00:31 INFO]: [ArmyTacticsRuntimeProbe] CHECK first provider enabled and unfrozen: Builds
+[07:00:31 INFO]: [ArmyTacticsRuntimeProbe] CHECK first provider enabled and unfrozen: Resources
+[07:00:31 INFO]: [ArmyTacticsRuntimeProbe] CHECK first provider enabled and unfrozen: Citizens
+[07:00:31 INFO]: [ArmyTacticsRuntimeProbe] CHECK first provider enabled and unfrozen: Army
+[07:00:31 INFO]: [ArmyTacticsRuntimeProbe] CHECK first provider enabled and unfrozen: SiegesPlus
+[07:00:31 INFO]: [ArmyTacticsRuntimeProbe] CHECK first provider enabled and unfrozen: Control
+[07:00:31 INFO]: [ArmyTacticsRuntimeProbe] CHECK exact new Army and administrator category versions
+[07:00:31 INFO]: [ArmyTacticsRuntimeProbe] CHECK optional tactics service loaded
+[07:00:31 INFO]: [ArmyTacticsRuntimeProbe] CHECK native Towny, verified age, citizenship and base prerequisites pass
+[07:00:31 INFO]: [ArmyTacticsRuntimeProbe] CHECK ordinary soldier cannot appoint specialties
+[07:00:31 INFO]: [ArmyTacticsRuntimeProbe] CHECK foreign mayor cannot change city specialty
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK order freezes location, radius and fresh confirmations
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK revoked command permission is rechecked
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK remote arrival cannot be claimed
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK stale order menu cannot overwrite revision
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK actual commander completes received and arrived order
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK actual role before kit SOLDIER
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK kit has separate payment confirmation SOLDIER
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK kit spends exact stock only once: SOLDIER
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK native inventory and real player.dat confirm full kit: SOLDIER
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK same player cooldown blocks duplicate kit: SOLDIER
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK actual role before kit SAPPER
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK kit has separate payment confirmation SAPPER
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK kit spends exact stock only once: SAPPER
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK native inventory and real player.dat confirm full kit: SAPPER
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK same player cooldown blocks duplicate kit: SAPPER
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK actual role before kit MEDIC
+[07:00:32 INFO]: [ArmyTacticsRuntimeProbe] CHECK kit has separate payment confirmation MEDIC
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK kit spends exact stock only once: MEDIC
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK native inventory and real player.dat confirm full kit: MEDIC
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK same player cooldown blocks duplicate kit: MEDIC
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK actual role before kit SUPPLIER
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK kit has separate payment confirmation SUPPLIER
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK kit spends exact stock only once: SUPPLIER
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK native inventory and real player.dat confirm full kit: SUPPLIER
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK same player cooldown blocks duplicate kit: SUPPLIER
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK full inventory refuses kit before any debit
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK full inventory keeps resources and creates no receipt
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK actual delayed disk publishes no goods or stock debit
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK double click blocked during first journal save
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK changed inventory cancels untouched kit
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK untouched cancellation returns exact reserves without replacing changed inventory
+[07:00:33 WARN]: [NeverLandTownyArmy] Дополнительная операция армии ожидает подтверждения; её квитанция сохранена
+java.util.concurrent.CompletionException: java.lang.IllegalStateException: Сохранение инвентаря не подтверждено
+	at java.base/java.util.concurrent.CompletableFuture.wrapInCompletionException(CompletableFuture.java:323) ~[?:?]
+	at java.base/java.util.concurrent.CompletableFuture.encodeRelay(CompletableFuture.java:412) ~[?:?]
+	at java.base/java.util.concurrent.CompletableFuture.completeRelay(CompletableFuture.java:421) ~[?:?]
+	at java.base/java.util.concurrent.CompletableFuture$UniCompose.tryFire(CompletableFuture.java:1173) ~[?:?]
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:531) ~[?:?]
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1794) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614) ~[?:?]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+Caused by: java.lang.IllegalStateException: Сохранение инвентаря не подтверждено
+	at NeverLandTownyArmy-0.3.0.jar//ru.neverland.townyarmy.tactics.KitDelivery.lambda$request$14(KitDelivery.java:32) ~[?:?]
+	at java.base/java.util.concurrent.CompletableFuture$UniCompose.tryFire(CompletableFuture.java:1171) ~[?:?]
+	... 5 more
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK silent native player-save failure never confirms delivery
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK unknown save retains charged receipt and blocks automatic refund
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK unknown save cannot issue a second inventory
+[07:00:33 INFO]: [ArmyTacticsRuntimeProbe] CHECK exact durable marker confirms recovery without new items
+[07:00:34 INFO]: [ArmyTacticsRuntimeProbe] CHECK module pause stops armed inventory delivery
+[07:00:34 INFO]: [ArmyTacticsRuntimeProbe] CHECK paused kit keeps exact refund obligation without granting items
+[07:00:34 INFO]: [ArmyTacticsRuntimeProbe] CHECK resume refunds stock once without penalizing the player
+[07:00:34 INFO]: [RegionShutdownThread] Awaiting scheduler termination for 60s...
+[07:00:34 INFO]: [RegionShutdownThread] Scheduler halted
+[07:00:34 INFO]: Stopping server
+[07:00:34 INFO]: [ArmyTacticsRuntimeProbe] Disabling ArmyTacticsRuntimeProbe v0.52
+[07:00:34 INFO]: [NeverLandTownySiegesPlus] Disabling NeverLandTownySiegesPlus v0.6.4
+[07:00:34 INFO]: [NeverLandTownyArmy] Disabling NeverLandTownyArmy v0.3.0
+[07:00:34 INFO]: [NeverLandTownyResources] Disabling NeverLandTownyResources v0.2.2
+[07:00:34 INFO]: [NeverLandTownyBuilds] Disabling NeverLandTownyBuilds v0.11.2
+[07:00:34 INFO]: [NeverLandTownyCitizens] Disabling NeverLandTownyCitizens v0.2.0
+[07:00:34 INFO]: [NeverLandTownyControl] Disabling NeverLandTownyControl v0.6.4
+[07:00:34 INFO]: [Towny] Disabling Towny v0.103.2.0
+[07:00:34 INFO]: ==============================================================
+[07:00:34 INFO]: [Towny] Finishing File IO Tasks...
+[07:00:34 INFO]: [Towny] Finishing Universe Tasks...
+[07:00:34 INFO]: [Towny] Version: 0.103.2.0 - Plugin Disabled
+[07:00:34 INFO]: =============================================================
+[07:00:34 INFO]: [RegionShutdownThread] Halting chunk systems...
+[07:00:34 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:overworld'
+[07:00:34 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:overworld'
+[07:00:34 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:the_nether'
+[07:00:34 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:the_nether'
+[07:00:34 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:the_end'
+[07:00:34 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:the_end'
+[07:00:34 INFO]: [RegionShutdownThread] Halted chunk systems
+[07:00:34 INFO]: [RegionShutdownThread] Finishing pending teleports...
+[07:00:34 INFO]: [RegionShutdownThread] Finished pending teleports
+[07:00:34 INFO]: [RegionShutdownThread] Saving all worlds
+[07:00:34 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:overworld'
+[07:00:34 INFO]: [RegionShutdownThread] Closing player inventories...
+[07:00:34 INFO]: [RegionShutdownThread] Closed player inventories
+[07:00:34 INFO]: [RegionShutdownThread] Saving chunks...
+[07:00:34 INFO]: [RegionShutdownThread] Saving chunks around region around chunk [0, 0] in world 'world'
+[07:00:34 INFO]: [ChunkHolderManager] Saved 0 block chunks, 0 entity chunks, 0 poi chunks in world 'minecraft:overworld' in 0.00s
+[07:00:34 INFO]: [ChunkHolderManager] Waiting 60s for chunk I/O to halt for world 'minecraft:overworld'
+[07:00:34 INFO]: [ChunkHolderManager] Halted I/O scheduler for world 'minecraft:overworld'
+[07:00:34 INFO]: [RegionShutdownThread] Saved chunks
+[07:00:34 INFO]: [RegionShutdownThread] Saving level data...
+[07:00:34 INFO]: [RegionShutdownThread] Saved level data
+[07:00:34 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:overworld'
+[07:00:34 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:the_nether'
+[07:00:34 INFO]: [RegionShutdownThread] Closing player inventories...
+[07:00:34 INFO]: [RegionShutdownThread] Closed player inventories
+[07:00:34 INFO]: [RegionShutdownThread] Saving chunks...
+[07:00:34 INFO]: [RegionShutdownThread] Saved chunks
+[07:00:34 INFO]: [RegionShutdownThread] Saving level data...
+[07:00:34 INFO]: [RegionShutdownThread] Saved level data
+[07:00:34 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:the_nether'
+[07:00:34 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:the_end'
+[07:00:34 INFO]: [RegionShutdownThread] Closing player inventories...
+[07:00:34 INFO]: [RegionShutdownThread] Closed player inventories
+[07:00:34 INFO]: [RegionShutdownThread] Saving chunks...
+[07:00:34 INFO]: [RegionShutdownThread] Saved chunks
+[07:00:34 INFO]: [RegionShutdownThread] Saving level data...
+[07:00:34 INFO]: [RegionShutdownThread] Saved level data
+[07:00:34 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:the_end'
+[07:00:34 INFO]: [RegionShutdownThread] Saved all worlds
+[07:00:34 INFO]: [RegionShutdownThread] Saving global world data...
+[07:00:34 INFO]: [RegionShutdownThread] Saved global world data.
+[07:00:34 INFO]: [RegionShutdownThread] Saving all player data...
+[07:00:34 INFO]: [RegionShutdownThread] Saved all player data
+[07:00:34 INFO]: Waiting for all RegionFile I/O tasks to complete...
+[07:00:34 INFO]: All RegionFile I/O tasks to complete
+[07:00:34 INFO]: [MoonriseCommon] Awaiting termination of worker pool for up to 60s...
+[07:00:34 INFO]: [MoonriseCommon] Awaiting termination of I/O pool for up to 60s...

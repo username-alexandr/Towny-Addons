@@ -1,0 +1,6 @@
+name: ArmyTacticsRuntimeProbe
+version: 0.52
+main: ru.neverland.runtime.ArmyTacticsProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyResources, NeverLandTownyCitizens, NeverLandTownyArmy, NeverLandTownySiegesPlus, NeverLandTownyControl]

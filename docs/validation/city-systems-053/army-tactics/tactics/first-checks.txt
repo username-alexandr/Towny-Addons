@@ -1,0 +1,49 @@
+PASS first provider enabled and unfrozen: Builds
+PASS first provider enabled and unfrozen: Resources
+PASS first provider enabled and unfrozen: Citizens
+PASS first provider enabled and unfrozen: Army
+PASS first provider enabled and unfrozen: SiegesPlus
+PASS first provider enabled and unfrozen: Control
+PASS exact new Army and administrator category versions
+PASS optional tactics service loaded
+PASS native Towny, verified age, citizenship and base prerequisites pass
+PASS ordinary soldier cannot appoint specialties
+PASS foreign mayor cannot change city specialty
+PASS order freezes location, radius and fresh confirmations
+PASS revoked command permission is rechecked
+PASS remote arrival cannot be claimed
+PASS stale order menu cannot overwrite revision
+PASS actual commander completes received and arrived order
+PASS actual role before kit SOLDIER
+PASS kit has separate payment confirmation SOLDIER
+PASS kit spends exact stock only once: SOLDIER
+PASS native inventory and real player.dat confirm full kit: SOLDIER
+PASS same player cooldown blocks duplicate kit: SOLDIER
+PASS actual role before kit SAPPER
+PASS kit has separate payment confirmation SAPPER
+PASS kit spends exact stock only once: SAPPER
+PASS native inventory and real player.dat confirm full kit: SAPPER
+PASS same player cooldown blocks duplicate kit: SAPPER
+PASS actual role before kit MEDIC
+PASS kit has separate payment confirmation MEDIC
+PASS kit spends exact stock only once: MEDIC
+PASS native inventory and real player.dat confirm full kit: MEDIC
+PASS same player cooldown blocks duplicate kit: MEDIC
+PASS actual role before kit SUPPLIER
+PASS kit has separate payment confirmation SUPPLIER
+PASS kit spends exact stock only once: SUPPLIER
+PASS native inventory and real player.dat confirm full kit: SUPPLIER
+PASS same player cooldown blocks duplicate kit: SUPPLIER
+PASS full inventory refuses kit before any debit
+PASS full inventory keeps resources and creates no receipt
+PASS actual delayed disk publishes no goods or stock debit
+PASS double click blocked during first journal save
+PASS changed inventory cancels untouched kit
+PASS untouched cancellation returns exact reserves without replacing changed inventory
+PASS silent native player-save failure never confirms delivery
+PASS unknown save retains charged receipt and blocks automatic refund
+PASS unknown save cannot issue a second inventory
+PASS exact durable marker confirms recovery without new items
+PASS module pause stops armed inventory delivery
+PASS paused kit keeps exact refund obligation without granting items
+PASS resume refunds stock once without penalizing the player

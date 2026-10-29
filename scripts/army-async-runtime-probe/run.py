@@ -2,7 +2,7 @@
 """Two real Folia boots, exact artifacts, lifecycle errors and fresh assertion markers."""
 from pathlib import Path
 import argparse,subprocess,time,json,hashlib,yaml
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--server',type=Path,required=True);p.add_argument('--java-home',type=Path,required=True);p.add_argument('--phase',choices=['first','restart'])
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--server',type=Path,required=True);p.add_argument('--java-home',type=Path,required=True);p.add_argument('--phase',choices=['first','restart']);p.add_argument('--army-version',default='0.2.2')
 a=p.parse_args();server=a.server.resolve();proof=server/'plugins/ArmyAsyncRuntimeProbe';out=server/'validation';out.mkdir(exist_ok=True)
 assert (server/'ALLOW_DISPOSABLE_RAID_PROBE').is_file() and 'server-ip=127.0.0.1' in (server/'server.properties').read_text()
 assert not (proof/'failed.txt').exists(), 'Use a fresh disposable fixture after a failure'
@@ -14,7 +14,7 @@ assert 'enabled=false' in (server/'plugins/faststats/config.properties').read_te
 jars={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in (server/'plugins').glob('*.jar')};results=json.loads((out/'native-results.json').read_text()) if a.phase=='restart' else []
 if results:assert results[0]['jar_sha256']==jars, 'JARs must stay unchanged between phases'
 for phase in ([a.phase] if a.phase else ['first','restart']):
-    started=time.time();command=[str(a.java_home.resolve()/'bin/java'),'-XX:ActiveProcessorCount=4','-Xms512M','-Xmx1700M','-Dterminal.jline=false','-Dterminal.ansi=false']
+    started=time.time();command=[str(a.java_home.resolve()/'bin/java'),'-Dneverland.probe.army-version='+a.army_version,'-XX:ActiveProcessorCount=4','-Xms512M','-Xmx1700M','-Dterminal.jline=false','-Dterminal.ansi=false']
     if (server/'cacerts').exists():command+=['-Djavax.net.ssl.trustStore='+str(server/'cacerts')]
     command+=['-jar','server.jar','--nogui']
     with (out/f'{phase}.log').open('w') as stream:
