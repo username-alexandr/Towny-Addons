@@ -63,7 +63,13 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             getServer().getPluginManager().disablePlugin(this);
         }
     } }
-    @Override public void onDisable(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(townDeletion!=null)townDeletion.stop();if(adminMenu!=null)adminMenu.shutdown();if(bankAudit!=null)bankAudit.stop();SuiteScheduler.get().cancelTasks(this);} }
+    @Override public void onDisable(){
+        java.util.concurrent.CompletionStage<Void> audit=java.util.concurrent.CompletableFuture.completedFuture(null);
+        try(var guard=SuiteState.guard()){if(townDeletion!=null)townDeletion.stop();if(adminMenu!=null)adminMenu.shutdown();if(bankAudit!=null)audit=bankAudit.closeAsync();SuiteScheduler.get().cancelTasks(this);}
+        if(SuiteState.held()){if(!audit.toCompletableFuture().isDone())getLogger().warning("Банковский аудит завершает очередь в фоне; ожидание под общей блокировкой запрещено.");return;}
+        try{audit.toCompletableFuture().get(5,java.util.concurrent.TimeUnit.SECONDS);}catch(Exception error){getLogger().log(java.util.logging.Level.SEVERE,"AUDIT GAP: не подтверждено завершение банковского аудита; финансовые действия не повторяются",error);}
+    }
+    String auditStatus(){return bankAudit==null?"Банковский аудит не запущен":bankAudit.status();}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if(!AdminAccess.admin(sender)){sender.sendMessage("§cНет прав.");return true;}
         try {

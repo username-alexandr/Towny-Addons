@@ -205,7 +205,40 @@ final class AdminMenu implements Listener {
         var s=screen(player,"Журналы • Категории",AdminAccess.AUDIT);int slot=0;
         for(var category:AuditCategory.values()){button(s,slot++,Material.valueOf(category.icon),category.title,List.of("Нажмите для просмотра","Даты и время по Москве"),()->logPage(player,category,new AuditQuery(Map.of("category",category.name()),1)));}
         button(s,40,Material.KNOWLEDGE_BOOK,"Как читать журнал",List.of("Сделка показывает товар и его цену","Списания, переводы и сделки — разные записи","Их суммы нельзя складывать","OBSERVED — команда, не доказательство оплаты"),null);
+        button(s,42,Material.COMPARATOR,"Проверка операций",List.of("Операции, требующие сверки","Быстрые переводы через несколько городов","Только подсказки: без автоматических наказаний"),()->signals(player,1));
         button(s,53,Material.SPYGLASS,"Проверить журналы",List.of("Проверка целостности всех файлов","Результат будет отправлен в чат"),()->audit.onCommand(player,plugin.getCommand("nltaudit"),"nltaudit",new String[]{"status"}));back(s,()->home(player));show(player,s);
+    }
+    private void signals(Player player,int days){
+        var loading=screen(player,"Проверка операций • Чтение",AdminAccess.AUDIT);
+        button(loading,22,Material.CLOCK,"Проверяем квитанции…",List.of("Период: "+days+" дн. по Москве","Можно закрыть окно"),null);back(loading,()->logs(player));show(player,loading);
+        try{audit.signals(player,days,(cards,error)->{
+            if(!current(player,loading))return;if(!authorized(player,loading)){player.closeInventory();return;}
+            if(error!=null){button(loading,22,Material.BARRIER,"Проверка не завершена",List.of(clean(error.getMessage()),"Неполный результат не показан"),null);button(loading,53,Material.CLOCK,"Проверить сегодня",List.of("С начала дня по Москве"),()->signals(player,1));return;}
+            signalPage(player,cards,days,1);
+        });}catch(Exception ex){button(loading,22,Material.BARRIER,"Проверка недоступна",List.of(clean(ex.getMessage())),null);}
+    }
+    private void signalPage(Player player,List<AuditSignals.Card> cards,int days,int page){
+        var s=screen(player,"Проверка операций • "+page,AdminAccess.AUDIT);int slot=0;
+        for(var card:cards.stream().skip((page-1L)*PAGE_SIZE).limit(PAGE_SIZE).toList()){
+            var last=card.evidence().get(card.evidence().size()-1);button(s,slot++,card.type()==AuditSignals.Type.REVIEW?Material.CLOCK:Material.COMPARATOR,card.title(),List.of(TIME.format(Instant.ofEpochMilli(last.at()))+" МСК",card.reason(),"Нажмите: исходные квитанции"),()->signalDetail(player,card,cards,days,page));
+        }
+        if(cards.isEmpty())button(s,22,Material.BOOK,"Совпадений с правилами нет",List.of("Период: "+days+" дн. по Москве","Это не подтверждение отсутствия ошибок","Старые операции за пределами периода не проверялись"),null);
+        button(s,40,Material.KNOWLEDGE_BOOK,"Как читать карточки",List.of("Журнал может отставать от состояния аддона","Решение принимается после сверки квитанций","Баланс и ресурсы здесь не изменяются"),null);
+        button(s,46,Material.CLOCK,"Период: "+days+" дн.",List.of("Переключить: "+(days==1?7:1)+" дн. по Москве"),()->signals(player,days==1?7:1));
+        button(s,53,Material.SPYGLASS,"Обновить",List.of("Повторить проверку журналов"),()->signals(player,days));pagination(s,page,cards.size(),p->signalPage(player,cards,days,p));back(s,()->logs(player));show(player,s);
+    }
+    private void signalDetail(Player player,AuditSignals.Card card,List<AuditSignals.Card> cards,int days,int page){
+        var s=screen(player,"Проверка • Квитанции",AdminAccess.AUDIT);button(s,40,Material.KNOWLEDGE_BOOK,card.title(),List.of(card.reason(),"Проверка ничего не повторяет и не списывает"),null);int slot=0;
+        for(var r:card.evidence()){
+            var lines=new ArrayList<>(summary(r));lines.add("Запись: "+r.id());lines.add("Операция: "+r.operation());lines.add("Нажмите: все записи этой операции");
+            button(s,slot,Material.PAPER,AuditCategory.kind(r.kind()),lines,()->operation(player,r));slot++;
+        }
+        button(s,42,Material.WRITABLE_BOOK,"ID квитанций в чат",List.of("Для точной сверки с журналом аддона"),()->card.evidence().forEach(r->player.sendMessage("§7module="+r.module()+" id="+r.id()+" operation="+r.operation())));
+        back(s,()->signalPage(player,cards,days,page));show(player,s);
+    }
+    private void operation(Player player,AuditRecord record){
+        var filters=new LinkedHashMap<String,String>();filters.put("category","ALL");filters.put("id",record.operation().isBlank()?record.id():record.operation());
+        logPage(player,AuditCategory.ALL,new AuditQuery(filters,1));
     }
     private void logPage(Player player,AuditCategory category,AuditQuery query){
         var loading=screen(player,category.title+" • Чтение",AdminAccess.AUDIT);button(loading,22,Material.CLOCK,"Читаю журнал…",List.of("Можно вернуться назад или закрыть меню"),null);back(loading,()->logs(player));show(player,loading);
@@ -247,7 +280,8 @@ final class AdminMenu implements Listener {
         var s=screen(player,"Журнал • Подробности",AdminAccess.AUDIT);button(s,4,Material.BOOK,AuditCategory.kind(record.kind()),summary(record),null);
         party(s,19,"Отправитель",record.from());party(s,21,"Получатель",record.to());party(s,23,"Инициатор",record.actor());
         button(s,25,Material.PAPER,"Квитанция операции",List.of("Запись: "+record.id(),"Операция: "+record.operation(),"Аддон: "+record.module(),"Тип: "+record.kind(),"Результат: "+record.outcome(),clean(record.details())),null);
-        button(s,40,Material.WRITABLE_BOOK,"ID в чат",List.of("Вывести ID записи и операции для копирования"),()->player.sendMessage("§7id="+record.id()+" operation="+record.operation()));back(s,()->logPage(player,category,query));show(player,s);
+        button(s,40,Material.WRITABLE_BOOK,"ID в чат",List.of("Вывести ID записи и операции для копирования"),()->player.sendMessage("§7id="+record.id()+" operation="+record.operation()));
+        button(s,42,Material.COMPARATOR,"Связанные записи",List.of("Все аддоны с тем же ID операции","Совпадение ID не означает повторную выплату"),()->operation(player,record));back(s,()->logPage(player,category,query));show(player,s);
     }
     private void party(Screen screen,int slot,String label,AuditRecord.Party party){button(screen,slot,Material.OAK_SIGN,label,List.of(clean(party.name()),"Тип: "+party.type(),"ID: "+party.id(),"Город: "+party.town()),null);}
     private static List<String> summary(AuditRecord r){return List.of(TIME.format(Instant.ofEpochMilli(r.at()))+" МСК","От: "+clean(r.from().name()),"Кому: "+clean(r.to().name()),"Инициатор: "+clean(r.actor().name()),"Предмет: "+(r.asset().isEmpty()?"—":r.quantity()+" × "+clean(r.asset().split(":",2)[0])),"Сумма / цена: "+(r.money().isEmpty()?"—":r.money()),"Результат: "+AuditCategory.outcome(r.outcome()));}

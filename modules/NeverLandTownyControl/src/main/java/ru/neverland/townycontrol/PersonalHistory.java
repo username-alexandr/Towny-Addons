@@ -9,7 +9,7 @@ final class PersonalHistory {
     enum Category { ALL("Все операции"), MONEY("Деньги"), RESOURCES("Материалы"), BANK("Движения счёта");
         final String label;Category(String label){this.label=label;}
     }
-    private static final Set<String> MONEY=Set.of("PUBLIC_ORDER_REWARD","JOB_SALARY","BANK_TRANSFER","CONTRACT_PAYMENT","COMPANY_PAYMENT","TRADE_PAYMENT","TRADE_REFUND","MARKET_DEAL","SHOP_DEAL","CONSTRUCTION_REFUND");
+    private static final Set<String> MONEY=Set.of("PUBLIC_ORDER_REWARD","JOB_SALARY","BANK_TRANSFER","CONTRACT_PAYMENT","COMPANY_PAYMENT","TRADE_PAYMENT","TRADE_COMPENSATION","TRADE_REFUND","MARKET_DEAL","SHOP_DEAL","CONSTRUCTION_REFUND");
     private static final Set<String> RESOURCES=Set.of("BUILD_CONTRIBUTION","STORAGE_PLAYER","MARKET_DELIVERY","SHOP_DELIVERY","CONTRACT_DELIVERY","WAREHOUSE_TRADE");
     static Predicate<AuditRecord> filter(UUID player,Category category){return r->{
         if(!r.player(player.toString()))return false;

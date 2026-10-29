@@ -1,0 +1,24 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 23 checks; actual Folia Control menus, derived SQLite index, corruption recovery, permissions, immutable bank audit and shutdown drain; seeded administrative evidence and offline Player/View/EntityScheduler fixtures; no real bank payment or network rendering claimed\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyControl-0.6.0.jar": "2e1c22da662d888f5edab3901fd6d36c15ca8047b69090b9688de4fbcee12647",
+      "ControlAuditRuntimeProbe.jar": "4ded59e8cac3bd9ec67d4f62f7596555e5a31e9fbd57590f322ca83f80eb08b4"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 8 checks; actual Folia Control menus, derived SQLite index, corruption recovery, permissions, immutable bank audit and shutdown drain; seeded administrative evidence and offline Player/View/EntityScheduler fixtures; no real bank payment or network rendering claimed\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyControl-0.6.0.jar": "2e1c22da662d888f5edab3901fd6d36c15ca8047b69090b9688de4fbcee12647",
+      "ControlAuditRuntimeProbe.jar": "4ded59e8cac3bd9ec67d4f62f7596555e5a31e9fbd57590f322ca83f80eb08b4"
+    }
+  }
+]

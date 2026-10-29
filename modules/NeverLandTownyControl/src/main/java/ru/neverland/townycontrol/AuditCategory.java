@@ -8,7 +8,7 @@ enum AuditCategory implements Predicate<AuditRecord> {
     ALL("Все операции","BOOK",Set.of()),
     BANKS("Денежные переводы","GOLD_INGOT",Set.of("BANK_TRANSFER","BANK_COMMAND")),
     BANK_ENTRIES("Списания и зачисления","GOLD_NUGGET",Set.of("BANK_LEG")),
-    TRADE("Торговля и поставки","MINECART",Set.of("CARAVAN_DEAL","TRADE_PAYMENT","TRADE_TARIFF","TRADE_REFUND","SUPPLY_AGREEMENT","SUPPLY_DEAL")),
+    TRADE("Торговля и поставки","MINECART",Set.of("CARAVAN_DEAL","TRADE_PAYMENT","TRADE_COMPENSATION","TRADE_TARIFF","TRADE_REFUND","SUPPLY_AGREEMENT","SUPPLY_DEAL")),
     MARKETS("Рынок и магазины","EMERALD",Set.of("MARKET_DEAL","SHOP_DEAL","MARKET_DELIVERY","SHOP_DELIVERY")),
     STORAGE("Ресурсы и склады","CHEST",Set.of("WAREHOUSE_TRADE","WAREHOUSE_LEG","STORAGE_PLAYER")),
     UPKEEP("Содержание и экономия","FURNACE",Set.of("UPKEEP_SAVINGS")),
@@ -19,6 +19,7 @@ enum AuditCategory implements Predicate<AuditRecord> {
     COMPANY_SALARIES("Зарплаты компаний","EMERALD",Set.of("COMPANY_SALARY")),
     CITY_CONTRIBUTIONS("Вклад жителей и благодарности","PLAYER_HEAD",Set.of("CITY_COMMENDATION","CITY_DEFENSE")),
     CONSTRUCTION("Стройки и возвраты","BRICKS",Set.of("CITY_STYLE","CONSTRUCTION_REFUND","BUILD_CONTRIBUTION")),
+    EVENT_PLANS("Решения при событиях","CLOCK",Set.of("CITY_EVENT_PLAN")),
     FIRE_REPAIRS("Ремонт после пожара","ANVIL",Set.of("FIRE_REPAIR")),
     MOB_FARMS("Участки и фермы мобов","SPAWNER",Set.of("MOB_FARM_ZONE")),
     CONTRACTS("Контракты","WRITABLE_BOOK",Set.of("CONTRACT_PAYMENT","CONTRACT_DELIVERY")),
@@ -45,13 +46,13 @@ enum AuditCategory implements Predicate<AuditRecord> {
         case "CITY_STYLE"->"Выбор стиля города";case "CITY_COMMENDATION"->"Благодарность мэра";case "CITY_DEFENSE"->"Защита города";case "COMPANY_PAYROLL_SETTINGS"->"Ставки и бюджет зарплат компании";case "COMPANY_SALARY"->"Зарплата сотруднику компании";case "RAID_HOURS"->"Расписание нападений";case "RAID_SUPPLY"->"Доставка и расход военных запасов";
         case "BUILDING_REPAIR"->"Оплата и выполнение ремонта";case "BUILDING_REPAIR_REVIEW"->"Ремонт: нужна сверка";case "BUILDING_REPAIR_RECONCILE"->"Администратор сверил ремонт";
         case "RAID_CHUNK"->"Захват и освобождение участка";case "RAID_TNT_DENIED"->"Заблокированный поджиг TNT";case "RAID_DAMAGE"->"Урон TNT и прочность";case "RAID_LOOT_PROTECTION"->"Защита и расчёт добычи";case "RAID_CANCELLED"->"Остановка рейда";case "RAID_CAMP"->"Осадный лагерь";case "RAID_DECLARED"->"Начало рейда";case "RAID_CORE"->"Захват кафедры ратуши";case "RAID_LOOT_MONEY"->"Захваченные деньги";case "RAID_LOOT_RESOURCES"->"Захваченные ресурсы";case "RAID_LOOT_STATE"->"Выдача добычи";case "RAID_LOOT_REVIEW"->"Добыча: нужна сверка";case "RAID_LOOT_RECONCILE"->"Администратор сверил добычу";
-        case "FIRE_REPAIR"->"Подтверждение ремонта участка";
+        case "CITY_EVENT_PLAN"->"План действий при городском событии";case "FIRE_REPAIR"->"Подтверждение ремонта участка";
         case "MOB_FARM_ZONE"->"Защита участка от мобов";
         case "BUILD_CONTRIBUTION"->"Материалы для строительства";
         case "CONSTRUCTION_REFUND"->"Оплата и возврат строительства";
         case "ADMIN_TOWN_DELETE"->"Удаление города и откат территории";
         case "PUBLIC_ORDER_REWARD"->"Награда государственного заказа";case "JOB_SALARY"->"Зарплата профессии";case "ADMIN_INCOME"->"Сверка денежной выплаты";case "BANK_TRANSFER"->"Перевод между счетами";case "BANK_COMMAND"->"Банковская команда";case "BANK_LEG"->"Изменение счёта";
-        case "CARAVAN_DEAL"->"Сделка каравана";case "TRADE_PAYMENT"->"Оплата торговли";case "TRADE_TARIFF"->"Торговый тариф";case "TRADE_REFUND"->"Возврат торговли";case "SUPPLY_AGREEMENT"->"Договор поставки";case "SUPPLY_DEAL"->"Поставка";
+        case "CARAVAN_DEAL"->"Сделка каравана";case "TRADE_PAYMENT"->"Оплата торговли";case "TRADE_TARIFF"->"Торговый тариф";case "TRADE_REFUND"->"Возврат торговли";case "TRADE_COMPENSATION"->"Компенсация задержки каравана";case "SUPPLY_AGREEMENT"->"Договор поставки";case "SUPPLY_DEAL"->"Поставка";
         case "MARKET_DEAL"->"Сделка рынка";case "SHOP_DEAL"->"Сделка магазина";case "MARKET_DELIVERY"->"Выдача рынка";case "SHOP_DELIVERY"->"Выдача магазина";
         case "WAREHOUSE_TRADE"->"Обмен со складом";case "WAREHOUSE_LEG"->"Изменение склада";case "STORAGE_PLAYER"->"Игрок и хранилище";
         case "COMPANY_CONTRACT_COST"->"Смета и затраты договора компании";case "COMPANY_PAYMENT"->"Оплата компании";case "COMPANY_CONTRACT"->"Контракт компании";case "CONTRACT_PAYMENT"->"Оплата контракта";case "CONTRACT_DELIVERY"->"Выдача контракта";case "TAX_RECONCILE"->"Сверка налогового перевода";case "TAX_TRANSFER"->"Перечисление налога";

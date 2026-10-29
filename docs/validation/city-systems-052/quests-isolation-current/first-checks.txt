@@ -1,0 +1,24 @@
+PASS native first keeps Citizens enabled and unfrozen
+PASS native first keeps Control enabled and unfrozen
+PASS native first keeps Builds enabled and unfrozen
+PASS native first keeps Districts enabled and unfrozen
+PASS native first keeps Population enabled and unfrozen
+PASS native first keeps Resources enabled and unfrozen
+PASS native first keeps Upkeep enabled and unfrozen
+PASS native first keeps Policies enabled and unfrozen
+PASS legacy two-project config inherits both new branches without resetting custom name
+PASS explicit completed-project fixture provides real public unlock
+PASS actual acknowledged policy selection applies earned benefits and costs
+PASS real unexpected plugin disable event fired for Quests
+PASS Quests disable does not cascade into Citizens
+PASS Quests disable does not cascade into Control
+PASS Quests disable does not cascade into Builds
+PASS Quests disable does not cascade into Districts
+PASS Quests disable does not cascade into Population
+PASS Quests disable does not cascade into Resources
+PASS Quests disable does not cascade into Upkeep
+PASS Quests disable does not cascade into Policies
+PASS durable quarantine contains only Quests, not 33 unrelated modules
+PASS accepted sanitation benefits and costs remain unchanged while quest provider is down
+PASS new quest-gated policy selection stays unavailable
+PASS provider failure never rewrites accepted policy choice or history

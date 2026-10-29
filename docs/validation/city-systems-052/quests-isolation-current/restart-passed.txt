@@ -1,0 +1,1 @@
+PASS 12 assertions; actual Folia Towny Quests Policies Control and six other addon instances; inherited legacy defaults, real plugin disable, real malformed-config startup failure, durable quarantine, selected policy continuity and repaired restart; completed quest is explicit fixture, mayor is offline Player substitute; no bank transfer or client claimed

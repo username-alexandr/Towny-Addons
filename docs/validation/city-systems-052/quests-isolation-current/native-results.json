@@ -1,0 +1,56 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 24 assertions; actual Folia Towny Quests Policies Control and six other addon instances; inherited legacy defaults, real plugin disable, real malformed-config startup failure, durable quarantine, selected policy continuity and repaired restart; completed quest is explicit fixture, mayor is offline Player substitute; no bank transfer or client claimed\n",
+    "jar_sha256": {
+      "QuestsIsolationRuntimeProbe.jar": "0d780d3190d17ffffbd901682edfc266ac2365a34c82358446226e1f82d27fd7",
+      "NeverLandTownyResources-0.2.2.jar": "b61c7227857638b6e5ceb1f89b4843dbf4e619b9599e72a1643c91738febf05e",
+      "NeverLandTownyUpkeep-0.2.1.jar": "6bc16b7dc397824847031279eaac7fbc4735add54771c07628db3c5c77c5aef4",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyQuests-0.3.0.jar": "63c7a45f8ac4adbc9b45809badaf85db76a3abbcac4d9ae0fe485a91fb9e717a",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyPopulation-0.2.1.jar": "c8050c22217f1502b826cebb0669c89d49f402a84efa184b601c6c6655a9887e",
+      "NeverLandTownyDistricts-0.2.3.jar": "432fd9eaedbd770bb269ab02db9130add37362b38d04b12db59727df1ec88a91",
+      "NeverLandTownyControl-0.6.0.jar": "2e1c22da662d888f5edab3901fd6d36c15ca8047b69090b9688de4fbcee12647",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63",
+      "NeverLandTownyPolicies-0.3.1.jar": "14e06071d1225be03d3e309365cea64f1944d19f5d7950f018e137ef581f4f33"
+    }
+  },
+  {
+    "phase": "broken",
+    "exit_code": 0,
+    "result": "PASS 13 assertions; actual Folia Towny Quests Policies Control and six other addon instances; inherited legacy defaults, real plugin disable, real malformed-config startup failure, durable quarantine, selected policy continuity and repaired restart; completed quest is explicit fixture, mayor is offline Player substitute; no bank transfer or client claimed\n",
+    "jar_sha256": {
+      "QuestsIsolationRuntimeProbe.jar": "0d780d3190d17ffffbd901682edfc266ac2365a34c82358446226e1f82d27fd7",
+      "NeverLandTownyResources-0.2.2.jar": "b61c7227857638b6e5ceb1f89b4843dbf4e619b9599e72a1643c91738febf05e",
+      "NeverLandTownyUpkeep-0.2.1.jar": "6bc16b7dc397824847031279eaac7fbc4735add54771c07628db3c5c77c5aef4",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyQuests-0.3.0.jar": "63c7a45f8ac4adbc9b45809badaf85db76a3abbcac4d9ae0fe485a91fb9e717a",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyPopulation-0.2.1.jar": "c8050c22217f1502b826cebb0669c89d49f402a84efa184b601c6c6655a9887e",
+      "NeverLandTownyDistricts-0.2.3.jar": "432fd9eaedbd770bb269ab02db9130add37362b38d04b12db59727df1ec88a91",
+      "NeverLandTownyControl-0.6.0.jar": "2e1c22da662d888f5edab3901fd6d36c15ca8047b69090b9688de4fbcee12647",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63",
+      "NeverLandTownyPolicies-0.3.1.jar": "14e06071d1225be03d3e309365cea64f1944d19f5d7950f018e137ef581f4f33"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 12 assertions; actual Folia Towny Quests Policies Control and six other addon instances; inherited legacy defaults, real plugin disable, real malformed-config startup failure, durable quarantine, selected policy continuity and repaired restart; completed quest is explicit fixture, mayor is offline Player substitute; no bank transfer or client claimed\n",
+    "jar_sha256": {
+      "QuestsIsolationRuntimeProbe.jar": "0d780d3190d17ffffbd901682edfc266ac2365a34c82358446226e1f82d27fd7",
+      "NeverLandTownyResources-0.2.2.jar": "b61c7227857638b6e5ceb1f89b4843dbf4e619b9599e72a1643c91738febf05e",
+      "NeverLandTownyUpkeep-0.2.1.jar": "6bc16b7dc397824847031279eaac7fbc4735add54771c07628db3c5c77c5aef4",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyQuests-0.3.0.jar": "63c7a45f8ac4adbc9b45809badaf85db76a3abbcac4d9ae0fe485a91fb9e717a",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyPopulation-0.2.1.jar": "c8050c22217f1502b826cebb0669c89d49f402a84efa184b601c6c6655a9887e",
+      "NeverLandTownyDistricts-0.2.3.jar": "432fd9eaedbd770bb269ab02db9130add37362b38d04b12db59727df1ec88a91",
+      "NeverLandTownyControl-0.6.0.jar": "2e1c22da662d888f5edab3901fd6d36c15ca8047b69090b9688de4fbcee12647",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63",
+      "NeverLandTownyPolicies-0.3.1.jar": "14e06071d1225be03d3e309365cea64f1944d19f5d7950f018e137ef581f4f33"
+    }
+  }
+]

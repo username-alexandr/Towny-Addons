@@ -1,0 +1,6 @@
+name: ControlAuditRuntimeProbe
+version: 1
+main: ru.neverland.runtime.ControlAuditProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyCitizens, NeverLandTownyControl]

@@ -1,0 +1,31 @@
+{
+  "fixture": "folia-control-audit-2",
+  "server": "Folia26.2-7-14b7fee",
+  "java": "25.0.5",
+  "address": "127.0.0.1:25675",
+  "first_checks": 23,
+  "restart_checks": 8,
+  "control_jar_sha256": "2e1c22da662d888f5edab3901fd6d36c15ca8047b69090b9688de4fbcee12647",
+  "explicit_fixtures": [
+    "completed transfers and pending/completed operation receipts seeded into disposable audit",
+    "offline Player InventoryView permission state and EntityScheduler routed to an actual Folia region",
+    "actual AuditJournal monitor blocked by fixture thread",
+    "deliberate disposable source TSV and derived SQLite corruption, then exact source restoration"
+  ],
+  "verified": [
+    "real AdminMenu review button and related operation lookup",
+    "OP and assigned permission access, revoked permissions and stale windows",
+    "indexed source integrity failures, actual reindex and unchanged source bytes",
+    "actual bounded bank worker outside SuiteState and exact observation identity/time",
+    "captured Towny name retained after real city rename",
+    "actual Control onDisable pending receipt drain outside SuiteState",
+    "full JVM restart and exact receipts without replay"
+  ],
+  "not_claimed": [
+    "real bank payment",
+    "live network client rendering",
+    "LuckPerms provider integration",
+    "Quests failure isolation (separate native probe)"
+  ],
+  "fixture_history": "First fixture caught only a one-shot timing assertion at entry to onDisable; final fixture retries the short guard acquisition while audit writer remains blocked. Production JAR unchanged between fixtures."
+}
