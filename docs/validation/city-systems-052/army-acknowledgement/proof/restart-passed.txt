@@ -1,0 +1,1 @@
+PASS 15 assertions; native Folia/Towny/Builds/Resources/Army/Sieges, actual inventory, acknowledged stock, real file delay, consumed supply recovery, raid receipt, duty quit and shutdown; offline Player/View/EntityScheduler and accepted infrastructure/war fixtures, no network client or live PvP claimed

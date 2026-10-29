@@ -1,0 +1,30 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 36 assertions; native Folia/Towny/Builds/Resources/Army/Sieges, actual inventory, acknowledged stock, real file delay, consumed supply recovery, raid receipt, duty quit and shutdown; offline Player/View/EntityScheduler and accepted infrastructure/war fixtures, no network client or live PvP claimed\n",
+    "jar_sha256": {
+      "ArmyAsyncRuntimeProbe.jar": "f44aaf10e4ffa21a2644adef26a7a00fdbc1a065a055bd892553460231dac14c",
+      "NeverLandTownySiegesPlus-0.6.4.jar": "4b4509a7ec7f4dd7bfb8396b3cd32bf4cc642ee7717c0240ac4c73ba6e9b1bde",
+      "NeverLandTownyArmy-0.2.2.jar": "e6ba01bb3f68eca4191c8ca2c47af694db2683fb7cf536d832706cc15e1bcce7",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyResources-0.2.2.jar": "b61c7227857638b6e5ceb1f89b4843dbf4e619b9599e72a1643c91738febf05e",
+      "NeverLandTownyBuilds-0.11.2.jar": "f3e7b52b688ede80e2cba74e65647af3fbfc00dc41dc279a324124566db71953",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 15 assertions; native Folia/Towny/Builds/Resources/Army/Sieges, actual inventory, acknowledged stock, real file delay, consumed supply recovery, raid receipt, duty quit and shutdown; offline Player/View/EntityScheduler and accepted infrastructure/war fixtures, no network client or live PvP claimed\n",
+    "jar_sha256": {
+      "ArmyAsyncRuntimeProbe.jar": "f44aaf10e4ffa21a2644adef26a7a00fdbc1a065a055bd892553460231dac14c",
+      "NeverLandTownySiegesPlus-0.6.4.jar": "4b4509a7ec7f4dd7bfb8396b3cd32bf4cc642ee7717c0240ac4c73ba6e9b1bde",
+      "NeverLandTownyArmy-0.2.2.jar": "e6ba01bb3f68eca4191c8ca2c47af694db2683fb7cf536d832706cc15e1bcce7",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyResources-0.2.2.jar": "b61c7227857638b6e5ceb1f89b4843dbf4e619b9599e72a1643c91738febf05e",
+      "NeverLandTownyBuilds-0.11.2.jar": "f3e7b52b688ede80e2cba74e65647af3fbfc00dc41dc279a324124566db71953",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  }
+]

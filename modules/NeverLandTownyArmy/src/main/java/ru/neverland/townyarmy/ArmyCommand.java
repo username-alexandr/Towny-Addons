@@ -11,6 +11,9 @@ public final class ArmyCommand implements CommandExecutor, TabCompleter {
     private final NeverLandTownyArmy plugin; private final ArmyService service; private final ArmyMenu menu;
     public ArmyCommand(NeverLandTownyArmy p, ArmyService s, ArmyMenu m) { plugin = p; service = s; menu = m; }
     static void say(CommandSender s, String text) { s.sendMessage(MenuStyle.decode("&a[Армия] &f" + text)); }
+    static <T>void complete(NeverLandTownyArmy plugin,Player player,java.util.concurrent.CompletionStage<T> future,java.util.function.Consumer<T> success){
+        say(player,"&7Изменение сохраняется…");future.whenComplete((value,error)->{if(!plugin.isEnabled()||ru.neverland.core.SuiteState.frozen(plugin.getName()))return;ru.neverland.core.SuiteScheduler.player(plugin,player,online->{if(error==null)success.accept(value);else{Throwable cause=error;while(cause.getCause()!=null)cause=cause.getCause();say(online,"&cИзменение не подтверждено: "+cause.getMessage());}});});
+    }
     private static void count(String[] a, int size, String syntax) { if (a.length != size) throw new IllegalArgumentException(syntax); }
     private static boolean toggle(String arg) { if (arg.equalsIgnoreCase("on")) return true; if (arg.equalsIgnoreCase("off")) return false; throw new IllegalArgumentException("Укажите on или off"); }
     private static String reason(String[] args, int start) { return ArmyModel.reason(String.join(" ", Arrays.copyOfRange(args, Math.min(start, args.length), args.length))); }
@@ -40,22 +43,22 @@ public final class ArmyCommand implements CommandExecutor, TabCompleter {
             switch (action) {
                 case "menu", "roster", "stock", "history", "units", "ranks" -> { count(args, args.length == 0 ? 0 : 1, "/army " + action); menu.open(p, action, 0, MenuStyle.previousMenu(p)); }
                 case "record" -> { count(args, 2, "/army record <игрок>"); menu.record(p, resident(args[1]), MenuStyle.previousMenu(p)); }
-                case "apply" -> { count(args, 2, "/army apply <infantry|cavalry|navy|air>"); service.apply(p, Unit.parse(args[1])); say(p, "&aЗаявка сохранена. Ожидайте решения командования."); }
-                case "oath" -> { count(args, 1, "/army oath"); service.oath(p); say(p, "&aПрисяга принята. Вы зачислены в резерв в звании рядового."); }
+                case "apply" -> { count(args, 2, "/army apply <infantry|cavalry|navy|air>"); complete(plugin,p,service.apply(p,Unit.parse(args[1])),v->say(p,"&aЗаявка сохранена. Ожидайте решения командования.")); }
+                case "oath" -> { count(args, 1, "/army oath"); complete(plugin,p,service.oath(p),v->say(p,"&aПрисяга принята. Вы зачислены в резерв в звании рядового.")); }
                 case "approve", "mobilize", "release", "equip" -> {
                     count(args, 2, "/army " + action + " <игрок>"); UUID id = resident(args[1]);
-                    switch (action) { case "approve" -> service.approve(p, id); case "mobilize" -> service.mobilize(p, id, true); case "release" -> service.mobilize(p, id, false); case "equip" -> service.equip(p, id); }
-                    say(p, "&aПриказ выполнен и сохранён.");
+                    var receipt=switch(action){case "approve"->service.approve(p,id);case "mobilize"->service.mobilize(p,id,true);case "release"->service.mobilize(p,id,false);default->service.equip(p,id);};
+                    complete(plugin,p,receipt,v->say(p,"&aПриказ выполнен и сохранён."));
                 }
                 case "commission", "promote", "demote", "dismiss", "warn", "pardon" -> {
                     if (args.length < 3) throw new IllegalArgumentException("/army " + action + " <игрок> <причина>"); UUID id = resident(args[1]); String reason = reason(args, 2);
-                    switch (action) { case "commission" -> service.commission(p, id, reason); case "promote" -> service.promote(p, id, reason); default -> service.personnel(p, id, action, reason); }
-                    say(p, "&aКадровый приказ сохранён в журнале.");
+                    var receipt=switch(action){case "commission"->service.commission(p,id,reason);case "promote"->service.promote(p,id,reason);default->service.personnel(p,id,action,reason);};
+                    complete(plugin,p,receipt,v->say(p,"&aКадровый приказ сохранён в журнале."));
                 }
-                case "assign" -> { if (args.length < 4) throw new IllegalArgumentException("/army assign <игрок> <подразделение> <причина>"); service.assign(p, resident(args[1]), Unit.parse(args[2]), reason(args, 3)); say(p, "&aПеревод выполнен. Новое подразделение требует снабжения."); }
-                case "alert" -> { count(args, 2, "/army alert <on|off>"); int n = service.alert(p, toggle(args[1])); say(p, "&aРежим мобилизации сохранён. Изменён статус бойцов: " + n); }
-                case "base" -> { count(args, 2, "/army base set"); if (!args[1].equals("set")) throw new IllegalArgumentException("/army base set"); service.base(p); say(p, "&aБаза назначена в текущей точке."); }
-                case "supply" -> { count(args, 3, "/army supply <ресурс> <количество>"); UUID id = service.supply(p, args[1].toLowerCase(Locale.ROOT), ArmySettings.amount(args[2])); var tx = service.repository().transfer(id); say(p, "&eПоставка " + id + ": &f" + ArmyMenu.phase(tx.phase())); }
+                case "assign" -> { if (args.length < 4) throw new IllegalArgumentException("/army assign <игрок> <подразделение> <причина>"); complete(plugin,p,service.assign(p,resident(args[1]),Unit.parse(args[2]),reason(args,3)),v->say(p,"&aПеревод выполнен. Новое подразделение требует снабжения.")); }
+                case "alert" -> { count(args, 2, "/army alert <on|off>"); complete(plugin,p,service.alert(p,toggle(args[1])),n->say(p,"&aРежим мобилизации сохранён. Изменён статус бойцов: "+n)); }
+                case "base" -> { count(args, 2, "/army base set"); if (!args[1].equals("set")) throw new IllegalArgumentException("/army base set"); complete(plugin,p,service.base(p),v->say(p,"&aБаза назначена в выбранной точке.")); }
+                case "supply" -> { count(args, 3, "/army supply <ресурс> <количество>"); complete(plugin,p,service.supply(p,args[1].toLowerCase(Locale.ROOT),ArmySettings.amount(args[2])),id->{var tx=service.repository().transfer(id);say(p,"&eПоставка "+id+": &f"+ArmyMenu.phase(tx.phase()));}); }
                 case "duty" -> { count(args, 2, "/army duty <on|off>"); boolean on = toggle(args[1]); service.duty(p, on); say(p, on ? "&aВы заступили на дежурство." : "&eДежурство завершено."); }
                 case "train" -> { count(args, 1, "/army train"); service.train(p); say(p, "&eТренировка началась. Оставайтесь на базе и двигайтесь: " + service.settings().trainingDuration() / 1000 + " сек., не менее " + service.settings().trainingMovement() + " блоков."); }
                 case "radio" -> {

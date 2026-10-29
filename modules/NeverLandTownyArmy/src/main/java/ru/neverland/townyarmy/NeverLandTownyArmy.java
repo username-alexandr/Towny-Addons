@@ -10,6 +10,7 @@ import ru.neverland.townyarmy.api.TownyArmyApi;
 
 public final class NeverLandTownyArmy extends JavaPlugin {
     private ArmyService service;
+    private ArmyRepository repository;
     private ArmyExpansion expansion;
     private BukkitTask task;
     private ArmySettings settings() throws Exception {
@@ -20,30 +21,35 @@ public final class NeverLandTownyArmy extends JavaPlugin {
         return settings;
     }
     public void reloadArmy() throws Exception { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { service.reload(settings()); reloadConfig(); } }
-    @Override public void onEnable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
+    @Override public void onEnable() {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         try {
             saveDefaultConfig(); var settings = settings();
-            var repository = new ArmyRepository(getDataFolder().toPath().resolve("army-data.yml"), settings.auditLimit()); repository.load();
+            repository = new ArmyRepository(getDataFolder().toPath().resolve("army-data.yml"), settings.auditLimit());
+            ru.neverland.core.ModuleShutdown.register(this,this::prepareClose);repository.load();
             service = new ArmyService(this, repository, settings); service.migrate();
             var menu = new ArmyMenu(this, service); var command = new ArmyCommand(this, service, menu);
             getCommand("townymilitary").setExecutor(command); getCommand("townymilitary").setTabCompleter(command);
             getServer().getPluginManager().registerEvents(menu, this);
             getServer().getPluginManager().registerEvents(new ArmyListener(service), this);
             getServer().getServicesManager().register(TownyArmyApi.class, service, this, ServicePriority.Normal);
-            task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(this, service::pulse, 40L, 100L);
+            task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(this, service::pulse, 5L, 5L);
             if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) { expansion = new ArmyExpansion(service, getPluginMeta().getVersion()); expansion.register(); }
             // Builds owns /t army and /townyarmy and forwards to this module without a loading cycle.
         } catch (Exception | LinkageError ex) {
             getLogger().log(java.util.logging.Level.SEVERE, "Армия не загружена; проверьте данные и версии Builds/Resources", ex);
             getServer().getPluginManager().disablePlugin(this);
         }
-    } }
-    @Override public void onDisable() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
+    }
+    private java.util.concurrent.CompletionStage<Void> prepareClose(){return service!=null?service.stop():repository!=null?repository.close():java.util.concurrent.CompletableFuture.completedFuture(null);}
+    @Override public void onDisable() {java.util.concurrent.CompletionStage<Void> closing=java.util.concurrent.CompletableFuture.completedFuture(null);try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
-        if (task != null) task.cancel(); if (service != null) service.stop();
+        if (task != null) task.cancel();closing=prepareClose();
         if (expansion != null) expansion.unregister(); getServer().getServicesManager().unregisterAll(this);
-    } }
+    }
+        var pending=closing.toCompletableFuture();if(ru.neverland.core.SuiteState.held()&&!pending.isDone()){pending.whenCompleteAsync((v,error)->{if(error!=null)getLogger().log(java.util.logging.Level.SEVERE,"Сохранение армии при остановке требует проверки",error);ru.neverland.core.ModuleShutdown.remove(this);});return;}
+        try{pending.get(10,java.util.concurrent.TimeUnit.SECONDS);}catch(InterruptedException error){Thread.currentThread().interrupt();getLogger().log(java.util.logging.Level.SEVERE,"Сохранение армии прервано",error);}catch(Exception error){getLogger().log(java.util.logging.Level.SEVERE,"Сохранение армии не подтверждено",error);}finally{ru.neverland.core.ModuleShutdown.remove(this);}
+    }
 }

@@ -3,6 +3,7 @@ import java.util.*;
 import java.nio.file.*;
 import java.io.IOException;
 import static ru.neverland.townyarmy.ArmyModel.*;
+import static ru.neverland.townyarmy.ArmyRepositorySmoke.done;
 public final class ArmyMigrationSmoke {
     private static final class Legacy implements ArmyMigration.Legacy {
         Map<UUID,UUID> roster=Map.of(UUID.randomUUID(),UUID.randomUUID());boolean retired,loseReply=true;int acknowledgements,reads;
@@ -11,10 +12,11 @@ public final class ArmyMigrationSmoke {
     }
     public static void main(String[] args)throws Exception{
         var dir=Files.createTempDirectory("army-migration");var file=dir.resolve("army.yml");var r=new ArmyRepository(file,100);r.load();var old=new Legacy();
-        ArmyRepositorySmoke.denied(()->ArmyMigration.resume(r,old,1));ArmyRepositorySmoke.check(old.retired&&r.state().imported()&&!r.state().handoff()&&r.state().soldiers().size()==1);
-        var restart=new ArmyRepository(file,100);restart.load();ArmyMigration.resume(restart,old,2);ArmyRepositorySmoke.check(restart.state().handoff()&&restart.state().soldiers().size()==1&&old.reads==1&&old.acknowledgements==2);
-        UUID id=old.roster.keySet().iterator().next();var d=restart.draft();d.soldier(d.soldiers.get(id).status(Status.DISCHARGED));restart.commit(d.freeze());ArmyMigration.resume(restart,old,3);ArmyRepositorySmoke.check(restart.state().soldiers().get(id).status()==Status.DISCHARGED&&old.acknowledgements==2);
-        var blocked=dir.resolve("blocked.yml");var failing=new ArmyRepository(blocked,100);failing.load();Files.createDirectory(blocked);Files.writeString(blocked.resolve("block"),"x");var untouched=new Legacy();ArmyRepositorySmoke.denied(()->ArmyMigration.resume(failing,untouched,1));ArmyRepositorySmoke.check(!untouched.retired&&untouched.acknowledgements==0&&!failing.state().imported());
+        done(ArmyMigration.resume(r,old,1));ArmyRepositorySmoke.check(!old.retired&&old.acknowledgements==0&&r.state().imported());ArmyRepositorySmoke.denied(()->done(ArmyMigration.resume(r,old,1)));ArmyRepositorySmoke.check(old.retired&&r.state().imported()&&!r.state().handoff()&&r.state().soldiers().size()==1);
+        var restart=new ArmyRepository(file,100);restart.load();done(ArmyMigration.resume(restart,old,2));ArmyRepositorySmoke.check(restart.state().handoff()&&restart.state().soldiers().size()==1&&old.reads==1&&old.acknowledgements==2);
+        UUID id=old.roster.keySet().iterator().next();var d=restart.draft();d.soldier(d.soldiers.get(id).status(Status.DISCHARGED));done(restart.commit(d));done(ArmyMigration.resume(restart,old,3));ArmyRepositorySmoke.check(restart.state().soldiers().get(id).status()==Status.DISCHARGED&&old.acknowledgements==2);
+        var blocked=dir.resolve("blocked.yml");var failing=new ArmyRepository(blocked,100);failing.load();Files.createDirectory(blocked);Files.writeString(blocked.resolve("block"),"x");var untouched=new Legacy();ArmyRepositorySmoke.denied(()->done(ArmyMigration.resume(failing,untouched,1)));ArmyRepositorySmoke.check(!untouched.retired&&untouched.acknowledgements==0&&!failing.state().imported());
+        done(r.close());done(restart.close());done(failing.close());
         System.out.println("Army migration: durable import, lost handoff reply, restart, no roster resurrection and failed-save barrier PASS");
     }
 }

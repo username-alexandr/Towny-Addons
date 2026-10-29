@@ -1,0 +1,6 @@
+name: ArmyAsyncRuntimeProbe
+version: 0.52
+main: ru.neverland.runtime.ArmyAsyncProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyResources, NeverLandTownyCitizens, NeverLandTownyArmy, NeverLandTownySiegesPlus]

@@ -1,5 +1,22 @@
 package ru.neverland.townyarmy;
-import java.util.*;import java.nio.file.*;import static ru.neverland.townyarmy.ArmyModel.*;
+import java.util.*;
+import java.nio.file.*;
+import static ru.neverland.townyarmy.ArmyModel.*;
+import static ru.neverland.townyarmy.ArmyRepositorySmoke.*;
 public final class ArmyRaidSupplySmoke {
- static void check(boolean b,String m){if(!b)throw new AssertionError(m);}interface Work{void run()throws Exception;}static void fails(Work w)throws Exception{try{w.run();}catch(Exception expected){return;}throw new AssertionError();}public static void main(String[] args)throws Exception{Path dir=Files.createTempDirectory("army-raid-supplies");Path file=dir.resolve("army.yml");ArmyRepository repo=new ArmyRepository(file,100);repo.load();UUID town=UUID.randomUUID(),receipt=UUID.randomUUID();var d=repo.draft();d.imported=true;d.handoff=true;d.cities.put(town,City.empty(town).stock(Map.of("food",3000L,"metal",1000L)));repo.commit(d.freeze());check(repo.spendRaid(town,receipt,Map.of("food",1000L,"metal",250L),1),"reserve consumed");check(repo.spendRaid(town,receipt,Map.of("food",1000L,"metal",250L),2),"stable minute replay");check(repo.state().cities().get(town).stock().equals(Map.of("food",2000L,"metal",750L)),"single debit");var copy=new ArmyRepository(file,100);copy.load();check(copy.spendRaid(town,receipt,Map.of("food",1000L,"metal",250L),3)&&copy.state().equals(repo.state()),"replay after restart");fails(()->copy.spendRaid(town,receipt,Map.of("food",2000L),4));check(!copy.spendRaid(town,UUID.randomUUID(),Map.of("food",9999L),5),"not enough stock never partial");var before=copy.state();Files.delete(file);Files.createDirectory(file);Files.writeString(file.resolve("block"),"fixture");fails(()->copy.spendRaid(town,UUID.randomUUID(),Map.of("food",1000L),6));check(copy.state().equals(before),"failed save preserves stock and receipt");System.out.println("ArmyRaidSupplySmoke PASS: atomic debit, insufficient stock, replay, restart, mismatch and disk failure");}
+    public static void main(String[] args)throws Exception{
+        Path dir=Files.createTempDirectory("army-raid-supplies"),file=dir.resolve("army.yml");
+        var repo=new ArmyRepository(file,100);repo.load();UUID town=UUID.randomUUID(),receipt=UUID.randomUUID();
+        var cost=Map.of("food",1000L,"metal",250L);var d=repo.draft();d.imported=true;d.handoff=true;
+        d.cities.put(town,City.empty(town).stock(Map.of("food",3000L,"metal",1000L)));done(repo.commit(d));
+        check(done(repo.spendRaid(town,receipt,cost,1)));check(done(repo.spendRaid(town,receipt,cost,2)));
+        check(repo.state().cities().get(town).stock().equals(Map.of("food",2000L,"metal",750L)));
+        var copy=new ArmyRepository(file,100);copy.load();check(done(copy.spendRaid(town,receipt,cost,3))&&copy.state().equals(repo.state()));
+        denied(()->done(copy.spendRaid(town,receipt,Map.of("food",2000L),4)));
+        check(!done(copy.spendRaid(town,UUID.randomUUID(),Map.of("food",9999L),5)));
+        var before=copy.state();Files.delete(file);Files.createDirectory(file);Files.writeString(file.resolve("block"),"fixture");
+        denied(()->done(copy.spendRaid(town,UUID.randomUUID(),Map.of("food",1000L),6)));check(copy.state().equals(before));
+        done(repo.close());done(copy.close());
+        System.out.println("ArmyRaidSupplySmoke PASS: atomic debit, insufficient stock, replay, restart, mismatch and disk failure");
+    }
 }

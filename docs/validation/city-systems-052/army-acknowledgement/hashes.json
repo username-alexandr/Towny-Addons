@@ -1,0 +1,10 @@
+{
+  "NeverLandTownyArmy": {
+    "jar": "NeverLandTownyArmy-0.2.2.jar",
+    "sha256": "e6ba01bb3f68eca4191c8ca2c47af694db2683fb7cf536d832706cc15e1bcce7"
+  },
+  "NeverLandTownySiegesPlus": {
+    "jar": "NeverLandTownySiegesPlus-0.6.4.jar",
+    "sha256": "4b4509a7ec7f4dd7bfb8396b3cd32bf4cc642ee7717c0240ac4c73ba6e9b1bde"
+  }
+}
