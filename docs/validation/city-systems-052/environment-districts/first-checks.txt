@@ -1,0 +1,26 @@
+PASS validated Environment 0.2.1 enabled on actual Folia with Towny Builds Districts
+PASS actual existing ecological bridge sees two operational level-V footprints
+PASS district rows preserve city emissions
+PASS district rows preserve city cleaning
+PASS district rows preserve city change
+PASS decomposition exactly matches old engine pressure without changed rates
+PASS each district preserves its complete source emissions
+PASS each district preserves its complete source cleaning
+PASS each district preserves its complete source emissions
+PASS each district preserves its complete source cleaning
+PASS each district preserves its complete source emissions
+PASS each district preserves its complete source cleaning
+PASS physical park and forge assignments match genuine registered footprints
+PASS natural recovery remains separate from constructed green buildings
+PASS async district API returns ready immutable report without waiting for SuiteState
+PASS native main ecology menu has district button
+PASS native district header explains city-wide effects with Moscow timestamp
+PASS native district drilldown prevents taking menu icon
+PASS district click opens complete native green source list
+PASS revoked use permission prevents opening district board
+PASS resident without town cannot inspect district board
+PASS API and native viewing leave original ecological and district files unchanged
+PASS disabled or malformed optional setting never changes simulation pressure effects or stored state
+PASS disabled or malformed optional setting never changes simulation pressure effects or stored state
+PASS unavailable optional district assessment pauses only district explanation
+PASS source recovery reconstructs exact unchanged city pressure

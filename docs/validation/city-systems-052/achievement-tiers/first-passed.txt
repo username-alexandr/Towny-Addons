@@ -1,0 +1,1 @@
+PASS 38 assertions; actual Folia/Towny/Builds/Achievements services, legacy schema-1, real level API, missing/frozen provider, native command/inventory, reload and two JVM boots. Building completion levels are explicitly seeded; Player/InventoryView/scheduler are offline substitutes. No player construction, bank payment or client rendering claimed.

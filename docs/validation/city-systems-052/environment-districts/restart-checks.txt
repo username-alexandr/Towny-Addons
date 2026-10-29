@@ -1,0 +1,13 @@
+PASS validated Environment 0.2.1 enabled on actual Folia with Towny Builds Districts
+PASS actual district and green building fixtures survive full restart
+PASS district rows preserve city emissions
+PASS district rows preserve city cleaning
+PASS district rows preserve city change
+PASS decomposition exactly matches old engine pressure without changed rates
+PASS each district preserves its complete source emissions
+PASS each district preserves its complete source cleaning
+PASS each district preserves its complete source emissions
+PASS each district preserves its complete source cleaning
+PASS each district preserves its complete source emissions
+PASS each district preserves its complete source cleaning
+PASS restart reconstructs exact district pressure and preserves pollution history

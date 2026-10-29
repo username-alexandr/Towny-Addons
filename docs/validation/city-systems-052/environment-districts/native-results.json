@@ -1,0 +1,30 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 26 assertions; real Folia Towny Builds Districts Environment, precise pressure decomposition, physical green source assignments, cached API, native source menu, permissions, neutral settings/supplier failure and full restart; explicit persisted completed-site fixtures and offline Player InventoryView EntityScheduler; no tree scanning, client or bank transaction claimed\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyDistricts-0.2.2.jar": "bfa93f57f8748b9778f63ce0362b2b8f28786529eab8e789af1460f331ae9619",
+      "NeverLandTownyControl-0.5.7.jar": "a21bde98ebb977efc56d7d87d58a9ed3b1caaf91f7d3cb0a17ff22b29ae2f4b4",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63",
+      "NeverLandTownyEnvironment-0.2.1.jar": "eadd851c86f78018fdca1d828d14e64c561b8f4eb6037b6c84cb743789dcbe1c",
+      "EnvironmentDistrictsRuntimeProbe.jar": "945c97b1c8c58d71efb8342644247873cb34f3dea3fd23cc282b5f84258b97e4"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 13 assertions; real Folia Towny Builds Districts Environment, precise pressure decomposition, physical green source assignments, cached API, native source menu, permissions, neutral settings/supplier failure and full restart; explicit persisted completed-site fixtures and offline Player InventoryView EntityScheduler; no tree scanning, client or bank transaction claimed\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyDistricts-0.2.2.jar": "bfa93f57f8748b9778f63ce0362b2b8f28786529eab8e789af1460f331ae9619",
+      "NeverLandTownyControl-0.5.7.jar": "a21bde98ebb977efc56d7d87d58a9ed3b1caaf91f7d3cb0a17ff22b29ae2f4b4",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63",
+      "NeverLandTownyEnvironment-0.2.1.jar": "eadd851c86f78018fdca1d828d14e64c561b8f4eb6037b6c84cb743789dcbe1c",
+      "EnvironmentDistrictsRuntimeProbe.jar": "945c97b1c8c58d71efb8342644247873cb34f3dea3fd23cc282b5f84258b97e4"
+    }
+  }
+]

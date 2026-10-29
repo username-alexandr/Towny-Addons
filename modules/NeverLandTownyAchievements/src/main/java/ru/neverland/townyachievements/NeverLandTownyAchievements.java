@@ -41,7 +41,10 @@ public final class NeverLandTownyAchievements extends JavaPlugin {
     private AchievementSettings settings() throws Exception {
         var config = new YamlConfiguration(); config.load(new File(getDataFolder(), "config.yml"));
         var definitions = new YamlConfiguration(); definitions.load(new File(getDataFolder(), "achievements.yml"));
-        return AchievementSettings.load(config, definitions);
+        var bundled = new YamlConfiguration();
+        try (var input = java.util.Objects.requireNonNull(getResource("achievements.yml"));
+             var reader = new java.io.InputStreamReader(input, java.nio.charset.StandardCharsets.UTF_8)) { bundled.load(reader); }
+        return AchievementSettings.loadWithAdditions(config, definitions, bundled);
     }
     public void reloadAchievements() throws Exception { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { var next = settings(); service.reload(next); menu.close(); } }
     @Override public void onDisable() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {

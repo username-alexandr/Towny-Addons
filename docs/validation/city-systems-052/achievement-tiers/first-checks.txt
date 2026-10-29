@@ -1,0 +1,38 @@
+PASS real startup adds eighteen goals to untouched legacy five-goal config
+PASS legacy earned timestamps load unchanged
+PASS legacy title and personal cosmetic remain selected
+PASS legacy wonder retains exact happiness without new emissions
+PASS real Builds API observes two of three required buildings
+PASS different incomplete real snapshots cannot accumulate into three buildings
+PASS frozen provider is unknown rather than a zero observation
+PASS unknown observation preserves partial progress
+PASS missing registered API also yields unknown
+PASS missing API cannot alter partial definition or timestamp
+PASS actual projectLevel unlocks trade_tier_1 at 1
+PASS next tier waits for harder levels in TRADE
+PASS actual projectLevel unlocks trade_tier_2 at 3
+PASS next tier waits for harder levels in TRADE
+PASS actual projectLevel unlocks trade_tier_3 at 5
+PASS actual projectLevel unlocks industry_tier_1 at 1
+PASS next tier waits for harder levels in INDUSTRY
+PASS actual projectLevel unlocks industry_tier_2 at 3
+PASS next tier waits for harder levels in INDUSTRY
+PASS actual projectLevel unlocks industry_tier_3 at 5
+PASS actual projectLevel unlocks military_tier_1 at 1
+PASS next tier waits for harder levels in MILITARY
+PASS actual projectLevel unlocks military_tier_2 at 3
+PASS next tier waits for harder levels in MILITARY
+PASS actual projectLevel unlocks military_tier_3 at 5
+PASS actual projectLevel unlocks culture_tier_1 at 1
+PASS next tier waits for harder levels in CULTURE
+PASS actual projectLevel unlocks culture_tier_2 at 3
+PASS next tier waits for harder levels in CULTURE
+PASS actual projectLevel unlocks culture_tier_3 at 5
+PASS all twelve profile tiers together add no happiness inflation
+PASS actual category command shows three native trade icons with tier labels
+PASS all readable categories are separate menu buttons
+PASS native click prevents extraction and explains simultaneous building requirement
+PASS new title and one personal cosmetic replace prior choices
+PASS registered API exposes backward compatible tier metadata
+PASS lower real building levels and repeated checks neither erase nor re-earn rewards
+PASS real reload cannot rewrite saved tier reward or earned timestamp

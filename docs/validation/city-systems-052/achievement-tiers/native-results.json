@@ -1,0 +1,28 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 38 assertions; actual Folia/Towny/Builds/Achievements services, legacy schema-1, real level API, missing/frozen provider, native command/inventory, reload and two JVM boots. Building completion levels are explicitly seeded; Player/InventoryView/scheduler are offline substitutes. No player construction, bank payment or client rendering claimed.\n",
+    "jar_sha256": {
+      "AchievementTiersRuntimeProbe.jar": "19d27ee3147f5f70de4d0427a862991e9ce56fc45c67c56ea01a11452bd5f7f4",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyAchievements-0.2.0.jar": "e6149788ef89e69891e3dd38c81b0119e9e1189f7e66d60e140a740834a5913a",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyControl-0.5.7.jar": "a21bde98ebb977efc56d7d87d58a9ed3b1caaf91f7d3cb0a17ff22b29ae2f4b4",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 9 assertions; actual Folia/Towny/Builds/Achievements services, legacy schema-1, real level API, missing/frozen provider, native command/inventory, reload and two JVM boots. Building completion levels are explicitly seeded; Player/InventoryView/scheduler are offline substitutes. No player construction, bank payment or client rendering claimed.\n",
+    "jar_sha256": {
+      "AchievementTiersRuntimeProbe.jar": "19d27ee3147f5f70de4d0427a862991e9ce56fc45c67c56ea01a11452bd5f7f4",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyAchievements-0.2.0.jar": "e6149788ef89e69891e3dd38c81b0119e9e1189f7e66d60e140a740834a5913a",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyControl-0.5.7.jar": "a21bde98ebb977efc56d7d87d58a9ed3b1caaf91f7d3cb0a17ff22b29ae2f4b4",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+    }
+  }
+]

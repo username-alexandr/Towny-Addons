@@ -14,6 +14,7 @@ public record ResourcesSettings(int interval,boolean populationLinked,long foodP
         for(var r:Resource.values())if(initial.get(r)>baseCapacity.get(r))throw new IllegalArgumentException("Начальный запас больше базовой вместимости: "+r.title);
     }
     public static ResourcesSettings load(ConfigurationSection c,ConfigurationSection projects) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
+        c=materialized(c);projects=materialized(projects);
         Map<Resource,Display> display=new EnumMap<>(Resource.class);
         for(var r:Resource.values())display.put(r,new Display(c.getString("resources."+r.id()+".name",r.title),c.getString("resources."+r.id()+".icon",r.icon)));
         Map<String,BuildingProfile> profiles=new LinkedHashMap<>();var root=projects.getConfigurationSection("buildings");if(root==null)throw new IllegalArgumentException("Нет buildings");
@@ -35,4 +36,7 @@ public record ResourcesSettings(int interval,boolean populationLinked,long foodP
         if(p!=null)for(String id:p.getKeys(false)){Resource r=Resource.parse(id);if(out.put(r,Amounts.parse(p.get(id)))!=null)throw new IllegalArgumentException("Повтор ресурса "+id);}
         return Amounts.copy(out);
     } }
+    /** Missing packaged fields retain their configured priority and limits, not generic getter fallbacks. */
+    private static ConfigurationSection materialized(ConfigurationSection source){var result=new org.bukkit.configuration.file.YamlConfiguration();copyValues(source,result);return result;}
+    private static void copyValues(ConfigurationSection source,ConfigurationSection target){var keys=new LinkedHashSet<String>();var defaults=source.getDefaultSection();if(defaults!=null)keys.addAll(defaults.getKeys(false));keys.addAll(source.getKeys(false));for(String key:keys){Object value=source.get(key);if(value instanceof ConfigurationSection child)copyValues(child,target.createSection(key));else target.set(key,value);}}
 }

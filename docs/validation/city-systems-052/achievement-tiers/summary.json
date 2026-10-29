@@ -1,0 +1,23 @@
+{
+  "module": "NeverLandTownyAchievements",
+  "version": "0.2.0",
+  "sha256": "e6149788ef89e69891e3dd38c81b0119e9e1189f7e66d60e140a740834a5913a",
+  "cold": {
+    "AchievementTiersSmoke": 68,
+    "AchievementsSmoke": 33
+  },
+  "native": {
+    "first": 38,
+    "restart": 9
+  },
+  "runtime": "Folia 26.2, Towny 0.103.2.0, Java 25",
+  "fixtures": [
+    "Completion levels seeded directly in actual Builds DataStore; metrics use actual public Builds API",
+    "Offline Player, InventoryView and entity scheduler substitutes",
+    "Authentic old 5-goal config and schema-1 achievement snapshots"
+  ],
+  "limitations": [
+    "No real player construction, bank payment or client rendering claimed",
+    "External Mojang public-key DNS lookup failed in isolated offline test; no addon exception, lifecycle failure or watchdog reported"
+  ]
+}

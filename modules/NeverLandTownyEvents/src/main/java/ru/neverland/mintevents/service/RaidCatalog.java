@@ -26,6 +26,7 @@ public final class RaidCatalog {
     }
     public RaidCatalog(ConfigurationSection yaml) { load(yaml); }
     private void load(ConfigurationSection yaml) {
+        var resolved=new YamlConfiguration();copyValues(yaml,resolved,false);yaml=resolved;
         ConfigurationSection root = Objects.requireNonNull(yaml.getConfigurationSection("mobs"), "mobs");
         for (String id : root.getKeys(false)) {
             ConfigurationSection mob = root.getConfigurationSection(id);
@@ -56,6 +57,12 @@ public final class RaidCatalog {
             if (composition.isEmpty() || composition.size() > 200) throw new IllegalArgumentException("Волна должна содержать 1..200 мобов: " + i);
             waves.add(new Wave(List.copyOf(composition), positive(wave.getDouble("health-multiplier", 1)), positive(wave.getDouble("damage-multiplier", 1))));
         }
+    }
+    /** Inherit new definitions, but keep explicitly supplied wave composition and gear as complete choices. */
+    private static void copyValues(ConfigurationSection source,ConfigurationSection target,boolean inherited){
+        String path=source.getCurrentPath();boolean explicitMap=!inherited&&path!=null&&(path.matches("waves\\.[0-9]+\\.mobs")||path.matches("mobs\\.[^.]+\\.equipment"));
+        var keys=new LinkedHashSet<String>();var defaults=source.getDefaultSection();if(!explicitMap&&defaults!=null)keys.addAll(defaults.getKeys(false));keys.addAll(source.getKeys(false));
+        for(String key:keys){Object own=source.get(key,null);if(explicitMap&&own==null)continue;Object value=own==null?source.get(key):own;if(value instanceof ConfigurationSection child)copyValues(child,target.createSection(key),inherited||own==null);else target.set(key,value);}
     }
     private static double positive(double number) {
         if (!Double.isFinite(number) || number <= 0 || number > 10000) throw new IllegalArgumentException("Недопустимая характеристика: " + number);

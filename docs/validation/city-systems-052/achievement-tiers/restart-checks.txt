@@ -1,0 +1,9 @@
+PASS real startup adds eighteen goals to untouched legacy five-goal config
+PASS legacy earned timestamps load unchanged
+PASS Towny city and administrative pause survive separate JVM
+PASS full restart retains exact earned data without provider replay
+PASS twelve profile tiers and two legacy rewards restore exactly once
+PASS selected profile title and cosmetic persist through restart
+PASS old reward snapshot and happiness survive edited catalogue restart
+PASS resuming with zero current building level keeps earned highest tier
+PASS unrelated city receives no inherited reward

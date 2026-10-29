@@ -1,5 +1,7 @@
 # Условия и награды закрепляются за городом при первой проверке.
 # Изменения существующего ID применяются только к новым городам; для новой цели используйте новый ID.
+# Ступени — самостоятельные цели: завершённая высокая ступень не отнимается при снижении показателя.
+# Профильные цели доступны любому городу, независимо от выбранной специализации.
 achievements:
   first_million:
     name: Первый миллион
@@ -159,3 +161,249 @@ achievements:
       cosmetic: wonder
       banner: wonder
       happiness: 2
+  treasury_10000:
+    name: Первая казна
+    description: Накопите 10 000 монет в городской казне.
+    icon: GOLD_NUGGET
+    kind: BALANCE
+    target: 10000
+    track: COMMON
+    tier: 1
+    reward:
+      title: Бережливый город
+      cosmetic: spark
+      banner: wealth
+      happiness: 0
+  treasury_100000:
+    name: Крепкая казна
+    description: Накопите 100 000 монет в городской казне.
+    icon: GOLD_INGOT
+    kind: BALANCE
+    target: 100000
+    track: COMMON
+    tier: 2
+    reward:
+      title: Зажиточный город
+      cosmetic: spark
+      banner: wealth
+      happiness: 0
+  population_100:
+    name: Первые сто жителей
+    description: Развивайте население города до 100 жителей.
+    icon: OAK_DOOR
+    kind: POPULATION
+    target: 100
+    track: COMMON
+    tier: 1
+    reward:
+      title: Растущий город
+      cosmetic: celebration
+      banner: city
+      happiness: 0
+  population_500:
+    name: Большой город
+    description: Развивайте население города до 500 жителей.
+    icon: BELL
+    kind: POPULATION
+    target: 500
+    track: COMMON
+    tier: 2
+    reward:
+      title: Город пятисот огней
+      cosmetic: celebration
+      banner: city
+      happiness: 0
+  raid_first_victory:
+    name: Первый отражённый набег
+    description: Победите в одном набеге на город.
+    icon: WOODEN_SWORD
+    kind: RAID_VICTORIES
+    target: 1
+    track: COMMON
+    tier: 1
+    reward:
+      title: Город защитников
+      cosmetic: guard
+      banner: guard
+      happiness: 0
+  raid_five_victories:
+    name: Опытные защитники
+    description: Отразите пять набегов на город.
+    icon: IRON_SWORD
+    kind: RAID_VICTORIES
+    target: 5
+    track: COMMON
+    tier: 2
+    reward:
+      title: Город стойких
+      cosmetic: guard
+      banner: guard
+      happiness: 0
+  trade_tier_1:
+    name: Торговый путь I
+    description: Развивайте рынок, склад и караван-сарай до уровня 1 одновременно.
+    icon: EMERALD
+    kind: BUILDING_SET
+    projects: [market, warehouse, caravanserai]
+    minimum-level: 1
+    track: TRADE
+    tier: 1
+    reward:
+      title: Город торговцев I
+      cosmetic: spark
+      banner: wealth
+      happiness: 0
+  trade_tier_2:
+    name: Торговый путь II
+    description: Развивайте рынок, склад и караван-сарай до уровня 3 одновременно.
+    icon: EMERALD
+    kind: BUILDING_SET
+    projects: [market, warehouse, caravanserai]
+    minimum-level: 3
+    track: TRADE
+    tier: 2
+    reward:
+      title: Город торговцев II
+      cosmetic: spark
+      banner: wealth
+      happiness: 0
+  trade_tier_3:
+    name: Торговый путь III
+    description: Развивайте рынок, склад и караван-сарай до уровня 5 одновременно.
+    icon: EMERALD
+    kind: BUILDING_SET
+    projects: [market, warehouse, caravanserai]
+    minimum-level: 5
+    track: TRADE
+    tier: 3
+    reward:
+      title: Город торговцев III
+      cosmetic: spark
+      banner: wealth
+      happiness: 0
+  industry_tier_1:
+    name: Мастерские города I
+    description: Развивайте кузницу, лесопилку и каменоломню до уровня 1 одновременно.
+    icon: IRON_PICKAXE
+    kind: BUILDING_SET
+    projects: [forge, sawmill, quarry]
+    minimum-level: 1
+    track: INDUSTRY
+    tier: 1
+    reward:
+      title: Город мастеров I
+      cosmetic: architect
+      banner: architect
+      happiness: 0
+  industry_tier_2:
+    name: Мастерские города II
+    description: Развивайте кузницу, лесопилку и каменоломню до уровня 3 одновременно.
+    icon: IRON_PICKAXE
+    kind: BUILDING_SET
+    projects: [forge, sawmill, quarry]
+    minimum-level: 3
+    track: INDUSTRY
+    tier: 2
+    reward:
+      title: Город мастеров II
+      cosmetic: architect
+      banner: architect
+      happiness: 0
+  industry_tier_3:
+    name: Мастерские города III
+    description: Развивайте кузницу, лесопилку и каменоломню до уровня 5 одновременно.
+    icon: IRON_PICKAXE
+    kind: BUILDING_SET
+    projects: [forge, sawmill, quarry]
+    minimum-level: 5
+    track: INDUSTRY
+    tier: 3
+    reward:
+      title: Город мастеров III
+      cosmetic: architect
+      banner: architect
+      happiness: 0
+  military_tier_1:
+    name: Городская оборона I
+    description: Развивайте казармы, стражу и оружейную до уровня 1 одновременно.
+    icon: SHIELD
+    kind: BUILDING_SET
+    projects: [barracks, guard, armory]
+    minimum-level: 1
+    track: MILITARY
+    tier: 1
+    reward:
+      title: Город стражей I
+      cosmetic: guard
+      banner: guard
+      happiness: 0
+  military_tier_2:
+    name: Городская оборона II
+    description: Развивайте казармы, стражу и оружейную до уровня 3 одновременно.
+    icon: SHIELD
+    kind: BUILDING_SET
+    projects: [barracks, guard, armory]
+    minimum-level: 3
+    track: MILITARY
+    tier: 2
+    reward:
+      title: Город стражей II
+      cosmetic: guard
+      banner: guard
+      happiness: 0
+  military_tier_3:
+    name: Городская оборона III
+    description: Развивайте казармы, стражу и оружейную до уровня 5 одновременно.
+    icon: SHIELD
+    kind: BUILDING_SET
+    projects: [barracks, guard, armory]
+    minimum-level: 5
+    track: MILITARY
+    tier: 3
+    reward:
+      title: Город стражей III
+      cosmetic: guard
+      banner: guard
+      happiness: 0
+  culture_tier_1:
+    name: Культурный центр I
+    description: Развивайте храм, музей и великую библиотеку до уровня 1 одновременно.
+    icon: BOOK
+    kind: BUILDING_SET
+    projects: [temple, museum, great_library]
+    minimum-level: 1
+    track: CULTURE
+    tier: 1
+    reward:
+      title: Город знаний I
+      cosmetic: celebration
+      banner: city
+      happiness: 0
+  culture_tier_2:
+    name: Культурный центр II
+    description: Развивайте храм, музей и великую библиотеку до уровня 3 одновременно.
+    icon: BOOK
+    kind: BUILDING_SET
+    projects: [temple, museum, great_library]
+    minimum-level: 3
+    track: CULTURE
+    tier: 2
+    reward:
+      title: Город знаний II
+      cosmetic: celebration
+      banner: city
+      happiness: 0
+  culture_tier_3:
+    name: Культурный центр III
+    description: Развивайте храм, музей и великую библиотеку до уровня 5 одновременно.
+    icon: BOOK
+    kind: BUILDING_SET
+    projects: [temple, museum, great_library]
+    minimum-level: 5
+    track: CULTURE
+    tier: 3
+    reward:
+      title: Город знаний III
+      cosmetic: celebration
+      banner: city
+      happiness: 0

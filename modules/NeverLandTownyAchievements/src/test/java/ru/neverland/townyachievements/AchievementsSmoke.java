@@ -20,7 +20,7 @@ public final class AchievementsSmoke {
     }
     public static void main(String[] args) throws Exception {
         var config = AchievementSettings.load(yaml("config.yml"), yaml("achievements.yml"));
-        check(config.definitions().size() == 5, "five city achievements");
+        check(config.definitions().size() == 23, "five legacy achievements plus eighteen tier goals");
         var million = config.definitions().get("first_million");
         var p = Progress.begin(million).observe(999999, 100);
         check(!p.earned(), "threshold requires whole million");

@@ -150,6 +150,6 @@ public final class AchievementService implements TownyAchievementsApi {
     private boolean valid(UUID town) { return town != null && TownyAPI.getInstance().getTown(town) != null; }
     @Override public List<Map<String, Object>> achievements(UUID town) { try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); if (!valid(town)) return List.of();
-        return catalogue(town).values().stream().map(p -> Map.<String, Object>of("id", p.definition().id(), "name", p.definition().name(), "progress", p.best(), "target", p.definition().target(), "earned", p.earned(), "earnedAt", p.earnedAt(), "paused", state(town).paused(), "title", p.definition().reward().title())).toList();
+        return catalogue(town).values().stream().map(p -> Map.<String, Object>of("id", p.definition().id(), "name", p.definition().name(), "progress", p.best(), "target", p.definition().target(), "earned", p.earned(), "earnedAt", p.earnedAt(), "paused", state(town).paused(), "title", p.definition().reward().title(), "track", p.definition().track().name(), "tier", p.definition().tier())).toList();
     } }
 }

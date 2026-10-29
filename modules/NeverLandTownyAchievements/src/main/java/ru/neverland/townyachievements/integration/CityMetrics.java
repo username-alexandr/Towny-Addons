@@ -30,11 +30,11 @@ public class CityMetrics {
                     value = ((Number) read(p, "population")).longValue();
                 }
                 case RAID_VICTORIES -> value = ((Number) ApiServices.call("NeverLandTownyEvents", "ru.neverland.mintevents.api.MintTownyEventsApi", "raidVictories", new Class<?>[]{UUID.class}, id)).longValue();
-                case ALL_BUILDINGS, FIRST_WONDER -> {
+                case ALL_BUILDINGS, FIRST_WONDER, BUILDING_SET -> {
                     var c = ApiServices.require("NeverLandTownyBuilds", "ru.neverland.townybuilds.api.TownyBuildsApi", "projectLevel", "supportedProjects");
                     var supported = (Set<?>) c.invoke("supportedProjects", new Class<?>[]{});
                     if (!supported.containsAll(achievement.projects())) return Observation.waiting("Не все постройки доступны в установленном Builds");
-                    value = 0; int minimum = achievement.kind() == Achievement.Kind.ALL_BUILDINGS ? 5 : 1;
+                    value = 0; int minimum = achievement.minimumLevel();
                     for (String project : achievement.projects()) {
                         int level = ((Number) c.invoke("projectLevel", new Class<?>[]{UUID.class, String.class}, id, project)).intValue();
                         if (level >= minimum) value++;
