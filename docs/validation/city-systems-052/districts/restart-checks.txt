@@ -1,0 +1,5 @@
+PASS actual Districts 0.2 and Builds footprint bridge enabled on Folia
+PASS actual persisted districts and completed building sites survive native restart
+PASS derived report reconstructs identical profile and connectivity after restart
+PASS original industrial multiplier remains unchanged after restart
+PASS restored native assessment board contains both districts and usable refresh action

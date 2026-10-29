@@ -15,6 +15,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 public final class NeverLandTownyDistricts extends JavaPlugin{
     private DistrictService service;private BorderPreview borders;private boolean registered,farmsRegistered;
+    private AssessmentService assessments;
     private MobFarmService farms;private ru.neverland.townydistricts.gui.MobFarmMenu farmMenu;
     @Override public void onEnable(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
@@ -23,7 +24,7 @@ try{
         saveDefaultConfig();if(!new File(getDataFolder(),"projects.yml").exists())saveResource("projects.yml",false);
         var settings=DistrictSettings.load(read("config.yml"),read("projects.yml"));
         var repository=new DistrictRepository(getDataFolder().toPath().resolve("districts-data.yml"),Coord.getCellSize());repository.load();
-        service=new DistrictService(this,repository,settings);service.start();borders=new BorderPreview(this,service);
+        service=new DistrictService(this,repository,settings);service.start();assessments=new AssessmentService(this,service);service.assessments(assessments);ru.neverland.core.ModuleShutdown.register(this,assessments::prepareClose);borders=new BorderPreview(this,service);
         farms=new MobFarmService(this);service.farms(farms);farmMenu=new ru.neverland.townydistricts.gui.MobFarmMenu(this,farms);
         var farmCommand=java.util.Objects.requireNonNull(getCommand("townyfarms"));farmCommand.setExecutor(farmMenu);farmCommand.setTabCompleter(farmMenu);
         farmsRegistered=TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"farm",farmMenu);
@@ -39,11 +40,11 @@ try{
         getServer().getServicesManager().register(TownyDistrictsApi.class,service,this,ServicePriority.Normal);
         getLogger().info("NeverLandTownyDistricts "+getPluginMeta().getVersion()+": семь типов районов включены.");
     }catch(Exception|LinkageError ex){getLogger().log(java.util.logging.Level.SEVERE,"Не удалось загрузить районы; база не сброшена.",ex);getServer().getPluginManager().disablePlugin(this);}} }
-    public boolean reloadDistricts(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {try{var settings=DistrictSettings.load(read("config.yml"),read("projects.yml"));service.reload(settings);reloadConfig();return true;}
+    public boolean reloadDistricts(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {try{var settings=DistrictSettings.load(read("config.yml"),read("projects.yml"));service.reload(settings);reloadConfig();if(assessments!=null)assessments.reload();return true;}
         catch(Exception ex){getLogger().warning("Настройки районов не применены: "+ex.getMessage());return false;}} }
     private YamlConfiguration read(String name)throws Exception{var y=new YamlConfiguration();y.load(new File(getDataFolder(),name));
         try(var stream=getResource(name)){if(stream!=null)y.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(stream,StandardCharsets.UTF_8)));}y.options().copyDefaults(true);return y;}
-    @Override public void onDisable(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
+    @Override public void onDisable(){try{ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
-if(farmMenu!=null)farmMenu.stop();if(farms!=null)farms.stop();if(service!=null)service.stop();if(borders!=null)borders.stop();if(registered)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"district");if(farmsRegistered)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"farm");getServer().getServicesManager().unregisterAll(this);} }
+if(assessments!=null)assessments.prepareClose();if(farmMenu!=null)farmMenu.stop();if(farms!=null)farms.stop();if(service!=null)service.stop();if(borders!=null)borders.stop();if(registered)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"district");if(farmsRegistered)TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"farm");getServer().getServicesManager().unregisterAll(this);} }finally{if(assessments!=null)assessments.awaitClosed();ru.neverland.core.ModuleShutdown.remove(this);}}
 }

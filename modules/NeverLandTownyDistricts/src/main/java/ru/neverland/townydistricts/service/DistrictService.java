@@ -28,6 +28,11 @@ public final class DistrictService implements TownyDistrictsApi,Listener {
     private final int cellSize;private DistrictSettings settings;private long warningAt;
     private volatile Snapshot snapshot=new Snapshot(Map.of(),Map.of());private BukkitTask task;private volatile boolean dirty;
     private MobFarmService farms;
+    private AssessmentService assessments;private long snapshotAt;
+    public void assessments(AssessmentService value){assessments=value;}
+    public View assessmentSource(UUID town){return snapshot.towns().get(town);}
+    public long assessmentSourceTime(){return snapshotAt;}
+    @Override public Map<String,Object> assessment(UUID town){try(var guard=ru.neverland.core.SuiteState.guard()){return assessments==null?Map.of("available",false,"pending",false,"rows",Map.of(),"issue","Оценка ещё не запущена"):assessments.assess(town);}}
     public void farms(MobFarmService value){this.farms=value;}
     @Override public java.util.Collection<ru.neverland.townydistricts.api.MobFarmPlot> mobFarmPlots(UUID town){try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){
         return farms==null?List.of():farms.plots(town).stream().filter(p->p.mobsAllowed()||p.protectionDisabled()).toList();
@@ -76,7 +81,7 @@ public final class DistrictService implements TownyDistrictsApi,Listener {
             views.put(town,new View(districts,buildings,result,paused));
             for(District d:districts)for(Cell c:d.cells())if(owned.get(town).contains(c))cells.put(c,d);
         }
-        snapshot=new Snapshot(Map.copyOf(views),Map.copyOf(cells));dirty=false;
+        snapshot=new Snapshot(Map.copyOf(views),Map.copyOf(cells));snapshotAt=System.currentTimeMillis();dirty=false;
     } }
     private Snapshot current(){if(dirty){if(ru.neverland.core.SuiteState.held())safeRefresh();else return new Snapshot(Map.of(),Map.of());}return snapshot;}
     public View view(UUID town){ try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {return current().towns().getOrDefault(town,new View(List.of(),List.of(),new DistrictRules.Evaluation(Map.of(),Map.of(),Set.of()),false));} }

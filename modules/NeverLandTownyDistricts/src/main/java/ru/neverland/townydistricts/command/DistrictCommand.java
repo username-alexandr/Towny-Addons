@@ -41,6 +41,7 @@ public final class DistrictCommand implements CommandExecutor,TabCompleter,org.b
         if(!player.hasPermission("neverlandtownydistricts.use"))throw new IllegalArgumentException("Недостаточно прав");
         var town=service.town(player);if(town==null)throw new IllegalArgumentException("Вы не состоите в городе");
         if(action.equals("farms")){farms.open(player,false,0);return;}
+        if(action.equals("assess")){String district=args.length>1&&!args[1].equals("*")?args[1]:null;if(district!=null)service.require(town.getUUID(),district);menu.assessment(player,town.getUUID(),district,args.length>2?Integer.parseInt(args[2]):0);return;}
         service.refresh();UUID townId=town.getUUID();
         if(action.equals("menu")||action.equals("list")){menu.open(player,townId,null,args.length>1?Integer.parseInt(args[1]):0);return;}
         if(action.equals("info")){if(args.length<2){menu.open(player,townId,null,0);return;}service.require(townId,args[1]);menu.open(player,townId,args[1],args.length>2?Integer.parseInt(args[2]):0);return;}
@@ -75,8 +76,8 @@ public final class DistrictCommand implements CommandExecutor,TabCompleter,org.b
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
         if(!(sender instanceof Player player)||!player.hasPermission("neverlandtownydistricts.use"))return List.of();
         var town=service.town(player);if(town==null)return List.of();List<String> options=new ArrayList<>();
-        if(args.length==1){options.addAll(List.of("list","info","map","help"));if(service.manager(player,town))options.addAll(List.of("create","claim","unclaim","delete","rename","pos1","pos2","clear"));if(player.hasPermission("neverlandtownydistricts.admin"))options.add("reload");}
-        else if(args.length==2&&Set.of("info","claim","unclaim","delete","rename").contains(args[0]))service.list(town.getUUID()).forEach(d->options.add(d.id()));
+        if(args.length==1){options.addAll(List.of("list","info","map","help","assess"));if(service.manager(player,town))options.addAll(List.of("create","claim","unclaim","delete","rename","pos1","pos2","clear"));if(player.hasPermission("neverlandtownydistricts.admin"))options.add("reload");}
+        else if(args.length==2&&Set.of("info","claim","unclaim","delete","rename","assess").contains(args[0]))service.list(town.getUUID()).forEach(d->options.add(d.id()));
         else if(args.length==3&&args[0].equals("create"))for(var type:DistrictType.values())options.add(type.id());
         String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return options.stream().filter(s->s.toLowerCase(Locale.ROOT).startsWith(prefix)).sorted().toList();
     } }

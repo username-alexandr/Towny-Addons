@@ -1,0 +1,15 @@
+PASS actual Districts 0.2 and Builds footprint bridge enabled on Folia
+PASS real Builds API supplies five completed registered-site footprints including current level I without world scanning
+PASS existing industrial matching and three-building bonus retained before assessment
+PASS first API request returns pending without blocking region for graph work
+PASS real adjacent Towny claims connect industrial district while remote outpost stays disconnected
+PASS assessment recognizes actual forge, foundry, warehouse and level-I workshop profile without counting outside town hall
+PASS actual warehouse footprint supplies nearby district cells along owned land
+PASS known absent energy facility remains distinct from missing provider data
+PASS actual command opens native profile, coverage and Moscow-dated explanation cards
+PASS assessment API and menu do not rewrite district data or alter old production multiplier
+PASS changed central claim invalidates old report instead of presenting stale connection as current
+PASS new genuine Towny home changes graph component without loading remote chunks
+PASS restored town centre recalculates exact prior connectivity
+PASS neutral feature disable preserves old district data and all industrial bonuses
+PASS bad optional assessment settings pause only assessment, not districts or existing effects

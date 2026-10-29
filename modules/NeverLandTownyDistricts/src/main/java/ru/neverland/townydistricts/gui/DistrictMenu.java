@@ -40,6 +40,7 @@ public final class DistrictMenu implements Listener {
             button(v,48,Material.GLOWSTONE_DUST,"&eПоказать границы",new String[]{"map"});
             button(v,49,Material.SUNFLOWER,"&aОбновить",new String[]{"list",String.valueOf(page)});
             button(v,50,Material.SPAWNER,"&6Фермы и защита от мобов",new String[]{"farms"},"Карта участков с разрешёнными мобами","Настройки, список и границы ферм");
+            button(v,51,Material.COMPARATOR,"&eОценка районов",new String[]{"assess"},"Подходящие здания, службы и связь с центром.","Проверьте, каких служб не хватает для развития.");
             if(page+1<pages)button(v,53,Material.ARROW,"&aДалее",new String[]{"list",String.valueOf(page+1)});
         }else{
             var d=service.require(townId,districtId);var view=service.view(townId);var evaluation=view.evaluation();
@@ -60,11 +61,34 @@ public final class DistrictMenu implements Listener {
             if(manager){button(v,45,Material.GRASS_BLOCK,"&aДобавить территорию",new String[]{"claim",districtId},command.selection(player));
                 button(v,46,Material.SHEARS,"&eУбрать текущий участок",new String[]{"unclaim",districtId},"Участки должны остаться связанными.");}
             button(v,48,Material.GLOWSTONE_DUST,"&eПоказать границы",new String[]{"map"});button(v,49,Material.BELL,"&aВсе районы",new String[]{"list"});
+            button(v,51,Material.COMPARATOR,"&eОценить этот район",new String[]{"assess",districtId},"Назначение, доступные службы и связь с центром.");
             if(page>0)button(v,52,Material.ARROW,"&aНазад",new String[]{"info",districtId,String.valueOf(page-1)});
             if(page+1<pages)button(v,53,Material.ARROW,"&aДалее",new String[]{"info",districtId,String.valueOf(page+1)});
         }
         player.openInventory(v.inventory);
     } }
+    @SuppressWarnings("unchecked") public void assessment(Player player,UUID townId,String districtId,int requestedPage){try(var guard=ru.neverland.core.SuiteState.guard()){
+        var town=service.town(player);if(town==null||!townId.equals(town.getUUID())||!player.hasPermission("neverlandtownydistricts.use"))return;
+        var v=new View(townId);v.inventory=ru.neverland.core.MenuStyle.inventory(plugin,v,54,"Оценка районов");var report=service.assessment(townId);
+        String[] refresh=districtId==null?new String[]{"assess"}:new String[]{"assess",districtId};
+        if(!Boolean.TRUE.equals(report.get("available")))v.inventory.setItem(22,item(Boolean.TRUE.equals(report.get("pending"))?Material.CLOCK:Material.PAPER,"&eОценка районов",String.valueOf(report.getOrDefault("issue","Оценка пока недоступна")),"Это справочный расчёт; городские правила действуют как обычно."));
+        else{
+            var rows=(Map<String,Map<String,Object>>)report.get("rows");var keys=rows.keySet().stream().filter(id->districtId==null||id.equals(districtId)).sorted().toList();int pages=Math.max(1,(keys.size()+27)/28),page=Math.min(Math.max(0,requestedPage),pages-1);boolean homeKnown=Boolean.TRUE.equals(report.get("homeKnown"));
+            for(int index=page*28;index<Math.min(keys.size(),(page+1)*28);index++){String id=keys.get(index);var row=rows.get(id);var lore=new ArrayList<String>();lore.add("Назначение: "+DistrictType.valueOf(String.valueOf(row.get("type"))).title);lore.add("Сохранились за городом: "+row.get("owned")+"/"+row.get("total")+" участков");
+                if(!Boolean.TRUE.equals(row.get("worldAvailable")))lore.add("Мир района пока не загружен; оценка неполная.");
+                else{lore.add(homeKnown?"Связь с центральным участком: "+row.get("connected")+"/"+row.get("total"):"Центральный участок города пока неизвестен.");if(((Number)row.get("distance")).intValue()>=0)lore.add("Кратчайшая цепочка до центра: "+row.get("distance")+" участков");}
+                if(!Boolean.TRUE.equals(row.get("buildingsAvailable")))lore.add("Данные зданий пока недоступны.");else{lore.add("Подходящих зданий: "+row.get("matching")+"; другого назначения: "+row.get("other"));lore.add("Не завершены или не работают: "+row.get("unfinished"));if(((Number)row.get("crossing")).intValue()>0)lore.add("Пересекают границу района: "+row.get("crossing"));if(((Number)row.get("unknownBuildings")).intValue()>0)lore.add("Зданий не удалось полностью учесть: "+row.get("unknownBuildings"));}
+                var services=(Map<String,Map<String,Object>>)row.get("services");services.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry->{var coverage=entry.getValue();lore.add(coverage.get("title")+": "+(Boolean.TRUE.equals(coverage.get("known"))?coverage.get("served")+"/"+coverage.get("total")+" участков":"пока неизвестно"));var sources=(List<String>)coverage.get("sources");if(!sources.isEmpty())lore.add("Ближайшие: "+String.join(", ",sources.stream().map(source->{var project=service.settings().projects().get(source);return project==null?"Здание вне каталога":project.name();}).toList()));});
+                int slot=10+(index-page*28)/7*9+(index-page*28)%7;v.inventory.setItem(slot,item(Material.COMPARATOR,"&e"+row.get("name"),lore.toArray(String[]::new)));
+            }
+            if(keys.isEmpty())v.inventory.setItem(22,item(Material.PAPER,"&fРайонов для оценки нет","Откройте список районов своего города."));
+            if(page>0)button(v,46,Material.ARROW,"&fПредыдущая страница",new String[]{"assess",districtId==null?"*":districtId,String.valueOf(page-1)});
+            if(page+1<pages)button(v,53,Material.ARROW,"&fСледующая страница",new String[]{"assess",districtId==null?"*":districtId,String.valueOf(page+1)});
+            String checked=java.time.format.DateTimeFormatter.ofPattern("dd.MM HH:mm").withZone(java.time.ZoneId.of("Europe/Moscow")).format(java.time.Instant.ofEpochMilli(((Number)report.get("checkedAt")).longValue()));
+            v.inventory.setItem(4,item(Material.BOOK,"&eКак читать оценку","Путь считаем по соседним участкам города.","Близость служб: до "+report.get("range")+" участков по этому пути.","Фактическая работа сетей проверяется в их разделах.","Оценка: "+checked+" МСК. Бонусы — в карточке района."));
+        }
+        button(v,45,Material.ARROW,"&fНазад",districtId==null?new String[]{"list"}:new String[]{"info",districtId});button(v,49,Material.SUNFLOWER,"&fОбновить оценку",refresh);player.openInventory(v.inventory);
+    }}
     private static String percent(double n){return String.format(Locale.ROOT,"+%.0f%%",(n-1)*100);}
     private Material material(String name){Material m=Material.matchMaterial(name);return m==null||!m.isItem()?Material.BRICKS:m;}
     private void button(View v,int slot,Material material,String title,String[] action,String... lore){v.inventory.setItem(slot,item(material,title,lore));v.actions.put(slot,action);}
