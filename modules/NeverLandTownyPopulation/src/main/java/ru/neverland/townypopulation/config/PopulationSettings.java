@@ -17,10 +17,13 @@ public record PopulationSettings(long intervalMillis, int initial, Capacity base
         return capacity(levels,id -> 1.0);
     } }
     public Capacity capacity(ToIntFunction<String> levels, java.util.function.ToDoubleFunction<String> multipliers) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
-        Capacity result = base;
-        for (var entry : buildings.entrySet()) result = result.plus(entry.getValue().atLevel(levels.applyAsInt(entry.getKey())).scaled(multipliers.applyAsDouble(entry.getKey())));
-        return result;
+        return combined(contributions(levels,multipliers));
     } }
+    /** The exact same per-project terms used by the original city-wide capacity formula. */
+    public Map<String,Capacity> contributions(ToIntFunction<String> levels,java.util.function.ToDoubleFunction<String> multipliers){try(var guard=ru.neverland.core.SuiteState.guard()){
+        var result=new LinkedHashMap<String,Capacity>();result.put("@base",base);for(var entry:buildings.entrySet())result.put(entry.getKey(),entry.getValue().atLevel(levels.applyAsInt(entry.getKey())).scaled(multipliers.applyAsDouble(entry.getKey())));return Collections.unmodifiableMap(result);
+    }}
+    public static Capacity combined(Map<String,Capacity> sources){try(var guard=ru.neverland.core.SuiteState.guard()){Capacity result=Objects.requireNonNull(sources.get("@base"));for(var entry:sources.entrySet())if(!entry.getKey().equals("@base"))result=result.plus(entry.getValue());return result;}}
     public static PopulationSettings load(YamlConfiguration config, YamlConfiguration catalog) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         int maximum = integer(config,"simulation.maximum-population",1,1000000);
         int initial = integer(config,"simulation.initial-population",0,maximum);

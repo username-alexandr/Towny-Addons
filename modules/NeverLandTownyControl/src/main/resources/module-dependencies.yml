@@ -145,9 +145,11 @@ modules:
   - NeverLandTownyDistricts
   - NeverLandTownyEnvironment
   - NeverLandTownyPolicies
+  - NeverLandTownyPower
   - NeverLandTownyResearch
   - NeverLandTownyResources
   - NeverLandTownySpecialization
+  - NeverLandTownyUpkeep
   NeverLandTownyPower:
   - NeverLandTownyBuilds
   - NeverLandTownyDistricts

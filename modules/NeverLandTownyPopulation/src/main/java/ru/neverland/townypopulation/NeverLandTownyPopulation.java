@@ -14,7 +14,7 @@ import ru.neverland.townypopulation.service.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-public final class NeverLandTownyPopulation extends JavaPlugin {
+public final class NeverLandTownyPopulation extends JavaPlugin implements org.bukkit.event.Listener {
     private PopulationService service;
     private Messages messages;
     private Runnable unregisterPlaceholder;
@@ -30,6 +30,8 @@ public final class NeverLandTownyPopulation extends JavaPlugin {
             var repository=new PopulationRepository(getDataFolder().toPath().resolve("population-data.yml"));
             repository.load();
             service=new PopulationService(this,repository,settings);
+            ru.neverland.core.ModuleShutdown.register(this,service::prepareClose);
+            getServer().getPluginManager().registerEvents(this,this);
             var menu=new PopulationMenu(this,service,messages);
             var command=new PopulationCommand(this,service,menu,messages);
             var direct=getCommand("townypopulation");
@@ -56,7 +58,7 @@ public final class NeverLandTownyPopulation extends JavaPlugin {
     public boolean reloadPopulation() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         try {
             var settings=readSettings(); var newMessages=read("messages.yml");
-            service.reload(settings); messages.reload(newMessages); return true;
+            service.reload(settings); messages.reload(newMessages); reloadConfig(); return true;
         } catch(Exception ex) {
             getLogger().warning("Настройки населения не применены: "+ex.getMessage()); return false;
         }
@@ -71,12 +73,17 @@ public final class NeverLandTownyPopulation extends JavaPlugin {
         result.options().copyDefaults(true);
         return result;
     }
-    @Override public void onDisable() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
+    private void cityHint(java.util.UUID town,boolean register){if(service==null||ru.neverland.core.SuiteState.frozen(getName()))return;ru.neverland.core.SuiteScheduler.get().runTask(this,()->{if(register)service.refreshTownRegistration(town);else service.refreshTownView(town);});}
+    @org.bukkit.event.EventHandler(priority=org.bukkit.event.EventPriority.MONITOR)public void created(com.palmergames.bukkit.towny.event.NewTownEvent event){cityHint(event.getTown().getUUID(),true);}
+    @org.bukkit.event.EventHandler(priority=org.bukkit.event.EventPriority.MONITOR)public void deleted(com.palmergames.bukkit.towny.event.DeleteTownEvent event){cityHint(event.getTownUUID(),true);}
+    @org.bukkit.event.EventHandler(priority=org.bukkit.event.EventPriority.MONITOR)public void joined(com.palmergames.bukkit.towny.event.TownAddResidentEvent event){cityHint(event.getTown().getUUID(),false);}
+    @org.bukkit.event.EventHandler(priority=org.bukkit.event.EventPriority.MONITOR)public void left(com.palmergames.bukkit.towny.event.TownRemoveResidentEvent event){cityHint(event.getTown().getUUID(),false);}
+    @Override public void onDisable() {try{ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if(service!=null) service.stop();
         if(unregisterPlaceholder!=null) unregisterPlaceholder.run();
         if(townCommandRegistered) TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"population");
         getServer().getServicesManager().unregisterAll(this);
-    } }
+    } }finally{if(service!=null)service.awaitClosed();ru.neverland.core.ModuleShutdown.remove(this);} }
 }

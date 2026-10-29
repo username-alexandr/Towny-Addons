@@ -104,18 +104,19 @@ public final class PopulationSmoke {
         try {
             Path file=dir.resolve("population-data.yml"); UUID first=UUID.randomUUID(), second=UUID.randomUUID();
             var repository=new PopulationRepository(file); repository.load();
-            repository.put(first,new PopulationState(17,0.4,1,100)); repository.put(second,new PopulationState(55,-0.3,-1,100)); repository.save();
+            repository.commit(repository.state(),Map.of(first,new PopulationState(17,0.4,1,100),second,new PopulationState(55,-0.3,-1,100))).toCompletableFuture().get(5,java.util.concurrent.TimeUnit.SECONDS);
             var reloaded=new PopulationRepository(file); reloaded.load();
             check(reloaded.get(first).equals(repository.get(first)),"population/fraction/history survive restart");
-            reloaded.rebase(1000000);
+            var rebased=new HashMap<UUID,PopulationState>();reloaded.state().forEach((id,state)->rebased.put(id,state.rebase(1000000)));reloaded.commit(reloaded.state(),rebased).toCompletableFuture().get(5,java.util.concurrent.TimeUnit.SECONDS);
             check(reloaded.get(first).population()==17 && reloaded.get(first).lastCycle()==1000000 && reloaded.get(first).remainder()==0.4,"offline time is rebased without population loss");
-            reloaded.retain(Set.of(first)); reloaded.save();
+            reloaded.commit(reloaded.state(),Map.of(first,reloaded.get(first))).toCompletableFuture().get(5,java.util.concurrent.TimeUnit.SECONDS);
             var deleted=new PopulationRepository(file); deleted.load();
             check(deleted.get(second)==null,"deleted town data removed");
             Files.writeString(file,"schema: 1\ntowns: [broken\n");
             String corrupt=Files.readString(file);
             expectFailure(()->new PopulationRepository(file).load(),"corrupt YAML aborts load");
             check(Files.readString(file).equals(corrupt),"corrupt database not overwritten");
+            repository.awaitClosed();reloaded.awaitClosed();deleted.awaitClosed();
         } finally {
             try(var paths=Files.walk(dir)) { for(var p:paths.sorted(Comparator.reverseOrder()).toList()) Files.delete(p); }
         }

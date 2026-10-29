@@ -25,9 +25,10 @@ public final class PopulationMenu implements Listener {
     }
     public void open(Player player, UUID townId, boolean buildings, int requestedPage) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!player.hasPermission("neverlandtownypopulation.use")) { messages.send(player,"no-permission"); return; }
-        service.refreshView();
+        service.refreshTownView(townId);
         var s=service.population(townId).orElse(null);
-        if (s==null || !canView(player,townId)) { messages.send(player,"no-town"); return; }
+        if(!canView(player,townId)){messages.send(player,"no-town");return;}
+        if(s==null){messages.send(player,"paused");return;}
         int pages=Math.max(1,(service.settings().buildings().size()+44)/45);
         int page=Math.max(0,Math.min(pages-1,requestedPage));
         View view=new View(townId,buildings,page);
@@ -63,7 +64,7 @@ public final class PopulationMenu implements Listener {
                 "Обеспечение: "+number(c.water()),"Потребность: "+number(s.population()*service.settings().rules().waterDemand()),
                 "Водонапорная башня и резервуар."));
         List<String> reasons=new ArrayList<>(m.reasons());
-        if(s.paused()) reasons.add(0,"Расчёт приостановлен: постройки или ресурсы недоступны.");
+        if(s.paused()) reasons.add(0,"Расчёт временно приостановлен; подтверждённые жители сохранены.");
         v.inventory.setItem(31,item(s.paused()?Material.BARRIER:Material.OAK_SAPLING,"&fУсловия роста",reasons.toArray(String[]::new)));
         v.inventory.setItem(33,item(Material.CLOCK,"&fСледующий цикл",
                 s.paused()?"Ожидаем данные построек и снабжения.":"Через "+Math.max(0,(s.nextCycle()-System.currentTimeMillis()+999)/1000)+" сек.",

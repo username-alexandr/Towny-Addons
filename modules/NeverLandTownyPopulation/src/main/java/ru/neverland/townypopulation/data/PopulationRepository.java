@@ -1,52 +1,33 @@
 package ru.neverland.townypopulation.data;
 
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.ConfigurationSection;
 import ru.neverland.townypopulation.model.PopulationState;
+import ru.neverland.core.*;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
+import java.util.concurrent.*;
 
-/** Strict load and atomic replace: an unreadable database is never silently reset. */
+/** The original schema, acknowledged whole-city batches, and no publish before durable file replacement. */
 public final class PopulationRepository {
-    private final Path file;
-    private final Map<UUID, PopulationState> states = new HashMap<>();
-    private boolean dirty,ready;
-    private void gate(){if(!ready||!ru.neverland.core.AtomicFiles.writable(file))throw new IllegalStateException("Хранилище населения недоступно");}
-    public PopulationRepository(Path file) { this.file = file; }
-    public void load() throws Exception { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {ready=false;
-        Map<UUID, PopulationState> loaded = new HashMap<>();
-        if (Files.exists(file)) {
-            YamlConfiguration yaml = new YamlConfiguration(); yaml.load(file.toFile());
-            if (yaml.getInt("schema",0) != 1) throw new IOException("Неизвестная версия population-data.yml");
-            var towns = yaml.getConfigurationSection("towns");
-            if (towns == null) throw new IOException("Нет раздела towns в population-data.yml");
-            for (String id : towns.getKeys(false)) {
-                String key = "towns."+id+".";
-                for (String field : List.of("population","remainder","last-change","last-cycle"))
-                    if (!(yaml.get(key+field) instanceof Number)) throw new IOException("Повреждённое поле "+key+field);
-                double population = yaml.getDouble(key+"population");
-                if (population != Math.rint(population) || population < 0 || population > 1000000)
-                    throw new IOException("Некорректное население: "+id);
-                loaded.put(UUID.fromString(id), new PopulationState((int)population,
-                        yaml.getDouble(key+"remainder"), yaml.getInt(key+"last-change"), yaml.getLong(key+"last-cycle")));
-            }
+    private final Path file;private final AcknowledgedState<Map<UUID,PopulationState>> images;private volatile boolean readable;
+    public PopulationRepository(Path file){this.file=file;images=new AcknowledgedState<>(file,Map.of(),PopulationRepository::encode,"NeverLand-population-write");}
+    public boolean readable(){return readable;}public boolean writable(){return readable&&images.writable();}public boolean busy(){return images.busy();}
+    public Map<UUID,PopulationState> state(){return images.get();}public PopulationState get(UUID id){return state().get(id);}public Set<UUID> ids(){return state().keySet();}
+    public void load()throws Exception{
+        readable=false;var states=new HashMap<UUID,PopulationState>();
+        if(!Files.notExists(file)){
+            if(Files.size(file)>64*1024*1024)throw new IOException("Слишком большой файл населения");var yaml=SafeYaml.load(file);SafeYaml.keys(yaml,"schema","towns");if(SafeYaml.integer(yaml,"schema")!=1||!yaml.isConfigurationSection("towns"))throw new IOException("Неизвестная версия population-data.yml");var towns=yaml.getConfigurationSection("towns");
+            for(String id:towns.getKeys(false)){var row=towns.getConfigurationSection(id);if(row==null)throw new IOException("Повреждена запись населения города");SafeYaml.keys(row,"population","remainder","last-change","last-cycle");states.put(UUID.fromString(id),new PopulationState(Math.toIntExact(integer(row,"population")),decimal(row,"remainder"),Math.toIntExact(integer(row,"last-change")),integer(row,"last-cycle")));}
         }
-        states.clear(); states.putAll(loaded); dirty = false;ru.neverland.core.AtomicFiles.loaded(file);ready=true;
-    } }
-    public PopulationState get(UUID id) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return states.get(id); } }
-    public Set<UUID> ids() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return Set.copyOf(states.keySet()); } }
-    public void put(UUID id, PopulationState state) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {gate(); if (!state.equals(states.put(id,state))) dirty = true; } }
-    public void retain(Set<UUID> ids) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {gate(); if (states.keySet().retainAll(ids)) dirty = true; } }
-    public void rebase(long now) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) { for (UUID id : ids()) put(id,states.get(id).rebase(now)); } }
-    public void save() throws IOException { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {gate();
-        if (!dirty) return;
-        Files.createDirectories(file.toAbsolutePath().getParent());
-        YamlConfiguration yaml = new YamlConfiguration(); yaml.set("schema",1); yaml.createSection("towns");
-        for (var entry : states.entrySet()) {
-            String key = "towns."+entry.getKey()+"."; var s = entry.getValue();
-            yaml.set(key+"population",s.population()); yaml.set(key+"remainder",s.remainder());
-            yaml.set(key+"last-change",s.lastChange()); yaml.set(key+"last-cycle",s.lastCycle());
-        }
-        ru.neverland.core.AtomicFiles.write(file,yaml::saveToString);dirty=false;
-    } }
+        images.loaded(Map.copyOf(states));readable=true;
+    }
+    private static long integer(ConfigurationSection row,String key)throws IOException{Object raw=row.get(key);if(!(raw instanceof Number n))throw new IOException("Неверное целое поле населения: "+key);try{return new java.math.BigDecimal(n.toString()).longValueExact();}catch(NumberFormatException|ArithmeticException error){throw new IOException("Неверное целое поле населения: "+key,error);}}
+    private static double decimal(ConfigurationSection row,String key)throws IOException{Object raw=row.get(key);if(!(raw instanceof Number n)||!Double.isFinite(n.doubleValue()))throw new IOException("Неверная дробь населения: "+key);return n.doubleValue();}
+    public CompletionStage<Map<UUID,PopulationState>> commit(Map<UUID,PopulationState> expected,Map<UUID,PopulationState> next){if(!writable())return CompletableFuture.failedFuture(new IOException("Запись населения приостановлена; подтверждённые жители сохранены"));return images.commit(expected,Map.copyOf(next));}
+    public CompletionStage<Void> prepareClose(){return images.prepareClose();}public void awaitClosed(){images.awaitClosed();}
+    private static String encode(Map<UUID,PopulationState> states)throws IOException{
+        var yaml=new YamlConfiguration();yaml.set("schema",1);yaml.createSection("towns");new TreeMap<>(states).forEach((id,state)->{String key="towns."+id+".";yaml.set(key+"population",state.population());yaml.set(key+"remainder",state.remainder());yaml.set(key+"last-change",state.lastChange());yaml.set(key+"last-cycle",state.lastCycle());});String text=yaml.saveToString();if(text.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>64*1024*1024)throw new IOException("Файл населения требует административной проверки объёма");return text;
+    }
 }

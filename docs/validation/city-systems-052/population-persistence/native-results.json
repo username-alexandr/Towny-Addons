@@ -1,0 +1,30 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 12 assertions; real Folia Towny Builds Districts Population, asynchronous acknowledged population setter, physical file lock and replacement failure, supplier pause, immutable reads and full restart; no graphical client or bank transaction claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyControl-0.5.6.jar": "a7cb90923ca6de463a4e860911048ad3104666d7b8fc2eac45b4a2c94fa8d455",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "PopulationPersistenceRuntimeProbe.jar": "ca79a63a10e08529d9cc66f17b656e578379488167fb4f4f2562a155578bb807",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63",
+      "NeverLandTownyPopulation-0.2.0.jar": "0b9159ff02767c3c36256779b9bec7f2cd4065281af1b5e0871529e20c642124",
+      "NeverLandTownyDistricts-0.2.1.jar": "d3ea2f58c00287bcf6b10ceb583477c92c7a5b20e29825f6986addb4bc30435d"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 4 assertions; real Folia Towny Builds Districts Population, asynchronous acknowledged population setter, physical file lock and replacement failure, supplier pause, immutable reads and full restart; no graphical client or bank transaction claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyControl-0.5.6.jar": "a7cb90923ca6de463a4e860911048ad3104666d7b8fc2eac45b4a2c94fa8d455",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "PopulationPersistenceRuntimeProbe.jar": "ca79a63a10e08529d9cc66f17b656e578379488167fb4f4f2562a155578bb807",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63",
+      "NeverLandTownyPopulation-0.2.0.jar": "0b9159ff02767c3c36256779b9bec7f2cd4065281af1b5e0871529e20c642124",
+      "NeverLandTownyDistricts-0.2.1.jar": "d3ea2f58c00287bcf6b10ceb583477c92c7a5b20e29825f6986addb4bc30435d"
+    }
+  }
+]

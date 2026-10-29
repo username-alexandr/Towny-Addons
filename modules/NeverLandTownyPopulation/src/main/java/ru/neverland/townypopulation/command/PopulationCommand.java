@@ -27,9 +27,16 @@ public final class PopulationCommand implements CommandExecutor, TabCompleter {
             if(town==null) { messages.send(sender,"unknown-town"); return true; }
             try {
                 int amount=Integer.parseInt(args[2]);
-                if(!service.setPopulation(town.getUUID(),amount)) throw new NumberFormatException();
-                messages.send(sender,"set-success",Map.of("town",town.getName(),"amount",String.valueOf(amount)));
-                plugin.getLogger().info(sender.getName()+" установил население "+town.getName()+": "+amount);
+                if(amount<0||amount>service.settings().rules().maximum())throw new NumberFormatException();
+                String townName=town.getName(),actorName=sender.getName();UUID townId=town.getUUID();
+                var receipt=service.setPopulation(townId,amount);messages.tell(sender,"Сохраняем новое число жителей…");
+                receipt.whenComplete((saved,error)->{if(!plugin.isEnabled()||ru.neverland.core.SuiteState.frozen(plugin.getName()))return;
+                    ru.neverland.core.SuiteScheduler.reply(plugin,sender,()->{
+                        if(error!=null){messages.tell(sender,"Изменение не подтверждено; прежние жители сохранены. Проверьте журнал сервера.");plugin.getLogger().log(java.util.logging.Level.WARNING,"Назначение населения не подтверждено",error);return;}
+                        if(!Boolean.TRUE.equals(saved)){messages.tell(sender,"Изменение не выполнено. Дождитесь готовности городского расчёта.");return;}
+                        service.refreshTownView(townId);messages.send(sender,"set-success",Map.of("town",townName,"amount",String.valueOf(amount)));plugin.getLogger().info(actorName+" установил население "+townName+": "+amount);
+                    });
+                });
             } catch(NumberFormatException ex) { messages.tell(sender,"Укажите целое число от 0 до "+service.settings().rules().maximum()+"."); }
             return true;
         }
@@ -47,7 +54,7 @@ public final class PopulationCommand implements CommandExecutor, TabCompleter {
             town=resident==null?null:resident.getTownOrNull();
         }
         if(town==null) { messages.send(sender,sender instanceof Player?"no-town":"players-only"); return true; }
-        service.refreshView();
+        service.refreshTownView(town.getUUID());
         var snapshot=service.population(town.getUUID()).orElse(null);
         if(snapshot==null) { messages.send(sender,"paused"); return true; }
         if(action.equals("info") || !(sender instanceof Player)) {

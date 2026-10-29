@@ -1,0 +1,12 @@
+PASS validated Population 0.2.0 enabled with actual Towny Builds Districts on Folia
+PASS administrative population becomes visible only after acknowledged save
+PASS resident lookup uses same confirmed immutable city snapshot
+PASS physically delayed population file never exposes unconfirmed residents
+PASS region suite state remains available while population disk writer waits
+PASS confirmed worker completion publishes the whole new population
+PASS disabled real Districts supplier pauses a due population cycle without artificial decline or lost housing
+PASS paused cycle rebases time while preserving people fraction and decline history
+PASS supplier recovery resumes confirmed population view
+PASS actual atomic replacement failure retains confirmed residents and closes further writes
+PASS API keeps confirmed residents readable with explicit pause after disk failure
+PASS restored confirmed file retains original schema1
