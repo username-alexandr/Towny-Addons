@@ -11,6 +11,7 @@ public final class CouncilCommand implements TabExecutor {
     private final NeverLandTownyCouncil plugin; private final CouncilService service; private final CouncilMenus menus; private final AccessMenus access;
     public CouncilCommand(NeverLandTownyCouncil plugin, CouncilService service, CouncilMenus menus,AccessMenus access) { this.plugin = plugin; this.service = service; this.menus = menus;this.access=access; }
     private DelegationMenus delegations;public void delegations(DelegationMenus value){delegations=value;}
+    private ru.neverland.townycouncil.spending.SpendingMenus spending;public void spending(ru.neverland.townycouncil.spending.SpendingMenus value){spending=value;}
     public static void tell(CommandSender sender, String text) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', "&aNeverLand &f• Министры &7» &f" + text)); } }
     private Town town(CommandSender sender, String[] args, int index) {
         Town town = args.length > index ? TownyAPI.getInstance().getTown(args[index])
@@ -22,6 +23,7 @@ public final class CouncilCommand implements TabExecutor {
         try {
             String action = args.length == 0 ? "menu" : args[0].toLowerCase(Locale.ROOT);
             if(delegations!=null&&delegations.handles(action)){delegations.command(sender,args);return true;}
+            if(spending!=null&&spending.handles(action)){spending.command(sender,args);return true;}
             switch (action) {
                 case "menu", "list" -> {
                     var town = town(sender, args, 1);
@@ -92,6 +94,8 @@ public final class CouncilCommand implements TabExecutor {
         tell(sender, "&e/council [menu] [город] &7— состав министерств.");
         tell(sender, "&e/council permissions <должность> &7— права должности.");
         tell(sender,"&e/council delegations &7— временные поручения и сроки.");
+        tell(sender,"&e/council spending &7— ограничения покупок из городской казны.");
+        tell(sender,"&e/council limit <житель> <одна покупка> <за 24 часа> &7— задаёт мэр; 0 снимает предел.");
         tell(sender,"&e/council delegate <житель> <действие> <часы> <причина> &7— выдаёт мэр.");
         tell(sender,"&e/council access &7— личные права жителей (только мэр).");
         tell(sender,"&e/council access roles &7— права должностей (только мэр).");
@@ -111,12 +115,16 @@ public final class CouncilCommand implements TabExecutor {
         boolean manager = sender.hasPermission("neverlandtownycouncil.admin") || service.manages(sender, own);
         var values = new ArrayList<String>();
         if (args.length == 1) {
-            values.addAll(List.of("menu", "permissions", "help", "delegations"));if(service.mayEditAccess(sender,own))values.add("access"); if (manager) values.addAll(List.of("appoint", "dismiss", "history", "delegate", "undelegate", "delegate-cancel"));
+            values.addAll(List.of("menu", "permissions", "help", "delegations", "spending"));if(service.mayEditAccess(sender,own))values.addAll(List.of("access","limit","limit-cancel")); if (manager) values.addAll(List.of("appoint", "dismiss", "history", "delegate", "undelegate", "delegate-cancel"));
             if (sender.hasPermission("neverlandtownycouncil.admin")) values.add("reload");
         } else if (args.length == 2 && (args[0].equalsIgnoreCase("permissions") || manager && Set.of("appoint", "dismiss").contains(args[0].toLowerCase(Locale.ROOT))))
             Arrays.stream(MinisterRole.values()).forEach(r -> values.add(r.id()));
         else if (args.length == 3 && args[0].equalsIgnoreCase("appoint") && manager && own != null)
             own.getResidents().forEach(r -> values.add(r.getName()));
+        if(args[0].equalsIgnoreCase("limit")&&service.mayEditAccess(sender,own)){
+            if(args.length==2)own.getResidents().forEach(r->values.add(r.getName()));
+            else if(args.length==3||args.length==4)values.addAll(List.of("0","500","1000","5000","10000"));
+        }
         if(args[0].equalsIgnoreCase("access")&&service.mayEditAccess(sender,own)){
             if(args.length==2)values.addAll(List.of("player","role","roles"));
             else if(args.length==3&&args[1].equalsIgnoreCase("role"))Arrays.stream(MinisterRole.values()).forEach(v->values.add(v.id()));

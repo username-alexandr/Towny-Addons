@@ -4,7 +4,7 @@ import java.util.*;
 import ru.neverland.townytreasury.model.*;
 
 /** Immutable caller-owned payment identity. Receipt retention is bounded; identities are never recycled. */
-public record AsyncDebit(Terms terms,State state,long createdAt,long changedAt,String review,boolean audited) {
+public record AsyncDebit(Terms terms,State state,long createdAt,long changedAt,String review,boolean audited,SpendingAdmission admission) {
     public static final int MAX_RECEIPTS=50_000;
     public enum Kind { DEBIT, REFUND }
     public enum State { PREPARED,INVOKING,PAID,REJECTED,REVIEW }
@@ -16,11 +16,12 @@ public record AsyncDebit(Terms terms,State state,long createdAt,long changedAt,S
         }
         public CityLedger.Pending pending(long now){return new CityLedger.Pending(operation,now,cents,Budget.parse(category),source,reason);}
     }
-    public AsyncDebit(Terms terms,State state,long createdAt,long changedAt,String review){this(terms,state,createdAt,changedAt,review,false);}
-    public AsyncDebit {Objects.requireNonNull(terms);Objects.requireNonNull(state);if(createdAt<0||changedAt<createdAt||review==null||review.length()>512)throw new IllegalArgumentException("Повреждена квитанция асинхронного списания");}
-    public AsyncDebit state(State next,long now,String why){return new AsyncDebit(terms,next,createdAt,Math.max(createdAt,now),why,false);}
-    public AsyncDebit auditAck(){return new AsyncDebit(terms,state,createdAt,changedAt,review,true);}
+    public AsyncDebit(Terms terms,State state,long createdAt,long changedAt,String review){this(terms,state,createdAt,changedAt,review,false,SpendingAdmission.legacy());}
+    public AsyncDebit(Terms terms,State state,long createdAt,long changedAt,String review,boolean audited){this(terms,state,createdAt,changedAt,review,audited,SpendingAdmission.legacy());}
+    public AsyncDebit {Objects.requireNonNull(terms);Objects.requireNonNull(state);Objects.requireNonNull(admission);if(createdAt<0||changedAt<createdAt||review==null||review.length()>512)throw new IllegalArgumentException("Повреждена квитанция асинхронного списания");admission.validate(terms,state,createdAt);}
+    public AsyncDebit state(State next,long now,String why){return new AsyncDebit(terms,next,createdAt,Math.max(changedAt,now),why,false,admission);}
+    public AsyncDebit auditAck(){return new AsyncDebit(terms,state,createdAt,changedAt,review,true,admission);}
     public boolean unresolved(){return state==State.PREPARED||state==State.INVOKING||state==State.REVIEW;}
-    public Map<String,Object> view(){var t=terms;return Map.ofEntries(Map.entry("operation",t.operation().toString()),Map.entry("town",t.town().toString()),Map.entry("category",t.category()),Map.entry("source",t.source()),Map.entry("cents",t.cents()),Map.entry("reason",t.reason()),Map.entry("actor",t.actor().toString()),Map.entry("owner",t.owner()),Map.entry("status",state.name()),Map.entry("createdAt",createdAt),Map.entry("changedAt",changedAt),Map.entry("review",review),Map.entry("kind",t.kind().name()),Map.entry("backingDebit",t.backingDebit()==null?"":t.backingDebit().toString()),Map.entry("audited",audited));}
+    public Map<String,Object> view(){var t=terms;return Map.ofEntries(Map.entry("operation",t.operation().toString()),Map.entry("town",t.town().toString()),Map.entry("category",t.category()),Map.entry("source",t.source()),Map.entry("cents",t.cents()),Map.entry("reason",t.reason()),Map.entry("actor",t.actor().toString()),Map.entry("owner",t.owner()),Map.entry("status",state.name()),Map.entry("createdAt",createdAt),Map.entry("changedAt",changedAt),Map.entry("review",review),Map.entry("kind",t.kind().name()),Map.entry("backingDebit",t.backingDebit()==null?"":t.backingDebit().toString()),Map.entry("audited",audited),Map.entry("spendingAdmission",admission.view()));}
     public void requireSame(Terms proposed){if(!terms.equals(proposed))throw new IllegalArgumentException("Этот ID уже закреплён за другими условиями платежа");}
 }

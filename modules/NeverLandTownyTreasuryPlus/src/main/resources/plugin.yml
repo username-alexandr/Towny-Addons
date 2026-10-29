@@ -1,5 +1,5 @@
 name: NeverLandTownyTreasuryPlus
-version: 0.3.2
+version: 0.3.3
 main: ru.neverland.townytreasury.NeverLandTownyTreasuryPlus
 folia-supported: true
 api-version: '1.21'
@@ -9,6 +9,7 @@ description: NeverLandTownyTreasury+ — статьи городского бю�
 depend:
 - Towny
 softdepend:
+- NeverLandTownyCouncil
 - Vault
 - Reserve
 - Essentials

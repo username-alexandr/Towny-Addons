@@ -1,0 +1,9 @@
+PASS actual Treasury0.3.3 plugin starts on real Folia
+PASS native additive resolver preserves configured project and canonical budget categories without bank IO
+PASS full JVM restart preserves unknown refund and shutdown paid debit
+PASS restart never repeats REVIEW refund or previously PAID debit
+PASS manual refund reconciliation restores original budget without a second credit
+PASS paid shutdown debit can be refunded exactly once after restart
+PASS recovery-only INVOKING to REVIEW works even while durable flow-gap closes new payments
+PASS exact review clears one held budget without clearing global flow-gap
+PASS flow gap rejects fresh debit before any bank call

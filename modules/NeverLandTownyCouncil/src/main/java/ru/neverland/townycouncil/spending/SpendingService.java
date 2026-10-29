@@ -1,0 +1,29 @@
+package ru.neverland.townycouncil.spending;
+
+import java.util.*;
+import java.util.concurrent.*;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.object.Town;
+import ru.neverland.core.*;
+import ru.neverland.townycouncil.CouncilService;
+import static ru.neverland.townycouncil.spending.SpendingPolicies.*;
+
+/** Limits restrict new Treasury requests; already accepted payments retain their frozen terms. */
+public final class SpendingService {
+    private final Plugin plugin;private final CouncilService council;private final SpendingRepository repository;
+    private final CompletableFuture<Void> auditClosed=new CompletableFuture<>();
+    private final ThreadPoolExecutor auditWorker=new ThreadPoolExecutor(1,1,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(1),r->{var thread=new Thread(r,"nlt-council-spending-audit");thread.setDaemon(true);return thread;},new ThreadPoolExecutor.AbortPolicy()){@Override protected void terminated(){auditClosed.complete(null);}};
+    private CompletionStage<?> operation=CompletableFuture.completedFuture(null);private CompletionStage<Void> closed;private boolean closing;
+    public SpendingService(Plugin plugin,CouncilService council,SpendingRepository repository){this.plugin=plugin;this.council=council;this.repository=repository;}
+    public SpendingRepository repository(){return repository;}public State state(){return repository.state();}public boolean available(){return !closing&&plugin.isEnabled()&&!SuiteState.frozen(plugin.getName())&&repository.writable();}private boolean busy(){return repository.busy()||!operation.toCompletableFuture().isDone();}
+    private void mayor(Player actor,Town town){if(!SuiteState.held())throw new IllegalStateException("Изменение требует согласованного состояния совета");if(!available())throw new IllegalArgumentException("Ограничения расходов недоступны; обратитесь к администратору");if(busy())throw new IllegalArgumentException("Предыдущее изменение сохраняется. Попробуйте через секунду");if(!actor.isOnline()||!actor.hasPermission("neverlandtownycouncil.use")||!council.mayEditAccess(actor,town))throw new IllegalArgumentException("Ограничения расходов меняет только действующий мэр своего города");}
+    public Quote quote(Player actor,Town town,UUID resident,Limits limits,String reason){try(var guard=SuiteState.guard()){mayor(actor,town);var person=TownyAPI.getInstance().getResident(resident);if(person==null||!town.equals(person.getTownOrNull()))throw new IllegalArgumentException("Выберите жителя своего города");var quote=new Quote(UUID.randomUUID(),town.getUUID(),resident,actor.getUniqueId(),actor.getName(),town.getName(),person.getName(),limits,state().revision(),System.currentTimeMillis(),reason);SpendingPolicies.apply(state(),quote,System.currentTimeMillis());return quote;}}
+    public CompletionStage<State> confirm(Player actor,Quote quote){try(var guard=SuiteState.guard()){var town=TownyAPI.getInstance().getTown(quote.town());mayor(actor,town);if(!quote.mayor().equals(actor.getUniqueId())||!town.equals(council.ownTown(quote.resident())))throw new IllegalArgumentException("Мэр или состав города изменились; откройте подтверждение заново");var before=state();var future=repository.commit(before,SpendingPolicies.apply(before,quote,System.currentTimeMillis()));operation=future;return future;}}
+    /** Primitive immutable snapshot; this API grants no permission to spend. */
+    public Map<String,Object> snapshot(UUID town,UUID resident){try(var guard=SuiteState.guard()){if(town==null||resident==null||!available())return Map.of("available",false);var state=state();var limits=state.limits(town,resident);return Map.of("available",true,"town",town.toString(),"resident",resident.toString(),"revision",state.revision(),"perOperation",limits.operation(),"perDay",limits.day());}}
+    public void pulse(){try(var guard=SuiteState.guard()){if(!available()||busy())return;var entries=state().history().stream().filter(e->!e.audited()).limit(32).toList();if(entries.isEmpty())return;var done=new CompletableFuture<Set<UUID>>();operation=done.thenCompose(ids->{try(var locked=SuiteState.guard()){if(ids.isEmpty())return CompletableFuture.completedFuture(state());var before=state();return repository.commit(before,SpendingPolicies.acknowledged(before,ids));}});try{auditWorker.execute(()->{var ids=new HashSet<UUID>();for(var entry:entries){try{if(AuditTrail.record(plugin,record(entry)))ids.add(entry.id());else break;}catch(Throwable failure){plugin.getLogger().warning("Ограничение сохранено; журнал ожидает повторной записи: "+entry.id());break;}}done.complete(Set.copyOf(ids));});}catch(RejectedExecutionException error){done.complete(Set.of());}}}
+    private AuditRecord record(Entry entry){var policy=entry.after();var city=new AuditRecord.Party("TOWN",policy.town().toString(),entry.townName(),policy.town().toString());var actor=new AuditRecord.Party("PLAYER",policy.mayor().toString(),policy.actorName(),policy.town().toString());var person=new AuditRecord.Party("PLAYER",policy.resident().toString(),entry.residentName(),policy.town().toString());return new AuditRecord(AuditRecord.id(plugin.getName(),entry.id().toString(),"limits"),policy.changedAt(),plugin.getName(),"COUNCIL_SPENDING_LIMIT","COMPLETED",entry.id().toString(),actor,city,person,"",0,"","Одна покупка: "+label(policy.limits().operation())+"; за 24 часа: "+label(policy.limits().day())+"; revision="+policy.revision()+"; "+entry.reason());}
+    public CompletionStage<Void> close(){try(var guard=SuiteState.guard()){if(closed!=null)return closed;closing=true;closed=operation.handle((v,e)->null).thenCompose(v->repository.close()).handle((v,e)->e).thenCompose(error->{auditWorker.shutdown();return auditClosed.thenCompose(v->error==null?CompletableFuture.<Void>completedFuture(null):CompletableFuture.<Void>failedFuture(error));});return closed;}}
+}

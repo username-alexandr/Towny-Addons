@@ -1,0 +1,11 @@
+PASS actual Council0.3.0 and Treasury0.3.3 load on Folia
+PASS corrupt keeps Citizens enabled and unfrozen
+PASS corrupt keeps Control enabled and unfrozen
+PASS corrupt keeps Council enabled and unfrozen
+PASS corrupt keeps Governance enabled and unfrozen
+PASS corrupt keeps TreasuryPlus enabled and unfrozen
+PASS corrupt optional limits disable only spending feature, not ministries
+PASS unread limits explicitly unavailable, never empty unlimited policy
+PASS corrupt rules preserve paid histories and refuse new manual bank request
+PASS background town charge and refund remain operational during limits corruption
+PASS invalid original policy file is preserved unchanged

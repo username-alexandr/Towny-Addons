@@ -1,0 +1,10 @@
+PASS actual Council0.3.0 and Treasury0.3.3 load on Folia
+PASS restart keeps Citizens enabled and unfrozen
+PASS restart keeps Control enabled and unfrozen
+PASS restart keeps Council enabled and unfrozen
+PASS restart keeps Governance enabled and unfrozen
+PASS restart keeps TreasuryPlus enabled and unfrozen
+PASS real restart preserves exact pending payment and confirmed limits before bank
+PASS existing ministry survives limits migration and restart
+PASS restart completes pending payment once without repeating prior receipts
+PASS real reloaded receipts enforce remaining daily amount

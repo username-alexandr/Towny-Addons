@@ -21,6 +21,10 @@ public final class CouncilService implements TownyCouncilApi {
     private final AccessRepository access;
     private final Map<UUID, Grant> grants = new HashMap<>();
     private DelegationService delegations;
+    private ru.neverland.townycouncil.spending.SpendingService spending;
+    public void spending(ru.neverland.townycouncil.spending.SpendingService value){spending=value;}
+    public ru.neverland.townycouncil.spending.SpendingService spending(){return spending;}
+    @Override public Map<String,Object> spendingPolicy(UUID town,UUID resident){return spending==null?Map.of("available",false):spending.snapshot(town,resident);}
     public void delegations(DelegationService value){delegations=value;}
     public DelegationService delegations(){return delegations;}
     public CouncilService(Plugin plugin, CouncilRepository repository, CouncilSettings settings, AccessRepository access) {

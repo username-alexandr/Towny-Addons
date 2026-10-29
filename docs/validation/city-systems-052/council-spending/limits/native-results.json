@@ -1,0 +1,58 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 35 assertions; real Folia, Council/Governance inventories, mayor validation, physical file ACK, Treasury and Towny Account observers, pending quotas, exact refunds, unavailable policy API, sidecar corruption isolation and restart. Explicit offline player/view/entity scheduler and deterministic bank backend; no live client, actual Vault backend or full-suite Council-disable isolation claimed.\n",
+    "jar_sha256": {
+      "CouncilSpendingRuntimeProbe.jar": "75095c34221122278518c6ccdbbbd9a0185d6dfab2eec7661e8f52539c778259",
+      "NeverLandTownyTreasuryPlus-0.3.3.jar": "7707edb20af499b05deadd0886f0ba983039067eabf5af389eff4f6c8e07d91f",
+      "NeverLandTownyGovernance-0.2.2.jar": "e5cb81b00cc561b0115e3d855985b6da364348939f090d269faa9189832d4ce7",
+      "NeverLandTownyCouncil-0.3.0.jar": "6c0c82e5d570db4769e827a1d6372191ecc56551df7a0953c00027c32a5ce40a",
+      "NeverLandTownyControl-0.6.3.jar": "f436f32473e2cd9999199d5b320f62b49149605757efe89c310fbf2ba9101bb1",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 10 assertions; real Folia, Council/Governance inventories, mayor validation, physical file ACK, Treasury and Towny Account observers, pending quotas, exact refunds, unavailable policy API, sidecar corruption isolation and restart. Explicit offline player/view/entity scheduler and deterministic bank backend; no live client, actual Vault backend or full-suite Council-disable isolation claimed.\n",
+    "jar_sha256": {
+      "CouncilSpendingRuntimeProbe.jar": "75095c34221122278518c6ccdbbbd9a0185d6dfab2eec7661e8f52539c778259",
+      "NeverLandTownyTreasuryPlus-0.3.3.jar": "7707edb20af499b05deadd0886f0ba983039067eabf5af389eff4f6c8e07d91f",
+      "NeverLandTownyGovernance-0.2.2.jar": "e5cb81b00cc561b0115e3d855985b6da364348939f090d269faa9189832d4ce7",
+      "NeverLandTownyCouncil-0.3.0.jar": "6c0c82e5d570db4769e827a1d6372191ecc56551df7a0953c00027c32a5ce40a",
+      "NeverLandTownyControl-0.6.3.jar": "f436f32473e2cd9999199d5b320f62b49149605757efe89c310fbf2ba9101bb1",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  },
+  {
+    "phase": "corrupt",
+    "exit_code": 0,
+    "result": "PASS 11 assertions; real Folia, Council/Governance inventories, mayor validation, physical file ACK, Treasury and Towny Account observers, pending quotas, exact refunds, unavailable policy API, sidecar corruption isolation and restart. Explicit offline player/view/entity scheduler and deterministic bank backend; no live client, actual Vault backend or full-suite Council-disable isolation claimed.\n",
+    "jar_sha256": {
+      "CouncilSpendingRuntimeProbe.jar": "75095c34221122278518c6ccdbbbd9a0185d6dfab2eec7661e8f52539c778259",
+      "NeverLandTownyTreasuryPlus-0.3.3.jar": "7707edb20af499b05deadd0886f0ba983039067eabf5af389eff4f6c8e07d91f",
+      "NeverLandTownyGovernance-0.2.2.jar": "e5cb81b00cc561b0115e3d855985b6da364348939f090d269faa9189832d4ce7",
+      "NeverLandTownyCouncil-0.3.0.jar": "6c0c82e5d570db4769e827a1d6372191ecc56551df7a0953c00027c32a5ce40a",
+      "NeverLandTownyControl-0.6.3.jar": "f436f32473e2cd9999199d5b320f62b49149605757efe89c310fbf2ba9101bb1",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  },
+  {
+    "phase": "repaired",
+    "exit_code": 0,
+    "result": "PASS 12 assertions; real Folia, Council/Governance inventories, mayor validation, physical file ACK, Treasury and Towny Account observers, pending quotas, exact refunds, unavailable policy API, sidecar corruption isolation and restart. Explicit offline player/view/entity scheduler and deterministic bank backend; no live client, actual Vault backend or full-suite Council-disable isolation claimed.\n",
+    "jar_sha256": {
+      "CouncilSpendingRuntimeProbe.jar": "75095c34221122278518c6ccdbbbd9a0185d6dfab2eec7661e8f52539c778259",
+      "NeverLandTownyTreasuryPlus-0.3.3.jar": "7707edb20af499b05deadd0886f0ba983039067eabf5af389eff4f6c8e07d91f",
+      "NeverLandTownyGovernance-0.2.2.jar": "e5cb81b00cc561b0115e3d855985b6da364348939f090d269faa9189832d4ce7",
+      "NeverLandTownyCouncil-0.3.0.jar": "6c0c82e5d570db4769e827a1d6372191ecc56551df7a0953c00027c32a5ce40a",
+      "NeverLandTownyControl-0.6.3.jar": "f436f32473e2cd9999199d5b320f62b49149605757efe89c310fbf2ba9101bb1",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  }
+]

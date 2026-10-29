@@ -1,0 +1,6 @@
+name: CouncilSpendingRuntimeProbe
+version: 0.1.0
+main: ru.neverland.runtime.CouncilSpendingProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyCitizens, NeverLandTownyCouncil, NeverLandTownyGovernance, NeverLandTownyTreasuryPlus, NeverLandTownyControl]

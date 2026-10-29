@@ -81,6 +81,8 @@ public final class CouncilOfficeMenus {
             button(menu,46,Material.PLAYER_HEAD,"&eПрава жителей",List.of("&7Лично разрешить или запретить действие жителю.","&7Личное правило важнее прав должности."),p->p.performCommand("townycouncil access"));
         if(ministers&&ru.neverland.core.ApiServices.connect("NeverLandTownyCouncil","ru.neverland.townycouncil.api.TownyCouncilApi",1,"temporaryRights").ready())
             button(menu,47,Material.CLOCK,"&eВременные полномочия",List.of("&7Действия, порученные на определённый срок.","&7Выдаёт и отзывает мэр своего города."),p->p.performCommand("townycouncil delegations"));
+        if(ministers&&ru.neverland.core.ApiServices.connect("NeverLandTownyCouncil","ru.neverland.townycouncil.api.TownyCouncilApi",1,"spendingPolicy").ready())
+            button(menu,50,Material.GOLD_INGOT,"&eОграничения расходов",List.of("&7Предел покупок из городской казны.","&7Свои лимиты видит каждый житель; меняет мэр."),p->p.performCommand("townycouncil spending"));
         button(menu,49,Material.ARROW,"&7Назад",List.of("&7Законы и совет"),main);
         pages(menu,page,count,45,53,p->openCouncil(p,page-1),p->openCouncil(p,page+1));player.openInventory(menu);
     }

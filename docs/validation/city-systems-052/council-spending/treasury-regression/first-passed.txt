@@ -1,0 +1,1 @@
+PASS 24 assertions; real Folia, Treasury async budgets, actual Towny Account/Observer, physical ACK, continuous-flow fairness, backed debit/refund, uncertainty, exact reconciliation, outer-Suite shutdown and JVM restart. Controlled economy adapter and explicit recovery seed; no real Vault provider or network client claimed.

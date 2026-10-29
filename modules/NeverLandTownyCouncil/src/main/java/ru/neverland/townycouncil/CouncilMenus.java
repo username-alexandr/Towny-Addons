@@ -14,6 +14,7 @@ public final class CouncilMenus implements Listener {
     record Holder(UUID viewer, UUID town, Inventory back) implements InventoryHolder { public Inventory getInventory() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return null; } } }
     private final NeverLandTownyCouncil plugin; private final CouncilService service;
     private DelegationMenus delegations;public void delegations(DelegationMenus value){delegations=value;}
+    private ru.neverland.townycouncil.spending.SpendingMenus spending;public void spending(ru.neverland.townycouncil.spending.SpendingMenus value){spending=value;}
     private MinisterMenus ministers; public void ministers(MinisterMenus value){ministers=value;}
     public void office(Player p,Town town,MinisterRole role){ministers.open(p,town,role);}
     private AccessMenus access;public void access(AccessMenus value){access=value;}
@@ -43,6 +44,7 @@ public final class CouncilMenus implements Listener {
         }
         if(service.mayEditAccess(viewer,town)){menu.setItem(37,item(Material.PLAYER_HEAD,"&eДоступ жителей",List.of("&7Разрешения для каждого жителя")));menu.setItem(38,item(Material.WRITABLE_BOOK,"&eДоступ должностей",List.of("&7Настроить действия министров")));}
         if(delegations!=null&&town.equals(service.ownTown(viewer.getUniqueId())))menu.setItem(39,item(Material.CLOCK,"&eВременные полномочия",List.of("&7Действия, порученные жителям на срок.","&7Выдаёт и отзывает мэр города.")));
+        if(spending!=null&&town.equals(service.ownTown(viewer.getUniqueId())))menu.setItem(41,item(Material.GOLD_INGOT,"&eОграничения расходов",List.of("&7Сколько житель может тратить из казны.","&7Предел одной покупки и за 24 часа.")));
         menu.setItem(36, item(Material.ARROW, back == null ? "&fЗакрыть" : "&fНазад", List.of("&7Вернуться к предыдущему меню.")));
         if (org.bukkit.Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyDiplomacy") && viewer.hasPermission("neverlandtownydiplomacy.use"))
             menu.setItem(42, item(Material.COMPASS, "&eДипломатия", List.of("&7Договоры, вассалитет и гарантии.", "&fНажмите — отношения городов.")));
@@ -62,6 +64,7 @@ public final class CouncilMenus implements Listener {
         else if ((e.getRawSlot()==37||e.getRawSlot()==38)&&service.mayEditAccess(p,town)) {boolean roles=e.getRawSlot()==38;ru.neverland.core.SuiteScheduler.entity(plugin,p,()->access.open(p,town,roles,0));}
         else if(e.getRawSlot()==39&&delegations!=null&&town!=null)ru.neverland.core.SuiteScheduler.entity(plugin,p,()->{try{delegations.open(p,town,0);}catch(Exception error){CouncilCommand.tell(p,"&c"+error.getMessage());}});
         else if (e.getRawSlot() == 40) CouncilCommand.help(p);
+        else if(e.getRawSlot()==41&&spending!=null&&town!=null)ru.neverland.core.SuiteScheduler.entity(plugin,p,()->{try{spending.open(p,town,0);}catch(Exception error){CouncilCommand.tell(p,"&c"+error.getMessage());}});
         else if (e.getRawSlot() == 42 && p.hasPermission("neverlandtownydiplomacy.use")) ru.neverland.core.SuiteScheduler.entity(plugin, p, () -> p.performCommand("townydiplomacy"));
         else if (e.getRawSlot() == 44 && town != null) ru.neverland.core.SuiteScheduler.entity(plugin, p, () -> open(p, town));
         else for (int i = 0; i < SLOTS.length; i++) if (e.getRawSlot() == SLOTS[i]) {

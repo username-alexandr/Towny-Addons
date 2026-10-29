@@ -27,8 +27,11 @@ final class AsyncBudgetGateway {
         if(!ownerReady(terms.owner()))return failed("Аддон-владелец запроса выключен или приостановлен");
         host.requireAsyncReady(terms.town());if(before.debits().size()>=AsyncDebit.MAX_RECEIPTS)return failed("Архив квитанций достиг предела; новые списания приостановлены");
         var city=before.cities().get(terms.town());if(city==null)return failed("Казна города ещё не инициализирована");
-        long now=System.currentTimeMillis();boolean refund=terms.kind()==AsyncDebit.Kind.REFUND;if(refund&&city.pending()!=null)return failed("Бюджет города занят другой квитанцией; повторите тот же ID возврата позже");boolean allowed=refund||LedgerEngine.canSpend(city,Budget.parse(terms.category()),terms.cents());
-        var receipt=new AsyncDebit(terms,allowed?PREPARED:REJECTED,now,now,allowed?"":"Недостаточно средств в статье бюджета либо уже есть незавершённый счёт");
+        long now=System.currentTimeMillis();boolean refund=terms.kind()==AsyncDebit.Kind.REFUND;if(refund&&city.pending()!=null)return failed("Бюджет города занят другой квитанцией; повторите тот же ID возврата позже");
+        var admission=ru.neverland.townytreasury.debits.SpendingAccess.capture(terms,before.debits().values(),now);
+        String refusal=admission.refusal(terms.cents());if(admission.mode().equals("UNAVAILABLE"))return failed(refusal);
+        boolean allowed=refusal.isEmpty()&&(refund||LedgerEngine.canSpend(city,Budget.parse(terms.category()),terms.cents()));
+        var receipt=new AsyncDebit(terms,allowed?PREPARED:REJECTED,now,now,allowed?"":refusal.isEmpty()?"Недостаточно средств в статье бюджета либо уже есть незавершённый счёт":refusal,false,admission);
         var cities=new HashMap<>(before.cities());if(allowed)cities.put(terms.town(),refund?city.next(city.balance(),city.enabled(),city.funds(),city.shares(),city.weeks(),terms.pending(now),null):LedgerEngine.prepare(city,terms.pending(now)));var records=new HashMap<>(before.debits());records.put(terms.operation(),receipt);
         var future=repo.commit(before,new TreasuryRepository.Image(cities,records)).thenApply(x->view(x,receipt));track(future);return future;
     }}

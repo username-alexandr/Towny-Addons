@@ -1,0 +1,35 @@
+PASS actual Council0.3.0 and Treasury0.3.3 load on Folia
+PASS first keeps Citizens enabled and unfrozen
+PASS first keeps Control enabled and unfrozen
+PASS first keeps Council enabled and unfrozen
+PASS first keeps Governance enabled and unfrozen
+PASS first keeps TreasuryPlus enabled and unfrozen
+PASS legacy permanent ministry continues beside new limits
+PASS wildcard permissions do not replace current mayor
+PASS confirmation rechecks resident membership
+PASS confirmation rechecks current mayor
+PASS unified council keeps temporary rights and separate spending button
+PASS native command opens exact amounts and separate confirmation
+PASS confirmation cannot move inventory icons
+PASS real blocked file does not advertise unconfirmed cap
+PASS region and shared state remain available during physical file delay
+PASS same mayor confirmation cannot be replayed
+PASS resident sees only own spending limits
+PASS single-payment cap rejects before bank with readable reason
+PASS quota evidence and city reserve acknowledged atomically
+PASS paused policy provider leaves no debit intent and no bank call
+PASS already accepted payment completes once while new policy requests wait
+PASS same operation returns exact receipt without second bank withdrawal
+PASS refund restores town balance without replenishing resident daily cap
+PASS unknown bank result remains reserved against limit
+PASS daily rejection accounts for unresolved payment
+PASS manual reconciliation consumes cap once and second refund does not reset it
+PASS exact daily remainder accepted
+PASS one cent beyond daily cap never invokes bank
+PASS lowered policy does not rewrite previously accepted terms
+PASS lower rule blocks subsequent requests
+PASS missing installed Council API never falls back to unlimited
+PASS automatic town charges and their backed refunds work without Council policy API
+PASS same previously unavailable UUID can be accepted after provider recovery
+PASS stale policy revision cannot overwrite newer mayor decision
+PASS exact prepared payment retained for full restart

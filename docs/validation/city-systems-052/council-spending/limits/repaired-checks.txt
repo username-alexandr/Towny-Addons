@@ -1,0 +1,12 @@
+PASS actual Council0.3.0 and Treasury0.3.3 load on Folia
+PASS repaired keeps Citizens enabled and unfrozen
+PASS repaired keeps Control enabled and unfrozen
+PASS repaired keeps Council enabled and unfrozen
+PASS repaired keeps Governance enabled and unfrozen
+PASS repaired keeps TreasuryPlus enabled and unfrozen
+PASS repaired sidecar restores exact limits and retained 24-hour usage
+PASS repaired provider accepts exact remaining amount without duplicate history
+PASS administrator audit persists exact mayor limit changes
+PASS admin category has readable label for limit changes
+PASS onDisable under external Suite returns without waiting for physical writer
+PASS shutdown drains already accepted policy before closing worker

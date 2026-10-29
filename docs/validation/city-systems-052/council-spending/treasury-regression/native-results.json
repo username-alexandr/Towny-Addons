@@ -1,0 +1,24 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 24 assertions; real Folia, Treasury async budgets, actual Towny Account/Observer, physical ACK, continuous-flow fairness, backed debit/refund, uncertainty, exact reconciliation, outer-Suite shutdown and JVM restart. Controlled economy adapter and explicit recovery seed; no real Vault provider or network client claimed.\n",
+    "jar_sha256": {
+      "TreasuryAsyncRuntimeProbe.jar": "33a56b6d8dec4d1c1349b4928f90f6326bbccd32a3c779f2d5b7e68aff21e22e",
+      "NeverLandTownyControl-0.6.3.jar": "f436f32473e2cd9999199d5b320f62b49149605757efe89c310fbf2ba9101bb1",
+      "NeverLandTownyTreasuryPlus-0.3.3.jar": "7707edb20af499b05deadd0886f0ba983039067eabf5af389eff4f6c8e07d91f",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 9 assertions; real Folia, Treasury async budgets, actual Towny Account/Observer, physical ACK, continuous-flow fairness, backed debit/refund, uncertainty, exact reconciliation, outer-Suite shutdown and JVM restart. Controlled economy adapter and explicit recovery seed; no real Vault provider or network client claimed.\n",
+    "jar_sha256": {
+      "TreasuryAsyncRuntimeProbe.jar": "33a56b6d8dec4d1c1349b4928f90f6326bbccd32a3c779f2d5b7e68aff21e22e",
+      "NeverLandTownyControl-0.6.3.jar": "f436f32473e2cd9999199d5b320f62b49149605757efe89c310fbf2ba9101bb1",
+      "NeverLandTownyTreasuryPlus-0.3.3.jar": "7707edb20af499b05deadd0886f0ba983039067eabf5af389eff4f6c8e07d91f",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  }
+]

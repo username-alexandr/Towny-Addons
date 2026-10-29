@@ -1,0 +1,13 @@
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownyCouncil ru.neverland.townycouncil.AccessRulesSmoke
+AccessRulesSmoke PASS: precedence, inheritance, closed actions, immutable state, restart, corrupt data and disk faults
+TEST NeverLandTownyCouncil ru.neverland.townycouncil.CouncilRepositorySmoke
+CouncilRepositorySmoke PASS: durable registry, audit, uniqueness, corruption and write faults
+TEST NeverLandTownyCouncil ru.neverland.townycouncil.CouncilSettingsSmoke
+CouncilSettingsSmoke PASS: distinct roles, explicit custom permissions and strict validation
+TEST NeverLandTownyCouncil ru.neverland.townycouncil.DelegationsSmoke
+DelegationsSmoke PASS 22 checks
+TEST NeverLandTownyCouncil ru.neverland.townycouncil.SpendingPoliciesSmoke
+SpendingPoliciesSmoke PASS 28 checks
+BUILD AND SMOKE PASS NeverLandTownyCouncil-0.3.0.jar 5 programs
