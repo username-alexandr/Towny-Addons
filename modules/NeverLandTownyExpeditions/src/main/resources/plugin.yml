@@ -1,5 +1,5 @@
 name: NeverLandTownyExpeditions
-version: 0.1.26
+version: 0.2.0
 main: ru.neverland.mintexpeditions.MintTownyExpeditions
 folia-supported: true
 api-version: '26.2'

@@ -1,61 +1,39 @@
 package ru.neverland.mintexpeditions.service;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import ru.neverland.core.*;
 
-/** A short-lived, manual return remains available after a site has been restored. */
+/** Manual return tickets retain their old file layout; all runtime file work is detached. */
 public final class ReturnTickets {
-    public record Ticket(UUID campOwner, long expiresAt) {}
-    private final Map<UUID, Ticket> tickets = new HashMap<>();
-    private final java.util.logging.Logger logger;
-    private final File file;
-
-    public ReturnTickets(JavaPlugin plugin) {
-        this(new File(plugin.getDataFolder(), "return-tickets.yml"), plugin.getLogger(), System.currentTimeMillis());
+    public record Ticket(UUID campOwner,long expiresAt){}
+    private final AcknowledgedState<Map<UUID,Ticket>> data;private final CompletionStage<Void> loaded;
+    private CompletionStage<Void> tail=CompletableFuture.completedFuture(null);private int queued;private boolean closing;
+    public ReturnTickets(JavaPlugin plugin){this(new File(plugin.getDataFolder(),"return-tickets.yml"),plugin.getLogger(),System.currentTimeMillis(),false);}
+    ReturnTickets(File file,java.util.logging.Logger logger,long now){this(file,logger,now,true);}
+    private ReturnTickets(File file,java.util.logging.Logger logger,long now,boolean offline){
+        data=new AcknowledgedState<>(file.toPath(),Map.of(),ReturnTickets::encode,"nlt-expedition-return-write");
+        var reader=Executors.newSingleThreadExecutor(r->{var t=new Thread(r,"nlt-expedition-return-load");t.setDaemon(true);return t;});
+        loaded=CompletableFuture.runAsync(()->{try{var values=new HashMap<UUID,Ticket>();if(file.exists()){if(file.length()>4L*1024*1024)throw new IOException("Слишком много возвратов");var y=new YamlConfiguration();y.load(file);if(y.getKeys(false).size()>16_384)throw new IOException("Слишком много возвратов");for(String id:y.getKeys(false)){Object expires=y.get(id+".expires");if(!(expires instanceof Integer||expires instanceof Long))throw new IOException("Повреждён срок возврата");var ticket=new Ticket(UUID.fromString(y.getString(id+".camp")),((Number)expires).longValue());if(ticket.expiresAt()>now)values.put(UUID.fromString(id),ticket);}}data.loaded(Map.copyOf(values));}catch(Exception error){throw new CompletionException(error);}},reader).whenComplete((v,e)->reader.shutdown());
+        if(offline)await(loaded);
     }
-    ReturnTickets(File file, java.util.logging.Logger logger, long now) {
-        this.file = file; this.logger = logger;
-        if (!file.exists()){ru.neverland.core.AtomicFiles.loaded(file.toPath());return;}
-        var yaml = ru.neverland.core.SafeYaml.load(file.toPath());
-        for (String id : yaml.getKeys(false)) {
-            try {
-                Ticket ticket = new Ticket(UUID.fromString(yaml.getString(id + ".camp")), yaml.getLong(id + ".expires"));
-                if (ticket.expiresAt() > now) tickets.put(UUID.fromString(id), ticket);
-            } catch (RuntimeException exception) {
-                throw new IllegalStateException("Повреждён возврат экспедиции: "+id,exception);
-            }
-        }
-    }
-
-    public Ticket get(UUID player, long now) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
-        Ticket ticket = tickets.get(player);
-        return ticket != null && ticket.expiresAt() > now ? ticket : null;
-    } }
-
-    public void grant(Iterable<UUID> players, UUID camp, long expiresAt) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
-        if(!ru.neverland.core.AtomicFiles.writable(file.toPath()))throw new IllegalStateException("Хранилище возвратов недоступно");
-        for (UUID player : players) tickets.put(player, new Ticket(camp, expiresAt));
-        save();
-    } }
-
-    public void remove(UUID player) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { if (tickets.remove(player) != null) save(); } }
-
-    public void prune(long now) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
-        if (tickets.values().removeIf(ticket -> ticket.expiresAt() <= now)) save();
-    } }
-
-    private void save() {
-        var yaml = new YamlConfiguration();
-        tickets.forEach((player, ticket) -> {
-            yaml.set(player + ".camp", ticket.campOwner().toString());
-            yaml.set(player + ".expires", ticket.expiresAt());
-        });
-        try { ru.neverland.core.AtomicFiles.write(file.toPath(),yaml::saveToString); }
-        catch (IOException exception) { throw new java.io.UncheckedIOException(exception); }
-    }
+    public CompletionStage<Void> readyAsync(){return loaded;}
+    public Ticket get(UUID player,long now){var ticket=data.get().get(player);return ticket!=null&&ticket.expiresAt()>now?ticket:null;}
+    private CompletionStage<Void> update(java.util.function.UnaryOperator<Map<UUID,Ticket>> change){try(var guard=SuiteState.guard()){
+        if(closing||queued>=128)return CompletableFuture.failedFuture(new IOException("Очередь возвратов заполнена или останавливается"));queued++;
+        var task=tail.thenCompose(v->loaded).thenCompose(v->{try(var state=SuiteState.guard()){
+            var before=data.get();var next=Map.copyOf(change.apply(new HashMap<>(before)));
+            if(next.size()>16_384)return CompletableFuture.failedFuture(new IOException("Реестр возвратов заполнен"));
+            return data.commit(before,next).thenApply(saved->(Void)null);
+        }}).whenComplete((v,e)->{try(var state=SuiteState.guard()){queued--;}});tail=task;return task;
+    }}
+    public CompletionStage<Void> grantAsync(Iterable<UUID> players,UUID camp,long expiresAt){var ids=new ArrayList<UUID>();players.forEach(ids::add);return update(next->{for(UUID p:ids)next.put(p,new Ticket(camp,expiresAt));return next;});}
+    public CompletionStage<Void> removeAsync(UUID player){return update(next->{next.remove(player);return next;});}
+    public CompletionStage<Void> pruneAsync(long now){try(var guard=SuiteState.guard()){if(queued>0)return CompletableFuture.completedFuture(null);return update(next->{next.values().removeIf(t->t.expiresAt()<=now);return next;});}}
+    public void grant(Iterable<UUID> players,UUID camp,long expires){await(grantAsync(players,camp,expires));}public void remove(UUID player){await(removeAsync(player));}public void prune(long now){await(pruneAsync(now));}
+    public CompletionStage<Void> prepareClose(){try(var guard=SuiteState.guard()){closing=true;return loaded.handle((v,e)->null).thenCompose(v->tail.handle((saved,error)->null)).thenCompose(v->data.prepareClose());}}
+    private static void await(CompletionStage<?> operation){if(SuiteState.held())throw new IllegalStateException("Ожидайте возвраты вне Suite");try{operation.toCompletableFuture().get(10,TimeUnit.SECONDS);}catch(Exception e){throw new IllegalStateException("Возврат не сохранён",e);}}
+    private static String encode(Map<UUID,Ticket> values){var y=new YamlConfiguration();new TreeMap<>(values).forEach((p,t)->{y.set(p+".camp",t.campOwner().toString());y.set(p+".expires",t.expiresAt());});return y.saveToString();}
 }

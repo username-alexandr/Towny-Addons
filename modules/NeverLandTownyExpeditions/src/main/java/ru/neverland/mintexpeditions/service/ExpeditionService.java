@@ -24,6 +24,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import ru.neverland.core.EffectJournal;
+import ru.neverland.core.AuditTrail;
+import ru.neverland.mintexpeditions.journey.*;
+import java.util.concurrent.*;
 import ru.neverland.core.InventoryPlan;
 import ru.neverland.core.PlayerSaveReceipt;
 import ru.neverland.mintexpeditions.integration.BuildBridge;
@@ -54,6 +57,15 @@ public final class ExpeditionService {
    private final Set<UUID> returning = new HashSet<>();
    private final Set<UUID> preparing = new HashSet<>();
    private final Map<UUID, BossBar> bars = new HashMap<>();
+   private final RewardDelivery rewardDelivery;
+   private final JourneyRepository journeys;
+   private final Set<UUID> journeyWork=new HashSet<>();
+   private final Set<UUID> journeyIssues=new HashSet<>();
+   private final Set<CompletionStage<?>> transitions=new HashSet<>();
+   private <T>CompletionStage<T> track(CompletionStage<T> stage){transitions.add(stage);stage.whenComplete((v,e)->{try(var guard=ru.neverland.core.SuiteState.guard()){transitions.remove(stage);}});return stage;}
+   private record Participation(boolean survival,long at){}
+   private final Map<UUID,Participation> participation=new HashMap<>();
+   private boolean stopping;
    private BukkitTask task;
    private BukkitTask shieldTask;
 
@@ -76,6 +88,8 @@ public final class ExpeditionService {
       this.towny = towny;
       this.builds = builds;
       this.returnTickets = new ReturnTickets(plugin);
+      this.rewardDelivery=new RewardDelivery(plugin,repository,towny);
+      this.journeys=new JourneyRepository(plugin.getDataFolder().toPath().resolve("journeys.yml"),receipt->AuditTrail.record(plugin,receipt));
    }
 
    public void startTasks() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
@@ -84,6 +98,7 @@ public final class ExpeditionService {
       this.task = ru.neverland.core.SuiteScheduler.get().runTaskTimer(this.plugin, this::tick, period, period);
       this.shieldTask = ru.neverland.core.SuiteScheduler.get().runTaskTimer(this.plugin, () -> {
          ru.neverland.core.SuiteScheduler.players(this.plugin,player -> {
+            observePlayer(player);
             if (player.getActiveItem().getType() == Material.SHIELD && this.shieldDenied(player)) {
                player.clearActiveItem();
                this.warnShield(player);
@@ -91,13 +106,14 @@ public final class ExpeditionService {
          });
       }, 1L, 1L);
 
-      for (ActiveExpedition expedition : this.repository.active()) {
+      for (ActiveExpedition expedition : List.copyOf(this.repository.active())) {
+         var journey=journeys.get(expedition.id());if(expedition.planned()&&expedition.status()==ExpeditionStatus.ACTIVE&&journeys.ready()&&journey!=null&&journey.state()==Journey.State.CLOSED){finishCommitted(expedition,ExpeditionStatus.valueOf(journey.note()));continue;}
          if (expedition.status() == ExpeditionStatus.ACTIVE) {
             this.bar(expedition);
          } else {
             this.sites.restore(expedition, () -> {
                this.repository.remove(expedition);
-               this.repository.save();
+               this.repository.saveAsync();
             });
          }
       }
@@ -115,14 +131,18 @@ public final class ExpeditionService {
       this.task = this.shieldTask = null;
 
       for (BossBar bar : this.bars.values()) {
-         bar.removeAll();
+         for(Player player:List.copyOf(bar.getPlayers()))ru.neverland.core.SuiteScheduler.cleanupPlayer(plugin,player,p->bar.removePlayer(p));
       }
 
       this.bars.clear();
       this.shieldWarnings.clear();
+      this.participation.clear();
    } }
 
-   public ExpeditionService.StartResult start(Player leader, ExpeditionDefinition definition) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
+   public ExpeditionService.StartResult start(Player leader, ExpeditionDefinition definition){return start(leader,definition,null);}
+   public ExpeditionService.StartResult start(Player leader, ExpeditionDefinition definition,Journey.Branch branch) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
+      if(stopping||!repository.writable()||!leader.hasPermission("mintexpeditions.start"))return StartResult.UNAVAILABLE;
+      if(branch!=null&&(!plugin.getConfig().getBoolean("journeys.enabled",true)||!journeys.ready()||journeys.busy()))return StartResult.UNAVAILABLE;
       CampView camp = this.camps.owned(leader);
       if (camp == null) {
          return ExpeditionService.StartResult.NO_CAMP;
@@ -147,6 +167,7 @@ public final class ExpeditionService {
                return ExpeditionService.StartResult.MISSING;
             } else {
                UUID townId = this.towny.townId(leader);
+               List<Player> party=this.camps.party(camp);
                this.preparing.add(camp.owner());
                this.messages.send(leader, "preparing");
                this.sites
@@ -155,9 +176,9 @@ public final class ExpeditionService {
                      camp.anchor(),
                      definition,
                      site -> {
-                        this.preparing.remove(camp.owner());
                         if (site == null) {
-                           this.messages.send(leader, "site-not-found");
+                           this.preparing.remove(camp.owner());
+                           ru.neverland.core.SuiteScheduler.entity(plugin,leader,()->this.messages.send(leader,"site-not-found"));
                         } else {
                            long now = System.currentTimeMillis();
                            long durationMillis = Math.max(
@@ -174,35 +195,25 @@ public final class ExpeditionService {
                               now,
                               now + durationMillis
                            );
-                           List<Player> party = this.camps.party(camp);
-                           party.forEach(playerx -> expedition.participants().add(playerx.getUniqueId()));
-                           if (!this.sites.build(expedition, definition)) {
-                              this.repository.remove(expedition);
-                              this.repository.save();
-                              this.messages.send(leader, "start-failed");
-                           } else if (!this.camps.consume(camp, definition.costs())) {
-                              this.sites.restore(expedition, () -> {
-                                 this.repository.remove(expedition);
-                                 this.repository.save();
+                           party.forEach(playerx->expedition.participants().add(playerx.getUniqueId()));expedition.planned(branch!=null);
+                           CompletionStage<?> accepted=CompletableFuture.completedFuture(null);
+                           if(branch!=null){var journey=new Journey(expedition.id(),definition,branch,expedition.participants(),Map.of(),Map.of(),Journey.State.ACTIVE,"");accepted=journeys.commit(null,journey,leader.getUniqueId(),"created","Порядок: "+branch.title()+"; цели "+definition.goal()+"; враги "+definition.mobCount()+"; личная награда "+definition.moneyPerParticipant()+"; нужен хотя бы один подтверждённый вклад");}
+                           accepted.thenCompose(v->{var result=new CompletableFuture<Boolean>();ru.neverland.core.WorldTasks.loaded(plugin,site.location(camp.world()),()->sites.buildAsync(expedition,definition).whenComplete((value,failure)->{if(failure==null)result.complete(value);else result.completeExceptionally(failure);}));return result;}).whenComplete((built,error)->{
+                              if(error!=null){try(var guard=ru.neverland.core.SuiteState.guard()){preparing.remove(camp.owner());if(!expedition.timer().paused())expedition.timer(expedition.timer().edit("pause",0,System.currentTimeMillis()));}plugin.getLogger().log(Level.SEVERE,"Подготовка экспедиции требует сверки; припасы повторно не снимаются",error);return;}
+                              if(!plugin.isEnabled()||stopping)return;
+                              if(!built){ru.neverland.core.SuiteScheduler.get().runTask(plugin,()->{preparing.remove(camp.owner());repository.remove(expedition);repository.saveAsync();});ru.neverland.core.SuiteScheduler.entity(plugin,leader,()->messages.send(leader,"start-failed"));return;}
+                              ru.neverland.core.SuiteScheduler.entity(plugin,leader,()->{
+                                 var current=camps.owned(leader);boolean valid=leader.isOnline()&&leader.hasPermission("mintexpeditions.start")&&current!=null&&current.owner().equals(camp.owner())&&current.world()!=null&&current.anchor().equals(camp.anchor())&&current.level()>=definition.minCampLevel()&&!camps.stashOpen(camp.owner())&&(!plugin.getConfig().getBoolean("camps.require-active-fire",true)||current.burnUntil()>System.currentTimeMillis())&&leader.getWorld().equals(current.world())&&leader.getLocation().distanceSquared(current.anchor())<=radius*radius;
+                                 boolean consumed=false;try{if(valid)consumed=camps.consumeChecked(current,definition.costs());}catch(java.io.IOException uncertain){preparing.remove(camp.owner());expedition.siteReady(false,"Списание припасов не подтверждено; нужна ручная сверка");if(!expedition.timer().paused())expedition.timer(expedition.timer().edit("pause",0,System.currentTimeMillis()));repository.changed();repository.saveAsync();leader.sendMessage("Запуск остановлен для проверки припасов. Повторного списания не будет.");plugin.getLogger().log(Level.SEVERE,"Неизвестный результат списания припасов: "+expedition.id(),uncertain);return;}
+                                 if(!consumed){preparing.remove(camp.owner());sites.restore(expedition,()->{repository.remove(expedition);repository.saveAsync();});messages.send(leader,"start-failed");return;}
+                                 expedition.siteReady(true,"");repository.changed();repository.saveAsync().whenComplete((saved,failure)->{
+                                    if(failure!=null){try(var guard=ru.neverland.core.SuiteState.guard()){expedition.siteReady(false,"Припасы списаны; запуск требует сверки");if(!expedition.timer().paused())expedition.timer(expedition.timer().edit("pause",0,System.currentTimeMillis()));}plugin.getLogger().log(Level.SEVERE,"Запуск экспедиции не подтверждён после припасов",failure);return;}
+                                    if(!plugin.isEnabled()||stopping)return;ru.neverland.core.SuiteScheduler.get().runTask(plugin,()->{preparing.remove(camp.owner());bar(expedition);});
+                                    boolean teleport=plugin.getConfig().getBoolean("expeditions.teleport-party-to-site",false);Location destination=expedition.siteLocation();
+                                    for(Player player:party)ru.neverland.core.SuiteScheduler.entity(plugin,player,()->{messages.send(player,player.getUniqueId().equals(camp.owner())?"started":"party-member",Map.of("expedition",ColorUtil.strip(definition.name()),"party",party.size()));sendTarget(player,expedition);if(teleport&&destination!=null)player.teleportAsync(destination);});
+                                 });
                               });
-                              this.messages.send(leader, "start-failed");
-                           } else {
-                              this.bar(expedition);
-                              this.messages.send(leader, "started", Map.of("expedition", ColorUtil.strip(definition.name()), "party", party.size()));
-                              boolean teleport = this.plugin.getConfig().getBoolean("expeditions.teleport-party-to-site", false);
-                              Location destination = expedition.siteLocation();
-
-                              for (Player player : party) ru.neverland.core.SuiteScheduler.entity(plugin,player,()->{
-                                 if (!player.equals(leader)) {
-                                    this.messages.send(player, "party-member", Map.of("expedition", ColorUtil.strip(definition.name())));
-                                 }
-
-                                 this.sendTarget(player, expedition);
-                                 if (teleport && destination != null) {
-                                    player.teleportAsync(destination);
-                                 }
-                              });
-                           }
+                           });
                         }
                      }
                   );
@@ -214,16 +225,17 @@ public final class ExpeditionService {
 
    public boolean objective(Player player, BlockPos position) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
       ActiveExpedition expedition = this.at(position, player.getWorld());
-      if (expedition == null || expedition.timer().paused() || !expedition.objectives().contains(position) || expedition.completed().contains(position)) {
+      if (expedition == null || preparing.contains(expedition.leaderId()) || !expedition.siteReady() || expedition.timer().paused() || !expedition.objectives().contains(position) || expedition.completed().contains(position)) {
          return false;
       } else if (!expedition.participants().contains(player.getUniqueId())) {
          this.messages.send(player, "not-participant");
          return true;
       } else {
+         if(expedition.planned())return journeyObjective(player,expedition,position);
          expedition.completed().add(position);
          position.location(player.getWorld()).getBlock().setType(Material.AIR, false);
          this.repository.changed();
-         ExpeditionDefinition definition = this.registry.get(expedition.definitionId());
+         ExpeditionDefinition definition = this.definition(expedition);
          this.broadcast(expedition, "objective", Map.of("progress", expedition.objectiveProgress(), "goal", definition.goal()));
          this.updateBar(expedition);
          this.check(expedition, definition);
@@ -233,9 +245,10 @@ public final class ExpeditionService {
 
    public void mobDied(LivingEntity entity) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
       ActiveExpedition expedition = this.sites.expeditionForMob(entity);
-      if (expedition != null && !expedition.timer().paused() && expedition.status() == ExpeditionStatus.ACTIVE) {
+      if (expedition != null && !preparing.contains(expedition.leaderId()) && expedition.siteReady() && !expedition.timer().paused() && expedition.status() == ExpeditionStatus.ACTIVE) {
+         if(expedition.planned()){journeyKill(entity,expedition);return;}
          if(!expedition.spawnedMobs().remove(entity.getUniqueId()))return;
-         ExpeditionDefinition definition = this.registry.get(expedition.definitionId());
+         ExpeditionDefinition definition = this.definition(expedition);
          if (definition != null) {
             Player killer = entity.getKiller();
             if (killer != null && expedition.participants().contains(killer.getUniqueId())) {
@@ -288,17 +301,76 @@ public final class ExpeditionService {
       });
    } }
 
+   public ExpeditionDefinition definition(ActiveExpedition expedition){
+      if(!expedition.planned())return registry.get(expedition.definitionId());
+      var journey=journeys.get(expedition.id());return journey==null?null:journey.frozen();
+   }
+   public Journey journey(ActiveExpedition expedition){return expedition==null?null:journeys.get(expedition.id());}
+   public ActiveExpedition participantExpedition(UUID player){return repository.active().stream().filter(e->e.status()==ExpeditionStatus.ACTIVE&&e.participants().contains(player)).findFirst().orElse(null);}
+   public boolean journeyUnavailable(ActiveExpedition expedition){var j=journeys.get(expedition.id());return expedition.planned()&&(!plugin.getConfig().getBoolean("journeys.enabled",true)||!journeys.ready()||journeys.busy()||j==null||j.state()!=Journey.State.ACTIVE||journeyWork.contains(expedition.id())||journeyIssues.contains(expedition.id()));}
+   public boolean pausedMob(ActiveExpedition expedition){var j=journeys.get(expedition.id());return !expedition.siteReady()||preparing.contains(expedition.leaderId())||expedition.timer().paused()||expedition.planned()&&(journeyUnavailable(expedition)||j.stage()!=Journey.Action.KILL);}
+   public String journeyStatus(ActiveExpedition expedition){if(expedition==null||!expedition.planned())return "Обычная экспедиция: цели и враги доступны одновременно";if(!plugin.getConfig().getBoolean("journeys.enabled",true))return "Поэтапные походы приостановлены администратором без провала.";if(journeyIssues.contains(expedition.id()))return "Поход приостановлен: условия и подтверждения требуют сверки администратора.";if(!journeys.ready())return "Поход приостановлен: журнал требует проверки. Прогресс сохранён, провала нет.";if(journeys.busy()||journeyWork.contains(expedition.id()))return "Подтверждённое действие сохраняется. Подождите секунду.";var j=journeys.get(expedition.id());return j==null?"Нет сохранённых условий похода; нужна проверка администратора":j.stageText();}
+   public CompletionStage<Void> role(Player player,Journey.Role role){try(var guard=ru.neverland.core.SuiteState.guard()){
+      var expedition=participantExpedition(player.getUniqueId());if(expedition==null||!expedition.planned()||journeyUnavailable(expedition)||!player.hasPermission("mintexpeditions.use"))return CompletableFuture.failedFuture(new IllegalArgumentException("Выбор роли сейчас недоступен"));
+      var before=journeys.get(expedition.id());return journeys.commit(before,before.role(player.getUniqueId(),role),player.getUniqueId(),"role:"+UUID.randomUUID(),"Добровольная роль: "+(role==null?"без роли":role.title())).thenApply(v->null);
+   }}
+   private boolean journeyObjective(Player player,ActiveExpedition expedition,BlockPos position){
+      if(journeyUnavailable(expedition)){player.sendMessage(journeyStatus(expedition));return true;}
+      var before=journeys.get(expedition.id());if(before.stage()!=Journey.Action.OBJECTIVE){player.sendMessage("Эта цель пока недоступна. "+before.stageText());return true;}
+      if(player.getGameMode()!=GameMode.SURVIVAL&&player.getGameMode()!=GameMode.ADVENTURE){player.sendMessage("Вклад в поход засчитывается в режиме выживания.");return true;}
+      if(position.location(player.getWorld()).getBlock().getType()!=before.frozen().objectiveMaterial())return true;
+      String key="o:"+position.key();applyContribution(expedition,before,before.credit(key,Journey.Action.OBJECTIVE,player.getUniqueId(),System.currentTimeMillis()),player.getUniqueId(),key,position);return true;
+   }
+   public void observePlayer(Player player){if(!ru.neverland.core.SuiteScheduler.owns(player))return;var expedition=participantExpedition(player.getUniqueId());if(expedition!=null&&expedition.planned())participation.put(player.getUniqueId(),new Participation(player.getGameMode()==GameMode.SURVIVAL||player.getGameMode()==GameMode.ADVENTURE,System.currentTimeMillis()));else participation.remove(player.getUniqueId());}
+   private boolean survivalParticipant(UUID player){var known=participation.get(player);return known!=null&&known.survival()&&System.currentTimeMillis()-known.at()<3000;}
+   private void journeyKill(LivingEntity mob,ActiveExpedition expedition){
+      if(!expedition.spawnedMobs().contains(mob.getUniqueId()))return;
+      var before=journeys.get(expedition.id());Player killer=mob.getKiller();
+      if(journeyUnavailable(expedition)||before.stage()!=Journey.Action.KILL||killer==null||!expedition.participants().contains(killer.getUniqueId())||!survivalParticipant(killer.getUniqueId())){expedition.spawnedMobs().remove(mob.getUniqueId());repository.changed();return;}
+      // Killer identity is captured from the server's death attribution; no remote inventory/location reads.
+      String key="m:"+mob.getUniqueId();if(before.contributions().containsKey(key))return;
+      applyContribution(expedition,before,before.credit(key,Journey.Action.KILL,killer.getUniqueId(),System.currentTimeMillis()),killer.getUniqueId(),key,null);
+   }
+   private void applyContribution(ActiveExpedition expedition,Journey before,Journey after,UUID actor,String key,BlockPos objective){
+      journeyWork.add(expedition.id());
+      track(journeys.commit(before,after,actor,"contribution:"+key,"Вклад "+key+"; роль "+before.roles().get(actor)+"; "+after.objectives()+" целей, "+after.kills()+" врагов").thenCompose(saved->{try(var guard=ru.neverland.core.SuiteState.guard()){
+         reconcile(expedition,saved);repository.changed();return repository.saveAsync();
+      }})).whenComplete((saved,error)->{
+         if(error!=null){try(var guard=ru.neverland.core.SuiteState.guard()){journeyWork.remove(expedition.id());if(!expedition.timer().paused())expedition.timer(expedition.timer().edit("pause",0,System.currentTimeMillis()));}plugin.getLogger().log(Level.SEVERE,"Вклад похода требует сверки; награды не выдаются",error);return;}
+         if(!plugin.isEnabled()||stopping)return;
+         Runnable confirmed=()->{journeyWork.remove(expedition.id());updateBar(expedition);for(UUID id:expedition.participants()){var player=Bukkit.getPlayer(id);if(player!=null)ru.neverland.core.SuiteScheduler.entity(plugin,player,()->player.sendMessage(after.stageText()));}check(expedition,after.frozen());};
+         if(objective!=null)ru.neverland.core.WorldTasks.loaded(plugin,objective.location(expedition.world()),()->{var block=objective.location(expedition.world()).getBlock();if(block.getType()==after.frozen().objectiveMaterial())block.setType(Material.AIR,false);confirmed.run();});
+         else ru.neverland.core.SuiteScheduler.get().runTask(plugin,confirmed);
+      });
+   }
+   private void reconcile(ActiveExpedition expedition,Journey journey){
+      if(!expedition.participants().equals(journey.participants()))throw new IllegalArgumentException("Состав похода не совпадает с сохранённым согласием");
+      expedition.kills(journey.kills());expedition.completed().clear();
+      for(var c:journey.contributions().values())if(c.action()==Journey.Action.OBJECTIVE){var position=BlockPos.parse(c.key().substring(2));if(!expedition.objectives().contains(position))throw new IllegalArgumentException("Квитанция не принадлежит целям похода");expedition.completed().add(position);}else expedition.spawnedMobs().remove(UUID.fromString(c.key().substring(2)));
+   }
+
    private void check(ActiveExpedition expedition, ExpeditionDefinition definition) {
-      if (expedition.objectiveProgress() >= definition.goal() && expedition.kills() >= definition.mobCount()) {
+      if (definition!=null&&(!expedition.planned()||!journeyUnavailable(expedition))&&expedition.objectiveProgress() >= definition.goal() && expedition.kills() >= definition.mobCount()) {
          this.finish(expedition, ExpeditionStatus.COMPLETED);
       }
    }
 
-   public void finish(ActiveExpedition expedition, ExpeditionStatus status) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
+   public void finish(ActiveExpedition expedition, ExpeditionStatus status){try(var guard=ru.neverland.core.SuiteState.guard()){
+      if(!expedition.planned()){finishCommitted(expedition,status);return;}
+      if(expedition.status()!=ExpeditionStatus.ACTIVE)return;
+      var journey=journeys.get(expedition.id());
+      if(status==ExpeditionStatus.COMPLETED&&(journeyUnavailable(expedition)||journey==null||!journey.complete()))throw new IllegalStateException("Поход ещё не завершён либо журнал требует проверки; доступна нейтральная отмена");
+      if(!journeys.ready()){if(status==ExpeditionStatus.CANCELLED){finishCommitted(expedition,status);return;}throw new IllegalStateException("Поход приостановлен без провала: журнал требует проверки");}
+      if(journeys.busy()||journeyWork.contains(expedition.id()))throw new IllegalStateException("Дождитесь сохранения предыдущего шага");
+      if(journey==null){if(status==ExpeditionStatus.CANCELLED){finishCommitted(expedition,status);return;}throw new IllegalStateException("Условия похода отсутствуют");}
+      journeyWork.add(expedition.id());track(journeys.commit(journey,journey.state(Journey.State.CLOSED,status.name()),null,"closed:"+status,"Итог похода: "+status).thenCompose(saved->finishCommitted(expedition,status))).whenComplete((saved,error)->{try(var state=ru.neverland.core.SuiteState.guard()){journeyWork.remove(expedition.id());if(error!=null){if(!expedition.timer().paused())expedition.timer(expedition.timer().edit("pause",0,System.currentTimeMillis()));plugin.getLogger().log(Level.SEVERE,"Итог похода не подтверждён; провал и награда не применены",error);}}});
+   }}
+   private CompletionStage<Void> finishCommitted(ActiveExpedition expedition, ExpeditionStatus status) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
       if (!this.repository.writable()) {
          throw new IllegalStateException("Хранилище экспедиций недоступно");
       } else if (expedition.status() == ExpeditionStatus.ACTIVE) {
-         ExpeditionDefinition definition = this.registry.get(expedition.definitionId());
+         ExpeditionDefinition definition = this.definition(expedition);
+         if(expedition.planned()&&status==ExpeditionStatus.COMPLETED){var journey=journeys.get(expedition.id());if(journey==null||!journey.complete())throw new IllegalStateException("Поход ещё не завершён либо его журнал требует проверки; используйте нейтральную отмену");}
          ArrayList<RewardBatch> batches = new ArrayList<>();
          if (status == ExpeditionStatus.COMPLETED) {
             if (definition == null) {
@@ -306,6 +378,7 @@ public final class ExpeditionService {
             }
 
             for (UUID participant : expedition.participants()) {
+               if(expedition.planned()&&!journeys.get(expedition.id()).contributed(participant))continue;
                batches.add(
                   new RewardBatch(
                      EffectJournal.id("expedition-reward:" + expedition.id() + ":" + participant),
@@ -323,10 +396,6 @@ public final class ExpeditionService {
             this.repository.reward(batch.id(), batch.owner(), batch.items(), batch.money());
          }
 
-         if (status == ExpeditionStatus.CANCELLED) this.broadcast(expedition,"admin-cancelled",Map.of());
-         if (status == ExpeditionStatus.FAILED) {
-            this.broadcast(expedition, "failed", Map.of("expedition", definition == null ? expedition.definitionId() : ColorUtil.strip(definition.name())));
-         }
 
          this.repository
             .history(
@@ -342,103 +411,36 @@ public final class ExpeditionService {
                ),
                this.plugin.getConfig().getInt("expeditions.history-limit", 30)
             );
-         this.repository.save();
-         if (status == ExpeditionStatus.COMPLETED) {
-            for (UUID participant : expedition.participants()) {
-               Player player = Bukkit.getPlayer(participant);
-               if (player != null) {
-                  this.messages.send(player, "completed", Map.of("expedition", ColorUtil.strip(definition.name())));
-                  this.claim(player);
+         return this.repository.saveAsync().whenComplete((saved,error)->{
+            if(error!=null){plugin.getLogger().log(Level.SEVERE,"Завершение экспедиции требует сверки; награды не выданы",error);return;}
+            if(!plugin.isEnabled()||stopping)return;
+            ru.neverland.core.SuiteScheduler.get().runTask(plugin,()->{
+               if(status==ExpeditionStatus.CANCELLED)broadcast(expedition,"admin-cancelled",Map.of());
+               if(status==ExpeditionStatus.FAILED)broadcast(expedition,"failed",Map.of("expedition",definition==null?expedition.definitionId():ColorUtil.strip(definition.name())));
+               if(status==ExpeditionStatus.COMPLETED)for(UUID participant:expedition.participants()){
+                  Player player=Bukkit.getPlayer(participant);if(player!=null)ru.neverland.core.SuiteScheduler.entity(plugin,player,()->{messages.send(player,"completed",Map.of("expedition",ColorUtil.strip(definition.name())));claim(player);});
                }
-            }
-         }
-
-         BossBar bar = this.bars.remove(expedition.id());
-         if (bar != null) {
-            bar.removeAll();
-         }
-
-         long returnWindow = Math.max(30L, this.plugin.getConfig().getLong("expeditions.manual-return-window-seconds", 600L));
-         this.returnTickets.grant(expedition.participants(), expedition.leaderId(), System.currentTimeMillis() + returnWindow * 1000L);
-         this.sites.restore(expedition, () -> {
-            this.repository.remove(expedition);
-            this.repository.save();
+               BossBar bar=bars.remove(expedition.id());if(bar!=null)for(Player player:List.copyOf(bar.getPlayers()))ru.neverland.core.SuiteScheduler.entity(plugin,player,()->bar.removePlayer(player));
+               long returnWindow=Math.max(30L,plugin.getConfig().getLong("expeditions.manual-return-window-seconds",600L));
+               returnTickets.grantAsync(expedition.participants(),expedition.leaderId(),System.currentTimeMillis()+returnWindow*1000L).whenComplete((v,e)->{if(e!=null)plugin.getLogger().warning("Возврат экспедиции не подтверждён: "+expedition.id());});
+               sites.restore(expedition,()->{repository.remove(expedition);repository.saveAsync();});
+            });
          });
       }
+      return CompletableFuture.completedFuture(null);
    } }
 
-   public void claim(Player player) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
-      if (!ru.neverland.core.SuiteState.held()) {
-         throw new IllegalStateException("Награды требуют основного потока");
-      } else if (!this.repository.hasReward(player.getUniqueId())) {
-         this.messages.send(player, "no-reward");
-      } else if (player.isOnline() && player.getGameMode() != GameMode.CREATIVE && player.getGameMode() != GameMode.SPECTATOR) {
-         try {
-            this.repository.saveIfDirty();
-            boolean complete = true;
-            double paid = 0.0;
-            EffectJournal journal = this.repository.effects();
+   public void claim(Player player) {
+      if(!ru.neverland.core.SuiteScheduler.owns(player)){ru.neverland.core.SuiteScheduler.entity(plugin,player,()->claim(player));return;}
+      if(!repository.hasReward(player.getUniqueId())){messages.send(player,"no-reward");return;}
+      rewardDelivery.claim(player).whenComplete((done,error)->{if(!stopping&&plugin.isEnabled())ru.neverland.core.SuiteScheduler.entity(plugin,player,()->{
+         if(error==null&&done)player.sendMessage("Сохранённая награда экспедиции выдана.");
+         else player.sendMessage("Выдача не завершена. Сохранённая награда остаётся в очереди; освободите место или попросите администратора проверить начисление.");
+      });if(error!=null)plugin.getLogger().log(Level.WARNING,"Награда требует проверки: "+player.getUniqueId(),error);});
+   }
 
-            rewardBatches:
-            for (RewardBatch batch : this.repository.rewards(player.getUniqueId())) {
-               if (batch.money() > 0.0) {
-                  boolean already = journal.state(batch.moneyId()) == EffectJournal.State.DONE;
-                  if (!journal.execute(
-                     batch.moneyId(),
-                     "Награда " + batch.id() + " игроку " + batch.owner() + ": " + batch.money(),
-                     () -> this.towny.reward(player, batch.money(), batch.moneyId())
-                  )) {
-                     complete = false;
-                     continue;
-                  }
-
-                  if (!already) {
-                     paid += batch.money();
-                  }
-               }
-
-               List<ItemStack> items = batch.items();
-
-               for (int i = 0; i < items.size(); i++) {
-                  UUID id = batch.itemId(i);
-                  if (journal.state(id) != EffectJournal.State.DONE) {
-                     if (journal.state(id) == EffectJournal.State.PENDING) {
-                        throw new IllegalStateException("Выдача " + id + " требует сверки администратора");
-                     }
-
-                     ItemStack item = items.get(i);
-                     ItemStack[] plan = InventoryPlan.insert(player.getInventory().getStorageContents(), item);
-                     if (plan == null) {
-                        complete = false;
-                        continue rewardBatches;
-                     }
-
-                     journal.execute(id, "Предмет награды " + batch.id() + " игроку " + batch.owner() + " #" + i, () -> {
-                        PlayerSaveReceipt saved = PlayerSaveReceipt.before(player);
-                        player.getInventory().setStorageContents(plan);
-                        saved.save(player);
-                        return true;
-                     });
-                  }
-               }
-
-               this.repository.completeReward(batch);
-            }
-
-            this.repository.pruneEffects();
-            if (complete && !this.repository.hasReward(player.getUniqueId())) {
-               this.messages.send(player, "claim-success", Map.of("money", paid));
-            } else {
-               player.sendMessage("Часть награды ожидает выдачи. Освободите место и используйте /expedition claim; уже полученное не повторится.");
-            }
-         } catch (Exception var14) {
-            this.plugin.getLogger().log(Level.WARNING, "Выдача награды остановлена для " + player.getUniqueId(), (Throwable)var14);
-            player.sendMessage("Выдача остановлена: " + var14.getMessage() + ". Сохранённую награду можно получить после восстановления.");
-         }
-      } else {
-         player.sendMessage("Награды доступны в выживании или приключении.");
-      }
-   } }
+   public java.util.concurrent.CompletionStage<Void> readyAsync(){return returnTickets.readyAsync().thenCompose(v->journeys.load().handle((loaded,error)->{if(error!=null)plugin.getLogger().log(Level.SEVERE,"Поэтапные походы приостановлены; обычные экспедиции работают",error);else try(var guard=ru.neverland.core.SuiteState.guard()){for(var expedition:repository.active())if(expedition.planned()){var journey=journeys.get(expedition.id());if(journey!=null)try{reconcile(expedition,journey);}catch(RuntimeException invalid){journeyIssues.add(expedition.id());if(!expedition.timer().paused())expedition.timer(expedition.timer().edit("pause",0,System.currentTimeMillis()));plugin.getLogger().log(Level.SEVERE,"Подтверждения похода требуют сверки: "+expedition.id(),invalid);}}}return (Void)null;}));}
+   public java.util.concurrent.CompletionStage<Void> prepareClose(){try(var guard=ru.neverland.core.SuiteState.guard()){stopping=true;stopTasks();var pending=CompletableFuture.allOf(transitions.stream().map(s->s.handle((v,e)->null).toCompletableFuture()).toArray(CompletableFuture[]::new));return pending.thenCompose(v->rewardDelivery.prepareClose()).thenCompose(v->returnTickets.prepareClose()).thenCompose(v->journeys.prepareClose()).thenCompose(v->repository.prepareClose());}}
 
    public void returnToCamp(Player player) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
       if (!this.canReturn(player)) {
@@ -457,7 +459,7 @@ public final class ExpeditionService {
                            ru.neverland.core.SuiteScheduler.entity(this.plugin, player, () -> {
                               this.returning.remove(player.getUniqueId());
                               if (error == null && Boolean.TRUE.equals(success)) {
-                                 this.returnTickets.remove(player.getUniqueId());
+                                 this.returnTickets.removeAsync(player.getUniqueId());
                                  this.messages.send(player, "returned");
                               } else {
                                  this.messages.send(player, "return-failed");
@@ -533,14 +535,17 @@ public final class ExpeditionService {
 
    private void tick() {
       long now = System.currentTimeMillis();
-      this.returnTickets.prune(now);
+      participation.values().removeIf(p->now-p.at()>3000);
+      this.returnTickets.pruneAsync(now);
 
       for (ActiveExpedition expedition : new ArrayList<>(this.repository.active())) {
-         if (expedition.timer().paused()) { this.updateBar(expedition); continue; }
+         if(expedition.planned()&&journeyUnavailable(expedition)){if((!journeys.ready()||!plugin.getConfig().getBoolean("journeys.enabled",true))&&!expedition.timer().paused()){expedition.timer(expedition.timer().edit("pause",0,now));repository.changed();}this.updateBar(expedition);continue;}
+         if (!expedition.siteReady()||expedition.timer().paused()) { this.updateBar(expedition); continue; }
+         if(expedition.planned()&&journeys.get(expedition.id())!=null&&journeys.get(expedition.id()).complete()){check(expedition,definition(expedition));continue;}
          if (now >= expedition.expiresAt()) {
             this.finish(expedition, ExpeditionStatus.FAILED);
          } else {
-            ExpeditionDefinition definition = this.registry.get(expedition.definitionId());
+            ExpeditionDefinition definition = this.definition(expedition);
             if (definition != null) {
                this.sites.guard(expedition, definition);
             }
@@ -549,7 +554,7 @@ public final class ExpeditionService {
          }
       }
 
-      this.repository.saveIfDirty();
+      this.repository.saveIfDirtyAsync();
    }
 
    public ActiveExpedition at(BlockPos position, World world) { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {
@@ -576,7 +581,7 @@ public final class ExpeditionService {
       for (UUID participant : expedition.participants()) {
          Player player = Bukkit.getPlayer(participant);
          if (player != null) {
-            this.messages.send(player, key, variables);
+            ru.neverland.core.SuiteScheduler.entity(plugin,player,()->this.messages.send(player,key,variables));
          }
       }
    }
@@ -590,7 +595,7 @@ public final class ExpeditionService {
          for (UUID participant : expedition.participants()) {
             Player player = Bukkit.getPlayer(participant);
             if (player != null) {
-               bar.addPlayer(player);
+               ru.neverland.core.SuiteScheduler.entity(plugin,player,()->{if(bars.get(expedition.id())==bar)bar.addPlayer(player);});
             }
          }
 
@@ -601,7 +606,7 @@ public final class ExpeditionService {
 
    private void updateBar(ActiveExpedition expedition) {
       BossBar bar = this.bars.get(expedition.id());
-      ExpeditionDefinition definition = this.registry.get(expedition.definitionId());
+      ExpeditionDefinition definition = this.definition(expedition);
       if (bar != null && definition != null) {
          int total = definition.goal() + definition.mobCount();
          int done = expedition.objectiveProgress() + Math.min(expedition.kills(), definition.mobCount());
@@ -637,6 +642,7 @@ public final class ExpeditionService {
 
    public static enum StartResult {
       QUEUED,
+      UNAVAILABLE,
       NO_CAMP,
       INACTIVE,
       TOO_FAR,
@@ -656,7 +662,7 @@ public final class ExpeditionService {
             if(!(c.status()==ExpeditionStatus.ACTIVE))throw new IllegalStateException("Задача уже завершается или ожидает расчёта; используйте штатную сверку");
             if(action.equals("cancel")){finish(c,ExpeditionStatus.CANCELLED); return "Задача отменена без провала; выполненные действия сохранены";}
             var before=c.timer();
-            try{c.timer(before.edit(action,minutes,System.currentTimeMillis())); repository.save();}
+            try{c.timer(before.edit(action,minutes,System.currentTimeMillis())); repository.saveAsync();}
             catch(Exception ex){c.timer(before); throw ex;}
             return c.id()+" | "+c.timer().describe(System.currentTimeMillis());
         })).toList();

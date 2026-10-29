@@ -1,4 +1,6 @@
-# TreasuryPlus 0.3.0: подтверждаемые бюджетные операции
+# TreasuryPlus 0.3.1: подтверждаемые бюджетные операции
+
+В 0.3.1 временно занятый бюджет отклоняет запрос возврата до создания квитанции; повторяется тот же UUID. Уже сохранённый возврат при временном ограничении баланса остаётся PREPARED. Удалённый город перед возвратом переводит точную квитанцию в REVIEW. Оплаченные записи и суммы не меняются.
 
 Состояние: банковский gateway проверен отдельно; **полный комплект пока нельзя выпускать**. Старый `spend(...)` без ID теперь возвращает `false` до создания заявки и до обращения к банку. Перед общим выпуском все существующие вызывающие аддоны должны перейти на UUID и асинхронное подтверждение. `canSpend(...)` — только предварительная проверка сохранённого бюджета, а не обещание оплаты. Нельзя включать fallback на прямое списание, если Treasury отказал или занят.
 
@@ -68,12 +70,12 @@ Future запроса подтверждает сохранение `PREPARED` �
 
 ## Проверка
 
-Точный JAR: `638a665b8f53347786d68aa5f115a627c6a186c5c34d0fe2d0d39de7f6dff578`.
+Точный JAR: `ceddfadcbb1a97b902afc425ac04beaf33fc49ac7313bfc23ae3c1462c781a73`.
 
-Cold: 5 программ — AsyncBudgetPersistenceSmoke 25 проверок, BankFlowsSmoke 9, ForecastSmoke 11, TreasuryAccessSmoke, TreasurySmoke с 10 000 смешанных операций и DebitSmoke. Проверены delayed physical ACK, невыдача неоплаченного снимка, повреждённая база, точный UUID/payload, budget/refund conservation, reverse pending validation, bounded observer buffer, UTC и прежние отчёты.
+Cold: 5 программ — AsyncBudgetPersistenceSmoke 27 проверок, BankFlowsSmoke 9, ForecastSmoke 11, TreasuryAccessSmoke, TreasurySmoke с 10 000 смешанных операций и DebitSmoke. Проверены delayed physical ACK, невыдача неоплаченного снимка, повреждённая база, точный UUID/payload, budget/refund conservation, reverse pending validation, bounded observer buffer, UTC и прежние отчёты.
 
-Native: два полных запуска Folia 26.2 с Towny 0.103.2.0 и Control 0.6.1, **20 + 8 проверок**, оба JVM exit 0. Реальные Treasury state machine, журнал и Towny Account/Observer. Подтверждены physical ACK, пауза владельца, непрерывный поток другого города, бюджетный предел, повтор ID, обеспеченный возврат, неизвестные ответы без replay, явная сверка, реальный onDisable под внешним guard, сохранение результата после shutdown и полный рестарт. Recovery при gap содержит явно описанный crash-boundary seed.
+Native: два полных запуска Folia 26.2 с Towny 0.103.2.0 и Control 0.6.1, **23 + 8 проверок**, оба JVM exit 0. Реальные Treasury state machine, журнал и Towny Account/Observer. Подтверждены physical ACK, пауза владельца, непрерывный поток другого города, бюджетный предел, повтор ID, обеспеченный возврат, неизвестные ответы без replay, явная сверка, реальный onDisable под внешним guard, сохранение результата после shutdown и полный рестарт. Recovery при gap содержит явно описанный crash-boundary seed.
 
-Экономический backend в native fixture заменён управляемым EconomyAdapter. Это не проверка конкретной сборки Vault/Essentials и не тест сетевого клиента или кликов GUI. Первая fixture завершилась из-за reflection в probe, подтянувшего отсутствующую optional PlaceholderAPI; исправлен только probe. Production JAR во второй fixture не менялся.
+Экономический backend в native fixture заменён управляемым EconomyAdapter. Это не проверка конкретной сборки Vault/Essentials и не тест сетевого клиента или кликов GUI. Первая fixture завершилась из-за reflection в probe, подтянувшего отсутствующую optional PlaceholderAPI; исправлен только probe. Это относилось к проверке 0.3.0. Версия 0.3.1 отдельно перепроверена в свежей третьей fixture, включая занятый бюджет и временный предел реального банковского баланса.
 
-Доказательства: `docs/validation/city-systems-052/treasury-async/`, воспроизводимая fixture — `scripts/treasury-async-runtime-probe/`. Независимый read-only review закрыл найденные блокировки, starvation, ошибочную связь pending, переполнение возврата и гонку индекса обеспечения. Общий релиз остаётся закрыт до миграции legacy callers и проверки полного совместимого комплекта.
+Доказательства 0.3.1: `docs/validation/city-systems-052/treasury-async-031/` (прежняя проверка 0.3.0 сохранена в `treasury-async/`), воспроизводимая fixture — `scripts/treasury-async-runtime-probe/`. Независимый read-only review закрыл найденные блокировки, starvation, ошибочную связь pending, переполнение возврата и гонку индекса обеспечения. Общий релиз остаётся закрыт до миграции legacy callers и проверки полного совместимого комплекта.

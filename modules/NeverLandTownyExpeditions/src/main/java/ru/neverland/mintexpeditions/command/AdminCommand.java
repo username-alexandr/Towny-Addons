@@ -76,9 +76,8 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                throw new IllegalArgumentException("/townyexpeditions resolve <UUID операции> <received|not-received> confirm");
             }
 
-            this.plugin.service().repository().effects().resolve(UUID.fromString(args[1]), args[2].equals("received"));
-            this.plugin.getLogger().warning(s.getName() + " сверил награду " + args[1] + ": " + args[2]);
-            s.sendMessage("Решение сохранено. Игрок может повторить /expedition claim.");
+            this.plugin.service().repository().effects().resolveAsync(UUID.fromString(args[1]), args[2].equals("received")).whenComplete((v,error)->{if(plugin.isEnabled())ru.neverland.core.SuiteScheduler.reply(plugin,s,()->{if(error==null){plugin.getLogger().warning(s.getName()+" сверил награду "+args[1]+": "+args[2]);s.sendMessage("Решение сохранено. Игрок может повторить /expedition claim.");}else s.sendMessage("Сверка не подтверждена; начисление сохранено для проверки");});});
+            s.sendMessage("Сверка сохраняется");
          } catch (Exception var8) {
             s.sendMessage("Не удалось выполнить сверку: " + var8.getMessage());
          }

@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.*;
+import ru.neverland.core.DurableSnapshots;
+import ru.neverland.core.SuiteState;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -31,7 +34,13 @@ public final class ExpeditionRepository {
    private final Map<UUID, ActiveExpedition> active = new LinkedHashMap<>();
    private final List<ExpeditionHistory> history = new ArrayList<>();
    private final Map<UUID, RewardBatch> rewards = new LinkedHashMap<>();
-   private final EffectJournal effects;
+   private final ExpeditionEffects effects;
+   private final DurableSnapshots writes;
+   private final ExecutorService reader=Executors.newSingleThreadExecutor(r->{var t=new Thread(r,"nlt-expedition-load");t.setDaemon(true);return t;});
+   private final java.util.concurrent.atomic.AtomicLong revision=new java.util.concurrent.atomic.AtomicLong();
+   private volatile boolean closing;
+   private CompletionStage<Void> closed;
+   private CompletableFuture<Void> lastSave=CompletableFuture.completedFuture(null);
    private boolean dirty;
    private boolean writable;
 
@@ -41,15 +50,16 @@ public final class ExpeditionRepository {
 
    public ExpeditionRepository(Path directory) {
       this.file = directory.resolve("data.yml");
-      this.effects = new EffectJournal(directory.resolve("reward-effects.yml"));
+      this.effects = new ExpeditionEffects(directory.resolve("reward-effects.yml"));
+      this.writes=new DurableSnapshots(file,"nlt-expedition-save",32);
    }
 
-   public EffectJournal effects() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
+   public ExpeditionEffects effects() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       return this.effects;
    } }
 
    public boolean writable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
-      return this.writable && AtomicFiles.writable(this.file) && this.effects.writable();
+      return this.writable && !closing && AtomicFiles.writable(this.file) && this.effects.writable();
    } }
 
    private void gate() {
@@ -58,12 +68,16 @@ public final class ExpeditionRepository {
       }
    }
 
-   public void load() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
+   public CompletionStage<Void> loadAsync(){return CompletableFuture.runAsync(this::load,reader);}
+
+   /** Startup/offline loader; never called while holding the global ledger. */
+   public void load() {
+      if(SuiteState.held())throw new IllegalStateException("Загрузка экспедиций требует освобождения Suite");
       this.writable = false;
       this.active.clear();
       this.history.clear();
       this.rewards.clear();
-      YamlConfiguration y = SafeYaml.load(this.file);
+      YamlConfiguration y=new YamlConfiguration();try{if(java.nio.file.Files.exists(file)){if(java.nio.file.Files.size(file)>64L*1024*1024)throw new IOException("База экспедиций больше 64 МиБ");y.load(file.toFile());}}catch(Exception error){throw new IllegalStateException("Повреждена база экспедиций; исходный файл сохранён",error);}
       if (y.contains("schema") && SafeYaml.integer(y, "schema") != 2L) {
          throw new IllegalArgumentException("Неизвестная схема экспедиций");
       } else if (!Set.of("schema", "active", "history", "rewards", "reward-batches").containsAll(y.getKeys(false))) {
@@ -91,6 +105,9 @@ public final class ExpeditionRepository {
                );
 
                e.timer(ru.neverland.core.ActivityTimer.read(s,"",e.timer()));
+               e.planned(s.getBoolean("planned",false));
+               e.siteReady(s.getBoolean("site-ready",true),s.getString("setup-note",""));
+               if(!e.siteReady()&&!e.timer().paused())e.timer(e.timer().edit("pause",0,System.currentTimeMillis()));
                for (Object v : SafeYaml.list(s, "participants")) {
                   e.participants().add(UUID.fromString((String)v));
                }
@@ -122,6 +139,7 @@ public final class ExpeditionRepository {
                   e.snapshots().put(BlockPos.parse((String)m.get("pos")), new SiteSnapshot(material, (String)m.get("data"), inventory));
                }
 
+               if(s.isConfigurationSection("generated")){var generated=s.getConfigurationSection("generated");if(generated.getKeys(false).size()>8192)throw new IllegalArgumentException("Слишком большой снимок местности");for(String key:generated.getKeys(false))e.generated().put(BlockPos.parse(key),SafeYaml.text(generated,key));}
                this.active.put(id, e);
             }
          }
@@ -196,10 +214,10 @@ public final class ExpeditionRepository {
 
          AtomicFiles.loaded(this.file);
          this.writable = true;
-         this.dirty = true;
+         this.dirty = true;this.revision.incrementAndGet();
          this.save();
       }
-   } }
+   }
 
    private static int number(Map<?, ?> m, String k) {
       Object v = m.get(k);
@@ -237,17 +255,18 @@ public final class ExpeditionRepository {
       }
    }
 
-   public void save() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
-      this.gate();
-
-      try {
-         AtomicFiles.write(this.file, () -> this.encode().saveToString());
-         this.dirty = false;
-      } catch (IOException var2) {
-         this.writable = false;
-         throw new UncheckedIOException(var2);
-      }
-   } }
+   public CompletionStage<Void> saveAsync() { try(var guard=SuiteState.guard()){
+      this.gate();long captured=revision.get();var snapshot=this.encode();
+      var stage=writes.submit(()->{String value=snapshot.saveToString();if(value.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>64L*1024*1024)throw new IOException("База экспедиций достигла 64 МиБ; прежний файл сохранён");return value;}).thenAccept(receipt->{try(var locked=SuiteState.guard()){if(revision.get()==captured)dirty=false;}}).exceptionally(error->{try(var locked=SuiteState.guard()){writable=false;}throw new CompletionException(error);});
+      lastSave=stage.toCompletableFuture();return stage;
+   }}
+   /** Offline tests/migration only. Runtime never waits for disk on a region or Suite thread. */
+   public void save(){if(SuiteState.held())throw new IllegalStateException("Используйте saveAsync вне ожидания Suite");try{saveAsync().toCompletableFuture().get(10,TimeUnit.SECONDS);}catch(Exception error){throw new IllegalStateException(error);}}
+   public CompletionStage<Void> saveIfDirtyAsync(){try(var guard=SuiteState.guard()){return dirty?saveAsync():lastSave;}}
+   public CompletionStage<Void> prepareClose(){try(var guard=SuiteState.guard()){
+      if(closed!=null)return closed;var pending=dirty&&writable()?saveAsync():lastSave;closing=true;reader.shutdown();closed=pending.handle((v,e)->e).thenCompose(error->writes.closeAsync().thenCombine(effects.prepareClose(),(a,b)->error)).thenCompose(error->error==null?CompletableFuture.completedFuture(null):CompletableFuture.failedFuture(error));return closed;
+   }}
+   public void awaitClosed(){var done=prepareClose().toCompletableFuture();if(SuiteState.held()&&!done.isDone())throw new IllegalStateException("Ожидайте запись экспедиций вне Suite");try{done.get(10,TimeUnit.SECONDS);}catch(Exception e){throw new IllegalStateException("Запись экспедиций ещё завершается",e);}}
 
    private YamlConfiguration encode() {
       YamlConfiguration y = new YamlConfiguration();
@@ -264,6 +283,8 @@ public final class ExpeditionRepository {
          y.set(p + "started", e.startedAt());
          y.set(p + "expires", e.expiresAt()); e.timer().write(y,p);
          y.set(p + "status", e.status().name());
+         y.createSection(p+"generated");e.generated().forEach((position,data)->y.set(p+"generated."+position.key(),data));
+         y.set(p+"planned",e.planned());y.set(p+"site-ready",e.siteReady());y.set(p+"setup-note",e.setupNote());
          y.set(p + "participants", e.participants().stream().map(UUID::toString).toList());
          y.set(p + "objectives", e.objectives().stream().map(BlockPos::key).toList());
          y.set(p + "completed", e.completed().stream().map(BlockPos::key).toList());
@@ -275,7 +296,7 @@ public final class ExpeditionRepository {
             m.put("pos", pos.key());
             m.put("material", s.material().name());
             m.put("data", s.blockData());
-            m.put("inventory", s.inventory());
+            m.put("inventory", s.inventory().stream().map(item->item==null?null:item.clone()).toList());
             snapshots.add(m);
          });
          y.set(p + "snapshots", snapshots);
@@ -342,25 +363,21 @@ public final class ExpeditionRepository {
    public void put(ActiveExpedition e) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.active.put(e.id(), e);
-      this.dirty = true;
+      this.dirty = true;this.revision.incrementAndGet();
    } }
 
    public void remove(ActiveExpedition e) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       this.active.remove(e.id());
-      this.dirty = true;
+      this.dirty = true;this.revision.incrementAndGet();
    } }
 
    public void changed() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
-      this.dirty = true;
+      this.dirty = true;this.revision.incrementAndGet();
    } }
 
-   public void saveIfDirty() { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
-      if (this.dirty) {
-         this.save();
-      }
-   } }
+   public void saveIfDirty(){if(SuiteState.held())throw new IllegalStateException("Используйте saveIfDirtyAsync");if(dirty)save();}
 
    public void history(ExpeditionHistory h, int limit) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
@@ -372,7 +389,7 @@ public final class ExpeditionRepository {
          this.history.remove(this.history.size() - 1);
       }
 
-      this.dirty = true;
+      this.dirty = true;this.revision.incrementAndGet();
    } }
 
    public List<ExpeditionHistory> history() { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
@@ -391,7 +408,7 @@ public final class ExpeditionRepository {
          throw new IllegalArgumentException("UUID награды занят другими условиями");
       } else {
          this.rewards.putIfAbsent(rewardId, batch);
-         this.dirty = true;
+         this.dirty = true;this.revision.incrementAndGet();
       }
    } }
 
@@ -407,20 +424,24 @@ public final class ExpeditionRepository {
       return this.rewards(owner).stream().filter(b -> this.effects.state(b.moneyId()) != EffectJournal.State.DONE).mapToDouble(RewardBatch::money).sum();
    } }
 
-   public void completeReward(RewardBatch batch) { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {
+   public CompletionStage<Void> completeRewardAsync(RewardBatch batch) { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {
       this.gate();
       if (batch.effects().stream().anyMatch(id -> this.effects.state(id) != EffectJournal.State.DONE)) {
          throw new IllegalStateException("Награда выдана не полностью");
       } else {
          this.rewards.remove(batch.id());
-         this.dirty = true;
-         this.save();
+         this.dirty = true;this.revision.incrementAndGet();
+         return this.saveAsync();
       }
    } }
 
-   public void pruneEffects() throws IOException { try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {
+   public void completeReward(RewardBatch batch){if(SuiteState.held())throw new IllegalStateException("Используйте completeRewardAsync");try{completeRewardAsync(batch).toCompletableFuture().get(10,TimeUnit.SECONDS);}catch(Exception e){throw new IllegalStateException(e);}}
+
+   public void pruneEffects() throws IOException {
+      if(SuiteState.held())throw new IllegalStateException("Используйте pruneEffectsAsync");
       Set<UUID> needed = new HashSet<>();
       this.rewards.values().forEach(r -> needed.addAll(r.effects()));
       this.effects.retain(needed);
-   } }
+   }
+   public CompletionStage<Void> pruneEffectsAsync(){try(var guard=SuiteState.guard()){Set<UUID> needed=new HashSet<>();rewards.values().forEach(r->needed.addAll(r.effects()));return effects.retainAsync(needed);}}
 }

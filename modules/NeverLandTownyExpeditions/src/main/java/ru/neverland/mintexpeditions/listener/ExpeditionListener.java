@@ -160,7 +160,7 @@ public final class ExpeditionListener implements Listener {
     } }
     private boolean pausedMob(org.bukkit.entity.Entity entity){
         if(entity instanceof org.bukkit.entity.Projectile p && p.getShooter() instanceof org.bukkit.entity.Entity owner)entity=owner;
-        var expedition=service.expeditionForMob(entity);return expedition!=null&&expedition.timer().paused();
+        var expedition=service.expeditionForMob(entity);return expedition!=null&&service.pausedMob(expedition);
     }
     @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)
     public void pausedDamage(org.bukkit.event.entity.EntityDamageEvent event){ try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {

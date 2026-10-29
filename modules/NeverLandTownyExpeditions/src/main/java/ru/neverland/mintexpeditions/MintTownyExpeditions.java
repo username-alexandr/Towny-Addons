@@ -35,8 +35,11 @@ public final class MintTownyExpeditions extends JavaPlugin {
    private ExpeditionRepository repository;
    private ExpeditionService service;
    private TownyHook towny;
+   private volatile boolean stopping;
+   private java.util.concurrent.CompletionStage<Void> loading=java.util.concurrent.CompletableFuture.completedFuture(null);
+   private java.util.concurrent.CompletionStage<Void> closing;
 
-   public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
+   public void onEnable() {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
       LegacyDataMigrator.migrate(this, "MintTownyExpeditions");
@@ -49,19 +52,22 @@ public final class MintTownyExpeditions extends JavaPlugin {
       this.itemNames = new RussianItemNames(this);
       this.registry = new ExpeditionRegistry(this, this.itemsAdder);
       this.repository = new ExpeditionRepository(this);
-      this.repository.load();
+      ru.neverland.core.ModuleShutdown.register(this,this::prepareClose);
+      this.loading=repository.loadAsync();
+      loading.whenComplete((ignored,error)->{if(error!=null){getLogger().log(java.util.logging.Level.SEVERE,"Экспедиции приостановлены; исходные данные сохранены",error);return;}if(!stopping&&isEnabled())ru.neverland.core.SuiteScheduler.get().runTask(this,this::enableRuntime);});
+   }
+
+   private void enableRuntime(){
       this.towny = new TownyHook();
       CampFacade camps = new CampFacade(this, this.itemNames);
       SiteService sites = new SiteService(this, this.towny, this.repository);
 
-      for (ActiveExpedition expedition : this.repository.active()) {
-         ExpeditionDefinition definition = this.registry.get(expedition.definitionId());
-         if (definition != null && expedition.status() == ExpeditionStatus.ACTIVE) {
-            sites.resume(expedition, definition);
-         }
-      }
-
       this.service = new ExpeditionService(this, this.messages, this.registry, this.repository, camps, sites, this.towny, new BuildBridge(this));
+      service.readyAsync().whenComplete((v,error)->{if(error!=null){getLogger().log(java.util.logging.Level.SEVERE,"Возвраты экспедиций недоступны",error);return;}if(!stopping&&isEnabled())ru.neverland.core.SuiteScheduler.get().runTask(this,()->activate(sites));});
+   }
+
+   private void activate(SiteService sites){
+      for(ActiveExpedition expedition:repository.active()){ExpeditionDefinition definition=service.definition(expedition);if(definition!=null&&expedition.status()==ExpeditionStatus.ACTIVE)sites.resume(expedition,definition);}
       ExpeditionMenuManager menu = new ExpeditionMenuManager(this, this.service, this.itemNames);
       Bukkit.getPluginManager().registerEvents(menu, this);
       Bukkit.getPluginManager().registerEvents(new ExpeditionListener(this.service), this);
@@ -86,25 +92,14 @@ ru.neverland.core.ActivityAdmin.attach(this,"townyexpeditions","mintexpeditions.
                + this.registry.all().size()
                + " экспедиций, команды /t expeditions готовы."
          );
-   } }
+   }
 
-   public void onDisable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
-        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
-
-      if (this.service != null) {
-         this.service.stopTasks();
-      }
-
-      if (this.repository != null && this.repository.writable()) {
-         this.repository.save();
-      }
-
-      if (this.towny != null) {
-         for (String name : TOWN_COMMANDS) {
-            this.towny.unregister(name);
-         }
-      }
-   } }
+   public java.util.concurrent.CompletionStage<Void> prepareClose(){try(var guard=ru.neverland.core.SuiteState.guard()){
+      if(closing!=null)return closing;stopping=true;closing=loading.handle((v,e)->null).thenCompose(v->service!=null?service.prepareClose():repository!=null?repository.prepareClose():java.util.concurrent.CompletableFuture.completedFuture(null));return closing;
+   }}
+   public void onDisable(){try{try(var guard=ru.neverland.core.SuiteState.guard()){
+      if(!ru.neverland.core.ModuleLifecycle.end(this))return;prepareClose();if(towny!=null)for(String name:TOWN_COMMANDS)towny.unregister(name);
+   }}finally{try{var done=prepareClose().toCompletableFuture();if(ru.neverland.core.SuiteState.held()&&!done.isDone())throw new IllegalStateException("Ожидайте завершение экспедиций вне Suite");done.get(10,java.util.concurrent.TimeUnit.SECONDS);}catch(Exception error){getLogger().log(java.util.logging.Level.SEVERE,"Запись экспедиций ещё завершается; неизвестные выдачи требуют сверки",error);}finally{ru.neverland.core.ModuleShutdown.remove(this);}}}
 
    public void reloadAll() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
       this.reloadConfig();

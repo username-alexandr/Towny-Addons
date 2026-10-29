@@ -1,0 +1,16 @@
+PASS actual Expeditions 0.2.0 enabled on Folia with Towny and Camps
+PASS real offline CraftPlayer participates in native entity ownership and exact player lookup
+PASS full JVM restart restores exact acknowledged native reward without reissue
+PASS restart restores unfinished second branch and its exact completed first kill
+PASS frozen active conditions survive absent current template
+PASS restart preserves historical contribution timestamp
+PASS old active progress and pending legacy reward survive asynchronous migration
+PASS restart retains unknown payment without automatic replay
+PASS second branch opens search only after remaining native enemy death
+PASS resumed branch gives exactly one frozen reward to verified contributor
+PASS actual Expeditions 0.2.0 enabled on Folia with Towny and Camps
+PASS real offline CraftPlayer participates in native entity ownership and exact player lookup
+PASS corrupt optional journal does not disable core expedition storage or plugin
+PASS legacy expedition remains readable during optional journal failure
+PASS corrupt optional source is preserved unchanged for recovery
+PASS optional failure neither reissues acknowledged rewards nor retries unknown effect

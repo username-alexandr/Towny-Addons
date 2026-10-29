@@ -1,0 +1,52 @@
+schema: 2
+active:
+  e83024e7-cc24-42bc-bb92-c00bfdf478c9:
+    leader: 908667b3-a354-30f3-b7f6-817d1bc9366b
+    definition: ancient_ruins
+    world-id: 30d49e23-00c4-4830-84ba-437924fa2108
+    world-name: world
+    camp: 40,118,8
+    site: 40,120,8
+    started: 1793291123457
+    expires: 1793294723457
+    admin-paused-at: 1793291123458
+    admin-duration: 3600000
+    status: ACTIVE
+    generated: {}
+    planned: false
+    site-ready: true
+    setup-note: ''
+    participants:
+    - 908667b3-a354-30f3-b7f6-817d1bc9366b
+    objectives: []
+    completed: []
+    kills: 3
+    spawned-mobs: []
+    snapshots: []
+history:
+- id: 661bf810-db8d-43ee-851e-df8f9e6ffcb4
+  ended: 1793291146799
+  participants: 2
+  status: COMPLETED
+  definition: native_frozen
+  kills: 2
+  leader: 5acc2077-1fac-3e26-9839-3fe2367358e9
+  objectives: 2
+- id: c50828d3-7bc0-4122-9943-3694dd20576e
+  ended: 1793291123256
+  participants: 2
+  status: COMPLETED
+  definition: native_frozen
+  kills: 2
+  leader: 5acc2077-1fac-3e26-9839-3fe2367358e9
+  objectives: 2
+reward-batches:
+  22936069-5efc-38e0-92bb-eb1319094939:
+    owner: 908667b3-a354-30f3-b7f6-817d1bc9366b
+    items:
+    - ==: org.bukkit.inventory.ItemStack
+      DataVersion: 4903
+      id: minecraft:gold_ingot
+      count: 3
+      schema_version: 1
+    money: 7.0

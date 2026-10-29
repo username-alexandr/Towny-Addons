@@ -67,13 +67,15 @@ public final class ExpeditionCommand implements CommandExecutor, TabCompleter {
 
     private void showStatus(Player player) {
         ActiveExpedition expedition =
-                service.repository().byLeader(player.getUniqueId());
+                service.participantExpedition(player.getUniqueId());
         if (expedition == null) {
             messages.send(player, "no-active");
             return;
         }
         ExpeditionDefinition definition =
-                service.registry().get(expedition.definitionId());
+                service.definition(expedition);
+        if(definition==null){player.sendMessage(service.journeyStatus(expedition));return;}
+        if(expedition.planned())player.sendMessage(service.journeyStatus(expedition));
         player.sendMessage(ColorUtil.color(
                 "&#C56DFF" + ColorUtil.strip(definition.name())
                         + " &#AAAAAA— цели &#FFFFFF"

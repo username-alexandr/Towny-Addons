@@ -1,0 +1,7 @@
+{
+  "rows": 13,
+  "unique_ids": 13,
+  "kind": "EXPEDITION_PLAN",
+  "expected": "7 scout transitions + 6 fight-first transitions; no duplicate across 3 boots",
+  "sha256": "d3e0b4de033ec6163fda63bf0e7877c87b0e7a176f0507ff226f8de2fd74f99d"
+}

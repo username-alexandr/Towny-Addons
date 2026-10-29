@@ -113,31 +113,23 @@ public final class SiteService {
         }));
     }
 
-    public boolean build(ActiveExpedition expedition, ExpeditionDefinition definition) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
-        World world = expedition.world();
-        if (world == null) return false;
-        SitePlan plan = generator.generate(definition, expedition.siteAnchor());
-        if(plan.blocks().keySet().stream().anyMatch(pos->!ru.neverland.core.SuiteScheduler.owns(pos.location(world))))return false;
-        try {
-            for (BlockPos position : plan.blocks().keySet()) {
-                expedition.snapshots().put(position, snapshot(position.location(world).getBlock()));
-            }
-            expedition.objectives().addAll(plan.objectives());
-            repository.put(expedition);
-            repository.save();
-            for (Map.Entry<BlockPos, Material> entry : plan.blocks().entrySet()) {
-                entry.getKey().location(world).getBlock().setType(entry.getValue(), false);
-            }
-            spawn(expedition, definition, definition.mobCount());
-            repository.changed();
-            repository.save();
-            return true;
-        } catch (RuntimeException exception) {
-            plugin.getLogger().severe("Ошибка генерации " + expedition.id() + ": " + exception.getMessage());
-            restore(expedition, () -> {});
-            return false;
-        }
-    } }
+    public java.util.concurrent.CompletionStage<Boolean> buildAsync(ActiveExpedition expedition,ExpeditionDefinition definition){try(var guard=ru.neverland.core.SuiteState.guard()){
+        var done=new java.util.concurrent.CompletableFuture<Boolean>();World world=expedition.world();if(world==null)return java.util.concurrent.CompletableFuture.completedFuture(false);
+        SitePlan plan=generator.generate(definition,expedition.siteAnchor());if(plan.blocks().size()>8192||plan.blocks().keySet().stream().anyMatch(pos->!ru.neverland.core.SuiteScheduler.owns(pos.location(world))))return java.util.concurrent.CompletableFuture.completedFuture(false);
+        for(BlockPos position:plan.blocks().keySet()){expedition.snapshots().put(position,snapshot(position.location(world).getBlock()));expedition.generated().put(position,Bukkit.createBlockData(plan.blocks().get(position)).getAsString());}
+        expedition.objectives().addAll(plan.objectives());expedition.siteReady(false,"Подготовка не завершена; при перезапуске нужна проверка места и припасов");repository.put(expedition);
+        repository.saveAsync().whenComplete((receipt,error)->{
+            if(error!=null){done.completeExceptionally(error);return;}if(!plugin.isEnabled()||org.bukkit.Bukkit.isStopping()){done.completeExceptionally(new IllegalStateException("Сервер остановлен до установки места"));return;}
+            ru.neverland.core.WorldTasks.loaded(plugin,expedition.siteLocation(),()->{
+                try{
+                    if(plan.blocks().keySet().stream().anyMatch(pos->!ru.neverland.core.SuiteScheduler.owns(pos.location(world))))throw new IllegalStateException("Участки места перешли в другой регион");
+                    for(var entry:expedition.snapshots().entrySet()){var current=snapshot(entry.getKey().location(world).getBlock());if(!current.equals(entry.getValue())){done.complete(false);return;}}
+                    for(var entry:plan.blocks().entrySet())entry.getKey().location(world).getBlock().setType(entry.getValue(),false);
+                    spawn(expedition,definition,definition.mobCount());repository.changed();repository.saveAsync().whenComplete((saved,failure)->{if(failure==null)done.complete(true);else done.completeExceptionally(failure);});
+                }catch(Exception failure){done.completeExceptionally(failure);}
+            });
+        });return done;
+    }}
 
     private SiteSnapshot snapshot(Block block) {
         List<ItemStack> items = new ArrayList<>();
@@ -157,7 +149,7 @@ public final class SiteService {
         int spawned = spawn(expedition, definition, count);
         if (spawned > 0) {
             repository.changed();
-            repository.saveIfDirty();
+            repository.saveIfDirtyAsync();
         }
     } }
 
@@ -306,7 +298,7 @@ public final class SiteService {
     public void guard(ActiveExpedition expedition, ExpeditionDefinition definition) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         Location center=expedition.siteLocation();if(center==null)return;
         if(!ru.neverland.core.SuiteScheduler.owns(center)) {ru.neverland.core.SuiteScheduler.region(plugin,center,()->guard(expedition,definition));return;}
-        if(repository.get(expedition.id())!=expedition || expedition.status()!=ExpeditionStatus.ACTIVE)return;
+        if(repository.get(expedition.id())!=expedition || expedition.status()!=ExpeditionStatus.ACTIVE||!expedition.siteReady())return;
         // Reconcile loaded arena bodies before calculating missing mobs, including restored saves.
         int radius=(int)Math.ceil(Math.max(24,plugin.getConfig().getDouble("combat.mob-containment-radius",15)+4));
         if(!ru.neverland.core.WorldTasks.ownsBox(center,radius))return;
@@ -330,6 +322,8 @@ public final class SiteService {
     }}
 
     public void resume(ActiveExpedition expedition, ExpeditionDefinition definition) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
+        if(!expedition.siteReady())return;
+        if(expedition.planned())for(var completed:List.copyOf(expedition.completed()))ru.neverland.core.WorldTasks.loaded(plugin,completed.location(expedition.world()),()->{var block=completed.location(expedition.world()).getBlock();if(block.getType()==definition.objectiveMaterial())block.setType(Material.AIR,false);});
         ru.neverland.core.WorldTasks.eachEntity(plugin,entity->{if(expedition.id().equals(expeditionMob(entity))) {
             expedition.spawnedMobs().add(entity.getUniqueId());repository.changed();
             if(!insideMobArea(expedition,entity.getLocation()))relocateMob(entity);
@@ -351,17 +345,14 @@ public final class SiteService {
 
     public void restore(ActiveExpedition expedition, Runnable done) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         World world = expedition.world();
-        if (world == null) {
-            done.run();
-            return;
-        }
+        if (world == null) {plugin.getLogger().warning("Мир экспедиции недоступен; снимок сохранён: "+expedition.id());return;}
 ru.neverland.core.WorldTasks.eachEntity(plugin,entity->{if(expedition.id().equals(expeditionMob(entity)))entity.remove();});
         List<Map.Entry<BlockPos, SiteSnapshot>> entries =
                 new ArrayList<>(expedition.snapshots().entrySet());
         int batch = Math.max(1,
                 plugin.getConfig().getInt("generation.restore-blocks-per-tick", 80));
         class RestoreBatch implements Runnable {
-            int index;
+            int index;boolean conflict;
             public void run() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
                 for (int restored = 0; restored < batch && index < entries.size();
                      restored++, index++) {
@@ -369,6 +360,11 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,entity->{if(expedition.id().equal
                     if(!ru.neverland.core.SuiteScheduler.owns(entry.getKey().location(world)))break;
                     Block block = entry.getKey().location(world).getBlock();
                     SiteSnapshot snapshot = entry.getValue();
+                    if(!expedition.generated().isEmpty()){
+                        var current=SiteService.this.snapshot(block);if(current.equals(snapshot))continue;
+                        boolean generated=current.blockData().equals(expedition.generated().get(entry.getKey()))||expedition.completed().contains(entry.getKey())&&block.getType().isAir();
+                        if(!generated||current.inventory().stream().anyMatch(i->i!=null&&!i.getType().isAir())){conflict=true;continue;}
+                    }
                     block.setType(snapshot.material(), false);
                     try {
                         block.setBlockData(Bukkit.createBlockData(ru.neverland.localization.MaterialLabels.canonicalBlockData(snapshot.blockData())), false);
@@ -386,7 +382,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,entity->{if(expedition.id().equal
                     }
                 }
 
-                if(index>=entries.size()){done.run();return;}
+                if(index>=entries.size()){if(conflict){expedition.siteReady(false,"Место изменено посторонними действиями; снимок сохранён для сверки");repository.changed();repository.saveAsync();plugin.getLogger().warning("Экспедиция "+expedition.id()+": посторонние изменения не откатили; нужна проверка места");}else done.run();return;}
                 ru.neverland.core.WorldTasks.loaded(plugin,entries.get(index).getKey().location(world),this);
             }} }
         }

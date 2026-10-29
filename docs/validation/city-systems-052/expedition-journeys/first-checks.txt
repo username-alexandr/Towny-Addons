@@ -1,0 +1,22 @@
+PASS actual Expeditions 0.2.0 enabled on Folia with Towny and Camps
+PASS real offline CraftPlayer participates in native entity ownership and exact player lookup
+PASS real confirmation menu explains order, frozen rewards and contribution before accepting
+PASS deferred click from closed confirmation cannot start an expedition
+PASS actual site construction waits saved terrain snapshot and creates native blocks and mobs
+PASS scout branch locks combat until all objectives are confirmed
+PASS owning chunk enumeration resolves native entity index to the exact live mob before production guard lookups
+PASS actual event listener prevents combat during reconnaissance
+PASS active menu explains voluntary roles and personal verified contribution
+PASS revoked permission blocks deferred role choice
+PASS blocked physical journal write keeps objective block and progress unchanged; busy=true progress=0 block=AMETHYST_BLOCK messages=[]
+PASS real Suite global heartbeat continues during detached journal write
+PASS same objective cannot contribute twice
+PASS full first stage unlocks actual raid combat only after acknowledgements
+PASS actual saved item reward reaches only contributor; idle participant receives no queued reward
+PASS one completed history record after both stages
+PASS native inventory issuance stored operation PDC in actual vanilla player data
+PASS actual site construction waits saved terrain snapshot and creates native blocks and mobs
+PASS fight-first branch keeps search blocked until all enemies defeated
+PASS optional mode disable pauses time and progress without failure
+PASS legacy expedition continues separate old state without new branch migration
+PASS unknown external acknowledgement remains pending for manual review

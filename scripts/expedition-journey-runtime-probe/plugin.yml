@@ -1,0 +1,6 @@
+name: ExpeditionJourneyRuntimeProbe
+version: 1
+main: ru.neverland.runtime.ExpeditionJourneyProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyCitizens, NeverLandTownyCamps, NeverLandTownyExpeditions]

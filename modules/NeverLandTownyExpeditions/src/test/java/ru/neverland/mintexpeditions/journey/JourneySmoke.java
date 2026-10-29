@@ -1,0 +1,16 @@
+package ru.neverland.mintexpeditions.journey;
+import java.util.*;
+import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
+import ru.neverland.mintexpeditions.model.*;
+public final class JourneySmoke {
+    static int checks;static void check(boolean b,String s){checks++;if(!b)throw new AssertionError(s);}static void deny(Runnable r){try{r.run();}catch(RuntimeException expected){checks++;return;}throw new AssertionError("expected rejection");}
+    static ExpeditionDefinition definition(){return new ExpeditionDefinition("ruins","Руины",ExpeditionType.RUINS,ObjectiveType.EXCAVATE,Material.STONE,10,1,120,20,30,2,Material.AMETHYST_BLOCK,EntityType.ZOMBIE,2,List.of(),List.of(),40,List.of("До конца похода"));}
+    public static void main(String[]args){UUID id=UUID.randomUUID(),a=UUID.randomUUID(),b=UUID.randomUUID();
+        var scout=new Journey(id,definition(),Journey.Branch.SCOUT_FIRST,Set.of(a,b),Map.of(),Map.of(),Journey.State.ACTIVE,"");check(scout.stage()==Journey.Action.OBJECTIVE,"scout starts with objectives");deny(()->scout.credit("m:"+UUID.randomUUID(),Journey.Action.KILL,a,1));deny(()->scout.credit("o:1,1,1",Journey.Action.OBJECTIVE,UUID.randomUUID(),1));
+        var first=scout.role(a,Journey.Role.EXPLORER).credit("o:1,1,1",Journey.Action.OBJECTIVE,a,1);check(first.contributions().get("o:1,1,1").role()==Journey.Role.EXPLORER,"role at contribution is frozen");deny(()->first.credit("o:1,1,1",Journey.Action.OBJECTIVE,a,2));var second=first.role(a,Journey.Role.GUARD).credit("o:2,1,1",Journey.Action.OBJECTIVE,a,2);check(second.stage()==Journey.Action.KILL&&second.objectives()==2,"full first stage required");check(second.contributions().get("o:1,1,1").role()==Journey.Role.EXPLORER,"later role does not rewrite history");
+        var finalJourney=second.credit("m:"+UUID.randomUUID(),Journey.Action.KILL,a,3).credit("m:"+UUID.randomUUID(),Journey.Action.KILL,a,4);check(finalJourney.complete()&&finalJourney.contributed(a)&&!finalJourney.contributed(b),"idle participant has no reward contribution");deny(()->finalJourney.credit("m:"+UUID.randomUUID(),Journey.Action.KILL,a,5));check(finalJourney.frozen().moneyPerParticipant()==40&&finalJourney.frozen().durationSeconds()==120,"fixed original conditions and reward");
+        var fight=new Journey(UUID.randomUUID(),definition(),Journey.Branch.FIGHT_FIRST,Set.of(a),Map.of(),Map.of(),Journey.State.ACTIVE,"");check(fight.stage()==Journey.Action.KILL,"fight starts with enemies");deny(()->fight.credit("o:1,1,1",Journey.Action.OBJECTIVE,a,1));var search=fight.credit("m:"+UUID.randomUUID(),Journey.Action.KILL,a,2).credit("m:"+UUID.randomUUID(),Journey.Action.KILL,a,3);check(search.stage()==Journey.Action.OBJECTIVE,"search unlocks after all enemies");var review=search.state(Journey.State.REVIEW,"Пауза без провала");deny(()->review.credit("o:1,1,1",Journey.Action.OBJECTIVE,a,4));check(review.kills()==2&&!review.complete(),"pause keeps contribution without false win");deny(()->scout.roles().put(a,Journey.Role.GUARD));deny(()->scout.participants().add(UUID.randomUUID()));deny(()->scout.state(Journey.State.CLOSED,"unknown"));check(scout.contributions().isEmpty(),"persistent mutations never alter prior image");
+        System.out.println("JourneySmoke PASS "+checks);
+    }
+}

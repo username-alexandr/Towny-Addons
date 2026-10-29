@@ -1,0 +1,38 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 22 assertions; real Folia/Towny/Camps/Expeditions, generated native terrain and enemies, live events, detached journal with global heartbeat, frozen order and role, native inventory/PDC/saveData, legacy migration and full restart. Fixed site and networkless registered CraftPlayer actors are explicit fixtures; no real client login, camp resource debit or economy provider payment certified.\n",
+    "jar_sha256": {
+      "NeverLandTownyCamps-0.2.0.jar": "d1947690953e1b78732acc5544b9fac90b10cb7ad5ae688fc601f331819e4dce",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyExpeditions-0.2.0.jar": "74ca348daff3cfe31cbce0d37f2af5f59cfa332f6be99ab42fdc32fb1cfb7b1b",
+      "ExpeditionJourneyRuntimeProbe.jar": "cc9ff5588bca357bc18e667dd1c0de01db6fc326f73ea60b3e3b1d5432162e13"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 10 assertions; real Folia/Towny/Camps/Expeditions, generated native terrain and enemies, live events, detached journal with global heartbeat, frozen order and role, native inventory/PDC/saveData, legacy migration and full restart. Fixed site and networkless registered CraftPlayer actors are explicit fixtures; no real client login, camp resource debit or economy provider payment certified.\n",
+    "jar_sha256": {
+      "NeverLandTownyCamps-0.2.0.jar": "d1947690953e1b78732acc5544b9fac90b10cb7ad5ae688fc601f331819e4dce",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyExpeditions-0.2.0.jar": "74ca348daff3cfe31cbce0d37f2af5f59cfa332f6be99ab42fdc32fb1cfb7b1b",
+      "ExpeditionJourneyRuntimeProbe.jar": "cc9ff5588bca357bc18e667dd1c0de01db6fc326f73ea60b3e3b1d5432162e13"
+    }
+  },
+  {
+    "phase": "corrupt",
+    "exit_code": 0,
+    "result": "PASS 6 assertions; real Folia/Towny/Camps/Expeditions, generated native terrain and enemies, live events, detached journal with global heartbeat, frozen order and role, native inventory/PDC/saveData, legacy migration and full restart. Fixed site and networkless registered CraftPlayer actors are explicit fixtures; no real client login, camp resource debit or economy provider payment certified.\n",
+    "jar_sha256": {
+      "NeverLandTownyCamps-0.2.0.jar": "d1947690953e1b78732acc5544b9fac90b10cb7ad5ae688fc601f331819e4dce",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyExpeditions-0.2.0.jar": "74ca348daff3cfe31cbce0d37f2af5f59cfa332f6be99ab42fdc32fb1cfb7b1b",
+      "ExpeditionJourneyRuntimeProbe.jar": "cc9ff5588bca357bc18e667dd1c0de01db6fc326f73ea60b3e3b1d5432162e13"
+    }
+  }
+]

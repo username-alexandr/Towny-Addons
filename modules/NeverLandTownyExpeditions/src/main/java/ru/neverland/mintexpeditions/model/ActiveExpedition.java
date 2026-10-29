@@ -14,8 +14,12 @@ public final class ActiveExpedition {
     private final Set<UUID> participants = new LinkedHashSet<>();
     private final Set<BlockPos> objectives = new LinkedHashSet<>(), completed = new LinkedHashSet<>();
     private final Map<BlockPos, SiteSnapshot> snapshots = new LinkedHashMap<>();
+    private final Map<BlockPos,String> generated = new LinkedHashMap<>();
     private final Set<UUID> spawnedMobs = new LinkedHashSet<>();
     private int kills;
+    private boolean siteReady=true;
+    private boolean planned;
+    private String setupNote="";
     private ExpeditionStatus status = ExpeditionStatus.ACTIVE;
 
     public ActiveExpedition(UUID id, UUID leaderId, String definitionId, UUID worldId, String worldName,
@@ -35,6 +39,12 @@ public final class ActiveExpedition {
     public Location siteLocation(){ try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {World w=world(); return w==null?null:siteAnchor.location(w).add(.5,1,.5);} }
     public Location campLocation(){ try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {World w=world(); return w==null?null:campAnchor.location(w).add(.5,1,.5);} }
     public int objectiveProgress(){ try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) {return completed.size();} }
+    public Map<BlockPos,String> generated(){return generated;}
+    public boolean planned(){return planned;}
+    public void planned(boolean value){planned=value;}
+    public boolean siteReady(){return siteReady;}
+    public void siteReady(boolean ready,String note){siteReady=ready;setupNote=note;}
+    public String setupNote(){return setupNote;}
     public ru.neverland.core.ActivityTimer timer(){ try (var suiteGuard23 = ru.neverland.core.SuiteState.guard()) {return timer;} }
     public void timer(ru.neverland.core.ActivityTimer value){ try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) {timer=java.util.Objects.requireNonNull(value);} }
 }

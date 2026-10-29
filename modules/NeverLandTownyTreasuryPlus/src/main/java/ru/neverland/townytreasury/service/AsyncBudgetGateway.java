@@ -27,7 +27,7 @@ final class AsyncBudgetGateway {
         if(!ownerReady(terms.owner()))return failed("Аддон-владелец запроса выключен или приостановлен");
         host.requireAsyncReady(terms.town());if(before.debits().size()>=AsyncDebit.MAX_RECEIPTS)return failed("Архив квитанций достиг предела; новые списания приостановлены");
         var city=before.cities().get(terms.town());if(city==null)return failed("Казна города ещё не инициализирована");
-        long now=System.currentTimeMillis();boolean refund=terms.kind()==AsyncDebit.Kind.REFUND;boolean allowed=refund?city.pending()==null:LedgerEngine.canSpend(city,Budget.parse(terms.category()),terms.cents());
+        long now=System.currentTimeMillis();boolean refund=terms.kind()==AsyncDebit.Kind.REFUND;if(refund&&city.pending()!=null)return failed("Бюджет города занят другой квитанцией; повторите тот же ID возврата позже");boolean allowed=refund||LedgerEngine.canSpend(city,Budget.parse(terms.category()),terms.cents());
         var receipt=new AsyncDebit(terms,allowed?PREPARED:REJECTED,now,now,allowed?"":"Недостаточно средств в статье бюджета либо уже есть незавершённый счёт");
         var cities=new HashMap<>(before.cities());if(allowed)cities.put(terms.town(),refund?city.next(city.balance(),city.enabled(),city.funds(),city.shares(),city.weeks(),terms.pending(now),null):LedgerEngine.prepare(city,terms.pending(now)));var records=new HashMap<>(before.debits());records.put(terms.operation(),receipt);
         var future=repo.commit(before,new TreasuryRepository.Image(cities,records)).thenApply(x->view(x,receipt));track(future);return future;
@@ -52,7 +52,7 @@ final class AsyncBudgetGateway {
         for(var d:repo.image().debits().values())if(d.state()==INVOKING&&!d.terms().operation().equals(invoking)){track(finish(d,new Outcome(REVIEW,"Сервер остановился во время банковского вызова; проверьте точную квитанцию")));return true;}return false;
     }
     private void start(AsyncDebit d){
-        var t=d.terms();if(!host.asyncReady(t.town()))return;var town=TownyAPI.getInstance().getTown(t.town());if(town==null){track(finish(d,new Outcome(REJECTED,"Город удалён до банковского вызова")));return;}
+        var t=d.terms();if(!host.asyncReady(t.town()))return;var town=TownyAPI.getInstance().getTown(t.town());if(town==null){track(finish(d,new Outcome(t.kind()==AsyncDebit.Kind.REFUND?REVIEW:REJECTED,"Город удалён до банковского вызова; возврат требует сверки обеспечения")));return;}
         if(!TownyEconomyHandler.isActive()||TownyEconomyHandler.activeAdapter()==null)return;
         final BankAccount account=town.getAccount();var before=repo.image();var current=before.debits().get(t.operation());if(!d.equals(current))return;
         var records=new HashMap<>(before.debits());var started=d.state(INVOKING,System.currentTimeMillis(),"");records.put(t.operation(),started);invoking=t.operation();
@@ -75,7 +75,7 @@ final class AsyncBudgetGateway {
         synchronized(account){
             try{double balance=account.getHoldingBalance(true);if(!Double.isFinite(balance))return new Outcome(PREPARED,"Баланс банка пока недоступен");
                 if(refund&&(balance>Money.MAX/100.0-t.cents()/100.0||Money.cents(balance)>Money.MAX-t.cents()))return new Outcome(PREPARED,"Возврат превысит допустимый баланс; требуется проверка");
-                if(!refund&&balance<t.cents()/100.0||!host.rawBudgetAllows(t))return new Outcome(REJECTED,"Средства или статья бюджета изменились до вызова банка");
+                if(!refund&&balance<t.cents()/100.0||!host.rawBudgetAllows(t))return new Outcome(refund?PREPARED:REJECTED,"Средства или статья бюджета временно недоступны до вызова банка");
             }catch(Throwable e){return new Outcome(PREPARED,"Не удалось проверить баланс до банковского вызова");}
             account.addObserver(observer);try{
                 try{if(refund)account.deposit(t.cents()/100.0,"[NLT|refund|"+t.category()+"|"+t.source()+"] "+token+" "+t.reason());else account.withdraw(t.cents()/100.0,"[NLT|"+t.operation()+"|"+t.category()+"|"+t.source()+"] "+token+" "+t.reason());}

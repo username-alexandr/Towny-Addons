@@ -25,7 +25,9 @@ public final class TownyHook {
       return TownyAPI.getInstance().getTown(location) == null;
    } }
 
-   public boolean reward(Player player, double amount, UUID operation) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
+   public boolean reward(Player player, double amount, UUID operation) {
+      if(ru.neverland.core.SuiteState.held())throw new IllegalStateException("Банк должен вызываться вне Suite");
+      if(!com.palmergames.bukkit.towny.TownyEconomyHandler.isActive()||com.palmergames.bukkit.towny.TownyEconomyHandler.activeAdapter()==null)return false;
       if (amount <= 0.0) {
          return true;
       } else {
@@ -67,7 +69,7 @@ public final class TownyHook {
             }
          }
       }
-   } }
+   }
 
    public boolean register(String name, CommandExecutor executor) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
       return TownyCommandAddonAPI.addSubCommand(CommandType.TOWN, name, executor);

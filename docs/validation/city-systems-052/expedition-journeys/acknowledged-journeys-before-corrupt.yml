@@ -1,0 +1,128 @@
+schema: 1
+journeys:
+  c50828d3-7bc0-4122-9943-3694dd20576e:
+    branch: SCOUT_FIRST
+    state: CLOSED
+    note: COMPLETED
+    participants:
+    - b238cd62-b926-36c1-978a-fbd1a83ab728
+    - 5acc2077-1fac-3e26-9839-3fe2367358e9
+    roles:
+      5acc2077-1fac-3e26-9839-3fe2367358e9: EXPLORER
+    contributions:
+      '0':
+        key: m:4052c6c9-aff5-4021-8829-1f8834a267ef
+        action: KILL
+        player: 5acc2077-1fac-3e26-9839-3fe2367358e9
+        role: EXPLORER
+        at: 1793291123209
+      '1':
+        key: m:97d27dd4-6b69-4d23-9276-8444dd240911
+        action: KILL
+        player: 5acc2077-1fac-3e26-9839-3fe2367358e9
+        role: EXPLORER
+        at: 1793291123125
+      '2':
+        key: o:13,120,8
+        action: OBJECTIVE
+        player: 5acc2077-1fac-3e26-9839-3fe2367358e9
+        role: EXPLORER
+        at: 1793291122719
+      '3':
+        key: o:3,120,8
+        action: OBJECTIVE
+        player: 5acc2077-1fac-3e26-9839-3fe2367358e9
+        role: EXPLORER
+        at: 1793291123009
+    definition:
+      id: native_frozen
+      name: Сохранённые руины
+      type: RUINS
+      objective: EXCAVATE
+      icon: AMETHYST_BLOCK
+      slot: 10
+      level: 1
+      duration: 3600
+      min-distance: 1
+      max-distance: 2
+      goal: 2
+      objective-material: AMETHYST_BLOCK
+      mob: ZOMBIE
+      mobs: 2
+      money: '0.0'
+      description:
+      - Только подтверждённый вклад
+      costs: {}
+      rewards:
+        '0':
+          key: minecraft:diamond
+          item:
+            ==: org.bukkit.inventory.ItemStack
+            DataVersion: 4903
+            id: minecraft:diamond
+            count: 1
+            schema_version: 1
+          amount: 2
+  661bf810-db8d-43ee-851e-df8f9e6ffcb4:
+    branch: FIGHT_FIRST
+    state: CLOSED
+    note: COMPLETED
+    participants:
+    - b238cd62-b926-36c1-978a-fbd1a83ab728
+    - 5acc2077-1fac-3e26-9839-3fe2367358e9
+    roles: {}
+    contributions:
+      '0':
+        key: m:9fcef04d-b2f4-49f8-a9cc-fb083b5729e1
+        action: KILL
+        player: 5acc2077-1fac-3e26-9839-3fe2367358e9
+        role: ''
+        at: 1793291123709
+      '1':
+        key: m:c3237ad6-dfe2-4d7d-92b6-8fa734303423
+        action: KILL
+        player: 5acc2077-1fac-3e26-9839-3fe2367358e9
+        role: ''
+        at: 1793291146241
+      '2':
+        key: o:13,120,8
+        action: OBJECTIVE
+        player: 5acc2077-1fac-3e26-9839-3fe2367358e9
+        role: ''
+        at: 1793291146398
+      '3':
+        key: o:3,120,8
+        action: OBJECTIVE
+        player: 5acc2077-1fac-3e26-9839-3fe2367358e9
+        role: ''
+        at: 1793291146715
+    definition:
+      id: native_frozen
+      name: Сохранённые руины
+      type: RUINS
+      objective: EXCAVATE
+      icon: AMETHYST_BLOCK
+      slot: 10
+      level: 1
+      duration: 3600
+      min-distance: 1
+      max-distance: 2
+      goal: 2
+      objective-material: AMETHYST_BLOCK
+      mob: ZOMBIE
+      mobs: 2
+      money: '0.0'
+      description:
+      - Только подтверждённый вклад
+      costs: {}
+      rewards:
+        '0':
+          key: minecraft:diamond
+          item:
+            ==: org.bukkit.inventory.ItemStack
+            DataVersion: 4903
+            id: minecraft:diamond
+            count: 1
+            schema_version: 1
+          amount: 2
+outbox: {}

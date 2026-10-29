@@ -7,7 +7,7 @@ import ru.neverland.core.*;import ru.neverland.townytreasury.*;import ru.neverla
 /** Actual Folia/Treasury/Towny Account+Observer; a deterministic substituted bank backend is explicit. */
 public final class TreasuryAsyncProbe extends JavaPlugin{
  static UUID id(String text){return UUID.nameUUIDFromBytes(("treasury-async030-"+text).getBytes(java.nio.charset.StandardCharsets.UTF_8));}
- static final UUID TOWN=id("town"),SECOND=id("second"),THIRD=id("third"),ACTOR=id("mayor"),A=id("a"),AR=id("ar"),B=id("b"),C=id("c"),CR=id("cr"),D=id("d"),DR=id("dr"),E=id("e"),ER=id("er"),GAP=id("gap");
+ static final UUID TOWN=id("town"),SECOND=id("second"),THIRD=id("third"),ACTOR=id("mayor"),A=id("a"),AR=id("ar"),B=id("b"),C=id("c"),CR=id("cr"),D=id("d"),DR=id("dr"),E=id("e"),ER=id("er"),BUSY=id("busy"),BUSYR=id("busy-refund"),GAP=id("gap");
  Path proof;boolean restart;int checks;NeverLandTownyTreasuryPlus plugin;TreasuryService service;TreasuryRepository repo;FixtureBank bank=new FixtureBank();CountDownLatch release;volatile long disableNanos;volatile CompletionStage<Void> closing;boolean stream;
  interface Work{void run()throws Exception;}
  static Object field(Object o,String name)throws Exception{var f=o.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(o);}
@@ -29,7 +29,7 @@ public final class TreasuryAsyncProbe extends JavaPlugin{
  @Override public void onEnable(){if(!Files.isRegularFile(Path.of("ALLOW_DISPOSABLE_RAID_PROBE"))||!getServer().getIp().equals("127.0.0.1")){getServer().getPluginManager().disablePlugin(this);return;}proof=getDataFolder().toPath();try{Files.createDirectories(proof);}catch(Exception e){throw new RuntimeException(e);}restart=Files.exists(proof.resolve("first-passed.txt"));later(50,this::setup);}
  void setup()throws Exception{
   plugin=(NeverLandTownyTreasuryPlus)Bukkit.getPluginManager().getPlugin("NeverLandTownyTreasuryPlus");service=(TreasuryService)Bukkit.getServicesManager().load(ru.neverland.townytreasury.api.TownyTreasuryApi.class);repo=(TreasuryRepository)field(service,"repo");((org.bukkit.scheduler.BukkitTask)field(service,"task")).cancel();
-  check(plugin.isEnabled()&&plugin.getDescription().getVersion().equals("0.3.0"),"actual Treasury0.3 plugin starts on real Folia");
+  check(plugin.isEnabled()&&plugin.getDescription().getVersion().equals("0.3.1"),"actual Treasury0.3.1 plugin starts on real Folia");
   var economy=TownyEconomyHandler.class.getDeclaredField("economy");economy.setAccessible(true);economy.set(null,bank);var provider=TownyEconomyHandler.class.getDeclaredField("provider");provider.setAccessible(true);provider.set(null,new VaultEconomyProvider());TownySettings.setProperty("economy.using_economy",true);
   if(restart){var y=YamlConfiguration.loadConfiguration(proof.resolve("fixture.yml").toFile());for(String text:y.getConfigurationSection("money").getKeys(false))bank.money.put(UUID.fromString(text),y.getDouble("money."+text));until(()->initialized(),this::resumed);return;}
   for(var e:Map.of(TOWN,"BudgetNativeOne",SECOND,"BudgetNativeTwo",THIRD,"BudgetNativeStream").entrySet()){var u=TownyUniverse.getInstance();u.newTownInternal(e.getValue(),e.getKey());var town=TownyAPI.getInstance().getTown(e.getKey());var mayor=u.getDataSource().newResident(e.getValue()+"Mayor",id(e.getValue()));mayor.setTown(town);town.setMayor(mayor);mayor.save();town.save();bank.money.put(e.getKey(),1000D);}
@@ -48,12 +48,18 @@ public final class TreasuryAsyncProbe extends JavaPlugin{
  }
  void paidFirst()throws Exception{
   stream=false;check(bank.debits==1&&balance(TOWN)==90000&&infra(TOWN)==15000,"exact observed bank debit and category decrease occur once despite continuous other-town flows");check(Boolean.TRUE.equals(service.debitStatus(A).get("backingAvailable")),"paid escrow exposes live available backing");
-  until(()->!((BankFlows)fieldUnchecked(service,"flows")).contains(TOWN),()->await(refund(AR,A),()->until(()->paid(AR),this::refundedFirst)));
+  until(()->!((BankFlows)fieldUnchecked(service,"flows")).contains(TOWN),this::busyRefund);
  }
  Object fieldUnchecked(Object o,String name){try{return field(o,name);}catch(Exception e){throw new IllegalStateException(e);}}
+ void busyRefund()throws Exception{
+  await(debit(BUSY,TOWN,100),()->denied(()->refund(AR,A),()->{check(state(AR).equals("ABSENT")&&repo.cities().get(TOWN).pending().id().equals(BUSY)&&bank.creditsFor(TOWN)==0,"busy refund creates no rejected intent and preserves the other exact pending reservation");until(()->paid(BUSY),()->await(refund(BUSYR,BUSY),()->until(()->paid(BUSYR),()->{check(balance(TOWN)==90000&&infra(TOWN)==15000,"other payment finishes and is fully refunded before reusing original refund UUID");await(refund(AR,A),this::refundBalancePause);})));}));
+ }
+ void refundBalancePause()throws Exception{
+  int credits=bank.creditsFor(TOWN);bank.money.put(TOWN,Money.MAX/100.0);ticks(10,()->until(()->state(AR).equals("PREPARED")&&service.debitStatus(AR).get("review").toString().contains("превысит"),()->{check(bank.creditsFor(TOWN)==credits&&repo.cities().get(TOWN).pending().id().equals(AR),"temporary actual-bank balance ceiling preserves PREPARED refund UUID without credit or rejection");bank.money.put(TOWN,900D);await(refund(AR,A),()->until(()->paid(AR),this::refundedFirst));}));
+ }
  void refundedFirst()throws Exception{
-  check(balance(TOWN)==100000&&infra(TOWN)==25000&&bank.creditsFor(TOWN)==1,"full backed refund restores exact original category without fresh allocation");check(Boolean.FALSE.equals(service.debitStatus(A).get("backingAvailable"))&&((Number)service.debitStatus(A).get("refundedCents")).longValue()==10000,"refunded debit is no longer available escrow backing");
-  await(refund(AR,A),()->denied(()->refund(id("duplicate-refund"),A),()->{check(bank.creditsFor(TOWN)==1,"same refund ID and second refund request cannot repeat bank credit");await(debit(B,TOWN,30000),()->{check(state(B).equals("REJECTED")&&bank.debits==1,"rich total balance cannot bypass insufficient infrastructure allocation");until(()->idle(),()->{bank.loseDebit=true;await(debit(C,TOWN,10000),()->until(()->state(C).equals("REVIEW"),this::unknownDebit));});});}));
+  check(balance(TOWN)==100000&&infra(TOWN)==25000&&bank.creditsFor(TOWN)==2,"full backed refund restores exact original category without fresh allocation");check(Boolean.FALSE.equals(service.debitStatus(A).get("backingAvailable"))&&((Number)service.debitStatus(A).get("refundedCents")).longValue()==10000,"refunded debit is no longer available escrow backing");
+  await(refund(AR,A),()->denied(()->refund(id("duplicate-refund"),A),()->{check(bank.creditsFor(TOWN)==2,"same refund ID and second refund request cannot repeat bank credit");await(debit(B,TOWN,30000),()->{check(state(B).equals("REJECTED")&&bank.debits==2,"rich total balance cannot bypass insufficient infrastructure allocation");until(()->idle(),()->{bank.loseDebit=true;await(debit(C,TOWN,10000),()->until(()->state(C).equals("REVIEW"),this::unknownDebit));});});}));
  }
  void unknownDebit()throws Exception{
   int calls=bank.debits;ticks(8,()->{check(bank.debits==calls&&balance(TOWN)==90000&&repo.cities().get(TOWN).balance()==100000&&repo.cities().get(TOWN).pending().id().equals(C),"lost backend response retains exact REVIEW and budget lock without replay");await(service.resolveAsync(C,true,"native exact bank receipt inspection"),()->until(()->paid(C),()->{check(bank.debits==calls&&repo.cities().get(TOWN).balance()==90000,"manual paid reconciliation updates ledger only after exact receipt decision");await(refund(CR,C),()->until(()->paid(CR),this::unknownRefund));}));});
