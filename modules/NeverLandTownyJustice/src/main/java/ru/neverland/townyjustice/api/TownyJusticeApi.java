@@ -6,6 +6,8 @@ import java.util.*;
  * wanted includes only funded, unexpired WANTED cases. Custody and payments pending are separate states.
  */
 public interface TownyJusticeApi extends ru.neverland.core.ApiContract {
-    @Override default Set<String> capabilities(){return Set.of("healthy","caseFile","cases","wanted","fines","prisons");}
+    @Override default Set<String> capabilities(){return Set.of("review","healthy","caseFile","cases","wanted","fines","prisons");}
+    /** Optional public operational status only; private evidence and appeal texts remain restricted to participants/court. */
+    default Map<String,Object> review(UUID caseId){return Map.of("available",false,"pending",false);}
     boolean healthy();Optional<Map<String,Object>> caseFile(UUID id);Collection<Map<String,Object>> cases(UUID town);Collection<Map<String,Object>> wanted(UUID subject);Collection<Map<String,Object>> fines(UUID subject);Collection<Map<String,Object>> prisons(UUID town);
 }

@@ -1,0 +1,9 @@
+PASS actual Logistics 0.3.0 asynchronously starts on Folia and Towny
+PASS actual full JVM restart restores city network and same courier
+PASS saved backtrack and replacement leg survive restart exactly
+PASS same real transit inventory survives full server restart
+PASS replayed shipment pickup does not debit source twice
+PASS actual unload is idempotent after restart
+PASS second independent pickup has its own durable shipment
+PASS administrative return restores exact source inventory and retains delivered items
+PASS return receipt remains until acknowledged cleanup

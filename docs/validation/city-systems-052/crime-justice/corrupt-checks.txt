@@ -1,0 +1,6 @@
+PASS actual Crime0.2 Justice0.2 Districts0.2.3 and existing dependencies enabled
+PASS corrupt optional journals leave original crime and justice modules enabled
+PASS corrupt optional journals expose explicit unavailable data
+PASS corrupt optional files never create penalties or lose existing original case
+PASS original crime state remains preserved despite optional archive failure
+PASS corrupt optional source files remain untouched

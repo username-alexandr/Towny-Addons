@@ -1,0 +1,26 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 13 checks; actual Folia/Towny/Builds/Logistics, native Pathfinder backtrack, delayed physical file, acknowledged route replacement, exact real shipment inventory, menus and full restart. Explicit offline Player/View/EntityScheduler, seeded completed sites and staged BLOCKED signal; no network client, purchased building or full walking journey claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyLogistics-0.3.0.jar": "1cfdcfe68eb024b79644dafd497c022fb0fc24ab40fab6a647fd61442dbcc191",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "LogisticsRoutingRuntimeProbe.jar": "689de18796fcfe4dae6a4f197636e18652b4bc764854eeb208d91bd81dce853d",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 9 checks; actual Folia/Towny/Builds/Logistics, native Pathfinder backtrack, delayed physical file, acknowledged route replacement, exact real shipment inventory, menus and full restart. Explicit offline Player/View/EntityScheduler, seeded completed sites and staged BLOCKED signal; no network client, purchased building or full walking journey claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyLogistics-0.3.0.jar": "1cfdcfe68eb024b79644dafd497c022fb0fc24ab40fab6a647fd61442dbcc191",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "LogisticsRoutingRuntimeProbe.jar": "689de18796fcfe4dae6a4f197636e18652b4bc764854eeb208d91bd81dce853d",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+    }
+  }
+]

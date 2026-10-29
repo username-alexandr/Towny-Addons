@@ -1,0 +1,30 @@
+PASS broken: Citizens remains enabled and unfrozen
+PASS broken: Builds remains enabled and unfrozen
+PASS broken: Contracts remains enabled and unfrozen
+PASS broken: Quests remains enabled and unfrozen
+PASS broken: Control remains enabled and unfrozen
+PASS actual runtime rejects a valid block with no inventory item
+PASS original four city chains load alongside optional cooperative section
+PASS all four administrative audit receipts survive shutdown and are unique
+PASS full restart keeps old city-chain result
+PASS optional cooperative configuration cannot rewrite old chain data
+PASS full restart preserves completed exact budget and city contributions
+PASS restart neither respends nor duplicates returned goods
+PASS plan and completed actions remain unique after restart
+PASS invalid optional settings suspend only cooperative UI
+PASS unavailable optional unlock reports unknown rather than revoking persisted benefits
+PASS restart: Citizens remains enabled and unfrozen
+PASS restart: Builds remains enabled and unfrozen
+PASS restart: Contracts remains enabled and unfrozen
+PASS restart: Quests remains enabled and unfrozen
+PASS restart: Control remains enabled and unfrozen
+PASS actual runtime rejects a valid block with no inventory item
+PASS original four city chains load alongside optional cooperative section
+PASS all four administrative audit receipts survive shutdown and are unique
+PASS full restart keeps old city-chain result
+PASS optional cooperative configuration cannot rewrite old chain data
+PASS full restart preserves completed exact budget and city contributions
+PASS restart neither respends nor duplicates returned goods
+PASS plan and completed actions remain unique after restart
+PASS repaired optional config restores same cooperative ledger
+PASS repaired restart acknowledges cooperative result without new money or materials

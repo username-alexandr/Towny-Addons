@@ -10,6 +10,8 @@ import ru.neverland.townyquests.model.*;
 import ru.neverland.townyquests.service.QuestService;
 
 public final class QuestMenu implements Listener {
+    private ru.neverland.townyquests.cooperative.CooperativeMenu cooperative;
+    public void cooperative(ru.neverland.townyquests.cooperative.CooperativeMenu value){this.cooperative=value;}
     private final QuestService service;private final org.bukkit.plugin.Plugin plugin;
     public QuestMenu(org.bukkit.plugin.Plugin plugin,QuestService service) { this.service = service;this.plugin=plugin; }
     private static final class View implements InventoryHolder {
@@ -46,6 +48,7 @@ public final class QuestMenu implements Listener {
             lore.add(p.reward()); lore.add("Нажмите, чтобы увидеть этапы");
             button(v, slot++, p.icon(), p.name(), lore, () -> project(player, p.id()));
         }
+        if(cooperative!=null)button(v,47,"BRICKS","Общие стройки",List.of("Городские и серверные сметы", "Подтверждённые поставки из /orders", "История вкладов и резерв материалов"),()->cooperative.home(player,1));
         button(v, 49, "BELL", "Проекты всего города", List.of("Начинает мэр или уполномоченный", "Прогресс сохраняется за городом", "Отключение аддона не создаёт провалов"), null);
         if (page > 0) button(v, 45, "ARROW", "Предыдущая страница", List.of(), () -> home(player, page - 1));
         if ((page + 1) * 45 < definitions.size()) button(v, 53, "ARROW", "Следующая страница", List.of(), () -> home(player, page + 1));

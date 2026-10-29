@@ -3,7 +3,8 @@ import java.util.*;
 public record Network(UUID town,Map<String,Node> nodes,Set<Link> links,Map<String,Route> routes) {
     public Network {Objects.requireNonNull(town);nodes=Map.copyOf(nodes);links=Set.copyOf(links);routes=Map.copyOf(routes);}
     public static Network empty(UUID town){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return new Network(town,Map.of(),Set.of(),Map.of());} }
-    public static String id(String value){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(value==null||!value.matches("[a-z0-9_-]{1,32}"))throw new IllegalArgumentException("ID: до 32 латинских букв, цифр, _ и -");return value;} }
+    private static final java.util.regex.Pattern ID=java.util.regex.Pattern.compile("[a-z0-9_-]{1,32}");
+    public static String id(String value){if(value==null||!ID.matcher(value).matches())throw new IllegalArgumentException("ID: до 32 латинских букв, цифр, _ и -");return value;}
     public enum Kind {BUILDING("Здание"),ROAD("Дорожный узел"),RAIL("Железнодорожный узел"),PORT("Портовый узел");public final String title;Kind(String title){this.title=title;}}
     public record Node(String id,String project,Kind kind,Position point){public Node{Network.id(id);Objects.requireNonNull(project);Objects.requireNonNull(kind);Objects.requireNonNull(point);if((kind==Kind.BUILDING)!=!project.isBlank())throw new IllegalArgumentException("Тип узла не соответствует зданию");}}
     public record Link(String a,String b){public Link{Network.id(a);Network.id(b);if(a.equals(b))throw new IllegalArgumentException("Нужны разные узлы");if(a.compareTo(b)>0){String t=a;a=b;b=t;}}}
@@ -13,17 +14,5 @@ public record Network(UUID town,Map<String,Node> nodes,Set<Link> links,Map<Strin
     }
     public Node node(String id){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {var n=nodes.get(id);if(n==null)throw new IllegalArgumentException("Узел не найден: "+id);return n;} }
     public Route route(String id){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {var v=routes.get(id);if(v==null)throw new IllegalArgumentException("Маршрут не найден: "+id);return v;} }
-    public List<Position> path(String from,String to,double maximum){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
-        node(from);node(to);Map<String,Double> distance=new HashMap<>();Map<String,String> previous=new HashMap<>();
-        record Visit(String id,double distance){}var queue=new PriorityQueue<Visit>(Comparator.comparingDouble(Visit::distance));distance.put(from,0.0);queue.add(new Visit(from,0));
-        while(!queue.isEmpty()){
-            var current=queue.remove();if(current.distance()!=distance.get(current.id()))continue;if(current.id().equals(to))break;
-            for(Link edge:links){String next=edge.a().equals(current.id())?edge.b():edge.b().equals(current.id())?edge.a():null;if(next==null)continue;
-                double value=current.distance()+node(current.id()).point().distance(node(next).point());
-                if(value<=maximum&&value<distance.getOrDefault(next,Double.POSITIVE_INFINITY)){distance.put(next,value);previous.put(next,current.id());queue.add(new Visit(next,value));}
-            }
-        }
-        if(!distance.containsKey(to))throw new IllegalArgumentException("Нет связного пути: "+from+" → "+to);
-        List<Position> result=new ArrayList<>();for(String at=to;at!=null;at=previous.get(at))result.add(node(at).point());Collections.reverse(result);return List.copyOf(result);
-    } }
+    public List<Position> path(String from,String to,double maximum){var result=RoutePlanner.plan(nodes,links,from,to,Set.of(),maximum,1);if(!result.ready())throw new IllegalArgumentException(result.explanation());return result.paths().get(0).points();}
 }

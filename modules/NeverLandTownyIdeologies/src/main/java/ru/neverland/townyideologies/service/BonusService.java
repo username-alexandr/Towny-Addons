@@ -81,7 +81,7 @@ public final class BonusService implements Listener {
         if (ideology == null) return;
         BlockData newData = event.getNewState().getBlockData();
         if (!(newData instanceof Ageable ageable)) return;
-        double multiplier = registry.levelDouble("agriculture", "growth-multiplier", ideology.level(), 1.0D);
+        double multiplier = registry.value(ideology, "growth-multiplier", 1.0D);
         int guaranteed = (int) Math.floor(Math.max(0.0D, multiplier - 1.0D));
         double chance = Math.max(0.0D, multiplier - 1.0D - guaranteed);
         int extra = guaranteed + (ThreadLocalRandom.current().nextDouble() < chance ? 1 : 0);
@@ -96,7 +96,7 @@ public final class BonusService implements Listener {
         Town town = towny.townAt(event.getBlock().getLocation());
         TownIdeology ideology = current(town, "industry");
         if (ideology == null) return;
-        double multiplier = registry.levelDouble("industry", "smelt-multiplier", ideology.level(), 1.0D);
+        double multiplier = registry.value(ideology, "smelt-multiplier", 1.0D);
         if (multiplier > 1.0D) event.setTotalCookTime(Math.max(1, (int) Math.ceil(event.getTotalCookTime() / multiplier)));
     } }
 
@@ -105,7 +105,7 @@ public final class BonusService implements Listener {
         if (!ideologies.active(event.getPlayer(), "infrastructure", true)) return;
         TownIdeology ideology = ideologies.get(event.getPlayer()).orElse(null);
         if (ideology == null) return;
-        int cooldown = Math.max(0, registry.levelInt("infrastructure", "placement-cooldown-ticks", ideology.level(), 0));
+        int cooldown = Math.max(0, registry.integer(ideology, "placement-cooldown-ticks", 0));
         ItemStack used = event.getItemInHand();
         ru.neverland.core.SuiteScheduler.entity(plugin,event.getPlayer(), () -> {
             if (event.getPlayer().isOnline()) event.getPlayer().setCooldown(used.getType(), cooldown);
@@ -118,7 +118,7 @@ public final class BonusService implements Listener {
         if (!ideologies.active(player, "infrastructure", true)) return;
         TownIdeology ideology = ideologies.get(player).orElse(null);
         if (ideology == null) return;
-        double multiplier = registry.levelDouble("infrastructure", "minecart-multiplier", ideology.level(), 1.0D);
+        double multiplier = registry.value(ideology, "minecart-multiplier", 1.0D);
         ru.neverland.core.SuiteScheduler.entity(plugin,minecart, () -> {
             if (player.isInsideVehicle() && player.getVehicle() == minecart) {
                 minecart.setMaxSpeed(VANILLA_MINECART_SPEED * Math.max(1.0D, multiplier));
@@ -158,7 +158,7 @@ public final class BonusService implements Listener {
         if (ideology == null) return;
         ItemStack result = event.getTrade().getResult();
         if (result == null || result.getType().isAir()) return;
-        double multiplier = registry.levelDouble("trade", "trade-output-multiplier", ideology.level(), 1.0D);
+        double multiplier = registry.value(ideology, "trade-output-multiplier", 1.0D);
         double expected = result.getAmount() * Math.max(0.0D, multiplier - 1.0D);
         int bonus = (int) Math.floor(expected);
         if (ThreadLocalRandom.current().nextDouble() < expected - bonus) bonus++;
@@ -183,7 +183,7 @@ public final class BonusService implements Listener {
                 return;
             }
             TownIdeology ideology = ideologies.get(player).orElse(null);
-            if (ideology != null) applyDefense(player, ideology.level());
+            if (ideology != null) applyDefense(player, ideology);
         }});
     }
 
@@ -191,7 +191,7 @@ public final class BonusService implements Listener {
         double hearts = 0.0D;
         if (ideologies.active(player, "healthcare", true)) {
             TownIdeology ideology = ideologies.get(player).orElse(null);
-            if (ideology != null) hearts = registry.levelDouble("healthcare", "health-hearts", ideology.level(), 0.0D);
+            if (ideology != null) hearts = registry.value(ideology, "health-hearts", 0.0D);
         }
         AttributeInstance attribute = player.getAttribute(Attribute.MAX_HEALTH);
         if (attribute == null) return;
@@ -214,12 +214,12 @@ public final class BonusService implements Listener {
         if (player.getHealth() > attribute.getValue()) player.setHealth(attribute.getValue());
     }
 
-    private void applyDefense(Player player, int level) {
+    private void applyDefense(Player player, TownIdeology ideology) {
         int duration = Math.max(40, plugin.getConfig().getInt("settings.effects.duration-ticks", 100));
         boolean ambient = plugin.getConfig().getBoolean("settings.effects.ambient", true);
         boolean particles = plugin.getConfig().getBoolean("settings.effects.particles", false);
         boolean icon = plugin.getConfig().getBoolean("settings.effects.icon", true);
-        for (String entry : registry.levelStrings("defense", "effects", level)) {
+        for (String entry : registry.effects(ideology)) {
             String[] parts = entry.split(":", 2);
             PotionEffectType type = Registry.MOB_EFFECT.get(NamespacedKey.minecraft(parts[0].toLowerCase(Locale.ROOT)));
             if (type == null) {

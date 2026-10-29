@@ -26,15 +26,31 @@ public final class ServerMaterials implements AutoCloseable {
     private final Path file;
     private final ThreadPoolExecutor worker;
     private Connection connection;
-    private volatile boolean fault,closing;
+    private volatile boolean fault,closing,initialized;
     private final CompletableFuture<Void> closed=new CompletableFuture<>();
     private final CompletableFuture<Void> ready;
     public ServerMaterials(Path file){
         this.file=file.toAbsolutePath();
         worker=new ThreadPoolExecutor(1,1,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(256),r->{Thread t=new Thread(r,"NeverLand-order-materials");t.setDaemon(true);return t;},new ThreadPoolExecutor.AbortPolicy()){
-            @Override protected void terminated(){try{if(connection!=null)connection.close();closed.complete(null);}catch(SQLException error){closed.completeExceptionally(error);}}
+            @Override protected void terminated(){
+                Throwable failure=null;
+                try{if(connection!=null&&initialized){
+                    if(!connection.getAutoCommit())throw new SQLException("Склад завершился с незакрытой транзакцией");
+                    // Confirm a zero-length WAL before the driver's implicit sidecar unlink.
+                    // A busy checkpoint must never be reported as a successful durable stop.
+                    try(var statement=connection.createStatement()){
+                        statement.execute("PRAGMA busy_timeout=1000");
+                        try(var row=statement.executeQuery("PRAGMA wal_checkpoint(TRUNCATE)")){
+                            if(!row.next()||row.getInt(1)!=0||row.getInt(2)!=0||row.getInt(3)!=0)
+                                throw new SQLException("Склад не подтвердил перенос WAL в основную базу; сохраните все файлы базы для сверки");
+                        }
+                    }
+                }}catch(Throwable error){failure=error;}
+                finally{try{if(connection!=null)connection.close();}catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}}
+                if(failure==null)closed.complete(null);else closed.completeExceptionally(failure);
+            }
         };
-        ready=submit(()->{try{open();return null;}catch(Exception error){fault=true;throw error;}});
+        ready=submit(()->{try{open();initialized=true;return null;}catch(Exception error){fault=true;throw error;}});
     }
     public CompletionStage<Void> ready(){return ready;}
     public CompletionStage<Void> closed(){return closed;}
@@ -54,7 +70,7 @@ public final class ServerMaterials implements AutoCloseable {
             s.execute("PRAGMA busy_timeout=5000");s.execute("PRAGMA foreign_keys=ON");
             try(var r=s.executeQuery("PRAGMA journal_mode=WAL")){if(!r.next()||!r.getString(1).equalsIgnoreCase("wal"))throw new IOException("Склад требует файловую систему с поддержкой SQLite WAL");}
             s.execute("PRAGMA synchronous=FULL");
-            try(var r=s.executeQuery("PRAGMA user_version")){if(!r.next()||r.getInt(1)>2)throw new IOException("Неизвестная версия базы склада");}
+            try(var r=s.executeQuery("PRAGMA user_version")){if(!r.next()||r.getInt(1)>3)throw new IOException("Неизвестная версия базы склада");}
             try(var r=s.executeQuery("PRAGMA quick_check")){if(!r.next()||!r.getString(1).equals("ok"))throw new IOException("База склада повреждена");}
             s.execute("CREATE TABLE IF NOT EXISTS deliveries (id TEXT PRIMARY KEY,player TEXT NOT NULL,player_name TEXT NOT NULL,template TEXT NOT NULL,material TEXT NOT NULL,amount INTEGER NOT NULL CHECK(amount>0),cents INTEGER NOT NULL CHECK(cents>0),rarity TEXT NOT NULL,created INTEGER NOT NULL,state TEXT NOT NULL CHECK(state IN ('PREPARED','CONFIRMED','VOID')),settled INTEGER NOT NULL DEFAULT 0,confirmed INTEGER NOT NULL DEFAULT 0,decision TEXT NOT NULL DEFAULT '')");
             s.execute("CREATE TABLE IF NOT EXISTS balances (material TEXT PRIMARY KEY,received INTEGER NOT NULL CHECK(received>=0),available INTEGER NOT NULL CHECK(available>=0 AND available<=received))");
@@ -63,7 +79,7 @@ public final class ServerMaterials implements AutoCloseable {
             s.execute("CREATE TABLE IF NOT EXISTS projects (id TEXT PRIMARY KEY,title TEXT NOT NULL,actor TEXT NOT NULL,state TEXT NOT NULL CHECK(state IN ('OPEN','CANCELLED','ALLOCATED')),created INTEGER NOT NULL)");
             s.execute("CREATE TABLE IF NOT EXISTS project_needs (project TEXT NOT NULL REFERENCES projects(id),material TEXT NOT NULL,amount INTEGER NOT NULL CHECK(amount>0),PRIMARY KEY(project,material))");
             s.execute("CREATE TABLE IF NOT EXISTS project_actions (project TEXT NOT NULL REFERENCES projects(id),action TEXT NOT NULL,actor TEXT NOT NULL,reason TEXT NOT NULL,at INTEGER NOT NULL,PRIMARY KEY(project,action))");
-            s.execute("CREATE INDEX IF NOT EXISTS deliveries_pending ON deliveries(settled,state)");s.execute("PRAGMA user_version=2");
+            s.execute("CREATE INDEX IF NOT EXISTS deliveries_pending ON deliveries(settled,state)");CooperativeProjects.migrate(connection);s.execute("PRAGMA user_version=3");
         }
     }
     private <T> T transaction(Sql<T> task)throws Exception{
@@ -93,6 +109,7 @@ public final class ServerMaterials implements AutoCloseable {
                     s.setString(1,d.material());s.setLong(2,Math.addExact(received,d.amount()));s.setLong(3,Math.addExact(available,d.amount()));s.executeUpdate();
                 }
             }
+            if(taken)CooperativeProjects.confirmed(connection,d);
             try(var s=connection.prepareStatement("UPDATE deliveries SET state=?,confirmed=?,decision=? WHERE id=?")){s.setString(1,next);s.setLong(2,System.currentTimeMillis());s.setString(3,proof);s.setString(4,id.toString());s.executeUpdate();}
             return get(id);
         }));
@@ -182,5 +199,13 @@ public final class ServerMaterials implements AutoCloseable {
             while(r.next()){var line=new ArrayList<String>();for(String key:List.of("id","player","player_name","template","material","amount","rarity","cents","created","state","confirmed","decision")){String value=r.getString(key);if(value.startsWith("=")||value.startsWith("+")||value.startsWith("-")||value.startsWith("@"))value="'"+value;line.add("\""+value.replace("\"","\"\"")+"\"");}writer.write(String.join(",",line)+"\n");}
         }return target;
     });}
+    public CompletionStage<Void> cooperativeContext(UUID delivery,UUID player,String town,String project){return submit(()->transaction(()->{CooperativeProjects.context(connection,delivery,player,town,project);return null;}));}
+    public CompletionStage<Map<String,Object>> cooperativePlan(String id,String title,String scope,String town,String unlock,long minimum,Map<String,Long> needs,String actor){var copy=Map.copyOf(needs);return submit(()->transaction(()->CooperativeProjects.plan(connection,id,title,scope,town,unlock,minimum,copy,actor)));}
+    public CompletionStage<Map<String,Object>> cooperativeProject(String id){return submit(()->CooperativeProjects.project(connection,id));}
+    public CompletionStage<List<Map<String,Object>>> cooperativeProjects(int page){return submit(()->CooperativeProjects.list(connection,page));}
+    public CompletionStage<List<Map<String,Object>>> cooperativeReceipts(UUID town,int page){return submit(()->CooperativeProjects.receipts(connection,town,page));}
+    public CompletionStage<Set<String>> cooperativeUnlocks(UUID town){return submit(()->CooperativeProjects.unlocked(connection,town));}
+    public CompletionStage<Map<String,Object>> cooperativeFinish(String id,boolean cancel,String actor,String reason){return submit(()->transaction(()->CooperativeProjects.finish(connection,id,cancel,actor,reason)));}
+    public CompletionStage<List<Map<String,Object>>> cooperativeHistory(String project){return submit(()->CooperativeProjects.history(connection,project));}
     @Override public synchronized void close(){if(closing)return;closing=true;worker.shutdown();}
 }

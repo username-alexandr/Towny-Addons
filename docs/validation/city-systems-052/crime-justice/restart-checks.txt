@@ -1,0 +1,7 @@
+PASS actual Crime0.2 Justice0.2 Districts0.2.3 and existing dependencies enabled
+PASS full restart preserves district patrol completion and author
+PASS full restart preserves confirmed source identity without duplicate event
+PASS full restart retains exact evidence assignment appeal reviewer and decision history
+PASS legacy case amount and original deadlines survive restart without payment or replay
+PASS reimport after restart does not duplicate evidence or decision history
+PASS native restored crime incident menu opens confirmed archive

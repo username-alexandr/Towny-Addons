@@ -9,7 +9,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.palmergames.bukkit.towny.TownyAPI;
 import ru.neverland.core.MenuStyle;
 public final class CrimeMenu implements Listener {
-    private final JavaPlugin plugin;private final CrimeService service;
+    private final JavaPlugin plugin;private final CrimeService service;private CrimePatrolMenu patrolMenu;public void patrolMenu(CrimePatrolMenu value){patrolMenu=value;}
+    static boolean holds(Inventory inventory){return inventory!=null&&inventory.getHolder()instanceof Holder;}
     private record Holder(UUID viewer,UUID town,Inventory back)implements InventoryHolder{public Inventory getInventory(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return null;} }}
     public CrimeMenu(JavaPlugin p,CrimeService s){plugin=p;service=s;}
     static String number(double n){return String.format(Locale.forLanguageTag("ru"),"%.1f",n);}
@@ -26,9 +27,10 @@ public final class CrimeMenu implements Listener {
         var i=(Map<?,?>)s.get("incident");String kind=i.isEmpty()?"":"BURGLARY".equals(i.get("kind"))?"Кража со склада":"Вымогательство";
         String phase=i.isEmpty()?"":switch(String.valueOf(i.get("phase"))){case "PLANNED"->"Ожидает обработки";case "APPLIED","CLOSED"->Boolean.TRUE.equals(i.get("active"))?"Действует":"Завершено";default->"Предотвращено / нет доступного запаса";};
         inv.setItem(23,item(Material.WRITABLE_BOOK,"&dПоследнее происшествие",i.isEmpty()?"&aПроисшествий пока нет":"&f"+kind,"&7"+phase,i.isEmpty()?"":"&7"+("BURGLARY".equals(i.get("kind"))?resource((String)i.get("resource"))+": "+number(((Long)i.get("amount"))/1000.0):"Временно увеличивает потери лавки"),"","&7Кражи затрагивают виртуальный склад.","&7Городские резервы и нужды населения","&7защищены от списания."));
+        inv.setItem(31,item(Material.SHIELD,"&bРайонные патрули","&7Назначения, отчёты и журнал происшествий.","&7Без автоматических выплат и обвинений."));
         inv.setItem(36,item(Material.ARROW,previous==null?"&fЗакрыть":"&fНазад"));inv.setItem(40,item(Material.CLOCK,"&bОбновить","&7"+s.get("status")));p.openInventory(inv);
     } }
     @EventHandler public void click(InventoryClickEvent e){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCrime")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(!(e.getView().getTopInventory().getHolder() instanceof Holder h))return;e.setCancelled(true);if(!(e.getWhoClicked() instanceof Player p)||!p.getUniqueId().equals(h.viewer()))return;if(!allowed(p,h.town())){p.closeInventory();return;}
-        try{if(e.getRawSlot()==36)MenuStyle.returnTo(p,h.back());else if(e.getRawSlot()==40)open(p,h.town(),h.back());}catch(IllegalArgumentException ex){p.closeInventory();p.sendMessage(MenuStyle.decode("&c"+ex.getMessage()));}} }
+        try{if(e.getRawSlot()==36)MenuStyle.returnTo(p,h.back());else if(e.getRawSlot()==40)open(p,h.town(),h.back());else if(e.getRawSlot()==31&&patrolMenu!=null)patrolMenu.open(p,h.town(),false,0);}catch(IllegalArgumentException ex){p.closeInventory();p.sendMessage(MenuStyle.decode("&c"+ex.getMessage()));}} }
     @EventHandler public void drag(InventoryDragEvent e){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCrime")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(e.getView().getTopInventory().getHolder() instanceof Holder)e.setCancelled(true);} }
 }

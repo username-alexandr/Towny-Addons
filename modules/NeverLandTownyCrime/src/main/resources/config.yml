@@ -24,3 +24,7 @@ menu-style:
 # Общий щит Events; без Events — 24 часа с регистрации города.
 newcomer-protection:
   enabled: true
+
+# Журнал назначений и отчётов. Отключение не меняет ресурсы и уровень преступности.
+patrols:
+  enabled: true

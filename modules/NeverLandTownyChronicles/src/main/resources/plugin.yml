@@ -1,5 +1,5 @@
 name: NeverLandTownyChronicles
-version: 0.2.1
+version: 0.3.0
 main: ru.neverland.townychronicles.TownyChronicles
 folia-supported: true
 api-version: '26.2'
@@ -13,7 +13,7 @@ commands:
   chronicles:
     description: Летопись вашего города
     aliases: [chronicle, townhistory]
-    usage: /chronicles [book|stats|категория]
+    usage: /chronicles [book|stats|chapters|категория]
     permission: townychronicles.use
   townychronicles:
     description: Администрирование NeverLandTownyChronicles

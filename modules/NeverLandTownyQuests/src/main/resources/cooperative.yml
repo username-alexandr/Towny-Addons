@@ -1,0 +1,22 @@
+# Общие стройки используют уже оплаченные поставки /orders.
+# Сметы создаются вручную. При изменении начатой сметы нужен новый id.
+enabled: true
+templates:
+  spawn_square:
+    title: Площадь общего спавна
+    scope: SERVER
+    unlock: joint_spawn_builder
+    minimum-city-credit: 128
+    materials:
+      STONE_BRICKS: 2048
+      OAK_LOG: 512
+      GLASS: 256
+  town_harbour:
+    title: Городская гавань
+    scope: CITY
+    unlock: joint_harbour_builder
+    minimum-city-credit: 64
+    materials:
+      OAK_LOG: 1024
+      STONE: 2048
+      OAK_TRAPDOOR: 64

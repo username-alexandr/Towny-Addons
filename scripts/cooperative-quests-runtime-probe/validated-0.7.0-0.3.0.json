@@ -1,0 +1,285 @@
+{
+  "date": "2026-10-29",
+  "fixture": "folia-cooperative-quests-12",
+  "mode": "Three serialized JVM boots in one foreground runner, FAST_NATIVE_STOP, no extra diagnostic SQL or tick before stop; only copied databases inspected",
+  "scope": "Actual Folia26.2, Towny0.103.2.0, registered Contracts/Quests services, SQL transactions, inventories and native commands. Explicit offline player/view/entity-scheduler substitutes and inventory-confirmed delivery fixtures; no network-client rendering or external bank payment claimed.",
+  "phases": [
+    {
+      "phase": "first",
+      "exit_code": 0,
+      "result": "PASS 33 assertions; actual Folia Towny Contracts Quests Control services, registered API, commands, inventories, SQLite transactions and three JVM boots. Explicit offline Player/InventoryView/scheduler substitutes and inventory-confirmed delivery fixtures; no client rendering or real bank payment claimed.\n",
+      "jar_sha256": {
+        "NeverLandTownyContracts-0.7.0.jar": "5ec6c2f7916bc6c111c9047936868101c9b691372d263e2e55c685751ddc57f4",
+        "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+        "NeverLandTownyQuests-0.3.0.jar": "63c7a45f8ac4adbc9b45809badaf85db76a3abbcac4d9ae0fe485a91fb9e717a",
+        "NeverLandTownyControl-0.5.8.jar": "70363d4490cfd03b49fdacc83e22fc1340f5ff7b4aaea14cb085eb1cc63c5834",
+        "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+        "CooperativeQuestsRuntimeProbe.jar": "0ae44507cbebaefd849922db459e410000ae06f0112a7dfacf473b4201236205",
+        "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+      },
+      "assertions": [
+        "PASS first: Citizens remains enabled and unfrozen",
+        "PASS first: Builds remains enabled and unfrozen",
+        "PASS first: Contracts remains enabled and unfrozen",
+        "PASS first: Quests remains enabled and unfrozen",
+        "PASS first: Control remains enabled and unfrozen",
+        "PASS actual runtime rejects a valid block with no inventory item",
+        "PASS original four city chains load alongside optional cooperative section",
+        "PASS existing completed city chain unlock retained",
+        "PASS ordinary mayor cannot create server-wide project",
+        "PASS real console command creates immutable material budget through registered API",
+        "PASS native inventory shows budget with safe one-item icons and no extra reward promise",
+        "PASS unassigned paid server resources never become retroactive city progress",
+        "PASS confirmed oak receipt reserves exact unmet128; excess remains global stock",
+        "PASS general stock contains unassigned20 plus surplus32",
+        "PASS partial contribution cannot complete project",
+        "PASS city history contains exact one confirmed contribution",
+        "PASS duplicate receipt confirmation cannot duplicate city credit",
+        "PASS ordinary mayor cannot finish server project",
+        "PASS admin verified completion consumes actual reserved budget atomically",
+        "PASS original town earns server project result from qualifying contribution",
+        "PASS second contributor town earns same server result once",
+        "PASS legacy quest API exposes both preserved chain and acknowledged cooperative unlocks",
+        "PASS actual mayor command scopes city project to authenticated current town",
+        "PASS cancel returns paid reservation to server pool without a player refund",
+        "PASS cancelled project grants no completion unlock",
+        "PASS cooperative ledger never rewrites original completed chains",
+        "PASS frozen Contracts blocks cached cooperative authorization",
+        "PASS frozen optional supplier preserves legacy chain result",
+        "PASS missing materials service reports unknown even with a warm unlock cache",
+        "PASS failed ledger reports unknown even with warm cooperative cache",
+        "PASS failed ledger refuses new project mutation",
+        "PASS failed optional ledger leaves old completed chain intact",
+        "PASS optional service failure never disables or freezes Quests"
+      ]
+    },
+    {
+      "phase": "broken",
+      "exit_code": 0,
+      "result": "PASS 15 assertions; actual Folia Towny Contracts Quests Control services, registered API, commands, inventories, SQLite transactions and three JVM boots. Explicit offline Player/InventoryView/scheduler substitutes and inventory-confirmed delivery fixtures; no client rendering or real bank payment claimed.\n",
+      "jar_sha256": {
+        "NeverLandTownyContracts-0.7.0.jar": "5ec6c2f7916bc6c111c9047936868101c9b691372d263e2e55c685751ddc57f4",
+        "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+        "NeverLandTownyQuests-0.3.0.jar": "63c7a45f8ac4adbc9b45809badaf85db76a3abbcac4d9ae0fe485a91fb9e717a",
+        "NeverLandTownyControl-0.5.8.jar": "70363d4490cfd03b49fdacc83e22fc1340f5ff7b4aaea14cb085eb1cc63c5834",
+        "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+        "CooperativeQuestsRuntimeProbe.jar": "0ae44507cbebaefd849922db459e410000ae06f0112a7dfacf473b4201236205",
+        "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+      },
+      "assertions": [
+        "PASS broken: Citizens remains enabled and unfrozen",
+        "PASS broken: Builds remains enabled and unfrozen",
+        "PASS broken: Contracts remains enabled and unfrozen",
+        "PASS broken: Quests remains enabled and unfrozen",
+        "PASS broken: Control remains enabled and unfrozen",
+        "PASS actual runtime rejects a valid block with no inventory item",
+        "PASS original four city chains load alongside optional cooperative section",
+        "PASS all four administrative audit receipts survive shutdown and are unique",
+        "PASS full restart keeps old city-chain result",
+        "PASS optional cooperative configuration cannot rewrite old chain data",
+        "PASS full restart preserves completed exact budget and city contributions",
+        "PASS restart neither respends nor duplicates returned goods",
+        "PASS plan and completed actions remain unique after restart",
+        "PASS invalid optional settings suspend only cooperative UI",
+        "PASS unavailable optional unlock reports unknown rather than revoking persisted benefits"
+      ]
+    },
+    {
+      "phase": "restart",
+      "exit_code": 0,
+      "result": "PASS 15 assertions; actual Folia Towny Contracts Quests Control services, registered API, commands, inventories, SQLite transactions and three JVM boots. Explicit offline Player/InventoryView/scheduler substitutes and inventory-confirmed delivery fixtures; no client rendering or real bank payment claimed.\n",
+      "jar_sha256": {
+        "NeverLandTownyContracts-0.7.0.jar": "5ec6c2f7916bc6c111c9047936868101c9b691372d263e2e55c685751ddc57f4",
+        "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+        "NeverLandTownyQuests-0.3.0.jar": "63c7a45f8ac4adbc9b45809badaf85db76a3abbcac4d9ae0fe485a91fb9e717a",
+        "NeverLandTownyControl-0.5.8.jar": "70363d4490cfd03b49fdacc83e22fc1340f5ff7b4aaea14cb085eb1cc63c5834",
+        "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+        "CooperativeQuestsRuntimeProbe.jar": "0ae44507cbebaefd849922db459e410000ae06f0112a7dfacf473b4201236205",
+        "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+      },
+      "assertions": [
+        "PASS restart: Citizens remains enabled and unfrozen",
+        "PASS restart: Builds remains enabled and unfrozen",
+        "PASS restart: Contracts remains enabled and unfrozen",
+        "PASS restart: Quests remains enabled and unfrozen",
+        "PASS restart: Control remains enabled and unfrozen",
+        "PASS actual runtime rejects a valid block with no inventory item",
+        "PASS original four city chains load alongside optional cooperative section",
+        "PASS all four administrative audit receipts survive shutdown and are unique",
+        "PASS full restart keeps old city-chain result",
+        "PASS optional cooperative configuration cannot rewrite old chain data",
+        "PASS full restart preserves completed exact budget and city contributions",
+        "PASS restart neither respends nor duplicates returned goods",
+        "PASS plan and completed actions remain unique after restart",
+        "PASS repaired optional config restores same cooperative ledger",
+        "PASS repaired restart acknowledges cooperative result without new money or materials"
+      ]
+    }
+  ],
+  "native_assertions": 63,
+  "cold": {
+    "Contracts": "15 programs PASS",
+    "Quests": "6 programs PASS; audit11, cache158, templates11, defaults22, quests44 plus legacy branches"
+  },
+  "physical_sqlite": {
+    "first": {
+      "files": {
+        "server-materials.db": {
+          "size": 126976,
+          "sha256": "82f801a0fac4681afadc1665ef5d9652f2dba770b3ff3a8359ebeef1940f7b66",
+          "inode": 926560,
+          "mtime_ns": 1793282328363087013
+        }
+      },
+      "balances": [
+        [
+          "OAK_LOG",
+          244,
+          116
+        ],
+        [
+          "GLASS",
+          64,
+          0
+        ]
+      ],
+      "projects": [
+        [
+          "native_common",
+          "COMPLETED"
+        ],
+        [
+          "native_city_fa87f87daea3364e85a3187fb931ecad",
+          "CANCELLED"
+        ]
+      ],
+      "deliveries": [
+        [
+          "79ed53e5-fa43-37d1-818d-9e3cd73393a4",
+          "CONFIRMED"
+        ],
+        [
+          "0a0630b5-9acc-3aa8-bf42-3b965459b5d0",
+          "CONFIRMED"
+        ],
+        [
+          "3c52487f-5d0b-3da0-90d1-d2f9cda03afa",
+          "CONFIRMED"
+        ],
+        [
+          "a15af8bb-cb6f-39c9-be3e-d0b1da1a16c5",
+          "CONFIRMED"
+        ]
+      ]
+    },
+    "broken": {
+      "files": {
+        "server-materials.db": {
+          "size": 126976,
+          "sha256": "083b420cf5a875123feef97d2903ae2eaa356326b10cd5a410a3cb681ce84661",
+          "inode": 926560,
+          "mtime_ns": 1793282343919438990
+        }
+      },
+      "balances": [
+        [
+          "OAK_LOG",
+          244,
+          116
+        ],
+        [
+          "GLASS",
+          64,
+          0
+        ]
+      ],
+      "projects": [
+        [
+          "native_common",
+          "COMPLETED"
+        ],
+        [
+          "native_city_fa87f87daea3364e85a3187fb931ecad",
+          "CANCELLED"
+        ]
+      ],
+      "deliveries": [
+        [
+          "79ed53e5-fa43-37d1-818d-9e3cd73393a4",
+          "CONFIRMED"
+        ],
+        [
+          "0a0630b5-9acc-3aa8-bf42-3b965459b5d0",
+          "CONFIRMED"
+        ],
+        [
+          "3c52487f-5d0b-3da0-90d1-d2f9cda03afa",
+          "CONFIRMED"
+        ],
+        [
+          "a15af8bb-cb6f-39c9-be3e-d0b1da1a16c5",
+          "CONFIRMED"
+        ]
+      ]
+    },
+    "restart": {
+      "files": {
+        "server-materials.db": {
+          "size": 126976,
+          "sha256": "9c5a431734061fe5f00516d6564d9bc5f2607f5d3d53fc688a737164dcd1dae5",
+          "inode": 926560,
+          "mtime_ns": 1793282358979780682
+        }
+      },
+      "balances": [
+        [
+          "OAK_LOG",
+          244,
+          116
+        ],
+        [
+          "GLASS",
+          64,
+          0
+        ]
+      ],
+      "projects": [
+        [
+          "native_common",
+          "COMPLETED"
+        ],
+        [
+          "native_city_fa87f87daea3364e85a3187fb931ecad",
+          "CANCELLED"
+        ]
+      ],
+      "deliveries": [
+        [
+          "79ed53e5-fa43-37d1-818d-9e3cd73393a4",
+          "CONFIRMED"
+        ],
+        [
+          "0a0630b5-9acc-3aa8-bf42-3b965459b5d0",
+          "CONFIRMED"
+        ],
+        [
+          "3c52487f-5d0b-3da0-90d1-d2f9cda03afa",
+          "CONFIRMED"
+        ],
+        [
+          "a15af8bb-cb6f-39c9-be3e-d0b1da1a16c5",
+          "CONFIRMED"
+        ]
+      ]
+    }
+  },
+  "logs_sha256": {
+    "first": "6c27c53f6d6eb34873c88e8fd724e0dad9b439219014dbf094ccbffb2aa3c620",
+    "broken": "bc9e42a9987e7a300ff6acd1c016879b9d189c71a0b06cf45445c63b4ad9324d",
+    "restart": "30118c9b5d76ef2046a91ce89c874f54c3b4d2957c20b4d5f90b9e464701238d"
+  },
+  "limits": [
+    "The old QuestRepository persistence remains synchronous; whole-suite I/O migration is not completed by this feature.",
+    "Earlier stale-WAL anomalies were not attributed to an upstream SQLite bug or definitively to the execution environment; this serialized run did not reproduce them."
+  ]
+}

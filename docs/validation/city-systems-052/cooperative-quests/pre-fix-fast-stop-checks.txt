@@ -1,0 +1,33 @@
+PASS first: Citizens remains enabled and unfrozen
+PASS first: Builds remains enabled and unfrozen
+PASS first: Contracts remains enabled and unfrozen
+PASS first: Quests remains enabled and unfrozen
+PASS first: Control remains enabled and unfrozen
+PASS actual runtime rejects a valid block with no inventory item
+PASS original four city chains load alongside optional cooperative section
+PASS existing completed city chain unlock retained
+PASS ordinary mayor cannot create server-wide project
+PASS real console command creates immutable material budget through registered API
+PASS native inventory shows budget with safe one-item icons and no extra reward promise
+PASS unassigned paid server resources never become retroactive city progress
+PASS confirmed oak receipt reserves exact unmet128; excess remains global stock
+PASS general stock contains unassigned20 plus surplus32
+PASS partial contribution cannot complete project
+PASS city history contains exact one confirmed contribution
+PASS duplicate receipt confirmation cannot duplicate city credit
+PASS ordinary mayor cannot finish server project
+PASS admin verified completion consumes actual reserved budget atomically
+PASS original town earns server project result from qualifying contribution
+PASS second contributor town earns same server result once
+PASS legacy quest API exposes both preserved chain and acknowledged cooperative unlocks
+PASS actual mayor command scopes city project to authenticated current town
+PASS cancel returns paid reservation to server pool without a player refund
+PASS cancelled project grants no completion unlock
+PASS cooperative ledger never rewrites original completed chains
+PASS frozen Contracts blocks cached cooperative authorization
+PASS frozen optional supplier preserves legacy chain result
+PASS missing materials service reports unknown even with a warm unlock cache
+PASS failed ledger reports unknown even with warm cooperative cache
+PASS failed ledger refuses new project mutation
+PASS failed optional ledger leaves old completed chain intact
+PASS optional service failure never disables or freezes Quests

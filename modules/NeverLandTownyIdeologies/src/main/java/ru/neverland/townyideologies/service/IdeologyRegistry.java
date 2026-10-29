@@ -108,6 +108,20 @@ public final class IdeologyRegistry {
         return values;
     } }
 
+    public ru.neverland.townyideologies.model.PolicyTerms terms(IdeologyDefinition definition,int level) {
+        var numbers=new LinkedHashMap<String,Double>();
+        for(String key:List.of("growth-multiplier","smelt-multiplier","health-hearts","minecart-multiplier","placement-cooldown-ticks","trade-output-multiplier"))numbers.put(key,levelDouble(definition.id(),key,level,key.endsWith("multiplier")?1:0));
+        String scope=plugin.getConfig().getString("settings.bonus-scope."+definition.id(),"GLOBAL").toUpperCase(Locale.ROOT);
+        String fallback=definition.id().equals("monarchy")?"MONARCHY":definition.id().equals("autocracy")?"AUTOCRACY":"DEMOCRACY";
+        String form=plugin.getConfig().getString("government.ideology-forms."+definition.id(),fallback).toUpperCase(Locale.ROOT);
+        return new ru.neverland.townyideologies.model.PolicyTerms(definition.name(),scope,form,numbers,levelStrings(definition.id(),"effects",level));
+    }
+    public double value(ru.neverland.townyideologies.model.TownIdeology current,String key,double fallback) {
+        return current.terms()==null?levelDouble(current.ideologyId(),key,current.level(),fallback):current.terms().numbers().getOrDefault(key,fallback);
+    }
+    public int integer(ru.neverland.townyideologies.model.TownIdeology current,String key,int fallback) {return (int)Math.round(value(current,key,fallback));}
+    public List<String> effects(ru.neverland.townyideologies.model.TownIdeology current) {return current.terms()==null?levelStrings(current.ideologyId(),"effects",current.level()):current.terms().effects();}
+
     private String decimal(double value) {
         if (Math.rint(value) == value) return Long.toString(Math.round(value));
         return String.format(Locale.US, "%.2f", value).replaceAll("0+$", "").replaceAll("\\.$", "");

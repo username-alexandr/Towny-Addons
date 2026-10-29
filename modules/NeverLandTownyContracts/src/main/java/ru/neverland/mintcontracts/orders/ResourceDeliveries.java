@@ -20,8 +20,9 @@ public final class ResourceDeliveries {
     private void matching(ServerMaterials.Delivery d,RewardLedger.Entry e){
         if(e==null||!e.player().equals(d.player())||e.cents()!=d.cents()||!e.source().equals("orders:"+d.template()))throw new IllegalStateException("Поставка и журнал выплаты не совпадают; нужна проверка");
     }
-    public CompletionStage<Void> deliver(ServerMaterials.Delivery delivery,Inventory actor){
-        return materials.prepare(delivery).thenCompose(d->actor.call(()->{
+    public CompletionStage<Void> deliver(ServerMaterials.Delivery delivery,Inventory actor){return deliver(delivery,actor,"","");}
+    public CompletionStage<Void> deliver(ServerMaterials.Delivery delivery,Inventory actor,String project,String town){
+        return materials.prepare(delivery).thenCompose(d->project.isEmpty()||!d.state().equals("PREPARED")?CompletableFuture.completedFuture(d):materials.cooperativeContext(d.id(),d.player(),town,project).thenApply(ignored->d)).thenCompose(d->actor.call(()->{
             RewardLedger.Entry entry=rewards.get(d.id());
             if(entry!=null){
                 matching(d,entry);

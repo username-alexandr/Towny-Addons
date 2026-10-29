@@ -1,0 +1,24 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 22 checks; actual Folia Towny Chronicles, real asynchronous journal and native menus, exact legacy records and full restart, read-only chapter rendering and permissions; explicitly seeded past entries/repair receipt and offline Player/View/EntityScheduler; no real combat, repair payment or network client claimed\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "ChronicleChaptersRuntimeProbe.jar": "9742448f0df944919966cc7e67fa89df50f19312e64096b7f8ed7c68bbe2ba40",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyChronicles-0.3.0.jar": "2059dd22aad86654bb15edb44fad507d857286536ab58c2b791d0799fab92bf7"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 10 checks; actual Folia Towny Chronicles, real asynchronous journal and native menus, exact legacy records and full restart, read-only chapter rendering and permissions; explicitly seeded past entries/repair receipt and offline Player/View/EntityScheduler; no real combat, repair payment or network client claimed\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "ChronicleChaptersRuntimeProbe.jar": "9742448f0df944919966cc7e67fa89df50f19312e64096b7f8ed7c68bbe2ba40",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyChronicles-0.3.0.jar": "2059dd22aad86654bb15edb44fad507d857286536ab58c2b791d0799fab92bf7"
+    }
+  }
+]

@@ -1,0 +1,40 @@
+PASS actual Ideologies0.2 plugin starts with preserved data
+PASS legacy active level and selection timestamp preserved without repayment
+PASS real ReformBank fails closed without Towny economy adapter
+PASS actual Towny withdrawal observer confirms exact debit and token
+PASS unobserved false bank result requires review even with unchanged balance
+PASS refused bank call does not get an automatic retry
+PASS known insufficient balance rejected before invoking debit
+PASS mutation restored by a second movement cannot turn missing receipt into known refusal
+PASS same ending balance is not proof of no debit
+PASS actual adapter mutation without observer confirmation is unknown
+PASS unknown native adapter outcome is not automatically refunded or retried
+PASS unsupported item currency rejects new paid reform before reservation
+PASS unsupported mode preserves old effects and zero bank calls
+PASS native ideology menu cancels item movement
+PASS native initial confirmation explains old/new effects and deferred charge
+PASS native ideology menu cancels item movement
+PASS delayed actual file publishes neither reform nor target benefit before acknowledgement
+PASS region callback continues while reform journal write is physically blocked
+PASS acknowledged start freezes original50coin price without charging
+PASS native growth effect still uses only previous ideology
+PASS catalogue edit cannot reprice accepted reform or change frozen old effect
+PASS administrative pause excludes elapsed module time
+PASS very long observed tick counts at most10seconds
+PASS all timed stages alone never pay or activate target
+PASS unsupported currency blocks already-ready paid reform
+PASS currency change before confirmation invalidates payment offer
+PASS currency change creates no payment intent or debit
+PASS currency change after journal acknowledgement still prevents debit
+PASS permission loss after journal acknowledgement stops external debit
+PASS retired callback plus null schedule result settles one attempt only
+PASS stale retirement cannot clear a newer payment guard
+PASS known insufficient bank outcome preserves ready reform and old effect
+PASS one successful frozen50coin payment activates exact target once
+PASS native grow event uses accepted target multiplier2 rather than edited9
+PASS paid upgrade keeps original selected timestamp
+PASS mutation followed by missing bank acknowledgement remains pending
+PASS unknown bank result cannot activate new benefit
+PASS unknown bank outcome blocks another confirmation
+PASS unknown bank outcome cannot be cancelled blindly
+PASS admin panel exposes status only for unknown payment

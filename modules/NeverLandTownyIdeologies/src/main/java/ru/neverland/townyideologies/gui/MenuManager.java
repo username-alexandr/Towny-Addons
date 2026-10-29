@@ -25,7 +25,7 @@ import ru.neverland.townyideologies.service.EconomyService;
 import ru.neverland.townyideologies.service.IdeologyRegistry;
 import ru.neverland.townyideologies.service.IdeologyService;
 import ru.neverland.townyideologies.service.MessageService;
-import ru.neverland.townyideologies.service.PurchaseResult;
+import ru.neverland.townyideologies.reforms.ReformBook;
 import ru.neverland.townyideologies.util.ColorUtil;
 
 import java.util.ArrayList;
@@ -71,6 +71,12 @@ public final class MenuManager implements Listener {
         for (IdeologyDefinition definition : registry.all()) {
             inventory.setItem(definition.slot(), ideologyIcon(definition, current));
         }
+        if(registry.all().stream().noneMatch(d->d.slot()==4)){
+            var reform=ideologies.reform(town.getUUID()).orElse(null);var info=new ArrayList<String>();
+            if(reform!=null){info.add("&7"+ideologies.status(reform));info.add("&7Деньги списываются только при завершении.");}else info.add("&7Подготовка → обсуждение → принятие → подтверждение.");
+            if(!ideologies.availability().isBlank())info.add("&e"+ideologies.availability());
+            inventory.setItem(4,actionItem(new ItemStack(Material.CLOCK),"reform","&fРеформа города",info));
+        }
         player.openInventory(inventory);
     } }
 
@@ -88,99 +94,62 @@ public final class MenuManager implements Listener {
         Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new DetailsHolder(definition.id()), 27, ColorUtil.component(title));
         fill(inventory);
         inventory.setItem(11, ideologyIcon(definition, current));
-        inventory.setItem(15, purchaseButton(definition, current));
+        var reform=ideologies.reform(town.getUUID()).orElse(null);
+        if(reform==null)inventory.setItem(15,purchaseButton(definition,current));
+        else{
+            boolean ready=reform.target().ideologyId().equals(definition.id())&&reform.phase()==ReformBook.Phase.READY&&!reform.paused();
+            inventory.setItem(15,actionItem(ready?confirmItem():new ItemStack(Material.CLOCK),ready?"purchase":"locked",ready?"&aПодтвердить завершение":"&fРеформа уже идёт",List.of("&7"+ideologies.status(reform),"&7Сохранённая цена: &e"+economy.format(reform.cents()/100.0)+" "+economy.currencyName(),"&7До подтверждения действуют прежние бонусы.")));
+            var lines=new ArrayList<String>();lines.add("&7Сейчас: "+name(reform.previous()));lines.addAll(effectLines(reform.previous()));lines.add("&7После: "+name(reform.target()));lines.addAll(effectLines(reform.target()));
+            inventory.setItem(4,actionItem(new ItemStack(Material.BOOK),"locked","&fУсловия начатой реформы",lines));
+        }
+        if(reform==null&&!ideologies.availability().isBlank())inventory.setItem(4,actionItem(lockedItem(),"locked","&eДоступность реформ",List.of("&7"+ideologies.availability())));
         inventory.setItem(18, actionItem(backItem(), "back", "&fНазад", List.of("&7Вернуться к списку идеологий.")));
         player.openInventory(inventory);
     } }
 
-    private void openConfirm(Player player, IdeologyDefinition definition) {
-        TownIdeology current = ideologies.get(player).orElse(null);
-        String title = plugin.getConfig().getString("settings.gui.confirm-title", "&8Подтверждение");
-        Inventory inventory = ru.neverland.core.MenuStyle.inventory(plugin, new ConfirmHolder(definition.id()), 27, ColorUtil.component(title));
-        fill(inventory);
-        int nextLevel = current != null && current.ideologyId().equals(definition.id()) ? current.level() + 1 : 1;
-        double price = definition.priceForLevel(nextLevel);
-        String label = current == null ? messages.raw("gui.confirm-select")
-                : current.ideologyId().equals(definition.id()) ? messages.raw("gui.confirm-upgrade")
-                : messages.raw("gui.confirm-change");
-        label = label.replace("{level}", Integer.toString(nextLevel));
-        inventory.setItem(11, actionItem(confirmItem(), "confirm", label,
-                List.of("&7Стоимость: &e" + economy.format(price) + " " + economy.currencyName(),
-                        messages.raw("gui.purchase-hint"))));
-        inventory.setItem(15, actionItem(backItem(), "cancel", messages.raw("gui.cancel"), List.of()));
-        player.openInventory(inventory);
+    private String name(TownIdeology current){return current==null?"идеология не выбрана":ColorUtil.strip(current.terms()==null?registry.find(current.ideologyId()).map(IdeologyDefinition::name).orElse(current.ideologyId()):current.terms().name())+" · уровень "+current.level();}
+    private List<String> effectLines(TownIdeology current){
+        if(current==null)return List.of("&7Бонусов выбранной идеологии нет.");
+        String line=switch(current.ideologyId()){
+            case "agriculture"->"Рост растений ×"+registry.value(current,"growth-multiplier",1);
+            case "industry"->"Скорость переплавки ×"+registry.value(current,"smelt-multiplier",1);
+            case "healthcare"->"Дополнительные сердца: "+registry.value(current,"health-hearts",0);
+            case "infrastructure"->"Скорость вагонетки ×"+registry.value(current,"minecart-multiplier",1)+"; задержка установки: "+(registry.integer(current,"placement-cooldown-ticks",0)/20.0)+" сек.";
+            case "trade"->"Результат торговли ×"+registry.value(current,"trade-output-multiplier",1);
+            case "defense"->"Боевые эффекты: "+String.join(", ",registry.effects(current));
+            default->"Сохранённая идеология города";
+        };
+        return List.of("&7"+line);
     }
-
-    @EventHandler
-    public void onClick(InventoryClickEvent event) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
-        InventoryHolder holder = event.getView().getTopInventory().getHolder(false);
-        if (!(holder instanceof MenuHolder) || !(event.getWhoClicked() instanceof Player player)) return;
-        event.setCancelled(true);
-        if (event.getRawSlot() < 0 || event.getRawSlot() >= event.getView().getTopInventory().getSize()) return;
-        ItemStack clicked = event.getCurrentItem();
-        if (holder instanceof IdeologyListHolder) {
-            String id = ideologyFrom(clicked);
-            if (id != null) openDetails(player, id);
-            return;
-        }
-        if (holder instanceof DetailsHolder details) {
-            String action = actionFrom(clicked);
-            if ("back".equals(action)) openList(player);
-            if ("purchase".equals(action)) {
-                IdeologyDefinition definition = registry.find(details.ideologyId()).orElse(null);
-                if (definition == null) {
-                    messages.send(player, "definition-missing");
-                } else if (plugin.getConfig().getBoolean("settings.selection.require-confirmation", true)) {
-                    openConfirm(player, definition);
-                } else {
-                    purchase(player, definition);
-                }
-            }
-            return;
-        }
-        if (holder instanceof ConfirmHolder confirm) {
-            String action = actionFrom(clicked);
-            if ("cancel".equals(action)) openDetails(player, confirm.ideologyId());
-            if ("confirm".equals(action)) {
-                IdeologyDefinition definition = registry.find(confirm.ideologyId()).orElse(null);
-                if (definition == null) messages.send(player, "definition-missing");
-                else purchase(player, definition);
-            }
-        }
-    } }
+    private void openConfirm(Player player,IdeologyDefinition definition){
+        var offer=ideologies.offer(player,definition.id());var reform=offer.reform();
+        String title=offer.payment()?"&8Завершение реформы":"&8Начало реформы";
+        var inventory=ru.neverland.core.MenuStyle.inventory(plugin,new ConfirmHolder(definition.id(),offer.token(),player.getUniqueId()),27,ColorUtil.component(title));fill(inventory);
+        var lines=new ArrayList<String>();lines.add("&7Сейчас: "+name(reform.previous()));lines.addAll(effectLines(reform.previous()));lines.add("&7После: "+name(reform.target()));lines.addAll(effectLines(reform.target()));lines.add("&7Стоимость из городской казны: &e"+economy.format(reform.cents()/100.0)+" "+economy.currencyName());
+        lines.add(offer.payment()?"&eПодтверждение спишет сохранённую сумму один раз.":"&aСейчас деньги не списываются.");
+        if(!offer.payment()){lines.add("&7Подготовка: "+reform.stages().get(0)/1000+" сек.");lines.add("&7Обсуждение: "+reform.stages().get(1)/1000+" сек.");lines.add("&7Принятие: "+reform.stages().get(2)/1000+" сек.");lines.add("&7Затем мэр отдельно подтвердит оплату.");}
+        inventory.setItem(11,actionItem(confirmItem(),"confirm",offer.payment()?"&aОплатить и завершить":"&aНачать подготовку",lines));inventory.setItem(15,actionItem(backItem(),"cancel","&fНазад",List.of("&7Без списания денег")));player.openInventory(inventory);
+    }
+    @EventHandler public void onClick(InventoryClickEvent event){try(var guard=ru.neverland.core.SuiteState.guard()){
+        if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+        var holder=event.getView().getTopInventory().getHolder(false);if(!(holder instanceof MenuHolder)||!(event.getWhoClicked() instanceof Player player))return;event.setCancelled(true);
+        if(event.getRawSlot()<0||event.getRawSlot()>=event.getView().getTopInventory().getSize())return;
+        try{
+            if(!player.hasPermission("neverlandtownyideologies.use"))throw new IllegalArgumentException("Нет доступа к меню идеологий");
+            var clicked=event.getCurrentItem();String action=actionFrom(clicked);
+            if(holder instanceof IdeologyListHolder){String id=ideologyFrom(clicked);if(id!=null)openDetails(player,id);else if("reform".equals(action)){var town=towny.town(player);if(town!=null)ideologies.reform(town.getUUID()).ifPresent(r->openDetails(player,r.target().ideologyId()));}return;}
+            if(holder instanceof DetailsHolder details){if("back".equals(action))openList(player);else if("purchase".equals(action))openConfirm(player,registry.find(details.ideologyId()).orElseThrow(()->new IllegalArgumentException("Идеология отсутствует")));return;}
+            if(holder instanceof ConfirmHolder confirm){if(!confirm.player().equals(player.getUniqueId()))return;if("cancel".equals(action))openDetails(player,confirm.ideologyId());else if("confirm".equals(action)){
+                var result=ideologies.confirm(player,confirm.token());player.closeInventory();player.sendMessage("§7Сохраняем решение. Дождитесь результата…");
+                result.whenComplete((text,error)->{if(plugin.isEnabled())ru.neverland.core.SuiteScheduler.reply(plugin,player,()->{if(player.isOnline())player.sendMessage(error==null?"§a"+text:"§cСохранение не подтверждено. Сообщите администрации; повторять оплату автоматически нельзя.");});});
+            }}
+        }catch(Exception error){player.sendMessage("§c"+(error.getMessage()==null?"Действие не выполнено":error.getMessage()));}
+    }}
 
     @EventHandler
     public void onDrag(InventoryDragEvent event) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyIdeologies")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (event.getView().getTopInventory().getHolder(false) instanceof MenuHolder) event.setCancelled(true);
     } }
-
-    private void purchase(Player player, IdeologyDefinition definition) {
-        Town town = towny.town(player);
-        TownIdeology previous = town == null ? null : ideologies.get(town).orElse(null);
-        PurchaseResult result = ideologies.purchase(player, definition.id());
-        Map<String, String> replacements = Map.of(
-                "town", town == null ? "—" : town.getName(),
-                "ideology", definition.name(),
-                "current", previous == null ? "—" : registry.find(previous.ideologyId()).map(IdeologyDefinition::name).orElse(previous.ideologyId()),
-                "level", Integer.toString(result.level()),
-                "price", economy.format(result.price()),
-                "currency", economy.currencyName()
-        );
-        switch (result.status()) {
-            case SELECTED -> messages.send(player, "selected", replacements);
-            case CHANGED -> messages.send(player, "changed", replacements);
-            case UPGRADED -> messages.send(player, "upgraded", replacements);
-            case NO_TOWN -> messages.send(player, "town-required");
-            case NOT_MAYOR -> messages.send(player, "mayor-only");
-            case NO_PERMISSION -> messages.send(player, "no-permission");
-            case OTHER_SELECTED -> messages.send(player, "other-selected", replacements);
-            case MAX_LEVEL -> messages.send(player, "max-level");
-            case INSUFFICIENT_FUNDS -> messages.send(player, "not-enough-money", replacements);
-            case ECONOMY_ERROR -> messages.send(player, "economy-error");
-            case DEFINITION_MISSING -> messages.send(player, "definition-missing");
-        }
-        if (result.success()) openDetails(player, definition.id());
-    }
 
     private ItemStack ideologyIcon(IdeologyDefinition definition, TownIdeology current) {
         ItemStack icon = itemsAdder.item(definition.itemsAdderIcon(), 1);
@@ -196,8 +165,11 @@ public final class MenuManager implements Listener {
                 Map.of("level", Integer.toString(level), "max_level", Integer.toString(IdeologyDefinition.MAX_LEVEL)))));
         lore.add(ColorUtil.component(messages.replace(messages.raw("gui.progress"), Map.of("progress", progress(level)))));
         int displayLevel = Math.max(1, level);
-        Map<String, String> bonus = registry.bonusPlaceholders(definition, displayLevel);
-        for (String line : definition.bonusDescription()) lore.add(ColorUtil.component(messages.replace(line, bonus)));
+        if (selected && current.terms() != null) effectLines(current).forEach(line -> lore.add(ColorUtil.component(line)));
+        else {
+            Map<String, String> bonus = registry.bonusPlaceholders(definition, displayLevel);
+            for (String line : definition.bonusDescription()) lore.add(ColorUtil.component(messages.replace(line, bonus)));
+        }
         lore.add(Component.empty());
         if (selected) lore.add(ColorUtil.component(messages.raw("gui.selected")));
         else if (current == null || plugin.getConfig().getBoolean("settings.selection.change-allowed", false)) {
@@ -298,5 +270,5 @@ public final class MenuManager implements Listener {
 
     private record IdeologyListHolder() implements MenuHolder { }
     private record DetailsHolder(String ideologyId) implements MenuHolder { }
-    private record ConfirmHolder(String ideologyId) implements MenuHolder { }
+    private record ConfirmHolder(String ideologyId,java.util.UUID token,java.util.UUID player) implements MenuHolder { }
 }

@@ -1,0 +1,26 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 40 assertions; actual Folia Towny Ideologies services, native Towny AccountObserver with substituted adapter, crop event, menu, async permission checks, durable journal, stale retire callbacks and full restart. Main banking boundary, player/view/scheduler and elapsed-clock samples are explicit fixtures; no live Vault/backend or network client claim.\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "IdeologyReformsRuntimeProbe.jar": "c59d77fd67a2dccab15239aba928ecfe0918990824c82832e02964bff47129c4",
+      "NeverLandTownyControl-0.5.8.jar": "70363d4490cfd03b49fdacc83e22fc1340f5ff7b4aaea14cb085eb1cc63c5834",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyIdeologies-0.2.0.jar": "9e0c16b5b4926c62eea7893bd4891eaf3d326563d3bc7865a599ba35157a229f"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 7 assertions; actual Folia Towny Ideologies services, native Towny AccountObserver with substituted adapter, crop event, menu, async permission checks, durable journal, stale retire callbacks and full restart. Main banking boundary, player/view/scheduler and elapsed-clock samples are explicit fixtures; no live Vault/backend or network client claim.\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "IdeologyReformsRuntimeProbe.jar": "c59d77fd67a2dccab15239aba928ecfe0918990824c82832e02964bff47129c4",
+      "NeverLandTownyControl-0.5.8.jar": "70363d4490cfd03b49fdacc83e22fc1340f5ff7b4aaea14cb085eb1cc63c5834",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyIdeologies-0.2.0.jar": "9e0c16b5b4926c62eea7893bd4891eaf3d326563d3bc7865a599ba35157a229f"
+    }
+  }
+]

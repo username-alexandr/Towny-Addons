@@ -13,17 +13,19 @@ import ru.neverland.townylogistics.config.LogisticsSettings;
 import ru.neverland.townylogistics.model.*;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.concurrent.*;
 
 /** Native NPC movement. Never force-load chunks or teleport a courier along its route. */
 public final class CourierNpcs implements Listener {
-    public record Motion(Position position,boolean active,String status){}
+    public record Motion(Position position,boolean active,StopReason reason){public String status(){return reason.text;}}
+    public record Backtrack(boolean reachable,Position position,String explanation){}
     private static final Set<Material> ROAD=Set.of(Material.DIRT_PATH,Material.STONE_BRICKS,Material.COBBLESTONE,Material.POLISHED_ANDESITE,Material.SMOOTH_STONE);
     private static final Set<Material> DANGER=Set.of(Material.LAVA,Material.WATER,Material.FIRE,Material.SOUL_FIRE,Material.CACTUS,Material.MAGMA_BLOCK,Material.CAMPFIRE,Material.SOUL_CAMPFIRE,Material.POWDER_SNOW);
     private static final class Live {final WanderingTrader npc;Position last,safe;long movedAt,repathAt,retryAt;Live(WanderingTrader n,Position p,long now){npc=n;last=p;safe=p;movedAt=now;}}
     private final JavaPlugin plugin;private final NamespacedKey key;private final Map<UUID,Live> live=new HashMap<>();private LogisticsSettings settings;private int budget;
     private final Map<UUID,Motion> motions=new HashMap<>();
     private final Map<UUID,Request> requests=new HashMap<>();
-    private final Set<UUID> pending=new HashSet<>();
+    private final Map<UUID,Object> pending=new HashMap<>();
     private record Request(CourierJob job,Position target,boolean moving,int level){}
     private final Consumer<Map.Entry<UUID,Position>> checkpoint;
     public CourierNpcs(JavaPlugin plugin,LogisticsSettings settings,Consumer<Map.Entry<UUID,Position>> checkpoint){this.plugin=plugin;this.key=new NamespacedKey(plugin,"courier");this.settings=settings;this.checkpoint=checkpoint;}
@@ -60,41 +62,57 @@ public final class CourierNpcs implements Listener {
     }
     public Motion tick(CourierJob job,Position target,boolean moving,int level) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         requests.put(job.id(),new Request(job,target,moving,level));
-        if(pending.add(job.id())) {
-            Runnable advance=()->{try{Request r=requests.get(job.id());if(r!=null)motions.put(job.id(),move(r.job(),r.target(),r.moving(),r.level()));}finally{pending.remove(job.id());}};
-            Live liveNpc=live.get(job.id());Location at=location(job.position());
-            if(liveNpc!=null)ru.neverland.core.SuiteScheduler.entityLater(plugin,liveNpc.npc,advance,()->{pending.remove(job.id());live.remove(job.id());},1);
-            else if(at!=null)ru.neverland.core.SuiteScheduler.region(plugin,at,advance);else pending.remove(job.id());
+        if(!pending.containsKey(job.id())) {
+            Object token=new Object();pending.put(job.id(),token);Live scheduled=live.get(job.id());
+            Runnable advance=()->{try{if(pending.get(job.id())!=token||live.get(job.id())!=scheduled)return;Request r=requests.get(job.id());if(r!=null)motions.put(job.id(),move(r.job(),r.target(),r.moving(),r.level()));}finally{pending.remove(job.id(),token);}};
+            Location at=location(job.position());
+            if(scheduled!=null)ru.neverland.core.SuiteScheduler.entityLater(plugin,scheduled.npc,advance,()->{pending.remove(job.id(),token);live.remove(job.id(),scheduled);},1);
+            else if(at!=null)ru.neverland.core.SuiteScheduler.region(plugin,at,advance);else pending.remove(job.id(),token);
         }
-        return motions.getOrDefault(job.id(),new Motion(job.position(),false,"Ожидает регион курьера"));
+        return motions.getOrDefault(job.id(),new Motion(job.position(),false,StopReason.WAIT_REGION));
     }} }
     private Motion move(CourierJob job,Position target,boolean moving,int level){ try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
         long now=System.currentTimeMillis();Live value=live.get(job.id());
         if(value!=null&&!value.npc.isValid()){live.remove(job.id());value=null;}
-        if(!near(job.position())||!loaded(job.position())){remove(job.id());return new Motion(job.position(),false,"Ожидает загрузки территории и игроков");}
-        if(value==null)value=spawn(job,now);if(value==null)return new Motion(job.position(),false,"Ожидает свободного места для NPC или прохода");
+        if(!near(job.position())||!loaded(job.position())){remove(job.id());return new Motion(job.position(),false,StopReason.WAIT_PLAYERS);}
+        if(value==null)value=spawn(job,now);if(value==null)return new Motion(job.position(),false,StopReason.NPC_UNAVAILABLE);
         var npc=value.npc;Position current=position(npc.getLocation());if(npc.isOnGround()&&standable(current))value.safe=current;Position safePosition=value.safe;
-        if(!owned(job.town(),current)){remove(job.id());return new Motion(job.position(),false,"Курьер оказался вне городской территории");}
-        if(!npc.isTicking())return new Motion(safePosition,false,"Чанк не обрабатывает сущности");
-        if(!moving){npc.getPathfinder().stopPathfinding();value.movedAt=now;value.last=current;return new Motion(safePosition,true,"");}
-        if(current.distance(target)<=1.2){npc.getPathfinder().stopPathfinding();value.movedAt=now;return new Motion(safePosition,true,"");}
-        if(!loaded(target)||!owned(job.town(),target)){npc.getPathfinder().stopPathfinding();return new Motion(safePosition,false,"Следующий участок недоступен");}
+        if(!owned(job.town(),current)){remove(job.id());return new Motion(job.position(),false,StopReason.OUTSIDE);}
+        if(!npc.isTicking())return new Motion(safePosition,false,StopReason.SLEEPING);
+        if(!moving){npc.getPathfinder().stopPathfinding();value.movedAt=now;value.last=current;return new Motion(safePosition,true,StopReason.NONE);}
+        if(current.distance(target)<=1.2){npc.getPathfinder().stopPathfinding();value.movedAt=now;return new Motion(safePosition,true,StopReason.NONE);}
+        if(!loaded(target)){npc.getPathfinder().stopPathfinding();return new Motion(safePosition,false,StopReason.UNLOADED);}if(!owned(job.town(),target)){npc.getPathfinder().stopPathfinding();return new Motion(safePosition,false,StopReason.OUTSIDE);}
         if(current.distance(value.last)>0.2){value.last=current;value.movedAt=now;}
         if(now-value.movedAt>=settings.stuck()*1000L){npc.getPathfinder().stopPathfinding();value.retryAt=now+settings.retry()*1000L;value.movedAt=now;}
-        if(now<value.retryAt)return new Motion(safePosition,false,"Путь перекрыт; ожидает повторной попытки");
+        if(now<value.retryAt)return new Motion(safePosition,false,StopReason.BLOCKED);
         if(now>=value.repathAt&&budget>0){
-            if(!searchLoaded(current,target)){npc.getPathfinder().stopPathfinding();return new Motion(safePosition,false,"Ожидает загрузки пути");}
+            if(!searchLoaded(current,target)){npc.getPathfinder().stopPathfinding();return new Motion(safePosition,false,StopReason.REGION_BOUNDARY);}
             budget--;value.repathAt=now+2000;var destination=location(target);destination.setY(Math.ceil(destination.getY()));var path=npc.getPathfinder().findPath(destination,0);
             boolean valid=path!=null&&path.canReachFinalPoint()&&NavigationPolicy.allowed(path.getPoints().stream().map(CourierNpcs::position).toList(),target,
                 point->loaded(point)&&ru.neverland.core.SuiteScheduler.owns(location(point))&&owned(job.town(),point)&&!DANGER.contains(location(point).getBlock().getType())&&!DANGER.contains(location(point).getBlock().getRelative(0,-1,0).getType()));
-            if(!valid){npc.getPathfinder().stopPathfinding();value.retryAt=now+settings.retry()*1000L;return new Motion(safePosition,false,"Нет безопасного пути; откройте проход или дверь");}
+            if(!valid){npc.getPathfinder().stopPathfinding();value.retryAt=now+settings.retry()*1000L;return new Motion(safePosition,false,StopReason.UNSAFE);}
             double speed=ru.neverland.integration.ResearchEffects.speed(settings.level(level).speed(),ru.neverland.integration.ResearchBonuses.bonus(job.town(),"fast_caravans"))*(1+ru.neverland.integration.SpecializationAccess.bonus(job.town(),"courier_speed"));Material ground=npc.getLocation().getBlock().getRelative(0,-1,0).getType();Material feet=npc.getLocation().getBlock().getType();
             if(Tag.RAILS.isTagged(feet)||Tag.RAILS.isTagged(ground))speed*=1+settings.railBonus();else if(ROAD.contains(ground)||ROAD.contains(feet))speed*=1+settings.roadBonus();
             npc.getPathfinder().moveTo(path,speed);
         }
-        return new Motion(safePosition,true,"");
+        return new Motion(safePosition,true,StopReason.NONE);
     } }
-    public void remove(UUID id){ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {requests.remove(id);motions.remove(id);Live v=live.remove(id);if(v!=null){checkpoint.accept(Map.entry(id,v.safe));ru.neverland.core.WorldTasks.remove(plugin,v.npc);} }}
+    /** Stops old navigation while a replacement path is being checked and durably saved. */
+    public void halt(UUID id){try(var guard=ru.neverland.core.SuiteState.guard()){requests.remove(id);motions.remove(id);Live value=live.get(id);if(value!=null)ru.neverland.core.SuiteScheduler.entityLater(plugin,value.npc,()->{if(value.npc.isValid())value.npc.getPathfinder().stopPathfinding();},()->{},1);}}
+    /** A real native path is checked on the entity's own region before any backtrack is committed. */
+    public CompletionStage<Backtrack> canReturn(CourierJob job,Position anchor){try(var guard=ru.neverland.core.SuiteState.guard()){
+        var future=new CompletableFuture<Backtrack>();Live value=live.get(job.id());if(value==null){future.complete(new Backtrack(false,job.position(),"Курьер недоступен; дождитесь загрузки его участка"));return future;}
+        ru.neverland.core.SuiteScheduler.entityLater(plugin,value.npc,()->{try{
+            if(!value.npc.isValid()||live.get(job.id())!=value){future.complete(new Backtrack(false,job.position(),"Курьер ожидает восстановления"));return;}
+            Position current=position(value.npc.getLocation());if(!standable(current)||!owned(job.town(),current)||!loaded(anchor)||!owned(job.town(),anchor)){future.complete(new Backtrack(false,value.safe,"Нельзя безопасно вернуться к последней точке; освободите проход"));return;}
+            if(current.distance(anchor)<=1.2){future.complete(new Backtrack(true,current,""));return;}
+            if(budget<=0||!searchLoaded(current,anchor)){future.complete(new Backtrack(false,current,"Возврат ожидает своей очереди или загрузки соседних участков"));return;}budget--;
+            var destination=location(anchor);destination.setY(Math.ceil(destination.getY()));var path=value.npc.getPathfinder().findPath(destination,0);
+            boolean safe=path!=null&&path.canReachFinalPoint()&&NavigationPolicy.allowed(path.getPoints().stream().map(CourierNpcs::position).toList(),anchor,point->loaded(point)&&ru.neverland.core.SuiteScheduler.owns(location(point))&&owned(job.town(),point)&&!DANGER.contains(location(point).getBlock().getType())&&!DANGER.contains(location(point).getBlock().getRelative(0,-1,0).getType()));
+            future.complete(new Backtrack(safe,current,safe?"":"Нет безопасного обратного прохода; освободите дорогу до последнего узла"));
+        }catch(Exception|LinkageError error){future.completeExceptionally(error);}},()->future.complete(new Backtrack(false,job.position(),"Регион курьера временно недоступен")),1);return future;
+    }}
+    public void remove(UUID id){ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {requests.remove(id);motions.remove(id);pending.remove(id);Live v=live.remove(id);if(v!=null){checkpoint.accept(Map.entry(id,v.safe));ru.neverland.core.WorldTasks.remove(plugin,v.npc);} }}
     public void stop(){ try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {for(UUID id:List.copyOf(live.keySet()))remove(id);} }
     private boolean ours(Entity e){return e!=null&&e.getPersistentDataContainer().has(key,PersistentDataType.STRING);}
     @EventHandler(priority=EventPriority.HIGHEST,ignoreCancelled=true)public void damage(EntityDamageEvent e){ try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(ours(e.getEntity()))e.setCancelled(true);} }

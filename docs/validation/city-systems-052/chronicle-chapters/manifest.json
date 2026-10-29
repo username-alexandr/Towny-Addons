@@ -1,0 +1,28 @@
+{
+  "fixture": "folia-chronicle-chapters-3",
+  "server": "Folia26.2-7-14b7fee",
+  "java": "25.0.5",
+  "address": "127.0.0.1:25674",
+  "first_checks": 22,
+  "restart_checks": 10,
+  "chronicles_jar_sha256": "2059dd22aad86654bb15edb44fad507d857286536ab58c2b791d0799fab92bf7",
+  "explicit_fixtures": [
+    "past ChronicleEntry objects",
+    "audit repair DONE receipt without real payment",
+    "offline Player InventoryView EntityScheduler routed to actual region",
+    "actual AuditJournal monitor blocked on a fixture thread"
+  ],
+  "verified": [
+    "two actual sequential Folia JVM exits and retained exact legacy history",
+    "native chapters and source IDs, read-only rendering, permissions and neutral section disable",
+    "contribution stale-window and deferred permission checks",
+    "actual delayed audit append, unblocked global SuiteState heartbeat, no premature success",
+    "one pending thank per town, confirmed cooldown, exact durable timestamp and ID after restart"
+  ],
+  "not_claimed": [
+    "network client rendering",
+    "real war",
+    "real repair transaction",
+    "financial payment"
+  ]
+}

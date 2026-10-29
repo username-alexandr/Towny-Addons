@@ -11,6 +11,7 @@ import ru.neverland.townylogistics.model.Network.*;
 import ru.neverland.townylogistics.service.*;
 import java.util.*;
 import java.io.IOException;
+import java.util.concurrent.*;
 public final class LogisticsCommand implements CommandExecutor,TabCompleter {
     private final NeverLandTownyLogistics plugin;private final LogisticsService service;private LogisticsMenu menu;
     public LogisticsCommand(NeverLandTownyLogistics plugin,LogisticsService service){this.plugin=plugin;this.service=service;}
@@ -25,10 +26,9 @@ public final class LogisticsCommand implements CommandExecutor,TabCompleter {
         String action=args.length==0?"menu":args[0].toLowerCase(Locale.ROOT);
         if(action.equals("reload")||action.equals("recover")){
             if(!sender.hasPermission("neverlandtownylogistics.admin"))throw new IllegalArgumentException("Недостаточно прав");
-            if(action.equals("reload")){tell(sender,plugin.reloadLogistics()?"Настройки логистики обновлены.":"Настройки не применены; проверьте консоль.");return;}
-            count(args,3,"/townylogistics recover <UUID города> <UUID груза>");UUID town=UUID.fromString(args[1]),id=UUID.fromString(args[2]);
-            boolean done=service.recover(town,id);tell(sender,done?"Груз возвращён на склад отправителя.":"Возврат невозможен: склад открыт, заполнен или груз не найден.");
-            if(done)plugin.getLogger().info("Административный возврат груза "+id+" города "+town+" пользователем "+sender.getName());return;
+            if(action.equals("reload")){plugin.reloadLogistics().whenComplete((ok,error)->reply(sender,error==null&&Boolean.TRUE.equals(ok)?"Настройки логистики обновлены.":"Настройки не применены; проверьте консоль."));return;}
+            count(args,3,"/townylogistics recover <UUID города> <UUID груза>");UUID town=UUID.fromString(args[1]),id=UUID.fromString(args[2]);String administrator=sender.getName();
+            service.recover(town,id).whenComplete((done,error)->{reply(sender,error!=null?"Результат сохранения требует проверки; не повторяйте ручную выдачу груза":Boolean.TRUE.equals(done)?"Груз возвращён на склад отправителя.":"Возврат невозможен: склад открыт, заполнен или груз не найден.");if(error==null&&Boolean.TRUE.equals(done))plugin.getLogger().info("Административный возврат груза "+id+" города "+town+" пользователем "+administrator);});return;
         }
         if(!(sender instanceof Player p))throw new IllegalArgumentException("Эта команда выполняется в игре");
         if(!p.hasPermission("neverlandtownylogistics.use"))throw new IllegalArgumentException("Недостаточно прав");
@@ -47,25 +47,26 @@ public final class LogisticsCommand implements CommandExecutor,TabCompleter {
             if(!building.isBlank()&&n.nodes().values().stream().anyMatch(v->v.project().equals(building)))throw new IllegalArgumentException("У здания уже есть точка погрузки");
             var point=CourierNpcs.position(p.getLocation());var node=new Node(nodeId,building,kind,point);service.validateNode(id,node);
             if(kind==Kind.RAIL&&!Tag.RAILS.isTagged(p.getLocation().getBlock().getType())&&!Tag.RAILS.isTagged(p.getLocation().getBlock().getRelative(0,-1,0).getType()))throw new IllegalArgumentException("Железнодорожный узел задаётся на рельсах");
-            var nodes=new HashMap<>(n.nodes());nodes.put(nodeId,node);service.change(new Network(id,nodes,n.links(),n.routes()),true);tell(p,"&aУзел создан: "+nodeId);return;
+            var nodes=new HashMap<>(n.nodes());nodes.put(nodeId,node);after(p,service.change(new Network(id,nodes,n.links(),n.routes()),true),"&aУзел создан: "+nodeId,null);return;
         }
         if(action.equals("link")||action.equals("unlink")){
             count(args,3,"/t logistics "+action+" <узел1> <узел2>");var a=n.node(args[1]);var z=n.node(args[2]);var link=new Link(a.id(),z.id());var links=new HashSet<>(n.links());
-            if(action.equals("link")){service.validateLink(id,a,z);links.add(link);}else links.remove(link);service.change(new Network(id,n.nodes(),links,n.routes()),true);tell(p,"&aСвязи обновлены.");return;
+            if(action.equals("link")){service.validateLink(id,a,z);links.add(link);}else links.remove(link);after(p,service.change(new Network(id,n.nodes(),links,n.routes()),true),"&aСвязи обновлены.",null);return;
         }
         if(action.equals("remove")){
             count(args,2,"/t logistics remove <узел>");n.node(args[1]);if(n.routes().values().stream().anyMatch(v->List.of(v.hub(),v.source(),v.target()).contains(args[1])))throw new IllegalArgumentException("Узел используется маршрутом");
-            var nodes=new HashMap<>(n.nodes());nodes.remove(args[1]);var links=new HashSet<>(n.links());links.removeIf(l->l.a().equals(args[1])||l.b().equals(args[1]));service.change(new Network(id,nodes,links,n.routes()),true);tell(p,"Узел удалён.");return;
+            var nodes=new HashMap<>(n.nodes());nodes.remove(args[1]);var links=new HashSet<>(n.links());links.removeIf(l->l.a().equals(args[1])||l.b().equals(args[1]));after(p,service.change(new Network(id,nodes,links,n.routes()),true),"Узел удалён.",null);return;
         }
         if(action.equals("route")){
             count(args,5,"/t logistics route <id> <база> <отправитель> <получатель>");String routeId=Network.id(args[1].toLowerCase(Locale.ROOT));if(n.routes().containsKey(routeId))throw new IllegalArgumentException("ID маршрута уже занят");
             if(n.routes().size()>=service.settings().routes())throw new IllegalArgumentException("Достигнут предел маршрутов");
-            var route=new Route(routeId,args[2],args[3],args[4],"",64,0,false);service.job(n,route);var routes=new HashMap<>(n.routes());routes.put(routeId,route);service.change(new Network(id,n.nodes(),n.links(),routes),false);tell(p,"&aМаршрут создан: "+routeId+". Настройте фильтр и нажмите «Включить».");menu.open(p,"info",routeId,0);return;
+            var route=new Route(routeId,args[2],args[3],args[4],"",64,0,false);service.job(n,route);var routes=new HashMap<>(n.routes());routes.put(routeId,route);after(p,service.change(new Network(id,n.nodes(),n.links(),routes),false),"&aМаршрут создан: "+routeId+". Настройте фильтр и нажмите «Включить».",()->menu.open(p,"info",routeId,0));return;
         }
         if(args.length<2)throw new IllegalArgumentException("Справка: /t logistics help");var route=n.route(args[1]);var routes=new HashMap<>(n.routes());boolean topology=false;
         switch(action){
             case "pause","resume"->{count(args,2,"/t logistics "+action+" <маршрут>");if(action.equals("resume"))service.job(n,route);routes.put(route.id(),route.enabled(action.equals("resume")));}
-            case "dismiss"->{count(args,2,"/t logistics dismiss <маршрут>");if(route.enabled())throw new IllegalArgumentException("Сначала приостановите маршрут");service.dismiss(id,route.id());tell(p,"Свободные курьеры сняты с маршрута.");return;}
+            case "dismiss"->{count(args,2,"/t logistics dismiss <маршрут>");if(route.enabled())throw new IllegalArgumentException("Сначала приостановите маршрут");after(p,service.dismiss(id,route.id()),"Свободные курьеры сняты с маршрута.",null);return;}
+            case "recalculate"->{count(args,2,"/t logistics recalculate <маршрут>");after(p,service.recalculate(id,route.id()),"Проверка выбранного маршрута запущена; груз сохранён.",()->menu.open(p,"info",route.id(),0));return;}
             case "delete"->{count(args,2,"/t logistics delete <маршрут>");if(service.jobs(id).stream().anyMatch(j->j.route().equals(route.id()))||service.builds().shipments(id).values().stream().anyMatch(s->s.route().equals(route.id())&&s.transit()))throw new IllegalArgumentException("В маршруте остались курьеры или груз");routes.remove(route.id());}
             case "filter"->{count(args,3,"/t logistics filter <маршрут> hand|all|<материал>");String encoded="";
                 if(!args[2].equalsIgnoreCase("all")){ItemStack item;if(args[2].equalsIgnoreCase("hand"))item=p.getInventory().getItemInMainHand();else{Material m=Material.matchMaterial(ru.neverland.localization.MaterialLabels.canonicalKey(args[2]));if(m==null||!m.isItem())throw new IllegalArgumentException("Материал не найден");item=new ItemStack(m);}
@@ -74,8 +75,11 @@ public final class LogisticsCommand implements CommandExecutor,TabCompleter {
             case "limit","keep"->{count(args,3,"/t logistics "+action+" <маршрут> <число>");int value=Integer.parseInt(args[2]);routes.put(route.id(),new Route(route.id(),route.hub(),route.source(),route.target(),route.filter(),action.equals("limit")?value:route.limit(),action.equals("keep")?value:route.keep(),route.enabled()));topology=false;}
             default->throw new IllegalArgumentException("Неизвестная команда. /t logistics help");
         }
-        service.change(new Network(id,n.nodes(),n.links(),routes),topology);tell(p,"&aМаршрут обновлён.");menu.open(p,"routes",null,0);
+        after(p,service.change(new Network(id,n.nodes(),n.links(),routes),topology),"&aМаршрут обновлён.",()->menu.open(p,"routes",null,0));
     }
+    private interface Success{void run()throws IOException;}
+    private void reply(CommandSender sender,String text){if(plugin.isEnabled())ru.neverland.core.SuiteScheduler.reply(plugin,sender,()->tell(sender,text));}
+    private void after(CommandSender sender,CompletionStage<?> stage,String message,Success success){tell(sender,"Сохраняем изменение. Дождитесь подтверждения…");stage.whenComplete((saved,error)->{if(!plugin.isEnabled())return;ru.neverland.core.SuiteScheduler.reply(plugin,sender,()->{if(sender instanceof Player player&&!player.isOnline())return;if(error!=null){tell(sender,"Изменение не подтверждено; прежние данные и груз сохранены. Сообщите администрации.");return;}tell(sender,message);if(success!=null)try{success.run();}catch(IOException|RuntimeException failed){tell(sender,"Откройте меню ещё раз: "+failed.getMessage());}});});}
     public static List<String> helpLines(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return List.of(
         "&6&lСоздание логистической сети",
         "&f/t logistics node <id> <здание>",
@@ -98,6 +102,8 @@ public final class LogisticsCommand implements CommandExecutor,TabCompleter {
         "&7  Приостановить маршрут.",
         "&f/t logistics resume <id>",
         "&7  Возобновить маршрут.",
+        "&f/t logistics recalculate <id>",
+        "&7  Перепроверить выбранный путь после ремонта дороги.",
         "&f/t logistics &7— открыть меню сети.");} }
     private void showMap(Player p,Network network){int points=0;for(var link:network.links()){
         var a=network.node(link.a()).point();var b=network.node(link.b()).point();if(!a.world().equals(p.getWorld().getUID()))continue;
@@ -108,8 +114,8 @@ public final class LogisticsCommand implements CommandExecutor,TabCompleter {
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if(!(sender instanceof Player p)||!p.hasPermission("neverlandtownylogistics.use"))return List.of();var town=service.town(p);if(town==null)return List.of();var n=service.network(town.getUUID());List<String> values=new ArrayList<>();
         try{
-            if(args.length==1){values.addAll(List.of("routes","nodes","depots","couriers","cargo","info","storage","map","help"));if(service.manager(p,town))values.addAll(List.of("node","waypoint","link","unlink","remove","route","filter","limit","keep","pause","resume","dismiss","delete"));if(p.hasPermission("neverlandtownylogistics.admin"))values.addAll(List.of("reload","recover"));}
-            else if(args.length==2&&Set.of("info","filter","limit","keep","pause","resume","dismiss","delete").contains(args[0]))values.addAll(n.routes().keySet());
+            if(args.length==1){values.addAll(List.of("routes","nodes","depots","couriers","cargo","info","storage","map","help"));if(service.manager(p,town))values.addAll(List.of("node","waypoint","link","unlink","remove","route","filter","limit","keep","pause","resume","dismiss","delete","recalculate"));if(p.hasPermission("neverlandtownylogistics.admin"))values.addAll(List.of("reload","recover"));}
+            else if(args.length==2&&Set.of("info","filter","limit","keep","pause","resume","dismiss","delete","recalculate").contains(args[0]))values.addAll(n.routes().keySet());
             else if((args.length==2&&args[0].equals("storage"))||(args.length==3&&args[0].equals("node")))values.addAll(service.depots(town.getUUID()).keySet());
             else if(args.length==3&&args[0].equals("waypoint"))values.addAll(List.of("road","rail","port"));
             else if((Set.of("link","unlink").contains(args[0])&&args.length<=3)||(args[0].equals("remove")&&args.length==2)||(args[0].equals("route")&&args.length>=3&&args.length<=5))values.addAll(n.nodes().keySet());

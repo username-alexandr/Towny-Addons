@@ -1,0 +1,1 @@
+PASS 33 assertions; actual Folia Towny Contracts Quests Control services, registered API, commands, inventories, SQLite transactions and three JVM boots. Explicit offline Player/InventoryView/scheduler substitutes and inventory-confirmed delivery fixtures; no client rendering or real bank payment claimed.

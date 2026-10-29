@@ -1,0 +1,13 @@
+PASS actual Logistics 0.3.0 asynchronously starts on Folia and Towny
+PASS fixture surface belongs to current real Folia region
+PASS actual Builds API exposes all completed seeded depot sites
+PASS real Builds pickup debits source and records exactly sixteen items once
+PASS actual native Pathfinder verifies backtrack to last reached node without teleporting NPC
+PASS old courier path stays visible while replacement file is physically blocked
+PASS pending reroute neither repeats pickup nor changes cargo ownership
+PASS actual delayed path save leaves SuiteState available
+PASS actual service commits alternate path beginning at last reached node
+PASS reroute preserves physical location, shipment ID and delivery phase
+PASS native menu explains backtrack and offers one-route recheck
+PASS cargo in transit prevents dismissing its courier
+PASS explicit recheck clears blockage history without removing or duplicating cargo

@@ -14,3 +14,7 @@ maximum-prisons-per-town: 10
 recapture-cooldown-hours: 24
 menu-style:
   title-color: '#F4F7FC'
+
+# Optional материалы дела; отключение не отменяет и не увеличивает взыскания.
+reviews:
+  enabled: true

@@ -1,0 +1,53 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 37 assertions; actual Folia Towny Districts Crime and Justice services, immutable patrol geometry, assignment and report, seeded confirmed historical incident, private evidence and independent appeals, exact source dedup, acknowledgement delay, original cases and deadlines, native menus and complete restart/corruption isolation. Offline Player InventoryView EntityScheduler substitutes; no real theft or money movement claimed\n",
+    "jar_sha256": {
+      "CrimeJusticeRuntimeProbe.jar": "570bad7c65be8ac15dbbd7c8146aa36eb72773533ccf8e71f345f06f7291f09d",
+      "NeverLandTownyCrime-0.2.0.jar": "b72d6a351b8df1d2d6c5473fcbf3967b8bdb7d0863c6575e17e858bb2dffd821",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyJustice-0.2.0.jar": "ef165e66c772b0d94d870d3801e0ae4d70c65e9685741fd52d98c3a4740bb2ae",
+      "NeverLandTownyControl-0.5.8.jar": "70363d4490cfd03b49fdacc83e22fc1340f5ff7b4aaea14cb085eb1cc63c5834",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyPopulation-0.2.1.jar": "c8050c22217f1502b826cebb0669c89d49f402a84efa184b601c6c6655a9887e",
+      "NeverLandTownyDistricts-0.2.3.jar": "432fd9eaedbd770bb269ab02db9130add37362b38d04b12db59727df1ec88a91",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63",
+      "NeverLandTownyEnvironment-0.2.1.jar": "eadd851c86f78018fdca1d828d14e64c561b8f4eb6037b6c84cb743789dcbe1c"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 7 assertions; actual Folia Towny Districts Crime and Justice services, immutable patrol geometry, assignment and report, seeded confirmed historical incident, private evidence and independent appeals, exact source dedup, acknowledgement delay, original cases and deadlines, native menus and complete restart/corruption isolation. Offline Player InventoryView EntityScheduler substitutes; no real theft or money movement claimed\n",
+    "jar_sha256": {
+      "CrimeJusticeRuntimeProbe.jar": "570bad7c65be8ac15dbbd7c8146aa36eb72773533ccf8e71f345f06f7291f09d",
+      "NeverLandTownyCrime-0.2.0.jar": "b72d6a351b8df1d2d6c5473fcbf3967b8bdb7d0863c6575e17e858bb2dffd821",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyJustice-0.2.0.jar": "ef165e66c772b0d94d870d3801e0ae4d70c65e9685741fd52d98c3a4740bb2ae",
+      "NeverLandTownyControl-0.5.8.jar": "70363d4490cfd03b49fdacc83e22fc1340f5ff7b4aaea14cb085eb1cc63c5834",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyPopulation-0.2.1.jar": "c8050c22217f1502b826cebb0669c89d49f402a84efa184b601c6c6655a9887e",
+      "NeverLandTownyDistricts-0.2.3.jar": "432fd9eaedbd770bb269ab02db9130add37362b38d04b12db59727df1ec88a91",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63",
+      "NeverLandTownyEnvironment-0.2.1.jar": "eadd851c86f78018fdca1d828d14e64c561b8f4eb6037b6c84cb743789dcbe1c"
+    }
+  },
+  {
+    "phase": "corrupt",
+    "exit_code": 0,
+    "result": "PASS 6 assertions; actual Folia Towny Districts Crime and Justice services, immutable patrol geometry, assignment and report, seeded confirmed historical incident, private evidence and independent appeals, exact source dedup, acknowledgement delay, original cases and deadlines, native menus and complete restart/corruption isolation. Offline Player InventoryView EntityScheduler substitutes; no real theft or money movement claimed\n",
+    "jar_sha256": {
+      "CrimeJusticeRuntimeProbe.jar": "570bad7c65be8ac15dbbd7c8146aa36eb72773533ccf8e71f345f06f7291f09d",
+      "NeverLandTownyCrime-0.2.0.jar": "b72d6a351b8df1d2d6c5473fcbf3967b8bdb7d0863c6575e17e858bb2dffd821",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyJustice-0.2.0.jar": "ef165e66c772b0d94d870d3801e0ae4d70c65e9685741fd52d98c3a4740bb2ae",
+      "NeverLandTownyControl-0.5.8.jar": "70363d4490cfd03b49fdacc83e22fc1340f5ff7b4aaea14cb085eb1cc63c5834",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyPopulation-0.2.1.jar": "c8050c22217f1502b826cebb0669c89d49f402a84efa184b601c6c6655a9887e",
+      "NeverLandTownyDistricts-0.2.3.jar": "432fd9eaedbd770bb269ab02db9130add37362b38d04b12db59727df1ec88a91",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63",
+      "NeverLandTownyEnvironment-0.2.1.jar": "eadd851c86f78018fdca1d828d14e64c561b8f4eb6037b6c84cb743789dcbe1c"
+    }
+  }
+]

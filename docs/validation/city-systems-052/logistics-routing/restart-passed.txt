@@ -1,0 +1,1 @@
+PASS 9 checks; actual Folia/Towny/Builds/Logistics, native Pathfinder backtrack, delayed physical file, acknowledged route replacement, exact real shipment inventory, menus and full restart. Explicit offline Player/View/EntityScheduler, seeded completed sites and staged BLOCKED signal; no network client, purchased building or full walking journey claimed

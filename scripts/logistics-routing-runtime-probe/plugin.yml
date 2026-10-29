@@ -1,0 +1,6 @@
+name: LogisticsRoutingRuntimeProbe
+version: 1
+main: ru.neverland.runtime.LogisticsRoutingProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyCitizens, NeverLandTownyBuilds, NeverLandTownyLogistics]

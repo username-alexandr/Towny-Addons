@@ -1,0 +1,1 @@
+PASS 10 checks; actual Folia Towny Chronicles, real asynchronous journal and native menus, exact legacy records and full restart, read-only chapter rendering and permissions; explicitly seeded past entries/repair receipt and offline Player/View/EntityScheduler; no real combat, repair payment or network client claimed

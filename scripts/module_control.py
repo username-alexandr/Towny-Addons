@@ -41,6 +41,13 @@ def dependencies():
     return result
 
 def lifecycle_guard(source, method, hook):
+    # Resolve only explicit core imports (or its wildcard); an unrelated short class name
+    # must not make an async lifecycle appear guarded. The Java compiler validates imports.
+    for name in ('ModuleLifecycle','SuiteState'):
+        if re.search(r'\b(?:class|interface|enum|record)\s+'+name+r'\b', source):
+            continue
+        if re.search(r'\bimport\s+ru\.neverland\.core\.(?:'+name+r'|\*)\s*;', source):
+            source=re.sub(r'(?<![\w.])'+name+r'\.', 'ru.neverland.core.'+name+'.', source)
     wrapper = r"(?:synchronized\s*\(ru\.neverland\.core\.SuiteState\.lock\(\)\)\s*\{\s*|try\s*\(\s*var\s+\w+\s*=\s*ru\.neverland\.core\.SuiteState\.guard\(\)\s*\)\s*\{\s*)?"
     # A try/finally may surround the guard so a database can close after the ledger lock is released.
     return bool(re.search(r"void\s+"+method+r"\s*\(\s*\)\s*\{\s*(?:try\s*\{\s*)?"+wrapper+r"if\s*\(!ru\.neverland\.core\.ModuleLifecycle\."+hook+r"\(this\)\)\s*return;", source))

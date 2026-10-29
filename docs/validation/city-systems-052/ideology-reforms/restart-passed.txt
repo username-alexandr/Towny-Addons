@@ -1,0 +1,1 @@
+PASS 7 assertions; actual Folia Towny Ideologies services, native Towny AccountObserver with substituted adapter, crop event, menu, async permission checks, durable journal, stale retire callbacks and full restart. Main banking boundary, player/view/scheduler and elapsed-clock samples are explicit fixtures; no live Vault/backend or network client claim.

@@ -1,12 +1,12 @@
 name: NeverLandTownyJustice
-version: 0.1.10
+version: 0.2.0
 main: ru.neverland.townyjustice.NeverLandTownyJustice
 folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Судебные дела, штрафы, розыск, тюрьмы Towny и обеспеченные награды за поимку.
 depend: [Towny]
-softdepend: [NeverLandTownyCouncil, NeverLandTownyTreasuryPlus, PlaceholderAPI]
+softdepend: [NeverLandTownyCrime, NeverLandTownyCouncil, NeverLandTownyTreasuryPlus, PlaceholderAPI]
 commands:
   townyjustice:
     aliases: [justice, nltjustice]

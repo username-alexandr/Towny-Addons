@@ -1,0 +1,12 @@
+package ru.neverland.townyquests.cooperative;
+import java.util.*;
+public final class CooperativeUnlockCacheSmoke {
+    static int checks;static void check(boolean yes,String why){if(!yes)throw new AssertionError(why);checks++;}
+    static void unknown(CooperativeUnlockCache c,UUID town,long now,String why){try{c.read(town,"joint_test",now);throw new AssertionError(why);}catch(IllegalStateException expected){checks++;}}
+    public static void main(String[] args){var c=new CooperativeUnlockCache();var towns=new ArrayList<UUID>();long now=1;for(int i=0;i<128;i++){UUID id=UUID.randomUUID();towns.add(id);c.watch(id,now);}unknown(c,towns.get(0),now,"cold lookup must be unknown, not false");var seen=new HashSet<UUID>();
+        for(int tick=0;tick<8;tick++){var batch=c.due(now);check(batch.size()==16,"bounded 16 requests in one tick");for(UUID town:batch){check(c.start(town,now),"fresh request starts");seen.add(town);}check(c.due(now).isEmpty()&&!c.start(towns.get(127),now),"in-flight capacity never exceeds16");for(UUID town:batch)c.complete(town,Set.of("joint_test"),now,true);now+=1_000_000_000L;}
+        check(seen.size()==128,"all watched cities refresh within eight seconds without starvation");check(c.read(towns.get(127),"joint_test",now),"latest city receives confirmed unlock");check(!c.read(towns.get(127),"joint_absent",now),"healthy absent key is authoritative false");check(c.due(now).isEmpty(),"fresh cached results avoid repeated SQLite reads");
+        now+=CooperativeUnlockCache.REFRESH;check(c.due(now).size()==16,"oldest results become due after refresh window");UUID first=c.due(now).get(0);check(c.start(first,now)&&!c.start(first,now),"duplicate in-flight lookup rejected");c.complete(first,Set.of(),now,false);unknown(c,first,now,"failed read preserves unknown state");check(!c.start(first,now+1),"provider error backoff prevents retry storm");unknown(c,towns.get(1),now+CooperativeUnlockCache.STALE,"stale lookup cannot revoke or grant result");
+        c.due(now+CooperativeUnlockCache.IDLE+1);unknown(c,towns.get(1),now,"idle watches evicted");check(c.due(now).isEmpty(),"expired cities stop background SQL queries");c.watch(first,now);check(c.start(first,now),"new watch can reconcile again");c.complete(first,Set.of("joint_test"),now,true);c.clear();unknown(c,first,now,"shutdown clears stale unlock data");System.out.println("CooperativeUnlockCacheSmoke PASS: "+checks+" checks;128-city fairness, bounded in-flight reads, acknowledged false vs unknown, stale/failed cache and neutral shutdown");
+    }
+}

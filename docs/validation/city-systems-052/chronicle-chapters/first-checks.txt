@@ -1,0 +1,22 @@
+PASS validated Chronicles 0.3.0 on actual Folia and Towny
+PASS actual asynchronous audit scan exposes one sanitized repair receipt
+PASS native chapter has verified mayor and exact repaired city expense
+PASS native completeness description names Moscow and retained history
+PASS native chapter detail click prevents taking icon
+PASS native fact detail shows stable evidence ID without administrative notes
+PASS viewing/restart preserves exact old entries without generated duplicate events
+PASS native summary and drilldown do not rewrite persisted chronicle
+PASS recovery tab uses actual completed repair receipt
+PASS revoked permission cannot open chapters
+PASS townless visitor cannot inspect city chapters
+PASS optional chapter disable blocks only new views
+PASS ordinary chronicle remains usable with chapters disabled
+PASS stale contribution back click cannot replace a newer menu
+PASS revoked contribution permission closes view before deferred back action
+PASS second thank for same city blocked until first audit receipt
+PASS blocked real audit file cannot publish a thank early
+PASS global suite remains available while actual audit append is blocked
+PASS player receives no false success before durable audit
+PASS confirmed audit restores exactly one chronological thank entry
+PASS confirmed thank preserves one minute city cooldown
+PASS chronicle publication preserves exact durable audit ID and captured timestamp

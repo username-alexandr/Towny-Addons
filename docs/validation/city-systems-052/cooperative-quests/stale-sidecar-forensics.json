@@ -1,0 +1,168 @@
+{
+  "fixture": "folia-cooperative-quests-6",
+  "mode": "FAST_NATIVE_STOP; no extra SQL/tick before shutdown; raw files copied immediately after JVM exit; inspect copies only",
+  "jars": {
+    "NeverLandTownyContracts-0.7.0.jar": "8e6bc5b34ca4613f62118377a6884172888762db3acfc9e58c216a0dd5678eab",
+    "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+    "NeverLandTownyQuests-0.3.0.jar": "918276e0ced9f8fdd1348f605e3d7432e2fa68659be108971f8cfa709475b794",
+    "NeverLandTownyControl-0.5.8.jar": "70363d4490cfd03b49fdacc83e22fc1340f5ff7b4aaea14cb085eb1cc63c5834",
+    "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+    "CooperativeQuestsRuntimeProbe.jar": "4f30293cfadda5e04d1e80faeedea3535400ca89e2421eb6e3a82af4db1c2e88",
+    "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+  },
+  "main_only_immutable": {
+    "balances": [
+      [
+        "OAK_LOG",
+        244,
+        116
+      ],
+      [
+        "GLASS",
+        64,
+        0
+      ]
+    ],
+    "projects": [
+      [
+        "native_common",
+        "COMPLETED"
+      ],
+      [
+        "native_city_fa87f87daea3364e85a3187fb931ecad",
+        "CANCELLED"
+      ]
+    ],
+    "deliveries": [
+      [
+        "79ed53e5-fa43-37d1-818d-9e3cd73393a4",
+        "CONFIRMED"
+      ],
+      [
+        "0a0630b5-9acc-3aa8-bf42-3b965459b5d0",
+        "CONFIRMED"
+      ],
+      [
+        "3c52487f-5d0b-3da0-90d1-d2f9cda03afa",
+        "CONFIRMED"
+      ],
+      [
+        "a15af8bb-cb6f-39c9-be3e-d0b1da1a16c5",
+        "CONFIRMED"
+      ]
+    ]
+  },
+  "normal_copy_with_stale_wal": {
+    "files": {
+      "server-materials.db": {
+        "size": 126976,
+        "sha256": "24f450c91afe12156056f4f501b88a97a13fd3e372546b462170b00c5fd60ac2"
+      },
+      "server-materials.db-wal": {
+        "size": 201912,
+        "sha256": "2b487abec8e1e66af0f6313f12d6d21b2db33223fb99a9e2c3da5f0f695e4e4f"
+      },
+      "server-materials.db-shm": {
+        "size": 32768,
+        "sha256": "c3770353d73d6f13f9a9253642543ead26ab3cafb9f91ed27732ee5ae087f997"
+      }
+    },
+    "balances": [],
+    "projects": [],
+    "deliveries": []
+  },
+  "wal_header": [
+    931071618,
+    3007000,
+    4096,
+    0,
+    2733063723,
+    71499003,
+    2484917,
+    3020555358
+  ],
+  "wal_frames": 49,
+  "wal_commit_frames": [
+    {
+      "index": 2,
+      "page": 3,
+      "db_pages": 3
+    },
+    {
+      "index": 5,
+      "page": 5,
+      "db_pages": 5
+    },
+    {
+      "index": 8,
+      "page": 7,
+      "db_pages": 7
+    },
+    {
+      "index": 11,
+      "page": 9,
+      "db_pages": 9
+    },
+    {
+      "index": 14,
+      "page": 11,
+      "db_pages": 11
+    },
+    {
+      "index": 17,
+      "page": 13,
+      "db_pages": 13
+    },
+    {
+      "index": 20,
+      "page": 15,
+      "db_pages": 15
+    },
+    {
+      "index": 22,
+      "page": 16,
+      "db_pages": 16
+    },
+    {
+      "index": 25,
+      "page": 18,
+      "db_pages": 18
+    },
+    {
+      "index": 28,
+      "page": 20,
+      "db_pages": 20
+    },
+    {
+      "index": 31,
+      "page": 22,
+      "db_pages": 22
+    },
+    {
+      "index": 36,
+      "page": 26,
+      "db_pages": 26
+    },
+    {
+      "index": 41,
+      "page": 29,
+      "db_pages": 29
+    },
+    {
+      "index": 44,
+      "page": 30,
+      "db_pages": 30
+    },
+    {
+      "index": 47,
+      "page": 31,
+      "db_pages": 31
+    },
+    {
+      "index": 48,
+      "page": 1,
+      "db_pages": 31
+    }
+  ],
+  "conclusion": "Correct main DB at process exit; surviving stale schema WAL replays over it on normal next open. Origin of stale sidecar not attributed to a specific SQLite upstream bug. Explicit verified TRUNCATE before close added; startup never deletes WAL."
+}

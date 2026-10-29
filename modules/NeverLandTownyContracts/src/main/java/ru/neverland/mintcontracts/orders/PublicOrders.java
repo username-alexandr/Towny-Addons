@@ -80,6 +80,17 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
             public java.util.concurrent.CompletionStage<String> reserve(UUID id,String project,Map<String,Long> costs,String actor,String reason){writable();return materials.allocate(id,project,actor,reason,costs).thenApply(r->r.state());}
             public java.util.concurrent.CompletionStage<String> consume(UUID id,String actor,String reason){writable();return materials.allocation(id,"consume",proof(actor,reason)).thenApply(r->r.state());}
             public java.util.concurrent.CompletionStage<String> release(UUID id,String actor,String reason){writable();return materials.allocation(id,"return",proof(actor,reason)).thenApply(r->r.state());}
+            public java.util.concurrent.CompletionStage<List<Map<String,Object>>> cooperativeProjects(int page){return materials.cooperativeProjects(page);}
+            public java.util.concurrent.CompletionStage<Map<String,Object>> cooperativeProject(String id){return materials.cooperativeProject(id);}
+            public java.util.concurrent.CompletionStage<Map<String,Object>> cooperativePlan(String id,String title,String scope,String town,String unlock,long minimum,Map<String,Long> needs,String actor){writable();return materials.cooperativePlan(id,title,scope,town,unlock,minimum,needs,actor);}
+            public java.util.concurrent.CompletionStage<Map<String,Object>> cooperativeFinish(String id,boolean cancel,String actor,String reason){writable();return materials.cooperativeFinish(id,cancel,actor,reason);}
+            public java.util.concurrent.CompletionStage<List<Map<String,Object>>> cooperativeHistory(String project){return materials.cooperativeHistory(project);}
+            public java.util.concurrent.CompletionStage<List<Map<String,Object>>> cooperativeReceipts(UUID town,int page){return materials.cooperativeReceipts(town,page);}
+            public java.util.concurrent.CompletionStage<Set<String>> cooperativeUnlocks(UUID town){return materials.cooperativeUnlocks(town);}
+            public boolean cooperativeReady(){return materials.available();}
+            @SuppressWarnings("unchecked") public List<Map<String,Object>> cooperativeOrders(Player player){try(var guard=SuiteState.guard()){if(!SuiteScheduler.owns(player))throw new IllegalStateException("Нужен поток игрока");try{return ((List<Map<String,Object>>)uiSnapshot(player).get("mine")).stream().filter(r->r.get("type").equals("DELIVERY")).toList();}catch(Exception e){throw new IllegalStateException(e.getMessage(),e);}}}
+            public java.util.concurrent.CompletionStage<Void> cooperativeDeliver(Player player,UUID order,String project){try(var guard=SuiteState.guard()){writable();if(!SuiteScheduler.owns(player))throw new IllegalStateException("Нужен поток игрока");CooperativeProjects.id(project);try{return claim(player,order,project);}catch(Exception e){return java.util.concurrent.CompletableFuture.failedFuture(e);}}}
+
         },plugin,org.bukkit.plugin.ServicePriority.Normal);
         materials.ready().whenComplete((value,error)->{if(error!=null)plugin.getLogger().log(java.util.logging.Level.SEVERE,"Публичные сдачи приостановлены: база серверного склада не открыта",error);});
         SuiteScheduler.get().runTaskTimer(plugin,()->{if(!closed&&materials.available()&&!checkingDemand){checkingDemand=true;materials.demand().whenComplete((amounts,error)->{if(error==null)demand.update(amounts);else demand.update(Map.of());owner(null).call(()->{checkingDemand=false;return null;});});}},1,200);
@@ -114,6 +125,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         }
     };}
     private static String failure(Throwable error){while(error.getCause()!=null&&(error instanceof java.util.concurrent.CompletionException||error instanceof java.util.concurrent.ExecutionException))error=error.getCause();return error.getMessage()==null?error.getClass().getSimpleName():error.getMessage();}
+    private static String currentTown(Player player){var resident=com.palmergames.bukkit.towny.TownyAPI.getInstance().getResident(player);var town=resident==null?null:resident.getTownOrNull();return town==null?"":town.getUUID().toString();}
     private ResourceDeliveries.Inventory inventory(Player player){return new ResourceDeliveries.Inventory(){
         public <T> java.util.concurrent.CompletionStage<T> call(java.util.concurrent.Callable<T> action){return owner(player).call(action);}
         public void check(ServerMaterials.Delivery delivery){
@@ -186,19 +198,22 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
         Order o=orders.values().stream().filter(v->v.player().equals(p.getUniqueId())&&open(v)&&v.type()==type&&v.target().equals(target)&&v.progress()<v.goal()).findFirst().orElse(null);if(o==null)return;
         o=o.progress(o.progress()+1);orders.put(o.id(),o);try{save();if(o.progress()==o.goal()){p.sendMessage(Component.text("Заказ выполнен: ",NamedTextColor.GREEN).append(Component.text(o.title(),NamedTextColor.WHITE)));showOrder(p,o);}}catch(IOException ex){plugin.getLogger().severe(ex.getMessage());}
     }
-    private void claim(Player p,UUID id)throws Exception{
+    private java.util.concurrent.CompletionStage<Void> claim(Player p,UUID id)throws Exception{return claim(p,id,"");}
+    private java.util.concurrent.CompletionStage<Void> claim(Player p,UUID id,String cooperative)throws Exception{
         if(!active())throw new IllegalArgumentException("Заказы приостановлены");Order o=orders.get(id);if(o==null||!o.player().equals(p.getUniqueId()))throw new IllegalArgumentException("Заказ не найден");
-        var existing=income.ledger().get(id);if(existing!=null){recover(p);showOrder(p,o);return;}
+        var existing=income.ledger().get(id);if(existing!=null){recover(p);showOrder(p,o);return java.util.concurrent.CompletableFuture.completedFuture(null);}
         if(!open(o))throw new IllegalArgumentException("Заказ уже закрыт");
+        if(!cooperative.isEmpty()&&o.type()!=Type.DELIVERY)throw new IllegalArgumentException("В общую стройку можно передать только принятый заказ доставки");
         if(o.type()==Type.DELIVERY){
+            String city=cooperative.isEmpty()?null:currentTown(p);
             var delivery=new ServerMaterials.Delivery(id,p.getUniqueId(),p.getName(),o.template(),o.target(),o.goal(),o.cents(),o.rarity().name(),System.currentTimeMillis());
             var actor=inventory(p);actor.check(delivery);if(!delivering.add(id))throw new IllegalArgumentException("Ресурсы уже передаются. Подождите подтверждения.");
-            resourceDeliveries.deliver(delivery,actor).whenComplete((value,error)->deliveryResult(p,id,error));
-            p.sendMessage("§eПередаём ресурсы на серверный склад…");return;
+            var receipt=resourceDeliveries.deliver(delivery,actor,cooperative,city==null?"":city);receipt.whenComplete((value,error)->deliveryResult(p,id,error));
+            p.sendMessage(cooperative.isEmpty()?"§eПередаём ресурсы на серверный склад…":"§eПередаём ресурсы в общую стройку; избыток пойдёт в общий запас. Награда заказа не меняется.");return receipt;
         }else{
             if(o.progress()<o.goal())throw new IllegalArgumentException("Заказ ещё не выполнен");income.ledger().reserve(id,p.getUniqueId(),o.cents(),"orders:"+o.template(),false);
         }
-        p.sendMessage(Component.text("Награда ожидает зачисления на личный счёт: "+AuditTrail.cents(o.cents())+" монет.",NamedTextColor.GREEN));showOrder(p,o);
+        p.sendMessage(Component.text("Награда ожидает зачисления на личный счёт: "+AuditTrail.cents(o.cents())+" монет.",NamedTextColor.GREEN));showOrder(p,o);return java.util.concurrent.CompletableFuture.completedFuture(null);
     }
     private NamespacedKey receiptKey(UUID id){return new NamespacedKey(plugin,"order_"+id.toString().replace("-",""));}
     private void recover(Player p)throws IOException{for(var e:income.ledger().all())if(e.player().equals(p.getUniqueId())&&e.state()==RewardLedger.State.HELD&&p.getPersistentDataContainer().has(receiptKey(e.id()),PersistentDataType.BYTE)){
@@ -235,7 +250,7 @@ public final class PublicOrders implements Listener,CommandExecutor,TabCompleter
                 case "board" -> menu(p);
                 case "accept" -> {if(args.length!=2)throw new IllegalArgumentException("/orders accept <заказ>");accept(p,args[1]);}
                 case "mine" -> showMine(p);
-                case "claim" -> {if(args.length!=2)throw new IllegalArgumentException("/orders claim <UUID>");claim(p,UUID.fromString(args[1]));}
+                case "claim" -> {if(args.length!=2&&args.length!=3)throw new IllegalArgumentException("/orders claim <UUID> [общая_стройка]");if(args.length==3)CooperativeProjects.id(args[2]);claim(p,UUID.fromString(args[1]),args.length==3?args[2]:"");}
                 case "cancel" -> {if(args.length!=2)throw new IllegalArgumentException("/orders cancel <UUID>");var o=orders.get(UUID.fromString(args[1]));if(o==null||!o.player().equals(p.getUniqueId())||!open(o))throw new IllegalArgumentException("Активный заказ не найден");orders.put(o.id(),o.state("CANCELLED"));save();p.sendMessage("Отменён без штрафа.");}
                 default -> p.sendMessage("/orders; /orders accept <заказ>; /orders mine; /orders claim <UUID>; /orders cancel <UUID>");
             }

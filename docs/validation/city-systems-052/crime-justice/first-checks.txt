@@ -1,0 +1,37 @@
+PASS actual Crime0.2 Justice0.2 Districts0.2.3 and existing dependencies enabled
+PASS cached geometry exposes actual claimed district for patrol assignment
+PASS dirty layout is unavailable without rebuilding or writing district data on region
+PASS ordinary resident cannot assign district patrol
+PASS real patrol assignment is published only after acknowledged file
+PASS duplicate active worker assignment refused
+PASS report outside assigned actual district rejected
+PASS paused geometry provider cannot manufacture completed patrol
+PASS worker location and authored completion persisted exactly
+PASS completed patrol cannot be claimed twice
+PASS duplicate report never creates new history or reward
+PASS confirmed historical incident archive preserves stable ID and units without inventing culprit or location
+PASS current historical source recovery deduplicates stable incident ID
+PASS unassigned resident cannot read private fine material
+PASS ordinary resident cannot assign investigation
+PASS blocked dossier file never publishes unconfirmed investigator
+PASS delayed optional justice file leaves shared suite ledger available
+PASS pending assignment grants no private access
+PASS acknowledged assigned investigator receives case-limited access
+PASS leaving town immediately revokes investigator access
+PASS unavailable crime provider creates no evidence or additional penalty
+PASS linking exact confirmed incident never issues case fine or payment
+PASS same incident import is idempotent including history
+PASS stable incident ID cannot be reassigned to another case
+PASS confirmed copied evidence remains readable when source provider pauses
+PASS duplicate open appeal refused
+PASS original issuer cannot review own judgement
+PASS subject cannot decide own appeal
+PASS independent reasoned appeal outcome and full exact actor history recorded
+PASS review request preserves original amount due date phase and all payment intents
+PASS closed review cannot be rewritten or applied twice
+PASS native private dossier menu exposes evidence and appeals buttons
+PASS native dossier viewing does not write either primary or optional files
+PASS new native case history click cancels item movement
+PASS deferred menu handler rechecks permissions and closes revoked view
+PASS optional review disable refuses new writes without sanctions
+PASS optional disable preserves original sentence

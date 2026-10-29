@@ -46,6 +46,7 @@ public final class NeverLandTownyIdeologies extends JavaPlugin {
         data.load();
         EconomyService economy = new EconomyService(this, itemsAdder);
         ideologies = new IdeologyService(this, towny, data, registry, economy);
+        ru.neverland.core.ModuleShutdown.register(this,ideologies::prepareClose);
         Bukkit.getServicesManager().register(ru.neverland.townyideologies.api.TownyIdeologiesApi.class,
                 new ru.neverland.townyideologies.service.IdeologiesApiService(this, data), this, org.bukkit.plugin.ServicePriority.Normal);
         MenuManager menus = new MenuManager(this, towny, registry, ideologies, economy, itemsAdder, messages);
@@ -71,23 +72,23 @@ public final class NeverLandTownyIdeologies extends JavaPlugin {
                 getLogger().warning("PlaceholderAPI несовместим: " + error.getMessage());
             }
         }
+        ru.neverland.core.ActivityAdmin.attach(this,"townyideologies","neverlandtownyideologies.admin",ideologies::adminTargets);
+        ideologies.start();
         bonuses.start();
-        long autosave = Math.max(20L, getConfig().getLong("settings.data.autosave-seconds", 60L) * 20L);
-        ru.neverland.core.SuiteScheduler.get().runTaskTimer(this, data::saveIfDirty, autosave, autosave);
         getLogger().info("NeverLandTownyIdeologies " + getPluginMeta().getVersion()
                 + " включён: " + registry.all().size() + " идеологий, Paper 26.2, Towny и ItemsAdder-ready.");
     } }
 
     @Override
-    public void onDisable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
+    public void onDisable() { try { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         Bukkit.getServicesManager().unregisterAll(this);
         if (bonuses != null) bonuses.stop();
-        if (data != null) data.save();
+        if (ideologies != null) ideologies.prepareClose();
         if (placeholders != null) placeholders.unregister();
         if (towny != null) for (String name : TOWN_COMMANDS) towny.unregisterTownCommand(name);
-    } }
+    } } finally { if(ideologies!=null)ideologies.awaitClosed();else if(data!=null)data.awaitClosed();ru.neverland.core.ModuleShutdown.remove(this); } }
 
     public void reloadPlugin() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         reloadConfig();

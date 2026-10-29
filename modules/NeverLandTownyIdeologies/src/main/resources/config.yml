@@ -1,6 +1,7 @@
 settings:
   # TOWN_BANK — казна Towny; PLAYER_VAULT — баланс мэра через Vault;
-  # ITEM — обычный или ItemsAdder-предмет; COMMAND — любая валюта через PlaceholderAPI и команду.
+  # Для новых подтверждаемых платных реформ поддерживается TOWN_BANK.
+  # PLAYER_VAULT/ITEM/COMMAND сохраняют прежние бонусы, но новые платные изменения приостановлены.
   economy:
     mode: TOWN_BANK
     currency-name: "монет"
@@ -13,10 +14,18 @@ settings:
       balance-placeholder: "%playerpoints_points%"
       withdraw-command: "points take {player} {amount_raw}"
 
+  # Сроки фиксируются при начале. Простой сервера и паузы не расходуют время.
+  # Оплата — отдельно после подготовки; действующая идеология сохраняется до оплаты.
+  reforms:
+    enabled: true
+    preparation-seconds: 300
+    discussion-seconds: 600
+    adoption-seconds: 300
+
   selection:
     change-allowed: false
     # При смене старая ветка и её уровень теряются. Цена берётся из новой идеологии.
-    require-confirmation: true
+    require-confirmation: true # Для реформ подтверждения начала и завершения обязательны.
 
   bonus-scope:
     # GLOBAL — бонус жителю доступен везде; TOWN — только на территории его города.

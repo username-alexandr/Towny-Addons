@@ -1,0 +1,13 @@
+{
+  "module": "NeverLandTownyIdeologies",
+  "version": "0.2.0",
+  "tests": [
+    "ru.neverland.townyideologies.EffectFormatterSmoke",
+    "ru.neverland.townyideologies.ReformsSmoke"
+  ],
+  "java_target": 17,
+  "expected_runtime": "Folia 26.2",
+  "source_sha256": "0b26d6e73ae225fe9aef708a44dd8c32c680cf5c36c78439940ed1d2c2a32075",
+  "tests_passed": true,
+  "jar_sha256": "9e0c16b5b4926c62eea7893bd4891eaf3d326563d3bc7865a599ba35157a229f"
+}

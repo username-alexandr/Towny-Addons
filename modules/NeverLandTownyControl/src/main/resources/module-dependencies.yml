@@ -52,6 +52,8 @@ modules:
   - NeverLandTownyGovernance
   NeverLandTownyCrime:
   - NeverLandTownyBuilds
+  - NeverLandTownyCouncil
+  - NeverLandTownyDistricts
   - NeverLandTownyEvents
   - NeverLandTownyJobs
   - NeverLandTownyPopulation
@@ -117,6 +119,7 @@ modules:
   - NeverLandTownyUpkeep
   NeverLandTownyJustice:
   - NeverLandTownyCouncil
+  - NeverLandTownyCrime
   - NeverLandTownyTreasuryPlus
   NeverLandTownyLogistics:
   - NeverLandTownyBuilds
@@ -160,6 +163,7 @@ modules:
   - NeverLandTownyUpkeep
   NeverLandTownyQuests:
   - NeverLandTownyBuilds
+  - NeverLandTownyContracts
   - NeverLandTownyCouncil
   - NeverLandTownyDistricts
   - NeverLandTownyResources

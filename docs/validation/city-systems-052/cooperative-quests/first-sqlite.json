@@ -1,0 +1,50 @@
+{
+  "files": {
+    "server-materials.db": {
+      "size": 126976,
+      "sha256": "82f801a0fac4681afadc1665ef5d9652f2dba770b3ff3a8359ebeef1940f7b66",
+      "inode": 926560,
+      "mtime_ns": 1793282328363087013
+    }
+  },
+  "balances": [
+    [
+      "OAK_LOG",
+      244,
+      116
+    ],
+    [
+      "GLASS",
+      64,
+      0
+    ]
+  ],
+  "projects": [
+    [
+      "native_common",
+      "COMPLETED"
+    ],
+    [
+      "native_city_fa87f87daea3364e85a3187fb931ecad",
+      "CANCELLED"
+    ]
+  ],
+  "deliveries": [
+    [
+      "79ed53e5-fa43-37d1-818d-9e3cd73393a4",
+      "CONFIRMED"
+    ],
+    [
+      "0a0630b5-9acc-3aa8-bf42-3b965459b5d0",
+      "CONFIRMED"
+    ],
+    [
+      "3c52487f-5d0b-3da0-90d1-d2f9cda03afa",
+      "CONFIRMED"
+    ],
+    [
+      "a15af8bb-cb6f-39c9-be3e-d0b1da1a16c5",
+      "CONFIRMED"
+    ]
+  ]
+}

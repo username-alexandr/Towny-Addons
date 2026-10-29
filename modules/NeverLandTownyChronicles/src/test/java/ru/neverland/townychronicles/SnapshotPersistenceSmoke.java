@@ -69,6 +69,12 @@ public final class SnapshotPersistenceSmoke {
         restored.remove(entry.id());await(restored.saveAsync());restored.close();
         var deleted=new ChronicleRepository(plugin(dir));deleted.load();check(deleted.entries(town).isEmpty(),"acknowledged removal survives reload");deleted.close();
 
+        var ordered=new ChronicleRepository(plugin(dir.resolve("restored-order")));ordered.load();ordered.state(town);
+        var history=new ArrayList<ChronicleEntry>();for(int i=0;i<1005;i++)history.add(new ChronicleEntry(UUID.nameUUIDFromBytes(("history-"+i).getBytes()),town,"Town",ChronicleCategory.CUSTOM,i,"Thanks "+i,List.of(),"Mayor","mayor-commendation"));
+        Collections.shuffle(history,new Random(42));for(var row:history)ordered.add(row);ordered.add(history.get(0));
+        check(ordered.entries(town).size()==1000&&ordered.latest(town).timestamp()==1004&&ordered.entries(town).get(999).timestamp()==5,"late replay retains newest history in timestamp order without duplicate IDs");
+        ordered.close();var orderedReload=new ChronicleRepository(plugin(dir.resolve("restored-order")));orderedReload.load();check(orderedReload.latest(town).timestamp()==1004&&orderedReload.entries(town).get(999).timestamp()==5,"restored history order survives actual file roundtrip");orderedReload.close();
+
         Path obstacle=dir.resolve("directory-not-file");Files.createDirectory(obstacle);var failing=new DurableSnapshots(obstacle,"snapshot-failure",1);
         boolean failed=false;try{await(failing.submit(()->"data"));}catch(ExecutionException expected){failed=true;}
         check(failed&&!AtomicFiles.writable(obstacle),"write failure closes storage and never issues a successful receipt");

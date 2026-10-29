@@ -1,5 +1,5 @@
 name: NeverLandTownyDistricts
-version: 0.2.2
+version: 0.2.3
 main: ru.neverland.townydistricts.NeverLandTownyDistricts
 folia-supported: true
 api-version: '26.2'

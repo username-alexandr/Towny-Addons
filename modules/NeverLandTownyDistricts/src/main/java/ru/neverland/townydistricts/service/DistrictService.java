@@ -23,6 +23,25 @@ public final class DistrictService implements TownyDistrictsApi,Listener {
     public record View(List<District> districts,List<DistrictRules.Building> buildings,DistrictRules.Evaluation evaluation,boolean paused){
         public View{districts=List.copyOf(districts);buildings=List.copyOf(buildings);}
     }
+    private record PatrolLayouts(Map<UUID,Map<String,Object>> towns,long at){}
+    private volatile PatrolLayouts patrolLayouts=new PatrolLayouts(Map.of(),0);
+    /** No current(), provider access, world work, file IO or shared ledger wait on this read path. */
+    @Override public Map<String,Object> patrolLayout(UUID town){var captured=patrolLayouts;return checkedPatrolLayout(town,captured.towns(),captured.at(),dirty,System.currentTimeMillis(),cellSize);}
+    static Map<String,Object> checkedPatrolLayout(UUID town,Map<UUID,Map<String,Object>> layouts,long at,boolean dirty,long now,int size){
+        if(town==null)return Map.of("available",false,"pending",false,"rows",List.of(),"issue","Город не указан");
+        if(dirty)return Map.of("available",false,"pending",true,"town",town.toString(),"sourceAt",at,"cellSize",size,"rows",List.of(),"issue","Границы районов обновляются");
+        if(at<=0||now<at||now-at>15_000)return Map.of("available",false,"pending",false,"town",town.toString(),"sourceAt",at,"cellSize",size,"rows",List.of(),"issue","Свежие границы районов недоступны");
+        return layouts.getOrDefault(town,Map.of("available",false,"pending",false,"town",town.toString(),"sourceAt",at,"cellSize",size,"rows",List.of(),"issue","Для города ещё нет опубликованных районов"));
+    }
+    static Map<String,Object> createPatrolLayout(UUID town,List<District> districts,Set<Cell> owned,int size,long at){
+        if(size<1||districts.size()>256||districts.stream().mapToLong(d->d.cells().size()).sum()>16_384)return Map.of("available",false,"pending",false,"rows",List.of(),"issue","Площадь районов превышает предел снимка патрулей");
+        var rows=new ArrayList<Map<String,Object>>();for(var district:districts.stream().sorted(Comparator.comparing(District::id)).toList()){
+            if(!district.town().equals(town)||!owned.containsAll(district.cells()))return Map.of("available",false,"pending",false,"rows",List.of(),"issue","Часть границ района недоступна или больше не принадлежит городу");
+            var world=district.cells().iterator().next().world();var cells=district.cells().stream().sorted(Comparator.comparingInt(Cell::x).thenComparingInt(Cell::z)).map(c->Map.<String,Object>of("x",c.x(),"z",c.z())).toList();
+            rows.add(Map.of("id",district.id(),"name",district.name(),"world",world.toString(),"cells",cells));
+        }
+        return Map.of("available",true,"pending",false,"town",town.toString(),"sourceAt",at,"cellSize",size,"rows",List.copyOf(rows),"issue","");
+    }
     private record Snapshot(Map<UUID,View> towns,Map<Cell,District> cells){}
     private final JavaPlugin plugin;private final DistrictRepository repository;private final BuildsBridge builds=new BuildsBridge();
     private final int cellSize;private DistrictSettings settings;private long warningAt;
@@ -58,11 +77,12 @@ public final class DistrictService implements TownyDistrictsApi,Listener {
     } }
     public void delete(UUID town,String id)throws IOException{ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {require(town,id);repository.delete(town,id);refresh();} }
     public void start(){ try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {safeRefresh();task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::safeRefresh,100,100);} }
-    public void stop(){ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {if(task!=null)task.cancel();snapshot=new Snapshot(Map.of(),Map.of());} }
+    public void stop(){ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {if(task!=null)task.cancel();snapshot=new Snapshot(Map.of(),Map.of());patrolLayouts=new PatrolLayouts(Map.of(),0);} }
     public void reload(DistrictSettings value){ try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {var old=settings;try{settings=value;refresh();}catch(RuntimeException ex){settings=old;throw ex;}} }
     private void checkGrid(){if(Coord.getCellSize()!=cellSize)throw new IllegalStateException("Размер участков Towny изменился; требуется миграция базы районов");}
-    private void safeRefresh(){try{refresh();}catch(RuntimeException ex){snapshot=new Snapshot(Map.of(),Map.of());warn(ex.getMessage());}}
+    private void safeRefresh(){try{refresh();}catch(RuntimeException ex){snapshot=new Snapshot(Map.of(),Map.of());patrolLayouts=new PatrolLayouts(Map.of(),0);warn(ex.getMessage());}}
     public void refresh(){ try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
+        patrolLayouts=new PatrolLayouts(Map.of(),0);
         checkGrid();Map<UUID,Town> towns=new HashMap<>();Map<UUID,Set<Cell>> owned=new HashMap<>();
         Set<UUID> relevant=new HashSet<>();repository.all().forEach(d->relevant.add(d.town()));
         for(UUID id:relevant){Town t=TownyAPI.getInstance().getTown(id);if(t!=null){towns.put(id,t);owned.put(id,owned(t));}}
@@ -81,7 +101,8 @@ public final class DistrictService implements TownyDistrictsApi,Listener {
             views.put(town,new View(districts,buildings,result,paused));
             for(District d:districts)for(Cell c:d.cells())if(owned.get(town).contains(c))cells.put(c,d);
         }
-        snapshot=new Snapshot(Map.copyOf(views),Map.copyOf(cells));snapshotAt=System.currentTimeMillis();dirty=false;
+        long capturedAt=System.currentTimeMillis();var layouts=new HashMap<UUID,Map<String,Object>>();for(var entry:views.entrySet())layouts.put(entry.getKey(),createPatrolLayout(entry.getKey(),entry.getValue().districts(),owned.get(entry.getKey()),cellSize,capturedAt));
+        snapshot=new Snapshot(Map.copyOf(views),Map.copyOf(cells));snapshotAt=capturedAt;patrolLayouts=new PatrolLayouts(Map.copyOf(layouts),capturedAt);dirty=false;
     } }
     private Snapshot current(){if(dirty){if(ru.neverland.core.SuiteState.held())safeRefresh();else return new Snapshot(Map.of(),Map.of());}return snapshot;}
     public View view(UUID town){ try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {return current().towns().getOrDefault(town,new View(List.of(),List.of(),new DistrictRules.Evaluation(Map.of(),Map.of(),Set.of()),false));} }

@@ -1,0 +1,31 @@
+{
+  "runtime": "Folia 26.2 build 7 / 14b7fee",
+  "java": "Zulu 25.0.5",
+  "towny": "0.103.2.0",
+  "loopback_port": 25677,
+  "production_jar_sha256": "1cfdcfe68eb024b79644dafd497c022fb0fc24ab40fab6a647fd61442dbcc191",
+  "source_check": "pinned builder completed 4 smoke programs before publishing JAR",
+  "cold_checks": {
+    "RoutePlanningSmoke": 1175,
+    "LogisticsPersistenceSmoke": 14,
+    "original_programs": [
+      "LogisticsSmoke",
+      "LogisticsHelpSmoke"
+    ]
+  },
+  "native_checks": [
+    13,
+    9
+  ],
+  "log_sha256": {
+    "first.log": "116d7f4dadaa5e55a371163a15c83acb5e7048085cb8b0b41d8c35968a968cc5",
+    "restart.log": "a98fd52128bd29431413ed6fd11a33a9001970b74838d4c4774d33a0294e3b08"
+  },
+  "limitations": [
+    "Offline Player/View/EntityScheduler fixture",
+    "Explicit completed building sites and stone inventory; no purchase or economy provider",
+    "BLOCKED signal deliberately staged; real Folia NPC pathfinder checks return path",
+    "Full NPC walking journey and graphical client not exercised",
+    "External yggdrasil public key request unavailable in isolated environment; no addon lifecycle or region errors"
+  ]
+}

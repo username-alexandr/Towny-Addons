@@ -1,12 +1,12 @@
 name: NeverLandTownyCrime
-version: 0.1.10
+version: 0.2.0
 main: ru.neverland.townycrime.NeverLandTownyCrime
 folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Преступность, городская стража, потери лавок и кражи виртуальных ресурсов.
 depend: [Towny, NeverLandTownyBuilds, NeverLandTownyPopulation]
-softdepend: [NeverLandTownyJobs, NeverLandTownyResources, PlaceholderAPI]
+softdepend: [NeverLandTownyJobs, NeverLandTownyResources, NeverLandTownyDistricts, NeverLandTownyCouncil, PlaceholderAPI]
 commands:
   townycrime:
     aliases: [nltcrime, citycrime]
@@ -14,6 +14,9 @@ commands:
     usage: /townycrime [menu|help|town <город>|reload]
 permissions:
   neverlandtownycrime.use:
+    default: true
+  neverlandtownycrime.manage:
+    description: Назначение патрулей; дополнительно требуется мэр или городской суд
     default: true
   neverlandtownycrime.admin:
     default: op

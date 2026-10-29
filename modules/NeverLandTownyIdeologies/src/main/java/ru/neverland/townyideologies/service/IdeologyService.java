@@ -1,121 +1,82 @@
 package ru.neverland.townyideologies.service;
 
+import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
+import java.util.*;
+import java.util.concurrent.*;
+import ru.neverland.core.*;
 import ru.neverland.townyideologies.data.DataStore;
 import ru.neverland.townyideologies.integration.TownyHook;
-import ru.neverland.townyideologies.model.IdeologyDefinition;
-import ru.neverland.townyideologies.model.TownIdeology;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import ru.neverland.townyideologies.model.*;
+import ru.neverland.townyideologies.reforms.*;
+import static ru.neverland.townyideologies.reforms.ReformBook.*;
 
 public final class IdeologyService {
-    private final JavaPlugin plugin;
-    private final TownyHook towny;
-    private final DataStore data;
-    private final IdeologyRegistry registry;
-    private final EconomyService economy;
-    private final Map<UUID, Object> locks = new ConcurrentHashMap<>();
-
-    public IdeologyService(JavaPlugin plugin, TownyHook towny, DataStore data,
-                           IdeologyRegistry registry, EconomyService economy) {
-        this.plugin = plugin;
-        this.towny = towny;
-        this.data = data;
-        this.registry = registry;
-        this.economy = economy;
+    public record Offer(UUID token,UUID actor,UUID town,TownIdeology original,Reform reform,boolean payment,long expires){}
+    private final JavaPlugin plugin;private final TownyHook towny;private final DataStore data;private final IdeologyRegistry registry;private final ReformBank bank;private final ReformAudit audits;
+    private final Map<UUID,Offer> offers=new HashMap<>();private BukkitTask task;private long pulseAt;private volatile boolean closing;private boolean external,paymentBusy,settling;private UUID currentPayment;private CompletableFuture<Void> externalDone=CompletableFuture.completedFuture(null);private CompletionStage<Void> closed;
+    public IdeologyService(JavaPlugin plugin,TownyHook towny,DataStore data,IdeologyRegistry registry,EconomyService economy){this(plugin,towny,data,registry,new ReformBank());}
+    public IdeologyService(JavaPlugin plugin,TownyHook towny,DataStore data,IdeologyRegistry registry,ReformBank bank){this.plugin=plugin;this.towny=towny;this.data=data;this.registry=registry;this.bank=bank;this.audits=new ReformAudit(plugin);}
+    public Optional<TownIdeology> get(Player player){try(var guard=SuiteState.guard()){return get(towny.town(player));}}
+    public Optional<TownIdeology> get(Town town){try(var guard=SuiteState.guard()){return town==null?Optional.empty():data.get(town.getUUID());}}
+    public Optional<Reform> reform(UUID town){try(var guard=SuiteState.guard()){return data.state().active(town);}}
+    public DataStore data(){return data;}
+    public boolean active(Player player,String id,boolean scope){try(var guard=SuiteState.guard()){
+        var town=towny.town(player);var current=get(town).orElse(null);if(current==null||!current.ideologyId().equalsIgnoreCase(id))return false;
+        String value=current.terms()==null?plugin.getConfig().getString("settings.bonus-scope."+id,"GLOBAL"):current.terms().scope();var territory=scope?towny.townAt(player.getLocation()):null;return !scope||!value.equalsIgnoreCase("TOWN")||territory!=null&&territory.getUUID().equals(town.getUUID());
+    }}
+    private void writable(){if(closing||SuiteState.frozen(plugin.getName())||!plugin.isEnabled()||!data.writable())throw new IllegalStateException("Реформы приостановлены; прежняя идеология сохранена");if(paymentBusy||data.busy())throw new IllegalStateException("Предыдущее действие сохраняется; повторите через секунду");}
+    private Town mayor(Player player){if(!player.isOnline()||!player.hasPermission("neverlandtownyideologies.select"))throw new IllegalArgumentException("Нет доступа к выбору идеологии");var town=towny.town(player);if(town==null)throw new IllegalArgumentException("Нужен свой город");if(!towny.isMayor(player,town))throw new IllegalArgumentException("Реформу подтверждает мэр города");return town;}
+    private boolean enabled(){return Boolean.TRUE.equals(plugin.getConfig().get("settings.reforms.enabled",true));}
+    public String availability(){if(!enabled())return "Новые реформы и их таймеры приостановлены администратором";String mode=plugin.getConfig().getString("settings.economy.mode","TOWN_BANK");return mode.equalsIgnoreCase("TOWN_BANK")?"":"Платные реформы требуют режима TOWN_BANK; установлен "+mode+". Существующие бонусы сохранены";}
+    public Offer offer(Player player,String id){try(var guard=SuiteState.guard()){
+        writable();Town town=mayor(player);if(!enabled())throw new IllegalStateException(availability());var state=data.state();var current=state.towns().get(town.getUUID());var pending=state.active(town.getUUID()).orElse(null);long now=System.currentTimeMillis();Reform reform;boolean payment;
+        if(pending!=null){if(!pending.target().ideologyId().equalsIgnoreCase(id)||pending.phase()!=Phase.READY||pending.paused())throw new IllegalArgumentException(status(pending));reform=pending;payment=true;}
+        else{
+            if(state.reforms().size()>=MAX_HISTORY)throw new IllegalStateException("Журнал реформ заполнен; сообщите администрации");var definition=registry.find(id).orElseThrow(()->new IllegalArgumentException("Идеология отсутствует"));int level=1;
+            if(current!=null){if(current.ideologyId().equals(definition.id())){if(!player.hasPermission("neverlandtownyideologies.upgrade"))throw new IllegalArgumentException("Нет доступа к улучшению идеологии");if(current.level()>=5)throw new IllegalArgumentException("Достигнут максимальный уровень");level=current.level()+1;}else if(!plugin.getConfig().getBoolean("settings.selection.change-allowed",false))throw new IllegalArgumentException("Смена выбранной идеологии отключена");}
+            long cents;try{cents=java.math.BigDecimal.valueOf(definition.priceForLevel(level)).movePointRight(2).longValueExact();}catch(RuntimeException error){throw new IllegalArgumentException("Цена должна быть конечной суммой с точностью до копейки",error);}if(cents<0||cents>100_000_000_000L)throw new IllegalArgumentException("Неверная цена реформы");if(cents>0&&!availability().isBlank())throw new IllegalArgumentException(availability());
+            var stages=new ArrayList<Long>();for(String stage:List.of("preparation","discussion","adoption")){int seconds=SafeYaml.intValue(plugin.getConfig(),"settings.reforms."+stage+"-seconds",stage.equals("discussion")?600:300);if(seconds<1||seconds>30*86400)throw new IllegalArgumentException("Неверный срок этапа "+stage);stages.add(seconds*1000L);}
+            var previous=current;if(previous!=null&&previous.terms()==null){var old=registry.find(previous.ideologyId()).orElseThrow(()->new IllegalArgumentException("Не найдено описание прежней идеологии: сначала восстановите каталог"));previous=new TownIdeology(previous.townId(),previous.townName(),previous.ideologyId(),previous.level(),previous.selectedAt(),registry.terms(old,previous.level()));}
+            long selected=current!=null&&current.ideologyId().equals(definition.id())?current.selectedAt():now;var target=new TownIdeology(town.getUUID(),town.getName(),definition.id(),level,selected,registry.terms(definition,level));reform=new Reform(UUID.randomUUID(),player.getUniqueId(),previous,target,cents,stages,0,Phase.RUNNING,false,now,0,List.of());payment=false;
+        }
+        if(reform.cents()>0&&!availability().isBlank())throw new IllegalArgumentException(availability());
+        offers.values().removeIf(v->v.expires()<now);if(offers.size()>=1024&&!offers.containsKey(player.getUniqueId()))throw new IllegalStateException("Слишком много открытых подтверждений");var offer=new Offer(UUID.randomUUID(),player.getUniqueId(),town.getUUID(),current,reform,payment,now+60000);offers.put(player.getUniqueId(),offer);return offer;
+    }}
+    public CompletionStage<String> confirm(Player player,UUID token){try(var guard=SuiteState.guard()){
+        writable();Town town=mayor(player);if(!enabled())throw new IllegalStateException(availability());var offer=offers.get(player.getUniqueId());if(offer==null||!offer.token().equals(token)||!offer.town().equals(town.getUUID())||offer.expires()<System.currentTimeMillis())throw new IllegalArgumentException("Подтверждение устарело; откройте его заново");offers.remove(player.getUniqueId());var before=data.state();if(!Objects.equals(before.towns().get(offer.town()),offer.original()))throw new IllegalArgumentException("Прежняя идеология изменилась");var reform=offer.reform();
+        if(reform.cents()>0&&!availability().isBlank())throw new IllegalArgumentException(availability());
+        if(!offer.payment()){
+            if(offer.original()!=null&&offer.original().ideologyId().equals(reform.target().ideologyId())&&!player.hasPermission("neverlandtownyideologies.upgrade"))throw new IllegalArgumentException("Доступ к улучшению изменён");
+            var pinned=new HashMap<>(before.towns());if(reform.previous()!=null)pinned.put(offer.town(),reform.previous());var next=ReformBook.begin(new State(pinned,before.reforms()),reform);
+            return data.commit(before,next).thenApply(saved->{audit(reform,"STARTED","Подготовка начата; оплата только после отдельного подтверждения");return "Реформа начата. Прежние бонусы действуют; деньги ещё не списаны.";});
+        }
+        var actual=before.active(offer.town()).orElseThrow(()->new IllegalArgumentException("Реформа уже завершена"));if(!actual.equals(reform))throw new IllegalArgumentException("Состояние реформы изменилось");
+        if(reform.cents()==0)return data.commit(before,ReformBook.free(before,reform.id(),System.currentTimeMillis())).thenApply(saved->{audit(reform,"COMPLETED","Бесплатная реформа завершена");return "Реформа завершена. Действуют новые бонусы.";});
+        if(!bank.ready(reform.town()))throw new IllegalArgumentException("Экономика Towny пока недоступна; реформа сохранена");UUID receipt=UUID.randomUUID();var next=ReformBook.preparePayment(before,reform.id(),receipt,player.getUniqueId(),System.currentTimeMillis());currentPayment=receipt;settling=false;paymentBusy=true;externalDone=new CompletableFuture<>();var result=new CompletableFuture<String>();
+        data.commit(before,next).whenComplete((saved,error)->{if(error!=null){result.completeExceptionally(error);finishExternal(receipt);return;}if(closing||!plugin.isEnabled()||SuiteState.frozen(plugin.getName())){result.complete("Оплата ожидает сверки; средства не списывались этим запуском");finishExternal(receipt);return;}try{var scheduled=player.getScheduler().runDelayed(plugin,t->pay(player,reform.id(),receipt,result),()->notApplied(reform.id(),receipt,result),1);if(scheduled==null)notApplied(reform.id(),receipt,result);}catch(RuntimeException failure){result.completeExceptionally(failure);finishExternal(receipt);}});return result;
+    }}
+    private void pay(Player player,UUID id,UUID receipt,CompletableFuture<String> result){
+        Reform reform;try(var guard=SuiteState.guard()){if(!receipt.equals(currentPayment)||external||settling)return;if(closing||SuiteState.frozen(plugin.getName())){result.complete("Оплата ожидает сверки; повторного списания не будет");finishExternal(receipt);return;}reform=ReformBook.require(data.state(),id);if(!paymentBusy||reform.phase()!=Phase.PAYMENT_PENDING||!reform.attempts().get(reform.attempts().size()-1).id().equals(receipt)){result.complete("Состояние платежа изменилось; требуется сверка");finishExternal(receipt);return;}external=true;}
+        try{try(var guard=SuiteState.guard()){if(!enabled()||!availability().isBlank())throw new IllegalArgumentException("Платные реформы приостановлены");if(!mayor(player).getUUID().equals(reform.town()))throw new IllegalArgumentException("Город игрока изменился");if(reform.previous()!=null&&reform.previous().ideologyId().equals(reform.target().ideologyId())&&!player.hasPermission("neverlandtownyideologies.upgrade"))throw new IllegalArgumentException("Нет доступа к улучшению");} }catch(RuntimeException denied){notApplied(id,receipt,result);return;}
+        try{boolean paid=bank.pay(reform.town(),receipt,reform.cents());settle(id,receipt,paid,result);}catch(Exception|LinkageError error){warn(error);audit(reform,"REVIEW","Платёж "+receipt+" требует сверки; автоматического повторения нет");result.complete("Платёж ожидает сверки администратора. Повторного списания не будет. ID: "+id);finishExternal(receipt);}
     }
-
-    public Optional<TownIdeology> get(Player player) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
-        Town town = towny.town(player);
-        return town == null ? Optional.empty() : data.get(town.getUUID());
-    } }
-
-    public Optional<TownIdeology> get(Town town) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
-        return town == null ? Optional.empty() : data.get(town.getUUID());
-    } }
-
-    public boolean active(Player player, String ideologyId, boolean checkScope) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
-        Town town = towny.town(player);
-        if (town == null) return false;
-        TownIdeology current = data.get(town.getUUID()).orElse(null);
-        if (current == null || !current.ideologyId().equalsIgnoreCase(ideologyId)) return false;
-        if (!checkScope) return true;
-        String scope = plugin.getConfig().getString("settings.bonus-scope." + ideologyId, "GLOBAL");
-        Town territory = towny.townAt(player.getLocation());
-        return !"TOWN".equalsIgnoreCase(scope) || (territory != null && town.getUUID().equals(territory.getUUID()));
-    } }
-
-    public PurchaseResult purchase(Player player, String ideologyId) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
-        IdeologyDefinition definition = registry.find(ideologyId).orElse(null);
-        if (definition == null) return new PurchaseResult(PurchaseStatus.DEFINITION_MISSING, null, 0, 0.0D);
-        if (!player.hasPermission("neverlandtownyideologies.select")) {
-            return new PurchaseResult(PurchaseStatus.NO_PERMISSION, definition, 0, 0.0D);
-        }
-        Town town = towny.town(player);
-        if (town == null) return new PurchaseResult(PurchaseStatus.NO_TOWN, definition, 0, 0.0D);
-        if (!towny.isMayor(player, town)) return new PurchaseResult(PurchaseStatus.NOT_MAYOR, definition, 0, 0.0D);
-
-        synchronized (locks.computeIfAbsent(town.getUUID(), ignored -> new Object())) {
-            TownIdeology current = data.get(town.getUUID()).orElse(null);
-            PurchaseStatus successStatus;
-            int targetLevel;
-            double price;
-            long selectedAt = System.currentTimeMillis();
-
-            if (current == null) {
-                successStatus = PurchaseStatus.SELECTED;
-                targetLevel = 1;
-                price = definition.selectionPrice();
-            } else if (current.ideologyId().equalsIgnoreCase(definition.id())) {
-                if (!player.hasPermission("neverlandtownyideologies.upgrade")) {
-                    return new PurchaseResult(PurchaseStatus.NO_PERMISSION, definition, current.level(), 0.0D);
-                }
-                if (current.level() >= IdeologyDefinition.MAX_LEVEL) {
-                    return new PurchaseResult(PurchaseStatus.MAX_LEVEL, definition, current.level(), 0.0D);
-                }
-                successStatus = PurchaseStatus.UPGRADED;
-                targetLevel = current.level() + 1;
-                price = definition.priceForLevel(targetLevel);
-                selectedAt = current.selectedAt();
-            } else {
-                if (!plugin.getConfig().getBoolean("settings.selection.change-allowed", false)) {
-                    return new PurchaseResult(PurchaseStatus.OTHER_SELECTED, definition, current.level(), 0.0D);
-                }
-                successStatus = PurchaseStatus.CHANGED;
-                targetLevel = 1;
-                price = definition.selectionPrice();
-            }
-
-            if (price < 0.0D) return new PurchaseResult(PurchaseStatus.ECONOMY_ERROR, definition, targetLevel, price);
-            String reason = plugin.getConfig().getString("settings.economy.withdraw-reason", "Идеология города")
-                    .replace("{ideology}", definition.name()).replace("{level}", Integer.toString(targetLevel));
-            EconomyService.Result paid = economy.withdraw(player, town, price, reason);
-            if (paid == EconomyService.Result.INSUFFICIENT) {
-                return new PurchaseResult(PurchaseStatus.INSUFFICIENT_FUNDS, definition, targetLevel, price);
-            }
-            if (paid != EconomyService.Result.SUCCESS) {
-                return new PurchaseResult(PurchaseStatus.ECONOMY_ERROR, definition, targetLevel, price);
-            }
-            data.set(new TownIdeology(town.getUUID(), town.getName(), definition.id(), targetLevel, selectedAt));
-            data.save();
-            return new PurchaseResult(successStatus, definition, targetLevel, price);
-        }
-    } }
-
-    public void adminSet(Town town, String ideologyId, int level) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
-        IdeologyDefinition definition = registry.find(ideologyId).orElseThrow();
-        data.set(new TownIdeology(town.getUUID(), town.getName(), definition.id(),
-                Math.max(1, Math.min(IdeologyDefinition.MAX_LEVEL, level)), System.currentTimeMillis()));
-        data.save();
-    } }
-
-    public void adminReset(Town town) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
-        data.remove(town.getUUID());
-        data.save();
-    } }
+    private void notApplied(UUID id,UUID receipt,CompletableFuture<String> result){if(closing){result.complete("Остановка сервера: платёж сохранён для сверки");finishExternal(receipt);return;}settle(id,receipt,false,result);}
+    private void settle(UUID id,UUID receipt,boolean paid,CompletableFuture<String> result){try(var guard=SuiteState.guard()){if(!receipt.equals(currentPayment)||settling)return;settling=true;var before=data.state();var reform=ReformBook.require(before,id);data.commit(before,ReformBook.resolve(before,id,paid,System.currentTimeMillis())).whenComplete((saved,error)->{try{if(error!=null){warn(error);result.complete("Исход платежа требует сверки. ID: "+id);return;}audit(reform,paid?"COMPLETED":"NOT_APPLIED",paid?"Оплата подтверждена; новая идеология активна":"Списания не было; готовая реформа сохранена");result.complete(paid?"Реформа завершена. Деньги списаны один раз; действуют новые бонусы.":"Деньги не списаны. Проверьте казну и её бюджет; готовая реформа сохранена.");}finally{finishExternal(receipt);}});}}
+    private void finishExternal(UUID receipt){try(var guard=SuiteState.guard()){if(!receipt.equals(currentPayment))return;currentPayment=null;settling=false;external=false;paymentBusy=false;externalDone.complete(null);}}
+    public void start(){pulseAt=System.nanoTime();task=SuiteScheduler.get().runTaskTimer(plugin,this::pulse,100,100);}
+    private void pulse(){long now=System.nanoTime();long elapsed=Math.max(0,Math.min(10000,(now-pulseAt)/1000000));pulseAt=now;if(closing||paymentBusy||data.busy()||!data.writable()||!enabled())return;var before=data.state();var next=ReformBook.advance(before,elapsed);if(!next.equals(before))data.commit(before,next).whenComplete((saved,error)->{if(error!=null)warn(error);});}
+    public String status(Reform r){String step=switch(r.phase()){case RUNNING->List.of("Подготовка","Обсуждение","Принятие").get(r.stage());case READY->"Готова: мэр должен отдельно подтвердить оплату";case PAYMENT_PENDING->"Платёж ожидает сверки; повторное списание запрещено";case COMPLETED->"Завершена";case CANCELLED->"Отменена без списания";};return step+(r.paused()?" (пауза)":"")+"; осталось "+Math.max(0,(r.total()-r.worked()+999)/1000)+" сек.";}
+    public List<ActivityAdmin.Target> adminTargets(){try(var guard=SuiteState.guard()){var targets=new ArrayList<ActivityAdmin.Target>();for(var r:data.state().reforms().values())if(r.active()){var actions=r.phase()==Phase.PAYMENT_PENDING?Set.of("status"):r.paused()?Set.of("status","resume","cancel"):Set.of("status","pause","cancel");targets.add(new ActivityAdmin.Target(r.id().toString(),r.target().townName()+": "+status(r),actions,(action,minutes)->control(r.id(),action,"admin menu")));}return List.copyOf(targets);}}
+    public String control(UUID id,String action,String actor){try(var guard=SuiteState.guard()){var before=data.state();var r=ReformBook.require(before,id);if(action.equals("status"))return status(r);writable();State next=switch(action){case "pause"->ReformBook.pause(before,id,true);case "resume"->ReformBook.pause(before,id,false);case "cancel"->ReformBook.cancel(before,id,System.currentTimeMillis());default->throw new IllegalArgumentException("Доступны status, pause, resume, cancel");};data.commit(before,next).whenComplete((saved,error)->{if(error!=null)warn(error);else audit(r,action.toUpperCase(Locale.ROOT),actor+": административное действие сохранено");});return "Действие сохраняется. Обновите статус через секунду; прежние бонусы сохранены.";}}
+    public CompletionStage<String> resolve(UUID id,boolean applied,String actor){try(var guard=SuiteState.guard()){writable();var before=data.state();var r=ReformBook.require(before,id);return data.commit(before,ReformBook.resolve(before,id,applied,System.currentTimeMillis())).thenApply(saved->{audit(r,"RECONCILED",actor+": "+(applied?"applied":"not-applied"));return "Результат сверки сохранён";});}}
+    public CompletionStage<State> adminSet(Town town,String id,int level){try(var guard=SuiteState.guard()){writable();var definition=registry.find(id).orElseThrow();int clamped=Math.max(1,Math.min(5,level));var before=data.state();return data.commit(before,ReformBook.set(before,town.getUUID(),new TownIdeology(town.getUUID(),town.getName(),id,clamped,System.currentTimeMillis(),registry.terms(definition,clamped))));}}
+    public CompletionStage<State> adminReset(Town town){try(var guard=SuiteState.guard()){writable();var before=data.state();return data.commit(before,ReformBook.set(before,town.getUUID(),null));}}
+    private void audit(Reform r,String status,String note){audits.record(r,status,note);}
+    private void warn(Throwable error){plugin.getLogger().log(java.util.logging.Level.WARNING,"Реформа: прежнее состояние сохранено; проверьте незавершённые платежи",error);}
+    public CompletionStage<Void> prepareClose(){try(var guard=SuiteState.guard()){if(closed!=null)return closed;closing=true;offers.clear();if(task!=null)task.cancel();if(!external)externalDone.complete(null);closed=externalDone.thenCompose(ignored->data.prepareClose()).handle((ignored,error)->error).thenCompose(error->audits.closeAsync().thenCompose(ignored->error==null?CompletableFuture.completedFuture(null):CompletableFuture.failedFuture(error)));return closed;}}
+    public void awaitClosed(){var done=prepareClose().toCompletableFuture();if(SuiteState.held()&&!done.isDone())throw new IllegalStateException("Завершение реформ должно ожидаться вне общей блокировки");try{done.get(10,TimeUnit.SECONDS);}catch(Exception error){throw new IllegalStateException("Не завершена запись реформ",error);}}
 }

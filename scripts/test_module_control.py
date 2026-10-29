@@ -2,6 +2,15 @@ import unittest
 import module_control
 
 class LifecycleGuardTest(unittest.TestCase):
+    def test_imported_lifecycle_in_async_initialization(self):
+        source='import ru.neverland.core.*; public void onEnable(){ if(!ModuleLifecycle.begin(this))return; queueConfig(); }'
+        self.assertTrue(module_control.lifecycle_guard(source,'onEnable','begin'))
+        self.assertTrue(module_control.lifecycle_guard('import ru.neverland.core.ModuleLifecycle; public void onEnable(){ if(!ModuleLifecycle.begin(this))return; queueConfig(); }','onEnable','begin'))
+        self.assertFalse(module_control.lifecycle_guard(source.replace('ru.neverland.core','other.library'),'onEnable','begin'))
+        self.assertFalse(module_control.lifecycle_guard(source.replace('if(!ModuleLifecycle','queueConfig(); if(!ModuleLifecycle'),'onEnable','begin'))
+        self.assertFalse(module_control.lifecycle_guard(source+' class ModuleLifecycle {}','onEnable','begin'))
+        self.assertTrue(module_control.lifecycle_guard('import ru.neverland.core.*; void onDisable(){try{try(var guard=SuiteState.guard()){if(!ModuleLifecycle.end(this))return;stop();}}finally{drain();}}','onDisable','end'))
+
     def test_actual_scopes_and_phase(self):
         for method, hook in [('onEnable', 'begin'), ('onDisable', 'end')]:
             body=f'if (!ru.neverland.core.ModuleLifecycle.{hook}(this)) return;'

@@ -1,0 +1,7 @@
+PASS actual Ideologies0.2 plugin starts with preserved data
+PASS restart preserves unknown payment and never invokes bank
+PASS second city retains exact paused worked time across full JVM downtime
+PASS manual acknowledged reconciliation activates paid target without a second debit
+PASS same completed receipt cannot be reconciled twice
+PASS admin cancellation of unpaid preparation leaves city unchanged
+PASS accepted audit queue drained before previous shutdown

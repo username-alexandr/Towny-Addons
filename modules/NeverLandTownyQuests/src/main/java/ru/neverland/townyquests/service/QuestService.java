@@ -19,6 +19,8 @@ public final class QuestService implements TownyQuestsApi {
     private final QuestRepository repository;
     private final CityBridge bridge = new CityBridge();
     private QuestSettings settings;
+    private ru.neverland.townyquests.cooperative.CooperativeService cooperative;
+    public void cooperative(ru.neverland.townyquests.cooperative.CooperativeService value){this.cooperative=value;}
     private BukkitTask task;
     private record Last(UUID run, int stage, long nano, long fraction) {}
     private final Map<UUID, Last> observations = new HashMap<>();
@@ -117,8 +119,9 @@ public final class QuestService implements TownyQuestsApi {
     public static String describe(CityProject run) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) { return run.definition().name() + " — " + status(run.status()) + "; этапы " + run.stage() + "/" + run.definition().stages().size(); } }
     @Override public boolean unlocked(UUID town, String unlock) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread();
-        return town != null && TownyAPI.getInstance().getTown(town) != null && state(town).values().stream()
-                .anyMatch(r -> r.status() == CityProject.Status.COMPLETED && r.definition().unlock().equals(unlock));
+        if(town==null||TownyAPI.getInstance().getTown(town)==null)return false;
+        if(state(town).values().stream().anyMatch(r -> r.status()==CityProject.Status.COMPLETED && r.definition().unlock().equals(unlock)))return true;
+        if(unlock!=null&&unlock.startsWith("joint_")){if(cooperative==null)throw new IllegalStateException("Общие стройки временно недоступны");return cooperative.unlocked(town,unlock);}return false;
     } }
     @Override public List<Map<String, Object>> quests(UUID town) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
         ApiServices.primaryThread(); if (town == null || TownyAPI.getInstance().getTown(town) == null) return List.of();

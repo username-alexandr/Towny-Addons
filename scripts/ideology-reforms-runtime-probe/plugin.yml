@@ -1,0 +1,6 @@
+name: IdeologyReformsRuntimeProbe
+version: 0.52.0
+main: ru.neverland.runtime.IdeologyReformsProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyCitizens, NeverLandTownyIdeologies, NeverLandTownyControl]

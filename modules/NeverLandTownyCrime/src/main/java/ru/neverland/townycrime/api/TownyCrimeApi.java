@@ -7,8 +7,12 @@ import java.util.*;
  * incident(Map: id,kind,resource,amount,phase,until,active), or an empty incident map.
  */
 public interface TownyCrimeApi extends ru.neverland.core.ApiContract {
-    @Override default Set<String> capabilities(){return Set.of("crime","towns","shopIncomeBasisPoints");}
+    @Override default Set<String> capabilities(){return Set.of("crime","towns","shopIncomeBasisPoints","patrols","incidentEvidence");}
     Optional<Map<String,Object>> crime(UUID town);
     Collection<Map<String,Object>> towns();
     int shopIncomeBasisPoints(UUID town);
+    /** Optional cached assignment log. No guilt or automatic crime modifier. */
+    default Map<String,Object> patrols(UUID town){return Map.of("available",false,"pending",false,"rows",List.of());}
+    /** Immutable confirmed city-wide observation; IDs are strings, amount is thousandths of resource. */
+    default Optional<Map<String,Object>> incidentEvidence(UUID incident){return Optional.empty();}
 }

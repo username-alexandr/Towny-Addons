@@ -1,0 +1,10 @@
+PASS validated Chronicles 0.3.0 on actual Folia and Towny
+PASS actual Towny city survives restart
+PASS actual asynchronous audit scan exposes one sanitized repair receipt
+PASS native chapter has verified mayor and exact repaired city expense
+PASS native completeness description names Moscow and retained history
+PASS native chapter detail click prevents taking icon
+PASS native fact detail shows stable evidence ID without administrative notes
+PASS viewing/restart preserves exact old entries without generated duplicate events
+PASS native summary and drilldown do not rewrite persisted chronicle
+PASS full JVM restart preserves one acknowledged thank with its exact ID and timestamp

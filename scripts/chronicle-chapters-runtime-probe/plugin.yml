@@ -1,0 +1,6 @@
+name: ChronicleChaptersRuntimeProbe
+version: 1
+main: ru.neverland.runtime.ChronicleChaptersProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyCitizens, NeverLandTownyChronicles]

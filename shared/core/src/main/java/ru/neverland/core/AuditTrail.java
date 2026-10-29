@@ -16,16 +16,30 @@ public final class AuditTrail {
     private AuditTrail(){}
     public static boolean record(Plugin plugin,String step,String operation,String kind,String outcome,
             AuditRecord.Party actor,AuditRecord.Party from,AuditRecord.Party to,String asset,long quantity,String money,String details){
+        try{return record(plugin,new AuditRecord(AuditRecord.id(plugin.getName(),operation,step),System.currentTimeMillis(),plugin.getName(),kind,outcome,operation,actor,from,to,asset,quantity,money,details));}
+        catch(Exception ex){return failure(plugin,operation+" / "+step,ex);}
+    }
+    /** Persist an immutable captured receipt with its original timestamp. Caller owns scheduling. */
+    public static boolean record(Plugin plugin,AuditRecord record){
         Path path=plugin.getDataFolder().toPath().resolve("audit");
         try{
-            var record=new AuditRecord(AuditRecord.id(plugin.getName(),operation,step),System.currentTimeMillis(),plugin.getName(),kind,outcome,operation,actor,from,to,asset,quantity,money,details);
+            if(!plugin.getName().equals(record.module()))throw new IllegalArgumentException("Аддон квитанции не совпадает с владельцем журнала");
             journals.computeIfAbsent(path,AuditJournal::new).append(record);warnings.remove(path);return true;
-        }catch(Exception ex){long now=System.currentTimeMillis();if(now-warnings.getOrDefault(path,0L)>60_000){warnings.put(path,now);plugin.getLogger().log(Level.SEVERE,"AUDIT GAP: запись "+operation+" / "+step+" не сохранена. Проверьте каталог "+path+". Финансовое действие не повторяется.",ex);}return false;}
+        }catch(Exception ex){return failure(plugin,record.operation()+" / "+record.id(),ex);}
     }
+    private static boolean failure(Plugin plugin,String identity,Exception ex){Path path=plugin.getDataFolder().toPath().resolve("audit");long now=System.currentTimeMillis();if(now-warnings.getOrDefault(path,0L)>60_000){warnings.put(path,now);plugin.getLogger().log(Level.SEVERE,"AUDIT GAP: запись "+identity+" не сохранена. Проверьте каталог "+path+". Финансовое действие не повторяется.",ex);}return false;}
     public static void bank(Plugin plugin,String kind,String outcome,AuditRecord.Party actor,AuditRecord.Party from,AuditRecord.Party to,double amount,String details){
-        Path path=plugin.getDataFolder().toPath().resolve("audit");String operation=UUID.randomUUID().toString();
-        try{var r=new AuditRecord(AuditRecord.id(plugin.getName(),operation,"bank"),System.currentTimeMillis(),plugin.getName(),kind,outcome,operation,actor,from,to,"",0,money(amount),details);journals.computeIfAbsent(path,AuditJournal::new).appendUnique(r);}
-        catch(Exception ex){long now=System.currentTimeMillis();if(now-warnings.getOrDefault(path,0L)>60_000){warnings.put(path,now);plugin.getLogger().log(Level.SEVERE,"AUDIT GAP: банковская запись "+operation+" не сохранена; платёж не повторяется",ex);}}
+        String operation=UUID.randomUUID().toString();
+        try{bank(plugin,new AuditRecord(AuditRecord.id(plugin.getName(),operation,"bank"),System.currentTimeMillis(),plugin.getName(),kind,outcome,operation,actor,from,to,"",0,money(amount),details));}
+        catch(Exception ex){failure(plugin,operation,ex);}
+    }
+    /** Unique native event IDs need no unbounded receipt cache; keep the captured event time. */
+    public static boolean bank(Plugin plugin,AuditRecord record){
+        Path path=plugin.getDataFolder().toPath().resolve("audit");
+        try{
+            if(!plugin.getName().equals(record.module()))throw new IllegalArgumentException("Аддон квитанции не совпадает с владельцем журнала");
+            journals.computeIfAbsent(path,AuditJournal::new).appendUnique(record);warnings.remove(path);return true;
+        }catch(Exception ex){return failure(plugin,record.operation()+" / "+record.id(),ex);}
     }
     public static void require(boolean recorded)throws java.io.IOException{if(!recorded)throw new java.io.IOException("Квитанция сохранена; очистка отложена до записи административного аудита");}
     public static AuditRecord.Party town(UUID id){if(id==null)return AuditRecord.Party.unknown();var t=TownyAPI.getInstance().getTown(id);return new AuditRecord.Party("TOWN",id.toString(),t==null?"Удалённый город":t.getName(),id.toString());}

@@ -1,17 +1,17 @@
 name: NeverLandTownyQuests
-version: 0.2.1
+version: 0.3.0
 main: ru.neverland.townyquests.NeverLandTownyQuests
 folia-supported: true
 api-version: '26.2'
 authors: [Alexander Sokolov]
 description: Общие городские проекты с последовательными этапами и реформами.
 depend: [Towny]
-softdepend: [NeverLandTownyBuilds, NeverLandTownyDistricts, NeverLandTownyResources]
+softdepend: [NeverLandTownyBuilds, NeverLandTownyDistricts, NeverLandTownyResources, NeverLandTownyContracts]
 commands:
   townyquests:
     aliases: [nltquests, cityquests]
     description: Городские проекты
-    usage: /townyquests [menu|info|start|reload|admin]
+    usage: /townyquests [menu|info|start|joint|reload|admin]
 permissions:
   neverlandtownyquests.use:
     default: true
