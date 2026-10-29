@@ -87,6 +87,8 @@ menu-style:
 
 # Independent profiles; legacy pairwise relations retain their existing settings above.
 profiles:
+  explanations:
+    enabled: true
   positive-daily-cap: 30
   trade-fees:
     maximum-multiplier: 2.0

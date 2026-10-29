@@ -1,0 +1,1 @@
+PASS 6 assertions; genuine Folia/Towny/Reputation services, native inventory cards and commands, receipt index, actual new durable outcome and duplicate checks, neutral read-only toggle and full restart; explicit offline player/scheduler/view and historical receipt fixtures; no GUI client, bank operation or time-driven score decay claimed

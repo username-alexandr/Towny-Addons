@@ -37,6 +37,7 @@ public final class ReputationCommand implements TabExecutor {
         if (defaultScope != null) { if (args.length == 0) menus.openProfile(player, defaultScope); else show(player, defaultScope, args[0], false); return true; }
         if (args.length == 0) { menus.openMain(player); return true; }
         switch (args[0].toLowerCase(Locale.ROOT)) {
+            case "explain" -> explain(player,args);
             case "profile", "профиль" -> profile(player,args);
             case "player", "игрок" -> { if (args.length < 2) menus.openProfile(player, ReputationScope.PLAYER); else show(player, ReputationScope.PLAYER, args[1], false); }
             case "town", "город" -> { if (args.length < 2) menus.openProfile(player, ReputationScope.TOWN); else show(player, ReputationScope.TOWN, args[1], false); }
@@ -52,6 +53,9 @@ public final class ReputationCommand implements TabExecutor {
         return true;
     } }
 
+    private void explain(Player player,String[] args){
+        if(args.length!=3&&args.length!=4){player.sendMessage("§e/rep explain <player|town|nation> [имя] <diplomatic|trade|military>");return;}var scope=ReputationScope.parse(args[1]);if(scope==null){messages.send(player,"invalid-scope");return;}Side side=args.length==4?resolve(scope,args[2]):own(player,scope);if(side==null){if(args.length==4)messages.send(player,unknown(scope),Map.of("target",args[2]));return;}try{var aspect=ru.neverland.reputation.model.ReputationAspect.parse(args[args.length-1]);menus.openExplanation(player,scope,side.id(),aspect,0);}catch(IllegalArgumentException error){player.sendMessage("§eПоказатели: diplomatic — дипломатия, trade — торговля, military — оборона.");}
+    }
     private void profile(Player player,String[] args) {
         ReputationScope scope=args.length>1?ReputationScope.parse(args[1]):ReputationScope.PLAYER;
         if(scope==null){messages.send(player,"invalid-scope");return;}
@@ -86,14 +90,16 @@ public final class ReputationCommand implements TabExecutor {
     private Side resolve(ReputationScope scope, String name) { if (scope == ReputationScope.PLAYER) { Resident resident = towny.resident(name); return resident == null ? null : new Side(resident.getUUID(), resident.getName()); } if (scope == ReputationScope.TOWN) { Town town = towny.town(name); return town == null ? null : new Side(town.getUUID(), town.getName()); } Nation nation = towny.nation(name); return nation == null ? null : new Side(nation.getUUID(), nation.getName()); }
     private String unknown(ReputationScope scope) { return switch (scope) { case PLAYER -> "unknown-player"; case TOWN -> "unknown-town"; case NATION -> "unknown-nation"; }; }
     private void sendChangeFailure(Player player, ru.neverland.reputation.api.ReputationChangeResult result) { if (result == null) { messages.send(player, "change-noop"); return; } switch (result.status()) { case DUPLICATE -> messages.send(player, "change-duplicate"); case RATE_LIMITED -> messages.send(player, "change-rate-limit", Map.of("source", "player_feedback", "delta", result.appliedDelta())); case CANCELLED -> messages.send(player, "change-cancelled"); default -> messages.send(player, "change-noop"); } }
-    private void help(Player player) { player.sendMessage(ColorUtil.color("&#63E6BE/rep &8— &7главное меню\n&f/rep profile <player|town|nation> [имя] &8— &7три показателя\n&f/rep player [игрок] &8— &7личная репутация\n&f/rep town [город] &8— &7отношения городов\n&f/rep nation [нация] &8— &7отношения наций\n&f/rep endorse <игрок> &8— &7положительный отзыв\n&f/rep denounce <игрок> &8— &7отрицательный отзыв\n&f/rep top <player|town|nation>\n&f/rep history <слой> <цель>")); }
+    private void help(Player player) { player.sendMessage(ColorUtil.color("&#63E6BE/rep &8— &7главное меню\n&f/rep explain <слой> [имя] <показатель> &8— &7почему такая оценка\n&f/rep profile <player|town|nation> [имя] &8— &7три показателя\n&f/rep player [игрок] &8— &7личная репутация\n&f/rep town [город] &8— &7отношения городов\n&f/rep nation [нация] &8— &7отношения наций\n&f/rep endorse <игрок> &8— &7положительный отзыв\n&f/rep denounce <игрок> &8— &7отрицательный отзыв\n&f/rep top <player|town|nation>\n&f/rep history <слой> <цель>")); }
 
     @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (defaultScope != null) return args.length == 1 ? filter(names(defaultScope), args[0]) : List.of();
-        if (args.length == 1) return filter(List.of("profile", "player", "town", "nation", "endorse", "denounce", "top", "history", "levels", "help"), args[0]);
+        if (args.length == 1) return filter(List.of("profile", "explain", "player", "town", "nation", "endorse", "denounce", "top", "history", "levels", "help"), args[0]);
         String sub = args[0].toLowerCase(Locale.ROOT); if (args.length == 2 && List.of("player", "endorse", "denounce").contains(sub)) return filter(names(ReputationScope.PLAYER), args[1]);
         if (args.length == 2 && sub.equals("town")) return filter(names(ReputationScope.TOWN), args[1]); if (args.length == 2 && sub.equals("nation")) return filter(names(ReputationScope.NATION), args[1]);
-        if (args.length == 2 && List.of("profile", "top", "history").contains(sub)) return filter(List.of("player", "town", "nation"), args[1]);
+        if (args.length == 2 && List.of("profile", "explain", "top", "history").contains(sub)) return filter(List.of("player", "town", "nation"), args[1]);
+        if(args.length==3&&sub.equals("explain")){var scope=ReputationScope.parse(args[1]);var values=new ArrayList<String>(List.of("diplomatic","trade","military"));if(scope!=null)values.addAll(names(scope));return filter(values,args[2]);}
+        if(args.length==4&&sub.equals("explain"))return filter(List.of("diplomatic","trade","military"),args[3]);
         if (args.length == 3 && List.of("profile", "history").contains(sub)) { ReputationScope scope = ReputationScope.parse(args[1]); return scope == null ? List.of() : filter(names(scope), args[2]); }
         return List.of();
     } }

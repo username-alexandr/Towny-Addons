@@ -38,7 +38,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 public final class ReputationMenuManager implements Listener {
-    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withLocale(new Locale("ru")).withZone(ZoneId.systemDefault());
+    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withLocale(new Locale("ru")).withZone(ZoneId.of("Europe/Moscow"));
     private final JavaPlugin plugin; private final TownyHook towny; private final ReputationService reputation; private final ItemsAdderHook itemsAdder; private final MessageService messages;
     private final NamespacedKey actionKey; private final NamespacedKey valueKey;
     public ReputationMenuManager(JavaPlugin plugin, TownyHook towny, ReputationService reputation, ItemsAdderHook itemsAdder, MessageService messages) {
@@ -72,6 +72,7 @@ public final class ReputationMenuManager implements Listener {
             lore.add(""); lore.addAll(List.of(descriptions[aspect.ordinal()]));
             if (aspect == ReputationAspect.TRADE) { lore.add(""); lore.add("&7Коэффициент пошлин: &fx" + number(reputation.profiles().fee(profile.trade()))); lore.add("&7Применяется к профилю города."); lore.add("&7Цена товара остаётся прежней."); }
             lore.add(""); lore.add("&eНажмите: история этого показателя");
+            if(plugin.getConfig().getBoolean("profiles.explanations.enabled",true))menu.setItem(20+aspect.ordinal()*2,tagged(Material.COMPARATOR,"explain",aspect.name(),"&eПочему такая оценка: "+aspect.title(),List.of("&7Полный расчёт из сохранённых квитанций","&7Свежие и давние результаты показаны отдельно")));
             menu.setItem(slots[aspect.ordinal()], tagged(icons[aspect.ordinal()], "profile-history", aspect.name(), "&f" + aspect.title(), lore));
         }
         menu.setItem(29, tagged(Material.WRITABLE_BOOK, "relations", scope.name(), "&bОтношения с другими", List.of("&7Прежние связи и отзывы", "&7сохранены отдельно от профиля.")));
@@ -93,6 +94,15 @@ public final class ReputationMenuManager implements Listener {
         if(page+1<pages)menu.setItem(50,tagged(Material.ARROW,"profile-page",aspect.name()+":"+(page+1),"&fСледующая страница",List.of()));
         player.openInventory(menu);
     }
+    public void openExplanation(Player player,ReputationScope scope,UUID id,ReputationAspect aspect,int page){try(var guard=ru.neverland.core.SuiteState.guard()){
+        if(!plugin.getConfig().getBoolean("profiles.explanations.enabled",true)){player.sendMessage("§eОбъяснение оценки сейчас отключено. Сама репутация сохранена.");return;}
+        var e=reputation.profiles().explain(scope,id,aspect,System.currentTimeMillis(),page,28);Inventory menu=menu(ReputationMenuHolder.Type.EXPLANATION,scope,id,54,"Почему такая репутация");fill(menu);
+        var lines=new ArrayList<String>(List.of("&7Оценка: &f"+signedLong(e.score()),"&7Начальная / перенесённая часть: "+signedLong(e.initial()),"&7Изменения по квитанциям: "+signedLong(e.evidence()),"&7Итог: "+signedLong(e.initial())+" + ("+signedLong(e.evidence())+") = "+signedLong(e.score()),"&7За последние 7 дней: "+signedLong(e.recent7()),"&7От 7 до 30 дней назад: "+signedLong(e.days7to30()),"&7Старше 30 дней: "+signedLong(e.older30()),"&7Результатов: "+e.count()+"; ограничено лимитами: "+e.limited(),"&7Давность сама по себе не меняет баллы.","&7Начальная часть не подтверждается новыми квитанциями."));if(!e.consistent())lines.add("&cНачальная часть требует проверки администрацией.");menu.setItem(4,item(Material.COMPARATOR,aspect.title()+" • "+subjectName(scope,id),lines));
+        int slot=10;for(var row:e.rows()){while(isBorder(slot))slot++;var lore=new ArrayList<String>(List.of("&7Учтено очков: "+signedLong(row.applied()),"&7Предусмотрено правилом: "+signedLong(row.requested()),"&7"+DATE.format(Instant.ofEpochMilli(row.at()))+" МСК",row.future()?"&eДата позже серверного времени":"&7Давность: "+row.ageDays()+" дн.","&f"+row.context(),"&7Квитанция: "+row.receipt()));if(row.applied()!=row.requested())lore.add("&eИзменение ограничено лимитом или пределом оценки.");menu.setItem(slot++,item(row.applied()<0?Material.RED_DYE:row.applied()>0?Material.LIME_DYE:Material.GRAY_DYE,ReputationProfiles.reason(row.rule()),lore));}
+        if(e.rows().isEmpty())menu.setItem(22,item(Material.PAPER,"Пока нет квитанций этого показателя",List.of("&7Перенесённая оценка показана отдельно.")));
+        menu.setItem(45,tagged(Material.ARROW,"profile-back","","&fК показателям",List.of()));if(e.page()>0)menu.setItem(48,tagged(Material.ARROW,"explain-page",aspect.name()+":"+(e.page()-1),"&fПредыдущая страница",List.of()));menu.setItem(49,item(Material.PAPER,"Страница "+(e.page()+1)+" / "+e.pages(),List.of()));if(e.page()+1<e.pages())menu.setItem(50,tagged(Material.ARROW,"explain-page",aspect.name()+":"+(e.page()+1),"&fСледующая страница",List.of()));menu.setItem(53,tagged(Material.SPYGLASS,"explain",aspect.name(),"&fОбновить оценку",List.of("&7Открыть актуальные квитанции с первой страницы")));player.openInventory(menu);
+    }}
+    private String signedLong(long value){return value>0?"+"+value:Long.toString(value);}
     private String subjectName(ReputationScope scope,UUID id) {
         if(scope==ReputationScope.TOWN){var t=towny.town(id);return t==null?id.toString():t.getName();}
         if(scope==ReputationScope.NATION){var n=towny.nation(id);return n==null?id.toString():n.getName();}
@@ -141,6 +151,8 @@ public final class ReputationMenuManager implements Listener {
         ItemStack stack = event.getCurrentItem(); if (stack == null || stack.getType().isAir() || !stack.hasItemMeta()) return;
         String action = stack.getItemMeta().getPersistentDataContainer().get(actionKey, PersistentDataType.STRING); String value = stack.getItemMeta().getPersistentDataContainer().get(valueKey, PersistentDataType.STRING); if (action == null) return;
         switch (action) { case "profile-back" -> openProfile(player,holder.scope(),holder.owner(),subjectName(holder.scope(),holder.owner()));
+            case "explain" -> openExplanation(player,holder.scope(),holder.owner(),ReputationAspect.valueOf(value),0);
+            case "explain-page" -> {var parts=value.split(":");openExplanation(player,holder.scope(),holder.owner(),ReputationAspect.valueOf(parts[0]),Integer.parseInt(parts[1]));}
             case "profile-history" -> openProfileHistory(player,holder.scope(),holder.owner(),ReputationAspect.valueOf(value),0);
             case "profile-page" -> { var parts=value.split(":"); openProfileHistory(player,holder.scope(),holder.owner(),ReputationAspect.valueOf(parts[0]),Integer.parseInt(parts[1])); }
             case "relations" -> openRelations(player,ReputationScope.valueOf(value)); case "back" -> openMain(player); case "levels" -> openLevels(player); case "scope" -> { ReputationScope scope = ReputationScope.parse(value); if (scope != null) openProfile(player, scope); } case "history" -> { RelationKey key = decode(value); if (key != null) openHistory(player, key); } default -> { } }

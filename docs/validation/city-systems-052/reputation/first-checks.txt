@@ -1,0 +1,13 @@
+PASS actual Reputation 0.3 profile and explanation API enabled
+PASS existing short history keeps its sixty-entry bound
+PASS actual API explains all eighty durable receipts beyond short history
+PASS native API safely clamps extreme requested page to earliest evidence
+PASS native existing profile exposes explanation for all three aspects
+PASS native explanation card shows full count and paginated evidence
+PASS actual evidence card retains source ID, Moscow date and age
+PASS legacy diplomatic baseline is not presented as a new verified obligation
+PASS actual explain command opens targeted receipt view
+PASS repeated explanation views and API reads never rewrite the profile ledger
+PASS real durable outcome API invalidates cached explanation only after confirmed new receipt
+PASS duplicate source receipt neither changes score nor duplicates explanation evidence
+PASS neutral explanation toggle preserves scores, trade fees, receipts and original profile services

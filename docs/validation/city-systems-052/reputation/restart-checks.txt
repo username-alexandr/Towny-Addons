@@ -1,0 +1,6 @@
+PASS actual Reputation 0.3 profile and explanation API enabled
+PASS scores and original short history survive full native restart
+PASS full receipt index reconstructs identical exact rating after restart
+PASS new actual outcome retains source identity and chronological position after restart
+PASS earliest receipt page remains reachable in restored native menu
+PASS neutral explanation toggle preserves scores, trade fees, receipts and original profile services

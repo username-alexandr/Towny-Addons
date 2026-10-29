@@ -4,8 +4,9 @@ import ru.neverland.reputation.model.ReputationScope;
 import java.util.UUID;
 
 public interface TownyReputationApi extends ru.neverland.core.ApiContract {
-    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("change", "featureUnlocked", "score", "set", "snapshot", "healthy", "profile", "tradeFeeMultiplier", "recordOutcome"); }
+    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("change", "featureUnlocked", "score", "set", "snapshot", "healthy", "profile", "tradeFeeMultiplier", "recordOutcome", "explainProfile"); }
     /** Additive profile contract. Old pairwise relationships retain their original meaning. */
+    default java.util.Map<String,Object> explainProfile(String scope,UUID subject,String aspect,int page){return java.util.Map.of();}
     default boolean healthy() { return false; }
     default java.util.Map<String,Object> profile(String scope, UUID subject) { throw new UnsupportedOperationException("profiles"); }
     default double tradeFeeMultiplier(UUID town) { throw new UnsupportedOperationException("profiles"); }

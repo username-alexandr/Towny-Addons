@@ -1,5 +1,5 @@
 name: NeverLandTownyReputation
-version: 0.2.11
+version: 0.3.0
 main: ru.neverland.reputation.TownyReputation
 folia-supported: true
 api-version: '26.2'
@@ -13,7 +13,7 @@ commands:
   reputation:
     aliases: [rep]
     description: Просмотр и изменение репутации
-    usage: /reputation [profile|player|town|nation|endorse|denounce|top|history]
+    usage: /reputation [profile|explain|player|town|nation|endorse|denounce|top|history]
     permission: townyreputation.use
   townyreputation:
     aliases: [trep, neverlandtownyreputation, nltreputation]
