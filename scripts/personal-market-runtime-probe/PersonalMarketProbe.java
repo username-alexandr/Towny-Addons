@@ -54,7 +54,7 @@ public class PersonalMarketProbe extends JavaPlugin {
     int count(Player p){int n=0;for(var i:p.getInventory().getStorageContents())if(i!=null&&i.getType()==Material.STONE)n+=i.getAmount();return n;}
     Receipt receipt(UUID order){return limits.repository().state().receipts().values().stream().filter(r->order.equals(r.order())).findFirst().orElseThrow();}
     void setup()throws Exception{
-        owner=(NeverLandTownyMarket)Bukkit.getPluginManager().getPlugin("NeverLandTownyMarket");market=(MarketService)field(owner,"service");limits=market.personal;check(owner.isEnabled()&&owner.getDescription().getVersion().equals("0.2.0")&&limits.repository().readable(),"actual Market 0.2 ledger and old city market enabled");
+        owner=(NeverLandTownyMarket)Bukkit.getPluginManager().getPlugin("NeverLandTownyMarket");market=(MarketService)field(owner,"service");limits=market.personal;check(owner.isEnabled()&&owner.getDescription().getVersion().equals("0.2.1")&&limits.repository().readable(),"actual Market 0.2.1 ledger and old city market enabled");
         buyer=actor(BUY,"MarketBuyer");seller=actor(SELL,"MarketSeller");failed=actor(FAIL,"MarketSaveFail");check(!new LimitBank().ready(BUY),"actual personal bank fails closed when Towny economy adapter is missing");set(limits,"bank",bank);
         if(restart){resume();return;}
         bank.money.put(BUY,10000L);bank.money.put(SELL,0L);seller.getInventory().setItem(0,new ItemStack(Material.STONE,20));failed.getInventory().setItem(0,new ItemStack(Material.STONE,8));real.get(FAIL).saveData();

@@ -6,7 +6,11 @@ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--template',type=
 a=p.parse_args();template=a.template.resolve();server=a.server.resolve();root=Path(__file__).resolve().parents[2]
 assert not server.exists(),'Refusing to overwrite existing server'
 assert (template/'ALLOW_DISPOSABLE_RAID_PROBE').is_file() and 'server-ip=127.0.0.1' in (template/'server.properties').read_text()
-shutil.copytree(template,server,ignore=shutil.ignore_patterns('logs','plugins','crash-reports','validation','probe-classes','session.lock'))
+def copy_runtime(src,dst):
+    if Path(src).suffix=='.jar':
+        Path(dst).symlink_to(Path(src).resolve());return str(dst)
+    return shutil.copy2(src,dst)
+shutil.copytree(template,server,copy_function=copy_runtime,ignore=shutil.ignore_patterns('logs','plugins','crash-reports','validation','probe-classes','session.lock'))
 plugins=server/'plugins';plugins.mkdir();shutil.copy2(a.towny,plugins/'Towny-0.103.2.0.jar')
 versions=yaml.safe_load((root/'versions.yml').read_text())['addons']
 for short in ['Builds','Market','Control']:

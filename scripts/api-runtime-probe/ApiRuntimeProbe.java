@@ -31,7 +31,7 @@ public final class ApiRuntimeProbe extends JavaPlugin {
         check(Arrays.stream(Bukkit.getPluginManager().getPlugins()).filter(p->p.getName().startsWith("NeverLandTowny")&&p.isEnabled()).count()==expected("addons"),"all expected addons enabled");
         if(!restart){check(TownyAPI.getInstance().getTown(TOWN)==null,"fresh disposable fixture");var u=TownyUniverse.getInstance();u.newTownInternal("ApiAudit",TOWN);var t=TownyAPI.getInstance().getTown(TOWN);var resident=u.getDataSource().newResident("ApiAuditor",MAYOR);resident.setTown(t);t.setMayor(resident);resident.save();t.save();}
         data=field(owner("NeverLandTownyBuilds"),DataStore.class);
-        market=new MarketGateway((JavaPlugin)owner("NeverLandTownyMarket"),new MarketRepository(proof.resolve("market-unused.yml")));
+        market=new MarketGateway((JavaPlugin)owner("NeverLandTownyMarket"),new MarketJournal(proof.resolve("market-unused.yml")));
         contracts();consumers();bridges();market();threading();lifecycle();
         TownyUniverse.getInstance().getDataSource().saveAll();
         Files.writeString(proof.resolve((restart?"restart":"first")+"-passed.txt"),"PASS "+checks+" assertions\n");

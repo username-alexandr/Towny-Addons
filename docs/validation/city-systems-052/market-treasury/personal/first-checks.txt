@@ -1,0 +1,22 @@
+PASS actual Market 0.2.1 ledger and old city market enabled
+PASS actual personal bank fails closed when Towny economy adapter is missing
+PASS preflight resolves actual native player storage folder
+PASS custom metadata resources cannot fund ordinary commodity sales
+PASS actual command opens explicit full-resource confirmation
+PASS confirmation menu prevents moving icon items
+PASS live first commit compacts seeded schema1 claim history without changing remaining backing
+PASS SELL becomes funded only after actual native saved marker proof
+PASS sale removes exact plain quantity preserving custom original metadata
+PASS repeated confirmation cannot reserve items twice
+PASS price/time fill transfers real goods/proceeds and refunds price difference
+PASS only confirmed personal BUY debit created the reserved cash
+PASS real disabled player save leaves item CLAIM pending rather than losing backed goods
+PASS administrator verifies exact durable receipt after recovery save
+PASS confirmed recovery never gives claimed goods twice
+PASS seller withdraws only earned backed money
+PASS cancellation returns only unmatched item remainder
+PASS module feature pause rejects new reservation
+PASS feature pause still allows existing item retrieval
+PASS real disabled vanilla player save returns silently but never funds SELL or matches it
+PASS unknown item outcome blocks another reservation for same owner
+PASS bank mutation followed by unknown acknowledgement stays pending and cannot pay twice

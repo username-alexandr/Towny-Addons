@@ -1,0 +1,8 @@
+PASS actual Market0.2.1 Treasury and Builds APIs enabled
+PASS full restart restores real saved bank and warehouse balances
+PASS restart retains exact paid Treasury receipt and pending cargo
+PASS paid-before-restart purchase delivers and credits once without another debit
+PASS completed purchases and historical unknown payment never replay on later ticks
+PASS purchase confirmation waits for journal ACK
+PASS shutdown while seller bank is running drains confirmed COMPLETE snapshot outside shared lock
+PASS closed physical market journal retains final bank result for next restart

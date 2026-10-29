@@ -1,0 +1,31 @@
+{
+  "module": "NeverLandTownyMarket",
+  "version": "0.2.1",
+  "jar_sha256": "f879090982e66570119126c98c5d12b6cd8522cd74fb22f984361fb50ca9b8c7",
+  "native": [
+    {
+      "phase": "first",
+      "exit_code": 0,
+      "result": "PASS 22 checks; real Folia Towny Market plugin, native constructed ServerPlayer inventory/PDC/saveData and actual player.dat, full JVM restart, real disabled-save failure; explicit controlled bank and online/entity-scheduler/view proxies, no network client/provider claim\n",
+      "jar_sha256": {
+        "PersonalMarketRuntimeProbe.jar": "0f8125fb6ee69d8c1c0db0b59c1a6d8838a87d970f5ea2dd89a9543c731e4e48",
+        "NeverLandTownyControl-0.6.2.jar": "cfb68b0ff0dc4fc3da4d2e2f4c8e1762cf7229605e1033262069e41ed9c1414c",
+        "NeverLandTownyMarket-0.2.1.jar": "f879090982e66570119126c98c5d12b6cd8522cd74fb22f984361fb50ca9b8c7",
+        "NeverLandTownyBuilds-0.11.1.jar": "8fdadfe37be3ff070aa61de11f0e22d9d5f4e71b7f006264369082f91aa4f704",
+        "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+      }
+    },
+    {
+      "phase": "restart",
+      "exit_code": 0,
+      "result": "PASS 11 checks; real Folia Towny Market plugin, native constructed ServerPlayer inventory/PDC/saveData and actual player.dat, full JVM restart, real disabled-save failure; explicit controlled bank and online/entity-scheduler/view proxies, no network client/provider claim\n",
+      "jar_sha256": {
+        "PersonalMarketRuntimeProbe.jar": "0f8125fb6ee69d8c1c0db0b59c1a6d8838a87d970f5ea2dd89a9543c731e4e48",
+        "NeverLandTownyControl-0.6.2.jar": "cfb68b0ff0dc4fc3da4d2e2f4c8e1762cf7229605e1033262069e41ed9c1414c",
+        "NeverLandTownyMarket-0.2.1.jar": "f879090982e66570119126c98c5d12b6cd8522cd74fb22f984361fb50ca9b8c7",
+        "NeverLandTownyBuilds-0.11.1.jar": "8fdadfe37be3ff070aa61de11f0e22d9d5f4e71b7f006264369082f91aa4f704",
+        "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+      }
+    }
+  ]
+}

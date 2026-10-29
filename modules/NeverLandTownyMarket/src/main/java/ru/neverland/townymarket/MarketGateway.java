@@ -11,9 +11,9 @@ import com.palmergames.bukkit.towny.object.economy.*;
 import ru.neverland.integration.*;
 import static ru.neverland.townymarket.MarketData.*;
 public final class MarketGateway implements MarketPayments.Gateway {
-    private final JavaPlugin plugin;private final MarketRepository repo;
-    public MarketGateway(JavaPlugin plugin,MarketRepository repo){this.plugin=plugin;this.repo=repo;repo.audit(this::audit);}
-    public boolean audit(Order o){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {var l=repo.listing(o.lot());if(l==null)return false;return ru.neverland.core.AuditTrail.record(plugin,o.phase().name(),o.id().toString(),"MARKET_DEAL",o.phase().name(),ru.neverland.core.AuditTrail.player(o.actor()),ru.neverland.core.AuditTrail.town(o.seller()),o.city()?ru.neverland.core.AuditTrail.town(o.buyer()):ru.neverland.core.AuditTrail.player(o.buyer()),ru.neverland.core.AuditTrail.item(MarketCatalog.decode(l.item())),o.amount(),ru.neverland.core.AuditTrail.cents(o.total()),"lot="+o.lot()+"; unit="+ru.neverland.core.AuditTrail.cents(o.unit())+"; "+o.note());} }
+    private final JavaPlugin plugin;private final MarketJournal repo;
+    public MarketGateway(JavaPlugin plugin,MarketJournal repo){this.plugin=plugin;this.repo=repo;repo.audit(this::auditRecord);}
+    public ru.neverland.core.AuditRecord auditRecord(Order o){try(var guard=ru.neverland.core.SuiteState.guard()){var l=repo.listing(o.lot());if(l==null)throw new IllegalStateException("Предложение не найдено для журнала");return new ru.neverland.core.AuditRecord(ru.neverland.core.AuditRecord.id(plugin.getName(),o.id().toString(),o.auditStep()),o.phaseAt(),plugin.getName(),"MARKET_DEAL",o.auditOutcome(),o.id().toString(),ru.neverland.core.AuditTrail.player(o.actor()),ru.neverland.core.AuditTrail.town(o.seller()),o.city()?ru.neverland.core.AuditTrail.town(o.buyer()):ru.neverland.core.AuditTrail.player(o.buyer()),ru.neverland.core.AuditTrail.item(MarketCatalog.decode(l.item())),o.amount(),ru.neverland.core.AuditTrail.cents(o.total()),"lot="+o.lot()+"; phase="+o.auditStep()+"; unit="+ru.neverland.core.AuditTrail.cents(o.unit())+"; "+o.note());}}
     public Town town(UUID id){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return TownyAPI.getInstance().getTown(id);} }
     public Town town(Player p){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {var r=TownyAPI.getInstance().getResident(p);return r==null?null:r.getTownOrNull();} }
     public String name(UUID id){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {var t=town(id);return t==null?"Удалённый город":t.getName();} }
@@ -37,7 +37,7 @@ public final class MarketGateway implements MarketPayments.Gateway {
         return null;
     } }
     @Override public String ready(Order o){ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {var l=repo.listing(o.lot());if(l==null||l.state()!=ListingState.ACTIVE)return "Предложение закрыто";if(!plugin.getConfig().getBoolean("enabled",true))return "Новые покупки отключены";
-        String blocked=sellerReady(l);if(blocked!=null)return blocked;if(!TownyEconomyHandler.isActive())return "Экономика Towny отключена";
+        String blocked=sellerReady(l);if(blocked!=null)return blocked;if(!TownyEconomyHandler.isActive()||TownyEconomyHandler.activeAdapter()==null)return "Дождитесь подключения экономики Towny";
         if(o.city()){if(level(o.buyer(),"market")<1)return "В городе-покупателе нужен действующий рынок";blocked=imports(o.seller(),o.buyer());if(blocked!=null)return blocked;
             try{return TreasuryAccess.canSpend(town(o.buyer()),"infrastructure",o.total()/100.0)?null:"Недостаточно денег в бюджете инфраструктуры";}catch(RuntimeException ex){return "Бюджет недоступен";}}
         var resident=TownyAPI.getInstance().getResident(o.buyer());if(resident==null||resident.getTownOrNull()==null||!resident.getTownOrNull().getUUID().equals(o.seller()))return "Городской рынок доступен жителям этого города";
@@ -46,16 +46,18 @@ public final class MarketGateway implements MarketPayments.Gateway {
     @Override public String reserve(Order o)throws Exception{ try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {return (String)call("reserve",new Class<?>[]{UUID.class,UUID.class,UUID.class,UUID.class,boolean.class,int.class},o.seller(),o.lot(),o.id(),o.buyer(),o.city(),o.amount());} }
     @Override public String deliver(Order o)throws Exception{ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {return (String)call("deliver",new Class<?>[]{UUID.class,UUID.class,UUID.class},o.seller(),o.lot(),o.id());} }
     @Override public String refund(Order o)throws Exception{ try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {return (String)call("refund",new Class<?>[]{UUID.class,UUID.class,UUID.class},o.seller(),o.lot(),o.id());} }
-    @Override public void acknowledge(Order o)throws Exception{ try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {ru.neverland.core.AuditTrail.require(audit(o));call("acknowledge",new Class<?>[]{UUID.class,UUID.class,UUID.class},o.seller(),o.lot(),o.id());} }
+    @Override public void acknowledge(Order o)throws Exception{ try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {call("acknowledge",new Class<?>[]{UUID.class,UUID.class,UUID.class},o.seller(),o.lot(),o.id());} }
     @Override public String receipt(Order o)throws Exception { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {var l=repo.listing(o.lot());if(l==null)return "MISSING";Object holds=snapshot(l).get("holds");return holds instanceof Map<?,?> m&&m.get(o.id().toString()) instanceof String value?value:"MISSING";} }
-    @Override public boolean debit(Order o)throws Exception{ try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {return payment(o,false);} }@Override public boolean credit(Order o)throws Exception{ try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {return payment(o,true);} }
-    private boolean payment(Order o,boolean incoming)throws Exception{
+    @Override public boolean debit(Order o){throw new IllegalStateException("Покупке нужна подтверждённая асинхронная оплата");}
+    @Override public boolean credit(Order o){throw new IllegalStateException("Покупке нужна подтверждённая асинхронная выплата");}
+    public java.util.function.Supplier<Boolean> preparePayment(Order o,boolean incoming){try(var guard=ru.neverland.core.SuiteState.guard()){
         Town city=incoming?town(o.seller()):o.city()?town(o.buyer()):null;var resident=incoming||o.city()?null:TownyAPI.getInstance().getResident(o.buyer());
-        if(city==null&&resident==null)return false;Account account=city==null?resident.getAccount():city.getAccount();String token="[market:"+o.id()+"]";var evidence=new PaymentEvidence(account,incoming,token,o.total());
-        var observer=new AccountObserver(){public void withdrew(Account source,double amount,String reason){ evidence.observe(source,false,amount,reason); }public void deposited(Account source,double amount,String reason){ evidence.observe(source,true,amount,reason); }};
-        synchronized(account){account.addObserver(observer);try{String reason=token+" Покупка на рынке";double amount=o.total()/100.0;boolean result;
-            try{result=incoming?TreasuryAccess.deposit(city,"infrastructure",o.city()?"trade":"shop",false,amount,reason):o.city()?TreasuryAccess.withdraw(city,"infrastructure","trade",amount,reason):account.withdraw(amount,reason);}
-            catch(RuntimeException ex){if(evidence.observed())return true;throw ex;}return evidence.result(result);
-        }finally{account.removeObserver(observer);}}
-    }
+        if(city==null&&resident==null||!TownyEconomyHandler.isActive()||TownyEconomyHandler.activeAdapter()==null)return ()->false;
+        Account account=city==null?resident.getAccount():city.getAccount();String token="[market:"+o.id()+"]";double amount=o.total()/100.0;
+        return ()->{if(!TownyEconomyHandler.isActive()||TownyEconomyHandler.activeAdapter()==null)return false;var currentCity=city==null?null:TownyAPI.getInstance().getTown(city.getUUID());var currentResident=resident==null?null:TownyAPI.getInstance().getResident(o.buyer());if(city!=null&&(currentCity==null||currentCity.getAccount()!=account)||resident!=null&&(currentResident==null||currentResident.getAccount()!=account))return false;
+            if(!incoming&&o.city()&&Bukkit.getPluginManager().getPlugin("NeverLandTownyTreasuryPlus")!=null)throw new IllegalStateException("Казна требует бюджетную квитанцию покупки");
+            var evidence=new ru.neverland.core.PaymentEvidence(account,incoming,token,o.total());var observer=new AccountObserver(){public void withdrew(Account source,double value,String note){evidence.observe(source,false,value,note);}public void deposited(Account source,double value,String note){evidence.observe(source,true,value,note);}};
+            synchronized(account){account.addObserver(observer);try{try{String reason=token+" Покупка на рынке";boolean result=incoming?account.deposit(amount,"[NLT|income|infrastructure|"+(o.city()?"trade":"shop")+"] "+reason):account.withdraw(amount,reason);if(evidence.observed())return true;throw new IllegalStateException("Банк вернул "+result+" без точной квитанции; требуется сверка "+token);}catch(RuntimeException error){if(evidence.observed())return true;throw error;}}finally{account.removeObserver(observer);}}
+        };
+    }}
 }

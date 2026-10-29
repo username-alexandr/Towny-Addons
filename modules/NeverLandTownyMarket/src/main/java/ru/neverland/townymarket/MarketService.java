@@ -1,5 +1,7 @@
 package ru.neverland.townymarket;
 import java.util.*;
+import java.util.concurrent.*;
+import ru.neverland.core.*;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -9,9 +11,10 @@ import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
 import static ru.neverland.townymarket.MarketData.*;
 public final class MarketService {
-    private final JavaPlugin plugin;public final MarketRepository repo;public final MarketGateway bridge;public final MarketCatalog catalog;public final ru.neverland.townymarket.personal.LimitService personal;
-    private final Map<UUID,Quote> quotes=new HashMap<>();private final Map<UUID,Long> errors=new HashMap<>();private BukkitTask task;private boolean broken;private int listingCursor,orderCursor;
-    private int priceTick=-1;private Map<String,Long> supplyCache=Map.of();
+    private final JavaPlugin plugin;public final MarketJournal repo;public final MarketGateway bridge;public final MarketCatalog catalog;public final ru.neverland.townymarket.personal.LimitService personal;
+    private final Map<UUID,Quote> quotes=new HashMap<>();private final Map<UUID,Long> errors=new HashMap<>();private BukkitTask task;private boolean broken,stopping;private int listingCursor,orderCursor,maintenance;
+    private final MarketExecution execution;private final MarketSettlement settlement;private CompletionStage<?> operation=CompletableFuture.completedFuture(null);private CompletionStage<Void> closing;
+    private long nextWork;private int priceTick=-1;private Map<String,Long> supplyCache=Map.of();
     public record Stats(long offers,long pickup){}
     private volatile Map<UUID,Stats> stats=Map.of();private long statsAt;
     public Stats stats(UUID player){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return stats.getOrDefault(player,new Stats(0,0));} }
@@ -22,12 +25,21 @@ public final class MarketService {
         Map<UUID,Stats> next=new HashMap<>();for(var p:Bukkit.getOnlinePlayers()){var t=bridge.town(p);next.put(p.getUniqueId(),new Stats(t==null?0:offers.getOrDefault(t.getUUID(),0L),pickup.getOrDefault(p.getUniqueId(),0L)));}stats=Map.copyOf(next);
     }
 
-    public MarketService(JavaPlugin plugin){this.plugin=plugin;repo=new MarketRepository(plugin.getDataFolder().toPath().resolve("market-data.yml"));bridge=new MarketGateway(plugin,repo);catalog=new MarketCatalog(plugin);personal=new ru.neverland.townymarket.personal.LimitService(plugin);}
-    public void start(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {reload();personal.start();task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::tick,40,20);} }
-    public void stop(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(task!=null)task.cancel();quotes.clear();personal.prepareClose();} }
-    public void reload(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {quotes.clear();personal.reloadConfig();invalidate();statsAt=0;try{repo.load();catalog.reload();for(var l:repo.listings()){var i=MarketCatalog.decode(l.item());if(i==null||i.getType().isAir()||i.getAmount()!=1)throw new IllegalStateException("Повреждён товар "+l.id());}broken=false;errors.clear();}catch(Exception ex){broken=true;plugin.getLogger().severe(ex.getMessage());}} }
-    public boolean available(){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {return !broken&&repo.writable();} }
-    private void writable(){if(!ru.neverland.core.SuiteState.held()||!available())throw new IllegalStateException("Рынок остановлен после ошибки. Обратитесь к администратору");}
+    public MarketService(JavaPlugin plugin){this.plugin=plugin;repo=new MarketJournal(plugin.getDataFolder().toPath().resolve("market-data.yml"));bridge=new MarketGateway(plugin,repo);catalog=new MarketCatalog(plugin);personal=new ru.neverland.townymarket.personal.LimitService(plugin);execution=new MarketExecution(plugin);settlement=new MarketSettlement(repo,bridge,execution,this::authorized);}
+    public void start(){
+        if(SuiteState.held())throw new IllegalStateException("Загрузка рынка должна выполняться вне общей блокировки");
+        try{repo.load();catalog.reload();for(var l:repo.listings()){var item=MarketCatalog.decode(l.item());if(item==null||item.getType().isAir()||item.getAmount()!=1)throw new IllegalStateException("Повреждён товар "+l.id());}}
+        catch(Exception error){broken=true;plugin.getLogger().log(java.util.logging.Level.SEVERE,"Городской рынок приостановлен; существующие резервы сохранены",error);}
+        try(var guard=SuiteState.guard()){personal.start();task=SuiteScheduler.get().runTaskTimer(plugin,this::tick,40,1);}
+    }
+    public CompletionStage<Void> prepareClose(){try(var guard=SuiteState.guard()){if(closing!=null)return closing;stopping=true;if(task!=null)task.cancel();quotes.clear();execution.stop();var personalClose=personal.prepareClose();var coreClose=operation.handle((v,e)->null).thenCompose(v->repo.close()).handle((v,e)->e).thenCompose(error->execution.close().thenCompose(v->error==null?CompletableFuture.<Void>completedFuture(null):CompletableFuture.<Void>failedFuture(error)));closing=CompletableFuture.allOf(coreClose.toCompletableFuture(),personalClose.toCompletableFuture());return closing;}}
+    public void awaitClosed(){var done=prepareClose().toCompletableFuture();if(SuiteState.held()&&!done.isDone())throw new IllegalStateException("Ожидание рынка должно выполняться вне общей блокировки");try{done.get(10,TimeUnit.SECONDS);}catch(InterruptedException error){Thread.currentThread().interrupt();throw new IllegalStateException("Ожидание рынка прервано",error);}catch(ExecutionException|TimeoutException error){throw new IllegalStateException("Операция рынка ещё завершается",error);}}
+    public void reload(){try(var guard=SuiteState.guard()){quotes.clear();personal.reloadConfig();invalidate();statsAt=0;if(broken||!repo.writable())throw new IllegalStateException("После исправления журнала требуется перезапуск сервера");if(busy())throw new IllegalStateException("Сначала дождитесь сохранения покупки");catalog.reload();errors.clear();}}
+    public boolean available(){try(var guard=SuiteState.guard()){return !broken&&!stopping&&repo.writable();}}
+    public boolean busy(){return repo.busy()||!operation.toCompletableFuture().isDone();}
+    private <T>CompletionStage<T> track(CompletionStage<T> future){operation=future;return future;}
+    private void writable(){if(!SuiteState.held()||!available()||SuiteState.frozen(plugin.getName()))throw new IllegalStateException("Рынок приостановлен; резерв сохранён. Обратитесь к администратору");if(busy())throw new IllegalStateException("Предыдущее действие сохраняется. Попробуйте через секунду");if(repo.image().audit().size()>=4094)throw new IllegalStateException("Ожидается запись истории операций. Попробуйте позже");}
+    private boolean authorized(Player player,Order order){var listing=repo.listing(order.lot());if(!player.isOnline()||!player.getUniqueId().equals(order.actor())||listing==null)return false;try{var town=buying(player,listing);return order.city()?town.getUUID().equals(order.buyer()):order.buyer().equals(player.getUniqueId());}catch(RuntimeException denied){return false;}}
     public boolean manage(Player p,Town t){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {var resident=TownyAPI.getInstance().getResident(p);if(t==null||resident==null||!t.equals(resident.getTownOrNull()))return false;
         return t.isMayor(resident)||ru.neverland.core.CouncilAccess.check(p,t.getUUID(),"market",p.hasPermission("neverlandtownymarket.manage")&&plugin.getConfig().getStringList("management.allowed-town-ranks").stream().anyMatch(resident::hasTownRank));} }
     public void requireManager(Player p,Town t){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {if(!manage(p,t))throw new IllegalArgumentException("Управлять предложениями и казной может мэр или уполномоченный заместитель");} }
@@ -37,7 +49,7 @@ public final class MarketService {
     public List<Order> orders(Player p){ try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {var town=bridge.town(p);return repo.orders().stream().filter(o->!o.city()?(o.buyer().equals(p.getUniqueId())||town!=null&&o.seller().equals(town.getUUID())&&manage(p,town)):town!=null&&(o.buyer().equals(town.getUUID())||o.seller().equals(town.getUUID()))).sorted(Comparator.comparingLong(Order::created).reversed()).toList();} }
     public Listing find(String id){ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {var matches=listings().stream().filter(l->id!=null&&id.length()>=8&&l.id().toString().startsWith(id.toLowerCase(Locale.ROOT))).toList();return matches.size()==1?matches.get(0):null;} }
     public Order order(String id){ try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {var matches=repo.orders().stream().filter(o->id!=null&&id.length()>=8&&o.id().toString().startsWith(id.toLowerCase(Locale.ROOT))).toList();return matches.size()==1?matches.get(0):null;} }
-    public Listing sell(Player p,String itemKey,int amount,String pricing,Scope scope)throws Exception{ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
+    public CompletionStage<Listing> sell(Player p,String itemKey,int amount,String pricing,Scope scope)throws Exception{ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         writable();requireUse(p);var town=bridge.town(p);requireManager(p,town);if(!plugin.getConfig().getBoolean("enabled",true))throw new IllegalArgumentException("Создание предложений отключено");
         var sample=itemKey.equalsIgnoreCase("hand")?p.getInventory().getItemInMainHand():catalog.select(itemKey);if(sample==null||sample.getType().isAir())throw new IllegalArgumentException("Предмет не найден");sample=sample.clone();sample.setAmount(1);
         if(amount<1||amount>Math.min(3456,54*Math.min(64,sample.getMaxStackSize())))throw new IllegalArgumentException("Количество должно помещаться в 54 ячейки склада");
@@ -46,10 +58,10 @@ public final class MarketService {
         if(repo.listings().stream().filter(l->l.town().equals(town.getUUID())&&l.scope()==scope&&l.state()!=ListingState.CLOSED).count()>=limit(town.getUUID(),scope))throw new IllegalArgumentException("Лимит предложений: "+limit(town.getUUID(),scope)+". Улучшите рынок или гильдию");
         if(repo.listings().size()>=5000)throw new IllegalArgumentException("Достигнут общий лимит предложений. Закройте завершённые предложения");
         String data=MarketCatalog.encode(sample);var l=new Listing(UUID.randomUUID(),town.getUUID(),data,catalog.label(sample),product==null?MarketCatalog.key(data):product.id(),scope,auto,base,amount,System.currentTimeMillis(),ListingState.PREPARING,"Резервируется товар со склада");
-        String blocked=bridge.sellerReady(l);if(blocked!=null)throw new IllegalArgumentException(blocked);repo.prune();repo.put(l);processListing(l);return repo.listing(l.id());
+        String blocked=bridge.sellerReady(l);if(blocked!=null)throw new IllegalArgumentException(blocked);return track(repo.prune().thenCompose(v->repo.put(l)));
     } }
-    public void close(Player p,String id)throws Exception { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {writable();var l=find(id);var town=bridge.town(p);requireManager(p,town);if(l==null||!l.town().equals(town.getUUID()))throw new IllegalArgumentException("Предложение вашего города не найдено");repo.put(l.state(ListingState.CLOSING,"Возвращается непроданный товар"));processListing(repo.listing(l.id()));} }
-    public void adminClose(UUID id)throws Exception{ try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {writable();var l=repo.listing(id);if(l==null)throw new IllegalArgumentException("Предложение не найдено");repo.put(l.state(ListingState.CLOSING,"Снято администратором"));processListing(repo.listing(id));} }
+    public CompletionStage<Listing> close(Player p,String id)throws Exception{try(var guard=SuiteState.guard()){writable();var l=find(id);var town=bridge.town(p);requireManager(p,town);if(l==null||!l.town().equals(town.getUUID()))throw new IllegalArgumentException("Предложение вашего города не найдено");return track(repo.put(l.state(ListingState.CLOSING,"Возвращается непроданный товар")));}}
+    public CompletionStage<Listing> adminClose(UUID id)throws Exception{try(var guard=SuiteState.guard()){writable();var l=repo.listing(id);if(l==null)throw new IllegalArgumentException("Предложение не найдено");return track(repo.put(l.state(ListingState.CLOSING,"Снято администратором")));}}
     public long unit(Listing l)throws Exception{ try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
         if(!l.auto())return l.base();
         if(priceTick!=Bukkit.getCurrentTick()){Map<String,Long> next=new HashMap<>();for(var other:repo.listings())if(other.state()==ListingState.ACTIVE&&bridge.sellerReady(other)==null)next.merge(other.scopeKey()+"/"+other.product(),(long)bridge.stock(other),Long::sum);supplyCache=Map.copyOf(next);priceTick=Bukkit.getCurrentTick();}
@@ -69,41 +81,41 @@ public final class MarketService {
         var probe=new Order(q.token(),l.id(),l.town(),l.scope()==Scope.GLOBAL?town.getUUID():p.getUniqueId(),p.getUniqueId(),l.scope()==Scope.GLOBAL,amount,unit,now,Phase.PREPARED,now,"",false);
         String blocked=bridge.ready(probe);if(blocked!=null)throw new IllegalArgumentException(blocked);quotes.put(p.getUniqueId(),q);return q;
     } }
-    public Order confirm(Player p,Quote q)throws Exception { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {writable();if(!q.equals(quotes.get(p.getUniqueId()))||!q.actor().equals(p.getUniqueId())||System.currentTimeMillis()>=q.expires())throw new IllegalArgumentException("Цена устарела. Откройте подтверждение заново");
+    public CompletionStage<Order> confirm(Player p,Quote q)throws Exception { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {writable();if(!q.equals(quotes.get(p.getUniqueId()))||!q.actor().equals(p.getUniqueId())||System.currentTimeMillis()>=q.expires())throw new IllegalArgumentException("Цена устарела. Откройте подтверждение заново");
         var l=repo.listing(q.lot());if(l==null||l.state()!=ListingState.ACTIVE)throw new IllegalArgumentException("Предложение закрыто");var town=buying(p,l);if(!town.getUUID().equals(q.town()))throw new IllegalArgumentException("Ваш город изменился");
         if(bridge.stock(l)<q.amount()||unit(l)!=q.unit())throw new IllegalArgumentException("Количество или цена изменились. Откройте новое подтверждение");
         UUID buyer=l.scope()==Scope.GLOBAL?town.getUUID():p.getUniqueId();
         if(repo.orders().stream().filter(o->!o.finalized()&&o.buyer().equals(buyer)).count()>=20)throw new IllegalArgumentException("Завершите или заберите предыдущие покупки (лимит 20)");
         if(repo.orders().stream().filter(o->!o.finalized()).count()>=2000)throw new IllegalArgumentException("Рынок занят: слишком много незавершённых покупок");
         long now=System.currentTimeMillis();var o=new Order(q.token(),l.id(),l.town(),buyer,p.getUniqueId(),l.scope()==Scope.GLOBAL,q.amount(),q.unit(),now,Phase.PREPARED,now,"Покупка подтверждена",false);
-        String blocked=bridge.ready(o);if(blocked!=null)throw new IllegalArgumentException(blocked);quotes.remove(p.getUniqueId());repo.prune();repo.put(o);try{MarketPayments.advance(o.id(),now,retry(),repo,bridge);}finally{invalidate();}return repo.order(o.id());
+        String blocked=bridge.ready(o);if(blocked!=null)throw new IllegalArgumentException(blocked);quotes.remove(p.getUniqueId());invalidate();return track(repo.prune().thenCompose(v->repo.put(o)));
     } }
     public String claim(Player p,String id)throws Exception { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {writable();requireUse(p);var o=order(id);if(o==null||o.city()||!o.buyer().equals(p.getUniqueId())||o.phase()!=Phase.COMPLETE)throw new IllegalArgumentException("Оплаченная личная покупка не найдена");if(o.finalized())return "CLAIMED";
         String result=(String)bridge.call("claim",new Class<?>[]{Player.class,UUID.class,UUID.class,UUID.class},p,o.seller(),o.lot(),o.id());
-        if(result.equals("CLAIMED"))MarketPayments.advance(o.id(),System.currentTimeMillis(),retry(),repo,bridge);return result;
+        if(result.equals("CLAIMED"))track(settlement.advance(o,System.currentTimeMillis(),retry()));return result;
     } }
-    public void resolve(UUID id,String decision)throws Exception { try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {writable();var o=repo.order(id);if(o==null)throw new IllegalArgumentException("Нужен полный UUID существующей покупки");
-        if(decision.equals("claim-received")||decision.equals("claim-unreceived")){if(o.city()||o.phase()!=Phase.COMPLETE)throw new IllegalArgumentException("Личная покупка ещё не оплачена");bridge.call("resolveClaim",new Class<?>[]{UUID.class,UUID.class,UUID.class,boolean.class},o.seller(),o.lot(),o.id(),decision.equals("claim-received"));}
-        else repo.put(MarketPayments.resolve(o,decision,System.currentTimeMillis()));plugin.getLogger().warning("Сверка покупки "+id+": "+decision);
-    } }
+    public CompletionStage<Void> resolve(UUID id,String decision)throws Exception{try(var guard=SuiteState.guard()){writable();var o=repo.order(id);if(o==null)throw new IllegalArgumentException("Нужен полный UUID существующей покупки");var payment=repo.image().payments().get(id);
+        if(payment!=null&&payment.terms()!=null&&decision.startsWith("debit-"))throw new IllegalArgumentException("Сверьте квитанцию TreasuryPlus "+payment.terms().operation()+"; покупка продолжится по её подтверждённому результату");
+        CompletionStage<Void> saved;
+        if(decision.equals("claim-received")||decision.equals("claim-unreceived")){if(o.city()||o.phase()!=Phase.COMPLETE)throw new IllegalArgumentException("Личная покупка ещё не оплачена");bridge.call("resolveClaim",new Class<?>[]{UUID.class,UUID.class,UUID.class,boolean.class},o.seller(),o.lot(),o.id(),decision.equals("claim-received"));saved=CompletableFuture.completedFuture(null);}
+        else saved=repo.put(MarketPayments.resolve(o,decision,System.currentTimeMillis())).thenApply(v->null);
+        return track(saved.thenRun(()->{try(var confirmed=SuiteState.guard()){errors.remove(id);plugin.getLogger().warning("Сверка покупки "+id+": "+decision);}}));
+    }}
     private long retry(){return 1000L*Math.max(10,Math.min(3600,plugin.getConfig().getInt("retry-seconds",60)));}
-    private void processListing(Listing l)throws Exception {
-        invalidate();
-        if(l.state()==ListingState.PREPARING){String blocked=bridge.sellerReady(l);if(blocked!=null){repo.put(l.state(ListingState.CLOSING,blocked));return;}
-            String s=(String)bridge.call("open",new Class<?>[]{UUID.class,UUID.class,ItemStack.class,int.class},l.town(),l.id(),MarketCatalog.decode(l.item()),l.amount());
-            if(s.equals("OPEN"))repo.put(l.state(ListingState.ACTIVE,"Товар выставлен"));else if(s.equals("CLOSED"))repo.put(l.state(ListingState.CLOSED,"Предложение закрыто"));else repo.put(l.state(ListingState.CLOSING,MarketPayments.stockNote(s)));
-        }else if(l.state()==ListingState.CLOSING){String s=(String)bridge.call("close",new Class<?>[]{UUID.class,UUID.class},l.town(),l.id());
-            if(s.equals("CLOSED")||s.equals("MISSING"))repo.put(l.state(ListingState.CLOSED,"Непроданный товар возвращён"));else throw new IllegalStateException(MarketPayments.stockNote(s));
-        }else if(l.state()==ListingState.CLOSED&&repo.orders().stream().noneMatch(o->o.lot().equals(l.id()))){bridge.call("forget",new Class<?>[]{UUID.class,UUID.class},l.town(),l.id());repo.removeListing(l.id());}
+    private CompletionStage<Void> processListing(Listing l){invalidate();return execution.guarded(()->{try{
+        if(l.state()==ListingState.PREPARING){String blocked=bridge.sellerReady(l);if(blocked!=null)return l.state(ListingState.CLOSING,blocked);String status=(String)bridge.call("open",new Class<?>[]{UUID.class,UUID.class,ItemStack.class,int.class},l.town(),l.id(),MarketCatalog.decode(l.item()),l.amount());return l.state(status.equals("OPEN")?ListingState.ACTIVE:status.equals("CLOSED")?ListingState.CLOSED:ListingState.CLOSING,status.equals("OPEN")?"Товар выставлен":status.equals("CLOSED")?"Предложение закрыто":MarketPayments.stockNote(status));}
+        if(l.state()==ListingState.CLOSING){String status=(String)bridge.call("close",new Class<?>[]{UUID.class,UUID.class},l.town(),l.id());if(status.equals("CLOSED")||status.equals("MISSING"))return l.state(ListingState.CLOSED,"Непроданный товар возвращён");throw new IllegalStateException(MarketPayments.stockNote(status));}
+        if(l.state()==ListingState.CLOSED&&repo.orders().stream().noneMatch(o->o.lot().equals(l.id()))){bridge.call("forget",new Class<?>[]{UUID.class,UUID.class},l.town(),l.id());return null;}return l;
+    }catch(Exception error){throw new CompletionException(error);}}).thenCompose(next->next==null?repo.removeListing(l.id()):repo.put(next).thenApply(v->null));}
+    private boolean deliverAudit(){if(repo.image().audit().isEmpty())return false;var record=repo.image().audit().get(0);track(execution.audit(record).thenCompose(ok->ok?repo.auditAck(record.id()):CompletableFuture.completedFuture(null)));return true;}
+    private void tick(){if(!available()||busy())return;long now=System.currentTimeMillis();if(now<nextWork)return;nextWork=now+1000/Math.max(1,Math.min(20,plugin.getConfig().getInt("purchases-per-second",8)));refreshStats(now);quotes.values().removeIf(q->q.expires()<=now);int turn=Math.floorMod(maintenance++,4);if((repo.image().audit().size()>=4094||turn==0)&&deliverAudit())return;
+        var ls=repo.listings().stream().filter(l->l.state()!=ListingState.ACTIVE&&(l.state()!=ListingState.CLOSED||repo.orders().stream().noneMatch(o->o.lot().equals(l.id())))).toList();
+        if(turn==1)for(int i=0;i<ls.size();i++){var l=ls.get(Math.floorMod(listingCursor++,ls.size()));if(errors.getOrDefault(l.id(),0L)>now)continue;observe(l.id(),processListing(l));return;}
+        var orders=repo.orders().stream().filter(o->!o.finalized()).toList();for(int i=0;i<orders.size();i++){var o=orders.get(Math.floorMod(orderCursor++,orders.size()));if(errors.getOrDefault(o.id(),0L)>now||o.check()>now||o.phase()==Phase.CREDIT_PENDING)continue;if(o.phase()==Phase.DEBIT_PENDING){var payment=repo.image().payments().get(o.id());if(payment==null||payment.terms()==null)continue;}invalidate();observe(o.id(),settlement.advance(o,now,retry()));return;}
+        if(!deliverAudit()&&!ls.isEmpty()){var l=ls.get(Math.floorMod(listingCursor++,ls.size()));if(errors.getOrDefault(l.id(),0L)<=now)observe(l.id(),processListing(l));}
     }
-    private void tick(){if(!available())return;long now=System.currentTimeMillis();refreshStats(now);quotes.values().removeIf(q->q.expires()<=now);var ls=repo.listings().stream().filter(l->l.state()!=ListingState.ACTIVE).toList();
-        for(int i=0;i<Math.min(2,ls.size());i++){listingCursor=Math.floorMod(listingCursor,ls.size());var l=ls.get(listingCursor++);if(errors.getOrDefault(l.id(),0L)>now)continue;try{processListing(l);}catch(Exception ex){error(l.id(),ex,now);}if(!available())return;}
-        var os=repo.orders().stream().filter(o->!o.finalized()).toList();int count=Math.max(1,Math.min(30,plugin.getConfig().getInt("purchases-per-second",8)));
-        for(int i=0;i<Math.min(count,os.size());i++){orderCursor=Math.floorMod(orderCursor,os.size());var o=os.get(orderCursor++);if(errors.getOrDefault(o.id(),0L)>now)continue;
-            try{invalidate();MarketPayments.advance(o.id(),now,retry(),repo,bridge);var after=repo.order(o.id());if(after.phase()==Phase.COMPLETE&&o.phase()!=Phase.COMPLETE){var p=Bukkit.getPlayer(o.actor());if(p!=null)tell(p,after.note()+". ID: "+after.shortId());}}
-            catch(Exception ex){error(o.id(),ex,now);}if(!available())return;
-        }
-    }
-    private void error(UUID id,Exception ex,long now){errors.put(id,now+retry());plugin.getLogger().severe("Рынок "+id+": "+ex.getMessage());}
+    private void observe(UUID id,CompletionStage<Void> future){track(future);future.whenComplete((v,error)->{if(error!=null)try(var guard=SuiteState.guard()){errors.put(id,System.currentTimeMillis()+retry());plugin.getLogger().log(java.util.logging.Level.WARNING,"Рынок "+id+" ожидает сохранения или сверки",error);}});}
+    public interface Reply<T>{void accept(T value)throws Exception;}
+    public <T>void respond(org.bukkit.command.CommandSender sender,CompletionStage<T> receipt,Reply<T> success){receipt.whenComplete((saved,error)->{Runnable reply=()->{if(stopping)return;if(error!=null){var cause=error;while(cause.getCause()!=null)cause=cause.getCause();tell(sender,"Действие не подтверждено: "+cause.getMessage());}else try{success.accept(saved);}catch(Exception failure){tell(sender,"Результат сохранён; откройте меню заново");}};if(sender instanceof Player player)SuiteScheduler.entity(plugin,player,reply);else SuiteScheduler.get().runTask(plugin,reply);});}
     public static void tell(org.bukkit.command.CommandSender p,String message){ try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) {p.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&aNeverLand &8• &fРынок&8] &r"+message));} }
 }

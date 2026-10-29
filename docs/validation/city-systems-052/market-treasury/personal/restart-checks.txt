@@ -1,0 +1,11 @@
+PASS actual Market 0.2.1 ledger and old city market enabled
+PASS actual personal bank fails closed when Towny economy adapter is missing
+PASS full native restart restores acknowledged inventories and unsaved failed withdrawal remains original
+PASS accepted audit worker entries drained before full shutdown and survive restart
+PASS native restart validates archived checkpoint and retains old money ownership
+PASS restart retains unknown receipts without replay or spendable balance
+PASS restart never calls external bank or repeats funded match
+PASS admin verified not-applied item outcome does not change physical inventory
+PASS admin verified bank outcome settles ledger without making another payment
+PASS same manual receipt cannot be resolved twice
+PASS native personal menu explains matching and receipt status

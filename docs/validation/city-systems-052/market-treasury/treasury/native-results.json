@@ -1,0 +1,26 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 24 assertions; real Folia/Towny/Builds/Market/Treasury, quotes and ACK, exact funding, player consent, town/local purchases, native item claim, unknown debit/credit, historical unknown order, expired actor, paid restart and shutdown during raw credit; explicit offline CraftPlayer with explicit region-backed scheduler and deterministic economy adapter, no live Vault/client claimed\n",
+    "jar_sha256": {
+      "MarketTreasuryRuntimeProbe.jar": "131aff5e0ce65c97e3998fcc04e959320ac181b53b241f87976c66f73b278c99",
+      "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+      "NeverLandTownyMarket-0.2.1.jar": "f879090982e66570119126c98c5d12b6cd8522cd74fb22f984361fb50ca9b8c7",
+      "NeverLandTownyBuilds-0.11.1.jar": "8fdadfe37be3ff070aa61de11f0e22d9d5f4e71b7f006264369082f91aa4f704",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 8 assertions; real Folia/Towny/Builds/Market/Treasury, quotes and ACK, exact funding, player consent, town/local purchases, native item claim, unknown debit/credit, historical unknown order, expired actor, paid restart and shutdown during raw credit; explicit offline CraftPlayer with explicit region-backed scheduler and deterministic economy adapter, no live Vault/client claimed\n",
+    "jar_sha256": {
+      "MarketTreasuryRuntimeProbe.jar": "131aff5e0ce65c97e3998fcc04e959320ac181b53b241f87976c66f73b278c99",
+      "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+      "NeverLandTownyMarket-0.2.1.jar": "f879090982e66570119126c98c5d12b6cd8522cd74fb22f984361fb50ca9b8c7",
+      "NeverLandTownyBuilds-0.11.1.jar": "8fdadfe37be3ff070aa61de11f0e22d9d5f4e71b7f006264369082f91aa4f704",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  }
+]

@@ -1,0 +1,364 @@
+schema: 2
+listings:
+  23b269b4-2fb3-4962-91a0-c11fd899fab4:
+    town: 73eb6d61-bdc3-3860-9167-6e442247ceff
+    item: H4sIAAAAAAAA/+NiYGBm4HZJLEkMSy0qzszPY2AQVudgYMpMYeDPzcxLTS5KTCuxKi7Jz0tlZmBNzi/NK2FgYGBkAABC+lyfOAAAAA==
+    label: Камень
+    product: stone
+    scope: LOCAL
+    auto: false
+    base: 200
+    amount: 256
+    created: 1793304297527
+    state: ACTIVE
+    note: Товар выставлен
+  995a508c-e5d1-4f16-aee2-7a1ad0b64805:
+    town: 73eb6d61-bdc3-3860-9167-6e442247ceff
+    item: H4sIAAAAAAAA/+NiYGBm4HZJLEkMSy0qzszPY2AQVudgYMpMYeDPzcxLTS5KTCuxKi7Jz0tlZmBNzi/NK2FgYGBkAABC+lyfOAAAAA==
+    label: Камень
+    product: stone
+    scope: GLOBAL
+    auto: false
+    base: 100
+    amount: 512
+    created: 1793304297409
+    state: ACTIVE
+    note: Товар выставлен
+orders:
+  58b97432-2cd2-3be9-82bc-77c70dc57f5d:
+    lot: 995a508c-e5d1-4f16-aee2-7a1ad0b64805
+    seller: 73eb6d61-bdc3-3860-9167-6e442247ceff
+    buyer: 9aab4185-0886-3824-b625-a97d845b4a41
+    actor: 28c5d612-0275-35b5-8a7b-40436995a1b9
+    city: true
+    amount: 1
+    unit: 100
+    created: 1793304251741
+    phase: CANCELLED
+    check: 1793304311841
+    note: Платёж не был запрошен; срок согласия истёк
+    finalized: true
+    revision: 2
+    phase-at: 1793304311862
+  da19c629-b69a-4048-be1e-49767ab3a47b:
+    lot: 995a508c-e5d1-4f16-aee2-7a1ad0b64805
+    seller: 73eb6d61-bdc3-3860-9167-6e442247ceff
+    buyer: 9aab4185-0886-3824-b625-a97d845b4a41
+    actor: 28c5d612-0275-35b5-8a7b-40436995a1b9
+    city: true
+    amount: 8
+    unit: 100
+    created: 1793304298078
+    phase: CANCELLED
+    check: 1793304298477
+    note: Право покупки изменилось до оплаты
+    finalized: true
+    revision: 4
+    phase-at: 1793304298513
+  b15573be-ddef-4d30-aa9a-e9cc4cd6d32c:
+    lot: 995a508c-e5d1-4f16-aee2-7a1ad0b64805
+    seller: 73eb6d61-bdc3-3860-9167-6e442247ceff
+    buyer: 9aab4185-0886-3824-b625-a97d845b4a41
+    actor: 28c5d612-0275-35b5-8a7b-40436995a1b9
+    city: true
+    amount: 8
+    unit: 100
+    created: 1793304297685
+    phase: CANCELLED
+    check: 1793304297827
+    note: Недостаточно денег в бюджете инфраструктуры
+    finalized: true
+    revision: 2
+    phase-at: 1793304297861
+  1ebecb47-ccab-3b48-b613-f14100b41a72:
+    lot: 995a508c-e5d1-4f16-aee2-7a1ad0b64805
+    seller: 73eb6d61-bdc3-3860-9167-6e442247ceff
+    buyer: 9aab4185-0886-3824-b625-a97d845b4a41
+    actor: 28c5d612-0275-35b5-8a7b-40436995a1b9
+    city: true
+    amount: 1
+    unit: 100
+    created: 1793304311992
+    phase: DEBIT_PENDING
+    check: 1793304311992
+    note: Explicit historical unknown direct bank fixture
+    finalized: false
+    revision: 0
+    phase-at: 1793304311992
+  a5b21a1c-66d5-44bc-9dfa-75a3a561f881:
+    lot: 995a508c-e5d1-4f16-aee2-7a1ad0b64805
+    seller: 73eb6d61-bdc3-3860-9167-6e442247ceff
+    buyer: 9aab4185-0886-3824-b625-a97d845b4a41
+    actor: 28c5d612-0275-35b5-8a7b-40436995a1b9
+    city: true
+    amount: 10
+    unit: 100
+    created: 1793304302328
+    phase: COMPLETE
+    check: 1793304308727
+    note: Платёж сверен администратором
+    finalized: true
+    revision: 6
+    phase-at: 1793304308729
+  976ceb05-7d67-4511-a102-1442330ca31b:
+    lot: 23b269b4-2fb3-4962-91a0-c11fd899fab4
+    seller: 73eb6d61-bdc3-3860-9167-6e442247ceff
+    buyer: b6ee572e-ef74-3120-92c0-5123f4f4cc82
+    actor: b6ee572e-ef74-3120-92c0-5123f4f4cc82
+    city: false
+    amount: 2
+    unit: 200
+    created: 1793304308935
+    phase: COMPLETE
+    check: 1793304310542
+    note: Оплачено. Заберите покупку в меню рынка
+    finalized: true
+    revision: 6
+    phase-at: 1793304310611
+  9003356f-f423-4a52-bf72-9ff823ebbfdc:
+    lot: 995a508c-e5d1-4f16-aee2-7a1ad0b64805
+    seller: 73eb6d61-bdc3-3860-9167-6e442247ceff
+    buyer: 9aab4185-0886-3824-b625-a97d845b4a41
+    actor: 28c5d612-0275-35b5-8a7b-40436995a1b9
+    city: true
+    amount: 4
+    unit: 100
+    created: 1793304332166
+    phase: COMPLETE
+    check: 1793304335207
+    note: Доставлено в склад города
+    finalized: false
+    revision: 6
+    phase-at: 1793304335307
+  40908253-8eff-41ed-95d0-0099206e29b8:
+    lot: 23b269b4-2fb3-4962-91a0-c11fd899fab4
+    seller: 73eb6d61-bdc3-3860-9167-6e442247ceff
+    buyer: b6ee572e-ef74-3120-92c0-5123f4f4cc82
+    actor: b6ee572e-ef74-3120-92c0-5123f4f4cc82
+    city: false
+    amount: 16
+    unit: 200
+    created: 1793304301729
+    phase: COMPLETE
+    check: 1793304302127
+    note: Оплачено. Заберите покупку в меню рынка
+    finalized: true
+    revision: 6
+    phase-at: 1793304302211
+  a1e9fd1a-be45-4831-bce4-dc534703084a:
+    lot: 995a508c-e5d1-4f16-aee2-7a1ad0b64805
+    seller: 73eb6d61-bdc3-3860-9167-6e442247ceff
+    buyer: 9aab4185-0886-3824-b625-a97d845b4a41
+    actor: 28c5d612-0275-35b5-8a7b-40436995a1b9
+    city: true
+    amount: 8
+    unit: 100
+    created: 1793304298628
+    phase: COMPLETE
+    check: 1793304301527
+    note: Доставлено в склад города
+    finalized: true
+    revision: 6
+    phase-at: 1793304301613
+  bb08e879-9426-4db6-9e43-3162fa1d00df:
+    lot: 995a508c-e5d1-4f16-aee2-7a1ad0b64805
+    seller: 73eb6d61-bdc3-3860-9167-6e442247ceff
+    buyer: 9aab4185-0886-3824-b625-a97d845b4a41
+    actor: 28c5d612-0275-35b5-8a7b-40436995a1b9
+    city: true
+    amount: 3
+    unit: 100
+    created: 1793304313149
+    phase: COMPLETE
+    check: 1793304330257
+    note: Доставлено в склад города
+    finalized: true
+    revision: 6
+    phase-at: 1793304330362
+demand:
+  a1e9fd1a-be45-4831-bce4-dc534703084a:
+    scope: global
+    product: stone
+    buyer: 9aab4185-0886-3824-b625-a97d845b4a41
+    at: 1793304301613
+    amount: 8
+  40908253-8eff-41ed-95d0-0099206e29b8:
+    scope: local_73eb6d61-bdc3-3860-9167-6e442247ceff
+    product: stone
+    buyer: b6ee572e-ef74-3120-92c0-5123f4f4cc82
+    at: 1793304302211
+    amount: 16
+  a5b21a1c-66d5-44bc-9dfa-75a3a561f881:
+    scope: global
+    product: stone
+    buyer: 9aab4185-0886-3824-b625-a97d845b4a41
+    at: 1793304308729
+    amount: 10
+  976ceb05-7d67-4511-a102-1442330ca31b:
+    scope: local_73eb6d61-bdc3-3860-9167-6e442247ceff
+    product: stone
+    buyer: b6ee572e-ef74-3120-92c0-5123f4f4cc82
+    at: 1793304310611
+    amount: 2
+  bb08e879-9426-4db6-9e43-3162fa1d00df:
+    scope: global
+    product: stone
+    buyer: 9aab4185-0886-3824-b625-a97d845b4a41
+    at: 1793304330362
+    amount: 3
+  9003356f-f423-4a52-bf72-9ff823ebbfdc:
+    scope: global
+    product: stone
+    buyer: 9aab4185-0886-3824-b625-a97d845b4a41
+    at: 1793304335307
+    amount: 4
+payments:
+  9003356f-f423-4a52-bf72-9ff823ebbfdc:
+    protocol: TREASURY
+    operation: 8a0aabb4-c86b-35ad-813b-7489a694cebc
+    town: 9aab4185-0886-3824-b625-a97d845b4a41
+    actor: 28c5d612-0275-35b5-8a7b-40436995a1b9
+    cents: 400
+    category: infrastructure
+    reason: Покупка на рынке 9003356f-f423-4a52-bf72-9ff823ebbfdc
+  a5b21a1c-66d5-44bc-9dfa-75a3a561f881:
+    protocol: TREASURY
+    operation: 4ed84400-b3d8-3636-8c5d-7522b9d897b2
+    town: 9aab4185-0886-3824-b625-a97d845b4a41
+    actor: 28c5d612-0275-35b5-8a7b-40436995a1b9
+    cents: 1000
+    category: infrastructure
+    reason: Покупка на рынке a5b21a1c-66d5-44bc-9dfa-75a3a561f881
+  a1e9fd1a-be45-4831-bce4-dc534703084a:
+    protocol: TREASURY
+    operation: ab129fa8-0aac-3359-9427-54a78dc3fb21
+    town: 9aab4185-0886-3824-b625-a97d845b4a41
+    actor: 28c5d612-0275-35b5-8a7b-40436995a1b9
+    cents: 800
+    category: infrastructure
+    reason: Покупка на рынке a1e9fd1a-be45-4831-bce4-dc534703084a
+  bb08e879-9426-4db6-9e43-3162fa1d00df:
+    protocol: TREASURY
+    operation: d4c7637b-286b-3429-9c10-967e3a8f5f98
+    town: 9aab4185-0886-3824-b625-a97d845b4a41
+    actor: 28c5d612-0275-35b5-8a7b-40436995a1b9
+    cents: 300
+    category: infrastructure
+    reason: Покупка на рынке bb08e879-9426-4db6-9e43-3162fa1d00df
+  58b97432-2cd2-3be9-82bc-77c70dc57f5d:
+    protocol: TREASURY
+    operation: fabbd570-fabc-39f9-af63-c9260374ae06
+    town: 9aab4185-0886-3824-b625-a97d845b4a41
+    actor: 28c5d612-0275-35b5-8a7b-40436995a1b9
+    cents: 100
+    category: infrastructure
+    reason: Покупка на рынке 58b97432-2cd2-3be9-82bc-77c70dc57f5d
+  40908253-8eff-41ed-95d0-0099206e29b8:
+    protocol: DIRECT
+  976ceb05-7d67-4511-a102-1442330ca31b:
+    protocol: DIRECT
+  da19c629-b69a-4048-be1e-49767ab3a47b:
+    protocol: TREASURY
+    operation: 59b4a096-9aad-3e00-b836-c8e59b3b5cdf
+    town: 9aab4185-0886-3824-b625-a97d845b4a41
+    actor: 28c5d612-0275-35b5-8a7b-40436995a1b9
+    cents: 800
+    category: infrastructure
+    reason: Покупка на рынке da19c629-b69a-4048-be1e-49767ab3a47b
+audit-outbox:
+- - '1'
+  - b043113e-f9c5-3e89-9c2e-f5627179aa0d
+  - '1793304335057'
+  - NeverLandTownyMarket
+  - MARKET_DEAL
+  - PENDING
+  - 9003356f-f423-4a52-bf72-9ff823ebbfdc
+  - PLAYER
+  - 28c5d612-0275-35b5-8a7b-40436995a1b9
+  - MarketCityMayor
+  - 9aab4185-0886-3824-b625-a97d845b4a41
+  - TOWN
+  - 73eb6d61-bdc3-3860-9167-6e442247ceff
+  - MarketSellerCity
+  - 73eb6d61-bdc3-3860-9167-6e442247ceff
+  - TOWN
+  - 9aab4185-0886-3824-b625-a97d845b4a41
+  - MarketBuyerCity
+  - 9aab4185-0886-3824-b625-a97d845b4a41
+  - STONE:H4sIAAAAAAAA/+NiYGBm4HZJLEkMSy0qzszPY2AQVudgYMpMYeDPzcxLTS5KTCuxKi7Jz0tlZmBNzi/NK2FgYGBkAABC+lyfOAAAAA==
+  - '4'
+  - '4.00'
+  - lot=995a508c-e5d1-4f16-aee2-7a1ad0b64805; phase=PAID:3; unit=1.00; Казна подтвердила
+    точную оплату
+- - '1'
+  - 448bc0a8-6f0e-3c8b-84ef-504e5968a4a2
+  - '1793304335157'
+  - NeverLandTownyMarket
+  - MARKET_DEAL
+  - PENDING
+  - 9003356f-f423-4a52-bf72-9ff823ebbfdc
+  - PLAYER
+  - 28c5d612-0275-35b5-8a7b-40436995a1b9
+  - MarketCityMayor
+  - 9aab4185-0886-3824-b625-a97d845b4a41
+  - TOWN
+  - 73eb6d61-bdc3-3860-9167-6e442247ceff
+  - MarketSellerCity
+  - 73eb6d61-bdc3-3860-9167-6e442247ceff
+  - TOWN
+  - 9aab4185-0886-3824-b625-a97d845b4a41
+  - MarketBuyerCity
+  - 9aab4185-0886-3824-b625-a97d845b4a41
+  - STONE:H4sIAAAAAAAA/+NiYGBm4HZJLEkMSy0qzszPY2AQVudgYMpMYeDPzcxLTS5KTCuxKi7Jz0tlZmBNzi/NK2FgYGBkAABC+lyfOAAAAA==
+  - '4'
+  - '4.00'
+  - lot=995a508c-e5d1-4f16-aee2-7a1ad0b64805; phase=DELIVERED:4; unit=1.00; Товар
+    передан; ожидает оплаты продавцу
+- - '1'
+  - 4fce9d69-9307-3b5e-83b2-18ec5be28877
+  - '1793304335207'
+  - NeverLandTownyMarket
+  - MARKET_DEAL
+  - REVIEW_CREDIT
+  - 9003356f-f423-4a52-bf72-9ff823ebbfdc
+  - PLAYER
+  - 28c5d612-0275-35b5-8a7b-40436995a1b9
+  - MarketCityMayor
+  - 9aab4185-0886-3824-b625-a97d845b4a41
+  - TOWN
+  - 73eb6d61-bdc3-3860-9167-6e442247ceff
+  - MarketSellerCity
+  - 73eb6d61-bdc3-3860-9167-6e442247ceff
+  - TOWN
+  - 9aab4185-0886-3824-b625-a97d845b4a41
+  - MarketBuyerCity
+  - 9aab4185-0886-3824-b625-a97d845b4a41
+  - STONE:H4sIAAAAAAAA/+NiYGBm4HZJLEkMSy0qzszPY2AQVudgYMpMYeDPzcxLTS5KTCuxKi7Jz0tlZmBNzi/NK2FgYGBkAABC+lyfOAAAAA==
+  - '4'
+  - '4.00'
+  - lot=995a508c-e5d1-4f16-aee2-7a1ad0b64805; phase=CREDIT_PENDING:5; unit=1.00; Выплата
+    продавцу ожидает подтверждения
+- - '1'
+  - f6d66cad-1fe4-3e48-aa08-c4eef3a98412
+  - '1793304335307'
+  - NeverLandTownyMarket
+  - MARKET_DEAL
+  - COMPLETED
+  - 9003356f-f423-4a52-bf72-9ff823ebbfdc
+  - PLAYER
+  - 28c5d612-0275-35b5-8a7b-40436995a1b9
+  - MarketCityMayor
+  - 9aab4185-0886-3824-b625-a97d845b4a41
+  - TOWN
+  - 73eb6d61-bdc3-3860-9167-6e442247ceff
+  - MarketSellerCity
+  - 73eb6d61-bdc3-3860-9167-6e442247ceff
+  - TOWN
+  - 9aab4185-0886-3824-b625-a97d845b4a41
+  - MarketBuyerCity
+  - 9aab4185-0886-3824-b625-a97d845b4a41
+  - STONE:H4sIAAAAAAAA/+NiYGBm4HZJLEkMSy0qzszPY2AQVudgYMpMYeDPzcxLTS5KTCuxKi7Jz0tlZmBNzi/NK2FgYGBkAABC+lyfOAAAAA==
+  - '4'
+  - '4.00'
+  - lot=995a508c-e5d1-4f16-aee2-7a1ad0b64805; phase=COMPLETE:6; unit=1.00; Доставлено
+    в склад города

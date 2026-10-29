@@ -1,0 +1,24 @@
+PASS actual Market0.2.1 Treasury and Builds APIs enabled
+PASS real sale reserves exact warehouse items only after listing ACK
+PASS purchase confirmation waits for journal ACK
+PASS missing installed Treasury never falls back to direct town bank
+PASS purchase confirmation waits for journal ACK
+PASS revoked regional player permission returns reservation before first bank request
+PASS purchase confirmation waits for journal ACK
+PASS city buyer pays Treasury once and seller receives exact real delivered goods price
+PASS Treasury payment preserves player actor and owning addon
+PASS purchase confirmation waits for journal ACK
+PASS personal buyer pays own account and goods await explicit native claim
+PASS claim writes real native inventory and durable player receipt
+PASS repeated claim cannot duplicate items or money
+PASS purchase confirmation waits for journal ACK
+PASS lost seller response holds unknown credit and never pays automatically again
+PASS verified seller payment closes without another bank invocation
+PASS purchase confirmation waits for journal ACK
+PASS lost personal debit stays pending without repeated withdrawal or item loss
+PASS verified personal debit releases previously reserved exact goods
+PASS real reservation exists before stalled actor callback
+PASS expired consent releases stuck actor check and returns stock without invoking bank
+PASS historical unresolved direct debit never creates new Treasury authorization
+PASS purchase confirmation waits for journal ACK
+PASS pause after acknowledged Treasury debit retains paid goods before delivery

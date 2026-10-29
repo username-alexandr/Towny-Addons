@@ -1,0 +1,60 @@
+{
+  "result": "PASS",
+  "terminal_orders": [
+    {
+      "order": "58b97432-2cd2-3be9-82bc-77c70dc57f5d",
+      "phase": "CANCELLED",
+      "transitions": 3,
+      "last_outcome": "CANCELLED"
+    },
+    {
+      "order": "da19c629-b69a-4048-be1e-49767ab3a47b",
+      "phase": "CANCELLED",
+      "transitions": 5,
+      "last_outcome": "CANCELLED"
+    },
+    {
+      "order": "b15573be-ddef-4d30-aa9a-e9cc4cd6d32c",
+      "phase": "CANCELLED",
+      "transitions": 3,
+      "last_outcome": "CANCELLED"
+    },
+    {
+      "order": "a5b21a1c-66d5-44bc-9dfa-75a3a561f881",
+      "phase": "COMPLETE",
+      "transitions": 7,
+      "last_outcome": "COMPLETED"
+    },
+    {
+      "order": "976ceb05-7d67-4511-a102-1442330ca31b",
+      "phase": "COMPLETE",
+      "transitions": 7,
+      "last_outcome": "COMPLETED"
+    },
+    {
+      "order": "9003356f-f423-4a52-bf72-9ff823ebbfdc",
+      "phase": "COMPLETE",
+      "transitions": 7,
+      "last_outcome": "COMPLETED"
+    },
+    {
+      "order": "40908253-8eff-41ed-95d0-0099206e29b8",
+      "phase": "COMPLETE",
+      "transitions": 7,
+      "last_outcome": "COMPLETED"
+    },
+    {
+      "order": "a1e9fd1a-be45-4831-bce4-dc534703084a",
+      "phase": "COMPLETE",
+      "transitions": 7,
+      "last_outcome": "COMPLETED"
+    },
+    {
+      "order": "bb08e879-9426-4db6-9e43-3162fa1d00df",
+      "phase": "COMPLETE",
+      "transitions": 7,
+      "last_outcome": "COMPLETED"
+    }
+  ],
+  "includes_durable_outbox": true
+}
