@@ -19,6 +19,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import io.papermc.paper.event.player.PlayerTradeEvent;
 import ru.neverland.core.*;
 import ru.neverland.earnings.*;
+import ru.neverland.townyjobs.mastery.MasteryModel.Action;
 
 /** Salary observes completed production. Movement, worksite presence and XP signals never pay. */
 public final class WageService implements Listener,CommandExecutor,TabCompleter {
@@ -49,9 +50,10 @@ public final class WageService implements Listener,CommandExecutor,TabCompleter 
         // Real action refreshes activity, but the actual shift still has to pass warmup/worksite checks.
         jobs.signal(p.getUniqueId(),profession);return jobs.status(p.getUniqueId()).equals("На смене");
     }
-    private void pay(Player p,Profession profession,String proof){try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){
-        if(!eligible(p,profession))return;long now=System.currentTimeMillis();if(now-last.getOrDefault(p.getUniqueId(),0L)<cooldown)return;
-        UUID id=UUID.nameUUIDFromBytes(("salary:"+p.getUniqueId()+":"+proof).getBytes(StandardCharsets.UTF_8));if(income.ledger().get(id)!=null)return;
+    private void pay(Player p,Profession profession,String proof,Action action,String target,int quantity){try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){
+        if(!eligible(p,profession))return;UUID id=UUID.nameUUIDFromBytes(("salary:"+p.getUniqueId()+":"+proof).getBytes(StandardCharsets.UTF_8));
+        if(jobs.masteryService()!=null)jobs.masteryService().record(p,profession,action,target,quantity,id);
+        long now=System.currentTimeMillis();if(now-last.getOrDefault(p.getUniqueId(),0L)<cooldown||income.ledger().get(id)!=null)return;
         long amount=Math.round(rates.get(profession)*multipliers.get(jobs.settings().level(jobs.career(p.getUniqueId()))-1));
         last.put(p.getUniqueId(),now);
         if(Bukkit.getPluginManager().isPluginEnabled("NeverLandTownyCompanies"))try{ApiServices.call("NeverLandTownyCompanies","ru.neverland.townycompanies.api.CompanyPayrollApi","recordWork",new Class<?>[]{Player.class,UUID.class,String.class,int.class},p,id,profession.id(),jobs.settings().level(jobs.career(p.getUniqueId())));}catch(Exception ex){plugin.getLogger().warning("Начисление от компании сейчас недоступно: "+ex.getMessage());}
@@ -62,7 +64,7 @@ public final class WageService implements Listener,CommandExecutor,TabCompleter 
     @EventHandler(priority=EventPriority.MONITOR) public void smelt(FurnaceExtractEvent e){try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){
         if(e.getItemAmount()<=0||e.getExpToDrop()<=0||!Set.of(Material.IRON_INGOT,Material.COPPER_INGOT,Material.GOLD_INGOT,Material.NETHERITE_SCRAP).contains(e.getItemType()))return;
         // Extraction is a completed inventory operation. Reinserting output has no smelting XP.
-        pay(e.getPlayer(),Profession.BLACKSMITH,"smelt:"+UUID.randomUUID());
+        pay(e.getPlayer(),Profession.BLACKSMITH,"smelt:"+UUID.randomUUID(),Action.SMELT,e.getItemType().name(),e.getItemAmount());
     }}
     private void saveCrops(){var y=new YamlConfiguration();y.set("schema",1);crops.forEach((k,v)->y.set("crops."+k,v));try{AtomicFiles.write(cropFile,y::saveToString);}catch(IOException ex){cropFault=true;plugin.getLogger().severe("Зарплата фермера остановлена: "+ex.getMessage());}}
     private void clearCrop(Block b){if(crops.remove(ActionGuard.key(b))!=null)saveCrops();}
@@ -76,35 +78,44 @@ public final class WageService implements Listener,CommandExecutor,TabCompleter 
         String proof=crops.remove(ActionGuard.key(e.getBlock()));if(proof==null)return;saveCrops();
         if(cropFault||!e.isDropItems()||!(e.getBlock().getBlockData() instanceof Ageable age)||age.getAge()!=age.getMaximumAge())return;
         Player p=e.getPlayer();Material before=e.getBlock().getType();Location at=e.getBlock().getLocation();
-        SuiteScheduler.region(plugin,at,()->{if(!e.isCancelled()&&at.getBlock().getType()!=before)SuiteScheduler.entity(plugin,p,()->pay(p,Profession.FARMER,"harvest:"+proof));});
+        SuiteScheduler.region(plugin,at,()->{if(!e.isCancelled()&&at.getBlock().getType()!=before)SuiteScheduler.entity(plugin,p,()->pay(p,Profession.FARMER,"harvest:"+proof,Action.HARVEST,before.name(),1));});
     }}
-    private static int count(Player p,Material material){int n=0;for(ItemStack item:p.getInventory().getStorageContents())if(item!=null&&item.getType()==material)n+=item.getAmount();if(p.getItemOnCursor().getType()==material)n+=p.getItemOnCursor().getAmount();return n;}
+    private static int count(Player p,Material material){int n=0;for(ItemStack item:p.getInventory().getContents())if(item!=null&&item.getType()==material)n+=item.getAmount();if(p.getItemOnCursor().getType()==material)n+=p.getItemOnCursor().getAmount();return n;}
+    private static Map<String,Long> totals(Player p,CraftingInventory inventory){var all=new HashMap<String,Long>();for(ItemStack item:p.getInventory().getContents())add(all,item);add(all,p.getItemOnCursor());for(ItemStack item:inventory.getMatrix())add(all,item);return all;}
+    private static void add(Map<String,Long> all,ItemStack item){if(item!=null&&!item.getType().isAir())all.merge(AuditTrail.item(item),(long)item.getAmount(),Math::addExact);}
+    private static Profession craftingProfession(Material result){
+        if(Set.of(Material.PISTON,Material.DISPENSER,Material.DROPPER,Material.REPEATER,Material.COMPARATOR).contains(result))return Profession.ENGINEER;
+        if(Set.of(Material.BREAD,Material.BEETROOT_SOUP).contains(result))return Profession.FARMER;
+        if(result.name().matches("(IRON|GOLDEN|DIAMOND)_(SWORD|PICKAXE|AXE|SHOVEL|HOE|HELMET|CHESTPLATE|LEGGINGS|BOOTS)"))return Profession.BLACKSMITH;
+        return null;
+    }
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void craft(CraftItemEvent e){try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()){
         if(!(e.getWhoClicked() instanceof Player p)||e.getAction()==InventoryAction.NOTHING)return;
-        Material result=e.getRecipe().getResult().getType();if(!Set.of(Material.PISTON,Material.DISPENSER,Material.DROPPER,Material.REPEATER,Material.COMPARATOR).contains(result)||!eligible(p,Profession.ENGINEER))return;
-        int before=count(p,result);CraftingInventory inventory=e.getInventory();ItemStack[] ingredients=inventory.getMatrix();for(int i=0;i<ingredients.length;i++)if(ingredients[i]!=null)ingredients[i]=ingredients[i].clone();String proof="craft:"+UUID.randomUUID();
-        SuiteScheduler.entity(plugin,p,()->{if(e.isCancelled()||!p.getOpenInventory().getTopInventory().equals(inventory)||count(p,result)<=before)return;ItemStack[] after=inventory.getMatrix();boolean consumed=false;for(int i=0;i<Math.min(ingredients.length,after.length);i++)if(ingredients[i]!=null&&(after[i]==null||!ingredients[i].isSimilar(after[i])||after[i].getAmount()<ingredients[i].getAmount()))consumed=true;if(consumed)pay(p,Profession.ENGINEER,proof);});
+        Material result=e.getRecipe().getResult().getType();Profession profession=craftingProfession(result);if(profession==null||!eligible(p,profession))return;
+        CraftingInventory inventory=e.getInventory();var inputs=new HashMap<String,Long>();for(ItemStack item:inventory.getMatrix())if(item!=null&&!item.getType().isAir())inputs.merge(AuditTrail.item(item),1L,Math::addExact);if(inputs.isEmpty())return;
+        var evidence=new CraftEvidence(inputs,totals(p,inventory),count(p,result),e.getRecipe().getResult().getAmount());String proof="craft:"+UUID.randomUUID();
+        SuiteScheduler.entity(plugin,p,()->{if(e.isCancelled()||!p.getOpenInventory().getTopInventory().equals(inventory))return;int quantity=evidence.confirmed(totals(p,inventory),count(p,result));if(quantity>0)pay(p,profession,proof,Action.CRAFT,result.name(),quantity);});
     }}
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void kill(EntityDeathEvent e){try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()){
-        Player p=guard.hunter(e);if(p==null)return;UUID victim=e.getEntity().getUniqueId();
+        Player p=guard.hunter(e);if(p==null)return;UUID victim=e.getEntity().getUniqueId();String victimType=e.getEntityType().name();
         HuntingCredit.afterDeath(plugin,e,p,()->{
             if(!eligible(p,Profession.GUARD))return;Location at=p.getLocation();Location before=lastKill.get(p.getUniqueId());
             if(before!=null&&before.getWorld().equals(at.getWorld())&&before.distanceSquared(at)<16)return;
-            lastKill.put(p.getUniqueId(),at);pay(p,Profession.GUARD,"kill:"+victim);
+            lastKill.put(p.getUniqueId(),at);pay(p,Profession.GUARD,"kill:"+victim,Action.HUNT,victimType,1);
         });
     }}
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void trade(PlayerTradeEvent e){try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()){
         Player p=e.getPlayer();var villager=e.getVillager();if(!SuiteScheduler.owns(villager)||!e.willIncreaseTradeUses()||!eligible(p,Profession.MERCHANT))return;
         // Pay selling goods to a real villager, never buying/re-selling emeralds or custom menus.
-        MerchantRecipe recipe=e.getTrade();if(recipe.getResult().getType()!=Material.EMERALD||recipe.getIngredients().stream().anyMatch(i->i.getType()==Material.EMERALD))return;
+        MerchantRecipe recipe=e.getTrade();if(recipe.getIngredients().isEmpty()||recipe.getResult().getType()!=Material.EMERALD||recipe.getIngredients().stream().anyMatch(i->i.getType()==Material.EMERALD))return;
         if(!(p.getOpenInventory().getTopInventory() instanceof MerchantInventory inventory))return;int index=inventory.getSelectedRecipeIndex();if(index<0||index>=villager.getRecipeCount())return;int before=villager.getRecipe(index).getUses();UUID npc=villager.getUniqueId();
-        SuiteScheduler.entity(plugin,villager,()->{if(e.isCancelled()||index>=villager.getRecipeCount()||villager.getRecipe(index).getUses()<=before)return;String proof="trade:"+npc+":"+(System.currentTimeMillis()/RewardLedger.DAY)+":"+index+":"+(before+1);SuiteScheduler.entity(plugin,p,()->pay(p,Profession.MERCHANT,proof));});
+        SuiteScheduler.entity(plugin,villager,()->{if(e.isCancelled()||index>=villager.getRecipeCount()||villager.getRecipe(index).getUses()<=before)return;String proof="trade:"+npc+":"+(System.currentTimeMillis()/RewardLedger.DAY)+":"+index+":"+(before+1);SuiteScheduler.entity(plugin,p,()->pay(p,Profession.MERCHANT,proof,Action.TRADE,recipe.getIngredients().get(0).getType().name(),1));});
     }}
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void enchant(EnchantItemEvent e){try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()){
         Player p=e.getEnchanter();if(e.getExpLevelCost()<=0||e.getEnchantsToAdd().isEmpty()||!eligible(p,Profession.RESEARCHER))return;
         var inventory=e.getInventory();ItemStack base=e.getItem().clone();var enchants=new HashMap<>(e.getEnchantsToAdd());
         String proof="enchant:"+base.getType()+":"+new TreeMap<>(enchants.entrySet().stream().collect(java.util.stream.Collectors.toMap(v->v.getKey().getKey().toString(),Map.Entry::getValue)))+":"+(System.currentTimeMillis()/RewardLedger.DAY);
-        SuiteScheduler.entity(plugin,p,()->{if(e.isCancelled()||!p.getOpenInventory().getTopInventory().equals(inventory))return;ItemStack item=inventory.getItem(0);if(item!=null&&(item.getType()==base.getType()||base.getType()==Material.BOOK&&item.getType()==Material.ENCHANTED_BOOK)&&(item.getItemMeta() instanceof org.bukkit.inventory.meta.EnchantmentStorageMeta stored?stored.getStoredEnchants():item.getEnchantments()).entrySet().containsAll(enchants.entrySet()))pay(p,Profession.RESEARCHER,proof);});
+        SuiteScheduler.entity(plugin,p,()->{if(e.isCancelled()||!p.getOpenInventory().getTopInventory().equals(inventory))return;ItemStack item=inventory.getItem(0);if(item!=null&&(item.getType()==base.getType()||base.getType()==Material.BOOK&&item.getType()==Material.ENCHANTED_BOOK)&&(item.getItemMeta() instanceof org.bukkit.inventory.meta.EnchantmentStorageMeta stored?stored.getStoredEnchants():item.getEnchantments()).entrySet().containsAll(enchants.entrySet()))pay(p,Profession.RESEARCHER,proof,Action.ENCHANT,base.getType().name(),1);});
     }}
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true) public void ingredient(InventoryClickEvent e){try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()){
         if(!(e.getWhoClicked() instanceof Player p)||!(e.getView().getTopInventory() instanceof BrewerInventory inv)||!eligible(p,Profession.ALCHEMIST)||inv.getLocation()==null)return;
@@ -120,7 +131,7 @@ public final class WageService implements Listener,CommandExecutor,TabCompleter 
         ItemStack ingredient=e.getContents().getIngredient();if(ingredient==null||!ingredient.isSimilar(brewer.ingredient()))return;
         var results=e.getResults().stream().map(i->i==null?null:i.clone()).toList();boolean changed=false;for(int i=0;i<Math.min(3,results.size());i++)if(results.get(i)!=null&&!results.get(i).equals(e.getContents().getItem(i)))changed=true;if(!changed)return;
         Location at=e.getBlock().getLocation();String proof="brew:"+UUID.randomUUID();
-        SuiteScheduler.region(plugin,at,()->{if(e.isCancelled()||!(at.getBlock().getState() instanceof BrewingStand stand))return;boolean match=false;for(int i=0;i<Math.min(3,results.size());i++)if(results.get(i)!=null&&results.get(i).equals(stand.getInventory().getItem(i)))match=true;if(!match)return;Player p=Bukkit.getPlayer(brewer.player());if(p!=null)SuiteScheduler.entity(plugin,p,()->pay(p,Profession.ALCHEMIST,proof));});
+        SuiteScheduler.region(plugin,at,()->{if(e.isCancelled()||!(at.getBlock().getState() instanceof BrewingStand stand))return;boolean match=false;for(int i=0;i<Math.min(3,results.size());i++)if(results.get(i)!=null&&results.get(i).equals(stand.getInventory().getItem(i)))match=true;if(!match)return;Player p=Bukkit.getPlayer(brewer.player());if(p!=null)SuiteScheduler.entity(plugin,p,()->pay(p,Profession.ALCHEMIST,proof,Action.BREW,brewer.ingredient().getType().name(),1));});
     }}
     @Override public boolean onCommand(CommandSender sender,Command c,String label,String[] args){try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()){try{
         if(args.length>0&&args[0].equals("admin")){if(!sender.isOp()&&!sender.hasPermission("neverlandtownyjobs.payments"))throw new IllegalArgumentException("Нет прав на сверку");income.admin(sender,Arrays.copyOfRange(args,1,args.length));return true;}

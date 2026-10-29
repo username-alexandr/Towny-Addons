@@ -1,0 +1,8 @@
+PASS actual Jobs 0.3 mastery configuration, Minecraft item registry and salary listeners enabled
+PASS accepted recipe targets and reward stay frozen despite changed config after restart
+PASS restart preserves level but never restores an AFK work shift
+PASS real regional CraftPlayer passes active worksite shift checks
+PASS completed order unlocks a specialty without silently enabling it or minting a completion reward
+PASS chosen frozen specialty adds two percent within existing building cap
+PASS native profession summary includes selected mastery in personal contribution
+PASS personal API and original daily salary cap remain in effect

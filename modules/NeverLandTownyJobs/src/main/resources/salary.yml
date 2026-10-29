@@ -8,8 +8,8 @@ level-multipliers: [1.00, 1.05, 1.10, 1.15, 1.20]
 minimum-action-seconds: 5
 # Per confirmed operation, NOT per stack or per second.
 pay:
-  blacksmith: 1.20 # extract smelted metal with smelting XP
-  farmer: 0.40 # harvest a crop whose natural final growth was observed
+  blacksmith: 1.20 # smelted metal with XP or completed metal tools/armor crafting
+  farmer: 0.40 # natural mature crop, bread or beetroot soup with confirmed ingredient consumption
   engineer: 2.00 # craft piston/dispenser/dropper/repeater/comparator
   guard: 1.50 # direct kill of a naturally spawned hostile; move >=4 blocks between kills
   merchant: 2.00 # sell goods for emeralds to a villager; recipe-use proof

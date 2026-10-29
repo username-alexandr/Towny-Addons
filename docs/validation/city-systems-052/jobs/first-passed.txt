@@ -1,0 +1,1 @@
+PASS 12 assertions; genuine Folia Jobs services, Minecraft item registry, regional networkless CraftPlayer, listeners, salary receipts, SQLite, ordered work, controlled disable and restart; explicit synthetic furnace events and crafting container/inventory mutations, no network client or actual bank payout claimed

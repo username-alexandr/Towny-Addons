@@ -1,0 +1,312 @@
+# Условия мастерского заказа сохраняются при принятии. Денежные лимиты salary.yml не увеличиваются.
+enabled: true
+specialties:
+  toolsmith:
+    profession: blacksmith
+    title: Мастер инструментов
+    icon: IRON_PICKAXE
+    minimum-level: 2
+    bonus: 0.02
+    buildings:
+    - forge
+    - foundry
+    steps:
+    - action: SMELT
+      target: IRON_INGOT
+      amount: 24
+      text: Заберите из печи 24 выплавленных железных слитка
+    - action: CRAFT
+      target: IRON_SWORD
+      amount: 4
+      text: Изготовьте 4 железных меча
+    - action: CRAFT
+      target: IRON_CHESTPLATE
+      amount: 2
+      text: Изготовьте 2 железных нагрудника
+  armorer:
+    profession: blacksmith
+    title: Мастер доспехов
+    icon: IRON_CHESTPLATE
+    minimum-level: 2
+    bonus: 0.02
+    buildings:
+    - forge
+    - armory
+    steps:
+    - action: SMELT
+      target: IRON_INGOT
+      amount: 32
+      text: Заберите из печи 32 выплавленных железных слитка
+    - action: CRAFT
+      target: IRON_CHESTPLATE
+      amount: 2
+      text: Изготовьте 2 железных нагрудника
+    - action: CRAFT
+      target: IRON_LEGGINGS
+      amount: 2
+      text: Изготовьте 2 железных поножей
+  cultivator:
+    profession: farmer
+    title: Полевод
+    icon: WHEAT
+    minimum-level: 2
+    bonus: 0.02
+    buildings:
+    - agrarian_complex
+    - mill
+    - bakery
+    steps:
+    - action: HARVEST
+      target: WHEAT
+      amount: 32
+      text: Соберите 32 естественно созревших куста пшеницы
+    - action: CRAFT
+      target: BREAD
+      amount: 8
+      text: Испеките 8 буханок хлеба на верстаке
+    - action: HARVEST
+      target: CARROTS
+      amount: 24
+      text: Соберите 24 естественно созревшие грядки моркови
+  grower:
+    profession: farmer
+    title: Садовод
+    icon: BEETROOT
+    minimum-level: 2
+    bonus: 0.02
+    buildings:
+    - forestry
+    - apiary
+    steps:
+    - action: HARVEST
+      target: BEETROOTS
+      amount: 24
+      text: Соберите 24 естественно созревшие грядки свёклы
+    - action: CRAFT
+      target: BEETROOT_SOUP
+      amount: 4
+      text: Приготовьте 4 миски свекольного супа
+    - action: HARVEST
+      target: POTATOES
+      amount: 24
+      text: Соберите 24 естественно созревшие грядки картофеля
+  mechanic:
+    profession: engineer
+    title: Механик
+    icon: PISTON
+    minimum-level: 2
+    bonus: 0.02
+    buildings:
+    - recycling_yard
+    - dam
+    steps:
+    - action: CRAFT
+      target: PISTON
+      amount: 8
+      text: Изготовьте 8 поршней
+    - action: CRAFT
+      target: DISPENSER
+      amount: 4
+      text: Изготовьте 4 раздатчика
+    - action: CRAFT
+      target: COMPARATOR
+      amount: 4
+      text: Изготовьте 4 компаратора
+  hydraulic:
+    profession: engineer
+    title: Инженер водоснабжения
+    icon: BUCKET
+    minimum-level: 2
+    bonus: 0.02
+    buildings:
+    - pumping_station
+    - irrigation_station
+    - water_tower
+    steps:
+    - action: CRAFT
+      target: DROPPER
+      amount: 8
+      text: Изготовьте 8 выбрасывателей
+    - action: CRAFT
+      target: REPEATER
+      amount: 8
+      text: Изготовьте 8 повторителей
+    - action: CRAFT
+      target: COMPARATOR
+      amount: 4
+      text: Изготовьте 4 компаратора
+  warden:
+    profession: guard
+    title: Защитник города
+    icon: SHIELD
+    minimum-level: 2
+    bonus: 0.02
+    buildings:
+    - guard
+    - watch_fortress
+    - port_fort
+    steps:
+    - action: HUNT
+      target: ZOMBIE
+      amount: 8
+      text: Победите 8 обычных зомби, меняя место боя
+    - action: HUNT
+      target: SPIDER
+      amount: 6
+      text: Победите 6 обычных пауков, меняя место боя
+    - action: HUNT
+      target: SKELETON
+      amount: 8
+      text: Победите 8 обычных скелетов, меняя место боя
+  ranger:
+    profession: guard
+    title: Дозорный
+    icon: BOW
+    minimum-level: 2
+    bonus: 0.02
+    buildings:
+    - watchtower
+    - archery_range
+    steps:
+    - action: HUNT
+      target: SKELETON
+      amount: 8
+      text: Победите 8 обычных скелетов, меняя место боя
+    - action: HUNT
+      target: DROWNED
+      amount: 6
+      text: Победите 6 обычных утопленников, меняя место боя
+    - action: HUNT
+      target: ZOMBIE
+      amount: 8
+      text: Победите 8 обычных зомби, меняя место боя
+  provisioner:
+    profession: merchant
+    title: Городской снабженец
+    icon: BREAD
+    minimum-level: 2
+    bonus: 0.02
+    buildings:
+    - market
+    - trade_port
+    steps:
+    - action: TRADE
+      target: WHEAT
+      amount: 6
+      text: Шесть раз продайте пшеницу жителю за изумруды
+    - action: TRADE
+      target: PAPER
+      amount: 6
+      text: Шесть раз продайте бумагу жителю за изумруды
+    - action: TRADE
+      target: ROTTEN_FLESH
+      amount: 6
+      text: Шесть раз продайте гнилую плоть жителю за изумруды
+  broker:
+    profession: merchant
+    title: Торговый посредник
+    icon: EMERALD
+    minimum-level: 2
+    bonus: 0.02
+    buildings:
+    - merchant_guild
+    - customs
+    steps:
+    - action: TRADE
+      target: COAL
+      amount: 6
+      text: Шесть раз продайте уголь жителю за изумруды
+    - action: TRADE
+      target: IRON_INGOT
+      amount: 6
+      text: Шесть раз продайте железо жителю за изумруды
+    - action: TRADE
+      target: PAPER
+      amount: 4
+      text: Четыре раза продайте бумагу жителю за изумруды
+  scholar:
+    profession: researcher
+    title: Учёный
+    icon: ENCHANTED_BOOK
+    minimum-level: 2
+    bonus: 0.02
+    buildings:
+    - great_library
+    - university
+    steps:
+    - action: ENCHANT
+      target: BOOK
+      amount: 2
+      text: Зачаруйте две книги разными наборами чар
+    - action: ENCHANT
+      target: BOW
+      amount: 1
+      text: Зачаруйте лук на столе зачарований
+    - action: ENCHANT
+      target: IRON_PICKAXE
+      amount: 1
+      text: Зачаруйте железную кирку на столе зачарований
+  artificer:
+    profession: researcher
+    title: Мастер чар
+    icon: ENCHANTING_TABLE
+    minimum-level: 2
+    bonus: 0.02
+    buildings:
+    - university
+    - observatory
+    steps:
+    - action: ENCHANT
+      target: IRON_SWORD
+      amount: 1
+      text: Зачаруйте железный меч на столе зачарований
+    - action: ENCHANT
+      target: DIAMOND_CHESTPLATE
+      amount: 1
+      text: Зачаруйте алмазный нагрудник на столе зачарований
+    - action: ENCHANT
+      target: FISHING_ROD
+      amount: 1
+      text: Зачаруйте удочку на столе зачарований
+  healer:
+    profession: alchemist
+    title: Зельевар лекарственных зелий
+    icon: POTION
+    minimum-level: 2
+    bonus: 0.02
+    buildings:
+    - alchemy
+    steps:
+    - action: BREW
+      target: NETHER_WART
+      amount: 2
+      text: Дважды сварите неловкое зелье с адским наростом
+    - action: BREW
+      target: GLISTERING_MELON_SLICE
+      amount: 2
+      text: Дважды сварите зелье лечения с ломтиком сверкающего арбуза
+    - action: BREW
+      target: GLOWSTONE_DUST
+      amount: 2
+      text: Дважды усильте зелье лечения светящейся пылью
+  battle_chemist:
+    profession: alchemist
+    title: Боевой алхимик
+    icon: BLAZE_POWDER
+    minimum-level: 2
+    bonus: 0.02
+    buildings:
+    - alchemy
+    steps:
+    - action: BREW
+      target: NETHER_WART
+      amount: 2
+      text: Дважды сварите неловкое зелье с адским наростом
+    - action: BREW
+      target: BLAZE_POWDER
+      amount: 2
+      text: Дважды сварите зелье силы с огненным порошком
+    - action: BREW
+      target: REDSTONE
+      amount: 2
+      text: Дважды продлите зелье силы красной пылью

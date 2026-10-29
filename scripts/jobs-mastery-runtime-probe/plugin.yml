@@ -1,0 +1,6 @@
+name: TntRuntimeProbe
+version: 0.52-jobs
+main: ru.neverland.runtime.JobsMasteryProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyContracts, NeverLandTownySiegesPlus, NeverLandTownyJobs, NeverLandTownyControl]

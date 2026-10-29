@@ -1,0 +1,12 @@
+PASS actual Jobs 0.3 mastery configuration, Minecraft item registry and salary listeners enabled
+PASS explicit mastery permission is required
+PASS native mastery menu explains persistent order without deadline
+PASS completed-looking event outside shift cannot progress mastery
+PASS real regional CraftPlayer passes active worksite shift checks
+PASS smelting without experience proof cannot advance metal work
+PASS confirmed metal extraction creates one normal capped salary receipt and enters crafting step
+PASS final foreign event cancellation grants no crafting progress
+PASS real listener rejects output with only part of recipe consumed
+PASS verified crafting progresses ordered chain without replacing profession experience
+PASS controlled disable drains mastery SQLite before unloading classes
+PASS Folia schedules Jobs re-enable for full restart
