@@ -13,12 +13,15 @@ import ru.neverland.core.MenuStyle;
 public final class ElectionsMenus implements Listener {
     public record Holder(UUID viewer,UUID town,UUID election,String race,int page,List<String> entries,Set<UUID> selected,Inventory back) implements InventoryHolder {public Inventory getInventory(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return null;} }}
     private static final int[] CELLS={10,11,12,13,14,15,16,19,20,21,22,23,24,25,28,29,30,31,32,33,34,37,38,39,40,41,42,43};
-    private final NeverLandTownyElections plugin;private final ElectionsService service;
-    public ElectionsMenus(NeverLandTownyElections plugin,ElectionsService service){this.plugin=plugin;this.service=service;}
+    private final NeverLandTownyElections plugin;private final ElectionsService service;private final ElectionProgramsMenu programs;
+    public ElectionsMenus(NeverLandTownyElections plugin,ElectionsService service){this.plugin=plugin;this.service=service;this.programs=new ElectionProgramsMenu(plugin,service,this);}
+    public void programs(Player p,UUID candidate,int page)throws Exception{programs.open(p,candidate,page);}
+    public void programs(Player p,UUID candidate,int page,UUID campaign)throws Exception{programs.open(p,candidate,page,campaign);}
+    public void programHistory(Player p,int page)throws Exception{programs.history(p,page);}
     public String name(String race){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return service.settings().names().getOrDefault(race,race);} }
     public static String residentName(UUID id){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {var r=TownyAPI.getInstance().getResident(id);return r==null?id.toString():r.getName();} }
     public static String phase(Election.Phase p){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return switch(p){case WAITING->"Ожидание";case NOMINATION->"Приём кандидатов";case VOTING->"Голосование";case APPLYING->"Применение итогов";case REVIEW->"Проверка администратором";case COMPLETE->"Завершено";case CANCELLED->"Отменено";};} }
-    private static String time(long n){return n==0?"—":DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm 'UTC'").withZone(ZoneOffset.UTC).format(Instant.ofEpochMilli(n));}
+    private static String time(long n){return n==0?"—":DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm 'МСК'").withZone(ZoneId.of("Europe/Moscow")).format(Instant.ofEpochMilli(n));}
     public void open(Player p,String race,int requestedPage,Set<UUID> selection,Inventory previous) throws Exception { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         if(!p.hasPermission("townyelections.use"))throw new IllegalArgumentException("Нет доступа к меню выборов.");
         var town=ElectionsService.requireTown(p);var e=service.state(town);String form=service.form(town);
@@ -42,8 +45,9 @@ public final class ElectionsMenus implements Listener {
                     "&f"+name(entry),List.of("&7Мест: &e"+races.get(entry),"&7Кандидатов: &f"+e.candidates.values().stream().filter(entry::equals).count(),"", "&aНажмите: кандидаты и голосование", "&8ID: "+entry)));
             else {UUID id=UUID.fromString(entry);boolean chosen=selected.contains(id);boolean valid=ElectionsService.eligible(town,id,"HOLD_OFFICE");
                 inv.setItem(CELLS[i],item(chosen?Material.LIME_DYE:valid?Material.PAPER:Material.GRAY_DYE,(chosen?"&a✓ ":"&f")+residentName(id),List.of(
-                        "&7Кандидат: &f"+name(race),valid?"&7Право занимать должность: &aесть":"&cКандидат утратил право на должность", "",e.phase==Election.Phase.VOTING?"&eНажмите, чтобы выбрать или убрать":"&7Выбор доступен во время голосования")));}
+                        "&7Кандидат: &f"+name(race),valid?"&7Право занимать должность: &aесть":"&cКандидат утратил право на должность", "",e.phase==Election.Phase.VOTING?"&eНажмите, чтобы выбрать или убрать":"&7Выбор доступен во время голосования", "&bПравая кнопка: программа кандидата")));}
         }
+        inv.setItem(47,item(Material.WRITTEN_BOOK,"&fПрограммы кандидатов",List.of("&7Обещания и проверка целей по данным города.","&7Просмотр не меняет голос.")));
         inv.setItem(45,item(Material.ARROW,race!=null||previous!=null?"&fНазад":"&fЗакрыть",List.of("&7Вернуться в предыдущее меню.")));
         if(page>0)inv.setItem(48,item(Material.ARROW,"&fПредыдущая страница",List.of()));
         if((page+1)*CELLS.length<entries.size())inv.setItem(50,item(Material.ARROW,"&fСледующая страница",List.of()));
@@ -55,13 +59,16 @@ public final class ElectionsMenus implements Listener {
     } }
     private static ItemStack item(Material m,String title,List<String> lore){var i=new ItemStack(m);var meta=i.getItemMeta();meta.setDisplayName(MenuStyle.nameLegacy(title));meta.setLore(MenuStyle.loreStrings(lore));i.setItemMeta(meta);return i;}
     @EventHandler public void click(InventoryClickEvent event){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyElections")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+        if(programs.click(event))return;
         if(!(event.getView().getTopInventory().getHolder() instanceof Holder h))return;event.setCancelled(true);
         if(!(event.getWhoClicked() instanceof Player p)||!p.getUniqueId().equals(h.viewer())||event.getRawSlot()<0||event.getRawSlot()>=54)return;
-        int slot=event.getRawSlot();ru.neverland.core.SuiteScheduler.entity(plugin, p,()->{
+        int slot=event.getRawSlot();boolean programClick=event.isRightClick();var original=event.getView().getTopInventory();ru.neverland.core.SuiteScheduler.entity(plugin, p,()->{
             try{
+                if(!p.isOnline()||p.getOpenInventory().getTopInventory()!=original)return;
                 var town=ElectionsService.requireTown(p);if(!town.getUUID().equals(h.town()))throw new IllegalArgumentException("Вы сменили город. Откройте меню заново.");
                 if(!p.hasPermission("townyelections.use"))throw new IllegalArgumentException("Доступ отозван.");
                 var e=service.state(town);if(!e.id.equals(h.election())){open(p,null,0,null,h.back());return;}
+                if(slot==47){programs.open(p,null,0);return;}
                 if(slot==45){if(h.race()==null)MenuStyle.returnTo(p,h.back());else open(p,null,0,null,h.back());return;}
                 if(slot==53){open(p,h.race(),h.page(),null,h.back());return;}
                 if(slot==48||slot==50){open(p,h.race(),h.page()+(slot==48?-1:1),h.selected(),h.back());return;}
@@ -74,6 +81,7 @@ public final class ElectionsMenus implements Listener {
                 for(int i=0;i<CELLS.length;i++)if(slot==CELLS[i] && h.page()*CELLS.length+i<h.entries().size()){
                     String entry=h.entries().get(h.page()*CELLS.length+i);
                     if(h.race()==null){open(p,entry,0,null,h.back());return;}
+                    if(programClick){programs.open(p,UUID.fromString(entry),0);return;}
                     if(e.phase!=Election.Phase.VOTING)return;
                     var selected=new LinkedHashSet<>(h.selected());UUID id=UUID.fromString(entry);
                     if(!selected.remove(id)){if(selected.size()>=e.seats.get(h.race()))throw new IllegalArgumentException("Сначала уберите один выбор: все места заполнены.");selected.add(id);}
@@ -82,5 +90,5 @@ public final class ElectionsMenus implements Listener {
             }catch(Exception ex){p.sendMessage("§cВыборы: "+ex.getMessage());}
         });
     } }
-    @EventHandler public void drag(InventoryDragEvent event){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyElections")){ru.neverland.core.ModuleGate.stopEvent(event);return;}if(event.getView().getTopInventory().getHolder() instanceof Holder)event.setCancelled(true);} }
+    @EventHandler public void drag(InventoryDragEvent event){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyElections")){ru.neverland.core.ModuleGate.stopEvent(event);return;}if(programs.drag(event))return;if(event.getView().getTopInventory().getHolder() instanceof Holder)event.setCancelled(true);} }
 }

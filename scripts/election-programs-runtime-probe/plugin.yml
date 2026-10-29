@@ -1,0 +1,6 @@
+name: ElectionProgramsRuntimeProbe
+version: 0.52.0
+main: ru.neverland.runtime.ElectionProgramsProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyCitizens, NeverLandTownyBuilds, NeverLandTownyGovernance, NeverLandTownyPopulation, NeverLandTownyElections, NeverLandTownyControl, NeverLandTownyEnvironment]

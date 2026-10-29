@@ -1,0 +1,6 @@
+PASS actual Elections0.2.0 with Citizens Governance and optional measured providers enabled
+PASS restart preserves original active election and explicit program unavailability
+PASS preexisting actual ballots survive optional program journal restart unchanged
+PASS bound archived statement survives restart exactly
+PASS unbound late freeze remains unclaimed after restart
+PASS native archive menu opens restored frozen candidate program

@@ -1,0 +1,1 @@
+PASS 6 assertions; real Folia optional program corruption remains isolated, exact ballots preserved and voting continues; no client or money movement claimed

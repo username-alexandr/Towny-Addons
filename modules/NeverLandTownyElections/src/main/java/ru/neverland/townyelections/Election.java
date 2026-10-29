@@ -11,6 +11,8 @@ public final class Election {
     double quorum;
     String detail = "";
     String governanceBefore = "";
+    String programsBinding = "";
+    final Set<UUID> programReceipts = new LinkedHashSet<>();
     final Set<UUID> electorate = new LinkedHashSet<>();
     final Map<String, Integer> seats = new LinkedHashMap<>();
     final Map<UUID, String> candidates = new LinkedHashMap<>();
@@ -21,8 +23,8 @@ public final class Election {
     public Election(UUID town, long next) { this.id = UUID.randomUUID(); this.town = town; this.next = next; }
     public Election copy() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         var e = new Election(town, next); e.id=id; e.originalMayor=originalMayor; e.phase=phase;
-        e.adminPausedAt=adminPausedAt;e.nominationDuration=nominationDuration;e.start=start; e.nominationEnd=nominationEnd; e.votingEnd=votingEnd; e.interval=interval; e.votingDuration=votingDuration; e.quorum=quorum; e.detail=detail; e.governanceBefore=governanceBefore;
-        e.electorate.addAll(electorate); e.seats.putAll(seats); e.candidates.putAll(candidates);
+        e.adminPausedAt=adminPausedAt;e.nominationDuration=nominationDuration;e.start=start; e.nominationEnd=nominationEnd; e.votingEnd=votingEnd; e.interval=interval; e.votingDuration=votingDuration; e.quorum=quorum; e.detail=detail; e.governanceBefore=governanceBefore;e.programsBinding=programsBinding;
+        e.programReceipts.addAll(programReceipts);e.electorate.addAll(electorate); e.seats.putAll(seats); e.candidates.putAll(candidates);
         ballots.forEach((r, votes) -> { var map = new LinkedHashMap<UUID,List<UUID>>(); votes.forEach((v, choices) -> map.put(v, List.copyOf(choices))); e.ballots.put(r, map); });
         winners.forEach((r, list) -> e.winners.put(r, List.copyOf(list))); e.results.putAll(results); e.history.addAll(history); return e;
     } }
@@ -71,6 +73,8 @@ public final class Election {
     } }
     void validate() {
         Objects.requireNonNull(id); Objects.requireNonNull(town); Objects.requireNonNull(phase);
+        if(!Set.of("","FROZEN","UNAVAILABLE").contains(programsBinding))throw new IllegalArgumentException("Invalid campaign programs binding");
+        if(programReceipts.size()>20||programReceipts.contains(null))throw new IllegalArgumentException("Invalid program receipts");
         if(adminPausedAt<0||nominationDuration<0||adminPausedAt>0&&(!java.util.Set.of(Phase.NOMINATION,Phase.VOTING).contains(phase)||adminPausedAt>timer().deadline()))throw new IllegalArgumentException("Invalid campaign pause");
         if (next < 0 || start < 0 || nominationEnd < 0 || votingEnd < 0 || !Double.isFinite(quorum) || quorum < 0 || quorum > 1) throw new IllegalArgumentException("Invalid election time/quorum");
         if (phase != Phase.WAITING && (originalMayor == null || start <= 0 || nominationEnd <= start || votingDuration <= 0 || interval <= 0 || seats.isEmpty())) throw new IllegalArgumentException("Incomplete campaign");

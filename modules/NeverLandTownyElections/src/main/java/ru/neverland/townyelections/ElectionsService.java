@@ -12,7 +12,11 @@ import ru.neverland.townyelections.api.TownyElectionsApi;
 
 public final class ElectionsService implements TownyElectionsApi {
     private final NeverLandTownyElections plugin; private final ElectionsRepository repository;
-    private ElectionsSettings settings;
+    private ElectionsSettings settings; private ElectionProgramsService programs;
+    public ElectionProgramsService programs(){return programs;}
+    @Override public Map<String,Object> programs(UUID town){return programs==null?Map.of("available",false,"pending",false,"issue","Программы недоступны"):programs.report(town);}
+    public void programs(ElectionProgramsService value){programs=value;}
+    Election peek(UUID town){return repository.get(town);}
     private final Map<UUID,String> problems = new HashMap<>();
     public ElectionsService(NeverLandTownyElections plugin, ElectionsRepository repository, ElectionsSettings settings) {
         this.plugin=plugin;this.repository=repository;this.settings=settings;
@@ -36,21 +40,22 @@ public final class ElectionsService implements TownyElectionsApi {
     public static boolean eligible(Town town, UUID resident, String right) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) { return town!=null && town.hasResident(resident) && CitizensAccess.allows(town.getUUID(),resident,right); } }
     public Election state(Town town) throws Exception { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         gate(); var e=repository.get(town.getUUID());
-        if(e==null) { e=new Election(town.getUUID(),System.currentTimeMillis()+settings.initialDelay());repository.put(e); } return e;
+        if(e==null) { e=new Election(town.getUUID(),System.currentTimeMillis()+settings.initialDelay());repository.put(e);if(programs!=null)programs.invalidate(e.town); } return e;
     } }
     public String form(Town town) throws Exception { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) { return ElectionIntegrations.form(town.getUUID()); } }
     private boolean democratic(Town town) throws Exception { return form(town).equals("DEMOCRACY") || !settings.authoritarian(); }
     public void recover() throws Exception { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
         for(UUID town:repository.towns()) {
             var e=repository.get(town);if(e.phase==Election.Phase.APPLYING) {
-                e.phase=Election.Phase.REVIEW;e.detail="Сервер остановился во время применения. Администратор должен проверить и выполнить resume или abort.";repository.put(e);
+                e.phase=Election.Phase.REVIEW;e.detail="Сервер остановился во время применения. Администратор должен проверить и выполнить resume или abort.";repository.put(e);if(programs!=null)programs.invalidate(e.town);
             }
         }
     } }
     public void tick() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
         try { gate(); ElectionIntegrations.catalog(); }
         catch(Exception ex) { report(new UUID(0,0),ex);return; }
-        for(Town town:TownyAPI.getInstance().getTowns()) try { advance(town,System.currentTimeMillis()); problems.remove(town.getUUID()); }
+        if(programs!=null)try{programs.tick();}catch(RuntimeException error){report(new UUID(0,1),error);}
+        for(Town town:TownyAPI.getInstance().getTowns()) try { var current=repository.get(town.getUUID());if(programs!=null&&current!=null)programs.bound(current);advance(town,System.currentTimeMillis()); problems.remove(town.getUUID()); }
         catch(Exception | LinkageError ex) { report(town.getUUID(),ex); }
     } }
     private void report(UUID town,Throwable ex) {
@@ -67,16 +72,17 @@ public final class ElectionsService implements TownyElectionsApi {
         if(!e.active()) { if(now>=e.next)start(town,now);return; }
         if(e.phase==Election.Phase.NOMINATION && now>=e.nominationEnd) {
             // After downtime residents still get a full voting window.
-            e.phase=Election.Phase.VOTING;e.votingEnd=Math.addExact(now,e.votingDuration);repository.put(e);
+            if(e.programsBinding.isEmpty()){String binding=programs==null?"UNAVAILABLE":programs.prepareVoting(e);if(binding==null)return;e.programsBinding=binding;}
+            e.phase=Election.Phase.VOTING;e.votingEnd=Math.addExact(now,e.votingDuration);if(e.programsBinding.equals("FROZEN")){e.programReceipts.add(e.id);while(e.programReceipts.size()>20)e.programReceipts.remove(e.programReceipts.iterator().next());}repository.put(e);if(programs!=null)programs.invalidate(e.town);if(programs!=null)programs.bound(e);
             broadcast(town,"Началось голосование. /t elections");return;
         }
         if(e.phase==Election.Phase.VOTING && now>=e.votingEnd) {
             var voters=new HashSet<UUID>();var candidates=new HashSet<UUID>();
             town.getResidents().forEach(r->{ if(eligible(town,r.getUUID(),"VOTE"))voters.add(r.getUUID());if(eligible(town,r.getUUID(),"HOLD_OFFICE"))candidates.add(r.getUUID()); });
             e.tally(voters,candidates);e.governanceBefore=ElectionIntegrations.receipt(town.getUUID());
-            e.phase=Election.Phase.APPLYING;repository.put(e);
+            e.phase=Election.Phase.APPLYING;repository.put(e);if(programs!=null)programs.invalidate(e.town);
             try { apply(town,e,now); }
-            catch(Exception ex) { e.phase=Election.Phase.REVIEW;e.detail="Результат сохранён, применение требует проверки: "+ex.getMessage();repository.put(e);throw ex; }
+            catch(Exception ex) { e.phase=Election.Phase.REVIEW;e.detail="Результат сохранён, применение требует проверки: "+ex.getMessage();repository.put(e);if(programs!=null)programs.invalidate(e.town);throw ex; }
         }
     } }
     public void start(Town town,long now) throws Exception { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
@@ -85,20 +91,20 @@ public final class ElectionsService implements TownyElectionsApi {
         validateCatalog(settings);if(town.getMayor()==null)throw new IllegalArgumentException("У города нет мэра.");
         var e=new Election(town.getUUID(),Math.addExact(now,settings.interval()));e.phase=Election.Phase.NOMINATION;e.start=now;
         e.nominationDuration=settings.nomination();e.nominationEnd=Math.addExact(now,settings.nomination());e.votingDuration=settings.voting();e.interval=settings.interval();e.quorum=settings.quorum();
-        e.originalMayor=town.getMayor().getUUID();e.seats.putAll(settings.seats());e.history.addAll(old.history);
+        e.originalMayor=town.getMayor().getUUID();e.seats.putAll(settings.seats());e.history.addAll(old.history);e.programReceipts.addAll(old.programReceipts);
         town.getResidents().forEach(r->{if(eligible(town,r.getUUID(),"VOTE"))e.electorate.add(r.getUUID());});
-        repository.put(e);broadcast(town,"Открыто выдвижение кандидатов. /t elections");
+        repository.put(e);if(programs!=null)programs.invalidate(e.town);broadcast(town,"Открыто выдвижение кандидатов. /t elections");
     } }
     public void nominate(Player player,String race) throws Exception { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         gate();var town=requireTown(player); if(!player.hasPermission("townyelections.candidate") || !eligible(town,player.getUniqueId(),"HOLD_OFFICE"))throw new IllegalArgumentException("Нет права занимать должность.");
-        requireDemocracy(town);var e=state(town);e.nominate(player.getUniqueId(),race,System.currentTimeMillis());repository.put(e);
+        requireDemocracy(town);var e=state(town);e.nominate(player.getUniqueId(),race,System.currentTimeMillis());repository.put(e);if(programs!=null)programs.invalidate(e.town);
     } }
-    public void withdraw(Player player) throws Exception { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) { gate();var town=requireTown(player);requireDemocracy(town);var e=state(town);e.withdraw(player.getUniqueId(),System.currentTimeMillis());repository.put(e); } }
+    public void withdraw(Player player) throws Exception { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) { gate();var town=requireTown(player);requireDemocracy(town);var e=state(town);e.withdraw(player.getUniqueId(),System.currentTimeMillis());repository.put(e);if(programs!=null)programs.invalidate(e.town); } }
     public void vote(Player player,String race,List<UUID> choices) throws Exception { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
         gate();var town=requireTown(player);requireDemocracy(town);
         if(!player.hasPermission("townyelections.vote") || !eligible(town,player.getUniqueId(),"VOTE"))throw new IllegalArgumentException("Гражданство не даёт права голоса.");
         for(UUID id:choices)if(!eligible(town,id,"HOLD_OFFICE"))throw new IllegalArgumentException("Один из кандидатов больше не имеет права занять должность.");
-        var e=state(town);e.vote(player.getUniqueId(),race,choices,System.currentTimeMillis());repository.put(e);
+        var e=state(town);e.vote(player.getUniqueId(),race,choices,System.currentTimeMillis());repository.put(e);if(programs!=null)programs.invalidate(e.town);
     } }
     public void requireDemocracy(Town town) throws Exception { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) { if(!democratic(town))throw new IllegalArgumentException("При этой форме правления выборы отключены."); } }
     public static Town requireTown(Player player) { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {var town=ownTown(player.getUniqueId());if(town==null)throw new IllegalArgumentException("Вы не состоите в городе.");return town;} }
@@ -125,9 +131,9 @@ public final class ElectionsService implements TownyElectionsApi {
     }
     public void resume(Town town,UUID id) throws Exception { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {
         gate();var e=state(town);if(e.phase!=Election.Phase.REVIEW || !e.id.equals(id))throw new IllegalArgumentException("Нужен точный ID кампании в состоянии REVIEW.");
-        e.phase=Election.Phase.APPLYING;repository.put(e);
+        e.phase=Election.Phase.APPLYING;repository.put(e);if(programs!=null)programs.invalidate(e.town);
         try { apply(town,e,System.currentTimeMillis()); }
-        catch(Exception ex){e.phase=Election.Phase.REVIEW;e.detail="Повторное применение остановлено: "+ex.getMessage();repository.put(e);throw ex;}
+        catch(Exception ex){e.phase=Election.Phase.REVIEW;e.detail="Повторное применение остановлено: "+ex.getMessage();repository.put(e);if(programs!=null)programs.invalidate(e.town);throw ex;}
     } }
     public void abort(Town town,UUID id,String actor) throws Exception { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {
         gate();var e=state(town);if(!e.active() || !e.id.equals(id))throw new IllegalArgumentException("Нужен точный ID активной кампании.");
@@ -137,7 +143,7 @@ public final class ElectionsService implements TownyElectionsApi {
     private void finish(Election e,Election.Phase phase,String message,long now) throws Exception {
         e.adminPausedAt=0;e.phase=phase;e.detail=message;if(e.next<=now)e.next=Math.addExact(now,e.interval);
         e.history.add(0,Instant.ofEpochMilli(now)+" | "+e.id+" | "+phase+" | "+message+" "+e.results+" "+e.winners);
-        while(e.history.size()>20)e.history.remove(e.history.size()-1);repository.put(e);
+        while(e.history.size()>20)e.history.remove(e.history.size()-1);repository.put(e);if(programs!=null)programs.invalidate(e.town);
     }
     public static void broadcast(Town town,String message) { try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) { for(var r:town.getResidents()){var p=Bukkit.getPlayer(r.getUUID());if(p!=null)p.sendMessage("§6[Выборы] §f"+message);} } }
     @Override public Map<String,String> snapshot(UUID townId) { try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) {
@@ -153,7 +159,7 @@ public final class ElectionsService implements TownyElectionsApi {
                 if(action.equals("status"))return e.id+" | "+e.phase+" | "+(Set.of(Election.Phase.NOMINATION,Election.Phase.VOTING).contains(e.phase)?e.timer().describe(System.currentTimeMillis()):e.detail);
                 if(!Set.of(Election.Phase.NOMINATION,Election.Phase.VOTING).contains(e.phase))throw new IllegalStateException("Итоги уже применяются; используйте штатный resume/abort с точным UUID");
                 if(action.equals("cancel")){e.adminPausedAt=0;finish(e,Election.Phase.CANCELLED,"Административная отмена без смены власти",System.currentTimeMillis());return "Кампания отменена; мэр и должности сохранены";}
-                e.timer(e.timer().edit(action,minutes,System.currentTimeMillis()));repository.put(e);return e.id+" | "+e.timer().describe(System.currentTimeMillis());
+                e.timer(e.timer().edit(action,minutes,System.currentTimeMillis()));repository.put(e);if(programs!=null)programs.invalidate(e.town);return e.id+" | "+e.timer().describe(System.currentTimeMillis());
             })).toList();
     } }
 

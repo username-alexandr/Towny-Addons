@@ -1,0 +1,31 @@
+PASS actual Elections0.2.0 with Citizens Governance and optional measured providers enabled
+PASS program edit rechecks candidate permission
+PASS menu command refuses actor without use permission
+PASS ordinary own-town resident opens native program menu
+PASS program view and denied edit never change program or ballot files
+PASS confirmed program visible during nomination with three exact targets
+PASS old mayor draft excluded after candidate changes office
+PASS unchanged mayor program valid after returning to original office
+PASS fixture uses hourly ordinary election tick to detect callback delay regressions
+PASS ballots stay closed until program freeze is durable
+PASS original durable journal binds exact program before any vote
+PASS ack callback preserves full configured voting window without hourly delay
+PASS candidate cannot rewrite program after voting opens
+PASS native right-click program button cancels item movement
+PASS right-click opens candidate program without altering existing ballots
+PASS frozen statement and actual population baseline remain exact
+PASS paused real population provider yields unknown rather than failed goal
+PASS execution report compares frozen baseline with actual new population evidence
+PASS actual original election applies winner and closes without program-driven sanctions
+PASS draft accepted before exact nomination deadline remains unpublished while its file is delayed
+PASS actual nomination deadline rejects subsequent edits while freeze is pending
+PASS deadline continuation freezes the accepted completed draft revision without admitting any later edit
+PASS actual original election applies winner and closes without program-driven sanctions
+PASS physical delayed freeze is invisible and cannot admit ballots
+PASS optional delayed file never holds the shared suite ledger
+PASS bounded timeout opens voting with durable explicit unavailable binding
+PASS late frozen IO never becomes a voter-accepted program
+PASS actual original election applies winner and closes without program-driven sanctions
+PASS old accepted program remains immutable and inspectable after new campaign
+PASS late unbound freeze remains unavailable after current campaign changes
+PASS disabled optional programs never stop existing election mechanics

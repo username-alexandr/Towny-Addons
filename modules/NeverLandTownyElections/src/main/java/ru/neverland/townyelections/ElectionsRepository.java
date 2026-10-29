@@ -39,7 +39,7 @@ public final class ElectionsRepository {
     } }
     private static void write(ConfigurationSection s, Election e) {
         s.set("id",e.id.toString()); s.set("town",e.town.toString()); s.set("phase",e.phase.name());
-        s.set("governance-before", e.governanceBefore);
+        s.set("governance-before", e.governanceBefore);s.set("programs-binding",e.programsBinding);s.set("program-receipts",e.programReceipts.stream().map(UUID::toString).toList());
         s.set("original-mayor",e.originalMayor == null ? "" : e.originalMayor.toString());
         s.set("start",e.start); s.set("nomination-end",e.nominationEnd); s.set("voting-end",e.votingEnd); s.set("next",e.next);
         s.set("admin-paused-at",e.adminPausedAt);s.set("nomination-duration",e.nominationDuration);s.set("interval",e.interval); s.set("voting-duration",e.votingDuration); s.set("quorum",e.quorum); s.set("detail",e.detail);
@@ -52,10 +52,11 @@ public final class ElectionsRepository {
         s.createSection("results",e.results); s.set("history",e.history);
     }
     private static Election read(ConfigurationSection s) throws IOException {
-        SafeYaml.keys(s,"id","town","phase","governance-before","original-mayor","start","nomination-end","voting-end","next","interval","voting-duration","quorum","detail","electorate","seats","candidates","ballots","winners","results","history","admin-paused-at","nomination-duration");
+        SafeYaml.keys(s,"id","town","phase","governance-before","programs-binding","program-receipts","original-mayor","start","nomination-end","voting-end","next","interval","voting-duration","quorum","detail","electorate","seats","candidates","ballots","winners","results","history","admin-paused-at","nomination-duration");
         var e = new Election(UUID.fromString(string(s,"town")),number(s,"next")); e.id=UUID.fromString(string(s,"id"));
         e.phase=Election.Phase.valueOf(string(s,"phase")); String mayor=string(s,"original-mayor"); e.originalMayor=mayor.isEmpty()?null:UUID.fromString(mayor);
-        e.governanceBefore=string(s,"governance-before"); if(!e.governanceBefore.isEmpty())UUID.fromString(e.governanceBefore);
+        if(s.contains("program-receipts"))for(String value:strings(s,"program-receipts"))if(!e.programReceipts.add(UUID.fromString(value)))throw new IOException("Duplicate program receipt");
+        e.programsBinding=s.contains("programs-binding")?string(s,"programs-binding"):"";e.governanceBefore=string(s,"governance-before"); if(!e.governanceBefore.isEmpty())UUID.fromString(e.governanceBefore);
         e.adminPausedAt=SafeYaml.longValue(s,"admin-paused-at",0);e.nominationDuration=SafeYaml.longValue(s,"nomination-duration",0);e.start=number(s,"start"); e.nominationEnd=number(s,"nomination-end"); e.votingEnd=number(s,"voting-end"); e.interval=number(s,"interval"); e.votingDuration=number(s,"voting-duration");
         if (!(s.get("quorum") instanceof Number n)) throw new IOException("Invalid quorum"); e.quorum=n.doubleValue(); e.detail=string(s,"detail");
         for (String v : strings(s,"electorate")) if (!e.electorate.add(UUID.fromString(v))) throw new IOException("Duplicate voter");

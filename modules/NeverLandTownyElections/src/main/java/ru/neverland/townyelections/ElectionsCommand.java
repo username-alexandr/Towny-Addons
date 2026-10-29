@@ -12,6 +12,8 @@ public final class ElectionsCommand implements TabExecutor {
         s.sendMessage("§e/t elections candidate <должность> §7— выдвинуть себя");
         s.sendMessage("§e/t elections withdraw §7— снять кандидатуру до голосования");
         s.sendMessage("§e/t elections vote <должность> <игроки через запятую> §7— сохранить выбор");
+        s.sendMessage("§e/t elections programs §7— программы; program <кандидат> — проверка целей");
+        s.sendMessage("§e/t elections promise §7— команды редактирования своей программы");
         s.sendMessage("§e/t elections results §7— итоги; history — последние кампании");
         if(s.hasPermission("townyelections.admin")){
             s.sendMessage("§c/elections start <город> §7— досрочный старт; reload — настройки");
@@ -41,6 +43,13 @@ public final class ElectionsCommand implements TabExecutor {
             var town=ElectionsService.requireTown(p);
             switch(action){
                 case "menu" -> menus.open(p,null,0,null,null);
+                case "programs" -> {if(args.length>2)throw new IllegalArgumentException("/t elections programs [history|UUID кампании]");if(args.length==2&&args[1].equalsIgnoreCase("history"))menus.programHistory(p,0);else menus.programs(p,null,0,args.length==2?UUID.fromString(args[1]):null);}
+                case "program" -> {if(args.length>2)throw new IllegalArgumentException("/t elections program [кандидат]");UUID candidate=p.getUniqueId();if(args.length==2){var resident=TownyAPI.getInstance().getResident(args[1]);if(resident==null)throw new IllegalArgumentException("Игрок не найден.");candidate=resident.getUUID();}menus.programs(p,candidate,0);}
+                case "promise" -> {
+                    if(args.length==1){ElectionProgramsMenu.editingHelp(p);break;}
+                    var receipt=service.programs().edit(p,Arrays.copyOfRange(args,1,args.length));p.sendMessage("§7Сохраняем программу…");
+                    receipt.whenComplete((message,error)->{if(!plugin.isEnabled()||ru.neverland.core.SuiteState.frozen(plugin.getName()))return;ru.neverland.core.SuiteScheduler.reply(plugin,p,()->{if(error==null)p.sendMessage("§a"+message);else{var cause=error;while(cause.getCause()!=null)cause=cause.getCause();p.sendMessage("§cПрограмма не изменена: "+(cause.getMessage()==null?"сохранение не подтверждено":cause.getMessage()));}});});
+                }
                 case "candidate" -> {if(args.length!=2)throw new IllegalArgumentException("Укажите ID должности из меню.");service.nominate(p,args[1]);p.sendMessage("§aКандидатура сохранена.");}
                 case "withdraw" -> {if(args.length!=1)throw new IllegalArgumentException("/t elections withdraw");service.withdraw(p);p.sendMessage("§aКандидатура снята.");}
                 case "vote" -> {
@@ -62,7 +71,11 @@ public final class ElectionsCommand implements TabExecutor {
     } }
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String label,String[] args){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         var values=new ArrayList<String>();
-        if(args.length==1){values.addAll(List.of("menu","candidate","withdraw","vote","results","history","help"));if(sender.hasPermission("townyelections.admin"))values.addAll(List.of("start","resume","abort","reload"));}
+        if(args.length==1){values.addAll(List.of("menu","candidate","withdraw","vote","results","history","programs","program","promise","help"));if(sender.hasPermission("townyelections.admin"))values.addAll(List.of("start","resume","abort","reload"));}
+        else if(args.length==2 && args[0].equals("programs"))values.add("history");
+        else if(args.length==2 && args[0].equals("promise"))values.addAll(List.of("text","building","population","pollution","remove","clear"));
+        else if(args.length==2 && args[0].equals("program") && sender instanceof Player p)try{var own=ElectionsService.requireTown(p);service.state(own).candidates.keySet().forEach(id->values.add(ElectionsMenus.residentName(id)));}catch(Exception ignored){}
+        else if(args.length==3 && args[0].equals("promise") && args[1].equals("remove"))values.addAll(List.of("1","2","3"));
         else if(args.length==2 && Set.of("candidate","vote").contains(args[0]))values.addAll(service.settings().seats().keySet());
         else if(args.length==2 && sender.hasPermission("townyelections.admin") && Set.of("start","resume","abort").contains(args[0]))TownyAPI.getInstance().getTowns().forEach(t->values.add(t.getName()));
         else if(args.length==3 && args[0].equals("vote") && sender instanceof Player p)try{var town=ElectionsService.requireTown(p);service.state(town).candidates.forEach((id,r)->{if(r.equals(args[1]))values.add(ElectionsMenus.residentName(id));});}catch(Exception ignored){}

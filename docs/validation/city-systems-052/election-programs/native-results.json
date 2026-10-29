@@ -1,0 +1,50 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 31 assertions; real Folia Towny Citizens Governance Elections and Population, acknowledged immutable programs, physical delayed freeze, deadline/timeout binding, actual unchanged ballots and election application, native menu, verified/unknown provider evidence and full restart; explicit offline Player InventoryView EntityScheduler; no bank/reward or client claimed\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyControl-0.5.8.jar": "532b6604a65eff151a1b642cfa0d63597ada2cded58951b7c10c82df69dd9402",
+      "ElectionProgramsRuntimeProbe.jar": "c630610869f6069ed835555775ea0ace51f5326e027621c110d5d565f15893a7",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyPopulation-0.2.1.jar": "c8050c22217f1502b826cebb0669c89d49f402a84efa184b601c6c6655a9887e",
+      "NeverLandTownyElections-0.2.0.jar": "0f75ba9240a0b82ba66e185de4442ccb6c729c1bb4d6f046186bf18a149dfcf4",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63",
+      "NeverLandTownyGovernance-0.2.1.jar": "f854f0db35346bd88090cc73508d49660fe0057d7b4223bfc6bd29ee067dc7d0",
+      "NeverLandTownyEnvironment-0.2.1.jar": "eadd851c86f78018fdca1d828d14e64c561b8f4eb6037b6c84cb743789dcbe1c"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 6 assertions; real Folia Towny Citizens Governance Elections and Population, acknowledged immutable programs, physical delayed freeze, deadline/timeout binding, actual unchanged ballots and election application, native menu, verified/unknown provider evidence and full restart; explicit offline Player InventoryView EntityScheduler; no bank/reward or client claimed\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyControl-0.5.8.jar": "532b6604a65eff151a1b642cfa0d63597ada2cded58951b7c10c82df69dd9402",
+      "ElectionProgramsRuntimeProbe.jar": "c630610869f6069ed835555775ea0ace51f5326e027621c110d5d565f15893a7",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyPopulation-0.2.1.jar": "c8050c22217f1502b826cebb0669c89d49f402a84efa184b601c6c6655a9887e",
+      "NeverLandTownyElections-0.2.0.jar": "0f75ba9240a0b82ba66e185de4442ccb6c729c1bb4d6f046186bf18a149dfcf4",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63",
+      "NeverLandTownyGovernance-0.2.1.jar": "f854f0db35346bd88090cc73508d49660fe0057d7b4223bfc6bd29ee067dc7d0",
+      "NeverLandTownyEnvironment-0.2.1.jar": "eadd851c86f78018fdca1d828d14e64c561b8f4eb6037b6c84cb743789dcbe1c"
+    }
+  },
+  {
+    "phase": "corrupt",
+    "exit_code": 0,
+    "result": "PASS 6 assertions; real Folia optional program corruption remains isolated, exact ballots preserved and voting continues; no client or money movement claimed\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyControl-0.5.8.jar": "532b6604a65eff151a1b642cfa0d63597ada2cded58951b7c10c82df69dd9402",
+      "ElectionProgramsRuntimeProbe.jar": "c630610869f6069ed835555775ea0ace51f5326e027621c110d5d565f15893a7",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyPopulation-0.2.1.jar": "c8050c22217f1502b826cebb0669c89d49f402a84efa184b601c6c6655a9887e",
+      "NeverLandTownyElections-0.2.0.jar": "0f75ba9240a0b82ba66e185de4442ccb6c729c1bb4d6f046186bf18a149dfcf4",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63",
+      "NeverLandTownyGovernance-0.2.1.jar": "f854f0db35346bd88090cc73508d49660fe0057d7b4223bfc6bd29ee067dc7d0",
+      "NeverLandTownyEnvironment-0.2.1.jar": "eadd851c86f78018fdca1d828d14e64c561b8f4eb6037b6c84cb743789dcbe1c"
+    }
+  }
+]

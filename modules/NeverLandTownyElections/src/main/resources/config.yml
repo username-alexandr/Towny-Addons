@@ -28,3 +28,7 @@ names:
   clerk: Секретарь
 menu-style:
   title-color: '#F4F7FC'
+
+# Отдельные подтверждённые программы кандидатов; сбой раздела не отменяет выборы.
+programs:
+  enabled: true

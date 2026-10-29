@@ -1,0 +1,6 @@
+PASS actual Elections0.2.0 with Citizens Governance and optional measured providers enabled
+PASS corrupt optional sidecar leaves elections and dependencies enabled
+PASS corrupt optional journal explicitly unavailable while existing voting remains open
+PASS corrupt optional sidecar preserves exact existing ballots
+PASS ordinary voting still works without programs journal
+PASS invalid optional sidecar is never overwritten or reset

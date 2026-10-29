@@ -67,9 +67,12 @@ modules:
   - NeverLandTownySpecialization
   - NeverLandTownyUpkeep
   NeverLandTownyElections:
+  - NeverLandTownyBuilds
   - NeverLandTownyCitizens
+  - NeverLandTownyEnvironment
   - NeverLandTownyGovernance
   - NeverLandTownyIdeologies
+  - NeverLandTownyPopulation
   NeverLandTownyEnvironment:
   - NeverLandTownyBuilds
   - NeverLandTownyDistricts
