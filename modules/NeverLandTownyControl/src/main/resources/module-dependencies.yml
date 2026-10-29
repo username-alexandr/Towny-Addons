@@ -198,6 +198,7 @@ modules:
   - NeverLandTownyTreasuryPlus
   NeverLandTownySpecialization:
   - NeverLandTownyBuilds
+  - NeverLandTownyContracts
   - NeverLandTownyCouncil
   - NeverLandTownyPower
   - NeverLandTownyUpkeep

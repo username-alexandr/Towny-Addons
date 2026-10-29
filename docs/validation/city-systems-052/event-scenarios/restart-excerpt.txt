@@ -1,0 +1,25 @@
+[23:52:07 INFO]: [bootstrap] Running Java 25 (OpenJDK 64-Bit Server VM 25.0.5+8-LTS; Azul Systems, Inc. Zulu25.38+107-CA) on Linux 6.18.55 (amd64)
+[23:52:08 WARN]: Failed to get system info for Process Loads
+[23:52:08 WARN]: Failed to get system info for Process Virtual Size (MiB)
+[23:52:08 WARN]: Failed to get system info for Process Resident Size (MiB)
+[23:52:12 ERROR]: Failed to request yggdrasil public key
+[23:52:14 INFO]: This server is running Folia version 26.2-7-ver/26.2.x@14b7fee (2026-08-25T13:29:28Z) (Implementing API version 26.2.build.7-beta)
+[23:52:15 INFO]: [NeverLandTownyEvents] Loading server plugin NeverLandTownyEvents v0.5.0
+[23:52:15 INFO]: [EventScenariosRuntimeProbe] Loading server plugin EventScenariosRuntimeProbe v0.52.0
+[23:52:17 INFO]: [NeverLandTownyEvents] Enabling NeverLandTownyEvents v0.5.0
+[23:52:17 INFO]: [NeverLandTownyEvents] NeverLandTownyEvents 0.5.0 включён: загружено событий 6, PlaceholderAPI=false.
+[23:52:17 INFO]: [EventScenariosRuntimeProbe] Enabling EventScenariosRuntimeProbe v0.52.0
+[23:52:20 INFO]: [EventScenariosRuntimeProbe] CHECK actual Events0.5 plugin enabled on real Folia
+[23:52:20 INFO]: [EventScenariosRuntimeProbe] CHECK optional journal and scenario catalog loaded asynchronously
+[23:52:20 INFO]: [EventScenariosRuntimeProbe] CHECK full JVM restart preserves actual event identity and historical start
+[23:52:20 INFO]: [EventScenariosRuntimeProbe] CHECK restart retains paused work time actor and exactly one accepted choice
+[23:52:20 INFO]: [EventScenariosRuntimeProbe] CHECK neutral old cancellation survives restart without failure history
+[23:52:20 INFO]: [EventScenariosRuntimeProbe] CHECK choice audit queue drains to durable categorized journal before shutdown
+[23:52:20 INFO]: [EventScenariosRuntimeProbe] CHECK resumed flood uses its exact saved crop penalty and production benefit
+[23:52:20 INFO]: [EventScenariosRuntimeProbe] CHECK actual main success creates one optional terminal result
+[23:52:20 INFO]: [EventScenariosRuntimeProbe] CHECK main terminal history retains persistent scenario linkage
+[23:52:20 INFO]: [EventScenariosRuntimeProbe] CHECK completed choice cannot replay effects or external rewards
+[23:52:20 INFO]: [EventScenariosRuntimeProbe] CHECK main event starts: drought
+[23:52:20 INFO]: [EventScenariosRuntimeProbe] CHECK main failure remains one result and optional layer adds no duplicate
+[23:52:20 INFO]: [EventScenariosRuntimeProbe] Disabling EventScenariosRuntimeProbe v0.52.0
+[23:52:20 INFO]: [NeverLandTownyEvents] Disabling NeverLandTownyEvents v0.5.0

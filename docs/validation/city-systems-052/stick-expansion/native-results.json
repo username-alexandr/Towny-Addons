@@ -1,0 +1,24 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 17 assertions; actual Folia/Towny claim batch, saved mayor approval and revision, blocked fsync with Suite heartbeat, ownership check, restart no-replay and administrative review. Explicit offline Player/EntityScheduler; second launch deliberately held to model crash boundary; economy disabled, no monetary payment certified.\n",
+    "jar_sha256": {
+      "StickExpansionRuntimeProbe.jar": "95c0f26dc1e003a26129779f53e4eab505b63daa128f3ba439c710433abed568",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyStick-0.2.0.jar": "293ba6bfbd251280694f6fbb2a07cf92a9fd99d558a9c91aff681537d2ab6c37"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 8 assertions; actual Folia/Towny claim batch, saved mayor approval and revision, blocked fsync with Suite heartbeat, ownership check, restart no-replay and administrative review. Explicit offline Player/EntityScheduler; second launch deliberately held to model crash boundary; economy disabled, no monetary payment certified.\n",
+    "jar_sha256": {
+      "StickExpansionRuntimeProbe.jar": "95c0f26dc1e003a26129779f53e4eab505b63daa128f3ba439c710433abed568",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyStick-0.2.0.jar": "293ba6bfbd251280694f6fbb2a07cf92a9fd99d558a9c91aff681537d2ab6c37"
+    }
+  }
+]

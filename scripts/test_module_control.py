@@ -2,6 +2,15 @@ import unittest
 import module_control
 
 class LifecycleGuardTest(unittest.TestCase):
+    def test_positive_shutdown_gate_with_unconditional_drain(self):
+        source='void onDisable(){try(var guard=ru.neverland.core.SuiteState.guard()){if(ru.neverland.core.ModuleLifecycle.end(this)){stop();}}finally{drain();}}'
+        self.assertTrue(module_control.lifecycle_guard(source,'onDisable','end'))
+        self.assertFalse(module_control.lifecycle_guard(source.replace('onDisable','onEnable').replace('.end(','.begin('),'onEnable','begin'))
+        self.assertFalse(module_control.lifecycle_guard(source.replace('if(ru.','stop();if(ru.'),'onDisable','end'))
+        self.assertFalse(module_control.lifecycle_guard(source.replace('.end(','.begin('),'onDisable','end'))
+        initialized=source.replace('void onDisable(){','void onDisable(){java.util.concurrent.CompletionStage<Void> closing=java.util.concurrent.CompletableFuture.completedFuture(null);')
+        self.assertTrue(module_control.lifecycle_guard(initialized,'onDisable','end'))
+        self.assertFalse(module_control.lifecycle_guard(initialized.replace('java.util.concurrent.CompletableFuture.completedFuture(null)','loadAndPay()'),'onDisable','end'))
     def test_imported_lifecycle_in_async_initialization(self):
         source='import ru.neverland.core.*; public void onEnable(){ if(!ModuleLifecycle.begin(this))return; queueConfig(); }'
         self.assertTrue(module_control.lifecycle_guard(source,'onEnable','begin'))

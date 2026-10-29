@@ -53,7 +53,9 @@ public final class EventRepository {
                     active.put(id, new ActiveEvent(id, ru.neverland.core.SafeYaml.stringValue(yaml,path + "event", ""),
                             ru.neverland.core.SafeYaml.longValue(yaml,path + "started-at"), ru.neverland.core.SafeYaml.longValue(yaml,path + "ends-at"),
                             ru.neverland.core.SafeYaml.intValue(yaml,path + "progress"), ru.neverland.core.SafeYaml.intValue(yaml,path + "goal", 1),
-                            ru.neverland.core.SafeYaml.doubleValue(yaml,path + "protection"), ru.neverland.core.SafeYaml.longValue(yaml,path + "last-raid-wave")));
+                            ru.neverland.core.SafeYaml.doubleValue(yaml,path + "protection"), ru.neverland.core.SafeYaml.longValue(yaml,path + "last-raid-wave"),
+                            yaml.contains(path+"instance-id")?UUID.fromString(ru.neverland.core.SafeYaml.text(yaml,path+"instance-id")):
+                                UUID.nameUUIDFromBytes(("legacy-event:"+id+":"+ru.neverland.core.SafeYaml.stringValue(yaml,path+"event","")+":"+ru.neverland.core.SafeYaml.longValue(yaml,path+"started-at")).getBytes(java.nio.charset.StandardCharsets.UTF_8))));
                     active.get(id).pausedAt(ru.neverland.core.SafeYaml.longValue(yaml, path + "paused-at"));
                     if (yaml.isConfigurationSection(path + "raid")) active.get(id).raid(
                             ru.neverland.mintevents.model.RaidState.load(ru.neverland.core.SafeYaml.section(yaml,path + "raid")));
@@ -73,7 +75,8 @@ public final class EventRepository {
                     for (Map<?, ?> map : maps) {
                         entries.add(new HistoryEntry(text(map.get("event")), number(map.get("started-at")),
                                 number(map.get("ended-at")), (int) number(map.get("progress")),
-                                (int) number(map.get("goal")), Boolean.parseBoolean(text(map.get("success")))));
+                                (int) number(map.get("goal")), Boolean.parseBoolean(text(map.get("success"))),
+                                map.containsKey("instance-id")?UUID.fromString(text(map.get("instance-id"))):null));
                     }
                     history.put(id, entries);
                     String wins = "towns." + raw + ".raid-victories";
@@ -115,7 +118,7 @@ public final class EventRepository {
         active.remove(event.townId());
         cooldowns.put(event.townId(), now);
         List<HistoryEntry> entries = history.computeIfAbsent(event.townId(), key -> new ArrayList<>());
-        entries.add(0, new HistoryEntry(event.eventId(), event.startedAt(), now, event.progress(), event.goal(), success));
+        entries.add(0, new HistoryEntry(event.eventId(), event.startedAt(), now, event.progress(), event.goal(), success,event.instanceId()));
         while (entries.size() > Math.max(1, limit)) entries.remove(entries.size() - 1);
         dirty = true;
     } }
@@ -163,6 +166,7 @@ public final class EventRepository {
         for (ActiveEvent event : active.values()) {
             String path = "active." + event.townId() + ".";
             yaml.set(path + "event", event.eventId());
+            yaml.set(path + "instance-id",event.instanceId().toString());
             yaml.set(path + "started-at", event.startedAt());
             yaml.set(path + "ends-at", event.endsAt());
             yaml.set(path + "paused-at", event.pausedAt());
@@ -185,6 +189,7 @@ public final class EventRepository {
                 map.put("progress", entry.progress());
                 map.put("goal", entry.goal());
                 map.put("success", entry.success());
+                if(entry.instanceId()!=null)map.put("instance-id",entry.instanceId().toString());
                 entries.add(map);
             }
             yaml.set("towns." + town.getKey() + ".history", entries);

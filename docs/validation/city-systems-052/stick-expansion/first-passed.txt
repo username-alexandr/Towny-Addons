@@ -1,0 +1,1 @@
+PASS 17 assertions; actual Folia/Towny claim batch, saved mayor approval and revision, blocked fsync with Suite heartbeat, ownership check, restart no-replay and administrative review. Explicit offline Player/EntityScheduler; second launch deliberately held to model crash boundary; economy disabled, no monetary payment certified.

@@ -1,0 +1,26 @@
+PASS actual Espionage0.2.0 Builds and Towny enabled
+PASS existing accepted mission completion queued without new banking
+PASS physically blocked capture publishes neither result nor report
+PASS shared suite ledger available during blocked capture IO
+PASS original accepted mission file unchanged before captured outcome acknowledgement
+PASS acknowledged capture remains unpublished while original core file is physically blocked
+PASS repeated admin completion neither rerolls captured outcome nor duplicates report
+PASS cancel cannot race accepted completion write
+PASS core snapshot encoding and physical write never block suite ledger
+PASS accepted mission keeps original price and publishes single acknowledged success and detection
+PASS one report and one detected history entry for exact mission ID
+PASS disabled native Towny economy recorded unknown rather than fabricated zero
+PASS report stores exact source identity and frozen observation time
+PASS native report menu explains unavailable source and Moscow observation time
+PASS mission success separated from quality without leaking exact defender level
+PASS legacy report original lines preserved but unsupported confidence percentage not displayed
+PASS defender cannot open attacker report by UUID
+PASS native report click prevents inventory movement
+PASS deferred click rechecks and closes menu after permission is revoked
+PASS installed unavailable building provider never removes defensive penalties from new paid preview
+PASS already accepted mission can preserve unavailable source information
+PASS all unavailable building levels remain explicit unknown observations
+PASS undetected completed mission never appears in defender history
+PASS optional feature pause preserves accepted mission price deadline and active status without failure
+PASS disabled intelligence refuses paid changes before bank calls
+PASS confirmed reports remain readable while optional feature paused

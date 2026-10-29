@@ -1,0 +1,35 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 25 assertions; actual Folia Towny Events service, native plan inventory, real main event contribution/result and persistent identity, delayed file ACK, neutral admin pause/restart/cancel, full JVM recovery and corrupt optional isolation. Explicit offline Player/InventoryView/EntityScheduler and elapsed sample fixtures; no live player/network claim.\n",
+    "jar_sha256": {
+      "EventScenariosRuntimeProbe.jar": "10df061acf33884eef9f743baf7b2eb7d649c5256fd19276a1e704ce2ecaa578",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyEvents-0.5.0.jar": "e632f4d2805b98920e97c80c2ac948a165a234f71e9472d585629a77bcb54fb8"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 12 assertions; actual Folia Towny Events service, native plan inventory, real main event contribution/result and persistent identity, delayed file ACK, neutral admin pause/restart/cancel, full JVM recovery and corrupt optional isolation. Explicit offline Player/InventoryView/EntityScheduler and elapsed sample fixtures; no live player/network claim.\n",
+    "jar_sha256": {
+      "EventScenariosRuntimeProbe.jar": "10df061acf33884eef9f743baf7b2eb7d649c5256fd19276a1e704ce2ecaa578",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyEvents-0.5.0.jar": "e632f4d2805b98920e97c80c2ac948a165a234f71e9472d585629a77bcb54fb8"
+    }
+  },
+  {
+    "phase": "corrupt",
+    "exit_code": 0,
+    "result": "PASS 12 assertions; actual Folia Towny Events service, native plan inventory, real main event contribution/result and persistent identity, delayed file ACK, neutral admin pause/restart/cancel, full JVM recovery and corrupt optional isolation. Explicit offline Player/InventoryView/EntityScheduler and elapsed sample fixtures; no live player/network claim.\n",
+    "jar_sha256": {
+      "EventScenariosRuntimeProbe.jar": "10df061acf33884eef9f743baf7b2eb7d649c5256fd19276a1e704ce2ecaa578",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyEvents-0.5.0.jar": "e632f4d2805b98920e97c80c2ac948a165a234f71e9472d585629a77bcb54fb8"
+    }
+  }
+]

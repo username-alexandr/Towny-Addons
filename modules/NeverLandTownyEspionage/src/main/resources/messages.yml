@@ -33,6 +33,8 @@ help:
   - "&f/t spy start <город> <операция> &7— начать операцию"
   - "&f/t spy reports &7— разведывательные отчёты"
   - "&f/t spy active &7— активные операции"
+  - "&f/t spy defense &7— история обнаруженных агентов"
+  - "&f/t spy verify <ID отчёта> &7— сверить с более поздними отчётами"
   - "&f/t spy upgrade <network|defense> &7— улучшить систему"
   - "&7Операции: &fобщая разведка (reconnaissance), казна (treasury),"
   - "&fвоенная разведка (military), инфраструктура (infrastructure), дипломатия (diplomacy)"

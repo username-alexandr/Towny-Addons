@@ -1,0 +1,27 @@
+PASS broken: Citizens enabled and unfrozen
+PASS broken: Builds enabled and unfrozen
+PASS broken: Contracts enabled and unfrozen
+PASS broken: Specialization enabled and unfrozen
+PASS broken: Control enabled and unfrozen
+PASS legacy selected agricultural direction retained
+PASS optional production never rewrites previous specialization data
+PASS full JVM restart preserves completed frozen joint goal and contributors
+PASS restart preserves neutral cancelled goal
+PASS late spent-material receipt reconciles after full JVM restart
+PASS restart/sync grants exactly one late party without replaying old output
+PASS bad optional production.yml suspends only new recipes
+PASS invalid optional config cannot silently use defaults
+PASS admin journal contains acknowledged production and joint-project actions
+PASS restart: Citizens enabled and unfrozen
+PASS restart: Builds enabled and unfrozen
+PASS restart: Contracts enabled and unfrozen
+PASS restart: Specialization enabled and unfrozen
+PASS restart: Control enabled and unfrozen
+PASS legacy selected agricultural direction retained
+PASS optional production never rewrites previous specialization data
+PASS full JVM restart preserves completed frozen joint goal and contributors
+PASS restart preserves neutral cancelled goal
+PASS late spent-material receipt reconciles after full JVM restart
+PASS restart/sync grants exactly one late party without replaying old output
+PASS repaired optional config restores original recipes
+PASS admin journal contains acknowledged production and joint-project actions

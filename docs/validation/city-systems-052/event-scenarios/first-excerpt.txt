@@ -1,0 +1,36 @@
+[23:51:52 INFO]: [bootstrap] Running Java 25 (OpenJDK 64-Bit Server VM 25.0.5+8-LTS; Azul Systems, Inc. Zulu25.38+107-CA) on Linux 6.18.55 (amd64)
+[23:51:57 ERROR]: Failed to request yggdrasil public key
+[23:51:59 INFO]: This server is running Folia version 26.2-7-ver/26.2.x@14b7fee (2026-08-25T13:29:28Z) (Implementing API version 26.2.build.7-beta)
+[23:52:00 INFO]: [NeverLandTownyEvents] Loading server plugin NeverLandTownyEvents v0.5.0
+[23:52:00 INFO]: [EventScenariosRuntimeProbe] Loading server plugin EventScenariosRuntimeProbe v0.52.0
+[23:52:02 INFO]: [NeverLandTownyEvents] Enabling NeverLandTownyEvents v0.5.0
+[23:52:02 INFO]: [NeverLandTownyEvents] NeverLandTownyEvents 0.5.0 включён: загружено событий 6, PlaceholderAPI=false.
+[23:52:02 INFO]: [EventScenariosRuntimeProbe] Enabling EventScenariosRuntimeProbe v0.52.0
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK actual Events0.5 plugin enabled on real Folia
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK optional journal and scenario catalog loaded asynchronously
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK main event starts: drought
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK ordinary drought uses previous production loss before optional ACK
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK new actual event gains saved warning phase
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK admin pause stops optional clock and ordinary harmful effects
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK mayor can choose only after saved warning
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK actual permission loss rejects direct choice
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK native plan inventory shows benefit drawback and no hidden contribution
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK native plan menu cancels inventory movement
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK physically blocked file never publishes clicked plan early
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK pending plan changes neither crop obstruction nor output loss
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK actual region continues while scenario disk ACK is blocked
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK ACK activates exact crop benefit and production drawback together
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK repeated direct choice cannot switch outcome
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK admin restart retains event identity and accepted choice
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK module freeze suspends optional effects and phase progression
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK module resume restores both frozen terms
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK optional feature disable is neutral and closes new choices
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK actual submitted progress moves to saved recovery consequences
+[23:52:05 INFO]: [NeverLandTownyEvents] Нейтральная отмена: ScenarioCity / drought
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK administrator cancellation adds no main failure history
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK cancel removes effects immediately before optional closing ACK
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK optional cancellation is terminal and neutral
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK main event starts: flood
+[23:52:05 INFO]: [EventScenariosRuntimeProbe] CHECK next main event never reuses cancelled scenario identity
+[23:52:06 INFO]: [EventScenariosRuntimeProbe] Disabling EventScenariosRuntimeProbe v0.52.0
+[23:52:06 INFO]: [NeverLandTownyEvents] Disabling NeverLandTownyEvents v0.5.0

@@ -3,6 +3,7 @@ package ru.neverland.mintevents.model;
 import java.util.UUID;
 
 public final class ActiveEvent {
+    private final UUID instanceId;
     private final UUID townId;
     private final String eventId;
     private final long startedAt;
@@ -16,6 +17,11 @@ public final class ActiveEvent {
 
     public ActiveEvent(UUID townId, String eventId, long startedAt, long endsAt,
                        int progress, int goal, double protection, long lastRaidWave) {
+        this(townId,eventId,startedAt,endsAt,progress,goal,protection,lastRaidWave,UUID.randomUUID());
+    }
+    public ActiveEvent(UUID townId, String eventId, long startedAt, long endsAt,
+                       int progress, int goal, double protection, long lastRaidWave,UUID instanceId) {
+        this.instanceId=java.util.Objects.requireNonNull(instanceId);
         this.townId = townId;
         this.eventId = eventId;
         this.startedAt = startedAt;
@@ -25,6 +31,8 @@ public final class ActiveEvent {
         this.protection = Math.max(0, Math.min(1, protection));
         this.lastRaidWave = lastRaidWave;
     }
+
+    public UUID instanceId(){return instanceId;}
 
     public UUID townId() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return townId; } }
     public String eventId() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return eventId; } }
@@ -47,7 +55,7 @@ public final class ActiveEvent {
     public void pausedAt(long value) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) { if(value < 0) throw new IllegalArgumentException("Отрицательная дата паузы"); pausedAt = value; } }
     public ActiveEvent reschedule(long deadline, long pause) { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
         if(deadline <= 0 || pause < 0) throw new IllegalArgumentException("Некорректное время события");
-        ActiveEvent copy = new ActiveEvent(townId, eventId, startedAt, deadline, progress, goal, protection, lastRaidWave);
+        ActiveEvent copy = new ActiveEvent(townId, eventId, startedAt, deadline, progress, goal, protection, lastRaidWave,instanceId);
         copy.raid = raid; copy.pausedAt = pause; return copy;
     } }
     public boolean completed() { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) { return raid == null ? progress >= goal : raid.finished(); } }

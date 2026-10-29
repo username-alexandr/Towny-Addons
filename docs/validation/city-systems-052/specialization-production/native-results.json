@@ -1,0 +1,356 @@
+[
+  {
+    "phase": "first",
+    "result": "PASS 20 checks; actual Folia26.2 Towny Contracts Specialization SQLite and menus, material proof, mayor change before ACK, joint cancellation/completion, optional config isolation and full restart. Explicit offline players/scheduler, working-building cache and paid-delivery fixtures; no network client, real crafting or bank payment claimed.\n",
+    "exit_code": 0,
+    "jar_sha256": {
+      "NeverLandTownySpecialization-0.2.0.jar": "ec006c7ca3d3488d6e9cc43f900657060222c644fca2f5773f667df4749344bf",
+      "NeverLandTownyContracts-0.7.0.jar": "5ec6c2f7916bc6c111c9047936868101c9b691372d263e2e55c685751ddc57f4",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "SpecializationProductionRuntimeProbe.jar": "66c5695cf52e9c56acb06c1415d2be05ee38d21de4cbbb1903d8d9c0d10315c2",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyControl-0.6.0.jar": "2e1c22da662d888f5edab3901fd6d36c15ca8047b69090b9688de4fbcee12647",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+    },
+    "physical": {
+      "server-materials.db": {
+        "sha256": "e73d30878661dd2903453d64f4e5508ee0450fcaec17ab1cbb4f0597b4dcfc2c",
+        "bytes": 126976,
+        "balances": [
+          [
+            "CARROT",
+            192,
+            0
+          ],
+          [
+            "OAK_LOG",
+            256,
+            0
+          ],
+          [
+            "WHEAT",
+            384,
+            0
+          ],
+          [
+            "WHITE_WOOL",
+            128,
+            0
+          ]
+        ],
+        "projects": [
+          [
+            "COMPLETED"
+          ],
+          [
+            "COMPLETED"
+          ],
+          [
+            "COMPLETED"
+          ]
+        ],
+        "deliveries": [
+          [
+            "CONFIRMED"
+          ],
+          [
+            "CONFIRMED"
+          ],
+          [
+            "CONFIRMED"
+          ],
+          [
+            "CONFIRMED"
+          ],
+          [
+            "CONFIRMED"
+          ],
+          [
+            "CONFIRMED"
+          ]
+        ]
+      },
+      "production.sqlite": {
+        "sha256": "5f03451cb6e44887c95809a42e26e8492c6847c04b79194ee21b3330a3a89af4",
+        "bytes": 94208,
+        "batches": [
+          [
+            "farm_provisions",
+            1,
+            "FINISHING"
+          ],
+          [
+            "farm_provisions",
+            2,
+            "ISSUED"
+          ],
+          [
+            "port_equipment",
+            2,
+            "ISSUED"
+          ]
+        ],
+        "stock": [
+          [
+            "farm_provisions",
+            0,
+            0,
+            2
+          ],
+          [
+            "port_equipment",
+            0,
+            0,
+            2
+          ]
+        ],
+        "projects": [
+          [
+            "CANCELLED"
+          ],
+          [
+            "COMPLETED"
+          ]
+        ],
+        "history_count": 18,
+        "audit_pending": 0
+      }
+    }
+  },
+  {
+    "phase": "broken",
+    "result": "PASS 14 checks; actual Folia26.2 Towny Contracts Specialization SQLite and menus, material proof, mayor change before ACK, joint cancellation/completion, optional config isolation and full restart. Explicit offline players/scheduler, working-building cache and paid-delivery fixtures; no network client, real crafting or bank payment claimed.\n",
+    "exit_code": 0,
+    "jar_sha256": {
+      "NeverLandTownySpecialization-0.2.0.jar": "ec006c7ca3d3488d6e9cc43f900657060222c644fca2f5773f667df4749344bf",
+      "NeverLandTownyContracts-0.7.0.jar": "5ec6c2f7916bc6c111c9047936868101c9b691372d263e2e55c685751ddc57f4",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "SpecializationProductionRuntimeProbe.jar": "66c5695cf52e9c56acb06c1415d2be05ee38d21de4cbbb1903d8d9c0d10315c2",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyControl-0.6.0.jar": "2e1c22da662d888f5edab3901fd6d36c15ca8047b69090b9688de4fbcee12647",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+    },
+    "physical": {
+      "server-materials.db": {
+        "sha256": "c0227be7c941e2e3ea1bbe512e7f4934c527b693b74930eee29147d00c39a2f8",
+        "bytes": 126976,
+        "balances": [
+          [
+            "CARROT",
+            192,
+            0
+          ],
+          [
+            "OAK_LOG",
+            256,
+            0
+          ],
+          [
+            "WHEAT",
+            384,
+            0
+          ],
+          [
+            "WHITE_WOOL",
+            128,
+            0
+          ]
+        ],
+        "projects": [
+          [
+            "COMPLETED"
+          ],
+          [
+            "COMPLETED"
+          ],
+          [
+            "COMPLETED"
+          ]
+        ],
+        "deliveries": [
+          [
+            "CONFIRMED"
+          ],
+          [
+            "CONFIRMED"
+          ],
+          [
+            "CONFIRMED"
+          ],
+          [
+            "CONFIRMED"
+          ],
+          [
+            "CONFIRMED"
+          ],
+          [
+            "CONFIRMED"
+          ]
+        ]
+      },
+      "production.sqlite": {
+        "sha256": "0c6aa1f46f40e27eac6639cd50f4dc8669216e7a300f6cd2e9634e88117007c6",
+        "bytes": 94208,
+        "batches": [
+          [
+            "farm_provisions",
+            1,
+            "ISSUED"
+          ],
+          [
+            "farm_provisions",
+            2,
+            "ISSUED"
+          ],
+          [
+            "port_equipment",
+            2,
+            "ISSUED"
+          ]
+        ],
+        "stock": [
+          [
+            "farm_provisions",
+            1,
+            0,
+            3
+          ],
+          [
+            "port_equipment",
+            0,
+            0,
+            2
+          ]
+        ],
+        "projects": [
+          [
+            "CANCELLED"
+          ],
+          [
+            "COMPLETED"
+          ]
+        ],
+        "history_count": 19,
+        "audit_pending": 0
+      }
+    }
+  },
+  {
+    "phase": "restart",
+    "result": "PASS 13 checks; actual Folia26.2 Towny Contracts Specialization SQLite and menus, material proof, mayor change before ACK, joint cancellation/completion, optional config isolation and full restart. Explicit offline players/scheduler, working-building cache and paid-delivery fixtures; no network client, real crafting or bank payment claimed.\n",
+    "exit_code": 0,
+    "jar_sha256": {
+      "NeverLandTownySpecialization-0.2.0.jar": "ec006c7ca3d3488d6e9cc43f900657060222c644fca2f5773f667df4749344bf",
+      "NeverLandTownyContracts-0.7.0.jar": "5ec6c2f7916bc6c111c9047936868101c9b691372d263e2e55c685751ddc57f4",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "SpecializationProductionRuntimeProbe.jar": "66c5695cf52e9c56acb06c1415d2be05ee38d21de4cbbb1903d8d9c0d10315c2",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyControl-0.6.0.jar": "2e1c22da662d888f5edab3901fd6d36c15ca8047b69090b9688de4fbcee12647",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+    },
+    "physical": {
+      "server-materials.db": {
+        "sha256": "6cf87c0b9e77cddf14fc6875ba798a8953130bd228b72c606271c25059df2dc6",
+        "bytes": 126976,
+        "balances": [
+          [
+            "CARROT",
+            192,
+            0
+          ],
+          [
+            "OAK_LOG",
+            256,
+            0
+          ],
+          [
+            "WHEAT",
+            384,
+            0
+          ],
+          [
+            "WHITE_WOOL",
+            128,
+            0
+          ]
+        ],
+        "projects": [
+          [
+            "COMPLETED"
+          ],
+          [
+            "COMPLETED"
+          ],
+          [
+            "COMPLETED"
+          ]
+        ],
+        "deliveries": [
+          [
+            "CONFIRMED"
+          ],
+          [
+            "CONFIRMED"
+          ],
+          [
+            "CONFIRMED"
+          ],
+          [
+            "CONFIRMED"
+          ],
+          [
+            "CONFIRMED"
+          ],
+          [
+            "CONFIRMED"
+          ]
+        ]
+      },
+      "production.sqlite": {
+        "sha256": "9201a7f71143ac4a18b936240aebbeaf69f299dcd0a5b34cbc9682230b410cfd",
+        "bytes": 94208,
+        "batches": [
+          [
+            "farm_provisions",
+            1,
+            "ISSUED"
+          ],
+          [
+            "farm_provisions",
+            2,
+            "ISSUED"
+          ],
+          [
+            "port_equipment",
+            2,
+            "ISSUED"
+          ]
+        ],
+        "stock": [
+          [
+            "farm_provisions",
+            1,
+            0,
+            3
+          ],
+          [
+            "port_equipment",
+            0,
+            0,
+            2
+          ]
+        ],
+        "projects": [
+          [
+            "CANCELLED"
+          ],
+          [
+            "COMPLETED"
+          ]
+        ],
+        "history_count": 19,
+        "audit_pending": 0
+      }
+    }
+  }
+]

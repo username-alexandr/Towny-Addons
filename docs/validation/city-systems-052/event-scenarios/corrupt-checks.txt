@@ -1,0 +1,12 @@
+PASS actual Events0.5 plugin enabled on real Folia
+PASS corrupt optional data and configuration suspend only new scenario decisions
+PASS corrupt optional evidence remains untouched
+PASS main event starts: drought
+PASS ordinary drought retains original effects while optional journal is unreadable
+PASS ordinary neutral cancellation still works with unavailable scenarios
+PASS main event starts: fire
+PASS ordinary fire starts independently of corrupt scenarios
+PASS fire cancellation invents no new repair debt
+PASS main event starts: raid
+PASS ordinary raid keeps persisted wave system without scenario dependency
+PASS all ordinary operations leave Events enabled after optional failures

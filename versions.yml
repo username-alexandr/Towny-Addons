@@ -10,13 +10,13 @@ addons:
   NeverLandTownyCamps: 0.2.0
   NeverLandTownyChronicles: 0.3.0
   NeverLandTownyContracts: 0.7.0
-  NeverLandTownyEspionage: 0.1.24
-  NeverLandTownyEvents: 0.4.13
+  NeverLandTownyEspionage: 0.2.0
+  NeverLandTownyEvents: 0.5.0
   NeverLandTownyExpeditions: 0.1.26
   NeverLandTownyGovernance: 0.2.1
   NeverLandTownyIdeologies: 0.2.0
   NeverLandTownyReputation: 0.3.0
-  NeverLandTownyStick: 0.1.22
+  NeverLandTownyStick: 0.2.0
   NeverLandTownyTaxes: 0.2.0
   NeverLandTownyTrade: 0.2.20
   NeverLandTownyPopulation: 0.2.1
@@ -26,7 +26,7 @@ addons:
   NeverLandTownyUpkeep: 0.2.1
   NeverLandTownyPower: 0.2.0
   NeverLandTownyResearch: 0.1.18
-  NeverLandTownySpecialization: 0.1.17
+  NeverLandTownySpecialization: 0.2.0
   NeverLandTownyPolicies: 0.3.1
   NeverLandTownyTreasuryPlus: 0.2.0
   NeverLandTownyMarket: 0.2.0

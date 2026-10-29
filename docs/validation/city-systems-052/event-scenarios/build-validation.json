@@ -1,0 +1,23 @@
+{
+  "module": "NeverLandTownyEvents",
+  "version": "0.5.0",
+  "tests": [
+    "ru.neverland.mintevents.EventMathSmoke",
+    "ru.neverland.mintevents.EventPauseSmoke",
+    "ru.neverland.mintevents.FireDamageSmoke",
+    "ru.neverland.mintevents.LinkageSmoke",
+    "ru.neverland.mintevents.RaidDefaultsSmoke",
+    "ru.neverland.mintevents.RaidKillAndMessagesSmoke",
+    "ru.neverland.mintevents.RaidScalingSmoke",
+    "ru.neverland.mintevents.RaidSpawnPlannerSmoke",
+    "ru.neverland.mintevents.RaidVictoriesSmoke",
+    "ru.neverland.mintevents.RaidWavesSmoke",
+    "ru.neverland.mintevents.WeatherEconomySmoke",
+    "ru.neverland.mintevents.scenarios.ScenariosSmoke"
+  ],
+  "java_target": 17,
+  "expected_runtime": "Folia 26.2",
+  "source_sha256": "133da53113a9465bdc7c996ed13f30e257cb732d5d371166f6f4b4451ac9f0ba",
+  "tests_passed": true,
+  "jar_sha256": "e632f4d2805b98920e97c80c2ac948a165a234f71e9472d585629a77bcb54fb8"
+}

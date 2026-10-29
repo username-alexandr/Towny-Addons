@@ -1,5 +1,5 @@
 name: NeverLandTownyEspionage
-version: 0.1.24
+version: 0.2.0
 main: ru.neverland.mintespionage.MintTownyEspionage
 folia-supported: true
 api-version: '26.2'
@@ -13,7 +13,7 @@ commands:
   espionage:
     description: Городская разведка
     aliases: [spy, intelligence]
-    usage: /espionage [start|reports|active|upgrade|help]
+    usage: /espionage [start|reports|active|upgrade|defense|verify|help]
     permission: mintespionage.use
   townyespionage:
     description: Администрирование городской разведки

@@ -1,0 +1,67 @@
+# Новые сметы можно выключить без удаления партий и изменения прежних бонусов.
+enabled: true
+limits:
+  active-batches-city: 3
+  active-batches-server: 200
+  batch-size: 8
+  goods-city: 128
+  goods-server: 20000
+  active-projects-city: 3
+  active-projects-server: 100
+# Каждая партия требует работающего уникального здания III+ и отдельной сметы
+# с реальными материалами Contracts. Материалы поставляются обычными /orders.
+# Продукция учитывается в каталоге города; предмет в инвентарь не выдаётся.
+products:
+  trade_supplies:
+    profile: trade
+    title: Торговые комплекты
+    icon: EMERALD
+    materials: {PAPER: 64, GLASS: 32}
+  defense_kits:
+    profile: fortress
+    title: Оборонные комплекты
+    icon: SHIELD
+    materials: {IRON_INGOT: 64, OAK_LOG: 64}
+  farm_provisions:
+    profile: agricultural
+    title: Продовольственные партии
+    icon: WHEAT
+    materials: {WHEAT: 128, CARROT: 64}
+  industrial_parts:
+    profile: industrial
+    title: Промышленные узлы
+    icon: ANVIL
+    materials: {IRON_INGOT: 64, STONE: 128}
+  scientific_materials:
+    profile: scientific
+    title: Исследовательские комплекты
+    icon: BOOK
+    materials: {PAPER: 128, GLASS: 64}
+  port_equipment:
+    profile: port
+    title: Портовое оснащение
+    icon: OAK_BOAT
+    materials: {OAK_LOG: 128, WHITE_WOOL: 64}
+  ceremonial_supplies:
+    profile: religious
+    title: Праздничные комплекты
+    icon: LANTERN
+    materials: {WHITE_WOOL: 64, QUARTZ_BLOCK: 32}
+# Результат — сохраняемая памятная цель участвующих городов. Новых денег,
+# бонусов, автоматической постройки или предметной награды не создаёт.
+projects:
+  masters_exhibition:
+    title: Выставка городских мастеров
+    result: Города совместно обеспечили выставку мастерства и знаний.
+    minimum-cities: 3
+    goods: {trade_supplies: 2, industrial_parts: 2, scientific_materials: 2}
+  common_supply:
+    title: Смотр общего снабжения
+    result: Города вместе подготовили продовольствие и оснащение для общего смотра.
+    minimum-cities: 2
+    goods: {farm_provisions: 2, port_equipment: 2}
+  peace_festival:
+    title: Праздник городского содружества
+    result: Города совместно обеспечили праздник содружества.
+    minimum-cities: 3
+    goods: {defense_kits: 1, ceremonial_supplies: 2, farm_provisions: 2}

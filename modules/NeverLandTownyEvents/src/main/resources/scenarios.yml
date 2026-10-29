@@ -1,0 +1,36 @@
+# Дополнительные решения мэра во время новых засух и наводнений.
+# Рейды, пожары, сдача материалов и награды обычных событий не меняются.
+enabled: true
+scenarios:
+  drought:
+    mode: DROUGHT
+    title: "План действий при засухе"
+    warning-seconds: 120
+    recovery-progress-percent: 70
+    plans:
+      crops:
+        name: "Сберечь поля"
+        description: "Направить помощь посевам: растения страдают меньше, производство — больше."
+        response: {crop-loss-factor: 0.60, output-loss-factor: 1.20}
+        recovery: {crop-loss-factor: 0.80, output-loss-factor: 1.10}
+      production:
+        name: "Сберечь производство"
+        description: "Поддержать аграрный выпуск: производство страдает меньше, растения — больше."
+        response: {crop-loss-factor: 1.20, output-loss-factor: 0.60}
+        recovery: {crop-loss-factor: 1.10, output-loss-factor: 0.80}
+  flood:
+    mode: FLOOD
+    title: "План действий при наводнении"
+    warning-seconds: 120
+    recovery-progress-percent: 70
+    plans:
+      crops:
+        name: "Защитить поля"
+        description: "Укрепить посевы: растения страдают меньше, аграрный выпуск — больше."
+        response: {crop-loss-factor: 0.60, output-loss-factor: 1.20}
+        recovery: {crop-loss-factor: 0.80, output-loss-factor: 1.10}
+      production:
+        name: "Защитить производство"
+        description: "Укрепить хозяйства: аграрный выпуск страдает меньше, растения — больше."
+        response: {crop-loss-factor: 1.20, output-loss-factor: 0.60}
+        recovery: {crop-loss-factor: 1.10, output-loss-factor: 0.80}

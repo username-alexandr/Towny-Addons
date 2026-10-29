@@ -55,6 +55,7 @@ public final class EventService implements MintTownyEventsApi {
     private final DevelopmentService development;
     private final MessageService messages;
     private final FireService fires;
+    private final ru.neverland.mintevents.scenarios.ScenarioService scenarios;
     private final Map<UUID, BossBar> bars = new HashMap<>();
     private final Map<UUID, Long> raidFailureWarnings = new HashMap<>();
     private RaidCatalog raidCatalog;
@@ -90,10 +91,15 @@ public final class EventService implements MintTownyEventsApi {
         this.raidCatalog = new RaidCatalog(plugin);
         this.raidScaling = new RaidScaling(plugin);
         this.legacyRaidMobKey = NamespacedKey.fromString("minttownyevents:raid_town");
+        this.scenarios=new ru.neverland.mintevents.scenarios.ScenarioService(plugin,new ru.neverland.mintevents.scenarios.ScenarioService.Sources(){
+            public ru.neverland.mintevents.scenarios.ScenarioService.Active active(UUID town){return scenarioActive(town);}
+            public ru.neverland.mintevents.scenarios.ScenarioBook.Source observe(ru.neverland.mintevents.scenarios.ScenarioBook.Scenario row){return scenarioSource(row);}
+        });
     }
 
     public void start() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         stopTasks();
+        scenarios.start();
         repository.initializeRaidVictories(registry.all().stream().filter(d -> d.mode() == EventMode.RAID)
                 .map(EventDefinition::id).collect(java.util.stream.Collectors.toSet()));
         for (ActiveEvent event : repository.active().values()) {
@@ -101,7 +107,7 @@ public final class EventService implements MintTownyEventsApi {
             if (definition != null && definition.mode() == EventMode.RAID && event.raid() == null) {
                 ActiveEvent upgraded = new ActiveEvent(event.townId(), event.eventId(), event.startedAt(),
                         Math.max(event.endsAt(), System.currentTimeMillis() + definition.durationSeconds() * 1000),
-                        event.progress(), event.goal(), event.protection(), 0);
+                        event.progress(), event.goal(), event.protection(), 0,event.instanceId());
                 upgraded.raid(new ru.neverland.mintevents.model.RaidState());
                 repository.put(upgraded);
             }
@@ -119,6 +125,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
 
     public void shutdown() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         stopTasks();
+        scenarios.prepareClose();
         fires.clearVisuals();
         bars.values().forEach(BossBar::removeAll);
         bars.clear();
@@ -156,6 +163,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         }
         repository.put(active);
         repository.save();
+        scenarios.register(scenarioActive(town.getUUID()));
         announce(town, "event-start-town", definition, active);
         updateBossBar(town, definition, active);
         if (definition.mode() == EventMode.RAID) {
@@ -169,6 +177,21 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
     } }
 
     private static boolean hostile(EventDefinition definition) { return definition.mode() != EventMode.FESTIVAL; }
+    public ru.neverland.mintevents.scenarios.ScenarioService scenarios(){return scenarios;}
+    private ru.neverland.mintevents.scenarios.ScenarioService.Active scenarioActive(UUID townId){
+        ActiveEvent active=repository.active(townId);if(active==null)return null;var town=town(townId);if(town==null)return null;var definition=definition(active);
+        return new ru.neverland.mintevents.scenarios.ScenarioService.Active(active.instanceId(),townId,town==null?"Удалённый город":town.getName(),active.eventId(),active.startedAt(),active.endsAt(),active.progress(),active.goal(),active.paused()||definition==null,definition==null?"":definition.mode().name());
+    }
+    private ru.neverland.mintevents.scenarios.ScenarioBook.Source scenarioSource(ru.neverland.mintevents.scenarios.ScenarioBook.Scenario row){
+        var live=scenarioActive(row.town());if(live!=null&&live.id().equals(row.id()))return new ru.neverland.mintevents.scenarios.ScenarioBook.Source(live.paused()?ru.neverland.mintevents.scenarios.ScenarioBook.SourceState.PAUSED:ru.neverland.mintevents.scenarios.ScenarioBook.SourceState.RUNNING,live.progress(),live.goal());
+        for(var old:repository.history(row.town()))if(row.id().equals(old.instanceId()))return new ru.neverland.mintevents.scenarios.ScenarioBook.Source(old.success()?ru.neverland.mintevents.scenarios.ScenarioBook.SourceState.SUCCESS:ru.neverland.mintevents.scenarios.ScenarioBook.SourceState.FAILURE,old.progress(),old.goal());
+        return new ru.neverland.mintevents.scenarios.ScenarioBook.Source(ru.neverland.mintevents.scenarios.ScenarioBook.SourceState.MISSING,0,1);
+    }
+    public double cropCancelChance(UUID townId){try(var guard=ru.neverland.core.SuiteState.guard()){
+        var active=repository.active(townId);var definition=definition(active);if(active==null||definition==null||active.paused()||active.endsAt()<=System.currentTimeMillis()||(definition.mode()!=EventMode.DROUGHT&&definition.mode()!=EventMode.FLOOD))return 0;
+        double base=definition.mode()==EventMode.FLOOD?plugin.getConfig().getDouble("gameplay.flood-base-crop-cancel-chance",.60):plugin.getConfig().getDouble("gameplay.drought-base-crop-cancel-chance",.70);double original=Math.max(0,Math.min(1,base*(1-active.protection())));double factor=scenarios.effects(active.instanceId()).crops();
+        return factor==1?original:ru.neverland.mintevents.scenarios.ScenarioBook.loss(original,factor);
+    }}
     @Override public long shieldRemainingMillis(UUID townId) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         ru.neverland.core.ApiServices.primaryThread();
         Town city = town(townId); if(city == null) return 0;
@@ -637,9 +660,10 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         if(!building.equals("agrarian_complex"))return 1;
         ActiveEvent active=repository.active(townId);EventDefinition definition=definition(active);
         if(active==null||active.paused()||definition==null||active.endsAt()<=System.currentTimeMillis())return 1;
-        return WeatherEconomy.production(definition.mode(),active.protection(),
+        double original=WeatherEconomy.production(definition.mode(),active.protection(),
                 plugin.getConfig().getDouble("seasonal.drought-output-loss",.50),
                 plugin.getConfig().getDouble("seasonal.flood-output-loss",.40));
+        double factor=scenarios.effects(active.instanceId()).output();return factor==1?original:1-ru.neverland.mintevents.scenarios.ScenarioBook.loss(1-original,factor);
     } }
 
     private void randomCheck() {
@@ -777,6 +801,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         var nextScaling = new RaidScaling(plugin);
         raidCatalog = nextCatalog;
         raidScaling = nextScaling;
+        scenarios.reload();
         development.clearCache();
         start();
     } }

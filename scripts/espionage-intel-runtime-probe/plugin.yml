@@ -1,0 +1,6 @@
+name: EspionageIntelRuntimeProbe
+version: 0.52.0
+main: ru.neverland.runtime.EspionageIntelProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyCitizens, NeverLandTownyBuilds, NeverLandTownyEspionage, NeverLandTownyControl]

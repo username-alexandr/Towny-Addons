@@ -24,6 +24,8 @@ public final class TownEspionageCommand implements CommandExecutor,TabCompleter 
         if(!(sender instanceof Player player)){messages.send(sender,"players-only");return true;}if(!player.hasPermission("mintespionage.use")){messages.send(player,"no-permission");return true;}Town own=towny.town(player);if(own==null){messages.send(player,"no-town");return true;}
         if(args.length==0){menus.open(player);return true;}switch(args[0].toLowerCase(Locale.ROOT)){
             case "help","помощь"->messages.help(player);case "targets","цели"->menus.openTargets(player);case "reports","report","отчёты"->{if(service.repository().reports(own.getUUID()).isEmpty())messages.send(player,"no-reports");menus.openReports(player);}case "active","активные"->{if(service.repository().active(own.getUUID()).isEmpty())messages.send(player,"no-active");menus.openActive(player);}
+            case "defense","контрразведка"->menus.openDefense(player);
+            case "verify","сверить"->{if(args.length<2){player.sendMessage("/espionage verify <ID отчёта>");return true;}try{menus.openReport(player,java.util.UUID.fromString(args[1]),true);}catch(IllegalArgumentException invalid){player.sendMessage("§eУкажите полный ID отчёта.");}}
             case "start","начать"->start(player,own,args);case "upgrade","улучшить"->upgrade(player,own,args);default->messages.help(player);
         }return true;
     } }
@@ -35,7 +37,8 @@ public final class TownEspionageCommand implements CommandExecutor,TabCompleter 
     }
     private boolean manager(Player player,Town town){if(!player.hasPermission("mintespionage.manage")||!towny.isManager(player,town)){messages.send(player,"only-manager");return false;}return true;}
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
-        if(args.length==1)return filter(List.of("start","reports","active","targets","upgrade","help"),args[0]);
+        if(!sender.hasPermission("mintespionage.use"))return List.of();
+        if(args.length==1)return filter(List.of("start","reports","active","targets","upgrade","defense","verify","help"),args[0]);
         if(args.length==2&&args[0].equalsIgnoreCase("start"))return filter(towny.towns().stream().map(Town::getName).toList(),args[1]);
         if(args.length==3&&args[0].equalsIgnoreCase("start"))return filter(service.registry().all().stream().map(OperationDefinition::id).toList(),args[2]);
         if(args.length==2&&args[0].equalsIgnoreCase("upgrade"))return filter(List.of("network","defense"),args[1]);return List.of();

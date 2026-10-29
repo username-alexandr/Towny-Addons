@@ -1,0 +1,41 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 26 assertions; actual Folia Towny Builds Espionage, source provenance, unknown provider, capture/core ACK ordering, private report menus, counterintelligence, frozen receipts and restart recovery, neutral sidecar corruption; offline Player InventoryView EntityScheduler substitutes and seeded accepted missions; no live bank payment or network client claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyEspionage-0.2.0.jar": "5e1e9a0ff9a2291ee8ad1a6185a6268668d772ab674aa49ea47c6ee689031b1e",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyControl-0.5.8.jar": "70363d4490cfd03b49fdacc83e22fc1340f5ff7b4aaea14cb085eb1cc63c5834",
+      "EspionageIntelRuntimeProbe.jar": "78b4a279eb16ac2c96fd043c5763f6e0ac4e94040a7d26b7c5873bbeaa331664",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 10 assertions; actual Folia Towny Builds Espionage, source provenance, unknown provider, capture/core ACK ordering, private report menus, counterintelligence, frozen receipts and restart recovery, neutral sidecar corruption; offline Player InventoryView EntityScheduler substitutes and seeded accepted missions; no live bank payment or network client claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyEspionage-0.2.0.jar": "5e1e9a0ff9a2291ee8ad1a6185a6268668d772ab674aa49ea47c6ee689031b1e",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyControl-0.5.8.jar": "70363d4490cfd03b49fdacc83e22fc1340f5ff7b4aaea14cb085eb1cc63c5834",
+      "EspionageIntelRuntimeProbe.jar": "78b4a279eb16ac2c96fd043c5763f6e0ac4e94040a7d26b7c5873bbeaa331664",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+    }
+  },
+  {
+    "phase": "corrupt",
+    "exit_code": 0,
+    "result": "PASS 6 assertions; actual Folia Towny Builds Espionage, source provenance, unknown provider, capture/core ACK ordering, private report menus, counterintelligence, frozen receipts and restart recovery, neutral sidecar corruption; offline Player InventoryView EntityScheduler substitutes and seeded accepted missions; no live bank payment or network client claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyEspionage-0.2.0.jar": "5e1e9a0ff9a2291ee8ad1a6185a6268668d772ab674aa49ea47c6ee689031b1e",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyControl-0.5.8.jar": "70363d4490cfd03b49fdacc83e22fc1340f5ff7b4aaea14cb085eb1cc63c5834",
+      "EspionageIntelRuntimeProbe.jar": "78b4a279eb16ac2c96fd043c5763f6e0ac4e94040a7d26b7c5873bbeaa331664",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+    }
+  }
+]

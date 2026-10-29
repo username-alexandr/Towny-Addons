@@ -18,12 +18,13 @@ public final class ClaimCommandListener implements Listener {
         this.claims = claims;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
-    public void onCommand(PlayerCommandPreprocessEvent event) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onCommand(PlayerCommandPreprocessEvent event) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         String normalized = event.getMessage().trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", " ");
         if (!normalized.equals("/t claim") && !normalized.equals("/town claim")) return;
         if (selections.count(event.getPlayer().getUniqueId()) == 0) return;
         event.setCancelled(true);
+        if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick"))return;
         claims.start(event.getPlayer());
     } }
 }

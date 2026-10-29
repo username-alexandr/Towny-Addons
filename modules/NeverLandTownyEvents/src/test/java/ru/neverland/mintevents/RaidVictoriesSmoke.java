@@ -39,6 +39,15 @@ public final class RaidVictoriesSmoke {
         var migrated=new EventRepository(plugin);migrated.load();migrated.initializeRaidVictories(Set.of("raid"));
         check(migrated.raidVictories(town)==1,"legacy retained history deduplicated once");
         migrated.initializeRaidVictories(Set.of("raid"));check(migrated.raidVictories(town)==1,"migration idempotent");
+        check(migrated.history(town).stream().allMatch(row->row.instanceId()==null),"legacy result rows retain absent identity without inventing scenario links");
+        yaml.load(file.toFile());var oldActive=yaml.createSection("active."+town);oldActive.set("event","drought");oldActive.set("started-at",500);oldActive.set("ends-at",10500);oldActive.set("progress",42);oldActive.set("goal",100);oldActive.set("protection",.3);yaml.save(file.toFile());
+        var oldLoaded=new EventRepository(plugin);oldLoaded.load();UUID stable=oldLoaded.active(town).instanceId();var sameLegacy=new EventRepository(plugin);sameLegacy.load();
+        check(sameLegacy.active(town).instanceId().equals(stable)&&sameLegacy.active(town).progress()==42,"same legacy active file gets stable identity and unchanged contribution progress");
+        var oldEvent=oldLoaded.active(town);oldLoaded.replace(oldEvent,oldEvent.reschedule(20500,1500),0);
+        var storedIdentity=new EventRepository(plugin);storedIdentity.load();var storedEvent=storedIdentity.active(town);
+        check(storedEvent.instanceId().equals(stable)&&storedEvent.pausedAt()==1500&&storedEvent.startedAt()==500,"new identity persists across paused timer reschedule and repository restart");
+        storedIdentity.complete(storedEvent,true,20,3000);storedIdentity.save();var terminal=new EventRepository(plugin);terminal.load();
+        check(terminal.history(town).get(0).instanceId().equals(stable)&&terminal.history(town).get(0).progress()==42,"actual terminal history carries exact scenario link without changing progress");
         yaml.load(file.toFile());yaml.set("towns."+town+".raid-victories",-1);yaml.save(file.toFile());
         try {new EventRepository(plugin).load();throw new AssertionError("negative ledger accepted");}catch(IllegalArgumentException expected){checks++;}
         System.out.println("RaidVictoriesSmoke PASS: "+checks+" assertions");

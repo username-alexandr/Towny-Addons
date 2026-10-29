@@ -1,5 +1,5 @@
 name: NeverLandTownyEvents
-version: 0.4.13
+version: 0.5.0
 main: ru.neverland.mintevents.MintTownyEvents
 folia-supported: true
 api-version: '26.2'
@@ -21,6 +21,9 @@ permissions:
     default: true
   mintevents.contribute:
     description: Внесение ресурсов в городское событие
+    default: true
+  mintevents.plan:
+    description: Выбор плана действий мэром своего города
     default: true
   mintevents.admin:
     description: Административное управление событиями

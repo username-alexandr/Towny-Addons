@@ -1,0 +1,1 @@
+PASS 13 checks; actual Folia26.2 Towny Contracts Specialization SQLite and menus, material proof, mayor change before ACK, joint cancellation/completion, optional config isolation and full restart. Explicit offline players/scheduler, working-building cache and paid-delivery fixtures; no network client, real crafting or bank payment claimed.

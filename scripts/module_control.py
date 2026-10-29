@@ -50,7 +50,13 @@ def lifecycle_guard(source, method, hook):
             source=re.sub(r'(?<![\w.])'+name+r'\.', 'ru.neverland.core.'+name+'.', source)
     wrapper = r"(?:synchronized\s*\(ru\.neverland\.core\.SuiteState\.lock\(\)\)\s*\{\s*|try\s*\(\s*var\s+\w+\s*=\s*ru\.neverland\.core\.SuiteState\.guard\(\)\s*\)\s*\{\s*)?"
     # A try/finally may surround the guard so a database can close after the ledger lock is released.
-    return bool(re.search(r"void\s+"+method+r"\s*\(\s*\)\s*\{\s*(?:try\s*\{\s*)?"+wrapper+r"if\s*\(!ru\.neverland\.core\.ModuleLifecycle\."+hook+r"\(this\)\)\s*return;", source))
+    empty_completion=r"(?:java\.util\.concurrent\.CompletionStage\s*<\s*Void\s*>\s+\w+\s*=\s*java\.util\.concurrent\.CompletableFuture\.completedFuture\(null\)\s*;\s*)?" if method=='onDisable' and hook=='end' else ''
+    prefix=r"void\s+"+method+r"\s*\(\s*\)\s*\{\s*"+empty_completion+r"(?:try\s*\{\s*)?"+wrapper
+    early_return=r"if\s*\(!ru\.neverland\.core\.ModuleLifecycle\."+hook+r"\(this\)\)\s*return;"
+    # Shutdown may positively gate plugin cleanup while finally always drains its worker.
+    # Do not accept this shape for startup, which must prevent subsequent initialization.
+    positive_end=r"if\s*\(ru\.neverland\.core\.ModuleLifecycle\.end\(this\)\)\s*\{"
+    return bool(re.search(prefix+early_return,source) or method=='onDisable' and hook=='end' and re.search(prefix+positive_end,source))
 
 def validate():
     if not TARGET.exists() or yaml.safe_load(TARGET.read_text())!={'schema':1,'modules':dependencies()}:

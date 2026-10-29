@@ -1,0 +1,25 @@
+PASS actual Events0.5 plugin enabled on real Folia
+PASS optional journal and scenario catalog loaded asynchronously
+PASS main event starts: drought
+PASS ordinary drought uses previous production loss before optional ACK
+PASS new actual event gains saved warning phase
+PASS admin pause stops optional clock and ordinary harmful effects
+PASS mayor can choose only after saved warning
+PASS actual permission loss rejects direct choice
+PASS native plan inventory shows benefit drawback and no hidden contribution
+PASS native plan menu cancels inventory movement
+PASS physically blocked file never publishes clicked plan early
+PASS pending plan changes neither crop obstruction nor output loss
+PASS actual region continues while scenario disk ACK is blocked
+PASS ACK activates exact crop benefit and production drawback together
+PASS repeated direct choice cannot switch outcome
+PASS admin restart retains event identity and accepted choice
+PASS module freeze suspends optional effects and phase progression
+PASS module resume restores both frozen terms
+PASS optional feature disable is neutral and closes new choices
+PASS actual submitted progress moves to saved recovery consequences
+PASS administrator cancellation adds no main failure history
+PASS cancel removes effects immediately before optional closing ACK
+PASS optional cancellation is terminal and neutral
+PASS main event starts: flood
+PASS next main event never reuses cancelled scenario identity

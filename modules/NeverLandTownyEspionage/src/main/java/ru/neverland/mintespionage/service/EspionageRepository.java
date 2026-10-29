@@ -18,13 +18,16 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class EspionageRepository {
-    private boolean ready;
+    private boolean ready, completionBusy, closing;
+    private final ru.neverland.core.DurableSnapshots completionWrites;
+    private java.util.concurrent.CompletionStage<?> lastWrite=java.util.concurrent.CompletableFuture.completedFuture(null);
     private void loaded(){ru.neverland.core.AtomicFiles.loaded(file.toPath());ready=true;}
     private void gate(){if(!ready||!ru.neverland.core.AtomicFiles.writable(file.toPath()))throw new IllegalStateException("Хранилище заблокировано: восстановите данные и перезапустите сервер");}
 
-    private final JavaPlugin plugin;private final File file;private final Map<UUID,TownSpyData> towns=new LinkedHashMap<>();
+    private final java.util.function.IntSupplier reportLimit,historyLimit;private final java.util.function.BooleanSupplier deleteExpired;private final java.util.function.Consumer<Throwable> warning;private final File file;private final Map<UUID,TownSpyData> towns=new LinkedHashMap<>();
     private final Map<UUID,SpyOperation> operations=new LinkedHashMap<>();private final Map<UUID,List<IntelReport>> reports=new LinkedHashMap<>();private boolean dirty;
-    public EspionageRepository(JavaPlugin plugin){this.plugin=plugin;file=new File(plugin.getDataFolder(),"data.yml");}
+    public EspionageRepository(JavaPlugin plugin){this(new File(plugin.getDataFolder(),"data.yml").toPath(),()->plugin.getConfig().getInt("limits.reports-per-town",50),()->plugin.getConfig().getInt("limits.history-per-town",40),()->plugin.getConfig().getBoolean("reports.delete-expired",true),error->plugin.getLogger().log(java.util.logging.Level.WARNING,"Изменения разведки не подтверждены: миссии приостановлены до проверки файла",error));}
+    EspionageRepository(java.nio.file.Path path,java.util.function.IntSupplier reportLimit,java.util.function.IntSupplier historyLimit,java.util.function.BooleanSupplier deleteExpired,java.util.function.Consumer<Throwable> warning){this.file=path.toFile();this.reportLimit=reportLimit;this.historyLimit=historyLimit;this.deleteExpired=deleteExpired;this.warning=warning;completionWrites=new ru.neverland.core.DurableSnapshots(path,"NeverLand-spy-result-write",1);}
     public void load(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {ready=false;
         towns.clear();operations.clear();reports.clear();YamlConfiguration yaml=ru.neverland.core.SafeYaml.load(file.toPath());ru.neverland.core.SafeYaml.keys(yaml,"towns","operations","reports");
         ConfigurationSection townRoot=ru.neverland.core.SafeYaml.section(yaml,"towns");if(townRoot!=null)for(String raw:townRoot.getKeys(false))try{
@@ -43,27 +46,55 @@ public final class EspionageRepository {
         }catch(Exception exception){throw new IllegalArgumentException("Повреждены сохранённые данные: EspionageRepository");}
         dirty=false;
     loaded();} }
-    public TownSpyData town(UUID id){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {gate();return towns.computeIfAbsent(id,key->{dirty=true;return new TownSpyData(key);});} }
-    public void add(SpyOperation operation){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {gate();operations.put(operation.id(),operation);dirty=true;} }
+    public TownSpyData town(UUID id){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {gate();if((completionBusy||closing)&&!towns.containsKey(id))return new TownSpyData(id);return towns.computeIfAbsent(id,key->{dirty=true;return new TownSpyData(key);});} }
+    public void add(SpyOperation operation){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {mutationGate();operations.put(operation.id(),operation);dirty=true;} }
     public SpyOperation operation(UUID id){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {gate();return operations.get(id);} }
     public List<SpyOperation> operations(){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {gate();return List.copyOf(operations.values());} }
     public List<SpyOperation> active(UUID town){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {gate();return operations.values().stream().filter(v->v.status()==OperationStatus.ACTIVE&&v.attackerTownId().equals(town)).sorted(Comparator.comparingLong(SpyOperation::completesAt)).toList();} }
-    public void addReport(IntelReport report){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {gate();List<IntelReport> list=reports.computeIfAbsent(report.ownerTownId(),key->new ArrayList<>());list.add(0,report);trim(list,plugin.getConfig().getInt("limits.reports-per-town",50));dirty=true;} }
+    public void addReport(IntelReport report){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {mutationGate();List<IntelReport> list=reports.computeIfAbsent(report.ownerTownId(),key->new ArrayList<>());list.add(0,report);trim(list,reportLimit.getAsInt());dirty=true;} }
     public List<IntelReport> reports(UUID town){ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {gate();return List.copyOf(reports.getOrDefault(town,List.of()));} }
-    public void markDirty(){ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {gate();dirty=true;} }
-    public void cleanup(long now){ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {gate();
-        if(plugin.getConfig().getBoolean("reports.delete-expired",true))for(List<IntelReport> list:reports.values())if(list.removeIf(report->report.expired(now)))dirty=true;
-        int limit=Math.max(5,plugin.getConfig().getInt("limits.history-per-town",40));for(UUID town:towns.keySet()){
+    public void markDirty(){ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {mutationGate();dirty=true;} }
+    public void cleanup(long now){ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {gate();if(completionBusy||closing)return;
+        if(deleteExpired.getAsBoolean())for(List<IntelReport> list:reports.values())if(list.removeIf(report->report.expired(now)))dirty=true;
+        int limit=Math.max(5,historyLimit.getAsInt());for(UUID town:towns.keySet()){
             List<SpyOperation> finished=operations.values().stream().filter(v->v.attackerTownId().equals(town)&&v.status()!=OperationStatus.ACTIVE).sorted(Comparator.comparingLong(SpyOperation::startedAt).reversed()).toList();
             if(finished.size()>limit)for(SpyOperation operation:finished.subList(limit,finished.size())){operations.remove(operation.id());dirty=true;}
         }
     } }
     private <T> void trim(List<T> list,int maximum){while(list.size()>Math.max(1,maximum))list.remove(list.size()-1);}
-    public void saveIfDirty(){ try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {gate();if(dirty)save();} }
-    public void save(){ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {gate();
-        YamlConfiguration yaml=new YamlConfiguration();for(TownSpyData data:towns.values()){String p="towns."+data.townId();yaml.set(p+".network-level",data.networkLevel());yaml.set(p+".defense-level",data.defenseLevel());for(Map.Entry<String,Long> e:data.cooldowns().entrySet())yaml.set(p+".cooldowns."+e.getKey(),e.getValue());}
-        for(SpyOperation v:operations.values()){String p="operations."+v.id();yaml.set(p+".attacker-id",v.attackerTownId().toString());yaml.set(p+".attacker-name",v.attackerName());yaml.set(p+".target-id",v.targetTownId().toString());yaml.set(p+".target-name",v.targetName());yaml.set(p+".actor-id",v.actorId().toString());yaml.set(p+".actor-name",v.actorName());yaml.set(p+".type",v.type());yaml.set(p+".started-at",v.startedAt());yaml.set(p+".completes-at",v.completesAt());v.timer().write(yaml,p+".");yaml.set(p+".success-chance",v.successChance());yaml.set(p+".detection-chance",v.detectionChance());yaml.set(p+".cost",v.cost());yaml.set(p+".status",v.status().name());yaml.set(p+".detected",v.detected());}
-        for(Map.Entry<UUID,List<IntelReport>> entry:reports.entrySet())for(IntelReport v:entry.getValue()){String p="reports."+entry.getKey()+"."+v.id();yaml.set(p+".target-id",v.targetTownId().toString());yaml.set(p+".target-name",v.targetName());yaml.set(p+".type",v.type());yaml.set(p+".created-at",v.createdAt());yaml.set(p+".expires-at",v.expiresAt());yaml.set(p+".lines",v.lines());yaml.set(p+".read",v.read());}
-        try{ru.neverland.core.AtomicFiles.write(file.toPath(),yaml::saveToString);dirty=false;}catch(IOException exception){throw new java.io.UncheckedIOException(exception);}
-    } }
+    public void saveIfDirty(){ try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {gate();if(dirty&&!completionBusy&&!closing)saveAsync();} }
+    public boolean canMutate(){try(var guard=ru.neverland.core.SuiteState.guard()){return ready&&!completionBusy&&!closing&&ru.neverland.core.AtomicFiles.writable(file.toPath());}}
+    public void mutationGate(){gate();if(completionBusy||closing)throw new IllegalStateException("Результат предыдущей операции сохраняется. Повторите действие позже.");}
+    public java.util.concurrent.CompletionStage<Void> complete(SpyOperation operation,OperationStatus outcome,boolean detected,IntelReport report){try(var guard=ru.neverland.core.SuiteState.guard()){
+        mutationGate();if(operations.get(operation.id())!=operation||operation.status()!=OperationStatus.ACTIVE)throw new IllegalStateException("Операция уже изменилась");
+        if(outcome!=OperationStatus.SUCCEEDED&&outcome!=OperationStatus.FAILED)throw new IllegalArgumentException("Неверный результат операции");
+        if((outcome==OperationStatus.SUCCEEDED)!=(report!=null)||report!=null&&(!report.ownerTownId().equals(operation.attackerTownId())||!report.targetTownId().equals(operation.targetTownId())||!report.type().equals(operation.type())||reports.values().stream().flatMap(List::stream).anyMatch(r->r.id().equals(report.id()))))throw new IllegalArgumentException("Отчёт не соответствует операции");
+        final int retained=Math.max(1,reportLimit.getAsInt());
+        var image=capture(operation.id(),outcome,detected,report);completionBusy=true;
+        var stage=completionWrites.submit(()->encode(image)).handle((receipt,error)->{try(var committed=ru.neverland.core.SuiteState.guard()){
+            if(error!=null){ready=false;completionBusy=false;throw new java.util.concurrent.CompletionException(error);}
+            operation.finish(outcome,detected);if(report!=null){var list=reports.computeIfAbsent(report.ownerTownId(),key->new ArrayList<>());list.add(0,report);trim(list,retained);}
+            dirty=false;completionBusy=false;return null;
+        }});lastWrite=stage;return stage.thenApply(ignored->null);
+    }}
+    private void saveAsync(){
+        mutationGate();var image=capture(null,null,false,null);completionBusy=true;
+        lastWrite=completionWrites.submit(()->encode(image)).handle((receipt,error)->{try(var guard=ru.neverland.core.SuiteState.guard()){
+            completionBusy=false;if(error!=null){ready=false;warning.accept(error);throw new java.util.concurrent.CompletionException(error);}dirty=false;return null;
+        }});
+    }
+    public void save(){try(var guard=ru.neverland.core.SuiteState.guard()){mutationGate();var image=capture(null,null,false,null);try{ru.neverland.core.AtomicFiles.write(file.toPath(),()->encode(image));dirty=false;}catch(IOException error){throw new java.io.UncheckedIOException(error);}}}
+    private Map<String,Object> capture(UUID completed,OperationStatus outcome,boolean detected,IntelReport added){
+        var values=new LinkedHashMap<String,Object>();for(TownSpyData data:towns.values()){String p="towns."+data.townId();values.put(p+".network-level",data.networkLevel());values.put(p+".defense-level",data.defenseLevel());for(var e:data.cooldowns().entrySet())values.put(p+".cooldowns."+e.getKey(),e.getValue());}
+        for(SpyOperation v:operations.values()){String p="operations."+v.id();values.put(p+".attacker-id",v.attackerTownId().toString());values.put(p+".attacker-name",v.attackerName());values.put(p+".target-id",v.targetTownId().toString());values.put(p+".target-name",v.targetName());values.put(p+".actor-id",v.actorId().toString());values.put(p+".actor-name",v.actorName());values.put(p+".type",v.type());values.put(p+".started-at",v.startedAt());values.put(p+".completes-at",v.completesAt());values.put(p+".admin-paused-at",v.timer().pausedAt());values.put(p+".admin-duration",v.timer().duration());values.put(p+".success-chance",v.successChance());values.put(p+".detection-chance",v.detectionChance());values.put(p+".cost",v.cost());boolean changed=v.id().equals(completed);values.put(p+".status",(changed?outcome:v.status()).name());values.put(p+".detected",changed?detected:v.detected());}
+        var owners=new java.util.HashSet<>(reports.keySet());if(added!=null)owners.add(added.ownerTownId());
+        for(UUID owner:owners){var entries=new ArrayList<>(reports.getOrDefault(owner,List.of()));if(added!=null&&added.ownerTownId().equals(owner)){entries.add(0,added);trim(entries,reportLimit.getAsInt());}for(IntelReport v:entries){String p="reports."+owner+"."+v.id();values.put(p+".target-id",v.targetTownId().toString());values.put(p+".target-name",v.targetName());values.put(p+".type",v.type());values.put(p+".created-at",v.createdAt());values.put(p+".expires-at",v.expiresAt());values.put(p+".lines",v.lines());values.put(p+".read",v.read());}}
+        return java.util.Collections.unmodifiableMap(values);
+    }
+    private static String encode(Map<String,Object> values)throws IOException{var yaml=new YamlConfiguration();values.forEach(yaml::set);String text=yaml.saveToString();if(text.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>64*1024*1024)throw new IOException("Файл разведки больше 64 МиБ; требуется проверка администратора");return text;}
+    public java.util.concurrent.CompletionStage<Void> prepareClose(){try(var guard=ru.neverland.core.SuiteState.guard()){
+        if(!closing){closing=true;if(ready&&dirty&&!completionBusy){var image=capture(null,null,false,null);lastWrite=completionWrites.submit(()->encode(image));}}
+        return java.util.concurrent.CompletableFuture.allOf(lastWrite.toCompletableFuture(),completionWrites.closeAsync().toCompletableFuture());
+    }}
+    public void awaitClosed(){var closed=prepareClose().toCompletableFuture();if(ru.neverland.core.SuiteState.held()&&!closed.isDone())throw new IllegalStateException("Ожидайте диск вне общей блокировки");try{closed.get(10,java.util.concurrent.TimeUnit.SECONDS);}catch(Exception error){throw new IllegalStateException("Сохранение разведки ещё не завершено",error);}}
 }

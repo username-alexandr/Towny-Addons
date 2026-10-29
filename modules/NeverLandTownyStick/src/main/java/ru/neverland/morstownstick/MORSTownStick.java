@@ -48,6 +48,7 @@ public final class MORSTownStick extends JavaPlugin {
             return;
         }
         claims = new ClaimService(this, towny, claimAdapter, selections, messages, borders);
+        ru.neverland.core.ModuleShutdown.register(this,claims::prepareClose);
         particles = new ParticleService(this, selections, towny, borders);
 
         StickCommand stickCommand = new StickCommand(towny, sticks, selections, messages, claims);
@@ -70,7 +71,7 @@ public final class MORSTownStick extends JavaPlugin {
         manager.registerEvents(new CraftProtectionListener(sticks), this);
         manager.registerEvents(new TownBorderListener(borders), this);
         particles.start();
-        getLogger().info("NeverLandTownyStick 0.1.6 включён: список выделения, BFS-захват и защита палки активны.");
+        getLogger().info("NeverLandTownyStick "+getDescription().getVersion()+" включён: выбор участков и согласуемые планы расширения.");
     } }
 
     public void reloadPlugin() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
@@ -79,8 +80,10 @@ public final class MORSTownStick extends JavaPlugin {
         particles.start();
     } }
 
+    public ClaimService claims(){return claims;}
+
     @Override
-    public void onDisable() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
+    public void onDisable() { try {try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (commandInterceptor != null) commandInterceptor.uninstall();
@@ -88,5 +91,5 @@ public final class MORSTownStick extends JavaPlugin {
         if (claims != null) claims.shutdown();
         if (selections != null) selections.clearAll();
         if (towny != null) towny.unregisterStickCommand();
-    } }
+    }}finally{try{if(claims!=null)claims.awaitClosed();}catch(Exception error){getLogger().log(java.util.logging.Level.SEVERE,"Планы ещё сохраняются; незавершённые присоединения требуют сверки",error);}finally{ru.neverland.core.ModuleShutdown.remove(this);}} }
 }

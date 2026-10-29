@@ -1,0 +1,25 @@
+{
+  "tested_at_utc": "2026-10-29T15:11:08.256544+00:00",
+  "module": "NeverLandTownyStick",
+  "version": "0.2.0",
+  "jar_sha256": "293ba6bfbd251280694f6fbb2a07cf92a9fd99d558a9c91aff681537d2ab6c37",
+  "runtime": "Folia 26.2 build7 14b7fee; Java25.0.5; Towny0.103.2.0",
+  "fixture": "folia-stick-expansion-1",
+  "port": 25679,
+  "first_assertions": 17,
+  "restart_assertions": 8,
+  "cold_programs": 4,
+  "model_assertions": 19,
+  "repository_assertions": 14,
+  "commands": [
+    "python scripts/stick-expansion-runtime-probe/run.py --server ../folia-stick-expansion-1 --java-home ../toolchain/zulu25.38.107-ca-jdk25.0.5-linux_x64 --phase first",
+    "python scripts/stick-expansion-runtime-probe/run.py --server ../folia-stick-expansion-1 --java-home ../toolchain/zulu25.38.107-ca-jdk25.0.5-linux_x64 --phase restart"
+  ],
+  "limitations": [
+    "Offline Player and EntityScheduler proxies, no network Minecraft client.",
+    "Economy disabled: no real monetary transfer or provider confirmation claimed.",
+    "Two planned cells acquired by actual TownClaim. Initial home and one extra ownership cell are explicit fixture setup.",
+    "Second launch continuation deliberately held after durable INTENT to test restart no-replay.",
+    "Biome ownership fail-closed branch verified by code review; fixture uses default Towny biome restrictions."
+  ]
+}

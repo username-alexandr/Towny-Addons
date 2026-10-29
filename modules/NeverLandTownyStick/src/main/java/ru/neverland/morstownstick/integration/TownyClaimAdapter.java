@@ -45,15 +45,41 @@ public final class TownyClaimAdapter {
     }
 
     @SuppressWarnings("unchecked")
+    public List<WorldCoord> validateOnly(Player player,Town town,List<WorldCoord> requested)throws TownyException {
+        requireBiomeOwnership(requested);
+        invoke(catchRuined,player);invoke(catchBankrupt,town);
+        List<WorldCoord> accepted=(List<WorldCoord>)invoke(vetSelection,player,town,new ArrayList<>(requested));
+        invoke(vetAllowed,town,false,accepted);return List.copyOf(accepted);
+    }
+
+    @SuppressWarnings("unchecked")
     public List<WorldCoord> validateAndCharge(Player player, Town town, List<WorldCoord> requested) throws TownyException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
+        return validateAndCharge(player,town,requested,()->{});
+    } }
+
+    @FunctionalInterface public interface FinalCheck {void check()throws TownyException;}
+    @SuppressWarnings("unchecked")
+    public List<WorldCoord> validateAndCharge(Player player,Town town,List<WorldCoord> requested,FinalCheck beforePayment)throws TownyException {
+        requireBiomeOwnership(requested);
         invoke(catchRuined, player);
         invoke(catchBankrupt, town);
         List<WorldCoord> accepted = (List<WorldCoord>) invoke(vetSelection, player, town, new ArrayList<>(requested));
         invoke(vetAllowed, town, false, accepted);
         invoke(firePreClaim, player, town, false, accepted);
+        if(accepted.size()!=requested.size()||!new java.util.HashSet<>(accepted).equals(new java.util.HashSet<>(requested)))throw new IllegalStateException("Towny изменил состав плана; оплата не запрашивается");
+        beforePayment.check();
         invoke(vetPayment, player, town, false, accepted);
         return new ArrayList<>(accepted);
-    } }
+    }
+
+    private static void requireBiomeOwnership(List<WorldCoord> cells){
+        if(!com.palmergames.bukkit.towny.TownySettings.isUnwantedBiomeClaimingEnabled()&&!com.palmergames.bukkit.towny.TownySettings.isOceanClaimingBlocked())return;
+        int size=com.palmergames.bukkit.towny.TownySettings.getTownBlockSize();
+        if(size<1||(long)size*size*cells.size()>16384)throw new IllegalStateException("Для проверки биомов Towny разделите план на меньшие части");
+        for(var cell:cells){var world=cell.getBukkitWorld();int x=Math.multiplyExact(cell.getX(),size),z=Math.multiplyExact(cell.getZ(),size);
+            if(world==null||!Bukkit.isOwnedByCurrentRegion(world,Math.floorDiv(x,16),Math.floorDiv(z,16),Math.floorDiv(Math.addExact(x,size-1),16),Math.floorDiv(Math.addExact(z,size-1),16)))throw new IllegalStateException("Подойдите к выбранным участкам или разделите план: Towny должен безопасно проверить их биомы");
+        }
+    }
 
     public boolean canAfford(Town town, int count) throws TownyException { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!TownyEconomyHandler.isActive()) return true;
@@ -64,11 +90,24 @@ public final class TownyClaimAdapter {
 
     public void claimAsync(Player player, Town town, List<WorldCoord> accepted, Consumer<List<WorldCoord>> callback) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         List<WorldCoord> mutable = new ArrayList<>(accepted);
+        // TownClaim's constructor reads player.getLocation(): caller is on the entity scheduler.
+        TownClaim task = new TownClaim(Towny.getPlugin(), player, town, mutable, false, true, false);
         ru.neverland.core.SuiteScheduler.get().runTaskAsynchronously(plugin, () -> {
-            new TownClaim(Towny.getPlugin(), player, town, mutable, false, true, false).run();
+            task.run();
             ru.neverland.core.SuiteScheduler.entity(plugin, player, () -> callback.accept(List.copyOf(mutable)));
         });
     } }
+
+    /** Construction belongs to the entity thread; execution follows Towny's native async contract. */
+    public void claimObserved(Player player,Town town,List<WorldCoord> accepted,java.util.function.BiConsumer<List<WorldCoord>,Throwable> callback){
+        List<WorldCoord> mutable=new ArrayList<>(accepted);
+        TownClaim task=new TownClaim(Towny.getPlugin(),player,town,mutable,false,true,false);
+        ru.neverland.core.SuiteScheduler.get().runTaskAsynchronously(plugin,()->{
+            Throwable error=null;try{task.run();}catch(Throwable failure){error=failure;}
+            final Throwable outcome=error;
+            ru.neverland.core.SuiteScheduler.get().runTask(plugin,()->callback.accept(List.copyOf(mutable),outcome));
+        });
+    }
 
     private static Method method(String name, Class<?>... parameters) throws ReflectiveOperationException {
         Method method = TownCommand.class.getDeclaredMethod(name, parameters);

@@ -9,7 +9,7 @@ stick:
   lore:
     - "&#AAAAAAПКМ по чанку — выбрать"
     - "&#AAAAAAПКМ по выбранному — отменить"
-    - "&#AAAAAAИспользуйте /t claim для захвата"
+    - "&#AAAAAA/t claim — подготовить план расширения"
   glint: true
 
 selection:
@@ -19,11 +19,16 @@ selection:
 
 claim:
   enabled: true
-  # Не больше этого количества TownBlock обрабатывается за одну волну.
+  # Старые настройки волн сохранены для совместимости конфигурации.
+  # Новый согласованный план передаётся Towny целиком после подтверждения мэра.
   batch-size: 5
   # Следующая волна начинается не раньше следующего тика после завершения предыдущей.
   delay-ticks: 1
   respect-towny-claim-permissions: true
+
+plans:
+  # Один открытый план на город; допустимо 1–64 участка.
+  max-chunks: 64
 
 particles:
   selection:
@@ -79,8 +84,9 @@ messages:
     - "&#FFFFFF/t stick &#AAAAAA— получить палку"
     - "&#FFFFFF/t stick list &#AAAAAA— список выделения"
     - "&#FFFFFF/t stick clear &#AAAAAA— очистить выделение"
-    - "&#FFFFFF/t claim &#AAAAAA— захватить выделение BFS-волной"
-    - "&#FFFFFF/t stick claim &#AAAAAA— прямой запуск захвата выделения"
+    - "&#FFFFFF/t claim &#AAAAAA— подготовить план выбранных участков"
+    - "&#FFFFFF/t stick plans &#AAAAAA— сохранённые планы города"
+    - "&#FFFFFF/t stick show <ID> &#AAAAAA— смета, участки и команды мэра"
 
   claim-disabled: "&#FF5555Массовый захват отключён администратором."
   claim-start: "&#AAAAAAНачинаем последовательный захват &#FFFFFF%count% &#AAAAAAчанков..."

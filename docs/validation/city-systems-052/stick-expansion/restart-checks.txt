@@ -1,0 +1,8 @@
+PASS actual Stick 0.2.0 enabled with native Towny and Folia
+PASS real Towny ownership and unapplied unknown cell survive full restart
+PASS acknowledged history restores exact original timestamp
+PASS unknown INTENT restored without automatic continuation
+PASS unknown intent cannot be executed again
+PASS restored unknown plan clearly explains manual review to player
+PASS actual admin review records observation without claiming or paying again
+PASS durable administrative audit retains exact nine proposal/approval/intent/result/review transitions

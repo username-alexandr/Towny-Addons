@@ -51,17 +51,20 @@ public final class TownCommandInterceptor implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, @NotNull String[] args) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick"))return true;
+                             @NotNull String label, @NotNull String[] args) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (isStickCommand(args)) {
+            if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick"))return true;
             return stickCommand.onCommand(sender, command, label + " stick", stickArguments(args));
         }
         if (sender instanceof Player player && isPlainClaim(args)
                 && selections.count(player.getUniqueId()) > 0) {
+            if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick"))return true;
             claims.start(player);
             return true;
         }
+    }
         return originalExecutor != null && originalExecutor.onCommand(sender, command, label, args);
-    } }
+    }
 
     public static boolean isPlainClaim(String[] args) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         return args.length == 1 && args[0].equalsIgnoreCase("claim");

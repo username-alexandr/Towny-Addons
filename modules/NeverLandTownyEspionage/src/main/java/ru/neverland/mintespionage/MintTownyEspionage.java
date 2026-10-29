@@ -28,16 +28,22 @@ public final class MintTownyEspionage extends JavaPlugin {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         ru.neverland.mintespionage.util.LegacyDataMigrator.migrate(this,"MintTownyEspionage");saveDefaultConfig();copy("messages.yml");copy("operations.yml");towny=new TownyHook(this);itemsAdder=new ItemsAdderHook();messages=new MessageService(this);definitions=new DefinitionRegistry(this);repository=new EspionageRepository(this);repository.load();
-        service=new EspionageService(this,towny,definitions,repository,new BuildBridge(this),new EconomyService(this),messages);EspionageMenuManager menus=new EspionageMenuManager(this,towny,service,itemsAdder,messages);getServer().getPluginManager().registerEvents(menus,this);
+        service=new EspionageService(this,towny,definitions,repository,new BuildBridge(this),new EconomyService(this),messages);var intelligence=new ru.neverland.mintespionage.intelligence.IntelRepository(getDataFolder().toPath().resolve("intelligence.yml"));
+        try{intelligence.load();}catch(Exception|LinkageError error){getLogger().log(java.util.logging.Level.WARNING,"Разведданные недоступны: начатые миссии сохранены и ждут восстановления. Другие аддоны продолжают работу.",error);}
+        service.intelligence(new ru.neverland.mintespionage.intelligence.IntelController(this,service,towny,intelligence));
+        ru.neverland.core.ModuleShutdown.register(this,service::prepareClose);
+        EspionageMenuManager menus=new EspionageMenuManager(this,towny,service,itemsAdder,messages);getServer().getPluginManager().registerEvents(menus,this);
         TownEspionageCommand townCommand=new TownEspionageCommand(towny,service,menus,messages);PluginCommand direct=getCommand("espionage");if(direct!=null){direct.setExecutor(townCommand);direct.setTabCompleter(townCommand);}for(String name:TOWN_COMMANDS)if(!towny.register(name,townCommand))getLogger().warning("Не удалось зарегистрировать /t "+name+"; используйте /espionage.");
         PluginCommand admin=getCommand("townyespionage");if(admin!=null){AdminCommand executor=new AdminCommand(this,towny,service,messages);admin.setExecutor(executor);admin.setTabCompleter(executor);}getServer().getServicesManager().register(MintTownyEspionageApi.class,new EspionageApiService(towny,service),this, ServicePriority.Normal);
         boolean papi=PlaceholderHook.register(this,towny,service);ru.neverland.core.ActivityAdmin.attach(this,"townyespionage","mintespionage.admin",service::adminTargets);
 service.startScheduler();long autosave=Math.max(20,getConfig().getLong("scheduler.autosave-seconds",60)*20);ru.neverland.core.SuiteScheduler.get().runTaskTimer(this,repository::saveIfDirty,autosave,autosave);
-        getLogger().info("NeverLandTownyEspionage 0.1.2 включён: операций "+definitions.all().size()+", активных "+repository.operations().stream().filter(v->v.status().name().equals("ACTIVE")).count()+", PlaceholderAPI="+papi+".");
+        getLogger().info("NeverLandTownyEspionage "+getPluginMeta().getVersion()+" включён: операций "+definitions.all().size()+", активных "+repository.operations().stream().filter(v->v.status().name().equals("ACTIVE")).count()+", PlaceholderAPI="+papi+".");
     } }
-    @Override public void onDisable(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
-        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
-if(service!=null)service.shutdown();if(towny!=null)for(String name:TOWN_COMMANDS)towny.unregister(name);getServer().getServicesManager().unregisterAll(this);} }
+    @Override public void onDisable(){
+        try(var guard=ru.neverland.core.SuiteState.guard()){
+            if(ru.neverland.core.ModuleLifecycle.end(this)){if(service!=null)service.shutdown();if(towny!=null)for(String name:TOWN_COMMANDS)towny.unregister(name);getServer().getServicesManager().unregisterAll(this);}
+        }finally{try{if(service!=null)service.awaitClosed();}catch(RuntimeException failure){getLogger().log(java.util.logging.Level.SEVERE,"Не удалось дождаться сохранения разведки; сохранённые результаты будут сверены при запуске",failure);}finally{ru.neverland.core.ModuleShutdown.remove(this);}}
+    }
     public void reloadPlugin(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {reloadConfig();messages.reload();itemsAdder.reload();definitions.reload();service.startScheduler();} }
     private void copy(String name){if(!new File(getDataFolder(),name).exists())saveResource(name,false);}
 }

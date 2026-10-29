@@ -1,0 +1,10 @@
+PASS actual Espionage0.2.0 Builds and Towny enabled
+PASS restart retains original mission price one report and final status
+PASS restart preserves exact source observation time availability and publication marker
+PASS legacy stored report bytes were not retrospectively rewritten
+PASS unfinished legacy mission timers and price preserved through full restart
+PASS crash boundary retains captured receipt before core publication
+PASS restart reuses previously saved success despite conflicting retry choice, no reroll or new sample
+PASS recovered report exact identity and original accepted cost preserved
+PASS native verification compares retained later same-source report and does not invent certainty
+PASS counterintelligence respects frozen hidden attacker identity

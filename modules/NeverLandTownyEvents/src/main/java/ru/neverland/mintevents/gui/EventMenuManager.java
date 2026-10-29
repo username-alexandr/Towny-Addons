@@ -44,6 +44,7 @@ public final class EventMenuManager implements Listener {
     private final EventService events;
     private final MessageService messages;
     private final FireRepairMenus repairs;
+    private final ru.neverland.mintevents.scenarios.ScenarioMenus scenarios;
     private final ContributionService contributions = new ContributionService();
 
     public EventMenuManager(JavaPlugin plugin, TownyHook towny, EventService events, MessageService messages) {
@@ -53,6 +54,7 @@ public final class EventMenuManager implements Listener {
         this.messages = messages;
         this.repairs = new FireRepairMenus(plugin, towny, events, this::open);
         Bukkit.getPluginManager().registerEvents(repairs, plugin);
+        scenarios=new ru.neverland.mintevents.scenarios.ScenarioMenus(plugin,events.scenarios(),this::open);
     }
 
     public void open(Player player) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
@@ -96,6 +98,7 @@ public final class EventMenuManager implements Listener {
                     active.raid().profile().description().stream().map(line -> "&7" + line).toList()));
         }
         inventory.setItem(49, item(Material.BOOK, "&#65B8FFИстория событий", List.of("&7Показать последние результаты города.")));
+        if(events.scenarios().current(town.getUUID()).isPresent())inventory.setItem(42,item(Material.COMPASS,"&bПлан действий",List.of("&7Этапы помощи и решение мэра.","&7Выбор не списывает деньги или предметы.","&eНажмите, чтобы посмотреть условия.")));
         int damaged = events.fires().damage(town.getUUID()).size();
         inventory.setItem(45, item(Material.ANVIL, "&eРемонт после пожара", List.of(
                 "&7Мест для восстановления: &f" + damaged,
@@ -113,6 +116,7 @@ public final class EventMenuManager implements Listener {
 
     public void openRepairs(Player player, Town town) { repairs.open(player,town.getUUID(),false,0); }
     public void openAdminRepairs(Player player) { repairs.towns(player,0); }
+    public void openScenario(Player player){scenarios.open(player);}
 
     @EventHandler
     public void onDrag(org.bukkit.event.inventory.InventoryDragEvent event) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
@@ -159,6 +163,7 @@ public final class EventMenuManager implements Listener {
             return;
         }
         if (slot == 45) { openRepairs(player, town); return; }
+        if (slot == 42) { openScenario(player); return; }
         if (slot == 53) { player.closeInventory(); return; }
         if (slot == 49) {
             openHistory(player, town);

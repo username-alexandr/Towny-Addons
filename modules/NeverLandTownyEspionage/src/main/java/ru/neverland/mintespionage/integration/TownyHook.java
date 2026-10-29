@@ -33,7 +33,7 @@ public final class TownyHook {
     } }
     public boolean register(String name,CommandExecutor executor){ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {return TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.TOWN,name,executor);} }
     public void unregister(String name){ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,name);} }
-    public void notifyTown(Town town,String message){ try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {if(town==null)return;for(Resident resident:town.getResidents()){Player player=Bukkit.getPlayer(resident.getUUID());if(player!=null)player.sendMessage(message);}} }
+    public void notifyTown(Town town,String message){ try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {if(town==null)return;for(Resident resident:town.getResidents()){Player player=Bukkit.getPlayer(resident.getUUID());if(player!=null)ru.neverland.core.SuiteScheduler.entity(plugin,player,()->player.sendMessage(message));}} }
     public String mayor(Town town){ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {return town==null||town.getMayor()==null?"неизвестен":town.getMayor().getName();} }
     public String nation(Town town){ try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
         Object nation=invoke(town,"getNationOrNull");if(nation==null)return "не состоит в нации";Object name=invoke(nation,"getName");return name==null?"неизвестна":name.toString();

@@ -1,0 +1,162 @@
+{
+  "not_final_result": true,
+  "first_pass": [
+    {
+      "phase": "first",
+      "result": "PASS 20 checks; actual Folia26.2 Towny Contracts Specialization SQLite and menus, material proof, mayor change before ACK, joint cancellation/completion, optional config isolation and full restart. Explicit offline players/scheduler, working-building cache and paid-delivery fixtures; no network client, real crafting or bank payment claimed.\n",
+      "exit_code": 0,
+      "jar_sha256": {
+        "NeverLandTownySpecialization-0.2.0.jar": "ec006c7ca3d3488d6e9cc43f900657060222c644fca2f5773f667df4749344bf",
+        "NeverLandTownyContracts-0.7.0.jar": "5ec6c2f7916bc6c111c9047936868101c9b691372d263e2e55c685751ddc57f4",
+        "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+        "SpecializationProductionRuntimeProbe.jar": "7f4a9217c85bd2595d515ccce836af67905bc5248d57fd129de03e49fff25180",
+        "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+        "NeverLandTownyControl-0.6.0.jar": "2e1c22da662d888f5edab3901fd6d36c15ca8047b69090b9688de4fbcee12647",
+        "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+      },
+      "physical": {
+        "server-materials.db": {
+          "sha256": "0ba24d185d11ee3ae16ea9729c88854f8f76471ff2070bfb21e87fb32c4c8975",
+          "bytes": 126976,
+          "balances": [
+            [
+              "CARROT",
+              192,
+              0
+            ],
+            [
+              "OAK_LOG",
+              256,
+              0
+            ],
+            [
+              "WHEAT",
+              384,
+              0
+            ],
+            [
+              "WHITE_WOOL",
+              128,
+              0
+            ]
+          ],
+          "projects": [
+            [
+              "COMPLETED"
+            ],
+            [
+              "COMPLETED"
+            ],
+            [
+              "COMPLETED"
+            ]
+          ],
+          "deliveries": [
+            [
+              "CONFIRMED"
+            ],
+            [
+              "CONFIRMED"
+            ],
+            [
+              "CONFIRMED"
+            ],
+            [
+              "CONFIRMED"
+            ],
+            [
+              "CONFIRMED"
+            ],
+            [
+              "CONFIRMED"
+            ]
+          ]
+        },
+        "production.sqlite": {
+          "sha256": "d486155a0102d83d2443d5caebc064d3f0192116ffc8461e6d10dc104c397609",
+          "bytes": 94208,
+          "batches": [
+            [
+              "farm_provisions",
+              1,
+              "FINISHING"
+            ],
+            [
+              "farm_provisions",
+              2,
+              "ISSUED"
+            ],
+            [
+              "port_equipment",
+              2,
+              "ISSUED"
+            ]
+          ],
+          "stock": [
+            [
+              "farm_provisions",
+              0,
+              0,
+              2
+            ],
+            [
+              "port_equipment",
+              0,
+              0,
+              2
+            ]
+          ],
+          "projects": [
+            [
+              "CANCELLED"
+            ],
+            [
+              "COMPLETED"
+            ]
+          ],
+          "history_count": 18,
+          "audit_pending": 0
+        }
+      }
+    }
+  ],
+  "unexpected_sidecars_before_next_jvm": {
+    "server-materials.db": {
+      "size": 126976,
+      "sha256": "0ba24d185d11ee3ae16ea9729c88854f8f76471ff2070bfb21e87fb32c4c8975",
+      "mtime_ns": 1793286242416445543,
+      "inode": 1313216
+    },
+    "server-materials.db-wal": {
+      "size": 613912,
+      "sha256": "79a1772dbb7285538c09812f605c6a566f1807a2d78ed57fdceeac96f3a00253",
+      "mtime_ns": 1793286239980392818,
+      "inode": 1313247
+    },
+    "server-materials.db-shm": {
+      "size": 32768,
+      "sha256": "d4efa1483eeda02833cbafe7fd22fdc0dd7389e00c47c939771eb7c7caa961fb",
+      "mtime_ns": 1793286240088395155,
+      "inode": 1313246
+    },
+    "production.sqlite": {
+      "size": 94208,
+      "sha256": "d486155a0102d83d2443d5caebc064d3f0192116ffc8461e6d10dc104c397609",
+      "mtime_ns": 1793286242412445456,
+      "inode": 1313215
+    },
+    "production.sqlite-wal": {
+      "size": 547992,
+      "sha256": "d7ffb42453c40ad0d2678ce6397467f3ccf560282fcc387c558ba5bef97f131c",
+      "mtime_ns": 1793286240140396281,
+      "inode": 1313250
+    },
+    "production.sqlite-shm": {
+      "size": 32768,
+      "sha256": "774a6f808baf21ed44fa890efe0328d258748e1125e63974c80ee359cb19958d",
+      "mtime_ns": 1793286240144396367,
+      "inode": 1313248
+    }
+  },
+  "interpretation": "The foreground JVM had exited0 and post-exit assertions found no WAL/SHM; a later tool call found older WAL/SHM before any next JVM. Cause not established. No production workaround, startup sidecar deletion or claims of a known upstream defect."
+}

@@ -29,8 +29,9 @@ public final class BuildBridge {
     private int level(UUID townId,String project) {
         if(townId==null||project==null||project.isBlank())return 0;
         var api=ru.neverland.core.ApiServices.connect(plugin.getConfig().getString("buildings.plugin","NeverLandTownyBuilds"),"ru.neverland.townybuilds.api.TownyBuildsApi",1,"operationalLevel");
-        if(!api.ready())return 0;
-        try{return Math.max(0,((Number)api.invoke("operationalLevel",new Class<?>[]{UUID.class,String.class},townId,project)).intValue());}
-        catch(ReflectiveOperationException|RuntimeException ex){return 0;}
+        if(api.state()==ru.neverland.core.ApiServices.State.NOT_INSTALLED)return 0;
+        if(!api.ready())throw new IllegalStateException("Сведения о защите зданий недоступны");
+        try{Object raw=api.invoke("operationalLevel",new Class<?>[]{UUID.class,String.class},townId,project);if(!(raw instanceof Integer level)||level<0||level>100)throw new IllegalStateException("Неверный уровень защиты здания");return level;}
+        catch(ReflectiveOperationException|RuntimeException ex){throw new IllegalStateException("Сведения о защите зданий недоступны",ex);}
     }
 }

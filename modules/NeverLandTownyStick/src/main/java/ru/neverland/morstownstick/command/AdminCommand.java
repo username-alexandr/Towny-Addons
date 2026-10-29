@@ -28,7 +28,9 @@ public final class AdminCommand implements CommandExecutor {
             messages.send(sender, "no-permission");
             return true;
         }
-        if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
+        if(args.length>=3&&args[0].equalsIgnoreCase("review")){
+            try{plugin.claims().respond(sender,plugin.claims().reconcile(sender,java.util.UUID.fromString(args[1]),String.join(" ",java.util.Arrays.copyOfRange(args,2,args.length))));}catch(Exception error){sender.sendMessage("§c"+error.getMessage());}
+        } else if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
             plugin.reloadPlugin();
             messages.send(sender, "reload-success");
         } else if (args.length == 1) {
@@ -37,6 +39,7 @@ public final class AdminCommand implements CommandExecutor {
             give(sender, args[1]);
         } else {
             messages.send(sender, "reload-usage");
+            sender.sendMessage("§e/townystick review <ID плана> <результат сверки земли и платежа> — закрыть неизвестный результат без повторного списания или захвата.");
         }
         return true;
     } }

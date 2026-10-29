@@ -42,6 +42,7 @@ public final class MintTownyEvents extends JavaPlugin {
         repository.load();
         development = new DevelopmentService(this);
         events = new EventService(this, towny, registry, repository, development, messages);
+        ru.neverland.core.ModuleShutdown.register(this,events.scenarios()::prepareClose);
 
         EventMenuManager menus = new EventMenuManager(this, towny, events, messages);
         getServer().getPluginManager().registerEvents(menus, this);
@@ -64,13 +65,13 @@ public final class MintTownyEvents extends JavaPlugin {
     } }
 
     @Override
-    public void onDisable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
+    public void onDisable() { try { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (events != null) events.shutdown();
         if (towny != null) towny.unregisterTownCommand("events");
         getServer().getServicesManager().unregisterAll(this);
-    } }
+    } } finally {if(events!=null)events.scenarios().awaitClosed();ru.neverland.core.ModuleShutdown.remove(this);} }
 
     public void reloadPlugin() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         reloadConfig();

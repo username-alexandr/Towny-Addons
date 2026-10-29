@@ -1,0 +1,20 @@
+PASS first: Citizens enabled and unfrozen
+PASS first: Builds enabled and unfrozen
+PASS first: Contracts enabled and unfrozen
+PASS first: Specialization enabled and unfrozen
+PASS first: Control enabled and unfrozen
+PASS legacy selected agricultural direction retained
+PASS ordinary resident cannot start city production
+PASS mayor cannot manufacture another direction's goods
+PASS actual service creates unique Contracts city project before goods issuance
+PASS native menu uses safe icons and explains city accounting
+PASS other city's mayor cannot manage production
+PASS real consumed Contracts receipt issues exact city party
+PASS replayed receipt cannot duplicate parties
+PASS two different actual cities supply frozen two-direction goal
+PASS native cancellation returns original city's exact parties
+PASS finished joint result is durable and browseable
+PASS joint completion consumes actual reserved parties without free output
+PASS mayor changed before external ACK cannot authorize final city issuance
+PASS unsettled local intent remains durable for reconciliation
+PASS source has stable spent-material proof before interrupted local issuance

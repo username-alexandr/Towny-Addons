@@ -1,0 +1,104 @@
+{
+  "server-materials.db": {
+    "sha256": "c0227be7c941e2e3ea1bbe512e7f4934c527b693b74930eee29147d00c39a2f8",
+    "bytes": 126976,
+    "balances": [
+      [
+        "CARROT",
+        192,
+        0
+      ],
+      [
+        "OAK_LOG",
+        256,
+        0
+      ],
+      [
+        "WHEAT",
+        384,
+        0
+      ],
+      [
+        "WHITE_WOOL",
+        128,
+        0
+      ]
+    ],
+    "projects": [
+      [
+        "COMPLETED"
+      ],
+      [
+        "COMPLETED"
+      ],
+      [
+        "COMPLETED"
+      ]
+    ],
+    "deliveries": [
+      [
+        "CONFIRMED"
+      ],
+      [
+        "CONFIRMED"
+      ],
+      [
+        "CONFIRMED"
+      ],
+      [
+        "CONFIRMED"
+      ],
+      [
+        "CONFIRMED"
+      ],
+      [
+        "CONFIRMED"
+      ]
+    ]
+  },
+  "production.sqlite": {
+    "sha256": "0c6aa1f46f40e27eac6639cd50f4dc8669216e7a300f6cd2e9634e88117007c6",
+    "bytes": 94208,
+    "batches": [
+      [
+        "farm_provisions",
+        1,
+        "ISSUED"
+      ],
+      [
+        "farm_provisions",
+        2,
+        "ISSUED"
+      ],
+      [
+        "port_equipment",
+        2,
+        "ISSUED"
+      ]
+    ],
+    "stock": [
+      [
+        "farm_provisions",
+        1,
+        0,
+        3
+      ],
+      [
+        "port_equipment",
+        0,
+        0,
+        2
+      ]
+    ],
+    "projects": [
+      [
+        "CANCELLED"
+      ],
+      [
+        "COMPLETED"
+      ]
+    ],
+    "history_count": 19,
+    "audit_pending": 0
+  }
+}

@@ -1,0 +1,1 @@
+PASS 6 assertions; actual Folia Towny Builds Espionage, source provenance, unknown provider, capture/core ACK ordering, private report menus, counterintelligence, frozen receipts and restart recovery, neutral sidecar corruption; offline Player InventoryView EntityScheduler substitutes and seeded accepted missions; no live bank payment or network client claimed

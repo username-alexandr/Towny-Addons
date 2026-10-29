@@ -1,0 +1,12 @@
+PASS actual Events0.5 plugin enabled on real Folia
+PASS optional journal and scenario catalog loaded asynchronously
+PASS full JVM restart preserves actual event identity and historical start
+PASS restart retains paused work time actor and exactly one accepted choice
+PASS neutral old cancellation survives restart without failure history
+PASS choice audit queue drains to durable categorized journal before shutdown
+PASS resumed flood uses its exact saved crop penalty and production benefit
+PASS actual main success creates one optional terminal result
+PASS main terminal history retains persistent scenario linkage
+PASS completed choice cannot replay effects or external rewards
+PASS main event starts: drought
+PASS main failure remains one result and optional layer adds no duplicate

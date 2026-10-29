@@ -1,0 +1,25 @@
+TEST NeverLandTownyEvents ru.neverland.mintevents.EventMathSmoke
+EventMathSmoke OK
+TEST NeverLandTownyEvents ru.neverland.mintevents.EventPauseSmoke
+EventPauseSmoke PASS: freeze, resume, restart, progress and identity
+TEST NeverLandTownyEvents ru.neverland.mintevents.FireDamageSmoke
+FireDamageSmoke PASS
+TEST NeverLandTownyEvents ru.neverland.mintevents.LinkageSmoke
+LinkageSmoke OK without PlaceholderAPI
+TEST NeverLandTownyEvents ru.neverland.mintevents.RaidDefaultsSmoke
+RaidDefaultsSmoke PASS 12 inherited upgrade checks
+TEST NeverLandTownyEvents ru.neverland.mintevents.RaidKillAndMessagesSmoke
+RaidKillAndMessagesSmoke OK
+TEST NeverLandTownyEvents ru.neverland.mintevents.RaidScalingSmoke
+RaidScalingSmoke PASS: 10342 checks; monotonic scaling, caps, legacy compatibility, restart, frozen waves and exactly-once completion
+TEST NeverLandTownyEvents ru.neverland.mintevents.RaidSpawnPlannerSmoke
+RaidSpawnPlannerSmoke OK
+TEST NeverLandTownyEvents ru.neverland.mintevents.RaidVictoriesSmoke
+RaidVictoriesSmoke PASS: 13 assertions
+TEST NeverLandTownyEvents ru.neverland.mintevents.RaidWavesSmoke
+RaidWavesSmoke OK: 10 growing waves, 100 kills, restart and duplicate protection
+TEST NeverLandTownyEvents ru.neverland.mintevents.WeatherEconomySmoke
+WeatherEconomySmoke PASS: relative weights, exclusions, distribution, damage and mitigation
+TEST NeverLandTownyEvents ru.neverland.mintevents.scenarios.ScenariosSmoke
+ScenariosSmoke PASS: 41 assertions
+BUILD AND SMOKE PASS NeverLandTownyEvents-0.5.0.jar 12 programs

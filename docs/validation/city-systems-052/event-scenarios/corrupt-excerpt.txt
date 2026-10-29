@@ -1,0 +1,30 @@
+[23:52:22 INFO]: [bootstrap] Running Java 25 (OpenJDK 64-Bit Server VM 25.0.5+8-LTS; Azul Systems, Inc. Zulu25.38+107-CA) on Linux 6.18.55 (amd64)
+[23:52:22 WARN]: Failed to get system info for Process Loads
+[23:52:22 WARN]: Failed to get system info for Process Virtual Size (MiB)
+[23:52:22 WARN]: Failed to get system info for Process Resident Size (MiB)
+[23:52:26 ERROR]: Failed to request yggdrasil public key
+[23:52:28 INFO]: This server is running Folia version 26.2-7-ver/26.2.x@14b7fee (2026-08-25T13:29:28Z) (Implementing API version 26.2.build.7-beta)
+[23:52:29 INFO]: [NeverLandTownyEvents] Loading server plugin NeverLandTownyEvents v0.5.0
+[23:52:29 INFO]: [EventScenariosRuntimeProbe] Loading server plugin EventScenariosRuntimeProbe v0.52.0
+[23:52:31 INFO]: [NeverLandTownyEvents] Enabling NeverLandTownyEvents v0.5.0
+[23:52:31 INFO]: [NeverLandTownyEvents] NeverLandTownyEvents 0.5.0 включён: загружено событий 6, PlaceholderAPI=false.
+[23:52:31 WARN]: [NeverLandTownyEvents] Не удалось прочитать дополнительный журнал сценариев; обычные события продолжают работать, новые решения приостановлены
+[23:52:31 INFO]: [EventScenariosRuntimeProbe] Enabling EventScenariosRuntimeProbe v0.52.0
+[23:52:31 WARN]: [NeverLandTownyEvents] Не удалось прочитать настройки дополнительных сценариев; обычные события продолжают работать, новые решения приостановлены
+[23:52:34 INFO]: [EventScenariosRuntimeProbe] CHECK actual Events0.5 plugin enabled on real Folia
+[23:52:34 INFO]: [EventScenariosRuntimeProbe] CHECK corrupt optional data and configuration suspend only new scenario decisions
+[23:52:34 INFO]: [EventScenariosRuntimeProbe] CHECK corrupt optional evidence remains untouched
+[23:52:34 INFO]: [EventScenariosRuntimeProbe] CHECK main event starts: drought
+[23:52:34 INFO]: [EventScenariosRuntimeProbe] CHECK ordinary drought retains original effects while optional journal is unreadable
+[23:52:34 INFO]: [NeverLandTownyEvents] Нейтральная отмена: ScenarioCity / drought
+[23:52:34 INFO]: [EventScenariosRuntimeProbe] CHECK ordinary neutral cancellation still works with unavailable scenarios
+[23:52:34 INFO]: [EventScenariosRuntimeProbe] CHECK main event starts: fire
+[23:52:34 INFO]: [EventScenariosRuntimeProbe] CHECK ordinary fire starts independently of corrupt scenarios
+[23:52:34 INFO]: [NeverLandTownyEvents] Нейтральная отмена: ScenarioCity / fire
+[23:52:34 INFO]: [EventScenariosRuntimeProbe] CHECK fire cancellation invents no new repair debt
+[23:52:34 INFO]: [EventScenariosRuntimeProbe] CHECK main event starts: raid
+[23:52:34 INFO]: [EventScenariosRuntimeProbe] CHECK ordinary raid keeps persisted wave system without scenario dependency
+[23:52:34 INFO]: [NeverLandTownyEvents] Нейтральная отмена: ScenarioCity / raid
+[23:52:34 INFO]: [EventScenariosRuntimeProbe] CHECK all ordinary operations leave Events enabled after optional failures
+[23:52:34 INFO]: [EventScenariosRuntimeProbe] Disabling EventScenariosRuntimeProbe v0.52.0
+[23:52:34 INFO]: [NeverLandTownyEvents] Disabling NeverLandTownyEvents v0.5.0

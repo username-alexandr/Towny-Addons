@@ -1,0 +1,1 @@
+PASS 25 assertions; actual Folia Towny Events service, native plan inventory, real main event contribution/result and persistent identity, delayed file ACK, neutral admin pause/restart/cancel, full JVM recovery and corrupt optional isolation. Explicit offline Player/InventoryView/EntityScheduler and elapsed sample fixtures; no live player/network claim.

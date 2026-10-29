@@ -1,0 +1,6 @@
+PASS actual Espionage0.2.0 Builds and Towny enabled
+PASS corrupt optional archive leaves espionage core and other addon enabled
+PASS corrupt archive does not fail accepted missions delete reports or change cost
+PASS corrupt optional file neutral-pauses completion and new debit before bank
+PASS damaged optional file preserved for recovery
+PASS original saved reports still accessible without optional archive

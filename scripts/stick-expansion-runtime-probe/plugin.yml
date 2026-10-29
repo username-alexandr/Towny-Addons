@@ -1,0 +1,6 @@
+name: StickExpansionRuntimeProbe
+version: 1
+main: ru.neverland.runtime.StickExpansionProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyCitizens, NeverLandTownyStick]

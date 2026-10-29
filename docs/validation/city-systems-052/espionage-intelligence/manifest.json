@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "module": "NeverLandTownyEspionage",
+  "version": "0.2.0",
+  "jar_sha256": "5e1e9a0ff9a2291ee8ad1a6185a6268668d772ab674aa49ea47c6ee689031b1e",
+  "source_sha256": "b15fa08428907e1856ffc81adab4c240c616e948b55047801de3a3cba69c8b22",
+  "source_input_mismatches": [],
+  "cold_programs": [
+    "ru.neverland.mintespionage.EspionageMathSmoke",
+    "ru.neverland.mintespionage.IntelEvidenceSmoke",
+    "ru.neverland.mintespionage.IntelPersistenceSmoke",
+    "ru.neverland.mintespionage.service.IntelCompletionSmoke"
+  ],
+  "cold_new_checks": 50,
+  "native_checks": {
+    "first": 26,
+    "restart": 10,
+    "corrupt": 6
+  },
+  "runtime": "Folia 26.2 build 7 14b7fee; Towny 0.103.2.0; JDK 25.0.5",
+  "fixture": "folia-espionage-intel-2",
+  "limitations": [
+    "Offline Player InventoryView EntityScheduler substitutes; accepted paid missions are seeded historical fixtures; no live bank movement or connected client claimed.",
+    "Initial fixture failed only because offline InventoryView omitted getItem; fixed fixture reran from an empty fresh directory.",
+    "Original paid start/upgrade still debit then synchronously save; crash safety for legacy banking remains a separate financial issue.",
+    "Expected optional corruption warning in corrupt phase; sandbox cannot resolve Mojang public key endpoint. No addon ERROR, enable/disable failure or watchdog events."
+  ],
+  "files": {
+    "README.md": "fb94ad11c85f9123e511736df7cd9377bc385d44380a44f47e160a0ea087905c",
+    "cold-build.log": "1c87da5ff937acf2b806787d6db14b8887e2f9f63b173c6ba06e81c19e19e7b6",
+    "corrupt-checks.txt": "1b49fbf84edfcfab3a9b97cc6d32f05acebde3fa29f2744d62a2da5dd7aadbc8",
+    "corrupt-passed.txt": "e48a35c41eea5f30e323701585313dc002f5e77f3091b3582f10a19395f665aa",
+    "corrupt.log": "83e665b08b03c01ddd0b99091b0a33b911e9641fb6c582eeee77c2415feaabcd",
+    "first-checks.txt": "24066b39c3e5750985e28b3b92cf51d1aa53dbcecd601f2adf28adcb4a26d035",
+    "first-passed.txt": "fad4da7ccaa10a6b620f113a3d23d460a3a051e973201e0f612db888a1a787a9",
+    "first.log": "0ef9edfe6532288187eceb965693955648f622a28ec63a2ebb716bcdd5126f8e",
+    "native-results.json": "cb5e99f332938e30218580a0343887f5638d4e654fd63d3630edf4efa6b19948",
+    "restart-checks.txt": "889b5a47477dc86d6ea5d13028d37f01ad36c25935b73aa42500a85b5de282f0",
+    "restart-passed.txt": "719d7fe3e0ad408d7f0a468d5e9c0a30abed9ac40d21a6ce2fded262be50d976",
+    "restart.log": "3c7b0406c159c1f4f3035655d3d4350675dcb2db852bbc97991e754d36f9b0ab"
+  }
+}

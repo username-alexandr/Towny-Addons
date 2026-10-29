@@ -55,10 +55,7 @@ public final class EventGameplayListener implements Listener {
         ActiveEvent active = events.active(town.getUUID());
         EventDefinition definition = events.definition(active);
         if (definition == null || active.paused() || active.endsAt() <= System.currentTimeMillis() || (definition.mode() != EventMode.DROUGHT && definition.mode() != EventMode.FLOOD)) return;
-        double base = definition.mode() == EventMode.FLOOD
-                ? plugin.getConfig().getDouble("gameplay.flood-base-crop-cancel-chance", 0.60)
-                : plugin.getConfig().getDouble("gameplay.drought-base-crop-cancel-chance", 0.70);
-        double chance = Math.max(0, Math.min(1, base * (1.0 - active.protection())));
+        double chance = events.cropCancelChance(town.getUUID());
         if (ThreadLocalRandom.current().nextDouble() < chance) event.setCancelled(true);
     } }
 

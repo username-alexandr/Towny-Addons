@@ -1,0 +1,17 @@
+PASS actual Stick 0.2.0 enabled with native Towny and Folia
+PASS real selected /town claim creates saved BFS proposal without taking land
+PASS assistant creates mayor-bound estimate; fixture economy explicitly disabled
+PASS assistant cannot approve city expenditure
+PASS stale revision cannot approve
+PASS revoked player permission rechecked
+PASS new mayor cannot approve predecessor estimate without revision
+PASS changed city area invalidates stored quote before approval
+PASS revision refreshes exact quote and removes old approval
+PASS approval ACK alone does not execute native claim
+PASS blocked physical INTENT write cannot publish state or claim any land
+PASS real Suite global heartbeat advances while file writer is blocked
+PASS actual native TownClaim batch acquired both cells and independent ownership check confirms them
+PASS TownClaim constructor read player location only on entity-owned region
+PASS completed plan never repeats native claim or payment request
+PASS successful cells removed from original assistant selection
+PASS explicit held offline entity continuation leaves durable unknown INTENT before native effect
