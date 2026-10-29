@@ -1,0 +1,28 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 16 assertions; genuine Folia/Towny/Builds/Districts metadata, real immutable footprint API, native command/menu, detached graph, exact source invalidation, read-only file checks, neutral feature failure and full restart; explicit offline Player/InventoryView/EntityScheduler and completed-site fixtures; no graphical client, purchased construction, block scanning or bank operation claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyControl-0.5.6.jar": "a7cb90923ca6de463a4e860911048ad3104666d7b8fc2eac45b4a2c94fa8d455",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "DistrictAssessmentRuntimeProbe.jar": "1756ab2fa4be387dd249dd26571ed0322b16e54978672ec42c22fb040d210757",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63",
+      "NeverLandTownyDistricts-0.2.1.jar": "d3ea2f58c00287bcf6b10ceb583477c92c7a5b20e29825f6986addb4bc30435d"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 5 assertions; genuine Folia/Towny/Builds/Districts metadata, real immutable footprint API, native command/menu, detached graph, exact source invalidation, read-only file checks, neutral feature failure and full restart; explicit offline Player/InventoryView/EntityScheduler and completed-site fixtures; no graphical client, purchased construction, block scanning or bank operation claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyControl-0.5.6.jar": "a7cb90923ca6de463a4e860911048ad3104666d7b8fc2eac45b4a2c94fa8d455",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "DistrictAssessmentRuntimeProbe.jar": "1756ab2fa4be387dd249dd26571ed0322b16e54978672ec42c22fb040d210757",
+      "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63",
+      "NeverLandTownyDistricts-0.2.1.jar": "d3ea2f58c00287bcf6b10ceb583477c92c7a5b20e29825f6986addb4bc30435d"
+    }
+  }
+]
