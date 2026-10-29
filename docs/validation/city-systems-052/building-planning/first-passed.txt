@@ -1,0 +1,1 @@
+PASS 30 checks; native Folia read-only planning API, actual configured prices and ItemStack serialization, persisted funds and warehouse; no bank operation, construction action or network client claimed

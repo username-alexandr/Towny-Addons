@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-29",
+  "scope": "Control 0.6.1 rerun after per-kind operation signals and expansion categories; real Folia, offline UI actor fixtures, seeded audit rows, no real bank transfer or network client.",
+  "java": "Zulu25.0.5",
+  "folia": "26.2-DEV-14b7fee",
+  "phases": [
+    23,
+    8
+  ],
+  "jars": {
+    "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+    "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+    "NeverLandTownyControl-0.6.1.jar": "f8210c29f10d64e1b6470bf4ad72598fd268c0bc74a66397a193d0d42a454256",
+    "ControlAuditRuntimeProbe.jar": "2eeb414fe6d3b69a70cc9cb4966286edd6889a52f8249540ef19e6355a4f8ead"
+  }
+}

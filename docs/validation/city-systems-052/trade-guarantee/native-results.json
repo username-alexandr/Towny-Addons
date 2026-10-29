@@ -1,0 +1,26 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 22 assertions; actual Folia Trade state machine, async ACK journals, Towny accounts/observers, contention, audit retry, conservation, reconciliation, shutdown and full restart. Controlled economy adapter, warehouse API and clock/route seeds; no live Vault provider or network client claimed.\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyControl-0.6.0.jar": "2e1c22da662d888f5edab3901fd6d36c15ca8047b69090b9688de4fbcee12647",
+      "NeverLandTownyBuilds-0.10.1.jar": "377b73e6ca37a52d5be4070b221970e348949fcd389bd20114f967eeda1e75c1",
+      "TradeGuaranteeRuntimeProbe.jar": "72410e259bd441f8112a2ae6c68c2b75321215a38fc043b539a62641089f791f",
+      "NeverLandTownyTrade-0.3.0.jar": "d36281a4a51bfda0a6a981196d63452c7433894ce5a1c72a7dc01f7638780ba4"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 10 assertions; actual Folia Trade state machine, async ACK journals, Towny accounts/observers, contention, audit retry, conservation, reconciliation, shutdown and full restart. Controlled economy adapter, warehouse API and clock/route seeds; no live Vault provider or network client claimed.\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyControl-0.6.0.jar": "2e1c22da662d888f5edab3901fd6d36c15ca8047b69090b9688de4fbcee12647",
+      "NeverLandTownyBuilds-0.10.1.jar": "377b73e6ca37a52d5be4070b221970e348949fcd389bd20114f967eeda1e75c1",
+      "TradeGuaranteeRuntimeProbe.jar": "72410e259bd441f8112a2ae6c68c2b75321215a38fc043b539a62641089f791f",
+      "NeverLandTownyTrade-0.3.0.jar": "d36281a4a51bfda0a6a981196d63452c7433894ce5a1c72a7dc01f7638780ba4"
+    }
+  }
+]

@@ -1,0 +1,30 @@
+PASS actual Builds enabled
+PASS public read-only planning API registered
+PASS counted codec preserves 272 items and custom metadata without oversized native stack
+PASS old native base64 format remains readable unchanged
+PASS invalid counted resource refuses decoding: nlt-counted-v1:0:AA==
+PASS invalid counted resource refuses decoding: nlt-counted-v1:1000000001:AA==
+PASS invalid counted resource refuses decoding: nlt-counted-v1:272:H4sIAAAAAAAA/+NiY
+PASS invalid resource definition blocks full level instead of omitting price: {resources-base64=[nlt-counted-v1:272:invalid]}
+PASS invalid resource definition blocks full level instead of omitting price: {resources=[OAK_LOG:0]}
+PASS invalid resource definition blocks full level instead of omitting price: {resources=[MISSING_MATERIAL:16]}
+PASS invalid resource definition blocks full level instead of omitting price: {resources={OAK_LOG=16}}
+PASS invalid custom override cannot fall back to a cheaper inherited building
+PASS invalid custom catalog forbids overwriting the original price file
+PASS healthy reload restores the original counted price after rejected edit
+PASS bounded request capacity refuses third concurrent estimate without waiting
+PASS future completion runs outside shared Suite state
+PASS catalog reflects live definitions including custom buildings
+PASS real configured prices total exactly once
+PASS shared prerequisite appears once in dependency order
+PASS 272-item source requirement is encoded with a unit sample
+PASS acknowledged project fund counted once
+PASS one physical warehouse stock counted once across projects
+PASS remaining quantity conserves total funds and stock
+PASS estimate does not spend project donations
+PASS estimate does not spend warehouse items
+PASS estimate does not complete buildings or create town records
+PASS unknown town is rejected
+PASS unknown-town read leaves persistence unchanged
+PASS satisfied building does not expand its obsolete historical dependencies
+PASS cyclic dependency refuses estimate without partial quote

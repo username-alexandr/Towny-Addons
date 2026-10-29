@@ -1,0 +1,10 @@
+PASS actual Trade0.3 plugin enabled with real Folia scheduler
+PASS full JVM restart retains exact pending unknown debit and controlled account state
+PASS full restart retains seller DONE committed during shutdown
+PASS restart pays remaining tariff without repeating acknowledged seller payment
+PASS restart does not replay unknown funding call
+PASS manual paid reconciliation advances exact old debit without a new withdrawal
+PASS full refund after explicit reconciliation conserves all initial1000 money
+PASS all384 items conserved across deliveries cancellation unknown funding and restart
+PASS all five histories persist once and terminal state cleans up only after audit ACK
+PASS compensation refund and shutdown payment audit persisted across restart

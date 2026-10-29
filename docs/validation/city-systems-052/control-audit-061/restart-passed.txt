@@ -1,0 +1,1 @@
+PASS 8 checks; actual Folia Control menus, derived SQLite index, corruption recovery, permissions, immutable bank audit and shutdown drain; seeded administrative evidence and offline Player/View/EntityScheduler fixtures; no real bank payment or network rendering claimed

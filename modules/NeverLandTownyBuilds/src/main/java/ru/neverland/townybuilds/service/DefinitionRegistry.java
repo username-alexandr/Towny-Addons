@@ -35,6 +35,7 @@ public final class DefinitionRegistry {
     private final File defaultsFile;
     private final File customFile;
     private final Map<String, ProjectDefinition> projects = new LinkedHashMap<>();
+    private boolean customWritable;
 
     public DefinitionRegistry(JavaPlugin plugin, ItemsAdderHook itemsAdder) {
         this.plugin = plugin;
@@ -46,6 +47,7 @@ public final class DefinitionRegistry {
 
     public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         projects.clear();
+        customWritable = true;
         // Сначала читаем встроенный каталог. Так обновление добавляет новые проекты даже
         // при сохранённом старом projects.yml, а значения администратора загружаются поверх.
         try (InputStream stream = plugin.getResource("projects.yml")) {
@@ -57,10 +59,10 @@ public final class DefinitionRegistry {
             plugin.getLogger().severe("Не удалось прочитать встроенный projects.yml: " + exception.getMessage());
         }
         if (defaultsFile.exists()) {
-            loadFile(YamlConfiguration.loadConfiguration(defaultsFile), false);
+            loadExternal(defaultsFile, false);
         }
         if (customFile.exists()) {
-            loadFile(YamlConfiguration.loadConfiguration(customFile), true);
+            loadExternal(customFile, true);
         }
         rebalanceResources();
         plugin.getLogger().info("Загружено городских проектов: " + projects.size());
@@ -87,8 +89,23 @@ public final class DefinitionRegistry {
     }
 
     private void loadFile(YamlConfiguration yaml, boolean custom) {
+        for (String root : List.of("buildings", "wonders")) {
+            if (yaml.contains(root) && !yaml.isConfigurationSection(root)) throw new IllegalArgumentException(root + " должен содержать проекты");
+        }
         loadSection(yaml.getConfigurationSection("buildings"), ProjectType.BUILDING, custom);
         loadSection(yaml.getConfigurationSection("wonders"), ProjectType.WONDER, custom);
+    }
+
+    private void loadExternal(File file, boolean custom) {
+        try {
+            var yaml = new YamlConfiguration();
+            yaml.load(file);
+            loadFile(yaml, custom);
+        } catch (IOException | org.bukkit.configuration.InvalidConfigurationException | RuntimeException exception) {
+            projects.clear();
+            customWritable = false;
+            plugin.getLogger().severe("Каталог недоступен; исходный " + file.getName() + " сохранён для исправления: " + exception.getMessage());
+        }
     }
 
     private void loadSection(ConfigurationSection section, ProjectType type, boolean custom) {
@@ -98,6 +115,9 @@ public final class DefinitionRegistry {
         for (String id : section.getKeys(false)) {
             ConfigurationSection projectSection = section.getConfigurationSection(id);
             if (projectSection == null) {
+                projects.remove(id.toLowerCase(Locale.ROOT));
+                if (custom) customWritable = false;
+                plugin.getLogger().severe("Проект " + id + " недоступен: вместо настроек проекта указано другое значение");
                 continue;
             }
             try {
@@ -114,7 +134,9 @@ public final class DefinitionRegistry {
                 definition.setCustom(custom);
                 projects.put(definition.id(), definition);
             } catch (RuntimeException exception) {
-                plugin.getLogger().severe("Проект " + id + " пропущен: " + exception.getMessage());
+                projects.remove(id.toLowerCase(Locale.ROOT));
+                if (custom) customWritable = false;
+                plugin.getLogger().severe("Проект " + id + " недоступен до исправления настроек: " + exception.getMessage());
             }
         }
     }
@@ -167,21 +189,19 @@ public final class DefinitionRegistry {
 
     private LevelDefinition parseLevel(int level, ConfigurationSection section) {
         List<ItemStack> resources = new ArrayList<>();
-        for (String encoded : section.getStringList("resources-base64")) {
+        for (String encoded : resourceStrings(section, "resources-base64")) {
             try {
                 ItemStack item = ItemCodec.decodeSingle(encoded);
-                if (item != null && !item.getType().isAir() && item.getAmount() > 0) {
-                    resources.add(item);
-                }
+                validateResource(item);
+                resources.add(item);
             } catch (IOException | ClassNotFoundException exception) {
-                plugin.getLogger().warning("Не удалось прочитать NBT-ресурс уровня " + level + ": " + exception.getMessage());
+                throw new IllegalArgumentException("не удалось прочитать ресурс уровня " + level, exception);
             }
         }
-        for (String specification : section.getStringList("resources")) {
+        for (String specification : resourceStrings(section, "resources")) {
             ItemStack item = parseResource(specification);
-            if (item != null) {
-                resources.add(item);
-            }
+            validateResource(item);
+            resources.add(item);
         }
         Map<PotionEffectType, Integer> effects = new LinkedHashMap<>();
         for (String specification : section.getStringList("effects")) {
@@ -201,29 +221,52 @@ public final class DefinitionRegistry {
     private ItemStack parseResource(String specification) {
         try {
             if (specification.toLowerCase(Locale.ROOT).startsWith("itemsadder:")) {
-                String[] parts = specification.split(":");
-                if (parts.length < 4) {
+                String[] parts = specification.split(":", -1);
+                if (parts.length != 4) {
                     throw new IllegalArgumentException("формат ItemsAdder: itemsadder:namespace:id:amount");
                 }
                 int amount = Integer.parseInt(parts[parts.length - 1]);
+                validateResourceAmount(amount);
                 String id = parts[1] + ":" + parts[2];
                 ItemStack custom = itemsAdder.item(id, amount);
                 if (custom == null) {
-                    plugin.getLogger().warning("Ресурс ItemsAdder недоступен: " + id);
+                    throw new IllegalArgumentException("ресурс ItemsAdder недоступен: " + id);
                 }
                 return custom;
             }
-            String[] parts = specification.split(":");
+            String[] parts = specification.split(":", -1);
+            if (parts.length > 2) throw new IllegalArgumentException("формат ресурса: MATERIAL:amount");
             Material material = resolveResourceMaterial(parts[0]);
             if (material == null || !material.isItem()) {
                 throw new IllegalArgumentException("неизвестный материал " + parts[0]);
             }
             int amount = parts.length > 1 ? Integer.parseInt(parts[1]) : 1;
-            return new ItemStack(material, Math.max(1, amount));
+            validateResourceAmount(amount);
+            return new ItemStack(material, amount);
         } catch (RuntimeException exception) {
-            plugin.getLogger().warning("Некорректный ресурс '" + specification + "': " + exception.getMessage());
-            return null;
+            throw new IllegalArgumentException("некорректный ресурс '" + specification + "': " + exception.getMessage(), exception);
         }
+    }
+
+    private static List<String> resourceStrings(ConfigurationSection section, String path) {
+        if (!section.contains(path)) return List.of();
+        Object value = section.get(path);
+        if (!(value instanceof List<?> list)) throw new IllegalArgumentException(path + " должен быть списком ресурсов");
+        List<String> result = new ArrayList<>();
+        for (Object entry : list) {
+            if (!(entry instanceof String text) || text.isBlank()) throw new IllegalArgumentException("пустой или неверный ресурс в " + path);
+            result.add(text);
+        }
+        return result;
+    }
+
+    private static void validateResource(ItemStack item) {
+        if (item == null || item.getType().isAir() || !item.getType().isItem()) throw new IllegalArgumentException("ресурс не является предметом");
+        validateResourceAmount(item.getAmount());
+    }
+
+    private static void validateResourceAmount(int amount) {
+        if (amount < 1 || amount > 1_000_000_000) throw new IllegalArgumentException("количество ресурса должно быть от 1 до 1000000000");
     }
 
     static Material resolveResourceMaterial(String name) {
@@ -294,6 +337,7 @@ public final class DefinitionRegistry {
     }
 
     public void saveCustomProjects() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
+        if (!customWritable) throw new IllegalStateException("Сохранение запрещено: исправьте ошибки каталога и перезагрузите его. Исходный custom-projects.yml сохранён.");
         YamlConfiguration yaml = new YamlConfiguration();
         for (ProjectDefinition project : projects.values()) {
             if (!project.custom()) {
@@ -324,7 +368,7 @@ public final class DefinitionRegistry {
                     try {
                         encoded.add(ItemCodec.encodeSingle(item));
                     } catch (IOException exception) {
-                        plugin.getLogger().warning("Не удалось сохранить ресурс " + project.id());
+                        throw new IllegalStateException("Не удалось сохранить ресурс " + project.id() + "; прежний файл оставлен без изменений", exception);
                     }
                 }
                 yaml.set(levelRoot + ".resources-base64", encoded);
@@ -334,9 +378,10 @@ public final class DefinitionRegistry {
             }
         }
         try {
-            yaml.save(customFile);
+            ru.neverland.core.AtomicFiles.write(customFile.toPath(), yaml::saveToString);
         } catch (IOException exception) {
-            plugin.getLogger().severe("Не удалось сохранить custom-projects.yml: " + exception.getMessage());
+            customWritable = false;
+            throw new IllegalStateException("Не удалось сохранить custom-projects.yml; прежний файл оставлен без изменений", exception);
         }
     } }
 }

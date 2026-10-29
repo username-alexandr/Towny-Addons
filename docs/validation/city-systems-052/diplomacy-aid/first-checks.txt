@@ -1,0 +1,28 @@
+PASS actual Diplomacy 0.2 optional aid retains healthy old treaty service
+PASS unchanged alliance protects parties and does not invent a war
+PASS ordinary resident cannot sign political undertaking
+PASS foreign mayor cannot sign for another town
+PASS first signature alone gives no active obligation
+PASS initiator cannot accept own offer
+PASS physical file delay leaves unacknowledged signature ineffective
+PASS real Folia region continues during aid disk wait
+PASS mayor changed while writing invalidates signature before activation
+PASS two exact current mayor signatures activate fixed conditions
+PASS attack observed before the final mutual signature cannot create a later obligation
+PASS native offline CraftPlayers belong to actual Folia region
+PASS prior protection cancellation is never removed
+PASS cancelled and zero-damage events produce no obligation
+PASS real Towny and Diplomacy listeners allow enemy damage in enabled PvP land
+PASS durable call captures exact attack, parties, territory and deadline
+PASS rapid repeat from same player pair cannot manufacture extra proof
+PASS actual positive PvP events from two helpers fulfill exact ten damage target
+PASS persisted evidence UUID replay remains idempotent
+PASS native menu shows fixed terms, both signatures and absence of automatic punishment
+PASS native proof menu displays exact original attacker and helping player
+PASS right-click cannot confirm a diplomatic decision
+PASS deferred old-window click neither ends agreement nor reopens replaced menu
+PASS optional disable neutralizes open aid without changing earlier proof or alliance
+PASS acknowledged common audit drains durable outbox before completion
+PASS common admin audit captures exact confirming mayor and agreement
+PASS accepted combat evidence and completion each appear once in common admin audit
+PASS neutral administrative stop is logged with exact assisting and protected towns

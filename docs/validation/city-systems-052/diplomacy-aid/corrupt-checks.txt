@@ -1,0 +1,4 @@
+PASS actual Diplomacy 0.2 optional aid retains healthy old treaty service
+PASS malformed optional aid pauses only new evidence and preserves old alliance protections
+PASS optional aid data error does not cascade to other addons
+PASS malformed optional file remains untouched for repair

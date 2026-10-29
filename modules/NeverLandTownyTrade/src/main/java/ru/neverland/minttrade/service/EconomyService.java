@@ -73,61 +73,28 @@ public final class EconomyService {
       return this.format.format(amount);
    } }
 
-   public boolean transfer(Town town, double amount, ExportDefinition definition, String kind, UUID operation, boolean incoming) { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
-      if (amount <= 0.0) {
-         return true;
-      } else if (town == null) {
-         return false;
-      } else {
-         BankAccount account = town.getAccount();
-         String token = "[caravan:" + operation + "]";
-         final PaymentEvidence evidence = new PaymentEvidence(account, incoming, token, BigDecimal.valueOf(amount).movePointRight(2).longValueExact());
-         var observer = new AccountObserver() {
-            @Override
-            public void withdrew(Account source, double value, String reason) { 
-               evidence.observe(source, false, value, reason);
-             }
-
-            @Override
-            public void deposited(Account source, double value, String reason) { 
-               evidence.observe(source, true, value, reason);
-             }
-         };
-         synchronized (account) {
-            account.addObserver(observer);
-
-            boolean var15;
-            try {
-               String reason = token
-                  + " "
-                  + this.reason(
-                     incoming
-                        ? (kind.equals("refund") ? "economy.refund-reason" : (kind.equals("tariff") ? "economy.tariff-reason" : "economy.sale-reason"))
-                        : "economy.reserve-reason",
-                     definition
-                  );
-
-               try {
-                  return evidence.result(
-                     incoming
-                        ? TreasuryAccess.deposit(town, "infrastructure", kind, kind.equals("refund"), amount, reason)
-                        : TreasuryAccess.withdraw(town, "infrastructure", "trade", amount, reason)
-                  );
-               } catch (RuntimeException var21) {
-                  if (!evidence.observed()) {
-                     throw var21;
-                  }
-
-                  var15 = true;
-               }
-            } finally {
-               account.removeObserver(observer);
-            }
-
-            return var15;
-         }
+   /** Capture account and reason under the guard; incoming external IO runs on the raw global scheduler. */
+   public java.util.function.Supplier<Boolean> prepare(Town town,double amount,ExportDefinition definition,String kind,UUID operation,boolean incoming){try(var guard=ru.neverland.core.SuiteState.guard()){
+      if(!Double.isFinite(amount)||amount<0)throw new IllegalArgumentException("Неверная сумма каравана");
+      if(amount==0)return ()->true;if(town==null||!com.palmergames.bukkit.towny.TownyEconomyHandler.isActive())return ()->false;
+      BankAccount account=town.getAccount();if(!incoming&&!TreasuryAccess.canSpend(town,"infrastructure",amount))return ()->false;String token="[caravan:"+operation+"]";
+      String reason=token+" "+reason(incoming?(kind.equals("refund")?"economy.refund-reason":kind.equals("tariff")?"economy.tariff-reason":"economy.sale-reason"):"economy.reserve-reason",definition);
+      long cents=BigDecimal.valueOf(amount).movePointRight(2).longValueExact();
+      return ()->{
+         var evidence=new PaymentEvidence(account,incoming,token,cents);var observer=new AccountObserver(){public void withdrew(Account a,double n,String text){evidence.observe(a,false,n,text);}public void deposited(Account a,double n,String text){evidence.observe(a,true,n,text);}};
+         // Incoming transfers need no budget reservation. The existing outgoing Treasury API still
+         // owns its synchronous budget ledger; its behavior is preserved rather than bypassed.
+         if(incoming)return observed(account,observer,evidence,()->account.deposit(amount,"[NLT|"+(kind.equals("refund")?"refund":"income")+"|infrastructure|"+kind+"] "+reason));
+         try(var state=ru.neverland.core.SuiteState.guard()){return observed(account,observer,evidence,()->TreasuryAccess.withdraw(town,"infrastructure","trade",amount,reason));}
+      };
+   }}
+   private static boolean observed(BankAccount account,AccountObserver observer,PaymentEvidence evidence,java.util.function.Supplier<Boolean> transfer){
+      synchronized(account){double before=account.getHoldingBalance(true);if(!Double.isFinite(before))throw new IllegalStateException("Баланс банка недоступен");account.addObserver(observer);
+         try{boolean reported=transfer.get();if(evidence.observed())return true;throw new IllegalStateException("Банк вернул "+reported+" без точной квитанции; нужна сверка. Совпадение баланса не доказывает отсутствие операции.");}
+         catch(RuntimeException ex){if(evidence.observed())return true;throw ex;}finally{account.removeObserver(observer);}
       }
-   } }
+   }
+   public boolean transfer(Town town,double amount,ExportDefinition definition,String kind,UUID operation,boolean incoming){return prepare(town,amount,definition,kind,operation,incoming).get();}
 
    private String reason(String path, ExportDefinition definition) {
       return ColorUtil.strip(

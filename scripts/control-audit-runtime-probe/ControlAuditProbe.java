@@ -36,7 +36,7 @@ public final class ControlAuditProbe extends AdmissionsProbe {
     String newMessages(){return String.join("\n",messages.subList(messageStart,messages.size()));}
     @Override void setup()throws Exception{
         control=(NeverLandTownyControl)Bukkit.getPluginManager().getPlugin("NeverLandTownyControl");menu=field(control,"adminMenu");bank=(BankAudit)field(control,"bankAudit");queue=field(bank,"queue");mayor=administrator();
-        check(control.isEnabled()&&control.getDescription().getVersion().equals("0.6.0"),"actual Control 0.6.0 enabled on Folia with original Towny API");
+        check(control.isEnabled()&&control.getDescription().getVersion().equals("0.6.1"),"actual Control 0.6.1 enabled on Folia with original Towny API");
         index=control.getDataFolder().toPath().resolve("audit-index/derived-v1.sqlite");
         if(restart){resumeControl();return;}
         var u=TownyUniverse.getInstance();u.newTownInternal("AuditSourceCity",T);town=TownyAPI.getInstance().getTown(T);var resident=u.getDataSource().newResident("AuditAdmin",M);resident.setTown(town);town.setMayor(resident);resident.save();var claim=new TownBlock(0,0,u.getWorld(world.getName()));u.addTownBlock(claim);claim.setTown(town);town.setHomeBlock(claim);claim.save();town.setSpawn(origin);town.save();

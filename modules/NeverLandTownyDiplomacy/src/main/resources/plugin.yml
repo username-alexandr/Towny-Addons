@@ -1,5 +1,5 @@
 name: NeverLandTownyDiplomacy
-version: 0.1.13
+version: 0.2.0
 main: ru.neverland.townydiplomacy.NeverLandTownyDiplomacy
 folia-supported: true
 api-version: '26.2'

@@ -1,0 +1,32 @@
+package ru.neverland.townytreasury.gui;
+import java.util.*;import org.bukkit.*;import org.bukkit.entity.Player;import org.bukkit.event.*;import org.bukkit.event.inventory.*;import org.bukkit.inventory.*;import org.bukkit.plugin.Plugin;
+import ru.neverland.core.*;import ru.neverland.townytreasury.model.Money;import ru.neverland.townytreasury.service.TreasuryService;
+/** Separate two-step reconciliation; it edits one receipt and never invokes the bank. */
+public final class AsyncDebitMenu implements Listener {
+    private final Plugin plugin;private final TreasuryService service;
+    private static final class View implements InventoryHolder{final UUID viewer;final Map<Integer,Runnable> actions=new HashMap<>();Inventory inventory;View(UUID id){viewer=id;}public Inventory getInventory(){return inventory;}}
+    public AsyncDebitMenu(Plugin plugin,TreasuryService service){this.plugin=plugin;this.service=service;}
+    private boolean allowed(Player p){return p.isOp()||p.hasPermission("neverlandtownytreasury.admin");}
+    private View view(Player p,String title){if(!allowed(p))throw new IllegalArgumentException("Нет прав администратора казны");var v=new View(p.getUniqueId());v.inventory=MenuStyle.inventory(plugin,v,54,title);return v;}
+    public void open(Player player,int requested){try(var guard=SuiteState.guard()){
+        var v=view(player,"Квитанции городских платежей");var list=service.asyncDebits().stream().sorted(Comparator.<Map<String,Object>,Boolean>comparing(r->!r.get("status").equals("REVIEW")).thenComparing(Comparator.comparingLong((Map<String,Object> r)->((Number)r.get("createdAt")).longValue()).reversed())).toList();int page=Math.max(0,Math.min(requested,Math.max(0,(list.size()-1)/45)));
+        for(int i=page*45;i<Math.min(list.size(),(page+1)*45);i++){var row=list.get(i);UUID id=UUID.fromString((String)row.get("operation"));button(v,i%45,row.get("status").equals("REVIEW")?Material.REDSTONE_BLOCK:Material.PAPER,title(row),lore(row),()->details(player,id,page,null));}
+        if(page>0)button(v,45,Material.ARROW,"Предыдущая страница",List.of(),()->open(player,page-1));if((page+1)*45<list.size())button(v,53,Material.ARROW,"Следующая страница",List.of(),()->open(player,page+1));button(v,49,Material.SPYGLASS,"Обновить",List.of("Страница "+(page+1),"Опасные квитанции показаны первыми."),()->open(player,page));player.openInventory(v.inventory);
+    }}
+    public void details(Player player,UUID id,int page,Boolean paid){try(var guard=SuiteState.guard()){
+        var current=service.debitStatus(id);if(current.get("status").equals("ABSENT"))throw new IllegalArgumentException("Квитанция не найдена");var v=view(player,paid==null?"Сверка одной квитанции":"Подтверждение результата сверки");button(v,13,Material.WRITABLE_BOOK,title(current),lore(current),null);
+        if(current.get("status").equals("REVIEW")){
+            if(paid==null){button(v,29,Material.LIME_DYE,"Операция действительно была",List.of("Сначала проверьте банковский журнал.","Следующий экран покажет подтверждение."),()->details(player,id,page,true));button(v,33,Material.RED_DYE,"Операции точно не было",List.of("Одного текущего баланса недостаточно.","Следующий экран покажет подтверждение."),()->details(player,id,page,false));}
+            else button(v,31,Material.LIME_DYE,paid?"Подтверждаю: операция была":"Подтверждаю: операции не было",List.of("Я проверил ID, сумму, город и журнал банка.","Изменится только эта квитанция.","Банковская операция повторяться не будет."),()->{
+                if(!allowed(player))throw new IllegalArgumentException("Права администратора отозваны");var latest=service.debitStatus(id);if(!latest.get("status").equals("REVIEW")||!latest.get("changedAt").equals(current.get("changedAt")))throw new IllegalArgumentException("Квитанция изменилась; откройте её заново");
+                service.resolveAsync(id,paid,player.getName()).whenComplete((result,error)->SuiteScheduler.entity(plugin,player,()->{if(!player.isOnline()||!allowed(player))return;player.sendMessage(error==null?"Результат сверки сохранён. Деньги повторно не переводились.":"Результат пока не сохранён; проверьте квитанцию и консоль.");details(player,id,page,null);}));player.sendMessage("Результат сверки сохраняется…");
+            });
+        }
+        button(v,45,Material.ARROW,"Назад",List.of(),()->{if(paid==null)open(player,page);else details(player,id,page,null);});player.openInventory(v.inventory);
+    }}
+    private String title(Map<String,Object> row){return (row.get("kind").equals("REFUND")?"Возврат":"Списание")+" — "+switch(row.get("status").toString()){case "PAID"->"Подтверждено";case "REJECTED"->"Без движения денег";case "REVIEW"->"Нужна сверка";case "INVOKING"->"Ожидает ответа банка";default->"Готовится";};}
+    private List<String> lore(Map<String,Object> r){var out=new ArrayList<String>();out.add("ID: "+r.get("operation"));out.add("Город: "+r.get("town"));out.add("Сумма: "+Money.format(((Number)r.get("cents")).longValue()));out.add("Статья: "+r.get("category"));out.add("Аддон: "+r.get("owner"));out.add("Основание: "+r.get("reason"));if(!r.get("backingDebit").equals(""))out.add("Исходное списание: "+r.get("backingDebit"));if(!r.get("review").equals(""))out.add(r.get("review").toString());return out;}
+    private void button(View v,int slot,Material icon,String title,List<String> lore,Runnable action){var item=new ItemStack(icon);var meta=item.getItemMeta();meta.setDisplayName(MenuStyle.nameLegacy("§f"+title));meta.setLore(MenuStyle.loreStrings(lore));meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);item.setItemMeta(meta);v.inventory.setItem(slot,item);if(action!=null)v.actions.put(slot,action);}
+    @EventHandler public void click(InventoryClickEvent event){try(var guard=SuiteState.guard()){if(!(event.getView().getTopInventory().getHolder() instanceof View v))return;event.setCancelled(true);if(!(event.getWhoClicked() instanceof Player p)||!p.getUniqueId().equals(v.viewer)||!allowed(p)||p.getOpenInventory().getTopInventory()!=v.inventory||event.getClick()!=ClickType.LEFT||event.getRawSlot()<0||event.getRawSlot()>=v.inventory.getSize()||SuiteState.frozen(plugin.getName()))return;var action=v.actions.get(event.getRawSlot());if(action!=null)try{action.run();}catch(RuntimeException e){p.sendMessage(e.getMessage());}}}
+    @EventHandler public void drag(InventoryDragEvent event){if(event.getView().getTopInventory().getHolder() instanceof View)event.setCancelled(true);}
+}

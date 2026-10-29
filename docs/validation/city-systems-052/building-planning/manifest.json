@@ -1,0 +1,15 @@
+{
+  "version": "0.11.0",
+  "jar": "NeverLandTownyBuilds-0.11.0.jar",
+  "sha256": "9a3a0498da738c5a3f0b2edcf386e251f1a6a2303f25496bfe5ab1b9b86e13b6",
+  "cold_programs": 47,
+  "planner_cold_checks": 1027,
+  "native_checks": [
+    30,
+    30
+  ],
+  "fixture": "folia-build-planning-2",
+  "limits": [
+    "Native read-only API and actual ItemStack/config persistence; no network client, bank operation or completed construction claimed"
+  ]
+}

@@ -84,6 +84,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         new ru.neverland.townybuilds.storage.RaidStorageService(this,dataStore,storage);
         new ru.neverland.townybuilds.construction.BuildingRepairPlans(this,dataStore,definitions);
         new ru.neverland.townybuilds.service.BuildingMaterials(this,dataStore,definitions,itemNames);
+        new ru.neverland.townybuilds.planning.BuildingPlanning(this,dataStore,definitions,itemNames);
         cityStyles=new ru.neverland.townybuilds.construction.CityStyles(this,dataStore,towny);
         BuildService builds = new BuildService(this, towny, dataStore, messages, new ArchaeologyBridge(this), itemNames, definitions);
         construction = new ConstructionService(this, towny, dataStore, messages, itemNames,

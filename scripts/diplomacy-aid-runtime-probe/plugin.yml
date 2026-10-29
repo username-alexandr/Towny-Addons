@@ -1,0 +1,6 @@
+name: DiplomacyAidRuntimeProbe
+version: 1
+main: ru.neverland.runtime.DiplomacyAidProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyCitizens, NeverLandTownyDiplomacy]

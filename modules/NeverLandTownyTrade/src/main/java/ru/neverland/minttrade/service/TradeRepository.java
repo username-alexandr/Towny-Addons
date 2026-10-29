@@ -27,90 +27,57 @@ import ru.neverland.minttrade.model.TradeOffer;
 import ru.neverland.minttrade.model.RoutePoint.Kind;
 
 public final class TradeRepository {
-   private final JavaPlugin plugin;
    private final File file;
    private final Map<UUID, TradeOffer> offers = new LinkedHashMap<>();
    private final Map<UUID, Caravan> caravans = new LinkedHashMap<>();
    private final Map<UUID, Double> tariffs = new LinkedHashMap<>();
    private final List<TradeHistory> history = new ArrayList<>();
    private final Map<UUID, Double> pendingCredits = new LinkedHashMap<>();
-   private boolean dirty;
-   private boolean writable;
-   private final EffectJournal effects;
+   private final CaravanEffects effects;
 
-   public EffectJournal effects() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
-      return this.effects;
-   } }
-
-   public boolean writable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
-      return this.writable && AtomicFiles.writable(this.file.toPath()) && this.effects.writable();
-   } }
-
-   private void gate() {
-      if (!this.writable()) {
-         throw new IllegalStateException("Хранилище торговли заблокировано после ошибки записи");
-      }
+   public record Image(Map<UUID,TradeOffer> offers,Map<UUID,Caravan> caravans,Map<UUID,Double> tariffs,List<TradeHistory> history,Map<UUID,Double> pendingCredits) {
+      public Image {offers=Map.copyOf(offers);var copies=new LinkedHashMap<UUID,Caravan>();caravans.forEach((id,c)->copies.put(id,c.copy()));caravans=Collections.unmodifiableMap(copies);tariffs=Map.copyOf(tariffs);history=List.copyOf(history);pendingCredits=Map.copyOf(pendingCredits);}
    }
-
-   public TradeRepository(JavaPlugin plugin) {
-      this.plugin = plugin;
-      this.file = new File(plugin.getDataFolder(), "trade-data.yml");
-      this.effects = new EffectJournal(plugin.getDataFolder().toPath().resolve("caravan-effects.yml"));
+   private final ru.neverland.core.AcknowledgedState<Image> acknowledged;
+   public CaravanEffects effects(){return effects;}
+   public boolean writable(){return acknowledged.writable()&&effects.writable();}
+   public boolean busy(){return acknowledged.busy()||effects.busy();}
+   public TradeRepository(JavaPlugin plugin){this(plugin.getDataFolder().toPath());}
+   public TradeRepository(java.nio.file.Path folder){
+      this.file=folder.resolve("trade-data.yml").toFile();effects=new CaravanEffects(folder.resolve("caravan-effects.yml"));
+      acknowledged=new ru.neverland.core.AcknowledgedState<>(file.toPath(),new Image(Map.of(),Map.of(),Map.of(),List.of(),Map.of()),this::snapshot,"nlt-trade-state");
    }
-
-   public void load() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
-      this.writable = false;
-      this.offers.clear();
-      this.caravans.clear();
-      this.tariffs.clear();
-      this.history.clear();
-      this.pendingCredits.clear();
-      YamlConfiguration yaml = SafeYaml.load(this.file.toPath());
-      if (yaml.contains("schema") && SafeYaml.integer(yaml, "schema") != 2L) {
-         throw new IllegalArgumentException("Неизвестная схема торговли");
-      } else if (!Set.of("schema", "offers", "caravans", "tariffs", "history", "pending-town-credits").containsAll(yaml.getKeys(false))) {
-         throw new IllegalArgumentException("Неизвестные разделы торговли");
-      } else {
-         this.loadOffers(SafeYaml.section(yaml, "offers"));
-         this.loadCaravans(SafeYaml.section(yaml, "caravans"));
-         ConfigurationSection tariffRoot = SafeYaml.section(yaml, "tariffs");
-         if (tariffRoot != null) {
-            for (String id : tariffRoot.getKeys(false)) {
-               this.tariffs.put(UUID.fromString(id), SafeYaml.money(tariffRoot, id));
-            }
-         }
-
-         for (Map<?, ?> raw : SafeYaml.maps(yaml, "history")) {
-            try {
-               this.history.add(this.history(raw));
-            } catch (RuntimeException var6) {
-               this.warn("история", var6);
-            }
-         }
-
-         ConfigurationSection pending = SafeYaml.section(yaml, "pending-town-credits");
-         if (pending != null) {
-            for (String id : pending.getKeys(false)) {
-               this.pendingCredits.put(UUID.fromString(id), SafeYaml.money(pending, id));
-            }
-         }
-
-         try {
-            this.effects.load();
-
-            for (Entry<UUID, Double> e : this.pendingCredits.entrySet()) {
-               this.effects.review(EffectJournal.id("legacy-trade-credit:" + e.getKey()), "Старое зачисление городу " + e.getKey() + ": " + e.getValue());
-            }
-         } catch (IOException var7) {
-            throw new UncheckedIOException(var7);
-         }
-
-         AtomicFiles.loaded(this.file.toPath());
-         this.writable = true;
-         this.dirty = true;
-         this.save();
-      }
-   } }
+   public void load(){
+      if(ru.neverland.core.SuiteState.held())throw new IllegalStateException("Чтение торговли должно быть вне общей блокировки");
+      offers.clear();caravans.clear();tariffs.clear();history.clear();pendingCredits.clear();
+      var yaml=new YamlConfiguration();try{if(java.nio.file.Files.exists(file.toPath()))yaml.load(file);}catch(Exception error){throw new IllegalStateException("Повреждён файл торговли; загрузка остановлена",error);}
+      if(yaml.contains("schema")&&SafeYaml.integer(yaml,"schema")!=2L)throw new IllegalArgumentException("Неизвестная схема торговли");
+      if(!Set.of("schema","offers","caravans","tariffs","history","pending-town-credits").containsAll(yaml.getKeys(false)))throw new IllegalArgumentException("Неизвестные разделы торговли");
+      loadOffers(SafeYaml.section(yaml,"offers"));loadCaravans(SafeYaml.section(yaml,"caravans"));
+      var tariffRoot=SafeYaml.section(yaml,"tariffs");if(tariffRoot!=null)for(String id:tariffRoot.getKeys(false))tariffs.put(UUID.fromString(id),SafeYaml.money(tariffRoot,id));
+      for(Map<?,?> raw:SafeYaml.maps(yaml,"history"))history.add(history(raw));
+      var pending=SafeYaml.section(yaml,"pending-town-credits");if(pending!=null)for(String id:pending.getKeys(false))pendingCredits.put(UUID.fromString(id),SafeYaml.money(pending,id));
+      try{effects.load();}catch(IOException ex){throw new UncheckedIOException(ex);}
+      acknowledged.loaded(new Image(offers,caravans,tariffs,history,pendingCredits));
+      offers.clear();caravans.clear();tariffs.clear();history.clear();pendingCredits.clear();
+   }
+   public Image image(){try(var guard=ru.neverland.core.SuiteState.guard()){var x=acknowledged.get();return new Image(x.offers(),x.caravans(),x.tariffs(),x.history(),x.pendingCredits());}}
+   public java.util.concurrent.CompletionStage<Void> change(java.util.function.UnaryOperator<Image> edit){try(var guard=ru.neverland.core.SuiteState.guard()){
+      var before=acknowledged.get();if(busy())return java.util.concurrent.CompletableFuture.failedFuture(new IllegalStateException("Предыдущее изменение ещё сохраняется"));
+      var detached=new Image(before.offers(),before.caravans(),before.tariffs(),before.history(),before.pendingCredits());var next=edit.apply(detached);
+      if(next.offers().size()>5000&&next.offers().size()>before.offers().size()||next.caravans().size()>5000&&next.caravans().size()>before.caravans().size()||next.history().size()>100_000&&next.history().size()>before.history().size())throw new IllegalStateException("Журнал торговли достиг предела; нужна проверка администратора");
+      return acknowledged.commit(before,new Image(next.offers(),next.caravans(),next.tariffs(),next.history(),next.pendingCredits())).thenApply(x->null);
+   }}
+   public java.util.concurrent.CompletionStage<Void> putOffer(TradeOffer value){return change(x->{var m=new LinkedHashMap<>(x.offers());m.put(value.id(),value);return new Image(m,x.caravans(),x.tariffs(),x.history(),x.pendingCredits());});}
+   public java.util.concurrent.CompletionStage<Void> removeOffer(TradeOffer value){return change(x->{var m=new LinkedHashMap<>(x.offers());m.remove(value.id());return new Image(m,x.caravans(),x.tariffs(),x.history(),x.pendingCredits());});}
+   public java.util.concurrent.CompletionStage<Void> accept(TradeOffer offer,Caravan value){return change(x->{var o=new LinkedHashMap<>(x.offers());if(!offer.equals(o.remove(offer.id())))throw new IllegalStateException("Предложение уже изменилось");var c=new LinkedHashMap<>(x.caravans());if(c.putIfAbsent(value.id(),value)!=null)throw new IllegalStateException("Караван уже существует");return new Image(o,c,x.tariffs(),x.history(),x.pendingCredits());});}
+   public java.util.concurrent.CompletionStage<Void> update(Caravan value){return change(x->{var c=new LinkedHashMap<>(x.caravans());if(!c.containsKey(value.id()))throw new IllegalStateException("Караван не найден");c.put(value.id(),value);return new Image(x.offers(),c,x.tariffs(),x.history(),x.pendingCredits());});}
+   public java.util.concurrent.CompletionStage<Void> removeCaravan(Caravan value){return change(x->{var c=new LinkedHashMap<>(x.caravans());c.remove(value.id());return new Image(x.offers(),c,x.tariffs(),x.history(),x.pendingCredits());});}
+   public java.util.concurrent.CompletionStage<Void> setTariff(UUID town,double value){return change(x->{var m=new LinkedHashMap<>(x.tariffs());m.put(town,value);return new Image(x.offers(),x.caravans(),m,x.history(),x.pendingCredits());});}
+   public java.util.concurrent.CompletionStage<Void> clearPending(UUID town){return change(x->{var m=new LinkedHashMap<>(x.pendingCredits());m.remove(town);return new Image(x.offers(),x.caravans(),x.tariffs(),x.history(),m);});}
+   public java.util.concurrent.CompletionStage<Void> finish(Caravan value,TradeHistory entry,int limit){return change(x->{var c=new LinkedHashMap<>(x.caravans());c.put(value.id(),value);var h=new ArrayList<>(x.history());h.removeIf(e->e.caravanId().equals(entry.caravanId()));h.add(0,entry);var counts=new LinkedHashMap<UUID,Integer>();int perTown=Math.max(1,limit);h.removeIf(e->{int a=counts.merge(e.sellerId(),1,Integer::sum),b=counts.merge(e.buyerId(),1,Integer::sum);return a>perTown&&b>perTown;});return new Image(x.offers(),c,x.tariffs(),h,x.pendingCredits());});}
+   public java.util.concurrent.CompletionStage<Void> expire(long now){return change(x->{var o=new LinkedHashMap<>(x.offers());o.values().removeIf(e->now>=e.expiresAt());return new Image(o,x.caravans(),x.tariffs(),x.history(),x.pendingCredits());});}
+   public java.util.concurrent.CompletionStage<Void> prepareClose(){return acknowledged.prepareClose().thenCompose(x->effects.prepareClose());}
 
    private void loadOffers(ConfigurationSection root) {
       if (root != null) {
@@ -127,7 +94,8 @@ public final class TradeRepository {
                         UUID.fromString(SafeYaml.stringValue(root, path + "buyer")),
                         SafeYaml.stringValue(root, path + "export"),
                         SafeYaml.longValue(root, path + "created-at"),
-                        SafeYaml.longValue(root, path + "expires-at")
+                        SafeYaml.longValue(root, path + "expires-at"),
+                        guarantee(root,path),root.contains(path+"quoted-base-cents")?SafeYaml.longValue(root,path+"quoted-base-cents"):0,root.getString(path+"quoted-definition","")
                      )
                   );
             } catch (RuntimeException var6) {
@@ -180,7 +148,9 @@ public final class TradeRepository {
                         CaravanStatus.valueOf(SafeYaml.stringValue(root, path + "status", "ACTIVE"))
                      )
                   );
-               Caravan c = this.caravans.get(id); c.timer(ru.neverland.core.ActivityTimer.read(root,path,c.timer()));
+               Caravan c = this.caravans.get(id);
+               if(root.contains(path+"guarantee"))c.restoreGuarantee(guarantee(root,path),SafeYaml.longValue(root,path+"guarantee.duration"),SafeYaml.longValue(root,path+"guarantee.natural-delay"),SafeYaml.longValue(root,path+"guarantee.frozen-delay"),SafeYaml.longValue(root,path+"guarantee.compensation"));
+               c.timer(ru.neverland.core.ActivityTimer.read(root,path,c.timer()));
                c.settlement(root.contains(path + "settlement") ? SafeYaml.stringValue(root, path + "settlement") : "LEGACY_REVIEW");
                c.legacyFunded(SafeYaml.booleanValue(root, path + "legacy-funded", !root.contains(path + "settlement")));
                if (c.remainingCargo() < 0
@@ -201,168 +171,34 @@ public final class TradeRepository {
       }
    }
 
-   public Collection<TradeOffer> offers() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
-      return Collections.unmodifiableCollection(this.offers.values());
-   } }
+   public Collection<TradeOffer> offers(){return acknowledged.get().offers().values();}
+   public Collection<Caravan> caravans(){return acknowledged.get().caravans().values().stream().filter(c->!c.terminal()).map(Caravan::copy).toList();}
+   public Collection<Caravan> allCaravans(){return acknowledged.get().caravans().values().stream().map(Caravan::copy).toList();}
+   public List<TradeOffer> incoming(UUID town){return offers().stream().filter(o->o.buyerId().equals(town)).toList();}
+   public List<TradeOffer> outgoing(UUID town){return offers().stream().filter(o->o.sellerId().equals(town)).toList();}
+   public List<Caravan> caravans(UUID town){return caravans().stream().filter(c->c.sellerId().equals(town)||c.buyerId().equals(town)).toList();}
+   public List<TradeHistory> history(UUID town){return acknowledged.get().history().stream().filter(e->e.sellerId().equals(town)||e.buyerId().equals(town)).toList();}
+   public TradeOffer findOffer(String id){return find(acknowledged.get().offers(),id);}
+   public Caravan findCaravan(String id){var value=find(acknowledged.get().caravans(),id);return value==null?null:value.copy();}
+   private static <T>T find(Map<UUID,T> values,String raw){if(raw==null)return null;String id=raw.toLowerCase(Locale.ROOT);T found=null;for(var e:values.entrySet())if(e.getKey().toString().startsWith(id)){if(found!=null)return null;found=e.getValue();}return found;}
+   public double tariff(UUID town,double fallback){return acknowledged.get().tariffs().getOrDefault(town,fallback);}
+   public Map<UUID,Double> pendingCredits(){return acknowledged.get().pendingCredits();}
 
-   public Collection<Caravan> caravans() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
-      return this.caravans.values().stream().filter(c -> !c.terminal()).toList();
-   } }
-
-   public Collection<Caravan> allCaravans() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {
-      return List.copyOf(this.caravans.values());
-   } }
-
-   public List<TradeOffer> incoming(UUID townId) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
-      return this.offers.values().stream().filter(value -> value.buyerId().equals(townId)).toList();
-   } }
-
-   public List<TradeOffer> outgoing(UUID townId) { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
-      return this.offers.values().stream().filter(value -> value.sellerId().equals(townId)).toList();
-   } }
-
-   public List<Caravan> caravans(UUID townId) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
-      return this.caravans().stream().filter(value -> value.sellerId().equals(townId) || value.buyerId().equals(townId)).toList();
-   } }
-
-   public List<TradeHistory> history(UUID townId) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {
-      return this.history.stream().filter(value -> value.sellerId().equals(townId) || value.buyerId().equals(townId)).toList();
-   } }
-
-   public TradeOffer findOffer(String id) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
-      return this.find(this.offers, id);
-   } }
-
-   public Caravan findCaravan(String id) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
-      return this.find(this.caravans, id);
-   } }
-
-   private <T> T find(Map<UUID, T> values, String raw) {
-      if (raw == null) {
-         return null;
-      } else {
-         String id = raw.toLowerCase(Locale.ROOT);
-         T found = null;
-
-         for (Entry<UUID, T> entry : values.entrySet()) {
-            if (entry.getKey().toString().startsWith(id)) {
-               if (found != null) {
-                  return null;
-               }
-
-               found = entry.getValue();
-            }
-         }
-
-         return found;
-      }
-   }
-
-   public void add(TradeOffer value) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
-      this.gate();
-      this.offers.put(value.id(), value);
-      this.dirty = true;
-   } }
-
-   public void remove(TradeOffer value) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
-      this.gate();
-      if (value != null) {
-         this.offers.remove(value.id());
-         this.dirty = true;
-      }
-   } }
-
-   public void add(Caravan value) { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
-      this.gate();
-      this.caravans.put(value.id(), value);
-      this.dirty = true;
-   } }
-
-   public void remove(Caravan value) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
-      this.gate();
-      if (value != null) {
-         this.caravans.remove(value.id());
-         this.dirty = true;
-      }
-   } }
-
-   public void changed() { try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()) {
-      this.gate();
-      this.dirty = true;
-   } }
-
-   public double tariff(UUID townId, double fallback) { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) {
-      return this.tariffs.getOrDefault(townId, fallback);
-   } }
-
-   public void setTariff(UUID townId, double value) { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {
-      this.gate();
-      this.tariffs.put(townId, value);
-      this.dirty = true;
-   } }
-
-   public void addHistory(TradeHistory entry, int limit) { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {
-      this.gate();
-      this.history.add(0, entry);
-      int perTown = Math.max(1, limit);
-      Map<UUID, Integer> counts = new LinkedHashMap<>();
-      this.history.removeIf(value -> {
-         int seller = counts.merge(value.sellerId(), 1, Integer::sum);
-         int buyer = counts.merge(value.buyerId(), 1, Integer::sum);
-         return seller > perTown && buyer > perTown;
-      });
-      this.dirty = true;
-   } }
-
-   public Map<UUID, Double> pendingCredits() { try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {
-      return Map.copyOf(this.pendingCredits);
-   } }
-
-   public void addPending(UUID townId, double amount) { try (var suiteGuard22 = ru.neverland.core.SuiteState.guard()) {
-      this.gate();
-      if (amount > 0.0) {
-         this.pendingCredits.merge(townId, amount, Double::sum);
-         this.dirty = true;
-      }
-   } }
-
-   public void clearPending(UUID townId) { try (var suiteGuard23 = ru.neverland.core.SuiteState.guard()) {
-      this.gate();
-      this.pendingCredits.remove(townId);
-      this.dirty = true;
-   } }
-
-   public boolean saveIfDirty() { try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) {
-      return !this.dirty || this.save();
-   } }
-
-   public boolean save() { try (var suiteGuard25 = ru.neverland.core.SuiteState.guard()) {
-      this.gate();
-
-      try {
-         AtomicFiles.write(this.file.toPath(), this::snapshot);
-         this.dirty = false;
-         return true;
-      } catch (IOException var2) {
-         this.writable = false;
-         throw new UncheckedIOException(var2);
-      }
-   } }
-
-   private String snapshot() {
+   private String snapshot(Image image) {
       YamlConfiguration yaml = new YamlConfiguration();
       yaml.set("schema", 2);
 
-      for (TradeOffer value : this.offers.values()) {
+      for (TradeOffer value : image.offers().values()) {
          String path = "offers." + value.id() + ".";
          yaml.set(path + "seller", value.sellerId().toString());
          yaml.set(path + "buyer", value.buyerId().toString());
          yaml.set(path + "export", value.exportId());
          yaml.set(path + "created-at", value.createdAt());
          yaml.set(path + "expires-at", value.expiresAt());
+         writeGuarantee(yaml,path,value.guarantee());yaml.set(path+"quoted-base-cents",value.quotedBaseCents());yaml.set(path+"quoted-definition",value.quotedDefinition());
       }
 
-      for (Caravan value : this.caravans.values()) {
+      for (Caravan value : image.caravans().values()) {
          String path = "caravans." + value.id() + ".";
          yaml.set(path + "settlement", value.settlement());
          yaml.set(path + "legacy-funded", value.legacyFunded());
@@ -382,11 +218,12 @@ public final class TradeRepository {
          yaml.set(path + "should-delay", value.shouldDelay());
          yaml.set(path + "incident-handled", value.incidentHandled());
          yaml.set(path + "status", value.status().name());
+         writeGuarantee(yaml,path,value.guarantee());if(value.guarantee().enabled()){yaml.set(path+"guarantee.duration",value.guaranteedRouteDuration());yaml.set(path+"guarantee.natural-delay",value.naturalDelayMillis());yaml.set(path+"guarantee.frozen-delay",value.frozenNaturalDelay());yaml.set(path+"guarantee.compensation",value.finalCompensation());}
       }
 
-      this.tariffs.forEach((town, percent) -> yaml.set("tariffs." + town, percent));
-      yaml.set("history", this.history.stream().map(this::map).toList());
-      this.pendingCredits.forEach((town, amount) -> yaml.set("pending-town-credits." + town, amount));
+      image.tariffs().forEach((town, percent) -> yaml.set("tariffs." + town, percent));
+      yaml.set("history", image.history().stream().map(this::map).toList());
+      image.pendingCredits().forEach((town, amount) -> yaml.set("pending-town-credits." + town, amount));
       return yaml.saveToString();
    }
 
@@ -432,7 +269,7 @@ public final class TradeRepository {
       map.put("price", value.price());
       map.put("tariffs", value.tariffs());
       map.put("completed-at", value.completedAt());
-      map.put("status", value.status().name());
+      map.put("status", value.status().name());map.put("compensation-cents",value.compensationCents());
       return map;
    }
 
@@ -446,7 +283,7 @@ public final class TradeRepository {
          this.number(map.get("price")),
          this.number(map.get("tariffs")),
          ((Number)map.get("completed-at")).longValue(),
-         CaravanStatus.valueOf(String.valueOf(map.get("status")))
+         CaravanStatus.valueOf(String.valueOf(map.get("status"))),map.containsKey("compensation-cents")?((Number)map.get("compensation-cents")).longValue():0
       );
    }
 
@@ -458,6 +295,11 @@ public final class TradeRepository {
       return value instanceof Number number ? number.doubleValue() : Double.parseDouble(String.valueOf(value));
    }
 
+   private static ru.neverland.minttrade.guarantee.GuaranteeTerms guarantee(ConfigurationSection root,String path){
+      if(!root.contains(path+"guarantee"))return ru.neverland.minttrade.guarantee.GuaranteeTerms.none();
+      return new ru.neverland.minttrade.guarantee.GuaranteeTerms(SafeYaml.intValue(root,path+"guarantee.reserve-bps"),SafeYaml.intValue(root,path+"guarantee.delay-bps"),SafeYaml.longValue(root,path+"guarantee.grace-ms"));
+   }
+   private static void writeGuarantee(YamlConfiguration y,String path,ru.neverland.minttrade.guarantee.GuaranteeTerms terms){if(!terms.enabled())return;y.set(path+"guarantee.reserve-bps",terms.reserveBasisPoints());y.set(path+"guarantee.delay-bps",terms.delayBasisPointsPerMinute());y.set(path+"guarantee.grace-ms",terms.graceMillis());}
    private void warn(String part, Exception exception) {
       throw new IllegalStateException("Повреждены данные (" + part + "); торговля остановлена", exception);
    }

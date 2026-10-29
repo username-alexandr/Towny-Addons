@@ -1,0 +1,35 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 28 checks; actual Folia/Towny/Diplomacy service, native constructed offline CraftPlayers/region ownership and damage events, real delayed file, current mayor recheck, exact proof and neutral pause/restart. No network client, automatic sanctions, money or item transfer claimed. Restart OPEN status is an explicit crash-snapshot fixture.\n",
+    "jar_sha256": {
+      "NeverLandTownyDiplomacy-0.2.0.jar": "d3da7f26fd07575c083f7a5118d40dbe6693ebee75be274bc274b428cc07472b",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "DiplomacyAidRuntimeProbe.jar": "1881a87c0efc82a31834993a64c8d855412903abaa5acf7fbdd1c551686342ad"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 12 checks; actual Folia/Towny/Diplomacy service, native constructed offline CraftPlayers/region ownership and damage events, real delayed file, current mayor recheck, exact proof and neutral pause/restart. No network client, automatic sanctions, money or item transfer claimed. Restart OPEN status is an explicit crash-snapshot fixture.\n",
+    "jar_sha256": {
+      "NeverLandTownyDiplomacy-0.2.0.jar": "d3da7f26fd07575c083f7a5118d40dbe6693ebee75be274bc274b428cc07472b",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "DiplomacyAidRuntimeProbe.jar": "1881a87c0efc82a31834993a64c8d855412903abaa5acf7fbdd1c551686342ad"
+    }
+  },
+  {
+    "phase": "corrupt",
+    "exit_code": 0,
+    "result": "PASS 4 checks; actual Folia/Towny/Diplomacy service, native constructed offline CraftPlayers/region ownership and damage events, real delayed file, current mayor recheck, exact proof and neutral pause/restart. No network client, automatic sanctions, money or item transfer claimed. Restart OPEN status is an explicit crash-snapshot fixture.\n",
+    "jar_sha256": {
+      "NeverLandTownyDiplomacy-0.2.0.jar": "d3da7f26fd07575c083f7a5118d40dbe6693ebee75be274bc274b428cc07472b",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "DiplomacyAidRuntimeProbe.jar": "1881a87c0efc82a31834993a64c8d855412903abaa5acf7fbdd1c551686342ad"
+    }
+  }
+]

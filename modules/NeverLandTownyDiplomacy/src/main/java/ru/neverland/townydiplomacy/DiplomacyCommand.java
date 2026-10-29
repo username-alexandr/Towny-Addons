@@ -39,6 +39,7 @@ public final class DiplomacyCommand implements TabExecutor {
             }
             if(own==null)throw new IllegalArgumentException("Нужен свой город; для консоли: /diplomacy as <город> <команда>");
             switch(action) {
+                case "aid" -> plugin.aidCommands().run(sender,own,args);
                 case "offer" -> {
                     if(args.length<3)throw new IllegalArgumentException("/diplomacy offer <тип> <город> [дни] [причина]");
                     var type=TreatyType.parse(args[1]);if(!type.bilateral())throw new IllegalArgumentException("Для ограничений используйте embargo или sanctions");
@@ -89,6 +90,7 @@ public final class DiplomacyCommand implements TabExecutor {
         tell(sender,"&e/diplomacy accept|reject|end <полный-ID>");
         tell(sender,"&e/diplomacy embargo <город> [дни] [причина]");
         tell(sender,"&e/diplomacy sanctions <город> <trade|diplomatic|all> [дни]");
+        tell(sender,"&e/diplomacy aid &7— взаимопомощь союзников, условия и квитанции.");
         tell(sender,"&e/diplomacy history|incidents [страница] &7— для руководства.");
         if(sender.hasPermission("neverlandtownydiplomacy.admin")){tell(sender,"&e/diplomacy as <город> <команда> ...");tell(sender,"&e/diplomacy reload &7— новые настройки.");}
     } }
@@ -96,7 +98,10 @@ public final class DiplomacyCommand implements TabExecutor {
         if(!sender.hasPermission("neverlandtownydiplomacy.use")||args.length==0)return List.of();
         var own=sender instanceof Player p?service.ownTown(p.getUniqueId()):null;boolean manager=sender.hasPermission("neverlandtownydiplomacy.admin")||service.manages(sender,own,TreatyType.ALLIANCE);
         var values=new ArrayList<String>();String action=args[0].toLowerCase(Locale.ROOT);
-        if(args.length==1){values.addAll(List.of("menu","list","help"));if(manager)values.addAll(List.of("offer","accept","reject","end","embargo","sanctions","history","incidents"));if(sender.hasPermission("neverlandtownydiplomacy.admin"))values.addAll(List.of("as","reload"));}
+        if(args.length==1){values.addAll(List.of("menu","list","help","aid"));if(manager)values.addAll(List.of("offer","accept","reject","end","embargo","sanctions","history","incidents"));if(sender.hasPermission("neverlandtownydiplomacy.admin"))values.addAll(List.of("as","reload"));}
+        else if(args.length==2&&action.equals("aid"))values.addAll(List.of("list","offer","accept","reject","end","calls","history","status"));
+        else if(args.length==3&&action.equals("aid")&&args[1].equals("offer")&&manager)TownyAPI.getInstance().getTowns().forEach(t->values.add(t.getName()));
+        else if(args.length==3&&action.equals("aid")&&Set.of("accept","reject","end").contains(args[1])&&manager&&own!=null){var town=own.getUUID();plugin.aid().repository().state().pacts().values().stream().filter(p->p.party(town)&&p.phase()!=ru.neverland.townydiplomacy.aid.AidPact.Phase.ENDED).forEach(p->values.add(p.id().toString()));}
         else if(args.length==2&&action.equals("offer")&&manager)Arrays.stream(TreatyType.values()).filter(TreatyType::bilateral).forEach(t->values.add(t.id()));
         else if(args.length==3&&action.equals("sanctions")&&manager)values.addAll(List.of("trade","diplomatic","all"));
         else if(args.length==2&&Set.of("accept","reject","end").contains(action)&&manager&&own!=null){var id=own.getUUID();service.repository().all().values().stream().filter(t->t.party(id)&&t.open(System.currentTimeMillis())).forEach(t->values.add(t.id().toString()));}

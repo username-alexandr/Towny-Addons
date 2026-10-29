@@ -17,6 +17,8 @@ import ru.neverland.minttrade.util.ColorUtil;
 import java.util.Map;
 
 public final class TownTradeCommand implements CommandExecutor {
+    private record Draft(java.util.UUID token,java.util.UUID seller,java.util.UUID buyer,String export,String fingerprint,ru.neverland.minttrade.guarantee.GuaranteeTerms terms,long expires){}
+    private final java.util.Map<java.util.UUID,Draft> drafts=new java.util.HashMap<>();
     private final TownyHook towny; private final TradeService trade; private final TradeMenuManager menus; private final MessageService messages;
     private final ru.neverland.minttrade.contract.SupplyCommands supplies;
     public TownTradeCommand(TownyHook towny, TradeService trade, TradeMenuManager menus, MessageService messages,ru.neverland.minttrade.contract.SupplyCommands supplies) { this.supplies=supplies; this.towny = towny; this.trade = trade; this.menus = menus; this.messages = messages; }
@@ -26,8 +28,9 @@ public final class TownTradeCommand implements CommandExecutor {
         Town town = towny.town(player); if (town == null) { messages.send(player, "no-town"); return true; }
         if (args.length == 0) { menus.open(player); return true; }
         switch (args[0].toLowerCase()) {
-            case "propose", "offer" -> propose(player, town, args);
+            case "propose", "offer" -> {try{propose(player,town,args);}catch(IllegalArgumentException ex){player.sendMessage("Предложения временно недоступны: администратору нужно проверить настройки гарантии и цену экспорта.");}}
             case "accept" -> accept(player, town, args);
+            case "confirm" -> {try{confirm(player,town,args);}catch(IllegalArgumentException ex){player.sendMessage("Условия предложения недоступны. Сообщите администратору; ресурсы и деньги не списаны.");}}
             case "reject" -> reject(player, town, args);
             case "cancel" -> cancel(player, town, args);
             case "tariff" -> tariff(player, town, args);
@@ -43,8 +46,21 @@ public final class TownTradeCommand implements CommandExecutor {
         if (args.length < 3) { player.sendMessage(ColorUtil.color("&#FFFFFFИспользование: /t trade propose <город> <экспорт>")); return; }
         Town buyer = towny.town(args[1]); if (buyer == null) { messages.send(player, "town-not-found", Map.of("town", args[1])); return; }
         ExportDefinition definition = trade.registry().get(args[2]); if (definition == null) { messages.send(player, "unknown-export", Map.of("export", args[2])); return; }
-        TradeService.ProposeOutcome outcome = trade.propose(seller, buyer, definition);
+        var terms=trade.guaranteeTerms();long now=System.currentTimeMillis();drafts.values().removeIf(d->d.expires()<now);if(drafts.size()>=1024&&!drafts.containsKey(player.getUniqueId())){player.sendMessage("Слишком много подтверждений. Повторите позже.");return;}
+        var draft=new Draft(java.util.UUID.randomUUID(),seller.getUUID(),buyer.getUUID(),definition.id(),trade.definitionFingerprint(definition),terms,now+60_000);drafts.put(player.getUniqueId(),draft);
+        player.sendMessage("Предложение городу "+buyer.getName()+": "+definition.amount()+" шт., цена "+trade.economy().format(definition.price())+" монет.");
+        if(terms.enabled())player.sendMessage("Гарантия сроков: до "+trade.economy().format(terms.reserved(java.math.BigDecimal.valueOf(ru.neverland.minttrade.util.TradeMath.cents(definition.price())).movePointRight(2).longValueExact())/100.0)+" монет из оплаты продавцу; "+terms.delayBasisPointsPerMinute()/100.0+"% цены за минуту дорожной задержки после "+terms.graceMillis()/1000+" сек. Пошлины не входят.");else player.sendMessage("Без гарантии сроков.");
+        player.sendMessage(net.kyori.adventure.text.Component.text("[Подтвердить предложение] — действует 60 секунд").clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/t trade confirm "+draft.token())));
+    }
+    private void confirm(Player player,Town seller,String[] args){
+        if(!manager(player,seller))return;var draft=drafts.remove(player.getUniqueId());
+        if(args.length!=2||draft==null||!draft.token().toString().equals(args[1])||draft.expires()<System.currentTimeMillis()||!draft.seller().equals(seller.getUUID())){player.sendMessage("Подтверждение устарело. Создайте предложение заново.");return;}
+        var buyer=towny.town(draft.buyer());var definition=trade.registry().get(draft.export());
+        if(buyer==null||definition==null||!draft.fingerprint().equals(trade.definitionFingerprint(definition))||!draft.terms().equals(trade.guaranteeTerms())){player.sendMessage("Условия изменились. Проверьте новое предложение.");return;}
+        TradeService.ProposeOutcome outcome=trade.propose(seller,buyer,definition);
         switch (outcome.result()) {
+            case PROCESSING -> player.sendMessage("Предложение сохраняется. После подтверждения записи оно появится на торговой доске.");
+            case BUSY -> player.sendMessage("Торговля завершает предыдущее действие или ожидает восстановления. Повторите позже.");
             case SUCCESS -> messages.send(player, "proposal-created", Map.of("town", buyer.getName(), "offer", outcome.offer().shortId()));
             case SAME_TOWN -> messages.send(player, "same-town"); case MARKET_REQUIRED -> messages.send(player, "market-required");
             case ROUTE_LIMIT -> messages.send(player, "route-limit"); case DUPLICATE -> messages.send(player, "duplicate-offer");
@@ -60,16 +76,16 @@ public final class TownTradeCommand implements CommandExecutor {
     private void reject(Player player, Town town, String[] args) {
         if (!manager(player, town)) return; if (args.length < 2) { player.sendMessage(ColorUtil.color("&#FFFFFFИспользование: /t trade reject <ID>")); return; }
         TradeService.CancelResult result = trade.reject(town, trade.offer(args[1]));
-        if (result == TradeService.CancelResult.SUCCESS) messages.send(player, "proposal-rejected"); else messages.send(player, result == TradeService.CancelResult.NOT_PARTY ? "not-offer-party" : "offer-not-found", Map.of("offer", args[1]));
+        if (result == TradeService.CancelResult.PROCESSING) player.sendMessage("Отклонение предложения сохраняется. Обновите доску через секунду."); else if (result == TradeService.CancelResult.WAREHOUSE_BUSY) player.sendMessage("Предыдущее действие ещё выполняется. Повторите позже."); else if (result == TradeService.CancelResult.SUCCESS) messages.send(player, "proposal-rejected"); else messages.send(player, result == TradeService.CancelResult.NOT_PARTY ? "not-offer-party" : "offer-not-found", Map.of("offer", args[1]));
     }
     private void cancel(Player player, Town town, String[] args) {
         if (!manager(player, town)) return; if (args.length < 2) { player.sendMessage(ColorUtil.color("&#FFFFFFИспользование: /t trade cancel <ID>")); return; }
         TradeOffer offer = trade.offer(args[1]); TradeService.CancelResult result = trade.cancelOffer(town, offer);
-        if (result == TradeService.CancelResult.SUCCESS) messages.send(player, "proposal-cancelled"); else messages.send(player, result == TradeService.CancelResult.NOT_PARTY ? "not-offer-party" : "offer-not-found", Map.of("offer", args[1]));
+        if (result == TradeService.CancelResult.PROCESSING) player.sendMessage("Отмена предложения сохраняется. Обновите доску через секунду."); else if (result == TradeService.CancelResult.WAREHOUSE_BUSY) player.sendMessage("Предыдущее действие ещё выполняется. Повторите позже."); else if (result == TradeService.CancelResult.SUCCESS) messages.send(player, "proposal-cancelled"); else messages.send(player, result == TradeService.CancelResult.NOT_PARTY ? "not-offer-party" : "offer-not-found", Map.of("offer", args[1]));
     }
     private void tariff(Player player, Town town, String[] args) {
         if (!manager(player, town)) return; if (args.length < 2) { player.sendMessage(ColorUtil.color("&#FFFFFFИспользование: /t trade tariff <0-" + trade.maxTariff() + ">")); return; }
-        try { double value = Double.parseDouble(args[1].replace(',', '.')); if (trade.setTariff(town, value)) { messages.send(player, "tariff-set", Map.of("percent", value)); if(ru.neverland.integration.PoliciesAccess.tariffManaged(town.getUUID()))messages.send(player,"policy-tariff-managed",Map.of("percent",trade.tariff(town))); } else messages.send(player, "tariff-range", Map.of("max", trade.maxTariff())); }
+        try { double value = Double.parseDouble(args[1].replace(',', '.')); if (trade.setTariff(town, value)) { player.sendMessage("Новая пошлина сохраняется. Обновите доску для проверки результата."); if(ru.neverland.integration.PoliciesAccess.tariffManaged(town.getUUID()))messages.send(player,"policy-tariff-managed",Map.of("percent",trade.tariff(town))); } else messages.send(player, "tariff-range", Map.of("max", trade.maxTariff())); }
         catch (NumberFormatException exception) { messages.send(player, "tariff-range", Map.of("max", trade.maxTariff())); }
     }
     private void help(Player player) { player.sendMessage(ColorUtil.color("&#FFD45A/t trade &8— &7торговая доска\n&#FFFFFF/t trade propose <город> <экспорт>\n&#FFFFFF/t trade accept <ID>\n&#FFFFFF/t trade reject <ID>\n&#FFFFFF/t trade cancel <ID>\n&#FFFFFF/t trade tariff <процент>\n&#FFFFFF/t trade contracts\n&#FFFFFF/t trade history")); }

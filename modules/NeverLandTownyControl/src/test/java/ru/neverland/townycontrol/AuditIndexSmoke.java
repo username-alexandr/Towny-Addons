@@ -50,6 +50,15 @@ public final class AuditIndexSmoke {
         var done=record(9,"NeverLandTownyMarket","LIMIT_ORDER","DONE","r",now-10_000,"A","B","1200");check(AuditSignals.inspect(List.of(done,review),now).isEmpty(),"later same-module operation resolution removes review");
         var simultaneous=record(11,"NeverLandTownyMarket","LIMIT_ORDER","DONE","r",review.at(),"A","B","1200");check(AuditSignals.inspect(List.of(simultaneous,review),now).get(0).evidence().size()==2,"equal-time statuses cannot establish completion order");
         var other=record(10,"NeverLandTownyTrade","LIMIT_ORDER","DONE","r",now-10_000,"A","B","1200");check(AuditSignals.inspect(List.of(review,other),now).size()==1,"foreign module operation does not resolve review");
+        var paying=record(13,"NeverLandTownyTrade","CARAVAN_DEAL","PAYING","caravan",now-700_000,"A","B","110");
+        var sellerPaid=record(14,"NeverLandTownyTrade","TRADE_PAYMENT","COMPLETED","caravan",now-100_000,"B","A","80");
+        var unfinished=AuditSignals.inspect(List.of(paying,sellerPaid),now);
+        check(unfinished.size()==1&&unfinished.get(0).type()==AuditSignals.Type.REVIEW&&unfinished.get(0).evidence().equals(List.of(paying)),"completed seller leg cannot hide caravan PAYING while compensation or tariff is pending");
+        check(unfinished.get(0).reason().contains("CARAVAN_DEAL"),"review identifies the exact unfinished workflow kind");
+        var caravanComplete=record(15,"NeverLandTownyTrade","CARAVAN_DEAL","COMPLETE","caravan",now-10_000,"A","B","110");
+        check(AuditSignals.inspect(List.of(paying,sellerPaid,caravanComplete),now).isEmpty(),"actual final record of the same workflow kind clears its pending review");
+        var debitPending=record(16,"NeverLandTownyTrade","TRADE_PAYMENT","PENDING","caravan",now-700_000,"A","B","20");
+        check(AuditSignals.inspect(List.of(paying,debitPending),now).size()==2,"independent unfinished kinds sharing one operation remain separately reviewable");
         var unusual=record(12,"NeverLandTownyControl","BANK_TRANSFER","COMPLETED","huge",now,"A","B","1E+1000000");failed=false;try{AuditSignals.inspect(List.of(unusual),now);}catch(IllegalArgumentException expectedFailure){failed=true;}check(failed,"exponent cannot amplify monetary comparison memory");
         var expected=AuditSignals.inspect(List.of(a,b,review,other),now);var mutable=new ArrayList<>(List.of(a,b,review,other));for(int i=0;i<1000;i++){Collections.shuffle(mutable,new Random(i));check(AuditSignals.inspect(mutable,now).equals(expected),"order independent "+i);}
         System.out.println("AuditIndexSmoke PASS "+checks+" checks (1000 shuffled evidence orders)");

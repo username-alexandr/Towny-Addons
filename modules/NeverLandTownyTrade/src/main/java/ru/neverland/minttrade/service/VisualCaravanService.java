@@ -63,7 +63,7 @@ public final class VisualCaravanService {
       for (Caravan caravan : this.repository.caravans()) {
          Location target=position(caravan);
          if(target==null){removeVisual(caravan.id());continue;}
-         ru.neverland.core.SuiteScheduler.region(plugin,target,()->{if(repository.caravans().stream().anyMatch(c->c==caravan))update(caravan);});
+         ru.neverland.core.SuiteScheduler.region(plugin,target,()->{if(repository.caravans().stream().anyMatch(c->c.id().equals(caravan.id())))update(caravan);});
       }
    }
 

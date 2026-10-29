@@ -12,6 +12,12 @@ import ru.neverland.minttrade.model.RoutePoint.Kind;
 import ru.neverland.minttrade.util.TradeMath;
 
 public final class Caravan {
+   /** Detached value for acknowledged repository snapshots; callers never mutate stored instances. */
+   public Caravan copy(){try(var guard=ru.neverland.core.SuiteState.guard()){
+      var c=new Caravan(id,sellerId,buyerId,exportId,cargoItem,totalCargo,remainingCargo,basePrice,escrow,tariffs,route,departedAt,arrivesAt,incidentAt,shouldDelay,incidentHandled,status);
+      c.settlement=settlement;c.legacyFunded=legacyFunded;c.adminPausedAt=adminPausedAt;c.adminDuration=adminDuration;
+      c.guarantee=guarantee;c.guaranteedRouteDuration=guaranteedRouteDuration;c.naturalDelayMillis=naturalDelayMillis;c.frozenNaturalDelay=frozenNaturalDelay;c.finalCompensation=finalCompensation;return c;
+   }}
    private String settlement = "PREPARED";
    private boolean legacyFunded;
    private final UUID id;
@@ -32,6 +38,25 @@ public final class Caravan {
    private final boolean shouldDelay;
    private boolean incidentHandled;
    private CaravanStatus status;
+   private ru.neverland.minttrade.guarantee.GuaranteeTerms guarantee=ru.neverland.minttrade.guarantee.GuaranteeTerms.none();
+   private long guaranteedRouteDuration,naturalDelayMillis,frozenNaturalDelay=-1,finalCompensation=-1;
+   public ru.neverland.minttrade.guarantee.GuaranteeTerms guarantee(){try(var guard=ru.neverland.core.SuiteState.guard()){return guarantee;}}
+   public long guaranteedRouteDuration(){try(var guard=ru.neverland.core.SuiteState.guard()){return guaranteedRouteDuration;}}
+   public long naturalDelayMillis(){try(var guard=ru.neverland.core.SuiteState.guard()){return naturalDelayMillis;}}
+   public long frozenNaturalDelay(){try(var guard=ru.neverland.core.SuiteState.guard()){return frozenNaturalDelay;}}
+   public long finalCompensation(){try(var guard=ru.neverland.core.SuiteState.guard()){return finalCompensation;}}
+   public void restoreGuarantee(ru.neverland.minttrade.guarantee.GuaranteeTerms terms,long duration,long natural,long frozen,long compensation){try(var guard=ru.neverland.core.SuiteState.guard()){
+      long max=ru.neverland.minttrade.guarantee.GuaranteeTerms.MAX_DURATION;
+      if(duration<0||duration>max||natural<0||natural>max||frozen< -1||frozen>natural||compensation< -1||compensation>terms.reserved(baseCents())||terms.enabled()&&duration==0||!terms.enabled()&&(duration!=0||natural!=0||frozen!=-1||compensation!=-1))throw new IllegalArgumentException("Повреждены условия гарантии каравана");
+      if(compensation>=0&&(frozen<0||compensation!=terms.compensation(baseCents(),frozen)))throw new IllegalArgumentException("Компенсация не соответствует сохранённой задержке");
+      guarantee=terms;guaranteedRouteDuration=duration;naturalDelayMillis=natural;frozenNaturalDelay=frozen;finalCompensation=compensation;
+   }}
+   public long baseCents(){try(var guard=ru.neverland.core.SuiteState.guard()){return java.math.BigDecimal.valueOf(basePrice).movePointRight(2).longValueExact();}}
+   public long experiencedNaturalDelay(long now){try(var guard=ru.neverland.core.SuiteState.guard()){if(!guarantee.enabled())return 0;if(frozenNaturalDelay>=0)return frozenNaturalDelay;return Math.min(naturalDelayMillis,Math.max(0,timer().now(now)-Math.addExact(departedAt,guaranteedRouteDuration)));}}
+   public void settleGuarantee(long now){try(var guard=ru.neverland.core.SuiteState.guard()){if(guarantee.enabled()&&finalCompensation<0){frozenNaturalDelay=experiencedNaturalDelay(now);finalCompensation=guarantee.compensation(baseCents(),frozenNaturalDelay);}}}
+   public long compensationCents(){try(var guard=ru.neverland.core.SuiteState.guard()){if(!guarantee.enabled())return 0;if(finalCompensation<0)throw new IllegalStateException("Компенсация ещё не зафиксирована");return finalCompensation;}}
+   public double sellerPayment(){try(var guard=ru.neverland.core.SuiteState.guard()){return guarantee.enabled()?(baseCents()-compensationCents())/100.0:basePrice;}}
+
 
    public String settlement() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
       return this.settlement;
@@ -164,7 +189,8 @@ public final class Caravan {
    } }
 
    public void delay(long millis) { try (var suiteGuard23 = ru.neverland.core.SuiteState.guard()) {
-      this.arrivesAt = this.arrivesAt + Math.max(0L, millis);
+      long added=Math.max(0L,millis);this.arrivesAt=Math.addExact(this.arrivesAt,added);
+      if(guarantee.enabled())naturalDelayMillis=Math.min(ru.neverland.minttrade.guarantee.GuaranteeTerms.MAX_DURATION,Math.addExact(naturalDelayMillis,added));
    } }
 
    public long incidentAt() { try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) {
@@ -203,6 +229,8 @@ public final class Caravan {
    public void travelTimes(long departed,long incident){ try (var suiteGuard34 = ru.neverland.core.SuiteState.guard()) {departedAt=departed;incidentAt=incident;} }
    public void editTimer(String action,long minutes,long now){ try (var suiteGuard35 = ru.neverland.core.SuiteState.guard()) {
       var before=timer();var after=before.edit(action,minutes,now);
+      // Administrative retiming cannot create a new warranty claim; preserve only delay already experienced.
+      if(guarantee.enabled()&&!action.equals("pause")&&!action.equals("resume")&&frozenNaturalDelay<0)frozenNaturalDelay=experiencedNaturalDelay(now);
       if(action.equals("resume")){long delta=now-before.pausedAt();departedAt=Math.addExact(departedAt,delta);incidentAt=Math.addExact(incidentAt,delta);}
       // Restart only the travel timer; cargo, payment IDs and the incident receipt remain intact.
       if(action.equals("restart"))departedAt=after.now(now);

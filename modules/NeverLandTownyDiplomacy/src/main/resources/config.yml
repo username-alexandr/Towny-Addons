@@ -9,3 +9,11 @@ termination-notice-hours: 24
 trade-discount-percent: 25
 maximum-open-per-town: 64
 incident-cooldown-seconds: 300
+
+# Отдельное добровольное обещание союзников. Нет денег, предметов и автоматических наказаний.
+mutual-aid:
+  enabled: true
+  default-days: 30
+  response-minutes: 30
+  # Подтверждённый урон после брони на земле защищаемого города; 2 единицы = сердце.
+  required-damage: 20

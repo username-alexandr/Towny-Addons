@@ -1,0 +1,85 @@
+{
+  "date": "2026-10-29",
+  "target": "Folia26.2 / Towny0.103.2.0 / Trade0.3.0 / Control0.6.0",
+  "scope": "Actual Trade async pipeline, native Towny accounts and observer, real acknowledged journals, raw global contention gate, audit-only retry, shutdown and full JVM restart. Explicit substituted economy adapter, WarehouseApi and route/clock samples. No live Vault provider, network client or actual warehouse persistence claim. Actual plugin.onDisable invoked with outer Suite held during bank return; immediate return and durable writer completion after guard release.",
+  "phases": [
+    {
+      "phase": "first",
+      "exit_code": 0,
+      "result": "PASS 22 assertions; actual Folia Trade state machine, async ACK journals, Towny accounts/observers, contention, audit retry, conservation, reconciliation, shutdown and full restart. Controlled economy adapter, warehouse API and clock/route seeds; no live Vault provider or network client claimed.\n",
+      "jar_sha256": {
+        "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+        "NeverLandTownyControl-0.6.0.jar": "2e1c22da662d888f5edab3901fd6d36c15ca8047b69090b9688de4fbcee12647",
+        "NeverLandTownyBuilds-0.10.1.jar": "377b73e6ca37a52d5be4070b221970e348949fcd389bd20114f967eeda1e75c1",
+        "TradeGuaranteeRuntimeProbe.jar": "72410e259bd441f8112a2ae6c68c2b75321215a38fc043b539a62641089f791f",
+        "NeverLandTownyTrade-0.3.0.jar": "d36281a4a51bfda0a6a981196d63452c7433894ce5a1c72a7dc01f7638780ba4"
+      },
+      "assertions": [
+        "PASS actual Trade0.3 plugin enabled with real Folia scheduler",
+        "PASS actual Towny account sees controlled backend balance",
+        "PASS busy Suite defers Trade action while raw global scheduler continues",
+        "PASS deferred guarded action runs exactly once after Suite release",
+        "PASS new offer freezes guarantee terms before acceptance",
+        "PASS prepared journal precedes exactly one escrow debit and cargo reservation",
+        "PASS changing configured future policy does not change accepted caravan",
+        "PASS rejected audit leaves PAYING with seller receipt DONE and one actual credit",
+        "PASS seller80 buyer20 toll10 conserve existing110 escrow with no emission",
+        "PASS history retains exact frozen compensation after terminal cleanup",
+        "PASS delivered cargo remains exactly once after audit-only retry",
+        "PASS new offer freezes guarantee terms before acceptance",
+        "PASS administrative cancellation acknowledges refund asynchronously",
+        "PASS cancelled funded caravan returns full110 escrow without extra compensation",
+        "PASS cancellation returns exact reserved cargo to seller warehouse",
+        "PASS legacy-style caravan remains uninsured",
+        "PASS uninsured delivery pays original full seller price and tariff",
+        "PASS new offer freezes guarantee terms before acceptance",
+        "PASS lost native adapter response retains pending debit without automatic retry",
+        "PASS actual onDisable under outer Suite returns without waiting for bank or writer",
+        "PASS bank result after shutdown request still gets durable DONE receipt",
+        "PASS shutdown does not begin next external tariff after known seller result"
+      ],
+      "expected_audit_faults": [
+        "[00:19:58 ERROR]: [NeverLandTownyTrade] AUDIT GAP: караван 0e4b57a2-45a4-3d81-9ae9-c761256a1122 / seller:5ffa8c72-343e-3269-a34b-4fbe4a472494: очередь занята или закрыта. Банковский платёж не повторяется."
+      ],
+      "server_log_sha256": "b3b1f6505a10d5c0799d00383c7050595d85148d1385b91a1ab816b0e55a9ea9"
+    },
+    {
+      "phase": "restart",
+      "exit_code": 0,
+      "result": "PASS 10 assertions; actual Folia Trade state machine, async ACK journals, Towny accounts/observers, contention, audit retry, conservation, reconciliation, shutdown and full restart. Controlled economy adapter, warehouse API and clock/route seeds; no live Vault provider or network client claimed.\n",
+      "jar_sha256": {
+        "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+        "NeverLandTownyControl-0.6.0.jar": "2e1c22da662d888f5edab3901fd6d36c15ca8047b69090b9688de4fbcee12647",
+        "NeverLandTownyBuilds-0.10.1.jar": "377b73e6ca37a52d5be4070b221970e348949fcd389bd20114f967eeda1e75c1",
+        "TradeGuaranteeRuntimeProbe.jar": "72410e259bd441f8112a2ae6c68c2b75321215a38fc043b539a62641089f791f",
+        "NeverLandTownyTrade-0.3.0.jar": "d36281a4a51bfda0a6a981196d63452c7433894ce5a1c72a7dc01f7638780ba4"
+      },
+      "assertions": [
+        "PASS actual Trade0.3 plugin enabled with real Folia scheduler",
+        "PASS full JVM restart retains exact pending unknown debit and controlled account state",
+        "PASS full restart retains seller DONE committed during shutdown",
+        "PASS restart pays remaining tariff without repeating acknowledged seller payment",
+        "PASS restart does not replay unknown funding call",
+        "PASS manual paid reconciliation advances exact old debit without a new withdrawal",
+        "PASS full refund after explicit reconciliation conserves all initial1000 money",
+        "PASS all384 items conserved across deliveries cancellation unknown funding and restart",
+        "PASS all five histories persist once and terminal state cleans up only after audit ACK",
+        "PASS compensation refund and shutdown payment audit persisted across restart"
+      ],
+      "expected_audit_faults": [],
+      "server_log_sha256": "37edc498e903dac813920a6f36033bd998eae3d373cbb141dbdb8f7b3de59c19"
+    }
+  ],
+  "cold_build": {
+    "programs": 8,
+    "CaravanEffectsSmoke": 21,
+    "TradeAcknowledgementSmoke": 11,
+    "CaravanWarrantySmoke": 16,
+    "GuaranteeTermsSmoke": 10009,
+    "CaravanReliabilitySmoke": 15,
+    "SupplyReputationSmoke": 23,
+    "SupplyContractSmoke": "PASS",
+    "TradeMathSmoke": "PASS"
+  },
+  "jar_sha256": "d36281a4a51bfda0a6a981196d63452c7433894ce5a1c72a7dc01f7638780ba4"
+}

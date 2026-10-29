@@ -1,0 +1,12 @@
+PASS actual Diplomacy 0.2 optional aid retains healthy old treaty service
+PASS durable FINALIZING crash snapshot never activates after restart
+PASS active crash snapshot with changed mayor closes neutrally before observations
+PASS full JVM restart restores original fulfilled help and unchanged historical times
+PASS persisted open crash fixture becomes unassessed, never missed help
+PASS signed undertaking and original alliance survive restart
+PASS evidence replay after full restart creates no duplicate
+PASS mayor replacement ends only aid promise without rewriting verified help or alliance
+PASS acknowledged common audit drains durable outbox before completion
+PASS common admin audit captures exact confirming mayor and agreement
+PASS accepted combat evidence and completion each appear once in common admin audit
+PASS neutral administrative stop is logged with exact assisting and protected towns

@@ -34,7 +34,7 @@ public final class MintTownyTrade extends JavaPlugin {
     public ru.neverland.minttrade.contract.SupplyService supplies(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return supplies;} }
 
 
-    @Override public void onEnable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
+    @Override public void onEnable() {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         ru.neverland.minttrade.util.LegacyDataMigrator.migrate(this, "MintTownyTrade");
@@ -67,13 +67,24 @@ ru.neverland.core.ActivityAdmin.attach(this,"townytrade","minttrade.admin",trade
         getLogger().info("NeverLandTownyTrade " + getPluginMeta().getVersion() + " включён: экспортов " + registry.all().size() + ", склад="
                 + warehouse.available() + ", лагеря=" + (getServer().getPluginManager().isPluginEnabled("NeverLandTownyCamps") || getServer().getPluginManager().isPluginEnabled("MintTownyCamps"))
                 + ", активных перевалочных пунктов=" + campStops + ", налоги=" + taxes.available() + ", PlaceholderAPI=" + placeholders + ".");
-    } }
-    @Override public void onDisable() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
-        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
-
-        if(supplyMenus!=null)supplyMenus.stop();if(supplies!=null)supplies.stop(); if (visuals != null) visuals.stop(); if (trade != null) trade.shutdown();
-        if (towny != null) towny.unregister("trade"); getServer().getServicesManager().unregisterAll(this);
-    } }
+    }
+    @Override public void onDisable() {
+        java.util.concurrent.CompletionStage<Void> closing=java.util.concurrent.CompletableFuture.completedFuture(null);
+        try(var guard=ru.neverland.core.SuiteState.guard()){
+            if(!ru.neverland.core.ModuleLifecycle.end(this))return;
+            if(supplyMenus!=null)supplyMenus.stop();if(supplies!=null)supplies.stop();if(visuals!=null)visuals.stop();
+            if(trade!=null)closing=trade.shutdown();else if(repository!=null)closing=repository.prepareClose();
+            if(towny!=null)towny.unregister("trade");getServer().getServicesManager().unregisterAll(this);
+        }
+        var pending=closing.toCompletableFuture();
+        if(ru.neverland.core.SuiteState.held()&&!pending.isDone()){
+            // A caller may own an outer suite scope. Existing writers complete after it releases;
+            // never wait here or schedule another Bukkit task for a disabling plugin.
+            pending.whenCompleteAsync((ignored,error)->{if(error!=null)getLogger().log(java.util.logging.Level.SEVERE,"Торговля: отложенная остановка записи не подтверждена; требуется сверка",error);else getLogger().info("Торговля: начатые записи завершены после освобождения внешней блокировки");});
+            return;
+        }
+        try{pending.get(10,java.util.concurrent.TimeUnit.SECONDS);}catch(Exception ex){getLogger().log(java.util.logging.Level.SEVERE,"Торговля: остановка записи не подтверждена; незавершённые платежи требуют сверки",ex);}
+    }
     public void reloadPlugin() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         reloadConfig(); messages.reload(); itemsAdder.reload(); registry.reload(); trade.start(); visuals.start(); supplies.reload();
     } }

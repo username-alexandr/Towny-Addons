@@ -1,0 +1,6 @@
+name: TreasuryAsyncRuntimeProbe
+version: 0.1.0
+main: ru.neverland.runtime.TreasuryAsyncProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyTreasuryPlus, NeverLandTownyControl]

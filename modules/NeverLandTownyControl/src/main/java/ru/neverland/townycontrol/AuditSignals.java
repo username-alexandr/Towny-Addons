@@ -23,14 +23,15 @@ final class AuditSignals {
         for(var r:records){String key=r.module()+":"+r.id();var old=unique.putIfAbsent(key,r);if(old!=null&&!old.equals(r))throw new IllegalArgumentException("Противоречивый ID квитанции "+r.id());}
         var sorted=unique.values().stream().sorted(Comparator.comparingLong(AuditRecord::at).thenComparing(AuditRecord::id)).toList();
         var latest=new HashMap<String,List<AuditRecord>>();for(var r:sorted)if(!r.operation().isBlank()){
-            String key=r.module()+":"+r.operation();var group=latest.get(key);
+            // A completed payment leg does not complete the caravan/order workflow.
+            String key=r.module()+":"+r.kind()+":"+r.operation();var group=latest.get(key);
             if(group==null||group.get(0).at()<r.at()){group=new ArrayList<>();latest.put(key,group);}
             if(group.size()>=16)throw new IllegalArgumentException("Больше 16 одновременных записей операции; нужна точная сверка по ID");group.add(r);
         }
         var cards=new ArrayList<Card>();
         for(var group:latest.values())if(group.stream().anyMatch(r->PENDING.contains(r.outcome()))&&group.get(0).at()<=now-600_000L){
             String statuses=String.join(", ",group.stream().map(AuditRecord::outcome).distinct().sorted().toList());
-            cards.add(new Card(Type.REVIEW,"Проверить завершение операции","Последние найденные записи старше 10 минут: "+statuses+". Сверьте с текущим состоянием аддона; журнал может запаздывать.",group));
+            cards.add(new Card(Type.REVIEW,"Проверить завершение операции","Шаг "+AuditCategory.kind(group.get(0).kind())+" ("+group.get(0).kind()+"): последние найденные записи старше 10 минут: "+statuses+". Сверьте с текущим состоянием аддона; журнал может запаздывать.",group));
         }
         // Only paired, completed bank transfers. BANK_LEG, command observations and sale prices
         // are deliberately excluded so one payment cannot become several supposed transfers.

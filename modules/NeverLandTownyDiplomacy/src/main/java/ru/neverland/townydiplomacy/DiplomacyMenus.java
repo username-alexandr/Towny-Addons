@@ -31,6 +31,7 @@ public final class DiplomacyMenus implements Listener {
         if(slice.isEmpty())inv.setItem(22,item(Material.PAPER,"&fДоговоров пока нет",List.of("&7Предложите соглашение другому городу.","&e/diplomacy help")));
         inv.setItem(45,item(Material.ARROW,holder.back()==null?"&fЗакрыть":"&fНазад",List.of("&7Предыдущее меню.")));
         if(page>0)inv.setItem(48,item(Material.PAPER,"&f← Предыдущая страница",List.of()));
+        inv.setItem(47,item(Material.SHIELD,"&eВзаимопомощь",List.of("&7Обещания союзников и подтверждённая помощь.","&7Без депозита и автоматических санкций.")));
         inv.setItem(49,item(Material.BOOK,"&eПомощь",List.of("&7Типы договоров и команды.")));
         if(page+1<pages)inv.setItem(50,item(Material.PAPER,"&fСледующая страница →",List.of()));
         inv.setItem(53,item(Material.SUNFLOWER,"&fОбновить",List.of("&7Актуальные решения и сроки.")));player.openInventory(inv);
@@ -67,7 +68,7 @@ public final class DiplomacyMenus implements Listener {
                     if(slot==45){if(h.confirm()!=null)detail(p,h,h.detail(),null);else if(town!=null)open(p,town,h.page(),h.back());else p.closeInventory();}
                     else if(slot==31&&h.confirm()!=null&&town!=null){var t=service.change(p,town,h.detail(),h.confirm());plugin.announce(t,t.type().title()+" • "+name(t.first())+" ↔ "+name(t.second())+" • "+phase(t));detail(p,h,h.detail(),null);}
                     else if(h.confirm()==null){String action=slot==30?"accept":slot==32?"reject":slot==34?"end":null;if(action!=null)detail(p,h,h.detail(),action);}
-                }else if(slot==45)MenuStyle.returnTo(p,h.back());else if(slot==49)DiplomacyCommand.help(p);
+                }else if(slot==45)MenuStyle.returnTo(p,h.back());else if(slot==49)DiplomacyCommand.help(p);else if(slot==47&&town!=null)plugin.aidMenus().open(p,town,0,p.getOpenInventory().getTopInventory());
                 else if(town!=null&&(slot==48||slot==50||slot==53))open(p,town,h.page()+(slot==48?-1:slot==50?1:0),h.back());
                 else if(slot>=10&&slot<=43&&slot%9>=1&&slot%9<=7){int i=((slot/9)-1)*7+(slot%9)-1;if(i<h.entries().size())detail(p,h,h.entries().get(i),null);}
             }catch(IllegalArgumentException ex){DiplomacyCommand.tell(p,"&c"+ex.getMessage());}catch(Exception ex){DiplomacyCommand.tell(p,"&cРешение не сохранено; обратитесь к администратору");plugin.failure("Ошибка меню дипломатии",ex);}

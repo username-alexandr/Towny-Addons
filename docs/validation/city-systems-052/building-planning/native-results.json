@@ -1,0 +1,26 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 30 checks; native Folia read-only planning API, actual configured prices and ItemStack serialization, persisted funds and warehouse; no bank operation, construction action or network client claimed\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "BuildPlanningRuntimeProbe.jar": "2841ca13c002995f43d9ebbde370b59eb6eb41390786bc1ccff396e2e77f3df5",
+      "NeverLandTownyControl-0.6.1.jar": "f8210c29f10d64e1b6470bf4ad72598fd268c0bc74a66397a193d0d42a454256",
+      "NeverLandTownyBuilds-0.11.0.jar": "9a3a0498da738c5a3f0b2edcf386e251f1a6a2303f25496bfe5ab1b9b86e13b6"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 30 checks; native Folia read-only planning API, actual configured prices and ItemStack serialization, persisted funds and warehouse; no bank operation, construction action or network client claimed\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "BuildPlanningRuntimeProbe.jar": "2841ca13c002995f43d9ebbde370b59eb6eb41390786bc1ccff396e2e77f3df5",
+      "NeverLandTownyControl-0.6.1.jar": "f8210c29f10d64e1b6470bf4ad72598fd268c0bc74a66397a193d0d42a454256",
+      "NeverLandTownyBuilds-0.11.0.jar": "9a3a0498da738c5a3f0b2edcf386e251f1a6a2303f25496bfe5ab1b9b86e13b6"
+    }
+  }
+]

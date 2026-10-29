@@ -1,0 +1,1 @@
+PASS 10 assertions; actual Folia Trade state machine, async ACK journals, Towny accounts/observers, contention, audit retry, conservation, reconciliation, shutdown and full restart. Controlled economy adapter, warehouse API and clock/route seeds; no live Vault provider or network client claimed.

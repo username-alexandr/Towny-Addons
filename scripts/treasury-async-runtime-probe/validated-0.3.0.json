@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-29",
+  "target": "Folia26.2 / Towny0.103.2.0 / TreasuryPlus0.3.0 / Control0.6.1",
+  "scope": "Actual Treasury gateway, acknowledged immutable budget journal, Towny Account and Observer, physical writer delay, continuous-flow fairness, pause, exact debit/refund/review, outer-Suite onDisable and full JVM restart. Explicit substituted EconomyAdapter and crash-boundary recovery seed. No real Vault backend or GUI/network client claimed.",
+  "release_gate": "All legacy boolean spend callers must migrate to stable UUID + async ACK before a complete-suite release. Research licenses not yet implemented.",
+  "phases": [
+    {
+      "phase": "first",
+      "exit_code": 0,
+      "result": "PASS 20 assertions; real Folia, Treasury async budgets, actual Towny Account/Observer, physical ACK, continuous-flow fairness, backed debit/refund, uncertainty, exact reconciliation, outer-Suite shutdown and JVM restart. Controlled economy adapter and explicit recovery seed; no real Vault provider or network client claimed.\n",
+      "jar_sha256": {
+        "NeverLandTownyTreasuryPlus-0.3.0.jar": "638a665b8f53347786d68aa5f115a627c6a186c5c34d0fe2d0d39de7f6dff578",
+        "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+        "NeverLandTownyControl-0.6.1.jar": "f8210c29f10d64e1b6470bf4ad72598fd268c0bc74a66397a193d0d42a454256",
+        "TreasuryAsyncRuntimeProbe.jar": "7a61a5b4e0dc1f5e70e57cd75b0997bf8631a7924b36a1ca43ee8d26f061f0a7"
+      },
+      "assertions": [
+        "PASS actual Treasury0.3 plugin starts on real Folia",
+        "PASS physical Treasury file writer deliberately held",
+        "PASS before durable intent ACK neither receipt nor bank call is published",
+        "PASS global Suite remains available while physical writer waits",
+        "PASS durable prepared receipt and exact budget reservation appear atomically",
+        "PASS legacy boolean spend fails closed before bank and pending blocks new budget use",
+        "PASS same UUID repeats unchanged receipt and rejects changed amount",
+        "PASS paused owner does not invoke a prepared payment",
+        "PASS exact observed bank debit and category decrease occur once despite continuous other-town flows",
+        "PASS paid escrow exposes live available backing",
+        "PASS full backed refund restores exact original category without fresh allocation",
+        "PASS refunded debit is no longer available escrow backing",
+        "PASS same refund ID and second refund request cannot repeat bank credit",
+        "PASS rich total balance cannot bypass insufficient infrastructure allocation",
+        "PASS lost backend response retains exact REVIEW and budget lock without replay",
+        "PASS manual paid reconciliation updates ledger only after exact receipt decision",
+        "PASS reconciled debit refund conserves original city funds",
+        "PASS unknown refund remains REVIEW with unchanged ledger awaiting restart",
+        "PASS actual onDisable under external Suite returns without waiting for bank or IO",
+        "PASS bank result after shutdown request receives durable PAID and exact budget ACK"
+      ],
+      "server_log_sha256": "222ee747a484e8f262e37ea3bd9d92972fb23137397cb016b8b09f5f6304e053"
+    },
+    {
+      "phase": "restart",
+      "exit_code": 0,
+      "result": "PASS 8 assertions; real Folia, Treasury async budgets, actual Towny Account/Observer, physical ACK, continuous-flow fairness, backed debit/refund, uncertainty, exact reconciliation, outer-Suite shutdown and JVM restart. Controlled economy adapter and explicit recovery seed; no real Vault provider or network client claimed.\n",
+      "jar_sha256": {
+        "NeverLandTownyTreasuryPlus-0.3.0.jar": "638a665b8f53347786d68aa5f115a627c6a186c5c34d0fe2d0d39de7f6dff578",
+        "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+        "NeverLandTownyControl-0.6.1.jar": "f8210c29f10d64e1b6470bf4ad72598fd268c0bc74a66397a193d0d42a454256",
+        "TreasuryAsyncRuntimeProbe.jar": "7a61a5b4e0dc1f5e70e57cd75b0997bf8631a7924b36a1ca43ee8d26f061f0a7"
+      },
+      "assertions": [
+        "PASS actual Treasury0.3 plugin starts on real Folia",
+        "PASS full JVM restart preserves unknown refund and shutdown paid debit",
+        "PASS restart never repeats REVIEW refund or previously PAID debit",
+        "PASS manual refund reconciliation restores original budget without a second credit",
+        "PASS paid shutdown debit can be refunded exactly once after restart",
+        "PASS recovery-only INVOKING to REVIEW works even while durable flow-gap closes new payments",
+        "PASS exact review clears one held budget without clearing global flow-gap",
+        "PASS flow gap rejects fresh debit before any bank call"
+      ],
+      "server_log_sha256": "f634492e7120237351b40de877afcfa33f61e0ee2cf2771ea0bba41872611102"
+    }
+  ],
+  "cold_build": {
+    "programs": 5,
+    "AsyncBudgetPersistenceSmoke": 25,
+    "BankFlowsSmoke": 9,
+    "ForecastSmoke": 11,
+    "TreasuryAccessSmoke": "PASS",
+    "TreasurySmoke": "PASS incl 10000 mixed operations and DebitSmoke"
+  },
+  "jar_sha256": "638a665b8f53347786d68aa5f115a627c6a186c5c34d0fe2d0d39de7f6dff578"
+}

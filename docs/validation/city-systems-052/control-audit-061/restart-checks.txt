@@ -1,0 +1,8 @@
+PASS actual Control 0.6.1 enabled on Folia with original Towny API
+PASS actual renamed Towny city survives full JVM restart
+PASS full restart preserves exact bank receipts including the pending shutdown receipt without replay
+PASS actual Control onDisable drains pending bank audit outside shared SuiteState
+PASS derived SQLite cache remains available after actual JVM restart
+PASS reopened index and related lookup leave persistent audit evidence unchanged
+PASS post-restart rebuild includes drained bank tail without changing source
+PASS review hints remain reproducible after restart and bank tail is not double-counted

@@ -1,0 +1,1 @@
+PASS 28 checks; actual Folia/Towny/Diplomacy service, native constructed offline CraftPlayers/region ownership and damage events, real delayed file, current mayor recheck, exact proof and neutral pause/restart. No network client, automatic sanctions, money or item transfer claimed. Restart OPEN status is an explicit crash-snapshot fixture.

@@ -1,5 +1,5 @@
 name: NeverLandTownyTrade
-version: 0.2.20
+version: 0.3.0
 main: ru.neverland.minttrade.MintTownyTrade
 folia-supported: true
 api-version: '26.2'

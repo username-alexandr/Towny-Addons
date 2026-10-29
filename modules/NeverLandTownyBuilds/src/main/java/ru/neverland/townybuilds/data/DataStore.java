@@ -162,6 +162,9 @@ public final class DataStore {
 
     public boolean writable() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {return writable && ru.neverland.core.AtomicFiles.writable(file.toPath());} }
 
+    /** Read-only lookup: estimates must not create a town record or dirty the file. */
+    public TownData existingTown(UUID townId) { try (var guard=ru.neverland.core.SuiteState.guard()) { return towns.get(townId); } }
+
     public TownData town(UUID townId) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         if(!writable())throw new IllegalStateException("Хранилище построек остановлено после ошибки записи");
         return towns.computeIfAbsent(townId, id -> {

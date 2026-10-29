@@ -37,7 +37,7 @@ public final class TradeMenuManager implements Listener {
     private static final int[] INCOMING = {10, 11, 12};
     private static final int[] OUTGOING = {14, 15, 16};
     private static final int[] CARAVANS = {46, 47, 48, 50, 51, 52};
-    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withZone(ZoneId.systemDefault());
+    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withZone(ZoneId.of("Europe/Moscow"));
     private final JavaPlugin plugin; private final TownyHook towny; private final TradeService trade; private final MessageService messages;
     private final NamespacedKey offerKey, actionKey;
     private final ru.neverland.minttrade.contract.SupplyMenus supplies;
@@ -89,6 +89,7 @@ public final class TradeMenuManager implements Listener {
                             "&7Статус: " + (entry.status() == CaravanStatus.COMPLETED ? "&#55FF55Доставлен" : "&#FF7777Отменён"),
                             "&7Груз: &f" + entry.amount(), "&7Цена: &#FFD45A" + trade.economy().format(entry.price()),
                             "&7Пошлины: &#FFD45A" + trade.economy().format(entry.tariffs()),
+                            "&7Возврат за задержку: &f"+trade.economy().format(entry.compensationCents()/100.0),
                             "&7Дата: &f" + DATE.format(Instant.ofEpochMilli(entry.completedAt())))));
             if (slot >= 45) break;
         }
@@ -97,7 +98,7 @@ public final class TradeMenuManager implements Listener {
     } }
     @EventHandler public void onClick(InventoryClickEvent event) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyTrade")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
         if (!(event.getInventory().getHolder() instanceof TradeMenuHolder holder)) return;
-        event.setCancelled(true); if (!(event.getWhoClicked() instanceof Player player)) return;
+        event.setCancelled(true); if (!(event.getWhoClicked() instanceof Player player)||player.getOpenInventory().getTopInventory()!=holder.getInventory()||event.getClick()!=org.bukkit.event.inventory.ClickType.LEFT&&event.getClick()!=org.bukkit.event.inventory.ClickType.RIGHT) return;
         Town town = towny.town(player); if (town == null || !town.getUUID().equals(holder.townId())) { player.closeInventory(); return; }
         if(event.getRawSlot()<0||event.getRawSlot()>=event.getView().getTopInventory().getSize()||!player.hasPermission("minttrade.use"))return;
         ItemStack clicked = event.getCurrentItem(); if (clicked == null || !clicked.hasItemMeta()) return;
@@ -114,10 +115,10 @@ public final class TradeMenuManager implements Listener {
         }
         TradeOffer offer = trade.offer(offerId);
         if ("incoming".equals(action)) {
-            if (event.isRightClick()) { trade.reject(town, offer); messages.send(player, "proposal-rejected"); }
+            if (event.isRightClick()) { var result=trade.reject(town,offer);player.sendMessage(result==TradeService.CancelResult.PROCESSING?"Отклонение предложения сохраняется. Обновите доску через секунду.":"Предложение сейчас нельзя отклонить: "+result); }
             else sendAccept(player, trade.accept(town, offer, player.getUniqueId()));
         } else if ("outgoing".equals(action)) {
-            trade.cancelOffer(town, offer); messages.send(player, "proposal-cancelled");
+            var result=trade.cancelOffer(town,offer);player.sendMessage(result==TradeService.CancelResult.PROCESSING?"Отмена предложения сохраняется. Обновите доску через секунду.":"Предложение сейчас нельзя отменить: "+result);
         }
         open(player);
     } }
@@ -126,7 +127,8 @@ public final class TradeMenuManager implements Listener {
         switch (outcome.result()) {
             case SUCCESS -> messages.send(player, "caravan-departed", Map.of("export", ColorUtil.strip(trade.definitionOf(outcome.caravan()).name()),
                     "time", TimeUtil.format(outcome.caravan().arrivesAt() - System.currentTimeMillis())));
-            case PROCESSING -> player.sendMessage("Договор сохранён. Караван ожидает резерв товара, платёж или восстановление; состояние видно в списке караванов.");
+            case PROCESSING -> player.sendMessage("Принятие договора сохраняется. После подтверждения записи начнутся резерв товара и платёж; обновите список караванов.");
+            case TERMS_CHANGED -> player.sendMessage("Цена или состав партии изменились. Продавец должен создать новое предложение.");
             case REPUTATION_UNAVAILABLE -> player.sendMessage(ColorUtil.color("&cРасчёт пошлин временно недоступен. Дождитесь восстановления дипломатии и репутации."));
             case NOT_FOUND -> messages.send(player, "offer-not-found", Map.of("offer", "?"));
             case NOT_BUYER -> messages.send(player, "not-offer-party"); case MARKET_REQUIRED -> messages.send(player, "market-required");
@@ -146,19 +148,23 @@ public final class TradeMenuManager implements Listener {
             TradeOffer offer = offers.get(index); ExportDefinition definition = trade.definition(offer);
             Town other = towny.town(incoming ? offer.sellerId() : offer.buyerId());
             List<String> lore = new ArrayList<>(); lore.add("&7Город: &f" + name(other));
-            if (definition != null) { lore.add("&7Груз: &f" + definition.amount()); lore.add("&7Цена: &#FFD45A" + trade.economy().format(definition.price())); }
+            boolean changed=definition!=null&&!offer.quotedDefinition().isEmpty()&&!offer.quotedDefinition().equals(trade.definitionFingerprint(definition));
+            if (definition != null) { lore.add(changed?"&cСостав или цена экспорта изменены":"&7Груз: &f" + definition.amount()); lore.add("&7Цена: &#FFD45A" + trade.economy().format(offer.quotedDefinition().isEmpty()?definition.price():offer.quotedBaseCents()/100.0)); }
+            if(changed)lore.add("&cПродавцу нужно создать новое предложение");
             try { lore.add("&7Репутация покупателя: &fx" + String.format(java.util.Locale.ROOT,"%.2f",trade.feeMultiplier(offer.buyerId())) + " &7к пошлинам"); }
             catch(IllegalStateException ex) { lore.add("&cРасчёт репутации пока недоступен"); }
-            lore.add("&7Цена и пошлины фиксируются при запуске.");
+            lore.add(offer.quotedDefinition().isEmpty()?"&7Цена и пошлины фиксируются при запуске.":"&7Цена и состав закреплены; пошлины — при запуске.");
+            lore.addAll(guaranteeLore(offer.guarantee(),offer.quotedBaseCents()));
             lore.add("&7ID: &f" + offer.shortId()); lore.add("");
             lore.add(incoming ? "&#55FF55ЛКМ — принять" : "&#FFFF55ЛКМ — отменить"); if (incoming) lore.add("&#FF7777ПКМ — отклонить");
-            ItemStack stack = item(definition == null ? Material.BARRIER : definition.icon(), definition == null ? offer.exportId() : definition.name(), lore);
+            ItemStack stack = item(definition == null||changed ? Material.BARRIER : definition.icon(), definition == null ? offer.exportId() : definition.name(), lore);
             stack = keyed(stack, offerKey, offer.id().toString()); inventory.setItem(slots[index], keyed(stack, actionKey, incoming ? "incoming" : "outgoing"));
         }
     }
     private ItemStack exportItem(ExportDefinition definition) {
         List<String> lore = new ArrayList<>(); definition.description().forEach(line -> lore.add("&7" + line));
         lore.add(""); lore.add("&7Партия: &#FFFFFF" + definition.amount()); lore.add("&7Цена: &#FFD45A" + trade.economy().format(definition.price()));
+        try{lore.addAll(guaranteeLore(trade.guaranteeTerms(),java.math.BigDecimal.valueOf(ru.neverland.minttrade.util.TradeMath.cents(definition.price())).movePointRight(2).longValueExact()));}catch(IllegalArgumentException ex){lore.add("&cУсловия гарантии временно недоступны");}
         lore.add(""); lore.add("&#AAAAAA/t trade propose <город> " + definition.id()); return item(definition.icon(), definition.name(), lore);
     }
     private ItemStack caravanItem(Caravan caravan, Town viewer) {
@@ -168,7 +174,13 @@ public final class TradeMenuManager implements Listener {
                 "&7Прогресс: &#63E6BE" + Math.round(caravan.progress(System.currentTimeMillis()) * 100) + "%",
                 "&7До прибытия: &#65B8FF" + TimeUtil.format(caravan.timer().remaining(System.currentTimeMillis())),
                 "&7Перевалочных лагерей: &f" + caravan.campStops(), "&7Пошлины: &#FFD45A" + trade.economy().format(caravan.escrow() - caravan.basePrice()),
+                "&7Гарантия сроков: "+(caravan.guarantee().enabled()?"до "+trade.economy().format(caravan.guarantee().reserved(caravan.baseCents())/100.0)+" монет":"без гарантии"),
+                "&7Компенсация: "+(caravan.finalCompensation()<0?"расчёт при доставке":trade.economy().format(caravan.compensationCents()/100.0)),
                 "&7ID: &f" + caravan.shortId()));
+    }
+    private List<String> guaranteeLore(ru.neverland.minttrade.guarantee.GuaranteeTerms terms,long base){
+        if(!terms.enabled())return List.of("&7Без гарантии сроков");
+        return List.of("&eГарантия сроков: до "+trade.economy().format(terms.reserved(base)/100.0)+" монет", "&7Из оплаты продавцу; пошлины не затрагиваются", "&7За дорожную задержку: "+terms.delayBasisPointsPerMinute()/100.0+"% цены/мин", "&7После первых "+terms.graceMillis()/1000+" сек.; паузы админа не считаются");
     }
     private String caravanState(Caravan c){if(c.settlement().equals("ACTIVE")&&c.timer().paused())return "Пауза администратора";return switch(c.settlement()){case "ACTIVE"->"В пути";case "PREPARED"->"Подготовка / платёж";case "DELIVERING"->"Ожидает склад";case "PAYING"->"Ожидает расчёт";case "RETURNING"->"Ожидает возврат";case "LEGACY_REVIEW"->"Требует сверки администратора";default->"Завершён";};}
     private String name(Town town) { return town == null ? "Удалённый город" : town.getName(); }
