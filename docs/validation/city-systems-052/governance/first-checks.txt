@@ -1,0 +1,17 @@
+PASS actual Governance 0.2 is enabled on Folia
+PASS invalid numeric definition cannot replace the previous law catalog
+PASS malformed YAML cannot silently erase existing law definitions
+PASS law review compares complete construction multiplier and city claim adjustment
+PASS opening review creates no proposal or effects
+PASS actual read-only preview command uses identical human impact
+PASS city tax change invalidates old propose action even for a construction law
+PASS fresh review creates one actual proposal and opens voting
+PASS voters see current complete impact before answers
+PASS changed effects require a refreshed review before a queued vote is cast
+PASS freshly reviewed vote action records intended answer
+PASS actual accepted vote applies the same projected effects
+PASS actual public API exposes full replacement estimate
+PASS replacement removes old subsidy rather than stacking its cost and claims
+PASS actual Towny tax setter and stored baseline match preview
+PASS non-tax law replacement restores exact original Towny tax
+PASS actual law history retains enactments

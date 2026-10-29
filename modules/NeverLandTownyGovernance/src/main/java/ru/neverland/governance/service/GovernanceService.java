@@ -297,29 +297,27 @@ public final class GovernanceService {
     public double ideologyCost(UUID townId) { try (var suiteGuard31 = ru.neverland.core.SuiteState.guard()) { return multiplier(townId, Multiplier.IDEOLOGY_COST); } }
     public double ideologyExperience(UUID townId) { try (var suiteGuard32 = ru.neverland.core.SuiteState.guard()) { return multiplier(townId, Multiplier.IDEOLOGY_EXPERIENCE); } }
 
+    private Map<String,LawDefinition> lawDefinitions(){var all=new java.util.LinkedHashMap<String,LawDefinition>();laws().forEach(law->all.put(law.id(),law));return all;}
+    public ru.neverland.governance.model.LawImpact.Projection impact(Town town,LawDefinition law,ProposalAction action){try(var guard=ru.neverland.core.SuiteState.guard()){
+        if(town==null)throw new IllegalArgumentException("Город не найден");var data=data(town);var city=new ru.neverland.governance.model.LawImpact.City(Set.copyOf(data.activeLaws().keySet()),town.getTaxes(),town.isTaxPercentage(),town.getBonusBlocks(),data.baselineTax(),data.baselineTaxPercentage());
+        return ru.neverland.governance.model.LawImpact.project(city,lawDefinitions(),law,action,plugin.getConfig().getDouble("modifiers.minimum",.1),plugin.getConfig().getDouble("modifiers.maximum",5),new ru.neverland.governance.model.LawImpact.TaxRules(com.palmergames.bukkit.towny.TownySettings.getMaxTownTax(),com.palmergames.bukkit.towny.TownySettings.getMaxTownTaxPercent(),com.palmergames.bukkit.towny.TownySettings.isNegativeTownTaxAllowed(),com.palmergames.bukkit.towny.TownySettings.getTownDefaultTax()));
+    }}
+    public Map<String,Object> impact(UUID town,String law,String action){try(var guard=ru.neverland.core.SuiteState.guard()){
+        var p=impact(towny.town(town),law(law),ProposalAction.valueOf(action.toUpperCase(Locale.ROOT)));var result=new java.util.LinkedHashMap<String,Object>();result.put("fingerprint",p.fingerprint());result.put("taxBefore",p.before().tax());result.put("taxAfter",p.after().tax());result.put("taxPercentageBefore",p.before().percentage());result.put("taxPercentageAfter",p.after().percentage());result.put("constructionBefore",p.current().construction());result.put("constructionAfter",p.proposed().construction());result.put("ideologyCostBefore",p.current().ideologyCost());result.put("ideologyCostAfter",p.proposed().ideologyCost());result.put("ideologyExperienceBefore",p.current().ideologyExperience());result.put("ideologyExperienceAfter",p.proposed().ideologyExperience());result.put("bonusBlocksBefore",p.before().bonusBlocks());result.put("bonusBlocksAfter",p.after().bonusBlocks());result.put("removed",p.removed());result.put("warnings",p.warnings());return Map.copyOf(result);
+    }}
+    private void applyImpact(Town town,TownGovernanceData data,ru.neverland.governance.model.LawImpact.Projection projection){
+        var next=projection.after();town.setBonusBlocks(next.bonusBlocks());town.setTaxPercentage(next.percentage());town.setTaxes(next.tax());
+        if(next.baselineTax()==null)data.clearBaselineTax();else data.baselineTax(next.baselineTax(),next.baselinePercentage());
+        projection.removed().forEach(data.activeLaws()::remove);
+    }
     public boolean enact(Town town, LawDefinition law, UUID actorId, String actorName) { try (var suiteGuard33 = ru.neverland.core.SuiteState.guard()) {
-        if (town == null || law == null) return false; TownGovernanceData data = data(town);
-        if (data.activeLaws().containsKey(law.id())) return false;
-        if (!law.exclusiveGroup().isBlank()) {
-            List<String> conflicts = data.activeLaws().keySet().stream().filter(id -> {
-                LawDefinition active = definitions.law(id); return active != null && law.exclusiveGroup().equalsIgnoreCase(active.exclusiveGroup());
-            }).toList();
-            for (String conflict : conflicts) removeLaw(town, data, definitions.law(conflict), false);
-        }
-        if (law.effects().changesTax() && data.baselineTax() == null) data.baselineTax(town.getTaxes(), town.isTaxPercentage());
-        applyEffects(town, law, true); data.activeLaws().put(law.id(), new ActiveLaw(law.id(), System.currentTimeMillis(), actorId, actorName));
-        town.save(); repository.changed();
-        repository.history(data, new HistoryEntry(System.currentTimeMillis(), "ENACT", "Принят закон «" + ColorUtil.strip(law.name()) + "»", actorId, actorName));
-        return true;
-    } }
-
+        if(town==null||law==null)return false;var data=data(town);if(data.activeLaws().containsKey(law.id()))return false;
+        var projection=impact(town,law,ProposalAction.ENACT);applyImpact(town,data,projection);data.activeLaws().put(law.id(),new ActiveLaw(law.id(),System.currentTimeMillis(),actorId,actorName));town.save();repository.changed();repository.history(data,new HistoryEntry(System.currentTimeMillis(),"ENACT","Принят закон «"+ColorUtil.strip(law.name())+"»",actorId,actorName));return true;
+    }}
     public boolean repeal(Town town, LawDefinition law, UUID actorId, String actorName) { try (var suiteGuard34 = ru.neverland.core.SuiteState.guard()) {
-        if (town == null || law == null) return false; TownGovernanceData data = data(town);
-        if (!data.activeLaws().containsKey(law.id())) return false;
-        removeLaw(town, data, law, true); town.save(); repository.changed();
-        repository.history(data, new HistoryEntry(System.currentTimeMillis(), "REPEAL", "Отменён закон «" + ColorUtil.strip(law.name()) + "»", actorId, actorName));
-        return true;
-    } }
+        if(town==null||law==null)return false;var data=data(town);if(!data.activeLaws().containsKey(law.id()))return false;
+        var projection=impact(town,law,ProposalAction.REPEAL);applyImpact(town,data,projection);town.save();repository.changed();repository.history(data,new HistoryEntry(System.currentTimeMillis(),"REPEAL","Отменён закон «"+ColorUtil.strip(law.name())+"»",actorId,actorName));return true;
+    }}
 
     public boolean resolveNow(String proposalPrefix) { try (var suiteGuard35 = ru.neverland.core.SuiteState.guard()) {
         Proposal match = null;
@@ -356,30 +354,9 @@ public final class GovernanceService {
                 "participation", yes + no + abstain, "quorum", quorum));
     }
 
-    private void applyEffects(Town town, LawDefinition law, boolean enabling) {
-        int direction = enabling ? 1 : -1; int blocks = law.effects().bonusClaimBlocks() * direction;
-        if (blocks != 0) town.setBonusBlocks(Math.max(0, town.getBonusBlocks() + blocks));
-        if (enabling && law.effects().changesTax()) { town.setTaxPercentage(law.effects().taxPercentage()); town.setTaxes(Math.max(0, law.effects().taxAmount())); }
-    }
-
-    private void removeLaw(Town town, TownGovernanceData data, LawDefinition law, boolean restoreTax) {
-        if (law == null) return; data.activeLaws().remove(law.id()); applyEffects(town, law, false);
-        if (restoreTax && law.effects().changesTax()) restoreTaxIfNeeded(town, data);
-    }
-
-    private void restoreTaxIfNeeded(Town town, TownGovernanceData data) {
-        boolean otherTax = data.activeLaws().keySet().stream().map(definitions::law).filter(java.util.Objects::nonNull).anyMatch(value -> value.effects().changesTax());
-        if (!otherTax && data.baselineTax() != null) {
-            town.setTaxPercentage(Boolean.TRUE.equals(data.baselineTaxPercentage())); town.setTaxes(Math.max(0, data.baselineTax())); data.clearBaselineTax();
-        }
-    }
-
     private double multiplier(UUID townId, Multiplier type) {
-        TownGovernanceData data = repository.town(townId); if (data == null) return 1.0; double value = 1.0;
-        for (String id : data.activeLaws().keySet()) { LawDefinition law = definitions.law(id); if (law == null) continue;
-            value *= switch (type) { case CONSTRUCTION -> law.effects().constructionCostMultiplier(); case IDEOLOGY_COST -> law.effects().ideologyCostMultiplier(); case IDEOLOGY_EXPERIENCE -> law.effects().ideologyExperienceMultiplier(); };
-        }
-        return GovernanceMath.clamp(value, plugin.getConfig().getDouble("modifiers.minimum", 0.1), plugin.getConfig().getDouble("modifiers.maximum", 5.0));
+        TownGovernanceData data=repository.town(townId);if(data==null)return 1;var values=ru.neverland.governance.model.LawImpact.multipliers(data.activeLaws().keySet(),lawDefinitions(),plugin.getConfig().getDouble("modifiers.minimum",.1),plugin.getConfig().getDouble("modifiers.maximum",5));
+        return switch(type){case CONSTRUCTION->values.construction();case IDEOLOGY_COST->values.ideologyCost();case IDEOLOGY_EXPERIENCE->values.ideologyExperience();};
     }
 
     private void cleanupOffices() {

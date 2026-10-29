@@ -1,0 +1,30 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 17 assertions; actual Folia/Towny/Governance laws, commands, inventory review actions, vote resolution, exact tax/claims/modifier effects and full restart; explicit offline player/scheduler/view proxies; no GUI client, collection of tax or bank payout claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyGovernance-0.2.0.jar": "c7cc8cbe4bc40e2af9731dc719fe2c184df89c93cab5cd1d612ce677def2f9b3",
+      "NeverLandTownyContracts-0.6.0.jar": "991d6a8119fb8377e357546df9c02d16ab516f4ae87054297225bed8e5c08501",
+      "NeverLandTownyBuilds-0.10.1.jar": "f004882b1f0f473c019eaad9f2e2e2f881979da5b8de95c5b81f108e04af4e9f",
+      "TntRuntimeProbe.jar": "9aa8ce6df55ed4034ffb5afef1c74c8893d16f6bfbb74fedd3c209e705bab401",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64",
+      "NeverLandTownyControl-0.5.4.jar": "788cf8cb9518fcf123b29c8c2cb34c1b9029a2ad76be776e547303d4af6212ac"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 6 assertions; actual Folia/Towny/Governance laws, commands, inventory review actions, vote resolution, exact tax/claims/modifier effects and full restart; explicit offline player/scheduler/view proxies; no GUI client, collection of tax or bank payout claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyGovernance-0.2.0.jar": "c7cc8cbe4bc40e2af9731dc719fe2c184df89c93cab5cd1d612ce677def2f9b3",
+      "NeverLandTownyContracts-0.6.0.jar": "991d6a8119fb8377e357546df9c02d16ab516f4ae87054297225bed8e5c08501",
+      "NeverLandTownyBuilds-0.10.1.jar": "f004882b1f0f473c019eaad9f2e2e2f881979da5b8de95c5b81f108e04af4e9f",
+      "TntRuntimeProbe.jar": "9aa8ce6df55ed4034ffb5afef1c74c8893d16f6bfbb74fedd3c209e705bab401",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64",
+      "NeverLandTownyControl-0.5.4.jar": "788cf8cb9518fcf123b29c8c2cb34c1b9029a2ad76be776e547303d4af6212ac"
+    }
+  }
+]

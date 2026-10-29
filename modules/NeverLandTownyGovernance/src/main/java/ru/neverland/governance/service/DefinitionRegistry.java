@@ -23,7 +23,7 @@ public final class DefinitionRegistry {
     private final Map<String, LawDefinition> laws = new LinkedHashMap<>();
     private final Map<String, OfficeDefinition> offices = new LinkedHashMap<>();
     public DefinitionRegistry(JavaPlugin plugin) { this.plugin = plugin; reload(); }
-    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { loadLaws(); loadOffices(); } }
+    public void reload() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { var oldLaws=new LinkedHashMap<>(laws);var oldOffices=new LinkedHashMap<>(offices);try{loadLaws();loadOffices();}catch(RuntimeException error){laws.clear();laws.putAll(oldLaws);offices.clear();offices.putAll(oldOffices);throw error;} } }
     public LawDefinition law(String id) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return id == null ? null : laws.get(id.toLowerCase(Locale.ROOT)); } }
     public OfficeDefinition office(String id) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return id == null ? null : offices.get(id.toLowerCase(Locale.ROOT)); } }
     public Collection<LawDefinition> laws() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return Collections.unmodifiableCollection(laws.values()); } }
@@ -31,21 +31,23 @@ public final class DefinitionRegistry {
 
     private void loadLaws() {
         laws.clear();
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "laws.yml"));
+        YamlConfiguration yaml = ru.neverland.core.SafeYaml.load(new File(plugin.getDataFolder(),"laws.yml").toPath());
         ConfigurationSection root = yaml.getConfigurationSection("laws");
         if (root == null) return;
         for (String id : root.getKeys(false)) {
             ConfigurationSection section = root.getConfigurationSection(id);
             if (section == null) continue;
             ConfigurationSection effects = section.getConfigurationSection("effects");
-            Double tax = effects != null && effects.contains("tax-amount") ? effects.getDouble("tax-amount") : null;
-            Boolean percentage = effects != null && effects.contains("tax-percentage") ? effects.getBoolean("tax-percentage") : null;
+            Double tax = effects != null && effects.contains("tax-amount") ? number(effects,"tax-amount",0) : null;
+            Boolean percentage = effects != null && effects.contains("tax-percentage") ? bool(effects,"tax-percentage") : null;
             LawEffects lawEffects = new LawEffects(tax, percentage,
                     number(effects, "construction-cost-multiplier", 1.0),
                     number(effects, "ideology-cost-multiplier", 1.0),
                     number(effects, "ideology-experience-multiplier", 1.0),
-                    effects == null ? 0 : effects.getInt("bonus-claim-blocks", 0));
+                    effects == null ? 0 : claimBlocks(effects));
+            ru.neverland.governance.model.LawImpact.validate(lawEffects);
             String key = id.toLowerCase(Locale.ROOT);
+            if(!key.matches("[a-z0-9_]{1,64}")||laws.size()>=1024)throw new IllegalArgumentException("Некорректный идентификатор или слишком много законов");
             laws.put(key, new LawDefinition(key, section.getString("name", id),
                     LawCategory.parse(section.getString("category")), material(section.getString("material"), Material.PAPER),
                     section.getString("itemsadder-icon", ""), section.getString("exclusive-group", ""),
@@ -55,7 +57,7 @@ public final class DefinitionRegistry {
 
     private void loadOffices() {
         offices.clear();
-        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "offices.yml"));
+        YamlConfiguration yaml = ru.neverland.core.SafeYaml.load(new File(plugin.getDataFolder(),"offices.yml").toPath());
         ConfigurationSection root = yaml.getConfigurationSection("offices");
         if (root == null) return;
         for (String id : root.getKeys(false)) {
@@ -74,7 +76,9 @@ public final class DefinitionRegistry {
         }
     }
 
-    private double number(ConfigurationSection section, String path, double fallback) { return section == null ? fallback : section.getDouble(path, fallback); }
+    private double number(ConfigurationSection section,String path,double fallback){if(section==null||!section.contains(path))return fallback;Object raw=section.get(path);if(!(raw instanceof Number number)||!Double.isFinite(number.doubleValue()))throw new IllegalArgumentException("Закон: "+path+" должен быть конечным числом");return number.doubleValue();}
+    private boolean bool(ConfigurationSection section,String path){Object raw=section.get(path);if(!(raw instanceof Boolean value))throw new IllegalArgumentException("Закон: "+path+" должен быть true или false");return value;}
+    private int claimBlocks(ConfigurationSection section){double value=number(section,"bonus-claim-blocks",0);if(value!=Math.rint(value)||value<-1_000_000||value>1_000_000)throw new IllegalArgumentException("Закон: неверное количество участков");return(int)value;}
     private Material material(String value, Material fallback) { Material material = value == null ? null : Material.matchMaterial(value); return material == null ? fallback : material; }
 
     private static final class ListCopy {

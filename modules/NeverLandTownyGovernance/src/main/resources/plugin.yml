@@ -1,5 +1,5 @@
 name: NeverLandTownyGovernance
-version: 0.1.27
+version: 0.2.0
 main: ru.neverland.governance.TownyGovernance
 folia-supported: true
 api-version: '26.2'
@@ -13,7 +13,7 @@ commands:
   governance:
     aliases: [gov]
     description: Управление городским советом
-    usage: /governance [laws|votes|council|history|propose|repeal|vote|appoint|dismiss]
+    usage: /governance [laws|votes|council|history|preview|propose|repeal|vote|appoint|dismiss]
     permission: townygovernance.use
   townygovernance:
     aliases: [towngovernance, tgov, neverlandtownygovernance, nltgovernance]

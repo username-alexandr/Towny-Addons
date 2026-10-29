@@ -1,0 +1,6 @@
+PASS actual Governance 0.2 is enabled on Folia
+PASS accepted replacement effects survive full Folia restart
+PASS restored Towny rate and cleared law baseline survive restart
+PASS unresolved voting identity, deadline and votes remain unchanged
+PASS restored unfinished vote offers exact current ideology experience comparison
+PASS law decision history survives restart

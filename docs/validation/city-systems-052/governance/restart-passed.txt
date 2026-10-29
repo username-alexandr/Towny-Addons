@@ -1,0 +1,1 @@
+PASS 6 assertions; actual Folia/Towny/Governance laws, commands, inventory review actions, vote resolution, exact tax/claims/modifier effects and full restart; explicit offline player/scheduler/view proxies; no GUI client, collection of tax or bank payout claimed

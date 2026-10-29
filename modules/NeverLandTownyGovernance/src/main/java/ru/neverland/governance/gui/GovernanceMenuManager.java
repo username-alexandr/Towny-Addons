@@ -40,7 +40,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public final class GovernanceMenuManager implements Listener {
-    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withLocale(new Locale("ru")).withZone(ZoneId.systemDefault());
+    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withLocale(new Locale("ru")).withZone(ZoneId.of("Europe/Moscow"));
     private final CouncilOfficeMenus officeMenus;
     private final JavaPlugin plugin; private final TownyHook towny; private final GovernanceService governance;
     private final ItemsAdderHook itemsAdder; private final MessageService messages; private final NamespacedKey actionKey; private final NamespacedKey valueKey;
@@ -151,11 +151,12 @@ public final class GovernanceMenuManager implements Listener {
         if(governance.electorate(town).contains(player.getUniqueId()))lore.add("&7При предложении ваш голос «за» учитывается сразу.");
         menu.setItem(13,item(icon(law),law.name(),lore));
         Proposal existing=governance.open(town).stream().filter(v->v.lawId().equals(lawId)).findFirst().orElse(null);
+        var impact=governance.impact(town,law,action);reviewCard(menu,impact);
         String problem=governance.proposalAccessReason(player,town,law.category());long created=System.nanoTime();
         if(existing!=null)actionButton(menu,29,Material.CLOCK,"&eОткрыть голосование",List.of("&7Этот закон уже обсуждается."),p->openVote(p,existing.id().toString()));
         else actionButton(menu,29,problem.isEmpty()?Material.LIME_DYE:Material.GRAY_DYE,active?"&eПредложить отмену закона":"&aПредложить закон",List.of(problem.isEmpty()?"&7Начать голосование по этому решению.":"&c"+problem),problem.isEmpty()?p->{
             Town fresh=requireTown(p);if(fresh==null)return;
-            if(System.nanoTime()-created>60_000_000_000L||!law.equals(governance.law(lawId))||active!=governance.data(fresh).activeLaws().containsKey(lawId)){
+            if(System.nanoTime()-created>60_000_000_000L||!law.equals(governance.law(lawId))||active!=governance.data(fresh).activeLaws().containsKey(lawId)||!impact.fingerprint().equals(governance.impact(fresh,law,action).fingerprint())){
                 p.sendMessage("§eУсловия изменились или карточка устарела. Проверьте закон ещё раз.");openLaw(p,lawId);return;
             }
             var result=governance.propose(p,lawId,action);handleProposal(p,result);
@@ -172,16 +173,19 @@ public final class GovernanceMenuManager implements Listener {
         lore.add("&7Решение: &f"+action(proposal.action()));lore.add("&7Осталось: &f"+(proposal.timer().paused()?"Пауза":TimeUtil.format(proposal.timer().remaining(System.currentTimeMillis()))));
         lore.add("&7Ваш голос: &f"+(proposal.voteOf(player.getUniqueId())==null?"не отдан":governance.choiceText(proposal.voteOf(player.getUniqueId()))));
         var counts=proposal.counts();for(VoteChoice choice:VoteChoice.values())lore.add("&7"+governance.choiceText(choice)+": &f"+counts.get(choice));
-        menu.setItem(13,item(icon(law),law.name(),lore));String problem=governance.voteAccessReason(player,town,proposal);
+        menu.setItem(13,item(icon(law),law.name(),lore));var impact=voteImpact(town,law,proposal.action());if(impact==null){menu.setItem(22,item(Material.BARRIER,"&eРешение уже потеряло актуальность",List.of("&7Этот закон уже принят или отменён другим решением.")));}else reviewCard(menu,impact);String problem=governance.voteAccessReason(player,town,proposal);if(impact==null)problem="Закон уже изменён другим решением. Ожидается закрытие голосования.";
         VoteChoice[] choices={VoteChoice.YES,VoteChoice.NO,VoteChoice.ABSTAIN};Material[] icons={Material.LIME_DYE,Material.RED_DYE,Material.YELLOW_DYE};
         String[] labels={"&aЗа","&cПротив","&eВоздержаться"};
         for(int i=0;i<choices.length;i++){
             VoteChoice choice=choices[i];actionButton(menu,29+i*2,problem.isEmpty()?icons[i]:Material.GRAY_DYE,labels[i],List.of(problem.isEmpty()?"&7Записать этот ответ.":"&c"+problem),problem.isEmpty()?p->{
+                var fresh=governance.find(town,proposal.id().toString());var freshLaw=governance.law(proposal.lawId());var current=voteImpact(town,freshLaw,proposal.action());if(fresh==null||current==null||!impact.fingerprint().equals(current.fingerprint())){p.sendMessage("§eПоследствия решения изменились. Проверьте обновлённую оценку перед голосом.");openVote(p,proposal.id().toString());return;}
                 var result=governance.vote(p,proposal.id().toString(),choice);handleVote(p,result);openVote(p,proposal.id().toString());
             }:null);
         }
         actionButton(menu,49,Material.ARROW,"&7Назад",List.of("&7К списку голосований"),this::openVotes);player.openInventory(menu);
     } }
+    private ru.neverland.governance.model.LawImpact.Projection voteImpact(Town town,LawDefinition law,ProposalAction action){if(law==null||governance.data(town).activeLaws().containsKey(law.id())==(action==ProposalAction.ENACT))return null;return governance.impact(town,law,action);}
+    private void reviewCard(Inventory menu,ru.neverland.governance.model.LawImpact.Projection impact){menu.setItem(22,item(Material.COMPARATOR,"&eЧто изменится для города",ru.neverland.governance.service.LawReview.lines(impact,id->{var law=governance.law(id);return law==null?id:ColorUtil.strip(law.name());}).stream().map(s->"&7"+s).toList()));}
     @EventHandler public void onDrag(InventoryDragEvent event) { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyGovernance")){ru.neverland.core.ModuleGate.stopEvent(event);return;} if (event.getInventory().getHolder() instanceof GovernanceMenuHolder) event.setCancelled(true); } }
 
     public void handleProposal(Player player, GovernanceService.ProposalResult result) { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {

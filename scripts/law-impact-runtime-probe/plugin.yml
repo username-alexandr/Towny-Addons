@@ -1,0 +1,6 @@
+name: TntRuntimeProbe
+version: 0.52-law-impact
+main: ru.neverland.runtime.LawImpactProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyContracts, NeverLandTownySiegesPlus, NeverLandTownyGovernance, NeverLandTownyControl]

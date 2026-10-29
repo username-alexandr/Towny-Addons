@@ -44,6 +44,7 @@ public final class TownGovernanceCommand implements TabExecutor {
             case "votes", "vote", "голосования" -> { if (args.length >= 3) vote(player, args); else menus.openVotes(player); }
             case "council", "offices", "совет" -> menus.openCouncil(player);
             case "history", "история" -> menus.openHistory(player);
+            case "preview" -> preview(player,args);
             case "propose", "предложить" -> propose(player, args, ProposalAction.ENACT);
             case "repeal", "отменить" -> propose(player, args, ProposalAction.REPEAL);
             case "appoint", "назначить" -> appoint(player, args);
@@ -56,6 +57,12 @@ public final class TownGovernanceCommand implements TabExecutor {
 
     private void open(Player player, DefaultView view) {
         switch (view) { case LAWS -> menus.openLaws(player); case VOTES -> menus.openVotes(player); case COUNCIL -> menus.openCouncil(player); case HISTORY -> menus.openHistory(player); default -> menus.openMain(player); }
+    }
+    private void preview(Player player,String[] args){
+        var town=towny.town(player);if(town==null){messages.send(player,"no-town");return;}if(args.length<2||args.length>3){player.sendMessage("§e/t governance preview <закон> [enact|repeal]");return;}
+        var law=governance.law(args[1]);if(law==null){player.sendMessage("§eЗакон не найден.");return;}try{var action=args.length==3?ProposalAction.valueOf(args[2].toUpperCase(java.util.Locale.ROOT)):governance.data(town).activeLaws().containsKey(law.id())?ProposalAction.REPEAL:ProposalAction.ENACT;
+            var impact=governance.impact(town,law,action);ru.neverland.governance.service.LawReview.lines(impact,id->{var definition=governance.law(id);return definition==null?id:ColorUtil.strip(definition.name());}).forEach(s->player.sendMessage("§7"+s));
+        }catch(IllegalArgumentException error){player.sendMessage("§e"+error.getMessage());}
     }
     private void propose(Player player, String[] args, ProposalAction action) {
         if (args.length < 2) { messages.send(player, action == ProposalAction.ENACT ? "usage-propose" : "usage-repeal"); return; }
@@ -95,13 +102,14 @@ public final class TownGovernanceCommand implements TabExecutor {
         }
     }
     private void help(Player player) {
-        player.sendMessage(ColorUtil.color("&#63E6BE/t governance &8— &7главное меню\n&#FFFFFF/t laws &8— &7законы\n&#FFFFFF/t vote &8— &7голосования\n&#FFFFFF/t council &8— &7совет и должности\n&#FFFFFF/t governance propose <закон>\n&#FFFFFF/t governance repeal <закон>\n&#FFFFFF/t governance vote <ID> <yes|no|abstain>\n&#FFFFFF/t governance appoint <должность> <игрок>\n&#FFFFFF/t governance dismiss <должность> <игрок>"));
+        player.sendMessage(ColorUtil.color("&#63E6BE/t governance &8— &7главное меню\n&#FFFFFF/t laws &8— &7законы\n&#FFFFFF/t vote &8— &7голосования\n&#FFFFFF/t council &8— &7совет и должности\n&#FFFFFF/t governance preview <закон> [enact|repeal]\n&#FFFFFF/t governance propose <закон>\n&#FFFFFF/t governance repeal <закон>\n&#FFFFFF/t governance vote <ID> <yes|no|abstain>\n&#FFFFFF/t governance appoint <должность> <игрок>\n&#FFFFFF/t governance dismiss <должность> <игрок>"));
     }
 
     @Override public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
-        if (args.length == 1) return filter(List.of("laws", "votes", "council", "history", "propose", "repeal", "vote", "appoint", "dismiss", "help"), args[0]);
-        if (args.length == 2 && (args[0].equalsIgnoreCase("propose") || args[0].equalsIgnoreCase("repeal"))) return filter(governance.laws().stream().map(value -> value.id()).toList(), args[1]);
+        if (args.length == 1) return filter(List.of("laws", "votes", "council", "history", "preview", "propose", "repeal", "vote", "appoint", "dismiss", "help"), args[0]);
+        if (args.length == 2 && (args[0].equalsIgnoreCase("propose") || args[0].equalsIgnoreCase("repeal") || args[0].equalsIgnoreCase("preview"))) return filter(governance.laws().stream().map(value -> value.id()).toList(), args[1]);
         if (args.length == 2 && args[0].equalsIgnoreCase("vote")) { Town town = sender instanceof Player player ? towny.town(player) : null; return town == null ? List.of() : filter(governance.open(town).stream().map(value -> value.shortId()).toList(), args[1]); }
+        if(args.length==3&&args[0].equalsIgnoreCase("preview"))return filter(List.of("enact","repeal"),args[2]);
         if (args.length == 3 && args[0].equalsIgnoreCase("vote")) return filter(List.of("yes", "no", "abstain"), args[2]);
         if (args.length == 2 && (args[0].equalsIgnoreCase("appoint") || args[0].equalsIgnoreCase("dismiss"))) return filter(governance.offices().stream().map(OfficeDefinition::id).toList(), args[1]);
         if (args.length == 3 && (args[0].equalsIgnoreCase("appoint") || args[0].equalsIgnoreCase("dismiss"))) {

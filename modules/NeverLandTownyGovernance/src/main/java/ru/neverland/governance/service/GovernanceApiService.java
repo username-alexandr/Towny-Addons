@@ -18,6 +18,7 @@ public final class GovernanceApiService implements TownyGovernanceApi {
                 town == null ? 0 : governance.council(town).size(), town == null ? 0 : governance.open(town).size(),
                 governance.constructionCost(townId), governance.ideologyCost(townId), governance.ideologyExperience(townId));
     } }
+    @Override public java.util.Map<String,Object> lawImpact(UUID town,String law,String action){return governance.impact(town,law,action);}
     @Override public boolean hasLaw(UUID townId, String lawId) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return governance.hasLaw(townId, lawId); } }
     @Override public java.util.Map<String, Integer> officeCatalog() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return governance.officeCatalog(); } }
     @Override public java.util.Map<String, java.util.List<UUID>> officeHolders(UUID town) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { return governance.officeHolders(town); } }
