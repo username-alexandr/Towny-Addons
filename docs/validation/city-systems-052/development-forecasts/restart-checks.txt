@@ -1,0 +1,5 @@
+PASS native providers advertise additive v1 development capability
+PASS restart keeps exact pending invoice, without spending through forecast
+PASS restart retains exact existing charge with no forecast accrual
+PASS saved suspension remains reflected in development rate
+PASS restarted provider forecasts remain read-only

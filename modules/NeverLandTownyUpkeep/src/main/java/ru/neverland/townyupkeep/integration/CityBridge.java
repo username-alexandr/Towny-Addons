@@ -6,6 +6,7 @@ import ru.neverland.townyupkeep.model.PaymentProcessor.Gateway;
 import java.util.*;
 import java.lang.reflect.*;
 public final class CityBridge implements Gateway {
+    public record Site(int completedLevel,boolean owned,boolean specialized){}
     private Object resource(String method,Class<?>[] types,Object... args)throws Exception{
         try{return ru.neverland.core.ApiServices.call("NeverLandTownyResources","ru.neverland.townyresources.api.TownyResourcesApi",method,types,args);}
         catch(InvocationTargetException ex){if(ex.getCause() instanceof Exception cause)throw cause;throw ex;}
@@ -15,9 +16,13 @@ public final class CityBridge implements Gateway {
         ru.neverland.core.ApiServices.require("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","operationalLevel","buildingFootprints");
     } }
     public Map<String,Integer> buildings(UUID town)throws Exception{ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
-        Map<?,?> footprints=(Map<?,?>)ru.neverland.core.ApiServices.call("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","buildingFootprints",new Class<?>[]{UUID.class},town);Map<String,Integer> out=new HashMap<>();
-        for(var e:footprints.entrySet()){var b=e.getValue();int level=num(b,"completedLevel");if(level>0&&owned(town,b)&&ru.neverland.integration.SpecializationAccess.allowed(town,e.getKey().toString()))out.put(e.getKey().toString(),Math.min(5,level));}return Map.copyOf(out);
+        Map<String,Integer> out=new HashMap<>();for(var e:developmentSites(town).entrySet()){var b=e.getValue();if(b.completedLevel()>0&&b.owned()&&b.specialized())out.put(e.getKey(),Math.min(5,b.completedLevel()));}return Map.copyOf(out);
     } }
+    /** Preserve physical ownership for previews; an old foreign footprint is not a hypothetical new site. */
+    public Map<String,Site> developmentSites(UUID town)throws Exception{try(var guard=ru.neverland.core.SuiteState.guard()){
+        Map<?,?> footprints=(Map<?,?>)ru.neverland.core.ApiServices.call("NeverLandTownyBuilds","ru.neverland.townybuilds.api.TownyBuildsApi","buildingFootprints",new Class<?>[]{UUID.class},town);
+        if(footprints.size()>512)throw new IllegalArgumentException("Слишком много площадок для прогноза");var sites=new HashMap<String,Site>();for(var e:footprints.entrySet()){var b=e.getValue();sites.put(e.getKey().toString(),new Site(num(b,"completedLevel"),owned(town,b),ru.neverland.integration.SpecializationAccess.allowed(town,e.getKey().toString())));}return Map.copyOf(sites);
+    }}
     private static int num(Object o,String method)throws Exception{return ((Number)o.getClass().getMethod(method).invoke(o)).intValue();}
     private boolean owned(UUID town,Object b)throws Exception{
         World world=Bukkit.getWorld((UUID)b.getClass().getMethod("worldId").invoke(b));if(world==null)return false;int size=Coord.getCellSize();if(size<1)return false;

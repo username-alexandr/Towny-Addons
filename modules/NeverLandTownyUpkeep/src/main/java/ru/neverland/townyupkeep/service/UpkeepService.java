@@ -84,4 +84,24 @@ public final class UpkeepService implements TownyUpkeepApi,PaymentProcessor.Stor
         }return List.copyOf(out);
     }}
     @Override public Map<String,Object> savings(UUID town,Set<String> stop,int seconds){try(var guard=ru.neverland.core.SuiteState.guard()){return BillingPreview.summary(plannedBills(town,seconds),Set.copyOf(stop));}}
+    @Override public Map<String,Object> development(UUID town,Map<String,Integer> plannedLevels){try(var guard=ru.neverland.core.SuiteState.guard()){
+        try{
+            var planned=DevelopmentEstimate.levels(plannedLevels);var settlement=TownyAPI.getInstance().getTown(town);
+            if(fault||!plugin.isEnabled()||ru.neverland.core.SuiteState.frozen(plugin.getName())||settlement==null)throw new IllegalStateException("Прогноз содержания временно недоступен");
+            var policies=forecastProvider("NeverLandTownyPolicies","ru.neverland.townypolicies.api.TownyPoliciesApi","upkeepMultiplier");
+            forecastProvider("NeverLandTownySpecialization","ru.neverland.townyspecialization.api.TownySpecializationApi","canUseBuilding");
+            var sites=city.developmentSites(town);var current=new HashMap<String,Integer>();for(var e:sites.entrySet()){var site=e.getValue();if(site.completedLevel()>5)throw new IllegalArgumentException("Прогноз поддерживает итоговые уровни от I до V");if(planned.containsKey(e.getKey())&&planned.get(e.getKey())<site.completedLevel())throw new IllegalArgumentException("Прогноз строительства не поддерживает понижение уровня");if(site.completedLevel()>0&&site.owned()&&site.specialized())current.put(e.getKey(),site.completedLevel());}
+            var ids=new TreeSet<>(current.keySet());ids.addAll(planned.keySet());var allowed=new HashMap<String,Boolean>();var multipliers=new HashMap<String,Double>();var stopped=new HashSet<String>();
+            for(String id:ids){var site=sites.get(id);allowed.put(id,SpecializationAccess.allowed(town,id)&&(site==null||site.owned()));if(repo.paused().contains(new Key(town,id)))stopped.add(id);double multiplier=1;
+                if(policies.ready()){Object raw=policies.invoke("upkeepMultiplier",new Class<?>[]{UUID.class,String.class},town,id);if(!(raw instanceof Number n))throw new IllegalStateException("Не удалось проверить городские правила содержания");multiplier=n.doubleValue();}multipliers.put(id,multiplier);
+            }
+            var result=new LinkedHashMap<>(DevelopmentEstimate.calculate(settings,settlement.getNumTownBlocks(),settlement.getNumResidents(),current,planned,stopped,allowed,multipliers));
+            var rows=new ArrayList<Map<String,Object>>();for(Object raw:(List<?>)result.get("buildings")){@SuppressWarnings("unchecked")var row=new LinkedHashMap<>((Map<String,Object>)raw);var site=sites.get((String)row.get("project"));row.put("siteState",site==null?"UNPLACED":site.owned()?"EXISTING_OWNED":"EXISTING_FOREIGN");if(site!=null){row.put("beforeLevel",site.completedLevel());if(!site.owned())row.put("reason","Площадка не принадлежит городу; прогноз не предполагает её захват");}rows.add(Map.copyOf(row));}result.put("buildings",List.copyOf(rows));
+            var invoices=new ArrayList<Map<String,Object>>();for(var entry:repo.entries().entrySet())if(entry.getKey().town().equals(town)&&entry.getValue().invoice()!=null){var bill=entry.getValue().invoice();invoices.add(Map.of("project",entry.getKey().project(),"id",bill.id().toString(),"cents",bill.cost().money(),"resources",bill.cost().resources(),"phase",bill.phase().name()));}
+            result.put("existingInvoices",List.copyOf(invoices));return Map.copyOf(result);
+        }catch(Exception|LinkageError unavailable){return Map.of("known",false,"reason",unavailable instanceof IllegalArgumentException?unavailable.getMessage():"Прогноз содержания недоступен: проверьте состояние города и связанных модулей","periodSeconds",settings.period());}
+    }}
+    private static ru.neverland.core.ApiServices.Connection forecastProvider(String module,String api,String capability){
+        var connection=ru.neverland.core.ApiServices.connect(module,api,1,capability);if(!connection.ready()&&connection.state()!=ru.neverland.core.ApiServices.State.NOT_INSTALLED)throw new IllegalStateException("Поставщик прогноза недоступен");return connection;
+    }
 }

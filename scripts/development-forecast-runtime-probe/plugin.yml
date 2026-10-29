@@ -1,0 +1,6 @@
+name: DevelopmentForecastRuntimeProbe
+version: 0.52-development
+main: ru.neverland.runtime.DevelopmentForecastProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyResources, NeverLandTownyUpkeep, NeverLandTownyPower, NeverLandTownyPolicies]

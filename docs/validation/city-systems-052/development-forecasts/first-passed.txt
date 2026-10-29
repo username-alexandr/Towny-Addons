@@ -1,0 +1,1 @@
+PASS 18 checks; actual Folia/Towny/Builds/Upkeep/Power/Policies API; explicit registered sites, custom profiles and pending invoice; no client, bank payment or future connection claimed

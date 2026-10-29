@@ -69,6 +69,16 @@ public final class PowerService implements TownyPowerApi {
         return Map.of("charge",state.charge(),"capacity",step==null?0L:step.capacity(),"backupPower",s==null||s.paused()?0L:s.grid().backup(),"charged",step==null?0L:step.charged(),"discharged",step==null?0L:step.discharged(),"periodSeconds",settings.interval(),"ready",!closing&&s!=null&&!s.paused());
     }}
     public Town town(Player p){try(var guard=SuiteState.guard()){var r=TownyAPI.getInstance().getResident(p);return r==null?null:r.getTownOrNull();}}
+    @Override public Map<String,Object> development(UUID town,Map<String,Integer> plannedLevels){try(var guard=SuiteState.guard()){
+        try{
+            var planned=DevelopmentEstimate.levels(plannedLevels);var cached=cache.towns().get(town);
+            if(closing||!plugin.isEnabled()||SuiteState.frozen(plugin.getName())||TownyAPI.getInstance().getTown(town)==null||cached==null||cached.paused())throw new IllegalStateException("Прогноз энергосети временно недоступен");
+            forecastProvider("NeverLandTownyUpkeep","ru.neverland.townyupkeep.api.TownyUpkeepApi","active");forecastProvider("NeverLandTownyDistricts","ru.neverland.townydistricts.api.TownyDistrictsApi","multiplier");forecastProvider("NeverLandTownySpecialization","ru.neverland.townyspecialization.api.TownySpecializationApi","canUseBuilding");
+            var buildings=bridge.buildings(town);var allowed=new HashMap<String,Boolean>();for(String id:planned.keySet())allowed.put(id,ru.neverland.integration.SpecializationAccess.allowed(town,id));
+            return DevelopmentEstimate.calculate(settings,buildings,planned,repository.towns().getOrDefault(town,TownPowerState.empty()),allowed);
+        }catch(Exception|LinkageError unavailable){return Map.of("known",false,"reason",unavailable instanceof IllegalArgumentException?unavailable.getMessage():"Прогноз энергосети недоступен: проверьте состояние города и связанных модулей","periodSeconds",settings.interval());}
+    }}
+    private static void forecastProvider(String module,String api,String capability){var connection=ru.neverland.core.ApiServices.connect(module,api,1,capability);if(!connection.ready()&&connection.state()!=ru.neverland.core.ApiServices.State.NOT_INSTALLED)throw new IllegalStateException("Поставщик прогноза недоступен");}
     public boolean manager(Player p,Town t){try(var guard=SuiteState.guard()){var r=TownyAPI.getInstance().getResident(p);return r!=null&&t.equals(r.getTownOrNull())&&(t.isMayor(r)||r.hasTownRank("assistant")||p.hasPermission("neverlandtownypower.manage"));}}
     public CompletionStage<Void> change(UUID town,String project,Boolean stop,Integer priority){return change(town,project,stop,priority,null);}
     public CompletionStage<Void> change(UUID town,String project,Boolean stop,Integer priority,Integer emergency){try(var guard=SuiteState.guard()){

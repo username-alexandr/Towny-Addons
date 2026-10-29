@@ -1,0 +1,18 @@
+PASS native providers advertise additive v1 development capability
+PASS actual policies and size factor reprice old and planned buildings together
+PASS real forecast retains exact resource thousandths
+PASS provider periods come from installed custom configurations
+PASS forecast uses genuine Policies provider rather than a substituted multiplier
+PASS native Builds footprints feed current and final power levels
+PASS new unplaced generator is explicitly conditional, never a power promise
+PASS both native APIs refuse unsupported levels without rounding
+PASS unknown city is unavailable rather than free or zero-powered
+PASS foreign existing footprint is excluded and visibly distinguished from a new site
+PASS power forecast cannot assume acquisition of an existing foreign site
+PASS 100 real API forecasts change no invoice, paid clock, charge or building level
+PASS existing pending invoice is disclosed unchanged beside future rates
+PASS real city suspension excludes future charges while retaining size contribution
+PASS actual unpaid or suspended existing generator is not promised power after upgrade
+PASS paused Policies cannot be silently presented as neutral known costs
+PASS paused upkeep makes both linked forecasts explicitly unavailable
+PASS paused power is never shown as a zero deficit guarantee

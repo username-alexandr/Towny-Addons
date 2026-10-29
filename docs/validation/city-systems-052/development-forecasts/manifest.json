@@ -1,0 +1,20 @@
+{
+  "versions": {
+    "Upkeep": "0.2.2",
+    "Power": "0.2.1"
+  },
+  "fixture": "folia-development-forecast-4",
+  "native_checks": [
+    18,
+    5
+  ],
+  "cold_new_checks": {
+    "Upkeep": 20,
+    "Power": 20
+  },
+  "limits": [
+    "Real public APIs with explicit registered buildings, accepted custom policy and pending invoice",
+    "No client or bank payment, no confirmation of future power supply",
+    "Log copies strip trailing whitespace only"
+  ]
+}
