@@ -8,6 +8,9 @@ import org.bukkit.block.BlockFace;
 import java.util.UUID;
 
 public final class ConstructionSite {
+    private Runnable mutation=()->{};
+    public void mutationGuard(Runnable value){mutation=java.util.Objects.requireNonNull(value);}
+
     public static final int CURRENT_ARCHITECTURE_VERSION = 6;
     private final String projectId;
     private final UUID worldId;
@@ -22,7 +25,7 @@ public final class ConstructionSite {
     private int architectureVersion;
     private String blueprintSet="";
     public String blueprintSet(){try(var guard=ru.neverland.core.SuiteState.guard()){return blueprintSet;}}
-    public void blueprintSet(String pin){try(var guard=ru.neverland.core.SuiteState.guard()){
+    public void blueprintSet(String pin){try(var guard=ru.neverland.core.SuiteState.guard()){mutation.run();
         if(pin==null||!pin.isEmpty()&&!pin.matches("[a-f0-9]{64}")||!blueprintSet.isEmpty()&&!blueprintSet.equals(pin)||pin.isEmpty()&&architectureVersion>=10000)throw new IllegalArgumentException("Повреждена закреплённая версия чертежа");
         BuildingStyle.baseArchitecture(architectureVersion);blueprintSet=pin;if(!pin.isEmpty()&&architectureVersion<10000)architectureVersion+=10000;
     }}
@@ -62,17 +65,17 @@ public final class ConstructionSite {
     public boolean active() { try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) { return active; } }
     public int architectureVersion() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) { return architectureVersion; } }
 
-    public void setArchitectureVersion(int version) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
+    public void setArchitectureVersion(int version) { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         architectureVersion = Math.max(1, version);if(!blueprintSet.isEmpty()&&architectureVersion<10000)architectureVersion+=10000;
     } }
 
-    public void activate(int targetStage, int buildFromStage) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {
+    public void activate(int targetStage, int buildFromStage) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         this.targetStage = targetStage;
         this.buildFromStage = buildFromStage;
         this.active = true;
     } }
 
-    public void complete() { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
+    public void complete() { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         completedStage = targetStage;
         buildFromStage = targetStage + 1;
         active = false;
@@ -150,5 +153,5 @@ public final class ConstructionSite {
     } }
     private boolean adminPaused;
     public boolean adminPaused(){ try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {return adminPaused;} }
-    public void adminPaused(boolean value){ try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {adminPaused=value;} }
+    public void adminPaused(boolean value){ try (var suiteGuard21 = ru.neverland.core.SuiteState.guard()) {mutation.run();adminPaused=value;} }
 }

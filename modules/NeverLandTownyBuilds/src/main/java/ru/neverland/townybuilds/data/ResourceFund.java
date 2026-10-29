@@ -12,6 +12,9 @@ import java.util.List;
  * максимального размера ванильного стака.
  */
 public final class ResourceFund {
+    private Runnable mutation=()->{};
+    public void mutationGuard(Runnable value){mutation=java.util.Objects.requireNonNull(value);}
+
     private final int targetLevel;
     private final List<Entry> entries = new ArrayList<>();
 
@@ -34,7 +37,7 @@ public final class ResourceFund {
         return 0;
     } }
 
-    public void add(ItemStack template, int amount) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
+    public void add(ItemStack template, int amount) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         if (template == null || amount <= 0) return;
         template = ru.neverland.townybuilds.service.ConstructionSupply.migrate(template);
         for (Entry entry : entries) {

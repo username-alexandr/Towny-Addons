@@ -1,0 +1,10 @@
+PASS actual repair journal and Treasury services enabled
+PASS real completed Builds plan supplies frozen repair geometry and level price
+PASS restart restores original ID, actor, route, terms and pending damage
+PASS restart has neither repeated payment nor free block repair
+PASS historical architecture remains pinned while a raid repair is unpaid
+PASS Treasury keeps exact pending debit while repair owner is paused
+PASS explicit automatic restoration on loaded site respects unpaid raid debt
+PASS missing installed raid repair provider cannot authorize automatic migration or free repair
+PASS saved repair settles once and restores its block after full JVM restart
+PASS restored completed job remains replay-safe

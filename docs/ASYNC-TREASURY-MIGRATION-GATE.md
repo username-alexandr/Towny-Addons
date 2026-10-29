@@ -6,13 +6,13 @@
 
 | Область | Вызывающие классы | Состояние |
 |---|---|---|
-| Builds | BuildService, ConstructionRefunds, CivicService | Требует миграции; также OPEN: legacy architecture может заделать повреждение до оплаты ремонта |
-| Contracts | MunicipalBank, EconomyService | Готово 0.8.0: cold 18, Folia 21+4+9; прежняя файловая запись остаётся синхронной |
+| Builds | BuildService, ConstructionRefunds, CivicService | 0.11.1: cold48, Folia22+8 по оплате/возвратам/страхованию и Folia12+10 по старой архитектуре; прежние неизвестные внешние эффекты только на сверке, старый складской I/O остаётся отдельной задачей |
+| Contracts | MunicipalBank, EconomyService | 0.8.1: cold18, Folia22+4+9; фактический автор новых ручных платежей, прежняя файловая запись остаётся синхронной |
 | Espionage | EconomyService | Готово 0.2.1: cold 5, совместная Folia 33+11+4 |
 | Ideologies | ReformBank | Готово 0.2.1: cold 3, Folia 19+11; полный пак ещё не проверен |
 | Justice | JusticeBank | Готово 0.2.1: cold 5, совместная Folia 33+11+4 |
 | Market | MarketGateway | Требует миграции |
-| SiegesPlus | RepairBank | Готово 0.6.2: cold 13, Folia 12+7 на архитектуре6; дефект старой архитектуры Builds остаётся открытым |
+| SiegesPlus | RepairBank | 0.6.3: cold14, Folia12+10 с Builds0.11.1 на архитектуре2; проверка долга и ревизии закрывает бесплатное автовосстановление |
 | Trade | SupplyGateway, EconomyService | Требует миграции |
 | Upkeep | CityBridge | Готово 0.2.3: cold 5, Folia 10+6; старые неизвестные оплаты только на сверке |
 

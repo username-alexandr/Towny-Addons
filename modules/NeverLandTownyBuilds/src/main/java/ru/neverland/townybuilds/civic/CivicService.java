@@ -275,6 +275,8 @@ public final class CivicService implements Listener, TownyBuildsApi {
         ((ru.neverland.townybuilds.NeverLandTownyBuilds)plugin).storage().openStorage(player,projectId(args[1]));
     }
 
+    private ru.neverland.townybuilds.payments.BuildPayments payments;
+    public void payments(ru.neverland.townybuilds.payments.BuildPayments value){payments=value;}
     private void insurance(Player player, String[] args) {
         Town town = requireTown(player);
         if (town == null) return;
@@ -293,19 +295,12 @@ public final class CivicService implements Listener, TownyBuildsApi {
         try {
             double amount = Double.parseDouble(args[2].replace(',', '.'));
             if (!Double.isFinite(amount) || amount <= 0) throw new NumberFormatException();
-            if (!town.getAccount().canPayFromHoldings(amount)
-                    || !ru.neverland.integration.TreasuryAccess.withdraw(town,"social","insurance",amount,"Пополнение страхового резерва")) {
-                messages.send(player, "not-enough-money", Map.of("amount", MONEY.format(amount)));
-                return;
-            }
-            data.setInsuranceReserve(data.insuranceReserve() + amount);
-            dataStore.markDirty();
-            dataStore.save();
-            messages.send(player, "civic-insurance-deposited", Map.of("amount", MONEY.format(amount),
-                    "reserve", MONEY.format(data.insuranceReserve())));
+            if(payments==null||!payments.treasuryAvailable()){player.sendMessage("§eОплата недоступна: городская казна временно не работает.");return;}
+            var id=payments.insure(player,town,amount);
+            player.sendMessage("§eПополнение страхового резерва сохраняется. Дождитесь подтверждения казны. Квитанция: "+id);
         } catch (NumberFormatException exception) {
             messages.send(player, "civic-invalid-number");
-        }
+        } catch(Exception failure){player.sendMessage("§eПополнение не принято: "+failure.getMessage());}
     }
 
     private void bulletin(Player player, String[] args) {

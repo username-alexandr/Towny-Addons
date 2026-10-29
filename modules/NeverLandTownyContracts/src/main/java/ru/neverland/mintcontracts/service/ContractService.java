@@ -71,7 +71,7 @@ public final class ContractService implements MintTownyContractsApi {
         });
         fieldWork=new FieldWorkService(plugin,this,towny);
     }
-    private boolean auditPayment(MunicipalPayment p){var city=ru.neverland.core.AuditTrail.town(p.town());var escrow=new ru.neverland.core.AuditRecord.Party("ESCROW",String.valueOf(p.contract()),"Резерв контракта",p.town().toString());return ru.neverland.core.AuditTrail.record(plugin,p.phase().name(),p.id().toString(),"CONTRACT_PAYMENT",p.phase().name(),ru.neverland.core.AuditRecord.Party.system(),p.kind()==MunicipalPayment.Kind.RESERVE?city:escrow,p.kind()==MunicipalPayment.Kind.RESERVE?escrow:p.kind()==MunicipalPayment.Kind.REWARD?ru.neverland.core.AuditTrail.player(p.account()):city,"",0,ru.neverland.core.AuditTrail.cents(p.cents()),"kind="+p.kind()+"; contract="+p.contract());}
+    private boolean auditPayment(MunicipalPayment p){var city=ru.neverland.core.AuditTrail.town(p.town());var escrow=new ru.neverland.core.AuditRecord.Party("ESCROW",String.valueOf(p.contract()),"Резерв контракта",p.town().toString());return ru.neverland.core.AuditTrail.record(plugin,p.phase().name(),p.id().toString(),"CONTRACT_PAYMENT",p.phase().name(),p.actor().equals(MunicipalPayment.SYSTEM)?ru.neverland.core.AuditRecord.Party.system():ru.neverland.core.AuditTrail.player(p.actor()),p.kind()==MunicipalPayment.Kind.RESERVE?city:escrow,p.kind()==MunicipalPayment.Kind.RESERVE?escrow:p.kind()==MunicipalPayment.Kind.REWARD?ru.neverland.core.AuditTrail.player(p.account()):city,"",0,ru.neverland.core.AuditTrail.cents(p.cents()),"kind="+p.kind()+"; contract="+p.contract());}
     private boolean auditDelivery(DeliveryIntent d){var actor=ru.neverland.core.AuditTrail.player(d.actor());return ru.neverland.core.AuditTrail.record(plugin,d.phase().name(),d.id().toString(),"CONTRACT_DELIVERY",d.phase().name(),actor,actor,ru.neverland.core.AuditTrail.town(d.town()),ru.neverland.core.AuditTrail.item(ContractCodec.item(d.sample())),d.amount(),"","contract="+d.contract());}
     public void initialize()throws Exception { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
         for(ActiveContract c:repository.allActive())if(c.snapshot()==null){ContractDefinition d=registry.get(c.templateId());
@@ -90,7 +90,9 @@ public final class ContractService implements MintTownyContractsApi {
     } }
     public void shutdown(){ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {if(task!=null)task.cancel();task=null;repository.save();} }
     public ActivateResult activate(Town town,ContractDefinition definition){ try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {return activate(town,definition,null);} }
-    public ActivateResult activate(Town town,ContractDefinition definition,WorkArea area) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
+    public ActivateResult activate(Town town,ContractDefinition definition,WorkArea area) {return activate(town,definition,area,MunicipalPayment.SYSTEM);}
+    public ActivateResult activate(Town town,ContractDefinition definition,WorkArea area,UUID actor) { try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
+        java.util.Objects.requireNonNull(actor,"actor");
         if(!ru.neverland.core.SuiteState.held()||!repository.writable()||town==null||definition==null)return ActivateResult.SAVE_ERROR;
         if(repository.active(town.getUUID()).size()>=Math.max(1,Math.min(45,plugin.getConfig().getInt("contracts.max-active-per-town",3)))||repository.allActive().size()>=Math.max(1,plugin.getConfig().getInt("contracts.max-active-server",500)))return ActivateResult.MAX_ACTIVE;
         if(!plugin.getConfig().getBoolean("contracts.allow-duplicate-template",false)&&repository.hasTemplate(town.getUUID(),definition.id()))return ActivateResult.DUPLICATE;
@@ -100,7 +102,7 @@ public final class ContractService implements MintTownyContractsApi {
         long now=System.currentTimeMillis();ActiveContract c=new ActiveContract(UUID.randomUUID(),town.getUUID(),definition.id(),now,now+definition.durationSeconds()*1000,0,definition.goal(),definition.reward(),Map.of());
         c.snapshot(definition);if(area!=null)c.area(area);c.funded(definition.reward()==0);repository.add(c);
         MunicipalPayment reserve=null;
-        if(definition.reward()>0){c.timer(c.timer().edit("pause",0,now));c.fundingPaused(true);reserve=new MunicipalPayment(MunicipalPayment.key(c.id(),"reserve"),c.id(),c.townId(),c.townId(),MunicipalPayment.Kind.RESERVE,Math.round(c.escrow()*100),MunicipalPayment.Phase.READY,now);repository.payment(reserve);}
+        if(definition.reward()>0){c.timer(c.timer().edit("pause",0,now));c.fundingPaused(true);reserve=new MunicipalPayment(MunicipalPayment.key(c.id(),"reserve"),c.id(),c.townId(),c.townId(),MunicipalPayment.Kind.RESERVE,Math.round(c.escrow()*100),MunicipalPayment.Phase.READY,now,actor);repository.payment(reserve);}
         try{repository.saveOrThrow();if(reserve!=null)payments.process(reserve.id());}
         catch(Exception ex){plugin.getLogger().severe("Публикация заказа остановлена: "+ex.getMessage());return ActivateResult.SAVE_ERROR;}
         if(!c.funded())return find(town.getUUID(),c.id().toString())==null?ActivateResult.ECONOMY_ERROR:ActivateResult.PENDING;
@@ -120,7 +122,7 @@ public final class ContractService implements MintTownyContractsApi {
         if(repository.active(townId).size()>=Math.max(1,Math.min(45,plugin.getConfig().getInt("contracts.max-active-per-town",3)))||repository.allActive().size()>=Math.max(1,plugin.getConfig().getInt("contracts.max-active-server",500)))throw new IllegalArgumentException("Все места городских контрактов заняты; оплаченный резерв сохранён");
         if(!warehouse.available())throw new IllegalArgumentException("Городской склад временно недоступен; оплаченный резерв сохранён");
         var contract=new ActiveContract(request,townId,definition.id(),created,Math.addExact(created,Math.multiplyExact(definition.durationSeconds(),1000)),0,definition.goal(),definition.reward(),Map.of());contract.snapshot(definition);contract.funded(true);
-        repository.add(contract);repository.payment(new MunicipalPayment(paymentId,request,townId,townId,MunicipalPayment.Kind.RESERVE,cents,MunicipalPayment.Phase.DONE,created));repository.saveOrThrow();
+        repository.add(contract);repository.payment(new MunicipalPayment(paymentId,request,townId,townId,MunicipalPayment.Kind.RESERVE,cents,MunicipalPayment.Phase.DONE,created,actor));repository.saveOrThrow();
         announce(town,"contract-start-town",definition,contract,contract.escrow());return "PUBLISHED";
     }}
     public void verifyProcurementTarget(UUID town,String project)throws Exception{try(var guard=ru.neverland.core.SuiteState.guard()){

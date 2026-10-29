@@ -22,6 +22,16 @@ public final class DataStore {
     private final File file;
     private final int storageSize;
     private final Map<UUID, TownData> towns = new LinkedHashMap<>();
+    private final Map<UUID,ru.neverland.townybuilds.payments.BuildPayment> payments=new LinkedHashMap<>();
+    public Map<UUID,ru.neverland.townybuilds.payments.BuildPayment> payments(){try(var g=ru.neverland.core.SuiteState.guard()){return Map.copyOf(payments);}}
+    public void payment(ru.neverland.townybuilds.payments.BuildPayment value){requireMutable();var id=value.terms().id();var old=payments.get(id);
+        if(old!=null){if(!old.terms().equals(value.terms()))throw new IllegalStateException("Условия оплаты изменены");old.phase(value.phase());}
+        if(old==null&&payments.size()>=ru.neverland.townybuilds.payments.BuildPayment.MAX)throw new IllegalStateException("Журнал оплат заполнен; нужна архивная миграция");
+        payments.put(id,value);
+    }
+    /** Only transaction undo can restore an earlier phase; never an administrative or bank replay API. */
+    public void restorePayment(UUID id,ru.neverland.townybuilds.payments.BuildPayment value){if(!staging)throw new IllegalStateException("Только откат неподтверждённого снимка");if(value==null)payments.remove(id);else payments.put(id,value);}
+
     private final Map<UUID,ru.neverland.townybuilds.storage.RaidStock> raidStocks=new LinkedHashMap<>();
     private final Map<UUID,UUID> warehouseHolds=new HashMap<>();
     public Map<UUID,ru.neverland.townybuilds.storage.RaidStock> raidStocks(){return Map.copyOf(raidStocks);}
@@ -30,23 +40,65 @@ public final class DataStore {
     public void thawWarehouse(UUID town,UUID op){warehouseHolds.remove(town,op);}
     public boolean storageSessionBusy(UUID town,String project){return storageLocks.busy(town,project);}
     private boolean dirty;
+    private boolean busy,closing,staging;
+    private final ru.neverland.core.DurableSnapshots writer;
+    private java.util.concurrent.CompletionStage<Void> pending=java.util.concurrent.CompletableFuture.completedFuture(null),close;
+    private final java.util.concurrent.CompletableFuture<Void> storageDrained=new java.util.concurrent.CompletableFuture<>();
+    public boolean storageEditing(){return storageLocks.any();}
+    public java.util.concurrent.CompletionStage<Void> pendingWrite(){try(var g=ru.neverland.core.SuiteState.guard()){return pending;}}
+    public boolean busy(){try(var g=ru.neverland.core.SuiteState.guard()){return busy;}}
+    private void requireMutable(){if(!staging&&(!writable||busy||closing))throw new IllegalStateException("Дождитесь сохранения данных города");}
+    private TownData bind(TownData town){town.mutationGuard(this::requireMutable);return town;}
+    /** One detached full-file image; acknowledged mutation is published only after fsync. */
+    public java.util.concurrent.CompletionStage<Void> commitAsync(Runnable apply,Runnable undo){try(var g=ru.neverland.core.SuiteState.guard()){
+        if(!writable())return java.util.concurrent.CompletableFuture.failedFuture(new IllegalStateException("Данные города ещё сохраняются или недоступны"));
+        if(storageLocks.any())return java.util.concurrent.CompletableFuture.failedFuture(new IllegalStateException("Дождитесь закрытия открытых городских складов; оплата пока не началась"));
+        YamlConfiguration image;boolean oldDirty=dirty;
+        staging=true;try{apply.run();image=capture();}catch(Exception error){return java.util.concurrent.CompletableFuture.failedFuture(error);}finally{try{undo.run();dirty=oldDirty;}finally{staging=false;}}
+        busy=true;var result=new java.util.concurrent.CompletableFuture<Void>();pending=result;
+        writer.submit(image::saveToString).whenComplete((value,error)->{try(var lock=ru.neverland.core.SuiteState.guard()){
+            Throwable failure=error;
+            try{if(error!=null)writable=false;else{staging=true;apply.run();dirty=false;}}
+            catch(Throwable failed){writable=false;failure=failed;}finally{staging=false;busy=false;}
+            if(failure==null)result.complete(null);else result.completeExceptionally(failure);
+        }});return result;
+    }}
+    public java.util.concurrent.CompletionStage<Void> prepareClose(){try(var g=ru.neverland.core.SuiteState.guard()){
+        if(close!=null)return close;closing=true;
+        if(!storageLocks.any()||org.bukkit.Bukkit.isStopping())storageDrained.complete(null);
+        close=pending.handle((v,e)->null).thenCompose(v->storageDrained).thenCompose(v->{try(var lock=ru.neverland.core.SuiteState.guard()){
+            if(!writable||!ru.neverland.core.AtomicFiles.writable(file.toPath()))return writer.closeAsync();
+            try{var image=capture();return writer.finish(image::saveToString).thenCompose(ignored->writer.closeAsync());}
+            catch(Exception error){writer.closeAsync();return java.util.concurrent.CompletableFuture.failedFuture(error);}
+        }});return close;
+    }}
     private boolean writable = true;
     private final ru.neverland.townybuilds.storage.StorageSessions storageLocks=new ru.neverland.townybuilds.storage.StorageSessions();
     public boolean storageBusy(UUID town,String project){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return project.equals("warehouse")&&warehouseHolds.containsKey(town)||storageLocks.busy(town,project);} }
-    public boolean lockStorage(UUID town,String project,UUID session){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return !(project.equals("warehouse")&&warehouseHolds.containsKey(town))&&storageLocks.acquire(town,project,session);} }
+    public boolean lockStorage(UUID town,String project,UUID session){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return writable()&&!(project.equals("warehouse")&&warehouseHolds.containsKey(town))&&storageLocks.acquire(town,project,session);} }
     public boolean ownsStorage(UUID town,String project,UUID session){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return storageLocks.owns(town,project,session);} }
-    public void unlockStorage(UUID town,String project,UUID session){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {storageLocks.release(town,project,session);} }
+    public void unlockStorage(UUID town,String project,UUID session){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {storageLocks.release(town,project,session);if(closing&&!storageLocks.any())storageDrained.complete(null);} }
+    /** Last contents are accepted from an existing exclusive menu even during orderly shutdown. */
+    public void closeStorage(UUID town,String project,UUID session,ItemStack[] contents){try(var guard=ru.neverland.core.SuiteState.guard()){
+        if(!storageLocks.owns(town,project,session))return;
+        if(!writable||busy)throw new IllegalStateException("Склад не может быть сохранён; нужна проверка");
+        var state=towns.get(town);if(state==null)throw new IllegalStateException("Городской склад удалён");
+        boolean before=staging;staging=true;
+        try{if(project.equals("warehouse"))state.setStorage(contents,state.storage().length);else state.setCivicInventory(project,contents);dirty=true;}
+        finally{staging=before;}
+    }}
 
 
     public DataStore(JavaPlugin plugin, int storageSize) {
         this.plugin = plugin;
         this.storageSize = storageSize;
         this.file = new File(plugin.getDataFolder(), "town-data.yml");
+        writer=new ru.neverland.core.DurableSnapshots(file.toPath(),"NeverLand-builds-core-write",1);
     }
 
     public void load() { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {
         writable = false;
-        towns.clear();
+        towns.clear();payments.clear();
         raidStocks.clear();warehouseHolds.clear();
         if (!file.exists()) {
             writable = true; ru.neverland.core.AtomicFiles.loaded(file.toPath());
@@ -58,9 +110,17 @@ public final class DataStore {
             var c=ru.neverland.core.SafeYaml.section(raids,id);if(c==null)throw new IOException("Нет квитанции добычи");
             var stock=new ru.neverland.townybuilds.storage.RaidStock(UUID.fromString(id),UUID.fromString(ru.neverland.core.SafeYaml.text(c,"defender")),UUID.fromString(ru.neverland.core.SafeYaml.text(c,"attacker")),UUID.fromString(ru.neverland.core.SafeYaml.text(c,"actor")),Math.toIntExact(ru.neverland.core.SafeYaml.integer(c,"bps")),ItemCodec.decode(ru.neverland.core.SafeYaml.text(c,"cargo"),0),ru.neverland.core.SafeYaml.text(c,"state"));raidStocks.put(stock.id(),stock);
         }}catch(Exception error){throw new IllegalStateException("Повреждён резерв добычи рейдов; запись отключена",error);}
+        try{var purchaseSection=ru.neverland.core.SafeYaml.section(yaml,"build-payments");if(purchaseSection!=null){
+            if(purchaseSection.getKeys(false).size()>ru.neverland.townybuilds.payments.BuildPayment.MAX)throw new IOException("Журнал оплат заполнен");
+            for(String key:purchaseSection.getKeys(false)){
+                var payment=ru.neverland.townybuilds.payments.BuildPayment.JSON.fromJson(ru.neverland.core.SafeYaml.text(purchaseSection,key),ru.neverland.townybuilds.payments.BuildPayment.class);
+                if(payment==null||!payment.terms().id().equals(UUID.fromString(key)))throw new IOException("Повреждена квитанция оплаты");
+                payments.put(payment.terms().id(),payment);
+            }
+        }}catch(Exception error){throw new IllegalStateException("Повреждён журнал оплаты построек; исходные данные сохранены",error);}
         ConfigurationSection root = yaml.getConfigurationSection("towns");
         if (root == null) {
-            if (yaml.getKeys(false).stream().anyMatch(k->!k.equals("raid-stock"))) throw new IllegalStateException("В базе нет раздела towns; запись отключена");
+            if (yaml.getKeys(false).stream().anyMatch(k->!k.equals("raid-stock")&&!k.equals("build-payments"))) throw new IllegalStateException("В базе нет раздела towns; запись отключена");
             writable = true; ru.neverland.core.AtomicFiles.loaded(file.toPath()); return;
         }
         for (String rawId : root.getKeys(false)) {
@@ -151,7 +211,7 @@ public final class DataStore {
                     if(deposits==null&&section.contains("municipal-receipts"))throw new IOException("Повреждены квитанции муниципальных поставок");
                     if(deposits!=null)for(String key:deposits.getKeys(false)){var receipt=deposits.getConfigurationSection(key);if(receipt==null)throw new IOException("Повреждена квитанция");data.putMunicipalReceipt(new ru.neverland.townybuilds.api.MunicipalReceipt(UUID.fromString(key),ItemCodec.decodeSingle(receipt.getString("sample","")),receipt.getInt("amount")));}
                 }
-                towns.put(townId, data);
+                towns.put(townId, bind(data));
             } catch (IllegalArgumentException | IOException | ClassNotFoundException exception) {
                 throw new IllegalStateException("Повреждены данные города " + rawId + "; запись отключена", exception);
             }
@@ -160,21 +220,22 @@ public final class DataStore {
         dirty = false;
     } }
 
-    public boolean writable() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {return writable && ru.neverland.core.AtomicFiles.writable(file.toPath());} }
+    public boolean writable() { try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {return writable && !busy && !closing && ru.neverland.core.AtomicFiles.writable(file.toPath());} }
 
     /** Read-only lookup: estimates must not create a town record or dirty the file. */
     public TownData existingTown(UUID townId) { try (var guard=ru.neverland.core.SuiteState.guard()) { return towns.get(townId); } }
 
     public TownData town(UUID townId) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
-        if(!writable())throw new IllegalStateException("Хранилище построек остановлено после ошибки записи");
+        var existing=towns.get(townId);if(existing!=null)return existing;
+        if(!writable())throw new IllegalStateException("Хранилище построек сохраняется или недоступно; действие не принято");
         return towns.computeIfAbsent(townId, id -> {
             dirty = true;
-            return new TownData(id, storageSize);
+            return bind(new TownData(id, storageSize));
         });
     } }
 
     public void markDirty() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
-        dirty = true;
+        requireMutable();dirty = true;
     } }
 
     public Map<UUID, TownData> towns() { try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {
@@ -188,14 +249,19 @@ public final class DataStore {
     } }
 
     public void save() { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
+        if (busy||closing){return;}
         if (!writable) return;
         try { saveOrThrow(); } catch (IOException ex) { writable=false; plugin.getLogger().severe("Не удалось сохранить town-data.yml: " + ex.getMessage()); throw new java.io.UncheckedIOException(ex); }
     } }
 
     public void saveOrThrow() throws IOException { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
-        if (!writable()) throw new IOException("Запись повреждённой базы запрещена");
+        if (!writable()) throw new IOException("Данные города сохраняются или запись запрещена");
+        ru.neverland.townybuilds.util.AtomicYamlFile.write(capture(),file.toPath());dirty=false;
+    } }
+    private YamlConfiguration capture()throws IOException {
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.createSection("towns");
+        for(var p:payments.values())yaml.set("build-payments."+p.terms().id(),ru.neverland.townybuilds.payments.BuildPayment.JSON.toJson(p));
         for(var stock:raidStocks.values()){String p="raid-stock."+stock.id();yaml.set(p+".defender",stock.defender().toString());yaml.set(p+".attacker",stock.attacker().toString());yaml.set(p+".actor",stock.actor().toString());yaml.set(p+".bps",stock.basisPoints());yaml.set(p+".cargo",ItemCodec.encode(stock.cargo()));yaml.set(p+".state",stock.state());}
         for (TownData data : towns.values()) {
             String path = "towns." + data.townId();
@@ -294,9 +360,8 @@ public final class DataStore {
             yaml.set(path + ".insurance-reserve", data.insuranceReserve() <= 0 ? null : data.insuranceReserve());
             yaml.set(path + ".bulletin", data.bulletin().isBlank() ? null : data.bulletin());
         }
-        ru.neverland.townybuilds.util.AtomicYamlFile.write(yaml,file.toPath());
-        dirty=false;
-    } }
+        return yaml;
+    }
 
     private void loadMarket(ConfigurationSection section,TownData data)throws IOException,ClassNotFoundException {
         var root=section.getConfigurationSection("market-stock");if(root==null){if(section.contains("market-stock"))throw new IOException("Повреждён резерв рынка");return;}

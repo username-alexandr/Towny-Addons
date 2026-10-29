@@ -1,0 +1,4 @@
+PASS real Contracts, Builds materials and Treasury providers are enabled
+PASS invalid procurement database disables only optional procurement feature
+PASS legacy published city contract and Builds stay enabled after optional ledger failure
+PASS corrupt optional ledger refuses new requests without touching bank

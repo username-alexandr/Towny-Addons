@@ -13,7 +13,7 @@ import java.util.*;
 public record ConstructionReceipt(UUID id, int level, long paidCents, List<Item> paidItems,
                                   Map<BlockOffset, Change> changes, String state, long refundCents,
                                   List<Item> remaining, int feePercent, String actor, boolean legacy, int baseItems) {
-    public static final Set<String> STATES = Set.of("DEBIT_PENDING", "DEBIT_CONFIRMED", "ARTIFACT_PENDING", "ACTIVE", "COMPLETE", "REMOVING", "REFUND_READY", "REFUND_PAYING", "REFUND_PAID", "DONE");
+    public static final Set<String> STATES = Set.of("TREASURY_PENDING", "DEBIT_PENDING", "DEBIT_CONFIRMED", "ARTIFACT_PENDING", "ACTIVE", "COMPLETE", "REMOVING", "REFUND_READY", "REFUND_PAYING", "REFUND_PAID", "DONE");
     public record Item(ItemStack sample, int amount) {
         public Item {
             if (sample == null || Set.of(org.bukkit.Material.AIR,org.bukkit.Material.CAVE_AIR,org.bukkit.Material.VOID_AIR).contains(sample.getType()) || amount < 1) throw new IllegalArgumentException("Некорректный ресурс квитанции");

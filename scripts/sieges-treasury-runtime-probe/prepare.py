@@ -2,7 +2,7 @@
 """Fresh loopback-only native fixture. Requires validated JARs and an explicitly marked stopped template."""
 from pathlib import Path
 import argparse,shutil,yaml,hashlib,uuid,time,copy
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--template',type=Path,required=True);p.add_argument('--server',type=Path,required=True);p.add_argument('--towny',type=Path,required=True)
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--template',type=Path,required=True);p.add_argument('--server',type=Path,required=True);p.add_argument('--towny',type=Path,required=True);p.add_argument('--legacy-architecture',action='store_true')
 a=p.parse_args();template=a.template.resolve();server=a.server.resolve();root=Path(__file__).resolve().parents[2]
 assert not server.exists(),'Refusing to overwrite existing server'
 assert (template/'ALLOW_DISPOSABLE_RAID_PROBE').is_file() and 'server-ip=127.0.0.1' in (template/'server.properties').read_text()
@@ -16,5 +16,6 @@ for rel,data in [('Towny/settings/config.yml',{'economy':{'using_economy':False}
 path=plugins/'faststats/config.properties';path.parent.mkdir(exist_ok=True);path.write_text('enabled=false\n')
 config=server/'config/paper-global.yml';data=yaml.safe_load(config.read_text());data.setdefault('update-checker',{})['enabled']=False;data.setdefault('threaded-regions',{})['threads']=2;config.write_text(yaml.safe_dump(data))
 props=server/'server.properties';props.write_text(props.read_text().replace('server-port=25677','server-port=25683').replace('server-port=25671','server-port=25683'))
+if a.legacy_architecture:(server/'LEGACY_ARCHITECTURE_PROBE').write_text('Opt-in historical architecture regression fixture\n')
 print('Prepared siege treasury fixture:',server)
 

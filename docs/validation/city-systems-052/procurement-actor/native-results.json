@@ -1,0 +1,126 @@
+[
+  {
+    "phase": "first",
+    "result": "PASS 22 assertions; actual Folia/Towny/Contracts/Builds/Treasury APIs, exact needs/funding/refund, permission changes, optional database isolation and restart; explicit offline Player/EntityScheduler and persistent deterministic bank substitutes, no live Vault/client claimed\n",
+    "exit_code": 0,
+    "jar_sha256": {
+      "ProcurementRuntimeProbe.jar": "a66dc339bcdbd521ca8532635a1325fbad556fab623bd81c50887dd39fa015f9",
+      "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+      "NeverLandTownyContracts-0.8.1.jar": "2bda41c19cd3efd36f506ed91788f5801ed572d053f631a59b6ccf04bf7c391c",
+      "NeverLandTownyBuilds-0.11.0.jar": "9a3a0498da738c5a3f0b2edcf386e251f1a6a2303f25496bfe5ab1b9b86e13b6",
+      "NeverLandTownyControl-0.6.2.jar": "cfb68b0ff0dc4fc3da4d2e2f4c8e1762cf7229605e1033262069e41ed9c1414c",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    },
+    "physical": {
+      "NeverLandTownyContracts/procurement.sqlite": {
+        "sha256": "c1a17ef71792d03111dd5127e4b5fc12ba40a7aa51cd8824975e9f6a474a1ff7",
+        "bytes": 40960,
+        "requests": [
+          [
+            "167dbb18-2f37-4d72-b4aa-df9ae2d99330",
+            "PUBLISHED",
+            172,
+            1720
+          ],
+          [
+            "7e82dd4d-7a60-464c-97bd-a81b67a1a7ff",
+            "FUNDED",
+            288,
+            2880
+          ],
+          [
+            "9f177b82-c7e7-4f17-959c-13f138169384",
+            "REFUNDED",
+            272,
+            2720
+          ]
+        ],
+        "history": 10,
+        "audit_pending": 0
+      },
+      "NeverLandTownyContracts/contract-data.yml": {
+        "sha256": "a020fc83b87b2587c05f75c72dac3237f7b4cdc7581d6b560671363d5a0af6ec",
+        "bytes": 2547
+      },
+      "NeverLandTownyTreasuryPlus/treasury-data.yml": {
+        "sha256": "64e9a397889bd6cab2acaa62b99a5f6234d8001a7f20caae95465e7412773d36",
+        "bytes": 3117
+      }
+    }
+  },
+  {
+    "phase": "broken",
+    "result": "PASS 4 assertions; actual Folia/Towny/Contracts/Builds/Treasury APIs, exact needs/funding/refund, permission changes, optional database isolation and restart; explicit offline Player/EntityScheduler and persistent deterministic bank substitutes, no live Vault/client claimed\n",
+    "exit_code": 0,
+    "jar_sha256": {
+      "ProcurementRuntimeProbe.jar": "a66dc339bcdbd521ca8532635a1325fbad556fab623bd81c50887dd39fa015f9",
+      "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+      "NeverLandTownyContracts-0.8.1.jar": "2bda41c19cd3efd36f506ed91788f5801ed572d053f631a59b6ccf04bf7c391c",
+      "NeverLandTownyBuilds-0.11.0.jar": "9a3a0498da738c5a3f0b2edcf386e251f1a6a2303f25496bfe5ab1b9b86e13b6",
+      "NeverLandTownyControl-0.6.2.jar": "cfb68b0ff0dc4fc3da4d2e2f4c8e1762cf7229605e1033262069e41ed9c1414c",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    },
+    "physical": {
+      "NeverLandTownyContracts/contract-data.yml": {
+        "sha256": "a020fc83b87b2587c05f75c72dac3237f7b4cdc7581d6b560671363d5a0af6ec",
+        "bytes": 2547
+      },
+      "NeverLandTownyTreasuryPlus/treasury-data.yml": {
+        "sha256": "64e9a397889bd6cab2acaa62b99a5f6234d8001a7f20caae95465e7412773d36",
+        "bytes": 3117
+      }
+    }
+  },
+  {
+    "phase": "restart",
+    "result": "PASS 9 assertions; actual Folia/Towny/Contracts/Builds/Treasury APIs, exact needs/funding/refund, permission changes, optional database isolation and restart; explicit offline Player/EntityScheduler and persistent deterministic bank substitutes, no live Vault/client claimed\n",
+    "exit_code": 0,
+    "jar_sha256": {
+      "ProcurementRuntimeProbe.jar": "a66dc339bcdbd521ca8532635a1325fbad556fab623bd81c50887dd39fa015f9",
+      "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+      "NeverLandTownyContracts-0.8.1.jar": "2bda41c19cd3efd36f506ed91788f5801ed572d053f631a59b6ccf04bf7c391c",
+      "NeverLandTownyBuilds-0.11.0.jar": "9a3a0498da738c5a3f0b2edcf386e251f1a6a2303f25496bfe5ab1b9b86e13b6",
+      "NeverLandTownyControl-0.6.2.jar": "cfb68b0ff0dc4fc3da4d2e2f4c8e1762cf7229605e1033262069e41ed9c1414c",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    },
+    "physical": {
+      "NeverLandTownyContracts/procurement.sqlite": {
+        "sha256": "bfd2e2adbc97dba18c375b3cfe51cbc233089a1b7adeba9e8bbb915a930692ea",
+        "bytes": 40960,
+        "requests": [
+          [
+            "167dbb18-2f37-4d72-b4aa-df9ae2d99330",
+            "PUBLISHED",
+            172,
+            1720
+          ],
+          [
+            "7e82dd4d-7a60-464c-97bd-a81b67a1a7ff",
+            "PUBLISHED",
+            288,
+            2880
+          ],
+          [
+            "9f177b82-c7e7-4f17-959c-13f138169384",
+            "REFUNDED",
+            272,
+            2720
+          ]
+        ],
+        "history": 12,
+        "audit_pending": 0
+      },
+      "NeverLandTownyContracts/contract-data.yml": {
+        "sha256": "96e40b4e9900e6c3dffc9846fefd037db61bf8d1e5596e9c69cbd3ae9618e860",
+        "bytes": 4045
+      },
+      "NeverLandTownyTreasuryPlus/treasury-data.yml": {
+        "sha256": "a0782a9314539dc3b686e59a7062c9e6bd44a61b93da519ebc0c7ea2d1a39d02",
+        "bytes": 3116
+      }
+    }
+  }
+]

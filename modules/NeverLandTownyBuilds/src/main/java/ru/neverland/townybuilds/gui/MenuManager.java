@@ -396,6 +396,8 @@ public final class MenuManager implements Listener {
     private void handleUpgrade(Player player, ProjectDefinition project, int page, ProjectCategory category) {
         UpgradeResult result = builds.upgrade(player, project);
         switch (result.status()) {
+            case PAYMENT_PENDING -> {player.sendMessage("§eОплата и выбранное место сохраняются. Дождитесь подтверждения; повторно нажимать не нужно.");player.closeInventory();}
+            case PAYMENT_UNAVAILABLE -> player.sendMessage("§eОплата временно недоступна. Требуется работающая городская казна; обратитесь к администратору.");
             case SUCCESS -> {
                 messages.send(player, "upgrade-success", Map.of("project", project.name(), "level", result.newLevel()));
                 openDetails(player, project, page, category);

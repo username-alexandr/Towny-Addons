@@ -21,6 +21,8 @@ public final class RaidStore implements AutoCloseable {
     private final Consumer<Throwable> failure;
     private volatile boolean healthy,closed;
     private Connection db;
+    private final Object repairGate=new Object();
+    private final java.util.concurrent.atomic.AtomicLong repairRevision=new java.util.concurrent.atomic.AtomicLong();
     private final CompletableFuture<Void> ready;
     private final CompletableFuture<Void> stopped=new CompletableFuture<>();
     @FunctionalInterface interface Sql<T>{T run()throws Exception;}
@@ -64,6 +66,21 @@ public final class RaidStore implements AutoCloseable {
         catch(RejectedExecutionException e){var error=new IllegalStateException("Очередь рейдов занята; разрушение остановлено до перезапуска",e);if(healthy){healthy=false;failure.accept(error);}result.completeExceptionally(error);}
         return result;
     }
+    /** Enqueue and revision advance share a short gate; no SQL or waiting occurs under it. */
+    <T> CompletableFuture<T> repairMutation(Sql<T> work){synchronized(repairGate){repairRevision.incrementAndGet();return submit(work);}}
+    public long repairDebtRevision(){if(!healthy())throw new IllegalStateException("Учёт повреждений недоступен");return repairRevision.get();}
+    public CompletionStage<Boolean> hasRepairDebt(UUID town,String project){
+        if(town==null||project==null||project.isBlank()||project.length()>128)throw new IllegalArgumentException("Не указан проект повреждённого здания");
+        synchronized(repairGate){
+            if(!healthy())return CompletableFuture.failedFuture(new IllegalStateException("Учёт повреждений недоступен"));
+            return submit(()->{
+                if(!healthy())throw new IllegalArgumentException("Учёт повреждений недоступен");
+                try(var p=db.prepareStatement("SELECT EXISTS(SELECT 1 FROM building_damage WHERE town=? AND project=?) OR EXISTS(SELECT 1 FROM building_repairs WHERE town=? AND project=? AND state NOT IN ('DONE','CANCELLED'))")){
+                    p.setString(1,town.toString());p.setString(2,project);p.setString(3,town.toString());p.setString(4,project);try(var rows=p.executeQuery()){if(!rows.next())throw new SQLException("Нет ответа учёта повреждений");return rows.getBoolean(1);}
+                }
+            });
+        }
+    }
     <T> T transaction(Sql<T> work)throws Exception {
         db.setAutoCommit(false);try{T result=work.run();db.commit();return result;}
         catch(Exception e){db.rollback();throw e;}finally{db.setAutoCommit(true);}
@@ -95,8 +112,8 @@ public final class RaidStore implements AutoCloseable {
     public CompletionStage<Void> owner(Key key,UUID player){return submit(()->{
         try(var p=db.prepareStatement(player==null?"DELETE FROM owners WHERE key=?":"INSERT OR REPLACE INTO owners VALUES(?,?)")){p.setString(1,key.id());if(player!=null)p.setString(2,player.toString());p.executeUpdate();}return null;
     });}
-    public CompletionStage<Void> reset(Key key){return submit(()->{try(var p=db.prepareStatement("DELETE FROM hp WHERE key=?")){p.setString(1,key.id());p.executeUpdate();}BuildingDamageStore.reset(db,key.id());return null;});}
-    public CompletionStage<List<Result>> damage(UUID blast,String actor,UUID attacker,UUID defender,long at,int repairSeconds,List<Hit> hits) {return submit(()->transaction(()->{
+    public CompletionStage<Void> reset(Key key){return repairMutation(()->{try(var p=db.prepareStatement("DELETE FROM hp WHERE key=?")){p.setString(1,key.id());p.executeUpdate();}BuildingDamageStore.reset(db,key.id());return null;});}
+    public CompletionStage<List<Result>> damage(UUID blast,String actor,UUID attacker,UUID defender,long at,int repairSeconds,List<Hit> hits) {return repairMutation(()->transaction(()->{
         if(hits.size()>6000)throw new IllegalArgumentException("Слишком много целей одного взрыва");
         var results=new ArrayList<Result>();
         for(Hit hit:hits) {
@@ -125,7 +142,7 @@ public final class RaidStore implements AutoCloseable {
         try(var p=db.prepareStatement("DELETE FROM impacts WHERE at<?")){p.setLong(1,at-86400000L);p.executeUpdate();}
         return List.copyOf(results);
     }));}
-    public CompletionStage<Void> finish(Result result,boolean destroyed){return submit(()->{
+    public CompletionStage<Void> finish(Result result,boolean destroyed){return repairMutation(()->{
         try(var p=db.prepareStatement(destroyed?"DELETE FROM hp WHERE key=? AND receipt=?":"UPDATE hp SET hp=1,receipt='' WHERE key=? AND receipt=?")) {
             p.setString(1,result.hit().key().id());p.setString(2,result.receipt());p.executeUpdate();
         }BuildingDamageStore.finish(db,result,destroyed);return null;

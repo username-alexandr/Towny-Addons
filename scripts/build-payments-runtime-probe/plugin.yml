@@ -1,0 +1,6 @@
+name: BuildPaymentsRuntimeProbe
+version: 0.52-repair
+main: ru.neverland.runtime.BuildPaymentsProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyTreasuryPlus]

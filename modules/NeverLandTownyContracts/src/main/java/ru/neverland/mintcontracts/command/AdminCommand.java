@@ -33,7 +33,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         if (!sender.hasPermission("mintcontracts.admin")) { messages.send(sender, "no-permission"); return true; }
         if (args.length == 0) { messages.list("admin-help").forEach(sender::sendMessage); return true; }
         switch (args[0].toLowerCase()) {
-            case "payments" -> {contracts.repository().payments().values().stream().filter(p->p.phase()==ru.neverland.mintcontracts.model.MunicipalPayment.Phase.PENDING||p.phase()==ru.neverland.mintcontracts.model.MunicipalPayment.Phase.READY).forEach(p->sender.sendMessage(p.id()+" | "+p.kind()+" | "+p.phase()+" | "+p.cents()+" коп. | город "+p.town()+" | счёт "+p.account()));}
+            case "payments" -> {contracts.repository().payments().values().stream().filter(p->p.phase()==ru.neverland.mintcontracts.model.MunicipalPayment.Phase.PENDING||p.phase()==ru.neverland.mintcontracts.model.MunicipalPayment.Phase.READY||p.phase()==ru.neverland.mintcontracts.model.MunicipalPayment.Phase.TREASURY).forEach(p->sender.sendMessage(p.id()+" | "+p.kind()+" | "+p.phase()+" | "+p.cents()+" коп. | город "+p.town()+" | счёт "+p.account()));}
             case "deliveries" -> {contracts.repository().deliveries().values().stream().filter(d->d.phase()!=ru.neverland.mintcontracts.model.DeliveryIntent.Phase.REJECTED&&(!d.acknowledged())).forEach(d->sender.sendMessage(d.id()+" | "+d.phase()+" | "+d.amount()+" шт. | игрок "+d.actor()));}
             case "resolve", "resolve-delivery" -> reconcile(sender,args);
             case "reload" -> { plugin.reloadPlugin(); messages.send(sender, "reload"); }
@@ -56,7 +56,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         String name = join(args, 2);
         Town town = towny.town(name);
         if (town == null) { messages.send(sender, "town-not-found", Map.of("town", name)); return; }
-        sendActivate(sender, definition, contracts.activate(town, definition));
+        sendActivate(sender, definition, contracts.activate(town, definition, null, sender instanceof org.bukkit.entity.Player p ? p.getUniqueId() : ru.neverland.mintcontracts.model.MunicipalPayment.SYSTEM));
     }
     private void cancel(CommandSender sender, String[] args) {
         if (args.length < 3) { sender.sendMessage(ColorUtil.color("&#FFFFFFИспользование: /townycontracts cancel <ID> <город>")); return; }

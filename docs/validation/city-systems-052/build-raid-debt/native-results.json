@@ -1,0 +1,26 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 12 checks; actual Folia/Towny/Builds/Sieges/Treasury, native regional block repair, durable intents and full restart; deterministic economy adapter and pre-authorized damage/intent fixtures; no live Vault or network player claimed\n",
+    "jar_sha256": {
+      "SiegeTreasuryRuntimeProbe.jar": "ea0dbc7136fa5ebf5182a69e3f1bf888ab61230478fff332e5f49af4dce52899",
+      "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+      "NeverLandTownySiegesPlus-0.6.3.jar": "9187cc486a70323a8054bf3b9393e8ef04a0a9504b5f8acb98ad3ea8d8c9983e",
+      "NeverLandTownyBuilds-0.11.1.jar": "8fdadfe37be3ff070aa61de11f0e22d9d5f4e71b7f006264369082f91aa4f704",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 10 checks; actual Folia/Towny/Builds/Sieges/Treasury, native regional block repair, durable intents and full restart; deterministic economy adapter and pre-authorized damage/intent fixtures; no live Vault or network player claimed\n",
+    "jar_sha256": {
+      "SiegeTreasuryRuntimeProbe.jar": "ea0dbc7136fa5ebf5182a69e3f1bf888ab61230478fff332e5f49af4dce52899",
+      "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+      "NeverLandTownySiegesPlus-0.6.3.jar": "9187cc486a70323a8054bf3b9393e8ef04a0a9504b5f8acb98ad3ea8d8c9983e",
+      "NeverLandTownyBuilds-0.11.1.jar": "8fdadfe37be3ff070aa61de11f0e22d9d5f4e71b7f006264369082f91aa4f704",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  }
+]

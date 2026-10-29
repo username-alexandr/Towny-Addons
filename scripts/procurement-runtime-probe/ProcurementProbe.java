@@ -64,13 +64,14 @@ public final class ProcurementProbe extends JavaPlugin {
  boolean timerPaused(Object contract)throws Exception{Object timer=contract.getClass().getMethod("timer").invoke(contract);return (Boolean)timer.getClass().getMethod("paused").invoke(timer);}
  void legacyFunding()throws Exception{
   var definition=new ru.neverland.mintcontracts.model.ContractDefinition("legacy_gateway","Обычный городской заказ",ru.neverland.mintcontracts.model.ContractType.MOB_KILL,Material.IRON_SWORD,0,List.of(),"ZOMBIE",null,3,12.34,600);
-  var result=contracts.activate(town,definition);var contract=contracts.active(T).stream().filter(c->c.templateId().equals("legacy_gateway")).findFirst().orElseThrow();
+  var result=contracts.activate(town,definition,null,M);var contract=contracts.active(T).stream().filter(c->c.templateId().equals("legacy_gateway")).findFirst().orElseThrow();
   check(result==ContractService.ActivateResult.PENDING&&!contract.funded()&&contract.fundingPaused()&&timerPaused(contract),"ordinary city contract remains paused until asynchronous treasury payment is acknowledged");
   contracts.record(mayor,ru.neverland.mintcontracts.model.ContractType.MOB_KILL,"ZOMBIE",1);check(contract.progress()==0,"unfunded municipal contract refuses gameplay progress");pollLegacy(contract,200);
  }
  void pollLegacy(ru.neverland.mintcontracts.model.ActiveContract contract,int tries)throws Exception{
   if(!contract.funded()){if(tries<=0)throw new AssertionError("ordinary municipal treasury funding timeout");later(1,()->pollLegacy(contract,tries-1));return;}
   check(!contract.fundingPaused()&&!timerPaused(contract)&&withdrawals==3&&balance()==100000-firstCents/100.0-12.34,"ordinary municipal funding uses one exact treasury debit and resumes its preserved term");
+  var payment=contracts.repository().payments().get(ru.neverland.mintcontracts.model.MunicipalPayment.key(contract.id(),"reserve"));check(payment.actor().equals(M)&&treasury.debitStatus(payment.id()).get("actor").equals(M.toString()),"ordinary contract freezes real initiating player in both journal and treasury receipt");
   check(contracts.cancelAdministrative(town,contract),"ordinary paid contract still supports administrative cancellation");pollLegacyReturn(contract.id(),200);
  }
  void pollLegacyReturn(UUID contract,int tries)throws Exception{

@@ -6,10 +6,10 @@ platform:
   bytecode_java: 17
 addons:
   NeverLandTownyArchaeology: 0.2.0
-  NeverLandTownyBuilds: 0.11.0
+  NeverLandTownyBuilds: 0.11.1
   NeverLandTownyCamps: 0.2.0
   NeverLandTownyChronicles: 0.3.0
-  NeverLandTownyContracts: 0.8.0
+  NeverLandTownyContracts: 0.8.1
   NeverLandTownyEspionage: 0.2.1
   NeverLandTownyEvents: 0.5.0
   NeverLandTownyExpeditions: 0.2.0
@@ -39,7 +39,7 @@ addons:
   NeverLandTownyCrime: 0.2.0
   NeverLandTownyJustice: 0.2.1
   NeverLandTownyArmy: 0.2.1
-  NeverLandTownySiegesPlus: 0.6.2
+  NeverLandTownySiegesPlus: 0.6.3
   NeverLandTownySeasons: 0.2.0
   NeverLandTownyControl: 0.6.2
   NeverLandTownyQuests: 0.3.0

@@ -28,6 +28,8 @@ public final class RaidRepairs implements TownyRaidRepairApi,Listener {
     private final Set<UUID> funding=ConcurrentHashMap.newKeySet();private final Set<UUID> working=new HashSet<>();private final Map<UUID,Long> started=new HashMap<>(),busyUntil=new HashMap<>();private long polling,fundingWarning;
     public RaidRepairs(NeverLandTownySiegesPlus plugin,RaidController raids){this.plugin=plugin;this.raids=raids;damage=new BuildingDamageStore(raids.store());store=new RaidRepairsStore(raids.store());Bukkit.getServicesManager().register(TownyRaidRepairApi.class,this,plugin,ServicePriority.Normal);Bukkit.getPluginManager().registerEvents(this,plugin);}
     public RaidRepairsStore store(){return store;}
+    @Override public CompletionStage<Boolean> hasRepairDebt(UUID town,String project){if(!active())return CompletableFuture.failedFuture(new IllegalStateException("Учёт повреждений временно недоступен"));return raids.store().hasRepairDebt(town,project);}
+    @Override public long repairDebtRevision(){if(!active())throw new IllegalStateException("Учёт повреждений временно недоступен");return raids.store().repairDebtRevision();}
     public boolean busy(UUID town){return System.currentTimeMillis()<busyUntil.getOrDefault(town,0L);}
     private boolean active(){return plugin.isEnabled()&&!Bukkit.isStopping()&&!SuiteState.frozen(plugin.getName())&&raids.store().healthy();}
     private void global(Runnable action){if(active())SuiteScheduler.get().runTask(plugin,action);}

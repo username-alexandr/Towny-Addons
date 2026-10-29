@@ -1,0 +1,1 @@
+PASS 8 checks; actual Folia/Towny/Builds/Treasury, delayed native file writer, bank ordering, virtual and physical purchases, insurance, cancellation and JVM restart; explicit offline player, accepted-project and deterministic bank fixtures; no live Vault/client claimed

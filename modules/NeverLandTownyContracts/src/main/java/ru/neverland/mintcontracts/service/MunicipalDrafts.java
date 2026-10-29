@@ -48,7 +48,7 @@ public final class MunicipalDrafts {
     } }
     public ContractService.ActivateResult confirm(Player p,UUID revision){ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {Town town=manager(p);Draft d=get(p);if(!d.revision().equals(revision))throw new IllegalArgumentException("Условия изменились. Откройте актуальный черновик.");
         if(d.area()!=null){WorkArea current=area(p,d.definition().type(),Material.matchMaterial(d.definition().target()));if(!current.equals(d.area()))throw new IllegalArgumentException("Участок изменился. Пересоздайте черновик.");}
-        drafts.remove(p.getUniqueId());return contracts.activate(town,d.definition(),d.area());
+        drafts.remove(p.getUniqueId());return contracts.activate(town,d.definition(),d.area(),p.getUniqueId());
     } }
     private Draft remember(Player p,ContractDefinition d,WorkArea area){Draft draft=new Draft(UUID.randomUUID(),manager(p).getUUID(),d,area,System.currentTimeMillis()+600_000);drafts.put(p.getUniqueId(),draft);return draft;}
     public List<Material> roadMaterials(){ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {List<String> keys=plugin.getConfig().getStringList("municipal.road.materials");if(keys.isEmpty())keys=List.of("COBBLESTONE","STONE_BRICKS","SMOOTH_STONE","GRAVEL","ANDESITE");return keys.stream().map(Material::matchMaterial).filter(Objects::nonNull).filter(m->m.isBlock()&&m.isSolid()&&m.isItem()).distinct().toList();} }

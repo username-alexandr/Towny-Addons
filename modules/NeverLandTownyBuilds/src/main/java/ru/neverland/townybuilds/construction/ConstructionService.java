@@ -91,18 +91,36 @@ public final class ConstructionService implements Listener {
     public void start() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         stop();
         running = true;
-        // Events registers its public repair API after Builds enables. Wait until all plugins are ready.
-        restorationTask = ru.neverland.core.SuiteScheduler.get().runTask(plugin, () -> {
-            for (TownData data : dataStore.towns().values()) for (ConstructionSite site : data.constructionSites().values()) {
-                World world = Bukkit.getWorld(site.worldId());
-                if (world != null) ru.neverland.core.SuiteScheduler.region(plugin, site.location(world,new BlockOffset(0,0,0)), () -> {
-                    migrateLegacySites(); repairCompletedSites();
-                });
+        // Providers register after Builds. Each asynchronous debt answer is revalidated on this exact site region.
+        long epoch=previewGeneration;
+        restorationTask=ru.neverland.core.SuiteScheduler.get().runTask(plugin,()->{
+            var queue=new java.util.ArrayDeque<RestorationTarget>();
+            for(var town:dataStore.towns().values())for(var site:town.constructionSites().values()){
+                if(queue.size()>=5000){plugin.getLogger().warning("Автопроверка зданий ограничена 5000 площадками; остальные не изменены");break;}
+                queue.add(new RestorationTarget(town.townId(),site));
             }
+            restoreNext(queue,epoch);
         });
         long interval = Math.max(5L, plugin.getConfig().getLong("settings.construction.preview-interval-ticks", 10L));
         renderTask = ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin, this::renderMissingBlocks, interval, interval);
     } }
+
+    private record RestorationTarget(UUID town,ConstructionSite site){}
+    private void restoreNext(java.util.ArrayDeque<RestorationTarget> queue,long epoch){
+        if(!running||epoch!=previewGeneration||queue.isEmpty())return;
+        var target=queue.remove();var site=target.site();
+        ru.neverland.townybuilds.integration.RaidRepairAccess.query(target.town(),site.projectId()).whenComplete((debt,error)->{
+            if(!plugin.isEnabled()||!running||epoch!=previewGeneration)return;
+            World world=Bukkit.getWorld(site.worldId());
+            Runnable next=()->{if(running&&epoch==previewGeneration)ru.neverland.core.SuiteScheduler.get().runTask(plugin,()->restoreNext(queue,epoch));};
+            if(error!=null||world==null){next.run();return;}
+            ru.neverland.core.SuiteScheduler.region(plugin,site.location(world,new BlockOffset(0,0,0)),()->{
+                try{if(!running||epoch!=previewGeneration||!ru.neverland.townybuilds.integration.RaidRepairAccess.permits(debt))return;
+                    migrateLegacySite(target.town(),site,debt);repairCompletedSite(target.town(),site,debt);
+                }finally{next.run();}
+            });
+        });
+    }
 
     public void stop() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         running = false;
@@ -164,7 +182,7 @@ public final class ConstructionService implements Listener {
 
         plan = planForSite(site, targetLevel);
         if (plan == null) return ConstructionPreparation.failed(ConstructionPreparation.Status.UNKNOWN_BLUEPRINT, project.id());
-        if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.getUUID(),site,plan)) {
+        if (repairBlocked(town.getUUID(),site,plan)) {
             return ConstructionPreparation.failed(ConstructionPreparation.Status.OBSTRUCTED,"Сначала завершите ремонт участка: /t events repairs");
         }
         World world = Bukkit.getWorld(site.worldId());
@@ -199,8 +217,8 @@ public final class ConstructionService implements Listener {
         }
         if(!ru.neverland.integration.SpecializationAccess.allowed(preparation.townId(),preparation.site().projectId()))throw new IllegalStateException(ru.neverland.integration.SpecializationAccess.reason(preparation.site().projectId()));
         TownData data = dataStore.town(preparation.townId());
-        if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(preparation.townId(),preparation.site(),preparation.plan())) {
-            throw new IllegalStateException("Сначала завершите ремонт после пожара: /t events repairs");
+        if (repairBlocked(preparation.townId(),preparation.site(),preparation.plan())) {
+            throw new IllegalStateException("Сначала завершите ремонт здания после пожара или рейда");
         }
         if (!ownsPlan(Bukkit.getWorld(preparation.site().worldId()),preparation.site(),preparation.plan())) throw new IllegalStateException("Площадка сейчас недоступна");
         data.setConstructionSite(preparation.site());
@@ -212,6 +230,29 @@ public final class ConstructionService implements Listener {
         }
         checkCompletion(player, town, preparation.site());
     } }
+
+    /** Resume only the paid, saved footprint. A changed site is retained for review, never cleared blindly. */
+    public boolean preparePaidSite(UUID townId,ConstructionSite site,ConstructionReceipt receipt) {
+        try(var guard=ru.neverland.core.SuiteState.guard()) {
+            World world=Bukkit.getWorld(site.worldId());BlueprintPlan plan=planForSite(site,site.targetStage());
+            if(!dataStore.writable()||!site.active()||world==null||plan==null||!ownsPlan(world,site,plan))return false;
+            var state=dataStore.existingTown(townId);
+            if(state==null||state.constructionSite(site.projectId())!=site||!receipt.equals(state.constructionReceipts().get(site.projectId())))return false;
+            if(ru.neverland.townybuilds.integration.FireRepairAccess.blocked(townId,site,plan))return false;
+            if(!cancellationTerritoryOwned(townId,site,receipt))return false;
+            var excavation=ExcavationPlanner.offsets(plan,site.buildFromStage());
+            for(var entry:receipt.changes().entrySet()){
+                Location location=site.location(world,entry.getKey());
+                if(!ru.neverland.core.SuiteScheduler.owns(location)||!world.isChunkLoaded(location.getBlockX()>>4,location.getBlockZ()>>4))return false;
+                Block block=location.getBlock();var before=Bukkit.createBlockData(entry.getValue().before());var expected=Bukkit.createBlockData(entry.getValue().expected());
+                if(block.getBlockData().equals(before)||block.getBlockData().equals(expected))continue;
+                if(block.getType().isAir()&&excavation.contains(entry.getKey())&&ExcavationPlanner.canClear(before.getMaterial()))continue;
+                throw new IllegalStateException("На оплаченной площадке изменён блок "+coordinates(location)+". Оплата и ресурсы сохранены; нужна проверка.");
+            }
+            // All cells were validated on their owning region before the first mutation.
+            clearExcavation(site,plan);return true;
+        }
+    }
 
     public ConstructionReceipt captureReceipt(ConstructionPreparation preparation, double money,
                                                List<ConstructionReceipt.Item> resources) {
@@ -512,24 +553,26 @@ public final class ConstructionService implements Listener {
         dataStore.save();
     }
 
-    private void migrateLegacySites() {
-        int migrated = 0;
-        int removed = 0;
-        int restored = 0;
-        boolean changed = false;
-        for (TownData town : dataStore.towns().values()) {
-            if (towny.town(town.townId()) == null) continue;
-            for (ConstructionSite site : town.constructionSites().values()) {
-                if (!site.blueprintSet().isEmpty()||BuildingStyle.baseArchitecture(site.architectureVersion()) >= ConstructionSite.CURRENT_ARCHITECTURE_VERSION) continue;
+    private boolean repairBlocked(UUID town,ConstructionSite site,BlueprintPlan plan) {
+        return ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town,site,plan)
+                || ru.neverland.townybuilds.integration.RaidRepairAccess.blocked(town,site.projectId());
+    }
+
+    private void migrateLegacySite(UUID townId,ConstructionSite site,ru.neverland.townybuilds.integration.RaidRepairAccess.Observation debt) {
+        if(!dataStore.writable()||!ru.neverland.townybuilds.integration.RaidRepairAccess.permits(debt))return;
+        TownData town=dataStore.existingTown(townId);
+        if(town==null||town.constructionSite(site.projectId())!=site||towny.town(townId)==null)return;
+        int removed=0,restored=0;
+                if (site.active() || site.adminPaused() || refundBlocked(town.townId(),site.projectId()) || !site.blueprintSet().isEmpty()||BuildingStyle.baseArchitecture(site.architectureVersion()) >= ConstructionSite.CURRENT_ARCHITECTURE_VERSION) return;
                 World world = Bukkit.getWorld(site.worldId());
                 int visibleLevel = site.active() ? site.targetStage() : site.completedStage();
                 BlueprintPlan legacy = visibleLevel <= 0 ? null
                         : generator.generateForArchitecture(site.projectId(), visibleLevel, site.architectureVersion());
                 BlueprintPlan modern = visibleLevel <= 0 ? null : generator.generateForStyle(site.projectId(), visibleLevel,BuildingStyle.ofArchitecture(site.architectureVersion()));
-                if (world == null || (visibleLevel > 0 && (legacy == null || modern == null))) continue;
+                if (world == null || (visibleLevel > 0 && (legacy == null || modern == null))) return;
 
-                if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId(),site,legacy) || ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId(),site,modern)) continue;
-                if (legacy != null && !ownsPlan(world,site,legacy) || modern != null && !ownsPlan(world,site,modern)) continue;
+                if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId(),site,legacy) || ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId(),site,modern)) return;
+                if (legacy != null && !ownsPlan(world,site,legacy) || modern != null && !ownsPlan(world,site,modern)) return;
                 if (legacy != null && modern != null) {
                     for (Map.Entry<BlockOffset, BlueprintBlock> entry : legacy.blocks().entrySet()) {
                         BlueprintBlock replacement = modern.blocks().get(entry.getKey());
@@ -562,16 +605,8 @@ public final class ConstructionService implements Listener {
                     }
                 }
                 site.setArchitectureVersion(BuildingStyle.ofArchitecture(site.architectureVersion()).architecture(ConstructionSite.CURRENT_ARCHITECTURE_VERSION));
-                migrated++;
-                changed = true;
-            }
-        }
-        if (changed) {
-            dataStore.markDirty();
-            dataStore.save();
-            plugin.getLogger().info("Обновлена ванильная архитектура площадок: " + migrated
-                    + "; удалено старых блоков: " + removed + "; восстановлено новых: " + restored + ".");
-        }
+        dataStore.markDirty();dataStore.save();
+        plugin.getLogger().info("Обновлена архитектура "+townId+"/"+site.projectId()+"; удалено "+removed+"; добавлено "+restored);
     }
 
     private void preserveContainer(Block block, ConstructionSite site) {
@@ -583,17 +618,16 @@ public final class ConstructionService implements Listener {
         container.getInventory().clear();
     }
 
-    private void repairCompletedSites() {
-        if(!plugin.getConfig().getBoolean("settings.construction.restore-missing-completed-blocks",false))return;
-        int repaired = 0;
-        for (TownData town : dataStore.towns().values()) {
-            if (towny.town(town.townId()) == null) continue;
-            for (ConstructionSite site : town.constructionSites().values()) {
-                if (site.active() || site.completedStage() <= 0) continue;
+    private void repairCompletedSite(UUID townId,ConstructionSite site,ru.neverland.townybuilds.integration.RaidRepairAccess.Observation debt) {
+        if(!dataStore.writable()||!plugin.getConfig().getBoolean("settings.construction.restore-missing-completed-blocks",false)||!ru.neverland.townybuilds.integration.RaidRepairAccess.permits(debt))return;
+        TownData town=dataStore.existingTown(townId);
+        if(town==null||town.constructionSite(site.projectId())!=site||towny.town(townId)==null)return;
+        int repaired=0;
+                if (site.active() || site.adminPaused() || refundBlocked(town.townId(),site.projectId()) || site.completedStage() <= 0) return;
                 World world = Bukkit.getWorld(site.worldId());
                 BlueprintPlan plan = planForSite(site, site.completedStage());
-                if (world == null || plan == null || !ownsPlan(world,site,plan)) continue;
-                if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId(),site,plan)) continue;
+                if (world == null || plan == null || !ownsPlan(world,site,plan)) return;
+                if (ru.neverland.townybuilds.integration.FireRepairAccess.blocked(town.townId(),site,plan)) return;
                 for (Map.Entry<BlockOffset, BlueprintBlock> entry : orderedEntries(plan)) {
                     BlueprintBlock expected = entry.getValue();
                     if (expected.stage() > site.completedStage()) continue;
@@ -606,10 +640,8 @@ public final class ConstructionService implements Listener {
                     }
                     if (block.getType() == expected.material()) applyExpectedState(block, expected, site);
                 }
-                normalizePlanStates(world, site, plan, 1, town.townId());
-            }
-        }
-        if (repaired > 0) plugin.getLogger().info("Обновлены завершённые процедурные здания: восстановлено блоков " + repaired + ".");
+        normalizePlanStates(world,site,plan,1,townId);
+        if(repaired>0)plugin.getLogger().info("Восстановлено блоков завершённого здания "+site.projectId()+": "+repaired);
     }
 
     private void normalizePlanStates(World world, ConstructionSite site, BlueprintPlan plan, int fromStage, UUID townId) {

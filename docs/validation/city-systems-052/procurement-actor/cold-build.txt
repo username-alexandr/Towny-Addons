@@ -1,0 +1,103 @@
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+/dev/shm/neverland-source-actor-1/modules/NeverLandTownyContracts/src/test/java/ru/neverland/earnings/HuntingSmoke.java:34: warning: [removal] EntityDamageByEntityEvent(@org.jetbrains.annotations.NotNull Entity,@org.jetbrains.annotations.NotNull Entity,@org.jetbrains.annotations.NotNull DamageCause,@org.jetbrains.annotations.NotNull DamageSource,double) in EntityDamageByEntityEvent has been deprecated and marked for removal
+        last.set(new EntityDamageByEntityEvent(direct,victim,cause,source,10));
+                 ^
+/dev/shm/neverland-source-actor-1/modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/MountedOrdersSmoke.java:36: warning: Unsafe is internal proprietary API and may be removed in a future release
+    private static sun.misc.Unsafe unsafe;
+                           ^
+/dev/shm/neverland-source-actor-1/modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/MountedOrdersSmoke.java:78: warning: [removal] EntityDamageByEntityEvent(@org.jetbrains.annotations.NotNull Entity,@org.jetbrains.annotations.NotNull Entity,@org.jetbrains.annotations.NotNull DamageCause,@org.jetbrains.annotations.NotNull DamageSource,double) in EntityDamageByEntityEvent has been deprecated and marked for removal
+        last[0]=new EntityDamageByEntityEvent(direct,victim,cause,source,10);
+                ^
+/dev/shm/neverland-source-actor-1/modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/MountedOrdersSmoke.java:85: warning: Unsafe is internal proprietary API and may be removed in a future release
+        var uf=sun.misc.Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);unsafe=(sun.misc.Unsafe)uf.get(null);
+                       ^
+/dev/shm/neverland-source-actor-1/modules/NeverLandTownyContracts/src/test/java/ru/neverland/mintcontracts/orders/MountedOrdersSmoke.java:85: warning: Unsafe is internal proprietary API and may be removed in a future release
+        var uf=sun.misc.Unsafe.class.getDeclaredField("theUnsafe");uf.setAccessible(true);unsafe=(sun.misc.Unsafe)uf.get(null);
+                                                                                                          ^
+5 warnings
+TEST NeverLandTownyContracts ru.neverland.earnings.HuntingSmoke
+HuntingSmoke: 135 checks passed
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.CompanyContractsSmoke
+ContractMathSmoke OK
+CompanyContractsSmoke OK: ownership, escrow, settlement restart and legacy migration
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.ContractMathSmoke
+ContractMathSmoke OK
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.MunicipalContractsSmoke
+ContractMathSmoke OK
+CompanyContractsSmoke OK: ownership, escrow, settlement restart and legacy migration
+MunicipalContractsSmoke OK: durable money, delivery crash windows, road verification, scout dwell, immutable conditions and restart
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.MunicipalTreasurySmoke
+MunicipalTreasurySmoke PASS 41 checks; ACK, replay isolation, exact receipt identity and saved funding pause
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.RewardLedgerSmoke
+REWARD_LEDGER_SMOKE_PASS: 38 checks
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.fishing.FishStockSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/folia-bootstrap/libraries/org/xerial/sqlite-jdbc/3.49.1.0/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+FISH_STOCK_SMOKE_PASS: 24 checks
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.orders.CooperativeProjectsSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/folia-bootstrap/libraries/org/xerial/sqlite-jdbc/3.49.1.0/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+CooperativeProjectsSmoke PASS 21 checks
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.orders.DailyOrdersSmoke
+DAILY_ORDERS_SMOKE_PASS: 665 checks
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.orders.MountedOrdersSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/folia-bootstrap/libraries/org/xerial/sqlite-jdbc/3.49.1.0/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+MountedOrdersSmoke PASS: 76 checks; personal fishing/melee/bow, transport, region ownership, cancellation, provenance, one-order credit and durable progress
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.orders.PayoutLimitsSmoke
+PASS payout limits: 27 checks
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.orders.PersonalOrderBoardsSmoke
+PERSONAL_ORDER_BOARDS_SMOKE_PASS: 34 checks
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.orders.ResourceDeliveriesSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/folia-bootstrap/libraries/org/xerial/sqlite-jdbc/3.49.1.0/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+ResourceDeliveriesSmoke PASS: 25 checks; real SQLite/reward files, player ownership, duplicate clicks, save faults, database rollback, recovery, caps and exactly-once rewards
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.orders.ServerMaterialsShutdownSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/folia-bootstrap/libraries/org/xerial/sqlite-jdbc/3.49.1.0/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+ServerMaterialsShutdownSmoke PASS: verified truncate/main-file persistence, real blocked checkpoint refusal and recovery
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.orders.ServerMaterialsSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/folia-bootstrap/libraries/org/xerial/sqlite-jdbc/3.49.1.0/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+ServerMaterialsSmoke PASS: 23 checks; real SQLite, duplicate receipts, stock conservation, project reserves, rollback, CSV, restart and corrupt storage
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.orders.ServerProjectsSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/folia-bootstrap/libraries/org/xerial/sqlite-jdbc/3.49.1.0/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+ServerProjectsSmoke PASS 18 checks
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.procurement.ProcurementAuditSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/folia-bootstrap/libraries/org/xerial/sqlite-jdbc/3.49.1.0/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+ProcurementAuditSmoke PASS 11 checks; failure, immutable retry, free Suite and SQL worker, durable ACK and refund direction
+TEST NeverLandTownyContracts ru.neverland.mintcontracts.procurement.ProcurementSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/folia-bootstrap/libraries/org/xerial/sqlite-jdbc/3.49.1.0/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+ProcurementSmoke PASS 29 checks; exact financing/refund proofs, no unpaid publication, duplicate limits, rollback and restart
+BUILD AND SMOKE PASS NeverLandTownyContracts-0.8.1.jar 18 programs

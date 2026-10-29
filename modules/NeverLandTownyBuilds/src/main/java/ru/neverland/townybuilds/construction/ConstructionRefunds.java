@@ -20,6 +20,7 @@ import ru.neverland.townybuilds.storage.*;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.*;
 
 /** Durable cancellation: remove only purchased blocks, then refund once and drain retained cargo into town storage. */
 public final class ConstructionRefunds {
@@ -31,7 +32,16 @@ public final class ConstructionRefunds {
     private final ArchaeologyBridge archaeology;
     private final RussianItemNames names;
     private BukkitTask task;
+    private ru.neverland.townybuilds.payments.BuildPayments payments;
+    public void payments(ru.neverland.townybuilds.payments.BuildPayments value){payments=value;}
     private long generation, warned;
+    private boolean closing;
+    private CompletionStage<?> active=CompletableFuture.completedFuture(null);
+    private CompletionStage<Void> close;
+    private final ThreadPoolExecutor credits=new ThreadPoolExecutor(1,1,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(1),r->{var t=new Thread(r,"NeverLand-build-refund-bank");t.setDaemon(true);return t;},new ThreadPoolExecutor.AbortPolicy());
+    public CompletionStage<Void> prepareClose(){try(var guard=SuiteState.guard()){if(close==null){closing=true;stop();close=active.handle((v,e)->null).thenApply(v->{credits.shutdown();return null;});}return close;}}
+    private void track(CompletionStage<?> operation){active=operation;operation.whenComplete((v,error)->{if(error!=null)warn(new IllegalStateException("Возврат ожидает сверки",error));});}
+
     private final Set<UUID> restoring = new HashSet<>();
 
     public ConstructionRefunds(JavaPlugin plugin, DataStore data, TownyHook towny, ConstructionService construction,
@@ -76,51 +86,15 @@ public final class ConstructionRefunds {
         if(!r.state().equals("ACTIVE"))throw new IllegalStateException(status(r));
         var next=r.cancel(admin?0:fee(),actor);
         AuditTrail.require(audit(townId,project,next,"REQUESTED"));
-        write(state,project,next);
-        return "Отмена принята. В казну вернётся "+AuditTrail.cents(next.refundCents())+" монет; ресурсы поступят на склад города.";
+        track(writeAsync(state,project,r,next));
+        return "Отмена сохраняется. В казну вернётся "+AuditTrail.cents(next.refundCents())+" монет; ресурсы поступят на склад города.";
     }
 
     /** Reserve the resource fund durably BEFORE touching Towny's bank. A doubtful debit is never repeated. */
     public boolean begin(Player player,Town town,ProjectDefinition project,LevelDefinition level,
                       ConstructionPreparation preparation,ResourceFund fund,String reason) throws Exception {
-        TownData state=data.town(town.getUUID());
-        var prior=state.constructionReceipts().get(project.id());
-        if(prior!=null&&(!Set.of("ACTIVE","COMPLETE","DONE").contains(prior.state())||!prior.remaining().isEmpty()))
-            throw new IllegalStateException("Дождитесь завершения предыдущего возврата");
-        // Validate the durable museum API and capture authentic templates before reserving or charging anything.
-        var artifacts=project.type()==ProjectType.WONDER?archaeology.refundableArtifacts(project.id()):List.<ConstructionReceipt.Item>of();
-        List<ConstructionReceipt.Item> items=new ArrayList<>();
-        for(var required:level.resources()) {
-            var actual=fund.entries().stream().filter(e->ResourceMatcher.matches(e.template(),required)).findFirst().orElseThrow();
-            items.add(new ConstructionReceipt.Item(actual.template(),required.getAmount()));
-        }
-        List<ConstructionReceipt.Item> surplus=fund.surplus(level.resources()).stream()
-                .map(e->new ConstructionReceipt.Item(e.template(),e.amount())).toList();
-        var r=construction.captureReceipt(preparation,level.money(),items).remaining(surplus).state("DEBIT_PENDING");
-        var oldSite=state.constructionSite(project.id());
-        preparation.site().adminPaused(true);
-        state.setConstructionSite(preparation.site()); state.clearResourceFund(project.id());state.receipt(project.id(),r);
-        try { data.saveOrThrow(); }
-        catch(Exception ex) { state.receipt(project.id(),prior); if(oldSite==null)state.removeConstructionSite(project.id());else state.setConstructionSite(oldSite);
-            state.loadResourceFunds(restoreFund(state.resourceFunds(),project.id(),fund));throw ex; }
-        boolean paid=bank(town,r,false,reason);
-        if(!paid) { write(state,project.id(),r.paid(0,items).state("ACTIVE").cancel(0,"Не удалось оплатить"));return false; }
-        // A crash here is an explicit review state, including the museum's separate storage.
-        write(state,project.id(),r.state("DEBIT_CONFIRMED"));
-        r=receipt(town.getUUID(),project.id());
-        if(project.type()==ProjectType.WONDER) {
-            List<ConstructionReceipt.Item> withArtifacts=new ArrayList<>(items);
-            withArtifacts.addAll(artifacts);
-            r=r.paid(r.paidCents(),withArtifacts).state("ARTIFACT_PENDING");write(state,project.id(),r);
-            if(!archaeology.consumeRecorded(town.getUUID(),project.id(),player.getUniqueId())) {
-                write(state,project.id(),r.paid(r.paidCents(),items).state("ACTIVE").cancel(0,"Не удалось передать артефакты"));return false;
-            }
-            write(state,project.id(),r.state("DEBIT_CONFIRMED"));r=receipt(town.getUUID(),project.id());
-        }
-        state.receipt(project.id(),r.state("ACTIVE")); preparation.site().adminPaused(false);
-        construction.commit(preparation,player,town);
-        audit(town.getUUID(),project.id(),receipt(town.getUUID(),project.id()),"PURCHASED");
-        return true;
+        if(payments==null)throw new IllegalStateException("Подтверждаемая оплата недоступна");
+        payments.begin(player,town,project,level,preparation,fund,reason);return true;
     }
     private static Map<String,ResourceFund> restoreFund(Map<String,ResourceFund> funds,String project,ResourceFund fund) {
         var copy=new HashMap<>(funds);copy.put(project,fund);return copy;
@@ -138,7 +112,7 @@ public final class ConstructionRefunds {
     }
 
     private void tick() {
-        if(!data.writable())return;
+        if(closing||!data.writable()||!active.toCompletableFuture().isDone())return;
         for(var town:data.towns().values())for(var entry:town.constructionReceipts().entrySet()) {
             var r=entry.getValue();String project=entry.getKey();
             try {
@@ -148,59 +122,59 @@ public final class ConstructionRefunds {
                     long epoch=generation;
                     SuiteScheduler.region(plugin,new Location(world,site.originX(),site.originY(),site.originZ()),()->{
                         try { if(epoch!=generation||receipt(town.townId(),project)!=r)return;
-                            if(construction.cancellationTerritoryOwned(town.townId(),site,r)&&construction.restoreCancelled(site,r))write(town,project,r.state("REFUND_READY"));
+                            if(data.writable()&&construction.cancellationTerritoryOwned(town.townId(),site,r)&&construction.restoreCancelled(site,r))track(writeAsync(town,project,r,r.state("REFUND_READY")));
                         }catch(Exception ex){warn(ex);}finally{restoring.remove(r.id());}
                     });
                 } else if(r.state().equals("REFUND_READY")) {
                     Town owner=towny.town(town.townId());if(owner==null||(r.refundCents()>0&&!economyReady()))continue;
-                    ConstructionSettlement.credit(store(town,project),paying->bank(owner,paying,true,"Отмена строительства "+project));
-                    if(receipt(town.townId(),project).state().equals("REFUND_PAID"))audit(town.townId(),project,receipt(town.townId(),project),"MONEY_RETURNED");
+                    if(payments!=null&&!payments.refundBacked(town.townId(),project,r))continue;
+                    String category=payments==null?"construction":payments.refundCategory(r.id());
+                    var paying=r.state("REFUND_PAYING");
+                    track(writeAsync(town,project,r,paying).thenCompose(v->CompletableFuture.supplyAsync(()->bank(owner,paying,category,"Отмена строительства "+project),credits)).thenCompose(paid->{try(var guard=SuiteState.guard()){
+                        return writeAsync(town,project,paying,paying.state("REFUND_PAID")).thenRun(()->audit(town.townId(),project,paying,"MONEY_RETURNED"));
+                    }}));return;
                 } else if(Set.of("REFUND_PAID","ACTIVE","COMPLETE").contains(r.state())) {
-                    drain(town,project,r);
+                    if(drain(town,project,r))return;
                 }
             }catch(Exception ex){warn(ex);}
         }
     }
-    private void drain(TownData town,String project,ConstructionReceipt r) throws IOException {
-        try{ConstructionSettlement.resources(store(town,project));}catch(IOException ex){throw ex;}catch(Exception ex){throw new IllegalStateException(ex);}
-        r=receipt(town.townId(),project);
-        if(r.state().equals("REFUND_PAID")&&r.remaining().isEmpty()) {
-            AuditTrail.require(audit(town.townId(),project,r,"RETURNED"));
-            ConstructionSite old=town.constructionSite(project);
-            if(old!=null) {
-                if(old.completedStage()==0)town.removeConstructionSite(project);
-                else {
-                    var restored=new ConstructionSite(project,old.worldId(),old.originX(),old.originY(),old.originZ(),old.facing(),old.completedStage(),old.completedStage(),old.completedStage()+1,false,old.architectureVersion());
-                    restored.blueprintSet(old.blueprintSet());town.setConstructionSite(restored);
-                }
+    private boolean drain(TownData town,String project,ConstructionReceipt r)throws IOException {
+        if(!r.remaining().isEmpty()&&!data.storageBusy(town.townId(),"warehouse")){
+            ItemStack[] original=town.storage(),work=StockMath.copy(original);List<ConstructionReceipt.Item> remaining=new ArrayList<>();boolean changed=false;
+            for(var item:r.remaining()){
+                int take=Math.min(item.amount(),MunicipalDeposits.capacity(work,item.sample()));
+                if(take>0){var stack=item.sample();stack.setAmount(take);if(!StockMath.insert(work,new ItemStack[]{stack}))throw new IllegalStateException("Склад изменился");changed=true;}
+                if(take<item.amount())remaining.add(new ConstructionReceipt.Item(item.sample(),item.amount()-take));
             }
-            try{write(town,project,r.state("DONE"));}catch(Exception ex){if(old!=null)town.setConstructionSite(old);throw ex;}
-        } else if(r.state().equals("COMPLETE")&&r.remaining().isEmpty())write(town,project,r.state("DONE"));
+            if(changed){var next=r.remaining(remaining);track(data.commitAsync(()->{if(town.constructionReceipts().get(project)!=r)throw new IllegalStateException("Квитанция возврата изменена");town.setStorage(work,work.length);town.receipt(project,next);},()->{town.setStorage(original,original.length);town.receipt(project,r);}));return true;}
+        }
+        if(r.remaining().isEmpty()&&Set.of("REFUND_PAID","COMPLETE").contains(r.state())){
+            ConstructionSite old=town.constructionSite(project);ConstructionSite restored=null;
+            if(r.state().equals("REFUND_PAID")&&old!=null&&old.completedStage()>0){restored=new ConstructionSite(project,old.worldId(),old.originX(),old.originY(),old.originZ(),old.facing(),old.completedStage(),old.completedStage(),old.completedStage()+1,false,old.architectureVersion());restored.blueprintSet(old.blueprintSet());}
+            var replacement=restored;boolean reset=r.state().equals("REFUND_PAID");
+            track(data.commitAsync(()->{if(town.constructionReceipts().get(project)!=r)throw new IllegalStateException("Квитанция возврата изменена");if(reset){if(replacement==null)town.removeConstructionSite(project);else town.setConstructionSite(replacement);}town.receipt(project,r.state("DONE"));},()->{if(old==null)town.removeConstructionSite(project);else town.setConstructionSite(old);town.receipt(project,r);}));return true;
+        }
+        return false;
     }
-    private ConstructionSettlement.Store store(TownData town,String project) {
-        return new ConstructionSettlement.Store() {
-            public ConstructionReceipt receipt(){return town.constructionReceipts().get(project);}
-            public ItemStack[] storage(){return town.storage();}
-            public boolean busy(){return data.storageBusy(town.townId(),"warehouse");}
-            public void commit(ConstructionReceipt next,ItemStack[] contents)throws IOException {
-                ItemStack[] before=contents==null?null:town.storage();
-                if(contents!=null)town.setStorage(contents,contents.length);
-                try{write(town,project,next);}catch(IOException|RuntimeException ex){if(before!=null)town.setStorage(before,before.length);throw ex;}
-            }
-        };
+    private CompletionStage<Void> writeAsync(TownData town,String project,ConstructionReceipt before,ConstructionReceipt after){
+        try(var guard=SuiteState.guard()){
+            if(data.busy())return data.pendingWrite().thenCompose(v->writeAsync(town,project,before,after));
+            return data.commitAsync(()->{if(!before.equals(town.constructionReceipts().get(project)))throw new IllegalStateException("Возврат уже изменён");town.receipt(project,after);},()->town.receipt(project,before));
+        }
     }
-    private boolean bank(Town town,ConstructionReceipt r,boolean incoming,String reason) {
-        long cents=incoming?r.refundCents():r.paidCents();if(cents==0)return true;
-        if(!economyReady())throw new IllegalStateException("Экономика недоступна; операция сохранена для сверки");
-        Account account=town.getAccount();String token="[nlt-build:"+r.id()+":"+(incoming?"refund":"debit")+"]";
-        var proof=new PaymentEvidence(account,incoming,token,cents);
+    private boolean bank(Town town,ConstructionReceipt r,String category,String reason) {
+        if(SuiteState.held())throw new IllegalStateException("Банковский возврат запрещён под общей блокировкой");
+        long cents=r.refundCents();if(cents==0)return true;
+        if(!economyReady())throw new IllegalStateException("Экономика недоступна; возврат ожидает сверки");
+        Account account=town.getAccount();String token="[nlt-build:"+r.id()+":refund]";
+        var proof=new PaymentEvidence(account,true,token,cents);
         var observer=new AccountObserver(){public void deposited(Account a,double n,String why){proof.observe(a,true,n,why);}public void withdrew(Account a,double n,String why){proof.observe(a,false,n,why);}};
-        synchronized(account) { account.addObserver(observer);try {
-            boolean result;try { result=incoming?ru.neverland.integration.TreasuryAccess.deposit(town,"construction","construction",true,cents/100.0,token+" "+reason)
-                    :ru.neverland.integration.TreasuryAccess.withdraw(town,"construction","construction",cents/100.0,token+" "+reason); }
-            catch(RuntimeException ex){if(!proof.observed())throw ex;result=true;}
-            return proof.result(result);
-        } finally{account.removeObserver(observer);} }
+        synchronized(account){account.addObserver(observer);try{
+            try{account.deposit(cents/100.0,"[NLT|refund|"+category+"|construction] "+token+" "+reason);}catch(RuntimeException error){if(!proof.observed())throw error;}
+            if(!proof.observed())throw new IllegalStateException("Нет точной квитанции частичного возврата; требуется сверка");
+            return true;
+        }finally{account.removeObserver(observer);}}
     }
     public static boolean economyReady() {
         if(!TownyEconomyHandler.isActive())return false;
@@ -266,6 +240,7 @@ public final class ConstructionRefunds {
                     else if(r.state().equals("ARTIFACT_PENDING")&&Set.of("artifacts-paid","artifacts-not-paid").contains(decision))
                         next=r.paid(r.paidCents(),decision.equals("artifacts-paid")?r.paidItems():r.paidItems().subList(0,r.baseItems())).state("ACTIVE").cancel(0,sender.getName());
                     else throw new IllegalArgumentException("Нет соответствующей операции для сверки. paid/not-paid: факт банковской операции; artifacts-paid/artifacts-not-paid: факт списания артефактов.");
+                    if(next.state().equals("REMOVING")&&payments!=null&&payments.withoutPhysicalSite(r.id()))next=next.state("REFUND_READY");
                     AuditTrail.require(audit(owner.getUUID(),project,next,"RESOLVED_"+r.state()+"_"+decision+"_"+sender.getName()));
                     write(data.town(owner.getUUID()),project,next);sender.sendMessage("Решение сохранено. "+status(next));return;
                 }
@@ -283,6 +258,7 @@ public final class ConstructionRefunds {
     }
     public static String status(ConstructionReceipt r) {
         return switch(r.state()) {
+            case "TREASURY_PENDING" -> "Ожидается подтверждение казны: "+r.id();
             case "DEBIT_PENDING","ARTIFACT_PENDING","DEBIT_CONFIRMED","REFUND_PAYING" -> "Операция ожидает сверки администратора: "+r.id();
             case "REMOVING" -> "Отмена: подготовка площадки. Подойдите к стройке; контейнеры должны быть пустыми.";
             case "REFUND_READY" -> "Возврат денег ожидает доступности экономики";

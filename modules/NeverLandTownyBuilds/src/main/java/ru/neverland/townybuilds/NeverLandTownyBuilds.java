@@ -46,6 +46,8 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
     private ConstructionService construction;
     private ru.neverland.townybuilds.construction.PlacementService placements;
     private CivicService civic;
+    private ru.neverland.townybuilds.payments.BuildPayments payments;
+    public ru.neverland.townybuilds.payments.BuildPayments payments(){return payments;}
     private ru.neverland.townybuilds.storage.ProductionService production;
     private ru.neverland.townybuilds.storage.BuildingStorageService storage;
     public ru.neverland.townybuilds.storage.BuildingStorageService storage(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return storage;} }
@@ -73,6 +75,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         definitions = new DefinitionRegistry(this, itemsAdder);
         int storageSize = normalizedStorageSize(getConfig().getInt("settings.storage.size", 54));
         dataStore = new DataStore(this, storageSize);
+        ru.neverland.core.ModuleShutdown.register(this,this::prepareShutdown);
         dataStore.load();
         try{ru.neverland.townybuilds.construction.BlueprintCatalog.initialize(this,dataStore);}
         catch(java.io.IOException error){throw new IllegalStateException("Не удалось загрузить закреплённые чертежи; городские данные сохранены",error);}
@@ -92,6 +95,8 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         constructionRefunds = new ru.neverland.townybuilds.construction.ConstructionRefunds(this,dataStore,towny,construction,definitions,new ArchaeologyBridge(this),itemNames);
         construction.refunds(constructionRefunds);
         builds.refunds(constructionRefunds);
+        payments=new ru.neverland.townybuilds.payments.BuildPayments(this,dataStore,towny,construction,new ArchaeologyBridge(this));
+        builds.payments(payments);constructionRefunds.payments(payments);
         constructionCancelMenu = new ru.neverland.townybuilds.construction.ConstructionCancelMenu(this,constructionRefunds,towny);
         getServer().getPluginManager().registerEvents(constructionCancelMenu,this);
         builds.setConstruction(construction);
@@ -103,7 +108,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         uiMenus = menus;
         thumbnails=new ru.neverland.townybuilds.construction.BlueprintThumbnail(this);
         EditorManager editor = new EditorManager(this, definitions, messages);
-        civic = new CivicService(this, towny, dataStore, messages, itemNames);
+        civic = new CivicService(this, towny, dataStore, messages, itemNames);civic.payments(payments);
 
         getServer().getPluginManager().registerEvents(menus, this);
         getServer().getPluginManager().registerEvents(editor, this);
@@ -131,7 +136,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         ru.neverland.core.ActivityAdmin.attach(this,"townybuilds","neverlandtownybuilds.admin",construction::adminTargets);
         construction.start();
         if(placements!=null)placements.start();
-        constructionRefunds.start();
+        constructionRefunds.start();payments.start();
         civic.start();
         if(production==null)production=new ru.neverland.townybuilds.storage.ProductionService(this,dataStore,storage);
         production.start();
@@ -141,10 +146,21 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
                 + " включён: процедурные здания и Чудеса, фонды ресурсов и совместное строительство готовы.");
     } }
 
+    private java.util.concurrent.CompletionStage<Void> shutdown;
+    private java.util.concurrent.CompletionStage<Void> prepareShutdown(){try(var guard=ru.neverland.core.SuiteState.guard()){
+        if(shutdown!=null)return shutdown;
+        if(storage!=null)storage.stop();
+        var purchases=payments==null?java.util.concurrent.CompletableFuture.<Void>completedFuture(null):payments.prepareClose();
+        var returns=constructionRefunds==null?java.util.concurrent.CompletableFuture.<Void>completedFuture(null):constructionRefunds.prepareClose();
+        shutdown=java.util.concurrent.CompletableFuture.allOf(purchases.toCompletableFuture(),returns.toCompletableFuture()).thenCompose(v->dataStore==null?java.util.concurrent.CompletableFuture.completedFuture(null):dataStore.prepareClose());
+        return shutdown;
+    }}
     @Override
-    public void onDisable() { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
-        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
-
+    public void onDisable() {
+        java.util.concurrent.CompletionStage<Void> closing=java.util.concurrent.CompletableFuture.completedFuture(null);
+        try(var guard=ru.neverland.core.SuiteState.guard()){
+            if(!ru.neverland.core.ModuleLifecycle.end(this))return;
+            closing=prepareShutdown();
         if(cityStyles!=null)cityStyles.close();
         if (effects != null) effects.stop();
         if(thumbnails!=null)thumbnails.clear();
@@ -155,10 +171,18 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         if (army != null) army.stop();
         if (production != null) production.stop();
         if (storage != null) storage.stop();
-        if (dataStore != null) dataStore.save();
+        getServer().getServicesManager().unregisterAll(this);
         TownyHook towny = new TownyHook();
         for (String command : TOWN_COMMANDS) towny.unregisterTownCommand(command);
-    } }
+        }
+        var receipt=closing.toCompletableFuture();
+        if(ru.neverland.core.SuiteState.held()&&!receipt.isDone()){
+            receipt.whenCompleteAsync((v,error)->{if(error!=null)getLogger().log(java.util.logging.Level.SEVERE,"Не подтверждено завершение записи построек; данные требуют сверки",error);});return;
+        }
+        try{receipt.get(10,java.util.concurrent.TimeUnit.SECONDS);}
+        catch(InterruptedException error){Thread.currentThread().interrupt();getLogger().log(java.util.logging.Level.SEVERE,"Остановка записи построек прервана",error);}
+        catch(Exception error){getLogger().log(java.util.logging.Level.SEVERE,"Не подтверждено завершение записи построек; данные требуют сверки",error);}
+    }
 
     public java.util.concurrent.CompletableFuture<java.util.Map<String,String>> buildingPreview(org.bukkit.entity.Player player,org.bukkit.inventory.Inventory inventory){try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()){
         if(!isEnabled()||ru.neverland.core.SuiteState.frozen(getName())||uiMenus==null||thumbnails==null)return java.util.concurrent.CompletableFuture.completedFuture(java.util.Map.of());
@@ -176,7 +200,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         effects.start();
         construction.start();
         if(placements!=null)placements.start();
-        constructionRefunds.start();
+        constructionRefunds.start();payments.start();
         civic.start();
         if(production==null)production=new ru.neverland.townybuilds.storage.ProductionService(this,dataStore,storage);
         production.start();

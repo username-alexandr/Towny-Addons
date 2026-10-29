@@ -10,49 +10,53 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class TownData {
+    private Runnable mutation=()->{};
+    public void mutationGuard(Runnable value){mutation=java.util.Objects.requireNonNull(value);resourceFunds.values().forEach(v->v.mutationGuard(value));constructionSites.values().forEach(v->v.mutationGuard(value));}
+
     private final Map<UUID, ru.neverland.townybuilds.api.WarehouseMovement> warehouseMovements = new HashMap<>();
     public Map<UUID, ru.neverland.townybuilds.api.WarehouseMovement> warehouseMovements(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return Map.copyOf(warehouseMovements);} }
-    public void putWarehouseMovement(ru.neverland.townybuilds.api.WarehouseMovement value){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {warehouseMovements.put(value.id(),value);} }
-    public void removeWarehouseMovement(UUID id){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {warehouseMovements.remove(id);} }
+    public void putWarehouseMovement(ru.neverland.townybuilds.api.WarehouseMovement value){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {mutation.run();warehouseMovements.put(value.id(),value);} }
+    public void removeWarehouseMovement(UUID id){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {mutation.run();warehouseMovements.remove(id);} }
 
     private final Map<UUID,ru.neverland.townybuilds.api.MunicipalReceipt> municipalReceipts=new HashMap<>();
     public Map<UUID,ru.neverland.townybuilds.api.MunicipalReceipt> municipalReceipts(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {return Map.copyOf(municipalReceipts);} }
-    public void putMunicipalReceipt(ru.neverland.townybuilds.api.MunicipalReceipt value){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {municipalReceipts.put(value.id(),value);} }
-    public void removeMunicipalReceipt(UUID id){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {municipalReceipts.remove(id);} }
+    public void putMunicipalReceipt(ru.neverland.townybuilds.api.MunicipalReceipt value){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {mutation.run();municipalReceipts.put(value.id(),value);} }
+    public void removeMunicipalReceipt(UUID id){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {mutation.run();municipalReceipts.remove(id);} }
 
     private final Map<UUID,ru.neverland.townybuilds.api.MarketStock> marketStock=new HashMap<>();
     public Map<UUID,ru.neverland.townybuilds.api.MarketStock> marketStock(){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {return Map.copyOf(marketStock);} }
-    public void putMarketStock(ru.neverland.townybuilds.api.MarketStock value){ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {marketStock.put(value.id(),value);} }
-    public void removeMarketStock(UUID id){ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {marketStock.remove(id);} }
+    public void putMarketStock(ru.neverland.townybuilds.api.MarketStock value){ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {mutation.run();marketStock.put(value.id(),value);} }
+    public void removeMarketStock(UUID id){ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {mutation.run();marketStock.remove(id);} }
 
     private final Map<UUID,ru.neverland.townybuilds.api.TradeCargo> tradeCargo=new HashMap<>();
     public Map<UUID,ru.neverland.townybuilds.api.TradeCargo> tradeCargo(){ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {return Map.copyOf(tradeCargo);} }
-    public void putTradeCargo(ru.neverland.townybuilds.api.TradeCargo value){ try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {tradeCargo.put(value.id(),value);} }
-    public void removeTradeCargo(UUID id){ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {tradeCargo.remove(id);} }
+    public void putTradeCargo(ru.neverland.townybuilds.api.TradeCargo value){ try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {mutation.run();tradeCargo.put(value.id(),value);} }
+    public void removeTradeCargo(UUID id){ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {mutation.run();tradeCargo.remove(id);} }
 
     private final UUID townId;
     private final Map<UUID,ru.neverland.townybuilds.api.CargoShipment> shipments = new HashMap<>();
     public Map<UUID,ru.neverland.townybuilds.api.CargoShipment> shipments(){ try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {return Map.copyOf(shipments);} }
-    public void putShipment(ru.neverland.townybuilds.api.CargoShipment value){ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {shipments.put(value.id(),value);} }
-    public void removeShipment(UUID id){ try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {shipments.remove(id);} }
+    public void putShipment(ru.neverland.townybuilds.api.CargoShipment value){ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {mutation.run();shipments.put(value.id(),value);} }
+    public void removeShipment(UUID id){ try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {mutation.run();shipments.remove(id);} }
     private final Map<String,ru.neverland.townybuilds.construction.PlacementDraft> placements=new HashMap<>();
     public Map<String,ru.neverland.townybuilds.construction.PlacementDraft> placements(){try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()){return Map.copyOf(placements);}}
-    public void placement(String project,ru.neverland.townybuilds.construction.PlacementDraft draft){try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()){if(draft==null)placements.remove(project);else placements.put(project,draft);}}
+    public void placement(String project,ru.neverland.townybuilds.construction.PlacementDraft draft){try (var suiteGuard17 = ru.neverland.core.SuiteState.guard()){mutation.run();if(draft==null)placements.remove(project);else placements.put(project,draft);}}
     private String buildingStyle="medieval";
     private boolean styleChosen;
     private boolean armyEstablished;
     /** A completed army permanently ends this town's pre-army raid protection. */
+    public void restoreArmyEstablished(boolean value){try(var g=ru.neverland.core.SuiteState.guard()){mutation.run();armyEstablished=value;}}
     public boolean armyEstablished(){try(var g=ru.neverland.core.SuiteState.guard()){return armyEstablished;}}
-    public void loadArmyEstablished(boolean value){try(var g=ru.neverland.core.SuiteState.guard()){armyEstablished|=value;}}
+    public void loadArmyEstablished(boolean value){try(var g=ru.neverland.core.SuiteState.guard()){mutation.run();armyEstablished|=value;}}
     public String buildingStyle(){try(var g=ru.neverland.core.SuiteState.guard()){return buildingStyle;}}
     public boolean styleChosen(){try(var g=ru.neverland.core.SuiteState.guard()){return styleChosen;}}
-    public void buildingStyle(String id,boolean chosen){try(var g=ru.neverland.core.SuiteState.guard()){buildingStyle=ru.neverland.townybuilds.construction.BuildingStyle.parse(id).id();styleChosen=chosen;}}
+    public void buildingStyle(String id,boolean chosen){try(var g=ru.neverland.core.SuiteState.guard()){mutation.run();buildingStyle=ru.neverland.townybuilds.construction.BuildingStyle.parse(id).id();styleChosen=chosen;}}
     private final Map<String, Integer> levels = new HashMap<>();
     private final Map<String, ConstructionSite> constructionSites = new HashMap<>();
     private final Map<String, ru.neverland.townybuilds.construction.ConstructionReceipt> constructionReceipts = new HashMap<>();
     public Map<String, ru.neverland.townybuilds.construction.ConstructionReceipt> constructionReceipts() { try (var suiteGuard18 = ru.neverland.core.SuiteState.guard()) { return Map.copyOf(constructionReceipts); } }
-    public void receipt(String project, ru.neverland.townybuilds.construction.ConstructionReceipt receipt) { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) { if (receipt == null) constructionReceipts.remove(project); else constructionReceipts.put(project, receipt); } }
-    public void removeConstructionSite(String project) { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) { constructionSites.remove(project); } }
+    public void receipt(String project, ru.neverland.townybuilds.construction.ConstructionReceipt receipt) { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {mutation.run(); if (receipt == null) constructionReceipts.remove(project); else constructionReceipts.put(project, receipt); } }
+    public void removeConstructionSite(String project) { try (var suiteGuard20 = ru.neverland.core.SuiteState.guard()) {mutation.run(); constructionSites.remove(project); } }
     private final Map<String, ResourceFund> resourceFunds = new HashMap<>();
     private final Map<String, CivicArea> civicAreas = new HashMap<>();
     private final Map<String, CivicLine> civicLines = new HashMap<>();
@@ -81,7 +85,7 @@ public final class TownData {
         return ru.neverland.integration.BuildingOperations.level(townId,projectId,level(projectId));
     } }
 
-    public void setLevel(String projectId, int level) { try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) {
+    public void setLevel(String projectId, int level) { try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         if("army".equals(projectId)&&level>0)armyEstablished=true;
         if (level <= 0) {
             levels.remove(projectId);
@@ -94,7 +98,7 @@ public final class TownData {
         return Map.copyOf(levels);
     } }
 
-    public void loadLevels(Map<String, Integer> loaded) { try (var suiteGuard26 = ru.neverland.core.SuiteState.guard()) {
+    public void loadLevels(Map<String, Integer> loaded) { try (var suiteGuard26 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         levels.clear();
         levels.putAll(loaded);
         if(level("army")>0)armyEstablished=true;
@@ -104,8 +108,8 @@ public final class TownData {
         return constructionSites.get(projectId);
     } }
 
-    public void setConstructionSite(ConstructionSite site) { try (var suiteGuard28 = ru.neverland.core.SuiteState.guard()) {
-        constructionSites.put(site.projectId(), site);
+    public void setConstructionSite(ConstructionSite site) { try (var suiteGuard28 = ru.neverland.core.SuiteState.guard()) {mutation.run();
+        site.mutationGuard(mutation);constructionSites.put(site.projectId(), site);
         if("army".equals(site.projectId())&&site.completedStage()>0)armyEstablished=true;
     } }
 
@@ -113,16 +117,16 @@ public final class TownData {
         return Map.copyOf(constructionSites);
     } }
 
-    public void loadConstructionSites(Map<String, ConstructionSite> loaded) { try (var suiteGuard30 = ru.neverland.core.SuiteState.guard()) {
+    public void loadConstructionSites(Map<String, ConstructionSite> loaded) { try (var suiteGuard30 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         constructionSites.clear();
-        constructionSites.putAll(loaded);
+        constructionSites.putAll(loaded);constructionSites.values().forEach(v->v.mutationGuard(mutation));
         var army=constructionSites.get("army");if(army!=null&&army.completedStage()>0)armyEstablished=true;
     } }
 
     public ResourceFund resourceFund(String projectId, int targetLevel) { try (var suiteGuard31 = ru.neverland.core.SuiteState.guard()) {
         ResourceFund current = resourceFunds.get(projectId);
         if (current == null || current.targetLevel() != targetLevel) {
-            current = new ResourceFund(targetLevel);
+            mutation.run();current = new ResourceFund(targetLevel);current.mutationGuard(mutation);
             resourceFunds.put(projectId, current);
         }
         return current;
@@ -132,7 +136,7 @@ public final class TownData {
         return resourceFunds.get(projectId);
     } }
 
-    public void clearResourceFund(String projectId) { try (var suiteGuard33 = ru.neverland.core.SuiteState.guard()) {
+    public void clearResourceFund(String projectId) { try (var suiteGuard33 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         resourceFunds.remove(projectId);
     } }
 
@@ -140,9 +144,9 @@ public final class TownData {
         return Map.copyOf(resourceFunds);
     } }
 
-    public void loadResourceFunds(Map<String, ResourceFund> loaded) { try (var suiteGuard35 = ru.neverland.core.SuiteState.guard()) {
+    public void loadResourceFunds(Map<String, ResourceFund> loaded) { try (var suiteGuard35 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         resourceFunds.clear();
-        resourceFunds.putAll(loaded);
+        resourceFunds.putAll(loaded);resourceFunds.values().forEach(v->v.mutationGuard(mutation));
     } }
 
     public ItemStack[] storage() { try (var suiteGuard36 = ru.neverland.core.SuiteState.guard()) {
@@ -153,7 +157,7 @@ public final class TownData {
         return copy;
     } }
 
-    public void setStorage(ItemStack[] contents, int configuredSize) { try (var suiteGuard37 = ru.neverland.core.SuiteState.guard()) {
+    public void setStorage(ItemStack[] contents, int configuredSize) { try (var suiteGuard37 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         storage = new ItemStack[configuredSize];
         int length = Math.min(contents.length, configuredSize);
         for (int index = 0; index < length; index++) {
@@ -165,7 +169,7 @@ public final class TownData {
         return civicAreas.get(projectId);
     } }
 
-    public void setCivicArea(String projectId, CivicArea area) { try (var suiteGuard39 = ru.neverland.core.SuiteState.guard()) {
+    public void setCivicArea(String projectId, CivicArea area) { try (var suiteGuard39 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         if (area == null) civicAreas.remove(projectId); else civicAreas.put(projectId, area);
     } }
 
@@ -173,7 +177,7 @@ public final class TownData {
         return Map.copyOf(civicAreas);
     } }
 
-    public void loadCivicAreas(Map<String, CivicArea> loaded) { try (var suiteGuard41 = ru.neverland.core.SuiteState.guard()) {
+    public void loadCivicAreas(Map<String, CivicArea> loaded) { try (var suiteGuard41 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         civicAreas.clear();
         civicAreas.putAll(loaded);
     } }
@@ -182,7 +186,7 @@ public final class TownData {
         return civicLines.get(projectId);
     } }
 
-    public void setCivicLine(String projectId, CivicLine line) { try (var suiteGuard43 = ru.neverland.core.SuiteState.guard()) {
+    public void setCivicLine(String projectId, CivicLine line) { try (var suiteGuard43 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         if (line == null) civicLines.remove(projectId); else civicLines.put(projectId, line);
     } }
 
@@ -190,7 +194,7 @@ public final class TownData {
         return Map.copyOf(civicLines);
     } }
 
-    public void loadCivicLines(Map<String, CivicLine> loaded) { try (var suiteGuard45 = ru.neverland.core.SuiteState.guard()) {
+    public void loadCivicLines(Map<String, CivicLine> loaded) { try (var suiteGuard45 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         civicLines.clear();
         civicLines.putAll(loaded);
     } }
@@ -210,7 +214,7 @@ public final class TownData {
         return result;
     } }
 
-    public void setCivicInventory(String projectId, ItemStack[] contents) { try (var suiteGuard48 = ru.neverland.core.SuiteState.guard()) {
+    public void setCivicInventory(String projectId, ItemStack[] contents) { try (var suiteGuard48 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         ItemStack[] copy = new ItemStack[contents.length];
         for (int index = 0; index < contents.length; index++) {
             copy[index] = contents[index] == null ? null : contents[index].clone();
@@ -224,21 +228,21 @@ public final class TownData {
         return Map.copyOf(copy);
     } }
 
-    public void loadCivicInventories(Map<String, ItemStack[]> loaded) { try (var suiteGuard50 = ru.neverland.core.SuiteState.guard()) {
+    public void loadCivicInventories(Map<String, ItemStack[]> loaded) { try (var suiteGuard50 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         civicInventories.clear();
         loaded.forEach(this::setCivicInventory);
     } }
 
     public String shopStall() { try (var suiteGuard51 = ru.neverland.core.SuiteState.guard()) { return shopStall; } }
-    public void setShopStall(String value) { try (var suiteGuard52 = ru.neverland.core.SuiteState.guard()) { shopStall = value == null ? "" : value; } }
+    public void setShopStall(String value) { try (var suiteGuard52 = ru.neverland.core.SuiteState.guard()) {mutation.run(); shopStall = value == null ? "" : value; } }
 
     public Map<String, Double> shopPrices() { try (var suiteGuard53 = ru.neverland.core.SuiteState.guard()) { return Map.copyOf(shopPrices); } }
     public double shopPrice(String material) { try (var suiteGuard54 = ru.neverland.core.SuiteState.guard()) { return shopPrices.getOrDefault(ru.neverland.localization.MaterialLabels.canonicalKey(material), 0.0); } }
-    public void setShopPrice(String material, double price) { try (var suiteGuard55 = ru.neverland.core.SuiteState.guard()) {
+    public void setShopPrice(String material, double price) { try (var suiteGuard55 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         material = ru.neverland.localization.MaterialLabels.canonicalKey(material);
         if (price <= 0) shopPrices.remove(material); else shopPrices.put(material, price);
     } }
-    public void loadShopPrices(Map<String, Double> loaded) { try (var suiteGuard56 = ru.neverland.core.SuiteState.guard()) {
+    public void loadShopPrices(Map<String, Double> loaded) { try (var suiteGuard56 = ru.neverland.core.SuiteState.guard()) {mutation.run();
         shopPrices.clear();
         // Prefer an explicit modern key if both old and new names were saved.
         loaded.entrySet().stream().filter(e -> !e.getKey().equals(ru.neverland.localization.MaterialLabels.canonicalKey(e.getKey())))
@@ -248,8 +252,8 @@ public final class TownData {
     } }
 
     public double insuranceReserve() { try (var suiteGuard57 = ru.neverland.core.SuiteState.guard()) { return insuranceReserve; } }
-    public void setInsuranceReserve(double value) { try (var suiteGuard58 = ru.neverland.core.SuiteState.guard()) { insuranceReserve = Math.max(0, value); } }
+    public void setInsuranceReserve(double value) { try (var suiteGuard58 = ru.neverland.core.SuiteState.guard()) {mutation.run(); insuranceReserve = Math.max(0, value); } }
 
     public String bulletin() { try (var suiteGuard59 = ru.neverland.core.SuiteState.guard()) { return bulletin; } }
-    public void setBulletin(String value) { try (var suiteGuard60 = ru.neverland.core.SuiteState.guard()) { bulletin = value == null ? "" : value; } }
+    public void setBulletin(String value) { try (var suiteGuard60 = ru.neverland.core.SuiteState.guard()) {mutation.run(); bulletin = value == null ? "" : value; } }
 }

@@ -1,0 +1,8 @@
+PASS real Builds payment and Treasury providers enabled
+PASS full restart retains unpaid ID and all earlier balances without repeating effects
+PASS completed upgrade and insurance reserve survive JVM restart
+PASS restored pending purchase charges and upgrades exactly once
+PASS terminal receipts remain replay-safe through later scheduled ticks
+PASS warehouse edit is live before two-phase shutdown
+PASS shutdown waits for the open inventory before the final file snapshot
+PASS last exclusive inventory contents survive final acknowledged shutdown snapshot

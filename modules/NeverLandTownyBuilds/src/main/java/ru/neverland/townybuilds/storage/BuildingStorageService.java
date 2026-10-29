@@ -122,10 +122,10 @@ public final class BuildingStorageService implements BuildingStorageApi,Listener
         }
     } }
     private void mirror(org.bukkit.entity.HumanEntity viewer,Inventory inventory,View view){ru.neverland.core.SuiteScheduler.entity(plugin,viewer,()->{
-        if(data.ownsStorage(view.town,view.project,view.session))write(data.town(view.town),view.project,inventory.getContents());
+        if(data.writable()&&data.ownsStorage(view.town,view.project,view.session))write(data.town(view.town),view.project,inventory.getContents());
     });}
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)public void changed(InventoryClickEvent e){ try (var suiteGuard30 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(e.getView().getTopInventory().getHolder() instanceof View v)mirror(e.getWhoClicked(),e.getView().getTopInventory(),v);} }
     @EventHandler(priority=EventPriority.MONITOR,ignoreCancelled=true)public void changed(InventoryDragEvent e){ try (var suiteGuard31 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(e);return;}if(e.getView().getTopInventory().getHolder() instanceof View v)mirror(e.getWhoClicked(),e.getView().getTopInventory(),v);} }
     @EventHandler public void close(InventoryCloseEvent e){ try (var suiteGuard32 = ru.neverland.core.SuiteState.guard()) {if(!(e.getInventory().getHolder() instanceof View v)||!data.ownsStorage(v.town,v.project,v.session))return;
-        try{write(data.town(v.town),v.project,e.getInventory().getContents());data.save();ru.neverland.core.AuditTrail.inventory(plugin,v.session.toString(),e.getPlayer().getUniqueId(),v.town,v.project,v.auditBefore,e.getInventory().getContents());}finally{data.unlockStorage(v.town,v.project,v.session);}} }
+        try{data.closeStorage(v.town,v.project,v.session,e.getInventory().getContents());data.save();ru.neverland.core.AuditTrail.inventory(plugin,v.session.toString(),e.getPlayer().getUniqueId(),v.town,v.project,v.auditBefore,e.getInventory().getContents());}finally{data.unlockStorage(v.town,v.project,v.session);}} }
 }

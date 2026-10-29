@@ -1,0 +1,1 @@
+PASS 10 checks; actual Folia/Towny/Builds/Sieges/Treasury, native regional block repair, durable intents and full restart; deterministic economy adapter and pre-authorized damage/intent fixtures; no live Vault or network player claimed

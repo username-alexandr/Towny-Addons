@@ -1,0 +1,1 @@
+PASS 4 assertions; actual Folia/Towny/Contracts/Builds/Treasury APIs, exact needs/funding/refund, permission changes, optional database isolation and restart; explicit offline Player/EntityScheduler and persistent deterministic bank substitutes, no live Vault/client claimed
