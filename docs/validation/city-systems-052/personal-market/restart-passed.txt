@@ -1,0 +1,1 @@
+PASS 11 checks; real Folia Towny Market plugin, native constructed ServerPlayer inventory/PDC/saveData and actual player.dat, full JVM restart, real disabled-save failure; explicit controlled bank and online/entity-scheduler/view proxies, no network client/provider claim

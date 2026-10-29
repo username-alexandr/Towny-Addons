@@ -17,3 +17,10 @@ retry-seconds: 60
 # Светлый заголовок для тёмного ресурспака; для ванильного светлого окна: "#273247".
 menu-style:
   title-color: "#F4F7FC"
+
+# Личные заявки игроков. Отключение запрещает новые заявки/сопоставление,
+# но позволяет отменять остатки и получать уже заработанные деньги/товары.
+personal-orders:
+  enabled: true
+  # Только обычные ванильные предметы без имени, чар и иных изменений.
+  materials: [STONE, COBBLESTONE, OAK_LOG, SPRUCE_LOG, BIRCH_LOG, SAND, GLASS, IRON_INGOT, COPPER_INGOT, GOLD_INGOT, COAL, WHEAT]

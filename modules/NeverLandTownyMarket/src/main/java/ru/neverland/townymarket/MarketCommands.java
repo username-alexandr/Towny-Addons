@@ -7,6 +7,7 @@ public final class MarketCommands implements CommandExecutor,TabCompleter {
     private final NeverLandTownyMarket plugin;private final MarketService service;private final MarketMenus menus;
     public MarketCommands(NeverLandTownyMarket plugin,MarketService service,MarketMenus menus){this.plugin=plugin;this.service=service;this.menus=menus;}
     public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyMarket")){return true;}try{
+        if(service.personal.command(sender,args))return true;
         String action=args.length==0?"local":args[0].toLowerCase(Locale.ROOT);
         if(Set.of("reload","resolve","inspect","admin-close").contains(action)){if(!sender.hasPermission("neverlandtownymarket.admin")){MarketService.tell(sender,"&cНет права администратора рынка");return true;}
             switch(action){case "reload"->{plugin.reloadConfig();service.reload();MarketService.tell(sender,service.available()?"Рынок перезагружен":"Рынок остановлен: проверьте журнал сервера");}
@@ -28,8 +29,12 @@ public final class MarketCommands implements CommandExecutor,TabCompleter {
             default->help(p);
         }
     }catch(NumberFormatException ex){MarketService.tell(sender,"&cКоличество и номер страницы должны быть целыми числами");}catch(Exception ex){MarketService.tell(sender,"&c"+(ex.getMessage()==null?"Не удалось выполнить действие":ex.getMessage()));}return true;} }
-    public static void help(CommandSender p){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {MarketService.tell(p,"&e/t market <local|global|mine|orders|catalog> [страница]\n&f/t market sell <товар|hand> <кол-во> <цена за штуку|auto> <local|global>\n&f/t market buy <ID предложения> <кол-во>\n&f/t market show <ID>\n&f/t market claim <ID покупки>\n&7Пример: /t market sell iron_ingot 500 auto global");} }
-    public List<String> onTabComplete(CommandSender s,Command c,String alias,String[] args){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {List<String> values=List.of();if(args.length==1){var v=new ArrayList<>(List.of("local","global","mine","orders","catalog","sell","buy","show","close","claim"));if(s.hasPermission("neverlandtownymarket.admin"))v.addAll(List.of("reload","inspect","resolve","admin-close"));values=v;}
+    public static void help(CommandSender p){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {MarketService.tell(p,"&e/t market <local|global|mine|orders|catalog> [страница]\n&f/t market sell <товар|hand> <кол-во> <цена за штуку|auto> <local|global>\n&f/t market buy <ID предложения> <кол-во>\n&f/t market show <ID>\n&f/t market claim <ID покупки>\n&f/townymarket personal — личные заявки, товары и выручка\n&f/townymarket limit-buy <товар> <кол-во> <цена>\n&f/townymarket limit-sell <товар> <кол-во> <цена>\n&7Пример: /t market sell iron_ingot 500 auto global");} }
+    public List<String> onTabComplete(CommandSender s,Command c,String alias,String[] args){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {List<String> values=List.of();if(args.length==1){var v=new ArrayList<>(List.of("local","global","mine","orders","catalog","sell","buy","show","close","claim","personal","limit-buy","limit-sell","limit-cancel","limit-cash","limit-items"));if(s.hasPermission("neverlandtownymarket.admin"))v.addAll(List.of("reload","inspect","resolve","admin-close","limit-inspect","limit-resolve"));values=v;}
+        else if(args.length==2&&args[0].equalsIgnoreCase("personal"))values=List.of("mine","book","pickup");
+        else if(args.length==3&&args[0].equalsIgnoreCase("limit-resolve")&&s.hasPermission("neverlandtownymarket.admin"))values=List.of("applied","not-applied");
+        else if(args.length==4&&args[0].equalsIgnoreCase("limit-resolve")&&s.hasPermission("neverlandtownymarket.admin"))values=List.of("confirm");
+        else if(args.length==2&&Set.of("limit-buy","limit-sell").contains(args[0].toLowerCase(Locale.ROOT)))values=service.personal.products().stream().sorted().toList();
         else if(args.length==2&&args[0].equalsIgnoreCase("sell")){var v=new ArrayList<>(service.catalog.products().stream().map(MarketCatalog.Product::id).toList());v.add("hand");values=v;}
         else if(args.length==5&&args[0].equalsIgnoreCase("sell"))values=List.of("local","global");
         else if(args.length==4&&args[0].equalsIgnoreCase("sell"))values=List.of("auto");

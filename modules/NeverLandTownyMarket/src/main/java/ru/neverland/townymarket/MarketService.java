@@ -9,7 +9,7 @@ import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
 import static ru.neverland.townymarket.MarketData.*;
 public final class MarketService {
-    private final JavaPlugin plugin;public final MarketRepository repo;public final MarketGateway bridge;public final MarketCatalog catalog;
+    private final JavaPlugin plugin;public final MarketRepository repo;public final MarketGateway bridge;public final MarketCatalog catalog;public final ru.neverland.townymarket.personal.LimitService personal;
     private final Map<UUID,Quote> quotes=new HashMap<>();private final Map<UUID,Long> errors=new HashMap<>();private BukkitTask task;private boolean broken;private int listingCursor,orderCursor;
     private int priceTick=-1;private Map<String,Long> supplyCache=Map.of();
     public record Stats(long offers,long pickup){}
@@ -22,10 +22,10 @@ public final class MarketService {
         Map<UUID,Stats> next=new HashMap<>();for(var p:Bukkit.getOnlinePlayers()){var t=bridge.town(p);next.put(p.getUniqueId(),new Stats(t==null?0:offers.getOrDefault(t.getUUID(),0L),pickup.getOrDefault(p.getUniqueId(),0L)));}stats=Map.copyOf(next);
     }
 
-    public MarketService(JavaPlugin plugin){this.plugin=plugin;repo=new MarketRepository(plugin.getDataFolder().toPath().resolve("market-data.yml"));bridge=new MarketGateway(plugin,repo);catalog=new MarketCatalog(plugin);}
-    public void start(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {reload();task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::tick,40,20);} }
-    public void stop(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(task!=null)task.cancel();quotes.clear();} }
-    public void reload(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {quotes.clear();invalidate();statsAt=0;try{repo.load();catalog.reload();for(var l:repo.listings()){var i=MarketCatalog.decode(l.item());if(i==null||i.getType().isAir()||i.getAmount()!=1)throw new IllegalStateException("Повреждён товар "+l.id());}broken=false;errors.clear();}catch(Exception ex){broken=true;plugin.getLogger().severe(ex.getMessage());}} }
+    public MarketService(JavaPlugin plugin){this.plugin=plugin;repo=new MarketRepository(plugin.getDataFolder().toPath().resolve("market-data.yml"));bridge=new MarketGateway(plugin,repo);catalog=new MarketCatalog(plugin);personal=new ru.neverland.townymarket.personal.LimitService(plugin);}
+    public void start(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {reload();personal.start();task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::tick,40,20);} }
+    public void stop(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(task!=null)task.cancel();quotes.clear();personal.prepareClose();} }
+    public void reload(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {quotes.clear();personal.reloadConfig();invalidate();statsAt=0;try{repo.load();catalog.reload();for(var l:repo.listings()){var i=MarketCatalog.decode(l.item());if(i==null||i.getType().isAir()||i.getAmount()!=1)throw new IllegalStateException("Повреждён товар "+l.id());}broken=false;errors.clear();}catch(Exception ex){broken=true;plugin.getLogger().severe(ex.getMessage());}} }
     public boolean available(){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {return !broken&&repo.writable();} }
     private void writable(){if(!ru.neverland.core.SuiteState.held()||!available())throw new IllegalStateException("Рынок остановлен после ошибки. Обратитесь к администратору");}
     public boolean manage(Player p,Town t){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {var resident=TownyAPI.getInstance().getResident(p);if(t==null||resident==null||!t.equals(resident.getTownOrNull()))return false;

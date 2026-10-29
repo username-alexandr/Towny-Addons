@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-29",
+  "target": "Folia 26.2, Towny 0.103.2.0, NeverLandTownyMarket 0.2.0",
+  "scope": "Real native constructed ServerPlayer/CraftPlayer inventory/PDC/saveData, exact player.dat proof, two JVMs and audit writer shutdown drain; controlled bank and online/scheduler/view proxies; no network client or real economy-provider claim",
+  "phases": [
+    {
+      "phase": "first",
+      "exit_code": 0,
+      "result": "PASS 22 checks; real Folia Towny Market plugin, native constructed ServerPlayer inventory/PDC/saveData and actual player.dat, full JVM restart, real disabled-save failure; explicit controlled bank and online/entity-scheduler/view proxies, no network client/provider claim\n",
+      "jar_sha256": {
+        "NeverLandTownyMarket-0.2.0.jar": "86b5bec497070b741141d3ba76b118e29ec032cea557a54e76301471923e3840",
+        "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+        "NeverLandTownyControl-0.5.8.jar": "70363d4490cfd03b49fdacc83e22fc1340f5ff7b4aaea14cb085eb1cc63c5834",
+        "PersonalMarketRuntimeProbe.jar": "5948bf2b8eccdb8a8ce91ce276e5a10300547c36020ba4e344db89ec21394976",
+        "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+      },
+      "assertions": [
+        "PASS actual Market 0.2 ledger and old city market enabled",
+        "PASS actual personal bank fails closed when Towny economy adapter is missing",
+        "PASS preflight resolves actual native player storage folder",
+        "PASS custom metadata resources cannot fund ordinary commodity sales",
+        "PASS actual command opens explicit full-resource confirmation",
+        "PASS confirmation menu prevents moving icon items",
+        "PASS live first commit compacts seeded schema1 claim history without changing remaining backing",
+        "PASS SELL becomes funded only after actual native saved marker proof",
+        "PASS sale removes exact plain quantity preserving custom original metadata",
+        "PASS repeated confirmation cannot reserve items twice",
+        "PASS price/time fill transfers real goods/proceeds and refunds price difference",
+        "PASS only confirmed personal BUY debit created the reserved cash",
+        "PASS real disabled player save leaves item CLAIM pending rather than losing backed goods",
+        "PASS administrator verifies exact durable receipt after recovery save",
+        "PASS confirmed recovery never gives claimed goods twice",
+        "PASS seller withdraws only earned backed money",
+        "PASS cancellation returns only unmatched item remainder",
+        "PASS module feature pause rejects new reservation",
+        "PASS feature pause still allows existing item retrieval",
+        "PASS real disabled vanilla player save returns silently but never funds SELL or matches it",
+        "PASS unknown item outcome blocks another reservation for same owner",
+        "PASS bank mutation followed by unknown acknowledgement stays pending and cannot pay twice"
+      ]
+    },
+    {
+      "phase": "restart",
+      "exit_code": 0,
+      "result": "PASS 11 checks; real Folia Towny Market plugin, native constructed ServerPlayer inventory/PDC/saveData and actual player.dat, full JVM restart, real disabled-save failure; explicit controlled bank and online/entity-scheduler/view proxies, no network client/provider claim\n",
+      "jar_sha256": {
+        "NeverLandTownyMarket-0.2.0.jar": "86b5bec497070b741141d3ba76b118e29ec032cea557a54e76301471923e3840",
+        "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+        "NeverLandTownyControl-0.5.8.jar": "70363d4490cfd03b49fdacc83e22fc1340f5ff7b4aaea14cb085eb1cc63c5834",
+        "PersonalMarketRuntimeProbe.jar": "5948bf2b8eccdb8a8ce91ce276e5a10300547c36020ba4e344db89ec21394976",
+        "NeverLandTownyBuilds-0.10.1.jar": "86b5a81c6c50666b34caf0170f19a5e226824cd9da0c955de0bad6ad0c222a63"
+      },
+      "assertions": [
+        "PASS actual Market 0.2 ledger and old city market enabled",
+        "PASS actual personal bank fails closed when Towny economy adapter is missing",
+        "PASS full native restart restores acknowledged inventories and unsaved failed withdrawal remains original",
+        "PASS accepted audit worker entries drained before full shutdown and survive restart",
+        "PASS native restart validates archived checkpoint and retains old money ownership",
+        "PASS restart retains unknown receipts without replay or spendable balance",
+        "PASS restart never calls external bank or repeats funded match",
+        "PASS admin verified not-applied item outcome does not change physical inventory",
+        "PASS admin verified bank outcome settles ledger without making another payment",
+        "PASS same manual receipt cannot be resolved twice",
+        "PASS native personal menu explains matching and receipt status"
+      ]
+    }
+  ]
+}
