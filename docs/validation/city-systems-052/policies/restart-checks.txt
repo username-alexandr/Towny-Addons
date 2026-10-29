@@ -1,0 +1,9 @@
+PASS actual Policies 0.3 service and dependency graph enabled
+PASS full restart preserves both policy history and exact cooldown
+PASS new conflict configuration does not silently erase existing selected policies
+PASS manual admin selection cannot bypass configured whole-state conflict
+PASS explicit admin recovery explains cooldown exception before confirmation
+PASS explicit recovery resolves both conflicting categories in one commit
+PASS recovery restores neutral actual effects without inventing money
+PASS native history retains the verified acting mayor
+PASS selection audit has one unique operation per acknowledged whole-set change

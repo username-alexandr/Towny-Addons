@@ -28,6 +28,7 @@ enum AuditCategory implements Predicate<AuditRecord> {
     CAMP_ACCESS("Доступ в лагеря","CAMPFIRE",Set.of("CAMP_GUEST")),
     SALARIES("Зарплаты профессий","GOLDEN_PICKAXE",Set.of("JOB_SALARY")),
     TAXES("Налоги","SUNFLOWER",Set.of("TAX_TRANSFER","TAX_RECONCILE")),
+    POLITICS("Политики и управление","LECTERN",Set.of("POLICY_SELECTION")),
     ENVIRONMENT("Экология города","OAK_SAPLING",Set.of("CITY_ENVIRONMENT")),
     ACHIEVEMENTS("Достижения и награды","NETHER_STAR",Set.of("CITY_ACHIEVEMENT","ACHIEVEMENT_REWARD")),
     QUESTS("Городские проекты","KNOWLEDGE_BOOK",Set.of("CITY_PROJECT")),
@@ -38,7 +39,7 @@ enum AuditCategory implements Predicate<AuditRecord> {
     AuditCategory(String title,String icon,Set<String> kinds){this.title=title;this.icon=icon;this.kinds=kinds;}
     @Override public boolean test(AuditRecord record){return this==ALL||this==OTHER?this==ALL||Arrays.stream(values()).filter(c->c!=ALL&&c!=OTHER).noneMatch(c->c.kinds.contains(record.kind())):kinds.contains(record.kind());}
     static String kind(String kind){return switch(kind){
-        case "UPKEEP_SAVINGS"->"Остановка и возобновление здания";case "PURPOSE_RESOURCES"->"Целевой резерв стратегических ресурсов";case "SERVER_PROJECT"->"Смета и резерв серверной стройки";case "FISHING_CATCH"->"Подтверждённый улов задания";case "CAMP_GUEST"->"Гостевые права лагеря";
+        case "POLICY_SELECTION"->"Выбор политик города";case "UPKEEP_SAVINGS"->"Остановка и возобновление здания";case "PURPOSE_RESOURCES"->"Целевой резерв стратегических ресурсов";case "SERVER_PROJECT"->"Смета и резерв серверной стройки";case "FISHING_CATCH"->"Подтверждённый улов задания";case "CAMP_GUEST"->"Гостевые права лагеря";
         case "CITY_STYLE"->"Выбор стиля города";case "CITY_COMMENDATION"->"Благодарность мэра";case "CITY_DEFENSE"->"Защита города";case "COMPANY_PAYROLL_SETTINGS"->"Ставки и бюджет зарплат компании";case "COMPANY_SALARY"->"Зарплата сотруднику компании";case "RAID_HOURS"->"Расписание нападений";case "RAID_SUPPLY"->"Доставка и расход военных запасов";
         case "BUILDING_REPAIR"->"Оплата и выполнение ремонта";case "BUILDING_REPAIR_REVIEW"->"Ремонт: нужна сверка";case "BUILDING_REPAIR_RECONCILE"->"Администратор сверил ремонт";
         case "RAID_CHUNK"->"Захват и освобождение участка";case "RAID_TNT_DENIED"->"Заблокированный поджиг TNT";case "RAID_DAMAGE"->"Урон TNT и прочность";case "RAID_LOOT_PROTECTION"->"Защита и расчёт добычи";case "RAID_CANCELLED"->"Остановка рейда";case "RAID_CAMP"->"Осадный лагерь";case "RAID_DECLARED"->"Начало рейда";case "RAID_CORE"->"Захват кафедры ратуши";case "RAID_LOOT_MONEY"->"Захваченные деньги";case "RAID_LOOT_RESOURCES"->"Захваченные ресурсы";case "RAID_LOOT_STATE"->"Выдача добычи";case "RAID_LOOT_REVIEW"->"Добыча: нужна сверка";case "RAID_LOOT_RECONCILE"->"Администратор сверил добычу";

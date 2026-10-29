@@ -1,7 +1,9 @@
 package ru.neverland.townypolicies.api;
 import java.util.*;
 public interface TownyPoliciesApi extends ru.neverland.core.ApiContract {
-    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("effect", "importsAllowed", "policies", "productionMultiplier", "residentPolicies", "tariff", "tariffManaged", "taxMultiplier", "upkeepMultiplier"); }
+    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("effect", "importsAllowed", "policies", "productionMultiplier", "residentPolicies", "tariff", "tariffManaged", "taxMultiplier", "upkeepMultiplier", "presetPlans", "presetImpact"); }
+    default Collection<Map<String,Object>> presetPlans(UUID town){return List.of();}
+    default Map<String,Object> presetImpact(UUID town,String preset,String project){throw new UnsupportedOperationException("Сравнение наборов недоступно");}
     double effect(UUID town,String key);
     double productionMultiplier(UUID town,String project);
     double upkeepMultiplier(UUID town,String project);

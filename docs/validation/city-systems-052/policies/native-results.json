@@ -1,0 +1,36 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 16 assertions; real Folia/Towny policy service, commands, native inventories, actual delayed atomic writer, controlled unload and full restart; explicit offline player/scheduler and InventoryView proxies, no network client or bank payout claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyPopulation-0.1.23.jar": "15f55401546f9dabe0241a5aafe81401d23292506ea761a2c871ed1cb2586891",
+      "NeverLandTownyContracts-0.6.0.jar": "991d6a8119fb8377e357546df9c02d16ab516f4ae87054297225bed8e5c08501",
+      "NeverLandTownyBuilds-0.10.1.jar": "f004882b1f0f473c019eaad9f2e2e2f881979da5b8de95c5b81f108e04af4e9f",
+      "TntRuntimeProbe.jar": "466d1852604f01d898530c7c6d93fde3351797ac406d5dfb1edff3252d557a8e",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyUpkeep-0.2.0.jar": "a3591a7585a8f08d436c7474f161c2e8d8dca88fdd0d5cdfb24ad79718af6d79",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64",
+      "NeverLandTownyControl-0.5.4.jar": "788cf8cb9518fcf123b29c8c2cb34c1b9029a2ad76be776e547303d4af6212ac",
+      "NeverLandTownyPolicies-0.3.0.jar": "3f4844735d35a698f265dd97412ab311d31d08ea6102c20a6ee764676bca9fd1",
+      "NeverLandTownyResources-0.2.1.jar": "82bf813048b092f122e735964a97c1344b0ab8dd11ec0c585775234d3977e913"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 9 assertions; real Folia/Towny policy service, commands, native inventories, actual delayed atomic writer, controlled unload and full restart; explicit offline player/scheduler and InventoryView proxies, no network client or bank payout claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyPopulation-0.1.23.jar": "15f55401546f9dabe0241a5aafe81401d23292506ea761a2c871ed1cb2586891",
+      "NeverLandTownyContracts-0.6.0.jar": "991d6a8119fb8377e357546df9c02d16ab516f4ae87054297225bed8e5c08501",
+      "NeverLandTownyBuilds-0.10.1.jar": "f004882b1f0f473c019eaad9f2e2e2f881979da5b8de95c5b81f108e04af4e9f",
+      "TntRuntimeProbe.jar": "466d1852604f01d898530c7c6d93fde3351797ac406d5dfb1edff3252d557a8e",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyUpkeep-0.2.0.jar": "a3591a7585a8f08d436c7474f161c2e8d8dca88fdd0d5cdfb24ad79718af6d79",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64",
+      "NeverLandTownyControl-0.5.4.jar": "788cf8cb9518fcf123b29c8c2cb34c1b9029a2ad76be776e547303d4af6212ac",
+      "NeverLandTownyPolicies-0.3.0.jar": "3f4844735d35a698f265dd97412ab311d31d08ea6102c20a6ee764676bca9fd1",
+      "NeverLandTownyResources-0.2.1.jar": "82bf813048b092f122e735964a97c1344b0ab8dd11ec0c585775234d3977e913"
+    }
+  }
+]

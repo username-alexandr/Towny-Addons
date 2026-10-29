@@ -1,0 +1,32 @@
+enabled: true
+# Один набор подтверждается и сохраняется целиком. Ожидание смены каждой политики сохраняется.
+presets:
+  development:
+    name: Развитие города
+    icon: BRICKS
+    description: Поддержка сельского хозяйства и промышленности с доплатой за содержание.
+    modes:
+      mobilization: professional
+      farmers: targeted
+      industry: focused
+      imports: open
+  defense:
+    name: Оборона
+    icon: SHIELD
+    description: Больше действующих солдат ценой выпуска, довольства и военного содержания.
+    modes:
+      mobilization: general
+      farmers: none
+      industry: focused
+      imports: open
+  recovery:
+    name: Восстановление
+    icon: CAMPFIRE
+    description: Обычный штат армии и отмена производственных доплат за субсидии.
+    modes:
+      mobilization: professional
+      farmers: none
+      industry: none
+      imports: open
+# Необязательные запреты сочетаний задаёт администрация. Пример структуры — в инструкции.
+conflicts: []

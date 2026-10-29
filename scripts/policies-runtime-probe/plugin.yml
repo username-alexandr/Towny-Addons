@@ -1,0 +1,6 @@
+name: TntRuntimeProbe
+version: 0.52-policies
+main: ru.neverland.runtime.PoliciesProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyContracts, NeverLandTownySiegesPlus, NeverLandTownyResources, NeverLandTownyUpkeep, NeverLandTownyPopulation, NeverLandTownyPolicies, NeverLandTownyControl]

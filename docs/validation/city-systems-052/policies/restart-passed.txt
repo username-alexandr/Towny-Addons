@@ -1,0 +1,1 @@
+PASS 9 assertions; real Folia/Towny policy service, commands, native inventories, actual delayed atomic writer, controlled unload and full restart; explicit offline player/scheduler and InventoryView proxies, no network client or bank payout claimed

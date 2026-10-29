@@ -1,0 +1,16 @@
+PASS actual Policies 0.3 service and dependency graph enabled
+PASS three ordered city presets exposed through actual API
+PASS existing main menu exposes comparison button
+PASS ordinary resident can compare but cannot confirm
+PASS ordinary command cannot grant policies
+PASS paused dependency explains whole-set refusal in native menu
+PASS unavailable single category prevents the complete mutation
+PASS actual comparison shows production and upkeep costs before consent
+PASS real blocked file writer leaves confirmed state unchanged while region continues
+PASS one acknowledged snapshot applies both changes with their history
+PASS live policy API matches displayed production and cost
+PASS stale menu revision cannot replace the committed selection
+PASS whole-set selection cannot bypass ordinary cooldown
+PASS controlled unload drains confirmed policy image before classloader closes
+PASS Folia enable waits for complete server restart
+PASS selection audit has one unique operation per acknowledged whole-set change
