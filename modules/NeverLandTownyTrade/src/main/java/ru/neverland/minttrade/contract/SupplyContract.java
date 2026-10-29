@@ -6,7 +6,7 @@ public record SupplyContract(Terms terms,Status status,Set<UUID> pausedBy,long n
                              List<Receipt> history,String note,Attempt attempt) {
     public static final long DAY=86_400_000L;
     public enum Status { PROPOSED, ACTIVE, CANCELLED, EXPIRED }
-    public enum Phase { PREPARED, DEBIT_PENDING, PAID, DELIVERED, CREDIT_PENDING, RETURNING, COMPLETE, RETURNED }
+    public enum Phase { PREPARED, DEBIT_READY, DEBIT_PENDING, PAID, DELIVERED, CREDIT_PENDING, RETURNING, COMPLETE, RETURNED }
     public record Terms(UUID id,UUID seller,UUID buyer,String itemData,String itemName,int amount,long cents,int days,long created,long expires) {
         public Terms {
             if(id==null||seller==null||buyer==null||seller.equals(buyer)||itemData==null||itemData.isBlank()||itemName==null||itemName.isBlank()
@@ -15,7 +15,13 @@ public record SupplyContract(Terms terms,Status status,Set<UUID> pausedBy,long n
         public boolean party(UUID town){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {return seller.equals(town)||buyer.equals(town);} }
         public String shortId(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return id.toString().substring(0,8);} }
     }
-    public record Attempt(UUID id,Phase phase,long started){public Attempt{if(id==null||phase==null||started<0)throw new IllegalArgumentException("Повреждена попытка поставки");}public Attempt phase(Phase p){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {return new Attempt(id,p,started);} }}
+    public record Attempt(UUID id,Phase phase,long started,long revision,long transitionedAt){
+        public Attempt(UUID id,Phase phase,long started){this(id,phase,started,0,started);}
+        public Attempt{if(id==null||phase==null||started<0||revision<0||transitionedAt<started)throw new IllegalArgumentException("Повреждена попытка поставки");}
+        public Attempt phase(Phase p){try(var guard=ru.neverland.core.SuiteState.guard()){return phase==p?this:new Attempt(id,p,started,Math.addExact(revision,1),Math.max(System.currentTimeMillis(),Math.addExact(transitionedAt,1)));}}
+        public String auditStep(){return phase.name()+":"+revision;}
+        public String auditOutcome(){return switch(phase){case DEBIT_PENDING->"REVIEW_DEBIT";case CREDIT_PENDING->"REVIEW_CREDIT";case DEBIT_READY,PAID,DELIVERED,RETURNING->"PENDING";case PREPARED->"PREPARED";case COMPLETE->"COMPLETED";case RETURNED->"RETURNED";};}
+    }
     public record Receipt(UUID id,long at){public Receipt{if(id==null||at<0)throw new IllegalArgumentException("Повреждена квитанция");}}
     public SupplyContract {
         Objects.requireNonNull(terms);Objects.requireNonNull(status);pausedBy=Set.copyOf(pausedBy);history=List.copyOf(history);

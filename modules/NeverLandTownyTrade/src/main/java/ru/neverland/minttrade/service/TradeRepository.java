@@ -153,6 +153,9 @@ public final class TradeRepository {
                c.timer(ru.neverland.core.ActivityTimer.read(root,path,c.timer()));
                c.settlement(root.contains(path + "settlement") ? SafeYaml.stringValue(root, path + "settlement") : "LEGACY_REVIEW");
                c.legacyFunded(SafeYaml.booleanValue(root, path + "legacy-funded", !root.contains(path + "settlement")));
+               if(root.contains(path+"funding.actor"))c.fundingActor(UUID.fromString(SafeYaml.stringValue(root,path+"funding.actor")));
+               String protocol=root.getString(path+"funding.protocol","LEGACY");
+               if(protocol.equals("DIRECT"))c.directFunding();else if(protocol.equals("TREASURY"))c.funding(new ru.neverland.minttrade.integration.TreasuryFunding.Terms(UUID.fromString(SafeYaml.stringValue(root,path+"funding.operation")),UUID.fromString(SafeYaml.stringValue(root,path+"funding.town")),UUID.fromString(SafeYaml.stringValue(root,path+"funding.actor")),SafeYaml.longValue(root,path+"funding.cents"),SafeYaml.stringValue(root,path+"funding.category"),SafeYaml.stringValue(root,path+"funding.source"),SafeYaml.stringValue(root,path+"funding.reason")));else if(!protocol.equals("LEGACY"))throw new IllegalArgumentException("Неизвестный протокол оплаты каравана");
                if (c.remainingCargo() < 0
                   || c.totalCargo() < 1
                   || c.totalCargo() > 1000000
@@ -202,6 +205,8 @@ public final class TradeRepository {
          String path = "caravans." + value.id() + ".";
          yaml.set(path + "settlement", value.settlement());
          yaml.set(path + "legacy-funded", value.legacyFunded());
+         yaml.set(path+"funding.protocol",value.fundingProtocol());if(value.fundingActor()!=null)yaml.set(path+"funding.actor",value.fundingActor().toString());
+         if(value.funding()!=null){var funding=value.funding();yaml.set(path+"funding.operation",funding.operation().toString());yaml.set(path+"funding.town",funding.town().toString());yaml.set(path+"funding.cents",funding.cents());yaml.set(path+"funding.category",funding.category());yaml.set(path+"funding.source",funding.source());yaml.set(path+"funding.reason",funding.reason());}
          yaml.set(path + "seller", value.sellerId().toString());
          yaml.set(path + "buyer", value.buyerId().toString());
          yaml.set(path + "export", value.exportId());

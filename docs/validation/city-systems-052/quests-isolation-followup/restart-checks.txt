@@ -1,0 +1,25 @@
+PASS native broken keeps Citizens enabled and unfrozen
+PASS native broken keeps Control enabled and unfrozen
+PASS native broken keeps Builds enabled and unfrozen
+PASS native broken keeps Districts enabled and unfrozen
+PASS native broken keeps Population enabled and unfrozen
+PASS native broken keeps Resources enabled and unfrozen
+PASS native broken keeps Upkeep enabled and unfrozen
+PASS native broken keeps Policies enabled and unfrozen
+PASS malformed explicit stage type really fails Quests startup before service registration
+PASS startup failure persists no unrelated protective pause
+PASS confirmed policy survives full restart with failed Quests provider
+PASS failed configuration load leaves completed projects untouched
+PASS invalid administrator value is rejected without silently overwriting file
+PASS native restart keeps Citizens enabled and unfrozen
+PASS native restart keeps Control enabled and unfrozen
+PASS native restart keeps Builds enabled and unfrozen
+PASS native restart keeps Districts enabled and unfrozen
+PASS native restart keeps Population enabled and unfrozen
+PASS native restart keeps Resources enabled and unfrozen
+PASS native restart keeps Upkeep enabled and unfrozen
+PASS native restart keeps Policies enabled and unfrozen
+PASS targeted enable and repaired legacy file restore Quests with preserved completion
+PASS restored provider does not duplicate policy history or rewards
+PASS all three JVM boots retain exact completed quest data
+PASS targeted recovery clears only Quests pause without enable all

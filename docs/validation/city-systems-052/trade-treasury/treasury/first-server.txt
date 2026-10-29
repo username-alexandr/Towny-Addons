@@ -1,0 +1,256 @@
+Starting org.bukkit.craftbukkit.Main
+[04:24:14 INFO]: [bootstrap] Running Java 25 (OpenJDK 64-Bit Server VM 25.0.5+8-LTS; Azul Systems, Inc. Zulu25.38+107-CA) on Linux 6.18.55 (amd64)
+[04:24:14 INFO]: [bootstrap] Loading Folia 26.2-7-ver/26.2.x@14b7fee (2026-08-25T13:29:28Z) for Minecraft 26.2
+[04:24:14 INFO]: [PluginInitializerManager] Initializing plugins...
+[04:24:14 WARN]: Failed to get system info for Process Loads
+java.lang.NullPointerException: Cannot invoke "oshi.software.os.OSProcess.getUserTime()" because "process" is null
+	at net.minecraft.SystemReport.lambda$putProcessDetails$0(SystemReport.java:191) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.setDetail(SystemReport.java:96) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putProcessDetails(SystemReport.java:188) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$putSoftware$0(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putSoftware(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$new$7(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.<init>(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.<init>(CrashReport.java:32) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.preload(CrashReport.java:240) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+[04:24:14 WARN]: Failed to get system info for Process Virtual Size (MiB)
+java.lang.NullPointerException: Cannot invoke "oshi.software.os.OSProcess.getVirtualSize()" because "process" is null
+	at net.minecraft.SystemReport.lambda$putProcessDetails$1(SystemReport.java:208) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.setDetail(SystemReport.java:96) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putProcessDetails(SystemReport.java:208) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$putSoftware$0(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putSoftware(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$new$7(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.<init>(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.<init>(CrashReport.java:32) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.preload(CrashReport.java:240) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+[04:24:14 WARN]: Failed to get system info for Process Resident Size (MiB)
+java.lang.NullPointerException: Cannot invoke "oshi.software.os.OSProcess.getResidentSetSize()" because "process" is null
+	at net.minecraft.SystemReport.lambda$putProcessDetails$2(SystemReport.java:209) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.setDetail(SystemReport.java:96) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putProcessDetails(SystemReport.java:209) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$putSoftware$0(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putSoftware(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$new$7(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.<init>(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.<init>(CrashReport.java:32) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.preload(CrashReport.java:240) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+[04:24:14 INFO]: [PluginInitializerManager] Initialized 5 plugins
+[04:24:14 INFO]: [PluginInitializerManager] Bukkit plugins (5):
+ - NeverLandTownyBuilds (0.11.1), NeverLandTownyTrade (0.3.1), NeverLandTownyTreasuryPlus (0.3.2), Towny (0.103.2.0), TradeTreasuryRuntimeProbe (0.52-trade)
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.joml.MemUtil$MemUtilUnsafe (file:/dev/shm/neverland-trade-treasury-4/libraries/org/joml/joml/1.10.8/joml-1.10.8.jar)
+WARNING: Please consider reporting this to the maintainers of class org.joml.MemUtil$MemUtilUnsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[04:24:18 INFO]: [ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry] Initialising converters for DataConverter...
+[04:24:18 INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, profilesHost=https://api.mojang.com, name=PROD]
+[04:24:18 ERROR]: Failed to request yggdrasil public key
+com.mojang.authlib.exceptions.MinecraftClientException: Failed to read from https://api.minecraftservices.com/publickeys due to api.minecraftservices.com
+	at com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:151) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.getWithEtag(MinecraftClient.java:81) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:65) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilServicesKeyInfo.fetch(YggdrasilServicesKeyInfo.java:114) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilServicesKeyInfo$1.run(YggdrasilServicesKeyInfo.java:89) ~[authlib-9.0.75.jar:?]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:545) ~[?:?]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:328) ~[?:?]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:309) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614) ~[?:?]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+Caused by: java.net.UnknownHostException: api.minecraftservices.com
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:569) ~[?:?]
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:307) ~[?:?]
+	at java.base/java.net.Socket.connect(Socket.java:659) ~[?:?]
+	at java.base/sun.security.ssl.SSLSocketImpl.connect(SSLSocketImpl.java:304) ~[?:?]
+	at java.base/sun.net.NetworkClient.doConnect(NetworkClient.java:161) ~[?:?]
+	at java.base/sun.net.www.http.HttpClient.openServer(HttpClient.java:524) ~[?:?]
+	at java.base/sun.net.www.http.HttpClient.openServer(HttpClient.java:612) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsClient.<init>(HttpsClient.java:207) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsClient.New(HttpsClient.java:289) ~[?:?]
+	at java.base/sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.getNewHttpClient(AbstractDelegateHttpsURLConnection.java:196) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1012) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:903) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:876) ~[?:?]
+	at java.base/sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.connect(AbstractDelegateHttpsURLConnection.java:181) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1380) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1306) ~[?:?]
+	at java.base/java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:493) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsURLConnectionImpl.getResponseCode(HttpsURLConnectionImpl.java:307) ~[?:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:130) ~[authlib-9.0.75.jar:?]
+	... 10 more
+[04:24:18 INFO]: [ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry] Finished initialising converters for DataConverter in 384.8ms
+[04:24:20 INFO]: Loaded 1585 recipes
+[04:24:20 INFO]: Loaded 1688 advancements
+[04:24:20 INFO]: Starting minecraft server version 26.2
+[04:24:20 WARN]: ****************************
+[04:24:20 WARN]: YOU ARE RUNNING THIS SERVER AS AN ADMINISTRATIVE OR ROOT USER. THIS IS NOT ADVISED.
+[04:24:20 WARN]: YOU ARE OPENING YOURSELF UP TO POTENTIAL RISKS WHEN DOING THIS.
+[04:24:20 WARN]: FOR MORE INFORMATION, SEE https://madelinemiller.dev/blog/root-minecraft-server/
+[04:24:20 WARN]: ****************************
+[04:24:20 INFO]: Loading properties
+[04:24:20 INFO]: This server is running Folia version 26.2-7-ver/26.2.x@14b7fee (2026-08-25T13:29:28Z) (Implementing API version 26.2.build.7-beta)
+[04:24:20 INFO]: [spark] This server bundles the spark profiler. For more information please visit https://docs.papermc.io/paper/profiling
+[04:24:20 INFO]: Server Ping Player Sample Count: 12
+[04:24:20 INFO]: Using 4 threads for Netty based IO
+[04:24:20 INFO]: [MoonriseCommon] Paper is using 1 worker threads, 1 I/O threads
+[04:24:20 INFO]: [io.papermc.paper.threadedregions.TickRegions] Initialised EDF Folia scheduler with initial 2 target thread(s)
+[04:24:21 INFO]: Default game type: SURVIVAL
+[04:24:21 INFO]: Generating keypair
+[04:24:21 INFO]: Starting Minecraft server on 127.0.0.1:25683
+[04:24:21 INFO]: Paper: Using libdeflate (Linux x86_64) compression from Velocity.
+[04:24:21 INFO]: Paper: Using OpenSSL 3.x.x (Linux x86_64) cipher from Velocity.
+[04:24:21 WARN]: [io.netty.util.internal.MacAddressUtil] Failed to find a usable hardware address from the network interfaces; using random bytes: 66:e2:9b:87:4a:33:30:6e
+[04:24:21 INFO]: [Towny] Loading server plugin Towny v0.103.2.0
+[04:24:21 INFO]: [NeverLandTownyBuilds] Loading server plugin NeverLandTownyBuilds v0.11.1
+[04:24:21 INFO]: [NeverLandTownyTrade] Loading server plugin NeverLandTownyTrade v0.3.1
+[04:24:21 INFO]: [NeverLandTownyTreasuryPlus] Loading server plugin NeverLandTownyTreasuryPlus v0.3.2
+[04:24:21 INFO]: [TradeTreasuryRuntimeProbe] Loading server plugin TradeTreasuryRuntimeProbe v0.52-trade
+[04:24:21 WARN]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[04:24:21 WARN]: The server will make no attempt to authenticate usernames. Beware.
+[04:24:21 WARN]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[04:24:21 WARN]: To change this, set "online-mode" to "true" in the server.properties file.
+[04:24:21 INFO]: Preparing level "world"
+[04:24:21 INFO]: Loading 0 persistent chunks for level 'minecraft:overworld'...
+[04:24:21 INFO]: Prepared spawn area in 0 ms
+[04:24:21 INFO]: Loading 0 persistent chunks for level 'minecraft:the_nether'...
+[04:24:21 INFO]: Prepared spawn area in 0 ms
+[04:24:21 INFO]: Loading 0 persistent chunks for level 'minecraft:the_end'...
+[04:24:21 INFO]: Prepared spawn area in 0 ms
+[04:24:21 INFO]: Done preparing level "world" (0.280s)
+[04:24:21 INFO]: [Towny] Enabling Towny v0.103.2.0
+[04:24:21 INFO]: ====================      Towny      ========================
+[04:24:21 INFO]: [Towny] Config: 0.97.5.10 applying 1 automatic update...
+[04:24:21 INFO]: [Towny] Config: 0.98.0.1 applying 1 automatic update...
+[04:24:21 INFO]: [Towny] Config: 0.98.1.12 applying 2 automatic updates...
+[04:24:21 INFO]: [Towny] Config: 0.98.3.3 applying 1 automatic update...
+[04:24:21 INFO]: [Towny] Config: 0.98.3.4 applying 1 automatic update...
+[04:24:21 INFO]: [Towny] Config: 0.98.3.13 applying 8 automatic updates...
+[04:24:21 INFO]: [Towny] Config: 0.99.5.16 applying 1 automatic update...
+[04:24:21 INFO]: [Towny] Config: 0.100.0.9 applying 1 automatic update...
+[04:24:21 INFO]: [Towny] Config: 0.100.0.16 applying 61 automatic updates...
+[04:24:21 INFO]: [Towny] Config: 0.100.1.15 applying 1 automatic update...
+[04:24:21 INFO]: [Towny] Config: 0.100.2.10 applying 1 automatic update...
+[04:24:21 INFO]: [Towny] Config: 0.100.4.6 applying 1 automatic update...
+[04:24:21 INFO]: [Towny] Config: 0.101.1.2 applying 1 automatic update...
+[04:24:22 INFO]: [Towny] Successfully loaded translations for 45 languages.
+[04:24:22 INFO]: [Towny] Config: Loaded 9 townblock types: default, bank, shop, wilds, inn, farm, embassy, arena, jail.
+[04:24:22 INFO]: [Towny] Database: [Load] flatfile [Save] flatfile
+[04:24:22 INFO]: [Towny] Database: Loaded in 22ms.
+[04:24:22 INFO]: [Towny] Cleaning up old backups...
+[04:24:22 INFO]: [Towny] Could not delete old backups.
+[04:24:22 INFO]: [Towny] Making backup...
+[04:24:22 INFO]: [Towny] Time until a New Day: 7 hours, 35 minutes, 38 seconds
+[04:24:22 INFO]: [Towny] Searching for third-party plugins...
+[04:24:22 INFO]: [Towny] Checking for updates...
+[04:24:22 INFO]: [Towny] Plugins found: 
+[04:24:22 INFO]: [Towny]   Permissions: TownyPerms, BukkitPermissions
+[04:24:22 INFO]: [Towny] No new updates found.
+[04:24:22 INFO]: [Towny] Towny flatfiles and settings successfully backed up.
+[04:24:22 INFO]: =============================================================
+[04:24:22 INFO]: [Towny] Version: 0.103.2.0 - Plugin Enabled
+[04:24:22 INFO]: =============================================================
+[04:24:22 INFO]: [NeverLandTownyBuilds] Enabling NeverLandTownyBuilds v0.11.1
+[04:24:23 INFO]: [NeverLandTownyBuilds] Загружено городских проектов: 101
+[04:24:23 INFO]: [NeverLandTownyBuilds] Семейств схем: 0; сохранённых версий: 0; ошибок новых схем: 0
+[04:24:23 INFO]: [NeverLandTownyBuilds] NeverLandTownyBuilds 0.11.1 включён: процедурные здания и Чудеса, фонды ресурсов и совместное строительство готовы.
+[04:24:23 INFO]: [NeverLandTownyTrade] Enabling NeverLandTownyTrade v0.3.1
+[04:24:23 INFO]: [NeverLandTownyTrade] NeverLandTownyTrade 0.3.1 включён: экспортов 8, склад=true, лагеря=false, активных перевалочных пунктов=0, налоги=false, PlaceholderAPI=false.
+[04:24:23 INFO]: [NeverLandTownyTreasuryPlus] Enabling NeverLandTownyTreasuryPlus v0.3.2
+[04:24:23 INFO]: [NeverLandTownyTreasuryPlus] Казна и недельные отчёты включены.
+[04:24:23 INFO]: [TradeTreasuryRuntimeProbe] Enabling TradeTreasuryRuntimeProbe v0.52-trade
+[04:24:23 INFO]: [spark] The spark plugin has been preferred but was not loaded. The bundled spark profiler will enabled instead.
+[04:24:23 INFO]: [spark] The spark profiler will not be enabled because it is currently disabled in the configuration.
+[04:24:23 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+[04:24:23 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_nether
+[04:24:23 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_end
+[04:24:23 INFO]: ThreadedAnvilChunkStorage (world): All chunks are saved
+[04:24:23 INFO]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[04:24:23 INFO]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[04:24:23 INFO]: ThreadedAnvilChunkStorage: All dimensions are saved
+[04:24:23 INFO]: Done (9.576s)! For help, type "help"
+[04:24:25 INFO]: [TradeTreasuryRuntimeProbe] CHECK actual Trade0.3.1 Treasury and Builds APIs enabled
+[04:24:26 WARN]: [NeverLand API] NeverLandTownyTreasuryPlus SERVICE_UNAVAILABLE: 
+[04:24:27 INFO]: [TradeTreasuryRuntimeProbe] CHECK missing installed Treasury holds exact accepted caravan without direct debit fallback
+[04:24:27 INFO]: [NeverLand API] NeverLandTownyTreasuryPlus: связь восстановлена
+[04:24:30 INFO]: [TradeTreasuryRuntimeProbe] CHECK real warehouse reservation and exact Treasury debit precede active caravan
+[04:24:30 INFO]: [TradeTreasuryRuntimeProbe] CHECK actor revalidated through regional player callback matches bank receipt
+[04:24:30 INFO]: [TradeTreasuryRuntimeProbe] CHECK paid administrative cancellation acknowledges asynchronous refund
+[04:24:34 INFO]: [TradeTreasuryRuntimeProbe] CHECK exact original Treasury refund and reserved cargo return once
+[04:24:34 INFO]: [TradeTreasuryRuntimeProbe] CHECK cancellation uses backed Treasury refund receipt
+[04:24:35 INFO]: [TradeTreasuryRuntimeProbe] CHECK revoked player permission before bank request cancels without charging or losing cargo
+[04:24:35 INFO]: [TradeTreasuryRuntimeProbe] CHECK insufficient treasury funds reject purchase and return all cargo
+[04:24:35 INFO]: [TradeTreasuryRuntimeProbe] CHECK real Builds warehouse reserves supply before accepted debit intent
+[04:24:40 INFO]: [TradeTreasuryRuntimeProbe] CHECK recurring supply transfers exact money and real warehouse cargo once
+[04:24:40 INFO]: [TradeTreasuryRuntimeProbe] CHECK accepting mayor is preserved after completed supply clears only its pending payment
+[04:24:40 INFO]: [TradeTreasuryRuntimeProbe] CHECK real Builds warehouse reserves supply before accepted debit intent
+[04:24:46 WARN]: [NeverLandTownyTrade] Поставка e96400c1-a83f-3f70-ae28-7f2a9f4fdf56 ждёт записи или сверки: java.lang.IllegalStateException: Explicit lost seller credit response
+[04:24:47 INFO]: [TradeTreasuryRuntimeProbe] CHECK lost seller-bank response retains unknown credit and never pays automatically again
+[04:24:47 INFO]: [TradeTreasuryRuntimeProbe] CHECK manual verified seller receipt closes supply without duplicated money or cargo
+[04:24:47 INFO]: [TradeTreasuryRuntimeProbe] CHECK real Builds warehouse reserves supply before accepted debit intent
+[04:24:48 INFO]: [TradeTreasuryRuntimeProbe] CHECK accepted unpaid supply and reserved cargo survive deliberate owner pause
+[04:24:48 INFO]: [RegionShutdownThread] Awaiting scheduler termination for 60s...
+[04:24:48 INFO]: [RegionShutdownThread] Scheduler halted
+[04:24:48 INFO]: Stopping server
+[04:24:48 INFO]: [TradeTreasuryRuntimeProbe] Disabling TradeTreasuryRuntimeProbe v0.52-trade
+[04:24:48 INFO]: [NeverLandTownyTreasuryPlus] Disabling NeverLandTownyTreasuryPlus v0.3.2
+[04:24:48 INFO]: [NeverLandTownyTrade] Disabling NeverLandTownyTrade v0.3.1
+[04:24:48 INFO]: [NeverLandTownyBuilds] Disabling NeverLandTownyBuilds v0.11.1
+[04:24:48 INFO]: [Towny] Disabling Towny v0.103.2.0
+[04:24:48 INFO]: ==============================================================
+[04:24:48 INFO]: [Towny] Finishing File IO Tasks...
+[04:24:48 INFO]: [Towny] Finishing Universe Tasks...
+[04:24:48 INFO]: [Towny] Version: 0.103.2.0 - Plugin Disabled
+[04:24:48 INFO]: =============================================================
+[04:24:48 INFO]: [RegionShutdownThread] Halting chunk systems...
+[04:24:48 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:overworld'
+[04:24:48 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:overworld'
+[04:24:48 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:the_nether'
+[04:24:48 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:the_nether'
+[04:24:48 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:the_end'
+[04:24:48 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:the_end'
+[04:24:48 INFO]: [RegionShutdownThread] Halted chunk systems
+[04:24:48 INFO]: [RegionShutdownThread] Finishing pending teleports...
+[04:24:48 INFO]: [RegionShutdownThread] Finished pending teleports
+[04:24:48 INFO]: [RegionShutdownThread] Saving all worlds
+[04:24:48 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:overworld'
+[04:24:48 INFO]: [RegionShutdownThread] Closing player inventories...
+[04:24:48 INFO]: [RegionShutdownThread] Closed player inventories
+[04:24:48 INFO]: [RegionShutdownThread] Saving chunks...
+[04:24:48 INFO]: [RegionShutdownThread] Saved chunks
+[04:24:48 INFO]: [RegionShutdownThread] Saving level data...
+[04:24:48 INFO]: [RegionShutdownThread] Saved level data
+[04:24:48 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:overworld'
+[04:24:48 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:the_nether'
+[04:24:48 INFO]: [RegionShutdownThread] Closing player inventories...
+[04:24:48 INFO]: [RegionShutdownThread] Closed player inventories
+[04:24:48 INFO]: [RegionShutdownThread] Saving chunks...
+[04:24:48 INFO]: [RegionShutdownThread] Saved chunks
+[04:24:48 INFO]: [RegionShutdownThread] Saving level data...
+[04:24:48 INFO]: [RegionShutdownThread] Saved level data
+[04:24:48 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:the_nether'
+[04:24:48 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:the_end'
+[04:24:48 INFO]: [RegionShutdownThread] Closing player inventories...
+[04:24:48 INFO]: [RegionShutdownThread] Closed player inventories
+[04:24:48 INFO]: [RegionShutdownThread] Saving chunks...
+[04:24:48 INFO]: [RegionShutdownThread] Saved chunks
+[04:24:48 INFO]: [RegionShutdownThread] Saving level data...
+[04:24:48 INFO]: [RegionShutdownThread] Saved level data
+[04:24:48 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:the_end'
+[04:24:48 INFO]: [RegionShutdownThread] Saved all worlds
+[04:24:48 INFO]: [RegionShutdownThread] Saving global world data...
+[04:24:48 INFO]: [RegionShutdownThread] Saved global world data.
+[04:24:48 INFO]: [RegionShutdownThread] Saving all player data...
+[04:24:48 INFO]: [RegionShutdownThread] Saved all player data
+[04:24:48 INFO]: Waiting for all RegionFile I/O tasks to complete...
+[04:24:48 INFO]: All RegionFile I/O tasks to complete
+[04:24:48 INFO]: [MoonriseCommon] Awaiting termination of worker pool for up to 60s...
+[04:24:48 INFO]: [MoonriseCommon] Awaiting termination of I/O pool for up to 60s...

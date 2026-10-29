@@ -44,7 +44,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             }
             case "resolve" -> {
                 if(args.length!=4){sender.sendMessage("/townytrade resolve <договор> <полный UUID поставки> <debit-paid|debit-unpaid|credit-paid|credit-unpaid>");return true;}
-                try{plugin.supplies().resolve(args[1],java.util.UUID.fromString(args[2]),args[3]);sender.sendMessage("Результат отмечен. Проверьте также незавершённый платёж Treasury+, если он установлен.");}
+                try{var pending=plugin.supplies().resolve(args[1],java.util.UUID.fromString(args[2]),args[3]);sender.sendMessage("Сверка поставки сохраняется…");pending.whenComplete((v,error)->{if(plugin.isEnabled())ru.neverland.core.SuiteScheduler.reply(plugin,sender,()->{if(sender.hasPermission("minttrade.admin"))sender.sendMessage(error==null?"Сверка сохранена; повторной выплаты не было.":"Сверка пока не подтверждена; проверьте точную квитанцию.");});});}
                 catch(Exception ex){sender.sendMessage("Не удалось выполнить сверку: "+ex.getMessage());}
             }
             case "reload" -> { plugin.reloadPlugin(); messages.send(sender, "reload"); }

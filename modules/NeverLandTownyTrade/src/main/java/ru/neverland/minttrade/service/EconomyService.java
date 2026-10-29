@@ -82,10 +82,9 @@ public final class EconomyService {
       long cents=BigDecimal.valueOf(amount).movePointRight(2).longValueExact();
       return ()->{
          var evidence=new PaymentEvidence(account,incoming,token,cents);var observer=new AccountObserver(){public void withdrew(Account a,double n,String text){evidence.observe(a,false,n,text);}public void deposited(Account a,double n,String text){evidence.observe(a,true,n,text);}};
-         // Incoming transfers need no budget reservation. The existing outgoing Treasury API still
-         // owns its synchronous budget ledger; its behavior is preserved rather than bypassed.
+         // Budget-aware outgoing operations use TreasuryFunding before reaching this native fallback.
          if(incoming)return observed(account,observer,evidence,()->account.deposit(amount,"[NLT|"+(kind.equals("refund")?"refund":"income")+"|infrastructure|"+kind+"] "+reason));
-         try(var state=ru.neverland.core.SuiteState.guard()){return observed(account,observer,evidence,()->TreasuryAccess.withdraw(town,"infrastructure","trade",amount,reason));}
+         if(org.bukkit.Bukkit.getPluginManager().getPlugin("NeverLandTownyTreasuryPlus")!=null)throw new IllegalStateException("Установленная казна требует подтверждённого бюджетного платежа");return observed(account,observer,evidence,()->account.withdraw(amount,reason));
       };
    }}
    private static boolean observed(BankAccount account,AccountObserver observer,PaymentEvidence evidence,java.util.function.Supplier<Boolean> transfer){

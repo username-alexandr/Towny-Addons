@@ -20,7 +20,7 @@ public final class SupplyCommands {
                     var buyer=towny.town(args[1]);if(buyer==null)throw new IllegalArgumentException("Город не найден");
                     var item=args[2].equalsIgnoreCase("hand")?p.getInventory().getItemInMainHand():trade.registry().parseItem(args[2]);
                     var c=service.propose(town,buyer,item,Integer.parseInt(args[3]),SupplyContract.price(args[4]),args.length==6?Integer.parseInt(args[5]):service.defaultDays(),p.getUniqueId());
-                    menus.detail(p,c.terms().id().toString(),0);
+                    menus.proposal(p,c);
                 }
                 case "accept", "pause", "resume", "cancel", "reject" -> {
                     if(args.length!=2){help(p);return;}menus.confirm(p,args[1],args[0].equalsIgnoreCase("reject")?"cancel":args[0].toLowerCase(Locale.ROOT),0);

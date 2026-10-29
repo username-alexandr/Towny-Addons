@@ -1,0 +1,5 @@
+PASS actual Trade0.3.1 Treasury and Builds APIs enabled
+PASS full restart restores confirmed money resources and unpaid reserved shipment
+PASS restart preserves exact pending supply operation rather than generating a new debit
+PASS saved supply settles exactly once after JVM restart
+PASS completed caravan and supply receipts do not replay on later ticks

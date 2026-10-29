@@ -1,0 +1,23 @@
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownyTrade ru.neverland.minttrade.CaravanEffectsSmoke
+CaravanEffectsSmoke PASS 21 checks
+TEST NeverLandTownyTrade ru.neverland.minttrade.CaravanReliabilitySmoke
+CaravanReliabilitySmoke OK: 15 checks
+TEST NeverLandTownyTrade ru.neverland.minttrade.CaravanWarrantySmoke
+CaravanWarrantySmoke PASS 16 checks
+TEST NeverLandTownyTrade ru.neverland.minttrade.GuaranteeTermsSmoke
+GuaranteeTermsSmoke PASS 10009 checks
+TEST NeverLandTownyTrade ru.neverland.minttrade.SupplyContractSmoke
+SupplyContractSmoke OK: bilateral consent, pauses, time, downtime, real goods/money conservation, all bank crash windows, replay, full/busy warehouses, cancellation and strict atomic persistence
+TEST NeverLandTownyTrade ru.neverland.minttrade.SupplyJournalSmoke
+SupplyJournalSmoke PASS 20 checks
+TEST NeverLandTownyTrade ru.neverland.minttrade.SupplyReputationSmoke
+SupplyReputationSmoke OK: 23 checks
+TEST NeverLandTownyTrade ru.neverland.minttrade.TradeAcknowledgementSmoke
+TradeAcknowledgementSmoke PASS 11 checks
+TEST NeverLandTownyTrade ru.neverland.minttrade.TradeMathSmoke
+TradeMathSmoke OK
+TEST NeverLandTownyTrade ru.neverland.minttrade.TreasuryFundingSmoke
+TreasuryFundingSmoke PASS 27 checks
+BUILD AND SMOKE PASS NeverLandTownyTrade-0.3.1.jar 10 programs

@@ -1,0 +1,22 @@
+PASS actual Trade0.3 plugin enabled with real Folia scheduler
+PASS actual Towny account sees controlled backend balance
+PASS busy Suite defers Trade action while raw global scheduler continues
+PASS deferred guarded action runs exactly once after Suite release
+PASS new offer freezes guarantee terms before acceptance
+PASS prepared journal precedes exactly one escrow debit and cargo reservation
+PASS changing configured future policy does not change accepted caravan
+PASS rejected audit leaves PAYING with seller receipt DONE and one actual credit
+PASS seller80 buyer20 toll10 conserve existing110 escrow with no emission
+PASS history retains exact frozen compensation after terminal cleanup
+PASS delivered cargo remains exactly once after audit-only retry
+PASS new offer freezes guarantee terms before acceptance
+PASS administrative cancellation acknowledges refund asynchronously
+PASS cancelled funded caravan returns full110 escrow without extra compensation
+PASS cancellation returns exact reserved cargo to seller warehouse
+PASS legacy-style caravan remains uninsured
+PASS uninsured delivery pays original full seller price and tariff
+PASS new offer freezes guarantee terms before acceptance
+PASS lost native adapter response retains pending debit without automatic retry
+PASS actual onDisable under outer Suite returns without waiting for bank or writer
+PASS bank result after shutdown request still gets durable DONE receipt
+PASS shutdown does not begin next external tariff after known seller result

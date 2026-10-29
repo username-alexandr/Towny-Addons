@@ -1,0 +1,1 @@
+PASS 17 assertions; real Folia/Towny/Builds/Trade/Treasury, exact budget receipts, both warehouse APIs, permissions, insufficient funds, unknown credit and restart; explicit accepted contract/reservation, offline Player/EntityScheduler and deterministic economy adapter; no live Vault or client claimed

@@ -51,19 +51,19 @@ public final class SupplyRepository implements SupplyProcessor.Store {
     private static String string(ConfigurationSection s,String key)throws IOException {if(!s.isString(key))throw new IOException("Нет строки "+key);return s.getString(key);}
     private static long number(ConfigurationSection s,String key)throws IOException {Object n=s.get(key);if(!(n instanceof Number v)||v.doubleValue()!=v.longValue())throw new IOException("Нет целого числа "+key);return v.longValue();}
     private static int integer(ConfigurationSection s,String key)throws IOException{return Math.toIntExact(number(s,key));}
-    public static SupplyContract read(UUID id,ConfigurationSection s)throws IOException { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {
+    public static SupplyContract read(UUID id,ConfigurationSection s)throws IOException {
         if(s==null)throw new IOException("Нет записи договора");
         var terms=new Terms(id,UUID.fromString(string(s,"seller")),UUID.fromString(string(s,"buyer")),string(s,"item-data"),string(s,"item-name"),integer(s,"amount"),number(s,"cents"),integer(s,"days"),number(s,"created"),number(s,"expires"));
         if(!s.isList("paused")||!s.isList("history"))throw new IOException("Нет истории/паузы договора");
         Set<UUID> paused=new HashSet<>();for(Object o:s.getList("paused"))paused.add(UUID.fromString((String)o));
         List<Receipt> history=new ArrayList<>();for(Object o:s.getList("history")){if(!(o instanceof Map<?,?> row)||!(row.get("at") instanceof Number n))throw new IOException("Повреждена квитанция");history.add(new Receipt(UUID.fromString((String)row.get("id")),n.longValue()));}
-        Attempt attempt=null;if(s.contains("attempt")){var a=s.getConfigurationSection("attempt");if(a==null)throw new IOException("Повреждена попытка");attempt=new Attempt(UUID.fromString(string(a,"id")),Phase.valueOf(string(a,"phase")),number(a,"started"));}
+        Attempt attempt=null;if(s.contains("attempt")){var a=s.getConfigurationSection("attempt");if(a==null)throw new IOException("Повреждена попытка");attempt=new Attempt(UUID.fromString(string(a,"id")),Phase.valueOf(string(a,"phase")),number(a,"started"),a.contains("revision")?number(a,"revision"):0,a.contains("transitioned-at")?number(a,"transitioned-at"):number(a,"started"));}
         return new SupplyContract(terms,Status.valueOf(string(s,"status")),paused,number(s,"due"),number(s,"check"),number(s,"deliveries"),history,string(s,"note"),attempt);
-    } }
-    public static void write(ConfigurationSection s,SupplyContract c){ try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
+    }
+    public static void write(ConfigurationSection s,SupplyContract c){
         var t=c.terms();s.set("seller",t.seller().toString());s.set("buyer",t.buyer().toString());s.set("item-data",t.itemData());s.set("item-name",t.itemName());s.set("amount",t.amount());s.set("cents",t.cents());s.set("days",t.days());s.set("created",t.created());s.set("expires",t.expires());
         s.set("status",c.status().name());s.set("paused",c.pausedBy().stream().map(UUID::toString).sorted().toList());s.set("due",c.nextDue());s.set("check",c.nextCheck());s.set("deliveries",c.deliveries());s.set("note",c.note());
         s.set("history",c.history().stream().map(r->Map.of("id",r.id().toString(),"at",r.at())).toList());
-        if(c.attempt()!=null){s.set("attempt.id",c.attempt().id().toString());s.set("attempt.phase",c.attempt().phase().name());s.set("attempt.started",c.attempt().started());}
-    } }
+        if(c.attempt()!=null){s.set("attempt.id",c.attempt().id().toString());s.set("attempt.phase",c.attempt().phase().name());s.set("attempt.started",c.attempt().started());s.set("attempt.revision",c.attempt().revision());s.set("attempt.transitioned-at",c.attempt().transitionedAt());}
+    }
 }

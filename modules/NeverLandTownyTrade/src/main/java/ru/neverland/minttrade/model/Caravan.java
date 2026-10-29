@@ -15,8 +15,18 @@ public final class Caravan {
    /** Detached value for acknowledged repository snapshots; callers never mutate stored instances. */
    public Caravan copy(){try(var guard=ru.neverland.core.SuiteState.guard()){
       var c=new Caravan(id,sellerId,buyerId,exportId,cargoItem,totalCargo,remainingCargo,basePrice,escrow,tariffs,route,departedAt,arrivesAt,incidentAt,shouldDelay,incidentHandled,status);
-      c.settlement=settlement;c.legacyFunded=legacyFunded;c.adminPausedAt=adminPausedAt;c.adminDuration=adminDuration;
+      c.settlement=settlement;c.legacyFunded=legacyFunded;c.funding=funding;c.fundingActor=fundingActor;c.fundingProtocol=fundingProtocol;c.adminPausedAt=adminPausedAt;c.adminDuration=adminDuration;
       c.guarantee=guarantee;c.guaranteedRouteDuration=guaranteedRouteDuration;c.naturalDelayMillis=naturalDelayMillis;c.frozenNaturalDelay=frozenNaturalDelay;c.finalCompensation=finalCompensation;return c;
+   }}
+   private ru.neverland.minttrade.integration.TreasuryFunding.Terms funding;
+   private UUID fundingActor;private String fundingProtocol="LEGACY";
+   public ru.neverland.minttrade.integration.TreasuryFunding.Terms funding(){try(var guard=ru.neverland.core.SuiteState.guard()){return funding;}}
+   public UUID fundingActor(){try(var guard=ru.neverland.core.SuiteState.guard()){return fundingActor;}}
+   public String fundingProtocol(){try(var guard=ru.neverland.core.SuiteState.guard()){return fundingProtocol;}}
+   public void fundingActor(UUID actor){try(var guard=ru.neverland.core.SuiteState.guard()){if(fundingActor!=null&&!fundingActor.equals(actor))throw new IllegalStateException("Инициатор оплаты каравана уже сохранён");fundingActor=actor;}}
+   public void directFunding(){try(var guard=ru.neverland.core.SuiteState.guard()){if(funding!=null)throw new IllegalStateException("Обеспеченный платёж нельзя перевести в прямое списание");fundingProtocol="DIRECT";}}
+   public void funding(ru.neverland.minttrade.integration.TreasuryFunding.Terms terms){try(var guard=ru.neverland.core.SuiteState.guard()){
+      if(!terms.operation().equals(operation("debit"))||!terms.town().equals(buyerId)||terms.cents()!=java.math.BigDecimal.valueOf(escrow).movePointRight(2).longValueExact()||!terms.source().equals("trade")||fundingActor!=null&&!terms.actor().equals(fundingActor)||funding!=null&&!funding.equals(terms))throw new IllegalArgumentException("Условия казны не соответствуют каравану");funding=terms;fundingActor=terms.actor();fundingProtocol="TREASURY";
    }}
    private String settlement = "PREPARED";
    private boolean legacyFunded;

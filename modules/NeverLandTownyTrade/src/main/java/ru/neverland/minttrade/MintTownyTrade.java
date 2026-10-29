@@ -72,8 +72,8 @@ ru.neverland.core.ActivityAdmin.attach(this,"townytrade","minttrade.admin",trade
         java.util.concurrent.CompletionStage<Void> closing=java.util.concurrent.CompletableFuture.completedFuture(null);
         try(var guard=ru.neverland.core.SuiteState.guard()){
             if(!ru.neverland.core.ModuleLifecycle.end(this))return;
-            if(supplyMenus!=null)supplyMenus.stop();if(supplies!=null)supplies.stop();if(visuals!=null)visuals.stop();
-            if(trade!=null)closing=trade.shutdown();else if(repository!=null)closing=repository.prepareClose();
+            if(supplyMenus!=null)supplyMenus.stop();var supplyClosing=supplies==null?java.util.concurrent.CompletableFuture.<Void>completedFuture(null):supplies.stop();if(visuals!=null)visuals.stop();
+            if(trade!=null)closing=trade.shutdown();else if(repository!=null)closing=repository.prepareClose();closing=java.util.concurrent.CompletableFuture.allOf(closing.toCompletableFuture(),supplyClosing.toCompletableFuture());
             if(towny!=null)towny.unregister("trade");getServer().getServicesManager().unregisterAll(this);
         }
         var pending=closing.toCompletableFuture();

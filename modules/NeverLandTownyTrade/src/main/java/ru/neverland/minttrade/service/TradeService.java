@@ -24,6 +24,8 @@ public final class TradeService {
     private final TradeRepository repository;private final RoutePlanner routes;private final EconomyService economy;private final MessageService messages;private final TaxesBridge taxes;private final TradeAudit audits;
     private BukkitTask task;private Runnable beforeQuote=()->{};private CompletableFuture<?> operation;private volatile boolean stopping;private boolean legacyReviews;private int cursor;private long warned;
     private final ThreadPoolExecutor completions=new ThreadPoolExecutor(1,1,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(8),r->{Thread t=new Thread(r,"nlt-trade-results");t.setDaemon(true);return t;},new ThreadPoolExecutor.AbortPolicy());
+    private final TreasuryFunding funding=new TreasuryFunding();private java.util.function.Function<UUID,org.bukkit.entity.Player> fundingPlayers=Bukkit::getPlayer;private FundingAuthorization authorization;
+    private static final class FundingAuthorization{final UUID id;final long until=System.nanoTime()+TimeUnit.SECONDS.toNanos(5);BukkitTask task;FundingAuthorization(UUID id){this.id=id;}}
     private final Set<GlobalRequest<?>> globalRequests=Collections.newSetFromMap(new IdentityHashMap<>());
     @FunctionalInterface private interface CheckedSupplier<T>{T get()throws Exception;}
     private static final class GlobalRequest<T>{final CompletableFuture<T> done=new CompletableFuture<>();boolean running;}
@@ -77,7 +79,7 @@ public final class TradeService {
     private static CompletionStage<Void> done(){return CompletableFuture.completedFuture(null);}
     private <T>CompletionStage<T> guarded(Supplier<CompletionStage<T>> action){try(var guard=SuiteState.guard()){try{return action.get();}catch(Throwable ex){return failed(ex);}}}
     public CompletionStage<Void> shutdown(){try(var g=SuiteState.guard()){
-        stopping=true;if(task!=null)task.cancel();task=null;
+        stopping=true;if(task!=null)task.cancel();task=null;if(authorization!=null){if(authorization.task!=null)authorization.task.cancel();authorization=null;}
         synchronized(globalRequests){for(var request:List.copyOf(globalRequests))if(!request.running){request.done.completeExceptionally(new IllegalStateException("Остановка до внешнего действия"));globalRequests.remove(request);}}
         var running=operation==null?CompletableFuture.completedFuture(null):operation.handle((v,e)->null);
         return running.thenCompose(v->repository.prepareClose()).thenCompose(v->audits.closeAsync()).whenComplete((v,e)->completions.shutdown());
@@ -121,14 +123,14 @@ public final class TradeService {
         Map<UUID,Double> tolls;try{tolls=tolls(definition,plan.transitTowns(),seller,buyer);}catch(IllegalStateException ex){return new AcceptOutcome(AcceptResult.REPUTATION_UNAVAILABLE,null,0);}
         double total=cents(definition.price()+tolls.values().stream().mapToDouble(Double::doubleValue).sum());if(!economy.canWithdraw(buyer,total))return new AcceptOutcome(AcceptResult.NO_MONEY,null,total);
         long now=System.currentTimeMillis();var c=new Caravan(offer.id(),seller.getUUID(),buyer.getUUID(),definition.id(),definition.item(),definition.amount(),definition.amount(),cents(definition.price()),total,tolls,plan.points(),now,Math.addExact(now,plan.durationMillis()),now+Math.max(1000,Math.round(plan.durationMillis()*.55)),ThreadLocalRandom.current().nextDouble()<plan.delayChance(),false,CaravanStatus.ACTIVE);
-        if(offer.guarantee().enabled())c.restoreGuarantee(offer.guarantee(),plan.durationMillis(),0,-1,-1);
+        c.fundingActor(actor);if(offer.guarantee().enabled())c.restoreGuarantee(offer.guarantee(),plan.durationMillis(),0,-1,-1);
         track(repository.accept(offer,c).thenCompose(v->audit(c,actor)),c);return new AcceptOutcome(AcceptResult.PROCESSING,c,total);
     }}
     public CancelResult reject(Town buyer,TradeOffer offer){try(var g=SuiteState.guard()){if(offer==null)return CancelResult.NOT_FOUND;if(buyer==null||!buyer.getUUID().equals(offer.buyerId()))return CancelResult.NOT_PARTY;if(!idle())return CancelResult.WAREHOUSE_BUSY;track(repository.removeOffer(offer),null);return CancelResult.PROCESSING;}}
     public CancelResult cancelOffer(Town seller,TradeOffer offer){try(var g=SuiteState.guard()){if(offer==null)return CancelResult.NOT_FOUND;if(seller==null||!seller.getUUID().equals(offer.sellerId()))return CancelResult.NOT_PARTY;if(!idle())return CancelResult.WAREHOUSE_BUSY;track(repository.removeOffer(offer),null);return CancelResult.PROCESSING;}}
     public CancelResult cancelCaravan(Caravan previous){try(var g=SuiteState.guard()){
         if(previous==null)return CancelResult.NOT_FOUND;var c=repository.findCaravan(previous.id().toString());if(c==null||c.terminal())return CancelResult.NOT_FOUND;if(!idle())return CancelResult.WAREHOUSE_BUSY;
-        if(!Set.of("PREPARED","ACTIVE","RETURNING").contains(c.settlement())||repository.effects().state(c.operation("debit"))==EffectJournal.State.PENDING)return CancelResult.PAYMENT_PENDING;
+        if(!Set.of("PREPARED","ACTIVE","RETURNING").contains(c.settlement())||c.funding()==null&&repository.effects().state(c.operation("debit"))==EffectJournal.State.PENDING)return CancelResult.PAYMENT_PENDING;
         c.settlement("RETURNING");track(repository.update(c).thenCompose(v->audit(c,null)),c);return CancelResult.PROCESSING;
     }}
     public boolean forceComplete(Caravan previous){try(var g=SuiteState.guard()){
@@ -157,7 +159,7 @@ public final class TradeService {
 
 
     private void tick(){
-        if(!idle())return;
+        if(authorization!=null&&System.nanoTime()>=authorization.until){if(authorization.task!=null)authorization.task.cancel();authorization=null;}if(!idle()||authorization!=null)return;
         if(!legacyReviews){var entries=new LinkedHashMap<UUID,String>();repository.pendingCredits().forEach((town,amount)->entries.put(EffectJournal.id("legacy-trade-credit:"+town),"Старое зачисление городу "+town+": "+amount));track(repository.effects().review(entries).thenRun(()->{try(var g=SuiteState.guard()){legacyReviews=true;}}),null);return;}
         long now=System.currentTimeMillis();if(repository.offers().stream().anyMatch(o->o.expiresAt()<=now)){track(repository.expire(now),null);return;}
         var list=new ArrayList<>(repository.allCaravans());list.sort(Comparator.comparing(c->c.id().toString()));
@@ -188,12 +190,32 @@ public final class TradeService {
     }
     private CompletionStage<Void> prepare(Caravan c){
         if(taxes.tradeBlocked(c.sellerId(),c.buyerId())&&repository.effects().state(c.operation("debit"))==EffectJournal.State.READY){c.settlement("RETURNING");return repository.update(c);}
+        if(c.funding()==null&&repository.effects().state(c.operation("debit"))==EffectJournal.State.READY){
+            if(funding.installed()&&c.escrow()>0){try{UUID actor=c.fundingActor()==null?new UUID(0,0):c.fundingActor();c.funding(funding.freeze(c.operation("debit"),c.buyerId(),actor,priceCents(c.escrow()),"infrastructure","trade","Резерв каравана "+c.id()));return repository.update(c);}catch(Exception wait){return done();}}
+            if(c.fundingProtocol().equals("LEGACY")){c.directFunding();return repository.update(c);}
+        }
         return global(()->warehouse.transfer(c.operation("take"),c.sellerId(),c.cargoItem(),c.totalCargo(),false).status()==WarehouseBridge.Status.SUCCESS).thenCompose(reserved->{
-            if(!reserved)return done();return bank(c,c.buyerId(),c.escrow(),"debit",false).thenCompose(paid->{
-                c.settlement(paid?"ACTIVE":"RETURNING");if(paid){long duration=c.guarantee().enabled()?c.guaranteedRouteDuration():Math.max(1,c.arrivesAt()-c.departedAt());long now=System.currentTimeMillis();c.travelTimes(now,now+Math.max(1000,Math.round(duration*.55)));c.arrivesAt(Math.addExact(now,duration));}
-                return repository.update(c).thenCompose(v->audit(c,null)).thenCompose(v->global(()->{if(paid&&plugin.getConfig().getBoolean("announcements.departure",true))announceBoth(c,"caravan-town-departed",definition(c),Map.of());return null;}));
-            });
+            if(!reserved)return done();CompletionStage<TreasuryFunding.Result> paid=c.funding()==null?bank(c,c.buyerId(),c.escrow(),"debit",false).thenApply(ok->ok?TreasuryFunding.Result.PAID:TreasuryFunding.Result.NOT_APPLIED):treasuryEffect(c,false);
+            return paid.thenCompose(result->{if(result!=TreasuryFunding.Result.PAID&&result!=TreasuryFunding.Result.NOT_APPLIED)return done();return startOrReturn(c,result==TreasuryFunding.Result.PAID);});
         });
+    }
+    private CompletionStage<Void> startOrReturn(Caravan c,boolean paid){return guarded(()->{
+        c.settlement(paid?"ACTIVE":"RETURNING");if(paid){long duration=c.guarantee().enabled()?c.guaranteedRouteDuration():Math.max(1,c.arrivesAt()-c.departedAt());long now=System.currentTimeMillis();c.travelTimes(now,now+Math.max(1000,Math.round(duration*.55)));c.arrivesAt(Math.addExact(now,duration));}
+        return repository.update(c).thenCompose(v->audit(c,null)).thenCompose(v->global(()->{if(paid&&plugin.getConfig().getBoolean("announcements.departure",true))announceBoth(c,"caravan-town-departed",definition(c),Map.of());return null;}));
+    });}
+    private CompletionStage<TreasuryFunding.Result> treasuryEffect(Caravan c,boolean refund){return guarded(()->{
+        UUID id=c.operation(refund?"refund:"+c.buyerId():"debit");String description=refund?creditDescription(c,c.buyerId(),c.escrow(),"refund"):"Списание каравана "+c.id()+" город "+c.buyerId()+": "+c.escrow();
+        if(repository.effects().state(id)==EffectJournal.State.READY)return repository.effects().review(Map.of(id,description)).thenApply(v->TreasuryFunding.Result.WAIT);
+        if(!refund){try{var receipt=funding.snapshot(c.funding(),id,false,"");if(Objects.equals(receipt.get("status"),"ABSENT")&&!c.fundingActor().equals(new UUID(0,0))){authorizeFunding(c);return CompletableFuture.completedFuture(TreasuryFunding.Result.WAIT);}}catch(Exception wait){return CompletableFuture.completedFuture(TreasuryFunding.Result.WAIT);}}
+        CompletionStage<TreasuryFunding.Result> work=refund?funding.refund(c.funding(),id,"Возврат каравана "+c.id()):funding.debit(c.funding(),c.fundingActor().equals(new UUID(0,0)));
+        return work.thenCompose(result->guarded(()->{if(repository.effects().state(id)!=EffectJournal.State.PENDING)return CompletableFuture.completedFuture(result);if(result==TreasuryFunding.Result.PAID||result==TreasuryFunding.Result.NOT_APPLIED)return repository.effects().resolve(id,result==TreasuryFunding.Result.PAID).thenApply(v->result);return CompletableFuture.completedFuture(result);}));
+    });}
+    private void authorizeFunding(Caravan c){
+        if(authorization!=null)return;var player=fundingPlayers.apply(c.fundingActor());if(player==null)return;var pending=new FundingAuthorization(c.id());authorization=pending;
+        try{pending.task=SuiteScheduler.entityLater(plugin,player,()->{if(authorization!=pending)return;authorization=null;if(!idle()||!player.isOnline())return;var current=repository.findCaravan(c.id().toString());if(current==null||!current.settlement().equals("PREPARED")||!Objects.equals(current.funding(),c.funding()))return;
+            if(!player.hasPermission("minttrade.use")||!player.hasPermission("minttrade.manage")||!towny.isManager(player,towny.town(c.buyerId()))){current.settlement("RETURNING");track(repository.update(current),current);return;}
+            track(funding.debit(current.funding()),current);
+        },()->{if(authorization==pending)authorization=null;},1);if(pending.task.isCancelled())authorization=null;}catch(RuntimeException wait){authorization=null;}
     }
     private CompletionStage<Void> pay(Caravan c){
         CompletionStage<Boolean> chain=credit(c,c.sellerId(),c.sellerPayment(),"seller");
@@ -202,6 +224,7 @@ public final class TradeService {
         return chain.thenCompose(ok->ok?finish(c,CaravanStatus.COMPLETED):done());
     }
     private CompletionStage<Void> returning(Caravan c){
+        if(c.funding()!=null&&repository.effects().state(c.operation("debit"))==EffectJournal.State.PENDING){try{var receipt=funding.snapshot(c.funding(),c.operation("debit"),false,"");if(Objects.equals(receipt.get("status"),"ABSENT"))return repository.effects().resolve(c.operation("debit"),false);var state=c.funding().result(receipt,c.operation("debit"),false,"");if(state==TreasuryFunding.Result.PAID||state==TreasuryFunding.Result.NOT_APPLIED)return repository.effects().resolve(c.operation("debit"),state==TreasuryFunding.Result.PAID);return done();}catch(Exception wait){return done();}}
         return global(()->c.legacyFunded()||warehouse.transferred(c.operation("take"),c.sellerId())).thenCompose(taken->taken?global(()->warehouse.transfer(c.operation("return"),c.sellerId(),c.cargoItem(),c.remainingCargo(),true).status()==WarehouseBridge.Status.SUCCESS):CompletableFuture.completedFuture(true)).thenCompose(returned->{
             if(!returned)return done();boolean funded=c.legacyFunded()||repository.effects().state(c.operation("debit"))==EffectJournal.State.DONE;
             return (funded?credit(c,c.buyerId(),c.escrow(),"refund"):CompletableFuture.completedFuture(true)).thenCompose(refunded->refunded?finish(c,CaravanStatus.CANCELLED):done());
@@ -209,9 +232,10 @@ public final class TradeService {
     }
     private CompletionStage<Boolean> bank(Caravan c,UUID recipient,double amount,String kind,boolean incoming){
         if(stopping)return failed(new IllegalStateException("Остановка до нового платежа"));
+        if(incoming&&kind.equals("refund")&&c.funding()!=null)return treasuryEffect(c,true).thenApply(result->result==TreasuryFunding.Result.PAID);
         if(amount<=0)return CompletableFuture.completedFuture(true);UUID id=c.operation(incoming?kind+":"+recipient:"debit");
         String description=incoming?creditDescription(c,recipient,amount,kind):"Списание каравана "+c.id()+" город "+c.buyerId()+": "+c.escrow();
-        return repository.effects().execute(id,description,()->global(()->economy.prepare(towny.town(recipient),amount,definition(c),kind,id,incoming)).thenCompose(prepared->global(prepared::get,!incoming)));
+        return repository.effects().execute(id,description,()->global(()->economy.prepare(towny.town(recipient),amount,definition(c),kind,id,incoming)).thenCompose(prepared->global(prepared::get,false)));
     }
     private String creditDescription(Caravan c,UUID recipient,double amount,String kind){return "Караван "+c.id()+" "+kind+" город "+recipient+": "+amount;}
     private CompletionStage<Boolean> credit(Caravan c,UUID recipient,double amount,String kind){return bank(c,recipient,amount,kind,true).thenCompose(paid->{
@@ -225,7 +249,7 @@ public final class TradeService {
     private CompletionStage<Boolean> audit(Caravan c,UUID actor){return guarded(()->audits.append(new TradeAudit.Entry(c.settlement(),c.id().toString(),"CARAVAN_DEAL",c.settlement(),actor==null?AuditRecord.Party.unknown():AuditTrail.player(actor),AuditTrail.town(c.sellerId()),AuditTrail.town(c.buyerId()),AuditTrail.item(c.cargoItem()),c.totalCargo(),AuditTrail.money(c.basePrice()),"export="+c.exportId()+"; escrow="+c.escrow()+"; tariffs="+new TreeMap<>(c.tariffs())+"; legacy="+c.legacyFunded()+"; compensation-cents="+c.finalCompensation())));}
     private CompletionStage<Void> cleanup(Caravan c){return audit(c,null).thenCompose(ok->{if(!ok)return failed(new IllegalStateException("Нет подтверждения журнала; история каравана сохранена"));return global(()->{warehouse.acknowledge(c.operation("take"),c.sellerId());warehouse.acknowledge(c.operation("return"),c.sellerId());warehouse.acknowledge(c.operation("delivery"),c.buyerId());return null;}).thenCompose(v->repository.removeCaravan(c)).thenCompose(v->pruneEffects());});}
     private CompletionStage<Void> pruneEffects(){return guarded(()->{Set<UUID> needed=new HashSet<>();for(var c:repository.allCaravans()){needed.add(c.operation("debit"));needed.add(c.operation("seller:"+c.sellerId()));needed.add(c.operation("refund:"+c.buyerId()));needed.add(c.operation("compensation:"+c.buyerId()));c.tariffs().keySet().forEach(t->needed.add(c.operation("tariff:"+t)));}repository.pendingCredits().keySet().forEach(t->needed.add(EffectJournal.id("legacy-trade-credit:"+t)));return repository.effects().retain(needed);});}
-    public CompletionStage<Void> resolvePayment(UUID id,boolean paid){try(var g=SuiteState.guard()){if(!idle())return failed(new IllegalStateException("Предыдущее действие ещё выполняется"));var result=repository.effects().resolve(id,paid);track(result,null);return result;}}
+    public CompletionStage<Void> resolvePayment(UUID id,boolean paid){try(var g=SuiteState.guard()){if(!idle())return failed(new IllegalStateException("Предыдущее действие ещё выполняется"));if(repository.allCaravans().stream().anyMatch(c->c.funding()!=null&&(id.equals(c.operation("debit"))||id.equals(c.operation("refund:"+c.buyerId())))))return failed(new IllegalArgumentException("Этот платёж сверяется по точной квитанции в TreasuryPlus"));var result=repository.effects().resolve(id,paid);track(result,null);return result;}}
     public CompletionStage<Void> resolveCaravan(String id,String decision){try(var g=SuiteState.guard()){
         if(!idle())return failed(new IllegalStateException("Предыдущее действие ещё выполняется"));var c=repository.findCaravan(id);if(c==null||!c.settlement().equals("LEGACY_REVIEW"))return failed(new IllegalArgumentException("Нет старого каравана для сверки"));CompletionStage<Void> result;
         if(decision.equals("legacy-active")){if(c.remainingCargo()<1)return failed(new IllegalArgumentException("Груз уже выгружен"));c.settlement("ACTIVE");result=repository.update(c);}

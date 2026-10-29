@@ -1,0 +1,17 @@
+PASS actual Trade0.3.1 Treasury and Builds APIs enabled
+PASS missing installed Treasury holds exact accepted caravan without direct debit fallback
+PASS real warehouse reservation and exact Treasury debit precede active caravan
+PASS actor revalidated through regional player callback matches bank receipt
+PASS paid administrative cancellation acknowledges asynchronous refund
+PASS exact original Treasury refund and reserved cargo return once
+PASS cancellation uses backed Treasury refund receipt
+PASS revoked player permission before bank request cancels without charging or losing cargo
+PASS insufficient treasury funds reject purchase and return all cargo
+PASS real Builds warehouse reserves supply before accepted debit intent
+PASS recurring supply transfers exact money and real warehouse cargo once
+PASS accepting mayor is preserved after completed supply clears only its pending payment
+PASS real Builds warehouse reserves supply before accepted debit intent
+PASS lost seller-bank response retains unknown credit and never pays automatically again
+PASS manual verified seller receipt closes supply without duplicated money or cargo
+PASS real Builds warehouse reserves supply before accepted debit intent
+PASS accepted unpaid supply and reserved cargo survive deliberate owner pause

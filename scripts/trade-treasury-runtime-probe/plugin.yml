@@ -1,0 +1,6 @@
+name: TradeTreasuryRuntimeProbe
+version: 0.52-trade
+main: ru.neverland.runtime.TradeTreasuryProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyTrade, NeverLandTownyTreasuryPlus]

@@ -25,7 +25,7 @@ public final class TradeGuaranteeProbe extends JavaPlugin {
  @Override public void onEnable(){if(!Files.isRegularFile(Path.of("ALLOW_DISPOSABLE_RAID_PROBE"))||!getServer().getIp().equals("127.0.0.1")){getServer().getPluginManager().disablePlugin(this);return;}proof=getDataFolder().toPath();try{Files.createDirectories(proof);}catch(Exception e){throw new RuntimeException(e);}restart=Files.exists(proof.resolve("first-passed.txt"));later(50,this::setup);}
  void setup()throws Exception{
   plugin=(MintTownyTrade)Bukkit.getPluginManager().getPlugin("NeverLandTownyTrade");service=(TradeService)field(plugin,"trade");repo=(TradeRepository)field(plugin,"repository");((org.bukkit.scheduler.BukkitTask)field(service,"task")).cancel();set(service,"legacyReviews",true);world=Bukkit.getWorlds().getFirst();
-  check(plugin.isEnabled()&&plugin.getDescription().getVersion().equals("0.3.0"),"actual Trade0.3 plugin enabled with real Folia scheduler");
+  check(plugin.isEnabled()&&plugin.getDescription().getVersion().equals("0.3.1"),"actual Trade0.3 plugin enabled with real Folia scheduler");
   Bukkit.getServicesManager().register(WarehouseApi.class,warehouse,this,ServicePriority.Highest);
   var economy=TownyEconomyHandler.class.getDeclaredField("economy");economy.setAccessible(true);economy.set(null,bank);var provider=TownyEconomyHandler.class.getDeclaredField("provider");provider.setAccessible(true);provider.set(null,new VaultEconomyProvider());TownySettings.setProperty("economy.using_economy",true);
   if(restart){loadFixture();resumed();return;}

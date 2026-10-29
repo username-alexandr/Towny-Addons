@@ -1,33 +1,29 @@
 package ru.neverland.minttrade.contract;
-import java.util.*;
-import java.io.IOException;
-import com.palmergames.bukkit.towny.object.Town;
-import org.bukkit.Bukkit;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
-import ru.neverland.minttrade.integration.TownyHook;
-import ru.neverland.minttrade.service.*;
+import java.util.*;import java.util.concurrent.*;import java.io.IOException;
+import com.palmergames.bukkit.towny.object.Town;import org.bukkit.inventory.ItemStack;import org.bukkit.plugin.java.JavaPlugin;import org.bukkit.scheduler.BukkitTask;
+import ru.neverland.core.*;import ru.neverland.minttrade.integration.*;import ru.neverland.minttrade.service.*;
 import static ru.neverland.minttrade.contract.SupplyContract.*;
-public final class SupplyService {
-    private final JavaPlugin plugin;private final TownyHook towny;private final TradeService trade;private final SupplyRepository repo;private final SupplyGateway gateway;private final MessageService messages;
-    private final Map<UUID,Long> errors=new HashMap<>();private BukkitTask task;private boolean broken;private int cursor;
-    public SupplyService(JavaPlugin plugin,TownyHook towny,TradeService trade,SupplyGateway gateway,MessageService messages){this.plugin=plugin;this.towny=towny;this.trade=trade;this.gateway=gateway;this.messages=messages;repo=new SupplyRepository(plugin.getDataFolder().toPath().resolve("contracts-data.yml"));}
-    public void start(){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {reload();task=ru.neverland.core.SuiteScheduler.get().runTaskTimer(plugin,this::tick,40,20);} }
-    public void stop(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(task!=null)task.cancel();} }
-    public void reload(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {try{repo.load();for(var c:repo.all()){var item=SupplyGateway.decode(c.terms().itemData());if(item==null||item.getType().isAir()||item.getAmount()!=1)throw new IOException("Повреждён образец товара "+c.terms().shortId());}broken=false;errors.clear();}
-        catch(Exception ex){broken=true;plugin.getLogger().severe("Регулярные договоры остановлены: "+ex.getMessage());}} }
-    public void flushReputation(){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(available())repo.flushReputation();} }
-    public void beforeTradeQuote(){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {writable();flushReputation();if(repo.pendingReputation()>0)throw new IllegalStateException("Ожидается обновление торговой репутации; повторите позже");} }
-    public boolean available(){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {return !broken&&repo.writable();} }
-    private void writable(){if(!ru.neverland.core.SuiteState.held())throw new IllegalStateException("Требуется основной поток");if(!available())throw new IllegalStateException("Регулярные договоры остановлены после ошибки записи. Обратитесь к администратору");}
-    public List<SupplyContract> all(){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {return repo.all().stream().sorted(Comparator.comparingLong((SupplyContract c)->c.terms().created()).reversed().thenComparing(c->c.terms().id())).toList();} }
-    public List<SupplyContract> town(UUID id){ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {return all().stream().filter(c->c.terms().party(id)).sorted(Comparator.comparing((SupplyContract c)->!c.open())).toList();} }
-    public SupplyContract find(String prefix){ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {if(prefix==null||prefix.length()<8)return null;var matches=all().stream().filter(c->c.terms().id().toString().startsWith(prefix.toLowerCase(Locale.ROOT))).toList();return matches.size()==1?matches.get(0):null;} }
-    private SupplyContract require(UUID town,String id){var c=find(id);if(c==null||!c.terms().party(town))throw new IllegalArgumentException("Договор не найден в вашем городе");return c;}
-    public int defaultDays(){ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {return Math.max(1,Math.min(30,plugin.getConfig().getInt("contracts.default-days",7)));} }
-    public SupplyContract propose(Town seller,Town buyer,ItemStack item,int amount,long cents,int days)throws IOException { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {return propose(seller,buyer,item,amount,cents,days,null);} }
-    public SupplyContract propose(Town seller,Town buyer,ItemStack item,int amount,long cents,int days,UUID actor)throws IOException { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
+/** Each payment step sees only an acknowledged journal image; no journal IO under Suite. */
+public final class SupplyService{
+ private final JavaPlugin plugin;private final TownyHook towny;private final TradeService trade;private final SupplyJournal repo;private final SupplyGateway gateway;private final MessageService messages;private final SupplyExecution execution;private final TreasuryFunding funding=new TreasuryFunding();
+ private final Map<UUID,Long> errors=new HashMap<>();private BukkitTask task;private boolean broken,stopping;private int cursor,maintenance;private CompletionStage<?> operation=CompletableFuture.completedFuture(null);private CompletionStage<Void> closing;
+ public SupplyService(JavaPlugin plugin,TownyHook towny,TradeService trade,SupplyGateway gateway,MessageService messages){this.plugin=plugin;this.towny=towny;this.trade=trade;this.gateway=gateway;this.messages=messages;repo=new SupplyJournal(plugin.getDataFolder().toPath().resolve("contracts-data.yml"));execution=new SupplyExecution(plugin);}
+ public void start(){try{repo.load();for(var c:repo.image().contracts().values()){var item=SupplyGateway.decode(c.terms().itemData());if(item==null||item.getType().isAir()||item.getAmount()!=1)throw new IOException("Повреждён образец товара "+c.terms().shortId());}}catch(Exception error){broken=true;plugin.getLogger().severe("Регулярные договоры остановлены: "+error.getMessage());}task=SuiteScheduler.get().runTaskTimer(plugin,this::tick,40,20);}
+ public CompletionStage<Void> stop(){try(var guard=SuiteState.guard()){if(closing!=null)return closing;stopping=true;if(task!=null)task.cancel();execution.stop();closing=operation.handle((v,e)->null).thenCompose(v->repo.close()).handle((v,e)->e).thenCompose(error->execution.close().thenCompose(v->error==null?CompletableFuture.<Void>completedFuture(null):CompletableFuture.<Void>failedFuture(error)));return closing;}}
+ public void reload(){try(var guard=SuiteState.guard()){if(broken||!repo.writable())throw new IllegalStateException("После исправления журнала договоров требуется перезапуск сервера");errors.clear();}}
+ public boolean available(){try(var guard=SuiteState.guard()){return !broken&&!stopping&&repo.writable();}}
+ public boolean busy(){return repo.busy()||!operation.toCompletableFuture().isDone();}
+ private void writable(){if(!SuiteState.held())throw new IllegalStateException("Требуется согласованное состояние");if(!available()||SuiteState.frozen(plugin.getName()))throw new IllegalStateException("Регулярные договоры приостановлены; обратитесь к администратору");if(busy())throw new IllegalStateException("Сохраняется предыдущее действие договора; повторите через секунду");}
+ private <T>CompletionStage<T> track(CompletionStage<T> future){operation=future;return future;}
+ public void flushReputation(){try(var guard=SuiteState.guard()){if(available()&&!busy())deliverReputation();}}
+ public void beforeTradeQuote(){try(var guard=SuiteState.guard()){if(!available())throw new IllegalStateException("Ожидается проверка торговых договоров");if(!repo.image().reputation().isEmpty()){flushReputation();throw new IllegalStateException("Ожидается обновление торговой репутации; повторите позже");}}}
+ public List<SupplyContract> all(){try(var guard=SuiteState.guard()){return repo.image().contracts().values().stream().sorted(Comparator.comparingLong((SupplyContract c)->c.terms().created()).reversed().thenComparing(c->c.terms().id())).toList();}}
+ public List<SupplyContract> town(UUID id){try(var guard=SuiteState.guard()){return all().stream().filter(c->c.terms().party(id)).sorted(Comparator.comparing((SupplyContract c)->!c.open())).toList();}}
+ public SupplyContract find(String prefix){try(var guard=SuiteState.guard()){if(prefix==null||prefix.length()<8)return null;var matches=all().stream().filter(c->c.terms().id().toString().startsWith(prefix.toLowerCase(Locale.ROOT))).toList();return matches.size()==1?matches.get(0):null;}}
+ private SupplyContract require(UUID town,String id){var c=find(id);if(c==null||!c.terms().party(town))throw new IllegalArgumentException("Договор не найден в вашем городе");return c;}
+ public int defaultDays(){try(var guard=SuiteState.guard()){return Math.max(1,Math.min(30,plugin.getConfig().getInt("contracts.default-days",7)));}}
+    public CompletionStage<SupplyContract> propose(Town seller,Town buyer,ItemStack item,int amount,long cents,int days)throws IOException { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {return propose(seller,buyer,item,amount,cents,days,null);} }
+    public CompletionStage<SupplyContract> propose(Town seller,Town buyer,ItemStack item,int amount,long cents,int days,UUID actor)throws IOException { try (var suiteGuard12 = ru.neverland.core.SuiteState.guard()) {
         writable();if(!plugin.getConfig().getBoolean("contracts.enabled",true))throw new IllegalArgumentException("Новые автопоставки отключены администратором");
         if(seller==null||buyer==null||seller.equals(buyer))throw new IllegalArgumentException("Нужен другой существующий город");
         if(!gateway.available())throw new IllegalArgumentException("Обновите NeverLandTownyBuilds до 0.8.7 или новее");
@@ -41,10 +37,10 @@ public final class SupplyService {
         var c=SupplyContract.proposal(new Terms(UUID.randomUUID(),seller.getUUID(),buyer.getUUID(),Base64.getEncoder().encodeToString(sample.serializeAsBytes()),
             ru.neverland.minttrade.util.ColorUtil.strip(trade.registry().itemName(sample)),amount,cents,days,now,expiration));
         String blocked=gateway.termsReady(c);if(blocked!=null)throw new IllegalArgumentException(blocked);
-        repo.prune(1000);repo.put(c);auditAgreement(c,actor,"PROPOSED");announce(c,"contract-proposed");return c;
+        var future=repo.put(c,null,null,false,List.of(),gateway.auditRecord(c,actor,"PROPOSED:"+UUID.randomUUID(),now,true));return track(future.thenApply(saved->{announce(saved,"contract-proposed");return saved;}));
     } }
-    public SupplyContract action(UUID town,String id,String action,Terms expected)throws IOException { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {return action(town,id,action,expected,null);} }
-    public SupplyContract action(UUID town,String id,String action,Terms expected,UUID actor)throws IOException { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
+    public CompletionStage<SupplyContract> action(UUID town,String id,String action,Terms expected)throws IOException { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) {return action(town,id,action,expected,null);} }
+    public CompletionStage<SupplyContract> action(UUID town,String id,String action,Terms expected,UUID actor)throws IOException { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         writable();var c=require(town,id);if(!c.terms().equals(expected))throw new IllegalArgumentException("Условия изменились; заново откройте договор и проверьте их");long now=System.currentTimeMillis();
         var next=switch(action){
             case "accept" -> {if(!plugin.getConfig().getBoolean("contracts.enabled",true)||!gateway.available())throw new IllegalArgumentException("Новые автопоставки отключены или склад недоступен");String blocked=gateway.termsReady(c);if(blocked!=null)throw new IllegalArgumentException(blocked);yield c.accept(town,now);}
@@ -55,31 +51,46 @@ public final class SupplyService {
         var outcomes=new ArrayList<ru.neverland.core.ReputationOutcome>();
         if(c.status()==Status.ACTIVE && next.status()==Status.CANCELLED)
             outcomes.add(ru.neverland.core.ReputationOutcome.town("supply-cancel:"+c.terms().id(),town,"SUPPLY_CANCELLED",now,"Расторгнут договор "+c.terms().shortId()));
-        repo.put(next,outcomes);auditAgreement(next,actor,action.toUpperCase(Locale.ROOT));flushReputation();announce(next,"contract-changed");return next;
+        var future=repo.put(next,action.equals("accept")?(actor==null?new UUID(0,0):actor):null,null,false,outcomes,gateway.auditRecord(next,actor,action.toUpperCase(Locale.ROOT)+":"+UUID.randomUUID(),now,true));return track(future.thenApply(saved->{announce(saved,"contract-changed");return saved;}));
     } }
-    private void auditAgreement(SupplyContract c,UUID actor,String action){var t=c.terms();ru.neverland.core.AuditTrail.record(plugin,UUID.randomUUID().toString(),t.id().toString(),"SUPPLY_AGREEMENT",action,ru.neverland.core.AuditTrail.player(actor),ru.neverland.core.AuditTrail.town(t.seller()),ru.neverland.core.AuditTrail.town(t.buyer()),ru.neverland.core.AuditTrail.item(SupplyGateway.decode(t.itemData())),t.amount(),ru.neverland.core.AuditTrail.cents(t.cents()),"Условия договора; период дней="+t.days());}
-    public void resolve(String id,UUID attempt,String decision)throws IOException { try (var suiteGuard15 = ru.neverland.core.SuiteState.guard()) {
-        writable();var c=SupplyProcessor.resolve(find(id),attempt,decision,System.currentTimeMillis());repo.put(c);
-        plugin.getLogger().warning("Сверка договора "+c.terms().id()+", поставка "+attempt+": "+decision);announce(c,"contract-changed");
-    } }
-    private void tick(){if(!available())return;flushReputation();long now=System.currentTimeMillis();long retry=Math.max(30,Math.min(3600,plugin.getConfig().getInt("contracts.retry-seconds",300)))*1000L;
-        var pending=repo.all().stream().filter(SupplyContract::open).toList();
-        int budget=Math.max(1,Math.min(50,plugin.getConfig().getInt("contracts.process-per-second",8)));
-        for(int i=0;i<Math.min(budget,pending.size());i++){
-            cursor=Math.floorMod(cursor,pending.size());var before=pending.get(cursor++);
-            if(errors.getOrDefault(before.terms().id(),0L)>now)continue;
-            try {
-                if(before.status()==Status.PROPOSED&&now>=before.terms().expires()){repo.put(before.expire());continue;}
-                if(before.attempt()==null&&!plugin.getConfig().getBoolean("contracts.enabled",true))continue;
-                gateway.audit(before);SupplyProcessor.advance(before.terms().id(),now,retry,Math.max(0,Math.min(168,plugin.getConfig().getInt("contracts.reputation-grace-hours",24)))*3_600_000L,repo,gateway);gateway.audit(repo.get(before.terms().id()));flushReputation();
-                var after=repo.get(before.terms().id());if(after.deliveries()>before.deliveries())announce(after,"contract-delivered");
-                if(after.attempt()!=null&&(after.attempt().phase()==Phase.DEBIT_PENDING||after.attempt().phase()==Phase.CREDIT_PENDING)
-                    &&(before.attempt()==null||before.attempt().phase()!=after.attempt().phase()))announce(after,"contract-reconcile");
-            }catch(Exception ex){errors.put(before.terms().id(),now+retry);plugin.getLogger().severe("Договор "+before.terms().id()+": "+ex.getMessage());
-                var after=repo.get(before.terms().id());if(after!=null&&after.attempt()!=null&&(after.attempt().phase()==Phase.DEBIT_PENDING||after.attempt().phase()==Phase.CREDIT_PENDING))announce(after,"contract-reconcile");
-                if(!repo.writable())break;
-            }
-        }
-    }
-    private void announce(SupplyContract c,String key){ru.neverland.core.SuiteScheduler.players(plugin, player -> {{var t=towny.town(player);if(t!=null&&c.terms().party(t.getUUID())&&towny.isManager(player,t))messages.send(player,key,Map.of("id",c.terms().shortId(),"item",c.terms().itemName(),"amount",c.terms().amount(),"price",SupplyContract.money(c.terms().cents()),"days",c.terms().days()));}});}
+
+ public CompletionStage<Void> resolve(String id,UUID attempt,String decision){try(var guard=SuiteState.guard()){writable();var current=find(id);var payment=current==null?null:repo.image().payments().get(current.terms().id());if(payment!=null&&payment.terms()!=null&&decision.startsWith("debit-"))throw new IllegalArgumentException("Сверьте квитанцию TreasuryPlus "+payment.terms().operation()+"; договор продолжится по её подтверждённому результату");var c=SupplyProcessor.resolve(current,attempt,decision,System.currentTimeMillis());return track(persist(c,null,false,List.of()).thenAccept(v->{try(var confirmed=SuiteState.guard()){errors.remove(c.terms().id());announce(c,"contract-changed");}}));}}
+ private CompletionStage<SupplyContract> persist(SupplyContract c,SupplyJournal.Payment payment,boolean clear,Collection<ReputationOutcome> outcomes){return repo.put(c,null,payment,clear,outcomes,c.attempt()==null?null:gateway.auditRecord(c,null,c.attempt().phase().name(),System.currentTimeMillis(),false));}
+ private CompletionStage<Void> stage(SupplyContract c,Phase phase,long check,String note){return persist(c.attempt(c.attempt().phase(phase),check,note),null,false,List.of()).thenApply(v->null);}
+ private static CompletionStage<Void> done(){return CompletableFuture.completedFuture(null);}
+ private boolean deliverAudit(){if(repo.image().audit().isEmpty())return false;var record=repo.image().audit().get(0);track(execution.audit(record).thenCompose(ok->ok?repo.auditAck(record.id()):done()));return true;}
+ private boolean deliverReputation(){if(repo.image().reputation().isEmpty())return false;var outcome=repo.image().reputation().values().iterator().next();track(execution.guarded(()->ReputationAccess.deliver(outcome)).thenCompose(ok->ok?repo.reputationAck(outcome.id()):done()));return true;}
+ private void tick(){if(!available()||busy())return;if(repo.image().audit().size()>=4094){deliverAudit();return;}int turn=Math.floorMod(maintenance++,3);if(turn==0&&deliverAudit()||turn==1&&deliverReputation())return;long now=System.currentTimeMillis();long retry=Math.max(30,Math.min(3600,plugin.getConfig().getInt("contracts.retry-seconds",300)))*1000L;var pending=repo.image().contracts().values().stream().filter(SupplyContract::open).toList();for(int i=0;i<pending.size();i++){var c=pending.get(Math.floorMod(cursor++,pending.size()));if(errors.getOrDefault(c.terms().id(),0L)>now||now<c.nextCheck())continue;var future=advance(c,now,retry);track(future);future.whenComplete((v,error)->{if(error!=null){try(var guard=SuiteState.guard()){errors.put(c.terms().id(),System.currentTimeMillis()+retry);plugin.getLogger().warning("Поставка "+c.terms().id()+" ждёт записи или сверки: "+error.getMessage());}}});return;}if(!deliverAudit())deliverReputation();}
+ private CompletionStage<Void> advance(SupplyContract c,long now,long retry){try{
+  if(c.status()==Status.PROPOSED)return now>=c.terms().expires()?persist(c.expire(),null,false,List.of()).thenApply(v->null):done();
+  if(c.attempt()==null){if(!c.enabled()||!plugin.getConfig().getBoolean("contracts.enabled",true)||now<c.nextDue())return done();String blocked=gateway.ready(c);if(blocked!=null)return persist(c.waiting(now+retry,blocked),null,false,List.of()).thenApply(v->null);return persist(c.attempt(new Attempt(UUID.randomUUID(),Phase.PREPARED,now),now,"Подготовка поставки"),null,false,List.of()).thenApply(v->null);}
+  return switch(c.attempt().phase()){
+   case PREPARED->prepare(c,now,retry);
+   case DEBIT_READY->debitReady(c,now);
+   case DEBIT_PENDING->pollDebit(c,now);
+   case PAID->paid(c,now,retry);
+   case DELIVERED->seller(c,now,retry);
+   case RETURNING->execution.guarded(()->{try{return gateway.settle(c,false);}catch(Exception error){throw new CompletionException(error);}}).thenCompose(status->{if(status.equals("RETURNED")||status.equals("MISSING"))return stage(c,Phase.RETURNED,now,c.note());if(status.equals("DELIVERED"))return CompletableFuture.failedFuture(new IllegalStateException("Неоплаченный товар уже доставлен"));return persist(c.waiting(now+retry,SupplyProcessor.warehouseNote(status)),null,false,List.of()).thenApply(v->null);});
+   case COMPLETE,RETURNED->execution.guarded(()->{try{gateway.acknowledge(c);return true;}catch(Exception error){throw new CompletionException(error);}}).thenCompose(v->{var outcomes=new ArrayList<ReputationOutcome>();if(c.attempt().phase()==Phase.COMPLETE)for(UUID party:List.of(c.terms().seller(),c.terms().buyer()))outcomes.add(ReputationOutcome.town("supply-complete:"+c.attempt().id(),party,"SUPPLY_COMPLETED",c.attempt().started(),"Выполнена поставка "+c.terms().shortId()));var finished=c.finish(now,retry);return persist(finished,null,true,outcomes).thenAccept(saved->{if(saved.deliveries()>c.deliveries())announce(saved,"contract-delivered");});});
+   case CREDIT_PENDING->done();
+  };
+ }catch(Exception error){return CompletableFuture.failedFuture(error);}}
+ private CompletionStage<Void> prepare(SupplyContract c,long now,long retry)throws Exception{
+  String blocked=c.enabled()?gateway.ready(c):"Договор остановлен";if(blocked!=null)return stage(c,Phase.RETURNING,now,blocked);
+  return execution.guarded(()->{try{return gateway.reserve(c);}catch(Exception error){throw new CompletionException(error);}}).thenCompose(status->{try{if(!status.equals("RESERVED")){if(status.equals("DELIVERED")||status.equals("RETURNED"))throw new IllegalStateException("Складская квитанция противоречит поставке");var outcomes=new ArrayList<ReputationOutcome>();long grace=Math.max(0,Math.min(168,plugin.getConfig().getInt("contracts.reputation-grace-hours",24)))*3_600_000L;if(status.equals("STOCK_LOW")&&now>=c.nextDue()&&now-c.nextDue()>=grace)outcomes.add(ReputationOutcome.town("supply-missed:"+c.terms().id()+":"+c.nextDue(),c.terms().seller(),"SUPPLY_MISSED",c.nextDue(),"Просроченная партия договора "+c.terms().shortId()));return persist(c.waiting(now+retry,SupplyProcessor.warehouseNote(status)),null,false,outcomes).thenApply(v->null);}
+   var payment=payment(c);return persist(c.attempt(c.attempt().phase(Phase.DEBIT_READY),now,"Товар зарезервирован; платёж подготовлен"),payment,false,List.of()).thenApply(v->null);
+  }catch(Exception error){return CompletableFuture.failedFuture(error);}});
+ }
+ private SupplyJournal.Payment payment(SupplyContract c)throws Exception{var terms=funding.installed()?funding.freeze(SupplyJournal.debit(c.attempt().id()),c.terms().buyer(),new UUID(0,0),c.terms().cents(),"infrastructure","trade","Поставка "+c.attempt().id()+" / "+c.terms().id()):null;return new SupplyJournal.Payment(c.attempt().id(),terms==null?"DIRECT":"TREASURY",terms);}
+ private CompletionStage<Void> debitReady(SupplyContract c,long now)throws Exception{
+  if(!c.enabled()||!plugin.getConfig().getBoolean("contracts.enabled",true))return stage(c,Phase.RETURNING,now,"Пауза до запроса оплаты; резерв возвращается");var payment=repo.image().payments().get(c.terms().id());if(payment==null)throw new IllegalStateException("Нет сохранённого протокола оплаты");
+  if(payment.terms()!=null)return stage(c,Phase.DEBIT_PENDING,now,"Казна подтверждает резерв поставки");if(funding.installed())return persist(c.attempt(c.attempt().phase(Phase.DEBIT_PENDING),now,"Казна подтверждает резерв поставки"),payment(c),false,List.of()).thenApply(v->null);
+  return stage(c,Phase.DEBIT_PENDING,now,"Ожидается точная квитанция списания").thenCompose(v->execution.guarded(()->gateway.preparePayment(c,false))).thenCompose(execution::bank).thenCompose(applied->stage(c,applied?Phase.PAID:Phase.RETURNING,now,applied?"Оплата зарезервирована":"Банковский вызов не выполнялся"));
+ }
+ private CompletionStage<Void> pollDebit(SupplyContract c,long now){var payment=repo.image().payments().get(c.terms().id());if(payment==null||payment.terms()==null)return done();return funding.debit(payment.terms()).thenCompose(result->switch(result){case PAID->stage(c,Phase.PAID,now,"Казна подтвердила точный резерв");case NOT_APPLIED->stage(c,Phase.RETURNING,now,"Казна подтвердила отсутствие списания");case REVIEW->{String note="Администратору нужно сверить квитанцию казны "+payment.terms().operation();yield c.note().equals(note)?done():persist(c.waiting(now,note),null,false,List.of()).thenApply(v->null);}case WAIT->done();});}
+ private CompletionStage<Void> paid(SupplyContract c,long now,long retry)throws Exception{var payment=repo.image().payments().get(c.terms().id());if(payment!=null&&payment.terms()!=null){var receipt=funding.snapshot(payment.terms(),payment.terms().operation(),false,"");if(payment.terms().result(receipt,payment.terms().operation(),false,"")!=TreasuryFunding.Result.PAID)return done();}
+  return execution.guarded(()->{try{return gateway.settle(c,true);}catch(Exception error){throw new CompletionException(error);}}).thenCompose(status->{if(status.equals("DELIVERED"))return stage(c,Phase.DELIVERED,now,"Товар доставлен; ожидает оплаты продавцу");if(status.equals("RETURNED")||status.equals("MISSING"))return CompletableFuture.failedFuture(new IllegalStateException("Оплаченный резерв не найден"));return persist(c.waiting(now+retry,SupplyProcessor.warehouseNote(status)),null,false,List.of()).thenApply(v->null);});
+ }
+ private CompletionStage<Void> seller(SupplyContract c,long now,long retry){if(repo.image().audit().size()>=4094)return done();return stage(c,Phase.CREDIT_PENDING,now,"Ожидается точная квитанция выплаты продавцу").thenCompose(v->execution.guarded(()->gateway.preparePayment(c,true))).thenCompose(execution::bank).thenCompose(applied->stage(c,applied?Phase.COMPLETE:Phase.DELIVERED,applied?now:now+retry,applied?"Поставка оплачена и доставлена":"Вызов банка продавца не выполнялся; повторим после восстановления"));}
+ private void announce(SupplyContract c,String key){if(stopping)return;SuiteScheduler.players(plugin,player->{var town=towny.town(player);if(town!=null&&c.terms().party(town.getUUID())&&towny.isManager(player,town))messages.send(player,key,Map.of("id",c.terms().shortId(),"item",c.terms().itemName(),"amount",c.terms().amount(),"price",SupplyContract.money(c.terms().cents()),"days",c.terms().days()));});}
 }

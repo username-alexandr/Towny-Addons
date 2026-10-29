@@ -63,7 +63,7 @@ public final class SupplyProcessor {
                     outcomes.add(ru.neverland.core.ReputationOutcome.town("supply-complete:"+c.attempt().id(),party,"SUPPLY_COMPLETED",now,"Выполнена поставка "+c.terms().shortId()));
                 store.put(c.finish(now,retry),outcomes);
             }
-            case DEBIT_PENDING, CREDIT_PENDING -> { /* A restart or ambiguous bank result requires operator reconciliation. */ }
+            case DEBIT_READY, DEBIT_PENDING, CREDIT_PENDING -> { /* A restart or ambiguous bank result requires operator reconciliation. */ }
         }
     } }
     public static SupplyContract resolve(SupplyContract c,UUID attempt,String decision,long now){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
