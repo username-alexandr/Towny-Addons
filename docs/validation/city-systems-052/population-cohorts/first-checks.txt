@@ -1,0 +1,27 @@
+PASS validated Population 0.2.1 enabled with real Towny Builds Districts
+PASS derived groups conserve city population
+PASS derived groups conserve city housing
+PASS derived groups conserve city jobs
+PASS derived groups conserve city workforce
+PASS derived groups conserve city employed
+PASS cohort totals match confirmed simulation snapshot
+PASS decimal group shares conserve foodDemand
+PASS decimal group shares conserve waterDemand
+PASS decimal group shares conserve foodSupply
+PASS decimal group shares conserve waterSupply
+PASS actual residential building receives residents while industrial workplace alone does not create housing
+PASS physical industrial jobs and unassigned base housing retain separate groups
+PASS async public cohorts API uses detached cache without waiting for suite ownership
+PASS main native menu has one clear district population button
+PASS real population cohorts command opens native paginated inventory
+PASS native board presents actual district names and Moscow source timestamps
+PASS native refresh inventory click is cancelled before item movement
+PASS refresh action opens another valid board with explicit no-extra-debit explanation
+PASS changed district home gives a real pending source and schedules bounded menu retry
+PASS pending cohort refresh never reopens a replaced player inventory
+PASS visitor without admin permission cannot inspect another town through command
+PASS revoked use permission cannot open another cohorts view
+PASS repeated viewing leaves population and district files byte-for-byte unchanged
+PASS optional cohorts disable preserves confirmed residents
+PASS missing optional district assessment affects only cohorts not existing simulation
+PASS restored optional source reconstructs same population totals

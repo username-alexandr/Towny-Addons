@@ -14,6 +14,7 @@ public final class PopulationMenu implements Listener {
     private final org.bukkit.plugin.Plugin plugin;
     private final PopulationService service;
     private final Messages messages;
+    private final CohortMenu cohorts;
     private static final class View implements InventoryHolder {
         final UUID town; final boolean buildings; final int page;
         Inventory inventory;
@@ -22,6 +23,7 @@ public final class PopulationMenu implements Listener {
     }
     public PopulationMenu(org.bukkit.plugin.Plugin plugin, PopulationService service, Messages messages) {
         this.plugin=plugin; this.service=service; this.messages=messages;
+        this.cohorts=new CohortMenu(plugin,service,messages,(player,town)->open(player,town,false,0));
     }
     public void open(Player player, UUID townId, boolean buildings, int requestedPage) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (!player.hasPermission("neverlandtownypopulation.use")) { messages.send(player,"no-permission"); return; }
@@ -37,6 +39,7 @@ public final class PopulationMenu implements Listener {
         view.inventory.setItem(49,item(Material.SUNFLOWER,"&aОбновить", "Нажмите, чтобы обновить показатели."));
         player.openInventory(view.inventory);
     } }
+    public void openCohorts(Player player,UUID town,int page){cohorts.open(player,town,page);}
     private boolean canView(Player player, UUID town) {
         if (player.hasPermission("neverlandtownypopulation.admin")) return true;
         var resident=com.palmergames.bukkit.towny.TownyAPI.getInstance().getResident(player);
@@ -69,6 +72,7 @@ public final class PopulationMenu implements Listener {
         v.inventory.setItem(33,item(Material.CLOCK,"&fСледующий цикл",
                 s.paused()?"Ожидаем данные построек и снабжения.":"Через "+Math.max(0,(s.nextCycle()-System.currentTimeMillis()+999)/1000)+" сек.",
                 "Длительность: "+service.settings().intervalMillis()/1000+" сек.","Во время выключения сервера расчёт не идёт."));
+        v.inventory.setItem(47,item(Material.FILLED_MAP,"&aЖители и районы","Кто живёт в районах и чего им не хватает.","Жильё, занятость, питание и городские службы."));
         v.inventory.setItem(45,item(Material.BRICKS,"&aВклад зданий","Показать жильё, снабжение и рабочие места."));
     }
     private void sources(View v, PopulationSnapshot s, int pages) {
@@ -95,6 +99,7 @@ public final class PopulationMenu implements Listener {
     }
     private static String signed(double n) { return (n>0?"+":"")+number(n); }
     @EventHandler public void click(InventoryClickEvent event) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyPopulation")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+        if(cohorts.click(event))return;
         if (!(event.getView().getTopInventory().getHolder() instanceof View view)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player) || event.getRawSlot()<0 || event.getRawSlot()>=54) return;
@@ -103,6 +108,7 @@ public final class PopulationMenu implements Listener {
         ru.neverland.core.SuiteScheduler.entity(plugin,player, () -> {
             if (!player.isOnline() || player.getOpenInventory().getTopInventory().getHolder()!=view) return;
             if(slot==49) open(player,view.town,view.buildings,view.page);
+            else if(!view.buildings && slot==47) openCohorts(player,view.town,0);
             else if(!view.buildings && slot==45) open(player,view.town,true,0);
             else if(view.buildings && slot==48) open(player,view.town,false,0);
             else if(view.buildings && slot==45) open(player,view.town,true,view.page-1);
@@ -110,6 +116,7 @@ public final class PopulationMenu implements Listener {
         });
     } }
     @EventHandler public void drag(InventoryDragEvent event) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyPopulation")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
+        if(cohorts.drag(event))return;
         if(event.getView().getTopInventory().getHolder() instanceof View) event.setCancelled(true);
     } }
 }

@@ -1,0 +1,1 @@
+PASS 13 assertions; real Folia Towny Builds Districts Population, exact population and decimal totals, physical district assignment, async cache, native menu, neutral optional toggles and full restart; explicit completed-site fixtures and offline Player InventoryView EntityScheduler; no client or bank transaction claimed

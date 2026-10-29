@@ -1,5 +1,5 @@
 name: NeverLandTownyPopulation
-version: 0.2.0
+version: 0.2.1
 main: ru.neverland.townypopulation.NeverLandTownyPopulation
 folia-supported: true
 api-version: '26.2'
@@ -10,7 +10,7 @@ softdepend: [PlaceholderAPI, NeverLandTownyDistricts]
 commands:
   townypopulation:
     description: Население города
-    usage: /townypopulation [info|buildings|reload|set]
+    usage: /townypopulation [info|buildings|cohorts|reload|set]
     aliases: [population, nltpopulation]
 permissions:
   neverlandtownypopulation.use:

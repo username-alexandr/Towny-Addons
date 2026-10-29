@@ -1,0 +1,4 @@
+PASS validated Population 0.2.1 enabled with actual Towny Builds Districts on Folia
+PASS real full restart reloads last confirmed population and reopens repaired storage
+PASS restart preserves fractional progress and change history
+PASS startup acknowledgement rebases elapsed downtime before any growth or decline

@@ -16,10 +16,11 @@ import java.util.concurrent.*;
 public final class PopulationService implements TownyPopulationApi {
     private final JavaPlugin plugin;private final PopulationRepository repository;private final BuildsBridge builds=new BuildsBridge();private PopulationSettings settings;
     /** Publish immutable sources together with their city totals; async readers never query Towny. */
-    private record Cache(Map<UUID,PopulationSnapshot> towns,Map<UUID,UUID> residents,Map<UUID,Map<String,Capacity>> sources,long at){}
-    private volatile Cache cache=new Cache(Map.of(),Map.of(),Map.of(),0);private BukkitTask task;private volatile boolean running,startupReady;
+    private record Cache(Map<UUID,PopulationSnapshot> towns,Map<UUID,UUID> residents,Map<UUID,Map<String,Capacity>> sources,Map<UUID,Long> sourcesAt,long at){}
+    private volatile Cache cache=new Cache(Map.of(),Map.of(),Map.of(),Map.of(),0);private BukkitTask task;private volatile boolean running,startupReady;
+    private final CohortService cohorts;private final ru.neverland.townypopulation.integration.DistrictsBridge districtBridge=new ru.neverland.townypopulation.integration.DistrictsBridge();
     private final java.util.concurrent.atomic.AtomicLong lastWarning=new java.util.concurrent.atomic.AtomicLong();
-    public PopulationService(JavaPlugin plugin,PopulationRepository repository,PopulationSettings settings){this.plugin=plugin;this.repository=repository;this.settings=settings;}
+    public PopulationService(JavaPlugin plugin,PopulationRepository repository,PopulationSettings settings){this.plugin=plugin;this.repository=repository;this.settings=settings;this.cohorts=new CohortService(error->plugin.getLogger().warning("Районное население временно недоступно: "+error.getMessage()));}
     public PopulationSettings settings(){try(var guard=SuiteState.guard()){return settings;}}
     public void start(){try(var guard=SuiteState.guard()){
         running=true;startupReady=false;long now=System.currentTimeMillis();var before=repository.state();var rebased=new HashMap<UUID,PopulationState>();before.forEach((id,state)->rebased.put(id,state.rebase(now)));
@@ -31,21 +32,22 @@ public final class PopulationService implements TownyPopulationApi {
     private List<Town> selected(Set<UUID> targets){if(targets==null)return List.copyOf(TownyAPI.getInstance().getTowns());var result=new ArrayList<Town>();for(UUID id:targets){var town=TownyAPI.getInstance().getTown(id);if(town!=null)result.add(town);}return List.copyOf(result);}
     private void refresh(boolean advance,Set<UUID> targets,boolean maintain){
         long now=System.currentTimeMillis();var confirmed=repository.state();boolean canChange=maintain&&startupReady&&repository.writable()&&!repository.busy();
-        var towns=targets==null?new HashMap<UUID,PopulationSnapshot>():new HashMap<>(cache.towns());var residents=targets==null?new HashMap<UUID,UUID>():new HashMap<>(cache.residents());var allSources=targets==null?new HashMap<UUID,Map<String,Capacity>>():new HashMap<>(cache.sources());var proposed=targets==null?new HashMap<UUID,PopulationState>():new HashMap<>(confirmed);
-        if(targets!=null){targets.forEach(id->{towns.remove(id);allSources.remove(id);proposed.remove(id);});residents.entrySet().removeIf(entry->targets.contains(entry.getValue()));}
+        var towns=targets==null?new HashMap<UUID,PopulationSnapshot>():new HashMap<>(cache.towns());var residents=targets==null?new HashMap<UUID,UUID>():new HashMap<>(cache.residents());var allSources=targets==null?new HashMap<UUID,Map<String,Capacity>>():new HashMap<>(cache.sources());var allSourceTimes=targets==null?new HashMap<UUID,Long>():new HashMap<>(cache.sourcesAt());var proposed=targets==null?new HashMap<UUID,PopulationState>():new HashMap<>(confirmed);
+        if(targets!=null){targets.forEach(id->{towns.remove(id);allSources.remove(id);allSourceTimes.remove(id);proposed.remove(id);});residents.entrySet().removeIf(entry->targets.contains(entry.getValue()));}
         for(var town:selected(targets)){
-            UUID id=town.getUUID();town.getResidents().forEach(resident->residents.put(resident.getUUID(),id));var saved=confirmed.get(id);var state=saved==null?new PopulationState(settings.initial(),0,0,now):saved;boolean paused=!startupReady||!repository.writable();Map<String,Integer> levels;Map<String,Capacity> sources;Capacity capacity;double medicine=0;
+            UUID id=town.getUUID();town.getResidents().forEach(resident->residents.put(resident.getUUID(),id));var saved=confirmed.get(id);var state=saved==null?new PopulationState(settings.initial(),0,0,now):saved;boolean paused=!startupReady||!repository.writable();long sourceTime=now;Map<String,Integer> levels;Map<String,Capacity> sources;Capacity capacity;double medicine=0;
             try{
                 levels=builds.levels(id,settings.buildings().keySet());Map<String,Integer> chosen=levels;sources=settings.contributions(key->chosen.getOrDefault(key,0),key->ru.neverland.integration.DistrictBonuses.multiplier(id,key));capacity=PopulationSettings.combined(sources);
                 var supply=ru.neverland.townypopulation.integration.ResourcesBridge.supply(id);if(supply.isPresent()){paused|=supply.get().paused();if(!paused)capacity=supply.get().limit(capacity,state.population(),settings.rules());}
                 capacity=capacity.plus(new Capacity(0,0,0,0,ru.neverland.integration.SpecializationAccess.bonus(id,"happiness")));capacity=capacity.plus(new Capacity(0,0,0,0,ru.neverland.integration.PoliciesAccess.effect(id,"happiness")));capacity=capacity.plus(new Capacity(0,0,0,0,AchievementBonuses.happiness(id)));capacity=capacity.plus(new Capacity(0,0,0,0,EnvironmentAccess.happiness(id)));medicine=levels.getOrDefault("infirmary",0)>0?ru.neverland.integration.ResearchBonuses.bonus(id,"medicine"):0;
             }catch(ReflectiveOperationException|RuntimeException|LinkageError error){paused=true;var previous=cache.towns().get(id);levels=previous==null?Map.of():previous.buildingLevels();capacity=previous==null?settings.base():previous.capacity();sources=cache.sources().getOrDefault(id,Map.of("@base",settings.base()));warn("Городские службы временно недоступны; население не убывает из-за ошибки интеграции: "+error.getMessage());}
-            if(paused){var previous=cache.towns().get(id);if(previous!=null){capacity=previous.capacity();levels=previous.buildingLevels();sources=cache.sources().getOrDefault(id,sources);}}
+            if(paused){var previous=cache.towns().get(id);if(previous!=null){capacity=previous.capacity();levels=previous.buildingLevels();sources=cache.sources().getOrDefault(id,sources);sourceTime=cache.sourcesAt().getOrDefault(id,cache.at());}}
             var candidate=state;if(canChange){if(paused||now<state.lastCycle())candidate=state.rebase(now);else if(advance&&saved!=null&&now-state.lastCycle()>=settings.intervalMillis())candidate=PopulationMath.advance(state,capacity,settings.rules(),now,medicine);proposed.put(id,candidate);}
             // A new town becomes visible only once its initial population is durably registered.
-            if(saved==null)continue;long next=state.lastCycle()>Long.MAX_VALUE-settings.intervalMillis()?Long.MAX_VALUE:state.lastCycle()+settings.intervalMillis();towns.put(id,new PopulationSnapshot(id,town.getName(),state.population(),capacity,PopulationMath.evaluate(state.population(),capacity,settings.rules(),medicine),state.lastChange(),next,paused,levels));allSources.put(id,Map.copyOf(sources));
+            if(saved==null)continue;long next=state.lastCycle()>Long.MAX_VALUE-settings.intervalMillis()?Long.MAX_VALUE:state.lastCycle()+settings.intervalMillis();towns.put(id,new PopulationSnapshot(id,town.getName(),state.population(),capacity,PopulationMath.evaluate(state.population(),capacity,settings.rules(),medicine),state.lastChange(),next,paused,levels));allSources.put(id,Map.copyOf(sources));allSourceTimes.put(id,sourceTime);
         }
-        cache=new Cache(Map.copyOf(towns),Map.copyOf(residents),Map.copyOf(allSources),now);
+        cache=new Cache(Map.copyOf(towns),Map.copyOf(residents),Map.copyOf(allSources),Map.copyOf(allSourceTimes),now);
+        refreshCohortSources(targets);
         if(canChange&&!proposed.equals(confirmed))repository.commit(confirmed,proposed).whenComplete((saved,error)->{if(error!=null)warn("Изменение населения не подтверждено; прежние жители сохранены: "+error.getMessage());queueRefresh(targets);});
     }
     private void queueRefresh(Set<UUID> targets){if(!running||!plugin.isEnabled()||SuiteState.frozen(plugin.getName()))return;Set<UUID> captured=targets==null?null:Set.copyOf(targets);try{SuiteScheduler.get().runTask(plugin,()->{if(running)try{refresh(false,captured,false);}catch(RuntimeException error){warn("Показатели населения ожидают обновления: "+error.getMessage());}});}catch(RuntimeException ignored){/* Confirmed data is already durable; the next active pulse reconstructs the view. */}}
@@ -57,9 +59,28 @@ public final class PopulationService implements TownyPopulationApi {
     public void refreshTownView(UUID town){try(var guard=SuiteState.guard()){if(running&&town!=null)refresh(false,Set.of(town),false);}}
     /** Metadata event hint: new/deleted towns are registered without a catch-up growth cycle. */
     public void refreshTownRegistration(UUID town){try(var guard=SuiteState.guard()){if(running&&town!=null&&startupReady&&repository.writable()&&!repository.busy())refresh(false,Set.of(town),true);}}
-    public CompletionStage<Void> prepareClose(){running=false;return repository.prepareClose();}
+    /** UI/region entry point; the public cohorts API itself never reads live metadata. */
+    public void refreshCohorts(UUID town){try(var guard=SuiteState.guard()){if(!running||town==null)return;cohorts.watch(town);refresh(false,Set.of(town),false);}}
+    private void refreshCohortSources(Set<UUID> targets){
+        Cache current=cache;Object enabled=plugin.getConfig().get("cohorts.enabled",true);
+        for(UUID id:cohorts.wanted()){
+            if(targets!=null&&!targets.contains(id))continue;var snapshot=current.towns().get(id);boolean paused=snapshot!=null&&snapshot.paused();
+            if(!(enabled instanceof Boolean flag)){cohorts.unavailable(id,"Настройки раздела районов требуют проверки",false,current.at(),paused);continue;}
+            if(!flag||SuiteState.frozen(plugin.getName())){cohorts.unavailable(id,"Раздел населения по районам сейчас отключён",false,current.at(),paused);continue;}
+            if(snapshot==null){cohorts.unavailable(id,"Подтверждённые данные города пока недоступны",false,current.at(),paused);continue;}
+            var districts=districtBridge.read(id,System.currentTimeMillis());if(!districts.available()){cohorts.unavailable(id,districts.issue(),districts.pending(),current.at(),paused);continue;}
+            try{
+                var sources=new HashMap<String,DistrictCohorts.Source>();current.sources().getOrDefault(id,Map.of()).forEach((project,capacity)->sources.put(project,new DistrictCohorts.Source(project,capacity.housing(),capacity.jobs())));
+                var capacity=snapshot.capacity();var metrics=snapshot.metrics();var rules=settings.rules();
+                var input=new DistrictCohorts.Input(snapshot.population(),metrics.workforce(),metrics.employed(),capacity.housing(),capacity.jobs(),java.math.BigDecimal.valueOf(capacity.food()),java.math.BigDecimal.valueOf(capacity.water()),java.math.BigDecimal.valueOf(rules.foodDemand()),java.math.BigDecimal.valueOf(rules.waterDemand()),sources,districts.districts(),districts.assignments());
+                cohorts.capture(id,input,Math.min(current.sourcesAt().getOrDefault(id,current.at()),districts.sourceAt()),paused);
+            }catch(RuntimeException error){cohorts.unavailable(id,"Данные населения и районов требуют проверки",false,current.at(),paused);warn("Районное население не рассчитано; городские итоги сохранены: "+error.getMessage());}
+        }
+    }
+    @Override public Map<String,Object> cohorts(UUID town){return !running||SuiteState.frozen(plugin.getName())?CohortService.unavailable("Раздел населения сейчас приостановлен",false,0,true):cohorts.read(town);}
+    public CompletionStage<Void> prepareClose(){running=false;return CompletableFuture.allOf(repository.prepareClose().toCompletableFuture(),cohorts.prepareClose().toCompletableFuture());}
     public void stop(){try(var guard=SuiteState.guard()){if(task!=null)task.cancel();prepareClose();}}
-    public void awaitClosed(){repository.awaitClosed();}
+    public void awaitClosed(){try{repository.awaitClosed();}finally{cohorts.awaitClosed();}}
     private void warn(String message){long now=System.currentTimeMillis(),before=lastWarning.get();if(now-before>=60_000&&lastWarning.compareAndSet(before,now))plugin.getLogger().warning(message);}
     @Override public boolean healthy(){return repository.readable();}
     @Override public Optional<PopulationSnapshot> population(UUID id){return Optional.ofNullable(id==null?null:cache.towns().get(id));}

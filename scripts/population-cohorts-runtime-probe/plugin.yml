@@ -1,0 +1,6 @@
+name: PopulationCohortsRuntimeProbe
+version: 0.52.0
+main: ru.neverland.runtime.PopulationCohortsProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyCitizens, NeverLandTownyBuilds, NeverLandTownyDistricts, NeverLandTownyControl, NeverLandTownyPopulation]

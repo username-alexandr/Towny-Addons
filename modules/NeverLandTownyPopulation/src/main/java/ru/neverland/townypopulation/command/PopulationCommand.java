@@ -41,8 +41,8 @@ public final class PopulationCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         if(!sender.hasPermission("neverlandtownypopulation.use")) { messages.send(sender,"no-permission"); return true; }
-        if(!Set.of("menu","info","buildings").contains(action) || args.length>2) {
-            messages.tell(sender,"/t population — меню; /t population info — сводка; /t population buildings — вклад зданий."); return true;
+        if(!Set.of("menu","info","buildings","cohorts").contains(action) || args.length>2) {
+            messages.tell(sender,"/t population — меню; /t population info — сводка; /t population buildings — вклад зданий; /t population cohorts — жители и районы."); return true;
         }
         Town town=null;
         if(args.length==2) {
@@ -54,6 +54,7 @@ public final class PopulationCommand implements CommandExecutor, TabCompleter {
             town=resident==null?null:resident.getTownOrNull();
         }
         if(town==null) { messages.send(sender,sender instanceof Player?"no-town":"players-only"); return true; }
+        if(action.equals("cohorts")){if(sender instanceof Player player)menu.openCohorts(player,town.getUUID(),0);else messages.tell(sender,"Раздел жителей и районов открывается в игре: /t population cohorts.");return true;}
         service.refreshTownView(town.getUUID());
         var snapshot=service.population(town.getUUID()).orElse(null);
         if(snapshot==null) { messages.send(sender,"paused"); return true; }
@@ -71,10 +72,10 @@ public final class PopulationCommand implements CommandExecutor, TabCompleter {
     @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         List<String> options=new ArrayList<>();
         if(args.length==1) {
-            if(sender.hasPermission("neverlandtownypopulation.use")) options.addAll(List.of("info","buildings"));
+            if(sender.hasPermission("neverlandtownypopulation.use")) options.addAll(List.of("info","buildings","cohorts"));
             if(sender.hasPermission("neverlandtownypopulation.admin")) options.addAll(List.of("reload","set"));
         } else if(args.length==2 && sender.hasPermission("neverlandtownypopulation.admin")
-                && Set.of("info","buildings","set").contains(args[0].toLowerCase(Locale.ROOT)))
+                && Set.of("info","buildings","cohorts","set").contains(args[0].toLowerCase(Locale.ROOT)))
             TownyAPI.getInstance().getTowns().forEach(t->options.add(t.getName()));
         String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);
         return options.stream().filter(s->s.toLowerCase(Locale.ROOT).startsWith(prefix)).sorted().toList();

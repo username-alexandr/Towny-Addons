@@ -1,0 +1,13 @@
+PASS validated Population 0.2.1 enabled with real Towny Builds Districts
+PASS actual districts and completed residential fixture survive full restart
+PASS derived groups conserve city population
+PASS derived groups conserve city housing
+PASS derived groups conserve city jobs
+PASS derived groups conserve city workforce
+PASS derived groups conserve city employed
+PASS cohort totals match confirmed simulation snapshot
+PASS decimal group shares conserve foodDemand
+PASS decimal group shares conserve waterDemand
+PASS decimal group shares conserve foodSupply
+PASS decimal group shares conserve waterSupply
+PASS full restart reconstructs exact previous cohort totals without new demand

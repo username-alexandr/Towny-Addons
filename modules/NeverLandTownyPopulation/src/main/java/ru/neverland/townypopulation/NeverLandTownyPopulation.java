@@ -58,7 +58,7 @@ public final class NeverLandTownyPopulation extends JavaPlugin implements org.bu
     public boolean reloadPopulation() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         try {
             var settings=readSettings(); var newMessages=read("messages.yml");
-            service.reload(settings); messages.reload(newMessages); reloadConfig(); return true;
+            reloadConfig(); service.reload(settings); messages.reload(newMessages); return true;
         } catch(Exception ex) {
             getLogger().warning("Настройки населения не применены: "+ex.getMessage()); return false;
         }

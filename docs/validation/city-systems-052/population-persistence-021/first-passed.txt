@@ -1,0 +1,1 @@
+PASS 12 assertions; real Folia Towny Builds Districts Population, asynchronous acknowledged population setter, physical file lock and replacement failure, supplier pause, immutable reads and full restart; no graphical client or bank transaction claimed
