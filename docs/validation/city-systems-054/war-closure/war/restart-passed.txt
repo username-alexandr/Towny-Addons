@@ -1,0 +1,1 @@
+PASS 18 assertions; genuine Folia/Towny/TNT/SQLite, offline CraftPlayer actors and explicit Army/camp policy; no real-client Army session claimed

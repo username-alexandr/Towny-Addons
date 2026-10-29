@@ -15,3 +15,5 @@ The probe creates a disposable town, residents, a claim, accepted building metad
 Offline Player/InventoryView/EntityScheduler, the completed building metadata, virtual elapsed duty timestamps and accepted war records are explicit fixtures. No real network client, live PvP, physical military kit, bank backend or full 40-addon test is claimed. PlaceholderAPI is neither required nor tested here: service access uses the public Army API and scheduler API instead of reflecting optional expansion fields.
 
 To repeat the same acknowledgement scenarios for Army 0.3.0, pass `--army-version 0.3.0` to the runner. Its default remains 0.2.2 for the historical evidence. The exact assertion is never removed; the requested version must match the installed artifact.
+
+The SiegesPlus closure regression uses `--army-version 0.3.0 --sieges-version 0.6.5`; the historical Sieges default remains 0.6.4.

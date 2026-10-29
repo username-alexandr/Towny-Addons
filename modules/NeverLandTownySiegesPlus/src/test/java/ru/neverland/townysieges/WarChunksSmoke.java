@@ -38,7 +38,7 @@ public final class WarChunksSmoke {
         ok(!key.equals(new WarCaptureStore.Key(war.id(),UUID.randomUUID(),-1,2)),"coordinates are scoped to world");
         get(db.cancel(def2,"admin",System.currentTimeMillis()));
         rejected(store.capture(new WarCaptureStore.Capture(new WarCaptureStore.Key(war.id(),world,0,2),att2,def2,actor,"HOLD",System.currentTimeMillis(),"CAPTURED")));
-        ok(get(store.release(c,System.currentTimeMillis())),"war ending releases capture durably");ok(!get(store.release(c,System.currentTimeMillis())),"release cannot be recorded twice");
+        ok(get(store.load()).isEmpty(),"cancel ACK includes durable release in the same transaction");ok(!get(store.release(c,System.currentTimeMillis())),"release cannot be recorded twice");
         ok(get(store.load()).isEmpty(),"released chunk no longer grants authority");
         var finalDb=db;int count=get(db.submit(()->{try(var p=finalDb.connection().createStatement();var r=p.executeQuery("SELECT COUNT(*) FROM war_chunk_log")){r.next();return r.getInt(1);}}));
         ok(count==2,"capture and release each have one durable receipt");

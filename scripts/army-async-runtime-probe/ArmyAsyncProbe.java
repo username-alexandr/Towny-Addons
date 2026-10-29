@@ -33,7 +33,7 @@ public final class ArmyAsyncProbe extends JavaPlugin {
  void setup()throws Exception{
   for(String name:List.of("Builds","Resources","Citizens","Army","SiegesPlus"))check(plugin(name).isEnabled()&&!SuiteState.frozen(plugin(name).getName()),"native provider enabled and unfrozen: "+name);
   owner=(NeverLandTownyArmy)plugin("Army");army=(ArmyService)Bukkit.getServicesManager().load(TownyArmyApi.class);ledger=army.repository();var scheduler=Class.forName("ru.neverland.core.SuiteScheduler",true,owner.getClass().getClassLoader());scheduler.getMethod("cancelTasks",org.bukkit.plugin.Plugin.class).invoke(scheduler.getMethod("get").invoke(null),owner);siege=(NeverLandTownySiegesPlus)plugin("SiegesPlus");((org.bukkit.scheduler.BukkitTask)field(siege,"task")).cancel();((org.bukkit.scheduler.BukkitTask)field(siege,"lootTask")).cancel();camp=siege.supplies();campLedger=(CampSupplyLedger)field(camp,"ledger");resources=(ResourcesService)field(plugin("Resources"),"service");((org.bukkit.scheduler.BukkitTask)field(resources,"task")).cancel();
-  check(owner.getDescription().getVersion().equals(System.getProperty("neverland.probe.army-version","0.2.2"))&&siege.getDescription().getVersion().equals("0.6.4"),"exact expected Army/Sieges0.6.4 pair loads on Folia");
+  check(owner.getDescription().getVersion().equals(System.getProperty("neverland.probe.army-version","0.2.2"))&&siege.getDescription().getVersion().equals(System.getProperty("neverland.probe.sieges-version","0.6.4")),"exact expected Army/Sieges pair loads on Folia");
   mayor=actor(M,"ArmyAckMayor");soldier=actor(S,"ArmyAckSoldier");idle(()->{if(!army.healthy()){await(army.migrate(),v->idle(this::ready));return;}ready();});
  }
  void ready()throws Exception{

@@ -21,6 +21,7 @@ public final class RaidController {
     private volatile List<RaidStore.Raid> raids=List.of();
     private volatile boolean loaded,closed;
     private TntRaidEngine engine;
+    private final java.util.concurrent.atomic.AtomicBoolean expiring=new java.util.concurrent.atomic.AtomicBoolean();
     public RaidController(NeverLandTownySiegesPlus plugin,SiegeService siege,TntSettings settings) {
         this.plugin=plugin;this.siege=siege;this.settings=settings;
         store=new RaidStore(plugin.getDataFolder().toPath().resolve("raids.db"),e->plugin.getLogger().log(java.util.logging.Level.SEVERE,"Хранилище рейдов недоступно; разрушение приостановлено",e));
@@ -145,9 +146,13 @@ public final class RaidController {
     }
     public void cancel(CommandSender sender,UUID town) {
         var cancelled=raids.stream().filter(r->(r.attacker().equals(town)||r.defender().equals(town))&&r.live(System.currentTimeMillis())).toList();
-        store.cancel(town,sender.getName(),System.currentTimeMillis()).whenComplete((rows,error)->{if(error==null&&!closed)raids=rows;publish(()->{
+        store.cancel(town,sender instanceof Player player?player.getUniqueId().toString():"",System.currentTimeMillis()).whenComplete((rows,error)->{if(error==null&&!closed)raids=rows;publish(()->{
             if(error!=null){reply(sender,"&e"+problem(error));return;}for(var raid:cancelled)AuditTrail.record(plugin,"cancel",raid.id().toString(),"RAID_CANCELLED","CANCELLED",sender instanceof Player p?AuditTrail.player(p.getUniqueId()):AuditRecord.Party.system(),AuditTrail.town(raid.attacker()),AuditTrail.town(raid.defender()),"",0,"","Нейтральная остановка рейда");reply(sender,"Рейд остановлен без поражения города и списания наград.");notifyTown(town,"Администратор остановил рейд.");
         });});
+    }
+    /** Cache publication is independent of paused notification schedulers. */
+    public void expire(){if(closed||!loaded||!store.healthy()||raids.stream().noneMatch(r->r.state().equals("OPEN")&&r.ends()<=System.currentTimeMillis())||!expiring.compareAndSet(false,true))return;
+        store.expire(System.currentTimeMillis()).whenComplete((rows,error)->{if(error==null&&!closed)raids=rows;expiring.set(false);});
     }
     public void status(CommandSender sender) {
         reply(sender,"TNT: "+(healthy()?"готов":"отключён/армия или хранилище недоступны")+"; источник рейдов: "+(siegeWarInstalled()?"SiegeWar":"армия города"));

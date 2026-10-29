@@ -20,6 +20,12 @@ class LifecycleGuardTest(unittest.TestCase):
         initialized=source.replace('void onDisable(){','void onDisable(){java.util.concurrent.CompletionStage<Void> closing=java.util.concurrent.CompletableFuture.completedFuture(null);')
         self.assertTrue(module_control.lifecycle_guard(initialized,'onDisable','end'))
         self.assertFalse(module_control.lifecycle_guard(initialized.replace('java.util.concurrent.CompletableFuture.completedFuture(null)','loadAndPay()'),'onDisable','end'))
+        declared=source.replace('void onDisable(){','void onDisable(){java.util.concurrent.CompletionStage<Void> pending;')
+        self.assertTrue(module_control.lifecycle_guard(declared,'onDisable','end'))
+        self.assertFalse(module_control.lifecycle_guard(declared.replace('pending;','pending=loadAndPay();'),'onDisable','end'))
+        self.assertFalse(module_control.lifecycle_guard(declared.replace('pending;','pending;stop();'),'onDisable','end'))
+        self.assertFalse(module_control.lifecycle_guard(declared.replace('.end(','.begin('),'onDisable','end'))
+        self.assertFalse(module_control.lifecycle_guard(declared.replace('onDisable','onEnable').replace('.end(','.begin('),'onEnable','begin'))
     def test_imported_lifecycle_in_async_initialization(self):
         source='import ru.neverland.core.*; public void onEnable(){ if(!ModuleLifecycle.begin(this))return; queueConfig(); }'
         self.assertTrue(module_control.lifecycle_guard(source,'onEnable','begin'))

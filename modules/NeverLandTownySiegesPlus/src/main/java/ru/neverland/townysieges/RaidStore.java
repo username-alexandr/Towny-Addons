@@ -53,6 +53,7 @@ public final class RaidStore implements AutoCloseable {
             RaidLootStore.initialize(db);
             RaidCamps.initialize(db);
             WarCaptureStore.initialize(db);
+            transaction(()->{expireSql(System.currentTimeMillis());return null;});
             healthy=true;return null;
         });
     }
@@ -92,6 +93,7 @@ public final class RaidStore implements AutoCloseable {
         }return List.copyOf(list);
     }
     public CompletionStage<List<Raid>> start(Raid raid) {return submit(()->transaction(()->{
+        expireSql(raid.created());
         try(var p=db.prepareStatement("DELETE FROM raids WHERE ends<=? AND next<=?")){p.setLong(1,raid.created());p.setLong(2,raid.created());p.executeUpdate();}
         for(Raid old:readRaids()) {
             if(old.live(raid.created())&&(old.attacker().equals(raid.attacker())||old.defender().equals(raid.attacker())||old.attacker().equals(raid.defender())||old.defender().equals(raid.defender())))throw new IllegalArgumentException("Один из городов уже участвует в рейде");
@@ -103,10 +105,30 @@ public final class RaidStore implements AutoCloseable {
         audit(raid.actor().toString(),raid.attacker().toString(),raid.defender().toString(),"DECLARE",raid.created(),0);
         return readRaids();
     }));}
+    /** Exact-ID completion is idempotent only for the same outcome. Cooldown remains unchanged. */
+    public CompletionStage<List<Raid>> conclude(UUID raid,String outcome,String actor,long now){
+        if(raid==null||actor==null||now<0||!Set.of("CANCELLED","EXPIRED","SURRENDERED","VICTORY").contains(outcome))throw new IllegalArgumentException("Неверное завершение рейда");
+        return submit(()->transaction(()->{concludeSql(raid,outcome,actor,now);return readRaids();}));
+    }
+    private boolean concludeSql(UUID raid,String outcome,String actor,long now)throws Exception{
+        Raid previous;try(var p=db.prepareStatement("SELECT * FROM raids WHERE id=?")){p.setString(1,raid.toString());try(var r=p.executeQuery()){if(!r.next())throw new IllegalArgumentException("Рейд не найден");previous=new Raid(UUID.fromString(r.getString("id")),UUID.fromString(r.getString("attacker")),UUID.fromString(r.getString("defender")),UUID.fromString(r.getString("actor")),r.getLong("created"),r.getLong("starts"),r.getLong("ends"),r.getLong("next"),r.getString("state"));}}
+        if(!previous.state().equals("OPEN")){if(!previous.state().equals(outcome))throw new IllegalArgumentException("Рейд уже завершён с другим результатом");return false;}
+        if(outcome.equals("EXPIRED")&&previous.ends()>now)throw new IllegalArgumentException("Срок рейда ещё не закончился");
+        try(var p=db.prepareStatement("UPDATE raids SET state=? WHERE id=? AND state='OPEN'")){p.setString(1,outcome);p.setString(2,raid.toString());if(p.executeUpdate()!=1)throw new SQLException("Состояние рейда изменилось");}
+        int released=WarCaptureStore.releaseWar(db,raid,actor,now,"Рейд завершён: "+outcome+"; временный контроль снят");
+        audit(actor,previous.attacker().toString(),previous.defender().toString(),outcome,now,released);return true;
+    }
     public CompletionStage<List<Raid>> cancel(UUID town,String actor,long now){return submit(()->transaction(()->{
-        try(var p=db.prepareStatement("UPDATE raids SET state='CANCELLED' WHERE (attacker=? OR defender=?) AND state='OPEN' AND ends>?")){p.setString(1,town.toString());p.setString(2,town.toString());p.setLong(3,now);p.executeUpdate();}
-        audit(actor,"",town.toString(),"CANCEL",now,0);return readRaids();
+        for(Raid raid:readRaids())if((raid.attacker().equals(town)||raid.defender().equals(town))&&raid.live(now))concludeSql(raid.id(),"CANCELLED",actor,now);
+        expireSql(now);return readRaids();
     }));}
+    /** Also repairs captures left behind by older versions after a committed cancellation. */
+    private void expireSql(long now)throws Exception{
+        for(Raid raid:readRaids())if(raid.state().equals("OPEN")&&raid.ends()<=now)concludeSql(raid.id(),"EXPIRED","",now);
+        var orphaned=new ArrayList<UUID>();try(var s=db.createStatement();var rows=s.executeQuery("SELECT DISTINCT c.raid FROM war_chunks c LEFT JOIN raids r ON r.id=c.raid WHERE c.state='CAPTURED' AND (r.id IS NULL OR r.state<>'OPEN')")){while(rows.next())orphaned.add(UUID.fromString(rows.getString(1)));}
+        for(UUID raid:orphaned)WarCaptureStore.releaseWar(db,raid,"",now,"Восстановлено завершение старого рейда; временный контроль снят");
+    }
+    public CompletionStage<List<Raid>> expire(long now){if(now<0)throw new IllegalArgumentException("Неверное время");return submit(()->transaction(()->{expireSql(now);return readRaids();}));}
     public CompletionStage<Map<String,UUID>> owners(){return submit(()->{var out=new HashMap<String,UUID>();try(var s=db.createStatement();var r=s.executeQuery("SELECT * FROM owners")){while(r.next())out.put(r.getString(1),UUID.fromString(r.getString(2)));}return Map.copyOf(out);});}
     public CompletionStage<Set<String>> damagedKeys(){return submit(()->{var out=new HashSet<String>();try(var s=db.createStatement();var r=s.executeQuery("SELECT key FROM hp UNION SELECT key FROM building_damage")){while(r.next())out.add(r.getString(1));}return Set.copyOf(out);});}
     public CompletionStage<Void> owner(Key key,UUID player){return submit(()->{

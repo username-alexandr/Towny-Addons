@@ -13,7 +13,7 @@ public final class RaidStoreSmoke {
     public static void main(String[] args)throws Exception {
         Path folder=Files.createTempDirectory("raid-db-test"),file=folder.resolve("raids.db");var failures=new AtomicInteger();
         var store=new RaidStore(file,e->failures.incrementAndGet());get(store.ready());
-        UUID attacker=UUID.randomUUID(),defender=UUID.randomUUID(),actor=UUID.randomUUID(),world=UUID.randomUUID();long now=1_000_000L;
+        UUID attacker=UUID.randomUUID(),defender=UUID.randomUUID(),actor=UUID.randomUUID(),world=UUID.randomUUID();long now=System.currentTimeMillis();
         var raid=new RaidStore.Raid(UUID.randomUUID(),attacker,defender,actor,now,now+1000,now+10000,now+20000,"OPEN");
         var active=get(store.start(raid));ok(active.size()==1&&!active.get(0).fighting(now)&&active.get(0).fighting(now+1000),"warmup separates declaration from combat");
         try{get(store.start(new RaidStore.Raid(UUID.randomUUID(),UUID.randomUUID(),defender,actor,now+1,now+2,now+100,now+500,"OPEN")));throw new AssertionError("parallel raid accepted");}

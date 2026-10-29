@@ -31,11 +31,11 @@ import ru.neverland.townybuilds.construction.*;
 public final class WarRuntimeProbe extends TntRuntimeProbe {
     static final UUID WAR=id("war-049"),VISITOR=id("visitor-049");
     volatile List<RaidStore.Raid> declarations=List.of();boolean policy=true,army=true,foreignBuild,foreignDamage;
-    WarControl war;FixturePlayer raider,guard,visitor;DataStore data;BuildingRepairPlansApi plans;Block firstPart,lastPart;Location empty,outer;
+    boolean shutdownChecked;WarControl war;FixturePlayer raider,guard,visitor;DataStore data;BuildingRepairPlansApi plans;Block firstPart,lastPart;Location empty,outer;
     @Override void setup()throws Exception{
         plugin=(NeverLandTownySiegesPlus)Bukkit.getPluginManager().getPlugin("NeverLandTownySiegesPlus");engine=plugin.tnt();store=plugin.raids().store();
-        check(plugin.isEnabled()&&store.healthy(),"SiegesPlus 0.5.0 and SQLite loaded on real Folia");
-        check(Bukkit.getPluginManager().getPlugin("NeverLandTownyBuilds").getDescription().getVersion().equals("0.8.43"),"Builds 0.8.43 loaded");
+        check(plugin.isEnabled()&&store.healthy()&&plugin.getDescription().getVersion().equals(System.getProperty("neverland.probe.sieges-version","0.5.0")),"expected SiegesPlus and SQLite loaded on real Folia");
+        check(Bukkit.getPluginManager().getPlugin("NeverLandTownyBuilds").getDescription().getVersion().equals(System.getProperty("neverland.probe.builds-version","0.8.43")),"expected Builds loaded");
         var u=TownyUniverse.getInstance();if(!restart){u.newTownInternal("WarDefenders",DEF);u.newTownInternal("WarAttackers",ATT);
             defender=TownyAPI.getInstance().getTown(DEF);attacker=TownyAPI.getInstance().getTown(ATT);
             for(var entry:Map.of(ACTOR,"WarRaider",MAYOR,"WarMayor",VISITOR,"WarVisitor").entrySet()){
@@ -200,6 +200,9 @@ public final class WarRuntimeProbe extends TntRuntimeProbe {
         });
     }
     @Override void finish()throws Exception{
+        if(restart&&Boolean.getBoolean("neverland.probe.shutdown-check")&&!shutdownChecked){shutdownChecked=true;gate=new CountDownLatch(1);var entered=new CountDownLatch(1);((ThreadPoolExecutor)field(store,"worker")).execute(()->{entered.countDown();try{if(!gate.await(10,TimeUnit.SECONDS))throw new AssertionError("shutdown fixture timeout");}catch(InterruptedException e){Thread.currentThread().interrupt();}});
+            if(!entered.await(1,TimeUnit.SECONDS))throw new AssertionError("worker fixture unavailable");var accepted=store.owner(new RaidStore.Key(world.getUID(),100,100,100),ACTOR);long started=System.nanoTime();var shutdown=ModuleShutdown.prepare(plugin);check(!shutdown.toCompletableFuture().isDone(),"registered shutdown hook waits for the accepted SQLite queue");plugin.onDisable();check(System.nanoTime()-started<200000000L&&!accepted.toCompletableFuture().isDone(),"disable under external Suite never waits for held SQLite worker");gate.countDown();await(shutdown,v->{try{check(store.stopped().toCompletableFuture().isDone(),"two-phase shutdown receipt includes closed SQLite connection");check(accepted.toCompletableFuture().isDone()&&!accepted.toCompletableFuture().isCompletedExceptionally(),"accepted SQLite write drains before plugin storage closes");finish();}catch(Exception e){throw new CompletionException(e);}});return;
+        }
         check(((Map<?,?>)field(engine,"watches")).isEmpty(),"all HP callbacks released Folia block watches");data.markDirty();data.saveOrThrow();TownyUniverse.getInstance().getDataSource().saveAll();
         Files.writeString(proof.resolve((restart?"restart":"first")+"-passed.txt"),"PASS "+checks+" assertions; genuine Folia/Towny/TNT/SQLite, offline CraftPlayer actors and explicit Army/camp policy; no real-client Army session claimed\n");Bukkit.getGlobalRegionScheduler().run(this,t->Bukkit.shutdown());
     }

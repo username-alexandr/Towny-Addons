@@ -31,6 +31,14 @@ final class WarCaptureStore {
     CompletionStage<Boolean> release(Capture c,long now){return store.submit(()->store.transaction(()->{try(var p=store.connection().prepareStatement("UPDATE war_chunks SET state='RELEASED',released=? WHERE raid=? AND world=? AND x=? AND z=? AND state='CAPTURED'")){
         p.setLong(1,now);p.setString(2,c.key().raid().toString());p.setString(3,c.key().world().toString());p.setInt(4,c.key().x());p.setInt(5,c.key().z());if(p.executeUpdate()==0)return false;
     }log(c.key(),c.attacker(),c.defender(),c.actor(),"RELEASED",now,"Война завершена, остановлена или потерян лагерь");return true;}));}
+    /** Runs inside the caller's raid-terminal transaction; no second queued update can be lost. */
+    static int releaseWar(Connection db,UUID raid,String actor,long now,String detail)throws SQLException{
+        var rows=new ArrayList<Capture>();try(var p=db.prepareStatement("SELECT * FROM war_chunks WHERE raid=? AND state='CAPTURED'")){p.setString(1,raid.toString());try(var r=p.executeQuery()){while(r.next())rows.add(read(r));}}
+        String author="";try{author=UUID.fromString(actor).toString();}catch(IllegalArgumentException ignored){}
+        for(var c:rows){try(var p=db.prepareStatement("UPDATE war_chunks SET state='RELEASED',released=? WHERE raid=? AND world=? AND x=? AND z=? AND state='CAPTURED'")){p.setLong(1,now);p.setString(2,raid.toString());p.setString(3,c.key().world().toString());p.setInt(4,c.key().x());p.setInt(5,c.key().z());p.executeUpdate();}
+            try(var p=db.prepareStatement("INSERT INTO war_chunk_log(raid,world,x,z,attacker,defender,actor,action,at,detail) VALUES(?,?,?,?,?,?,?,'RELEASED',?,?)")){bind(p,c.key());p.setString(5,c.attacker().toString());p.setString(6,c.defender().toString());p.setString(7,author);p.setLong(8,now);p.setString(9,detail);p.executeUpdate();}
+        }return rows.size();
+    }
     CompletionStage<Void> event(Key k,UUID attacker,UUID defender,UUID actor,String action,String detail){long now=System.currentTimeMillis();return store.submit(()->{log(k,attacker,defender,actor,action,now,detail);return null;});}
     CompletionStage<List<Log>> pendingLog(){return store.submit(()->{var out=new ArrayList<Log>();try(var s=store.connection().createStatement();var r=s.executeQuery("SELECT * FROM war_chunk_log WHERE journalled=0 ORDER BY id LIMIT 32")){
         while(r.next()){String actor=r.getString("actor");out.add(new Log(r.getLong("id"),new Key(UUID.fromString(r.getString("raid")),UUID.fromString(r.getString("world")),r.getInt("x"),r.getInt("z")),UUID.fromString(r.getString("attacker")),UUID.fromString(r.getString("defender")),actor.isEmpty()?null:UUID.fromString(actor),r.getString("action"),r.getLong("at"),r.getString("detail")));}

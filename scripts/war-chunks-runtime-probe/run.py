@@ -2,13 +2,13 @@
 """Run two native boots, preserving exact artifacts and checking plugin/event failures."""
 from pathlib import Path
 import argparse,subprocess,time,json,hashlib,sqlite3
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--server',type=Path,required=True);p.add_argument('--java-home',type=Path,required=True)
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--server',type=Path,required=True);p.add_argument('--java-home',type=Path,required=True);p.add_argument('--builds-version',default='0.8.43');p.add_argument('--sieges-version',default='0.5.0');p.add_argument('--shutdown-check',action='store_true')
 a=p.parse_args();a.java_home=a.java_home.resolve();server=a.server.resolve();proof=server/'plugins/TntRuntimeProbe';out=server/'validation';out.mkdir(exist_ok=True)
 assert (server/'ALLOW_DISPOSABLE_RAID_PROBE').is_file() and 'server-ip=127.0.0.1' in (server/'server.properties').read_text()
 assert not (proof/'failed.txt').exists() and not (proof/'first-passed.txt').exists(), 'Use a fresh disposable snapshot'
 jars={f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in (server/'plugins').glob('*.jar')};results=[]
 for phase in ['first','restart']:
-    started=time.time();command=[str(a.java_home/'bin/java'),'-XX:ActiveProcessorCount=4','-Xms512M','-Xmx1700M','-Dterminal.jline=false','-Dterminal.ansi=false']
+    started=time.time();command=[str(a.java_home/'bin/java'),'-Dneverland.probe.builds-version='+a.builds_version,'-Dneverland.probe.sieges-version='+a.sieges_version,'-Dneverland.probe.shutdown-check='+str(a.shutdown_check).lower(),'-XX:ActiveProcessorCount=4','-Xms512M','-Xmx1700M','-Dterminal.jline=false','-Dterminal.ansi=false']
     if (server/'cacerts').exists():command+=['-Djavax.net.ssl.trustStore='+str(server/'cacerts')]
     command+=['-jar','server.jar','--nogui']
     with (out/f'{phase}.log').open('w') as stream:
