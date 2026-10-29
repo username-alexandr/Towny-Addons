@@ -104,7 +104,7 @@ public final class CitizensRuntimeProbe extends JavaPlugin {
         if(town.getTownBlocks().isEmpty()){var claim=new TownBlock(121,121,u.getWorld(world.getName()));u.addTownBlock(claim);claim.setTown(town);town.setHomeBlock(claim);claim.save();}world.getChunkAt(121,121).load();
         town.setSpawn(new Location(world,1940,92,1940));town.save();
     }
-    private void assign(UUID player,CitizenshipStatus status,int days)throws Exception { citizens.assign(Bukkit.getConsoleSender(),town,player,status,days,"Disposable server test"); }
+    private void assign(UUID player,CitizenshipStatus status,int days)throws Exception { citizens.assign(Bukkit.getConsoleSender(),town,player,status,days,"Disposable server test").toCompletableFuture().get(5,java.util.concurrent.TimeUnit.SECONDS); }
     private void scenarios()throws Exception {
         check(citizens.status(TOWN,ACTOR).equals("CITIZEN"),"existing Towny member defaults to citizen");
         check(citizens.status(TOWN,GUEST).equals("FOREIGNER"),"guest defaults to foreigner");

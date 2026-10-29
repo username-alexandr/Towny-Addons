@@ -1,5 +1,5 @@
 name: NeverLandTownyCitizens
-version: 0.1.13
+version: 0.2.0
 main: ru.neverland.townycitizens.NeverLandTownyCitizens
 folia-supported: true
 api-version: '26.2'
@@ -12,9 +12,15 @@ commands:
   townycitizens:
     aliases: [nltcitizens, citizenship]
     description: Гражданство и городской реестр
-    usage: /townycitizens [info|set|list|help|reload]
+    usage: /townycitizens [info|applications|terms|history|set|list|help|reload]
 permissions:
   neverlandtownycitizens.use:
+    default: true
+  neverlandtownycitizens.apply:
+    description: Подача заявления после подтверждения
+    default: true
+  neverlandtownycitizens.sponsor:
+    description: Поручительство действующего гражданина своего города
     default: true
   neverlandtownycitizens.manage:
     description: Назначение статусов мэром своего города

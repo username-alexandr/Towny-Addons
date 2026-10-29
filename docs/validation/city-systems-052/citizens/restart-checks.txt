@@ -1,0 +1,8 @@
+PASS actual Citizens 0.2 service and validated status repository enabled
+PASS native full restart preserves approved effective status and rights
+PASS actual module resume shifts temporary expiry across administrative pause
+PASS native restart preserves frozen conditions, sponsor and unchanged historical time
+PASS single atomic status history survives restart without duplicate
+PASS unrelated legacy record survives schema migration and resume
+PASS restored closed petition has no active approval action
+PASS administrative audit records citizenship decisions in durable journal

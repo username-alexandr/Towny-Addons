@@ -32,7 +32,7 @@ addons:
   NeverLandTownyMarket: 0.1.18
   NeverLandTownyCompanies: 0.3.0
   NeverLandTownyJobs: 0.3.0
-  NeverLandTownyCitizens: 0.1.13
+  NeverLandTownyCitizens: 0.2.0
   NeverLandTownyElections: 0.1.13
   NeverLandTownyCouncil: 0.1.17
   NeverLandTownyDiplomacy: 0.1.13
@@ -41,7 +41,7 @@ addons:
   NeverLandTownyArmy: 0.2.0
   NeverLandTownySiegesPlus: 0.6.1
   NeverLandTownySeasons: 0.1.10
-  NeverLandTownyControl: 0.5.4
+  NeverLandTownyControl: 0.5.5
   NeverLandTownyQuests: 0.2.0
   NeverLandTownyAchievements: 0.1.5
   NeverLandTownyEnvironment: 0.2.0

@@ -1,0 +1,20 @@
+PASS actual Citizens 0.2 service and validated status repository enabled
+PASS old Towny resident remains citizen without mandatory application
+PASS authentic schema1 citizenship loaded without rewriting history
+PASS ordinary resident cannot change mayor terms
+PASS submission alone never changes rights
+PASS actual service prevents self sponsorship
+PASS left-town sponsor is rechecked and no longer satisfies requirements
+PASS native mayor menu explains unavailable approval
+PASS future policy update never tightens accepted application terms
+PASS actual applicant cannot approve own application
+PASS actual approve command shows separate exact decision confirmation
+PASS native confirmation inventory cancels item movement
+PASS real delayed file exposes neither unconfirmed status nor approval
+PASS region continues while actual citizenship file is blocked
+PASS confirmed approval atomically changes actual status and voting rights
+PASS single-use confirmation cannot repeat status assignment
+PASS repeat never extends temporary expiry or duplicates status history
+PASS native personal history shows Moscow timestamp and recorded reason
+PASS feature disable blocks new petitions
+PASS feature disable preserves statuses, expiry, sponsors and decision

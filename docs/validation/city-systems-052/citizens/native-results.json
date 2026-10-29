@@ -1,0 +1,24 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 20 assertions; real Folia/Towny/Citizens service, native inventories and command, physical file delay, atomic status/decision, permissions, neutral feature disable and full restart/pause; explicit offline Player/InventoryView/EntityScheduler substitutes, no network client or bank payment claimed\n",
+    "jar_sha256": {
+      "AdmissionsRuntimeProbe.jar": "9db90c90e3b40a2f08d8fef8fa75cf5b5f985672d63f36e9e4c5d1291d534200",
+      "NeverLandTownyControl-0.5.5.jar": "f47260c4a139eb1967e97391d35a7ab76a562d83d3adadcabbce5383e6cd3e9c",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "84c6eba4e3a2eb71096827561994375fa8e8c77f053590eeb64e70b596a29df4"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 8 assertions; real Folia/Towny/Citizens service, native inventories and command, physical file delay, atomic status/decision, permissions, neutral feature disable and full restart/pause; explicit offline Player/InventoryView/EntityScheduler substitutes, no network client or bank payment claimed\n",
+    "jar_sha256": {
+      "AdmissionsRuntimeProbe.jar": "9db90c90e3b40a2f08d8fef8fa75cf5b5f985672d63f36e9e4c5d1291d534200",
+      "NeverLandTownyControl-0.5.5.jar": "f47260c4a139eb1967e97391d35a7ab76a562d83d3adadcabbce5383e6cd3e9c",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "84c6eba4e3a2eb71096827561994375fa8e8c77f053590eeb64e70b596a29df4"
+    }
+  }
+]

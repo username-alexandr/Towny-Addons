@@ -15,6 +15,8 @@ import ru.neverland.townycitizens.model.*;
 public final class CitizensMenus implements Listener {
     private record Holder(UUID viewer, Inventory back) implements InventoryHolder { public Inventory getInventory() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return null; } } }
     private final NeverLandTownyCitizens plugin; private final CitizensService service;
+    private AdmissionsController admissions;
+    public void admissions(AdmissionsController value){admissions=value;}
     public CitizensMenus(NeverLandTownyCitizens plugin, CitizensService service) { this.plugin = plugin; this.service = service; }
     public void open(Player viewer, Town town, Resident resident) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         var previous = viewer.getOpenInventory().getTopInventory();
@@ -23,7 +25,7 @@ public final class CitizensMenus implements Listener {
         UUID t = town.getUUID(), r = resident.getUUID(); var status = service.effective(t, r);
         long expiry = service.expiresAt(t, r);
         menu.setItem(4, item(Material.WRITABLE_BOOK, "&f" + resident.getName(), List.of("&7Город: &f" + town.getName(),
-                "&7Статус: &e" + status.title(), "&7Срок: &f" + (expiry == 0 ? "Бессрочно" : Instant.ofEpochMilli(expiry).toString()),
+                "&7Статус: &e" + status.title(), "&7Срок: &f" + (expiry == 0 ? "Бессрочно" : AdmissionsController.date(expiry)),
                 "", "&7Множитель городского налога: &f×" + service.taxMultiplier(t, r))));
         int slot = 10;
         for (var candidate : CitizenshipStatus.values()) {
@@ -41,6 +43,7 @@ public final class CitizensMenus implements Listener {
         }
         menu.setItem(36, item(Material.ARROW, back == null ? "&fЗакрыть" : "&fНазад", List.of("&7Вернуться к предыдущему меню.")));
         menu.setItem(40, item(Material.BOOK, "&eКак изменить статус", List.of("&7Обратитесь к мэру города.", "", "&fНажмите для списка команд.")));
+        if(admissions!=null)menu.setItem(34,item(Material.WRITABLE_BOOK,"&eЗаявления и поручители",List.of("&7Условия города, рассмотрение и история.","&7Текущие статусы сохраняются.")));
         viewer.openInventory(menu);
     } }
     private ItemStack item(Material material, String name, List<String> lore) {
@@ -52,6 +55,7 @@ public final class CitizensMenus implements Listener {
         event.setCancelled(true); if (!(event.getWhoClicked() instanceof Player p) || !p.getUniqueId().equals(holder.viewer())) return;
         if (event.getRawSlot() == 36) ru.neverland.core.SuiteScheduler.entity(plugin, p, () -> MenuStyle.returnTo(p, holder.back()));
         if (event.getRawSlot() == 40) CitizensCommand.help(p);
+        if(event.getRawSlot()==34&&admissions!=null)ru.neverland.core.SuiteScheduler.entity(plugin,p,()->{try{admissions.openBoard(p,null,0);}catch(Exception error){CitizensCommand.tell(p,"&c"+error.getMessage());}});
     } }
     @EventHandler public void drag(InventoryDragEvent event) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCitizens")){ru.neverland.core.ModuleGate.stopEvent(event);return;} if (event.getView().getTopInventory().getHolder() instanceof Holder) event.setCancelled(true); } }
 }

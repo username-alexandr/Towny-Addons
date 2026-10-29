@@ -14,15 +14,16 @@ import ru.neverland.townycitizens.model.*;
 
 public final class CitizensService implements TownyCitizensApi {
     private final CitizensRepository repository;
-    private CitizensSettings settings;
-    public CitizensService(CitizensRepository repository, CitizensSettings settings) { this.repository = repository; this.settings = settings; }
+    private CitizensSettings settings;private final org.bukkit.plugin.Plugin plugin;
+    public CitizensService(CitizensRepository repository,CitizensSettings settings){this(repository,settings,null);}
+    public CitizensService(CitizensRepository repository,CitizensSettings settings,org.bukkit.plugin.Plugin plugin){this.repository=repository;this.settings=settings;this.plugin=plugin;}
     public CitizensRepository repository() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { return repository; } }
-    @Override public boolean healthy() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return ru.neverland.core.SuiteState.held() && repository.writable(); } }
+    @Override public boolean healthy() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) { return ru.neverland.core.SuiteState.held() && repository.readable(); } }
     public CitizensSettings settings() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return settings; } }
     public void settings(CitizensSettings settings) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) { this.settings = settings; } }
     private void ready() {
         if (!ru.neverland.core.SuiteState.held()) throw new IllegalStateException("Гражданство доступно в основном потоке");
-        if (!repository.writable()) throw new IllegalStateException("Реестр гражданства недоступен; обратитесь к администратору");
+        if (!repository.readable()) throw new IllegalStateException("Реестр гражданства недоступен; обратитесь к администратору");
     }
     public Town ownTown(UUID player) { try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) { var r = TownyAPI.getInstance().getResident(player); return r == null ? null : r.getTownOrNull(); } }
     private boolean member(UUID town, UUID player) { Town own = ownTown(player); return own != null && own.getUUID().equals(town); }
@@ -60,7 +61,7 @@ public final class CitizensService implements TownyCitizensApi {
         var r = TownyAPI.getInstance().getResident(player);
         return r != null && town != null && town.equals(r.getTownOrNull()) && town.isMayor(r);
     } }
-    public void assign(CommandSender actor, Town town, UUID target, CitizenshipStatus status, int days, String reason) throws IOException { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
+    public java.util.concurrent.CompletionStage<Admissions.State> assign(CommandSender actor, Town town, UUID target, CitizenshipStatus status, int days, String reason) throws IOException { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         ready(); if (town == null || !manages(actor, town)) throw new IllegalArgumentException("Назначать статус может мэр своего города или администратор");
         if (TownyAPI.getInstance().getResident(target) == null) throw new IllegalArgumentException("Игрок не зарегистрирован в Towny");
         if ((status == CitizenshipStatus.CITIZEN || status == CitizenshipStatus.TEMPORARY) && !member(town.getUUID(), target))
@@ -71,7 +72,11 @@ public final class CitizensService implements TownyCitizensApi {
         if (status == CitizenshipStatus.TEMPORARY ? days < 1 || days > settings.maximumTemporaryDays() : days != 0)
             throw new IllegalArgumentException("Укажите допустимый срок только для временного жителя");
         long now = System.currentTimeMillis();
-        repository.put(new CitizenshipRecord(town.getUUID(), target, status, days == 0 ? 0 : now + days * 86_400_000L,
-                now, actor instanceof Player p ? p.getUniqueId().toString() : actor.getName(), reason));
+        var before=repository.state();var record=new CitizenshipRecord(town.getUUID(),target,status,days==0?0:Math.addExact(now,Math.multiplyExact((long)days,Admissions.DAY)),now,actor instanceof Player p?p.getUniqueId().toString():actor.getName(),reason);var next=Admissions.record(before,record,actor instanceof Player p?p.getUniqueId():null,actor.getName());return persist(actor,town.getUUID(),before,next,"CITIZEN_STATUS",target+" → "+status.name()+"; "+reason);
     } }
+    public java.util.concurrent.CompletionStage<Admissions.State> persist(CommandSender actor,UUID town,Admissions.State before,Admissions.State next,String kind,String details){
+        ready();if(!repository.writable()||plugin!=null&&(!plugin.isEnabled()||ru.neverland.core.SuiteState.frozen(plugin.getName())))throw new IllegalStateException("Изменения гражданства приостановлены");var person=actor instanceof Player p?ru.neverland.core.AuditTrail.player(p.getUniqueId()):ru.neverland.core.AuditRecord.Party.system();var city=ru.neverland.core.AuditTrail.town(town);
+        return repository.commit(before,next).thenApply(image->{if(plugin!=null&&image!=before&&!ru.neverland.core.AuditTrail.record(plugin,"citizenship",town+":"+image.board().revision(),kind,"COMPLETED",person,city,city,"",0,"",details))plugin.getLogger().warning("Гражданство сохранено; журнал требует проверки");return image;}).whenComplete((image,error)->{if(error!=null&&plugin!=null&&!repository.writable())plugin.getLogger().log(java.util.logging.Level.WARNING,"Запись гражданства не подтверждена; прежние сохранённые статусы продолжают действовать",error);});
+    }
+    public java.util.concurrent.CompletionStage<Void> prepareClose(){return repository.prepareClose();}public void awaitClosed(){repository.awaitClosed();}
 }

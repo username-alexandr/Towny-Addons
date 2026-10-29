@@ -1,0 +1,1 @@
+PASS 8 assertions; real Folia/Towny/Citizens service, native inventories and command, physical file delay, atomic status/decision, permissions, neutral feature disable and full restart/pause; explicit offline Player/InventoryView/EntityScheduler substitutes, no network client or bank payment claimed

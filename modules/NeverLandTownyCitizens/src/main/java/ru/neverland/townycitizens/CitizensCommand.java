@@ -12,12 +12,14 @@ public final class CitizensCommand implements TabExecutor {
     private final NeverLandTownyCitizens plugin;
     private final CitizensService service;
     private final CitizensMenus menus;
-    public CitizensCommand(NeverLandTownyCitizens plugin, CitizensService service, CitizensMenus menus) { this.plugin = plugin; this.service = service; this.menus = menus; }
+    private final AdmissionsController admissions;
+    public CitizensCommand(NeverLandTownyCitizens plugin, CitizensService service, CitizensMenus menus, AdmissionsController admissions) { this.plugin = plugin; this.service = service; this.menus = menus; this.admissions=admissions; }
     public static void tell(CommandSender sender, String text) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', "&aNeverLand &f• Гражданство &7» &f" + text)); } }
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCitizens")){return true;}
         if (!sender.hasPermission("neverlandtownycitizens.use")) { tell(sender, "&cНет права на просмотр гражданства."); return true; }
         try {
             String action = args.length == 0 ? "info" : args[0].toLowerCase(Locale.ROOT);
+            if(admissions.handles(action)){admissions.command(sender,args);return true;}
             switch (action) {
                 case "info", "menu" -> {
                     Resident target = args.length > 1 ? TownyAPI.getInstance().getResident(args[1])
@@ -35,9 +37,18 @@ public final class CitizensCommand implements TabExecutor {
                     Town town = args.length > 4 ? TownyAPI.getInstance().getTown(args[4]) : sender instanceof Player p ? service.ownTown(p.getUniqueId()) : null;
                     var status = CitizenshipStatus.parse(args[2]); int days = Integer.parseInt(args[3]);
                     String reason = args.length > 5 ? String.join(" ", Arrays.copyOfRange(args, 5, args.length)) : "Решение городской администрации";
-                    service.assign(sender, town, target.getUUID(), status, days, reason);
-                    tell(sender, "&aСохранено: &f" + target.getName() + " • " + status.title() + (days > 0 ? " • " + days + " дн." : ""));
-                    if (target.getPlayer() != null && target.getPlayer() != sender) tell(target.getPlayer(), "Ваш статус в городе " + town.getName() + ": &e" + status.title());
+                    String targetName=target.getName(),townName=town==null?"":town.getName();UUID targetId=target.getUUID();
+                    var receipt=service.assign(sender,town,targetId,status,days,reason);
+                    tell(sender,"Сохраняем новый статус…");
+                    receipt.whenComplete((image,error)->{
+                        if(!plugin.isEnabled()||ru.neverland.core.SuiteState.frozen(plugin.getName()))return;
+                        ru.neverland.core.SuiteScheduler.reply(plugin,sender,()->{
+                            if(error!=null){tell(sender,"&cИзменение не подтверждено: "+AdmissionsController.message(error));return;}
+                            tell(sender,"&aСохранено: &f"+targetName+" • "+status.title()+(days>0?" • "+days+" дн.":""));
+                            var player=org.bukkit.Bukkit.getPlayer(targetId);
+                            if(player!=null&&player!=sender)ru.neverland.core.SuiteScheduler.player(plugin,player,p->tell(p,"Ваш статус в городе "+townName+": &e"+status.title()));
+                        });
+                    });
                 }
                 case "list" -> {
                     Town town = args.length > 2 ? TownyAPI.getInstance().getTown(args[2]) : sender instanceof Player p ? service.ownTown(p.getUniqueId()) : null;
@@ -70,12 +81,15 @@ public final class CitizensCommand implements TabExecutor {
         tell(sender, "&e/t citizens &7— ваша карточка гражданства.");
         tell(sender, "&e/t citizens info <игрок> [город] &7— статус в городе.");
         tell(sender, "&e/t citizens list [страница] [город] &7— реестр для мэра.");
+        tell(sender,"&e/t citizens applications [город] &7— заявления и поручители.");
+        tell(sender,"&e/t citizens terms [город] &7— условия и подача заявления.");
+        tell(sender,"&e/t citizens history [игрок] [город] &7— история статусов.");
         tell(sender, "&e/t citizens set <игрок> <статус> <дни|0> [город] [причина]");
         tell(sender, "&7Статусы: &fcitizen, temporary, foreigner, honorary.");
         tell(sender, "&7Для temporary укажите срок в днях; для остальных — 0.");
     } }
     @Override public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
-        List<String> values = args.length == 1 ? List.of("info", "help", "list", "set", "reload")
+        List<String> values = args.length == 1 ? List.of("info", "help", "list", "set", "reload", "applications", "apply", "application", "terms", "history", "sponsor", "unsponsor", "approve", "reject", "withdraw", "cancel")
                 : args.length == 3 && args[0].equalsIgnoreCase("set") ? List.of("citizen", "temporary", "foreigner", "honorary") : List.of();
         return values.stream().filter(v -> v.startsWith(args[args.length - 1].toLowerCase(Locale.ROOT))).toList();
     } }
