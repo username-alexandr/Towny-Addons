@@ -1,0 +1,8 @@
+PASS actual Council 0.2 delegation service and legacy council services enabled
+PASS original permanent ministry survives real native restart
+PASS real module pause extends still-live authority but preserves historical grant date
+PASS native restart restores temporary authority through existing public bridge
+PASS revoked authority remains revoked and its historical deadline never shifts
+PASS pause cannot resurrect authority that expired before pause began
+PASS two real grants and one revoke retain exactly three durable history entries
+PASS administrative TSV journal retains exact delegation operations after restart

@@ -24,3 +24,7 @@ roles:
       - neverlandtownycouncil.action.agreements
       - neverlandtownycouncil.action.sanctions
       - neverlandtownycouncil.action.trade
+
+delegations:
+  # Только новые поручения; уже подтверждённые продолжают действовать до срока или отзыва.
+  accept-new: true

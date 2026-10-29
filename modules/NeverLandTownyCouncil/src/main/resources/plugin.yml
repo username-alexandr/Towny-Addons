@@ -1,5 +1,5 @@
 name: NeverLandTownyCouncil
-version: 0.1.17
+version: 0.2.0
 main: ru.neverland.townycouncil.NeverLandTownyCouncil
 folia-supported: true
 api-version: '26.2'

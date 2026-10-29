@@ -79,6 +79,8 @@ public final class CouncilOfficeMenus {
         menu.setItem(48,item(Material.BELL,"&eКто входит в совет",members.isEmpty()?List.of("&7Совет не сформирован"):members.stream().map(name->"&7• &f"+name).toList()));
         if(ministers&&town.getMayor()!=null&&town.getMayor().getUUID().equals(player.getUniqueId()))
             button(menu,46,Material.PLAYER_HEAD,"&eПрава жителей",List.of("&7Лично разрешить или запретить действие жителю.","&7Личное правило важнее прав должности."),p->p.performCommand("townycouncil access"));
+        if(ministers&&ru.neverland.core.ApiServices.connect("NeverLandTownyCouncil","ru.neverland.townycouncil.api.TownyCouncilApi",1,"temporaryRights").ready())
+            button(menu,47,Material.CLOCK,"&eВременные полномочия",List.of("&7Действия, порученные на определённый срок.","&7Выдаёт и отзывает мэр своего города."),p->p.performCommand("townycouncil delegations"));
         button(menu,49,Material.ARROW,"&7Назад",List.of("&7Законы и совет"),main);
         pages(menu,page,count,45,53,p->openCouncil(p,page-1),p->openCouncil(p,page+1));player.openInventory(menu);
     }

@@ -20,7 +20,7 @@ import ru.neverland.townycitizens.model.*;
 import static ru.neverland.townycitizens.model.Admissions.*;
 
 /** Real Folia, Towny, Citizens repository/commands/menus. Player, view and scheduler are explicit offline substitutes. */
-public final class AdmissionsProbe extends JavaPlugin {
+public class AdmissionsProbe extends JavaPlugin {
     static UUID id(String key){return UUID.nameUUIDFromBytes(("admissions-052-"+key).getBytes(java.nio.charset.StandardCharsets.UTF_8));}
     static final UUID T=id("town"),P=id("applicant"),M=id("mayor"),S=id("sponsor"),L=id("legacy");
     Path proof;boolean restart;int checks;World world;Location origin;Town town;NeverLandTownyCitizens owner;CitizensService citizens;AdmissionsService admissions;AdmissionsController controller;

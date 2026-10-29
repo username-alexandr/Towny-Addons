@@ -20,6 +20,9 @@ public final class CouncilService implements TownyCouncilApi {
     private CouncilSettings settings;
     private final AccessRepository access;
     private final Map<UUID, Grant> grants = new HashMap<>();
+    private DelegationService delegations;
+    public void delegations(DelegationService value){delegations=value;}
+    public DelegationService delegations(){return delegations;}
     public CouncilService(Plugin plugin, CouncilRepository repository, CouncilSettings settings, AccessRepository access) {
         this.plugin = plugin; this.repository = repository; this.settings = settings; this.access=access;
     }
@@ -73,8 +76,10 @@ public final class CouncilService implements TownyCouncilApi {
         if(!healthy())return "DENY";
         String role=role(townId,resident);Boolean override=rules(town).override(resident,role,action);
         if(override!=null)return override?"ALLOW":"DENY";
+        if(delegations!=null&&delegations.active(townId,resident,action))return "ALLOW";
         return roleDefault(role,action)?"ALLOW":"DEFAULT";
     } }
+    @Override public Map<String,Long> temporaryRights(UUID town,UUID resident){try(var guard=ru.neverland.core.SuiteState.guard()){var result=new HashMap<String,Long>();if(delegations!=null)for(var grant:delegations.state().grants().values())if(grant.town().equals(town)&&grant.resident().equals(resident)&&delegations.active(town,resident,TownAction.parse(grant.action())))result.put(grant.action(),grant.expiresAt());return Map.copyOf(result);}}
     @Override public Map<String,String> actions(){ try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         var result=new LinkedHashMap<String,String>();for(var a:TownAction.values())result.put(a.id(),a.title());return Map.copyOf(result);
     } }
@@ -116,7 +121,7 @@ public final class CouncilService implements TownyCouncilApi {
         if(!role.isEmpty())nodes.addAll(permissions(role));nodes.removeIf(n->n.startsWith(TownAction.PREFIX));
         // Mayors already have their normal authority and must not acquire delegated attachments.
         if(town.getMayor()!=null&&town.getMayor().getUUID().equals(resident))return Set.copyOf(nodes);
-        var rules=rules(town);for(var a:TownAction.values()){Boolean override=rules.override(resident,role,a);if(override!=null?override:roleDefault(role,a))nodes.add(a.permission());}
+        var rules=rules(town);for(var a:TownAction.values()){Boolean override=rules.override(resident,role,a);if(override!=null?override:roleDefault(role,a)||delegations!=null&&delegations.active(town.getUUID(),resident,a))nodes.add(a.permission());}
         return Set.copyOf(nodes);
     }
     public boolean manages(CommandSender sender, Town town) { try (var suiteGuard19 = ru.neverland.core.SuiteState.guard()) {
@@ -155,6 +160,7 @@ public final class CouncilService implements TownyCouncilApi {
         Boolean personal=rules(town).residents().getOrDefault(resident,Map.of()).get(action.id());
         if(personal!=null)return personal?"Лично разрешено мэром":"Лично запрещено мэром";
         String role=role(town.getUUID(),resident);
+        if(delegations!=null&&delegations.active(town.getUUID(),resident,action))return "Временно поручено мэром; срок указан в разделе полномочий";
         return role.isEmpty()?"Личного правила нет; действуют права жителя и его должностей":roleExplanation(town,role,action);
     } }
     public List<String> appointmentRights(Town town,MinisterRole role,UUID resident) { try (var suiteGuard24 = ru.neverland.core.SuiteState.guard()) {

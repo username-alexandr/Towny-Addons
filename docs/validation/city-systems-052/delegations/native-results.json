@@ -1,0 +1,28 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 19 assertions; genuine Folia/Towny/Council command, native menus, shared action bridge, real delayed file and pause/restart, legacy ministry preserved; explicit offline Player/InventoryView/EntityScheduler and expired-grant fixture; no GUI client, money cap or bank operation claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyControl-0.5.6.jar": "1a99769ed9517e086c0334efc5e0d3bac022e33ce9a1942c4e592c63b2b3086e",
+      "DelegationsRuntimeProbe.jar": "ffb885fffab48c61498535640fa64df6251213a9182701d5b0cf107a6f133d37",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyGovernance-0.2.1.jar": "f854f0db35346bd88090cc73508d49660fe0057d7b4223bfc6bd29ee067dc7d0",
+      "NeverLandTownyCouncil-0.2.0.jar": "98d698dbd1055040e17aedf34734bd7192e5d91544e5510ff1dad5c8613a64da"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 8 assertions; genuine Folia/Towny/Council command, native menus, shared action bridge, real delayed file and pause/restart, legacy ministry preserved; explicit offline Player/InventoryView/EntityScheduler and expired-grant fixture; no GUI client, money cap or bank operation claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyControl-0.5.6.jar": "1a99769ed9517e086c0334efc5e0d3bac022e33ce9a1942c4e592c63b2b3086e",
+      "DelegationsRuntimeProbe.jar": "ffb885fffab48c61498535640fa64df6251213a9182701d5b0cf107a6f133d37",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyGovernance-0.2.1.jar": "f854f0db35346bd88090cc73508d49660fe0057d7b4223bfc6bd29ee067dc7d0",
+      "NeverLandTownyCouncil-0.2.0.jar": "98d698dbd1055040e17aedf34734bd7192e5d91544e5510ff1dad5c8613a64da"
+    }
+  }
+]

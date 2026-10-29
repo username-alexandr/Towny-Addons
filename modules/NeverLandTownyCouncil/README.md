@@ -13,3 +13,5 @@
 [Права, правила назначения, интеграции, API и установка](../../docs/UPDATE_0.26.0_RU.md).
 
 Проверки: `python scripts/build_suite.py Council` из корня репозитория. Серверная проба: [scripts/council-runtime-probe](../../scripts/council-runtime-probe).
+
+[Временные права 0.2.0, проверка и оставшиеся финансовые ограничения](../../docs/COUNCIL-TEMPORARY-RIGHTS.md).

@@ -1,0 +1,6 @@
+name: DelegationsRuntimeProbe
+version: 0.52.0
+main: ru.neverland.runtime.DelegationsProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyCitizens, NeverLandTownyCouncil, NeverLandTownyControl, NeverLandTownyGovernance]

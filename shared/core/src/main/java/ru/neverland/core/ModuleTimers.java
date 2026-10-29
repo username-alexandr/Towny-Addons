@@ -19,6 +19,7 @@ public final class ModuleTimers {
             case "Espionage" -> Map.of("data.yml",List.of("operations.*.completes-at","operations.*.admin-paused-at","reports.*.*.expires-at"));
             case "Governance" -> Map.of("data.yml",List.of("proposals.*.ends-at","proposals.*.admin-paused-at"));
             case "Elections" -> Map.of("elections.yml",List.of("towns.*.nomination-end","towns.*.voting-end","towns.*.next","towns.*.admin-paused-at"));
+            case "Council" -> Map.of("delegations.yml",List.of("grants.*.expires-at"));
             case "Citizens" -> Map.of("citizens.yml",List.of("records.*.expires-at"));
             case "Diplomacy" -> Map.of("diplomacy.yml",List.of("treaties.*.offer-until","treaties.*.activated","treaties.*.expires","treaties.*.notice-until"));
             case "Army" -> Map.of("army-data.yml",List.of("cities.*.next-supply","cities.*.supplied-until"));
@@ -29,16 +30,19 @@ public final class ModuleTimers {
             case "Justice" -> Map.of("justice-data.yml",List.of("cases.*.due","cases.*.capture-started"));
             case "Seasons" -> Map.of("calendar.yml",List.of("epoch"));
             // These use online ticks, explicit journal recovery, or historical timestamps only.
-            case "Environment","Achievements","Quests","Archaeology","Builds","Chronicles","Council","Districts","Ideologies","Jobs","Logistics","Market","Policies","Population","Power","Research","Resources","SiegesPlus","Specialization","Stick","TreasuryPlus","Upkeep" -> Map.of();
+            case "Environment","Achievements","Quests","Archaeology","Builds","Chronicles","Districts","Ideologies","Jobs","Logistics","Market","Policies","Population","Power","Research","Resources","SiegesPlus","Specialization","Stick","TreasuryPlus","Upkeep" -> Map.of();
             default -> throw new IllegalArgumentException("Нет проверенной схемы таймеров: "+name);
         };
     } }
-    public static String shifted(String text,List<String> rules,long delta)throws Exception { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
+    public static String shifted(String text,List<String> rules,long delta)throws Exception { return shifted(text,rules,delta,0); }
+    public static String shifted(String text,List<String> rules,long delta,long pausedAt)throws Exception { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(delta<0) throw new IllegalArgumentException("Часы сервера идут назад");
         var y=new YamlConfiguration();y.loadFromString(text);
         for(String key:new ArrayList<>(y.getKeys(true))) for(String rule:rules) if(matches(key,rule) && live(y,key)) {
             long before=SafeYaml.integer(y,key);
             if(before<0) throw new IOException("Отрицательный таймер: "+key);
+            // Expired legal rights must never become live again just because the addon was paused.
+            if(before>0&&pausedAt>0&&before<=pausedAt&&(key.startsWith("records.")||key.startsWith("grants."))&&key.endsWith(".expires-at"))break;
             if(before>0) y.set(key,Math.addExact(before,delta));
             break;
         }
@@ -61,6 +65,7 @@ public final class ModuleTimers {
             return root.startsWith("towns.") && field.equals("next"); // next election is independent of the last result
         if(root.startsWith("cases.") && field.equals("due") && y.getString(root+".kind","").equals("WARRANT")) return false;
         if(root.startsWith("treaties.") && Set.of("embargo","sanctions").contains(y.getString(root+".type","")))return false;
+        if(root.startsWith("grants.")&&y.getBoolean(root+".revoked"))return false;
         if(root.startsWith("companies.") && y.getBoolean(root+".closed"))return false;
         return true;
     }
@@ -78,7 +83,7 @@ public final class ModuleTimers {
             int index=0;
             for(var rule:new TreeMap<>(rules(name)).entrySet()) {
                 Path file=directory.resolve(rule.getKey());if(!Files.exists(file))continue;
-                String before=Files.readString(file);String after=shifted(before,rule.getValue(),now-pausedAt);
+                String before=Files.readString(file);String after=shifted(before,rule.getValue(),now-pausedAt,pausedAt);
                 String p="files."+(index++)+".";plan.set(p+"name",rule.getKey());plan.set(p+"before",before);plan.set(p+"after",after);
             }
             YamlConfiguration snapshot=plan;AtomicFiles.write(journal,snapshot::saveToString);

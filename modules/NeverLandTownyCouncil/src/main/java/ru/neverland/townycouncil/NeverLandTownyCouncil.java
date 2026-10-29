@@ -12,6 +12,7 @@ import ru.neverland.townycouncil.api.TownyCouncilApi;
 
 public final class NeverLandTownyCouncil extends JavaPlugin implements Listener {
     private CouncilService service;
+    private DelegationRepository delegationStore;private DelegationMenus delegationMenus;
     private boolean townCommand;
     @Override public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
@@ -21,8 +22,12 @@ public final class NeverLandTownyCouncil extends JavaPlugin implements Listener 
             var repository = new CouncilRepository(getDataFolder().toPath().resolve("council.yml")); repository.load();
             var access = new AccessRepository(getDataFolder().toPath().resolve("access.yml")); access.load();
             service = new CouncilService(this, repository, readSettings(), access);
+            delegationStore=new DelegationRepository(getDataFolder().toPath().resolve("delegations.yml"));delegationStore.load();
+            var delegations=new DelegationService(this,service,delegationStore);service.delegations(delegations);
+            delegationMenus=new DelegationMenus(this,service,delegations);getServer().getPluginManager().registerEvents(delegationMenus,this);
+            ru.neverland.core.ModuleShutdown.register(this,delegationStore::prepareClose);
             var menus = new CouncilMenus(this, service);var accessMenus=new AccessMenus(this,service,menus);menus.access(accessMenus); var command = new CouncilCommand(this, service, menus,accessMenus);
-            var ministerMenus=new MinisterMenus(this,service,menus,accessMenus);menus.ministers(ministerMenus);
+            var ministerMenus=new MinisterMenus(this,service,menus,accessMenus);menus.ministers(ministerMenus);menus.delegations(delegationMenus);command.delegations(delegationMenus);
             getServer().getPluginManager().registerEvents(ministerMenus,this);
             getServer().getPluginManager().registerEvents(accessMenus,this);
             getCommand("townycouncil").setExecutor(command); getCommand("townycouncil").setTabCompleter(command);
@@ -60,13 +65,14 @@ public final class NeverLandTownyCouncil extends JavaPlugin implements Listener 
         if (e.getTown() == null || e.getOldMayor() == e.getNewMayor()) return;
         guarded(() -> {service.clearAccess(e.getTown().getUUID(),null,"MAYOR_CHANGED");service.remove(a -> a.town().equals(e.getTown().getUUID()), "SYSTEM", "MAYOR_CHANGED");});
     } }
-    @Override public void onDisable() { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
+    @Override public void onDisable() { try { try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         ru.neverland.core.SuiteScheduler.get().cancelTasks(this);
+        if(delegationStore!=null)delegationStore.prepareClose();if(delegationMenus!=null)delegationMenus.close();
         if (service != null) service.clearGrants();
         getServer().getServicesManager().unregisterAll(this);
         if (townCommand) TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN, "ministers");
-        ru.neverland.core.SuiteScheduler.cleanupPlayers(this,p->{if(p.getOpenInventory().getTopInventory().getHolder() instanceof CouncilMenus.Holder||p.getOpenInventory().getTopInventory().getHolder() instanceof AccessMenus.View||p.getOpenInventory().getTopInventory().getHolder() instanceof MinisterMenus.View)p.closeInventory();});
-    } }
+        ru.neverland.core.SuiteScheduler.cleanupPlayers(this,p->{if(p.getOpenInventory().getTopInventory().getHolder() instanceof CouncilMenus.Holder||p.getOpenInventory().getTopInventory().getHolder() instanceof AccessMenus.View||p.getOpenInventory().getTopInventory().getHolder() instanceof MinisterMenus.View||p.getOpenInventory().getTopInventory().getHolder()!=null&&p.getOpenInventory().getTopInventory().getHolder().getClass().getName().contains(".DelegationMenus$"))p.closeInventory();});
+    } } finally {if(delegationStore!=null)delegationStore.awaitClosed();ru.neverland.core.ModuleShutdown.remove(this);} }
 }

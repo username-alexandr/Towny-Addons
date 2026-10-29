@@ -1,0 +1,19 @@
+PASS actual Council 0.2 delegation service and legacy council services enabled
+PASS existing permanent ministry retained while resident starts without delegated export
+PASS wildcard/admin-style permissions never substitute for actual mayor
+PASS mayor cannot create self-delegation
+PASS actual delegation command opens exact expiry and separate confirmation
+PASS confirmation click cannot move menu items
+PASS real blocked writer cannot grant unconfirmed authority
+PASS owning region remains responsive while actual delegation file waits
+PASS acknowledged grant authorizes real shared city action bridge
+PASS same confirmation cannot issue a second or extended grant
+PASS mayor permanent deny overrides temporary grant immediately
+PASS removing explicit deny reveals still-live grant and exact primitive expiry API
+PASS actual unified governance council menu exposes temporary rights without navigation collision
+PASS feature switch blocks new grants
+PASS feature switch preserves confirmed rights and fixed expiration
+PASS second granular action can be granted independently
+PASS confirmed revoke removes temporary contribution while preserving independent legacy rights
+PASS explicit old expired fixture cannot authorize building
+PASS native board exposes temporary grants and distinct create action
