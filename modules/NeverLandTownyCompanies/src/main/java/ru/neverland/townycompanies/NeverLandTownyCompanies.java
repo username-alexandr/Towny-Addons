@@ -12,7 +12,7 @@ public final class NeverLandTownyCompanies extends JavaPlugin {
         saveDefaultConfig();getConfig().options().copyDefaults(true);saveConfig();
         try {
             CompanyRepository repo=new CompanyRepository(getDataFolder().toPath().resolve("companies.yml"));repo.load();service=new CompanyService(this,repo);
-            service.payroll=new CompanyPayroll(this,service);
+            service.payroll=new CompanyPayroll(this,service);service.profit=new CompanyProfit(this,service);ru.neverland.core.ModuleShutdown.register(this,service::prepareClose);
             for(var kind:CompanyData.Kind.values())service.rate(kind);
             CompanyCommand command=new CompanyCommand(this,service);menus=new CompanyMenus(this,service,command);command.menus(menus);
             getCommand("townycompanies").setExecutor(command);getCommand("townycompanies").setTabCompleter(command);
@@ -24,7 +24,8 @@ public final class NeverLandTownyCompanies extends JavaPlugin {
         }catch(Exception ex){getLogger().severe("Предприятия не запущены: "+ex.getMessage());getServer().getPluginManager().disablePlugin(this);}
     } }
     public CompaniesApi companies(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return service;} }
-    @Override public void onDisable(){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
-        if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
-if(service!=null&&service.payroll!=null)service.payroll.close();if(menus!=null)menus.close();TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"companies");getServer().getServicesManager().unregisterAll(this);} }
+    @Override public void onDisable(){try{try(var guard=ru.neverland.core.SuiteState.guard()){
+        if(!ru.neverland.core.ModuleLifecycle.end(this))return;
+        if(service!=null)service.prepareClose();if(menus!=null)menus.close();TownyCommandAddonAPI.removeSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"companies");getServer().getServicesManager().unregisterAll(this);
+    }}finally{if(service!=null)service.awaitClosed();ru.neverland.core.ModuleShutdown.remove(this);}}
 }

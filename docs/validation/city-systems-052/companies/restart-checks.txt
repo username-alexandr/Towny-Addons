@@ -1,0 +1,9 @@
+PASS actual Companies 0.3 accounting and original payroll enabled
+PASS confirmed report, frozen reward, estimate and declaration survive restart separately
+PASS restart preserves actual allocations and exact planned/received distinction
+PASS reversed receipt attribution remains in saved accounting history
+PASS accounting neither changes original funds nor resolves ambiguous payment
+PASS missing authoritative salary receipt produces incomplete report instead of fake profit
+PASS public primitive report API matches restored verified accounting
+PASS neutral feature disable preserves accounting file, company funds and existing contracts
+PASS eight acknowledged report changes create eight unique audit operations despite repeated confirm

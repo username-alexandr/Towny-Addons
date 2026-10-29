@@ -9,19 +9,22 @@ import static ru.neverland.townycompanies.CompanyService.message;
 
 public final class CompanyCommand implements CommandExecutor,TabCompleter {
     @FunctionalInterface public interface Action {void run()throws Exception;}
-    private record Quote(long until,UUID company,long revision,Action action){}
+    @FunctionalInterface public interface AsyncAction{java.util.concurrent.CompletionStage<?> run()throws Exception;}
+    private record Quote(long until,UUID company,long revision,Action action,AsyncAction async){}
     private final JavaPlugin plugin;private final CompanyService service;private CompanyMenus menus;
     private final Map<UUID,Quote> quotes=new HashMap<>();
     public CompanyCommand(JavaPlugin plugin,CompanyService service){this.plugin=plugin;this.service=service;}
     public void menus(CompanyMenus menus){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {this.menus=menus;} }
     public void quote(Player p,String description,Action action){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         service.requireUse(p);Company c=service.ledger.membership(p.getUniqueId());long now=System.currentTimeMillis();quotes.values().removeIf(q->q.until()<now);
-        quotes.put(p.getUniqueId(),new Quote(now+30_000,c==null?null:c.id(),c==null?0:c.revision(),action));
+        quotes.put(p.getUniqueId(),new Quote(now+30_000,c==null?null:c.id(),c==null?0:c.revision(),action,null));
         message(p,description+". Подтвердите: /company confirm (30 секунд)");menus.confirm(p,description);
     } }
+    public void quoteAsync(Player p,String description,AsyncAction action){try(var guard=ru.neverland.core.SuiteState.guard()){var company=service.manage(p,false,true);quotes.values().removeIf(q->q.until()<System.currentTimeMillis());quotes.put(p.getUniqueId(),new Quote(System.currentTimeMillis()+30000,company.id(),company.revision(),null,action));message(p,description+". Подтвердите: /company confirm (30 секунд)");menus.confirm(p,description);}}
     public void confirm(Player p)throws Exception { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         service.requireUse(p);Quote q=quotes.remove(p.getUniqueId());Company c=service.ledger.membership(p.getUniqueId());
         if(q==null||q.until()<System.currentTimeMillis()||!Objects.equals(q.company(),c==null?null:c.id())||(c!=null&&q.revision()!=c.revision()))throw new IllegalArgumentException("Подтверждение истекло или состояние компании изменилось. Повторите действие");
+        if(q.async()!=null){var expected=p.getOpenInventory().getTopInventory();q.async().run().whenComplete((value,error)->ru.neverland.core.SuiteScheduler.entity(plugin,p,()->{if(!p.isOnline())return;if(error!=null){message(p,"Изменение не подтверждено. Проверьте сохранённую смету перед повтором");return;}message(p,"Изменение учёта сохранено. Деньги и предметы не перемещались");try{var current=service.ledger.membership(p.getUniqueId());if(current!=null&&current.id().equals(q.company())&&p.getOpenInventory().getTopInventory()==expected)menus.profits(p,0);}catch(Exception ignored){/* The receipt remains valid after membership or window changes. */}}));return;}
         q.action().run();message(p,"Готово");menus.open(p);
     } }
     public void safe(Player p,Action action){ try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {try{service.requireUse(p);action.run();}catch(Exception ex){message(p,ex.getMessage()==null?"Операция недоступна":ex.getMessage());if(ex instanceof java.io.IOException)plugin.getLogger().severe(ex.toString());}} }
@@ -36,6 +39,7 @@ public final class CompanyCommand implements CommandExecutor,TabCompleter {
                 case "members" -> menus.members(p,0);
                 case "contracts" -> menus.contracts(p,0);
                 case "payments" -> menus.payments(p,0);
+                case "profit" -> profit(p,args);
                 case "payroll" -> {
                     if(args.length==1){service.payroll.open(p);break;}
                     service.manage(p,true,true);String a=args[1].toLowerCase(Locale.ROOT);String profession="";long amount=0;
@@ -65,6 +69,23 @@ public final class CompanyCommand implements CommandExecutor,TabCompleter {
             }
         });return true;
     } }
+    private Long cost(String raw){return raw.equals("?")?null:raw.equals("0")?0:cents(raw);}
+    private String costText(Long value){return value==null?"неизвестно":format(value);}
+    private void profit(Player p,String[] a){
+        if(a.length==1){menus.profits(p,0);return;}if(a.length==2){menus.profit(p,UUID.fromString(a[1]));return;}UUID id=UUID.fromString(a[2]);switch(a[1].toLowerCase(Locale.ROOT)){
+            case "create"->{if(a.length!=3)throw new IllegalArgumentException("/company profit create <договор>");profitQuote(p,id);}
+            case "payments"->{if(a.length!=3)throw new IllegalArgumentException("/company profit payments <договор>");menus.profitPayments(p,id,0);}
+            case "costs"->{if(a.length!=3)throw new IllegalArgumentException("/company profit costs <договор>");menus.profitCosts(p,id,0);}
+            case "budget"->{if(a.length!=6)throw new IllegalArgumentException("/company profit budget <договор> <материалы> <зарплаты> <налоги>; ? — неизвестно");var r=service.profit.report(p,id);var b=new ContractAccounting.Budget(cost(a[3]),cost(a[4]),cost(a[5]));quoteAsync(p,"Смета «"+r.title()+"»: материалы "+costText(b.materials())+", зарплаты "+costText(b.wages())+", налоги "+costText(b.taxes())+". Это план, без списания средств",()->service.profit.budget(p,id,r.revision(),b));}
+            case "materials"->{if(a.length<4)throw new IllegalArgumentException("/company profit materials <договор> <стоимость|?> <пояснение>");var r=service.profit.report(p,id);Long amount=cost(a[3]);String note=amount==null?"":String.join(" ",Arrays.copyOfRange(a,4,a.length));if(amount!=null&&(note.isBlank()||note.length()>200))throw new IllegalArgumentException("Добавьте пояснение стоимости материалов длиной до 200 символов");quoteAsync(p,"Заявленная стоимость материалов: "+costText(amount)+". "+note+". Цена покупки сервером не подтверждается; новый платёж не выполняется",()->service.profit.materials(p,id,r.revision(),amount,note));}
+            case "allocate"->{if(a.length!=5)throw new IllegalArgumentException("/company profit allocate <договор> <платёж> <сумма>");allocationQuote(p,id,UUID.fromString(a[3]),cents(a[4]));}
+            case "undo"->{if(a.length!=4)throw new IllegalArgumentException("/company profit undo <договор> <распределение>");undoQuote(p,id,UUID.fromString(a[3]));}
+            default->throw new IllegalArgumentException("/company profit [<договор>|create|budget|materials|payments|costs|allocate|undo]");
+        }
+    }
+    public void profitQuote(Player p,UUID contract){var r=service.profit.proposal(p,contract);quoteAsync(p,"Создать смету «"+r.title()+"»: цель "+r.goal()+", вознаграждение "+format(r.reward())+" из городской казны. Затраты пока неизвестны; договор ещё не принимается",()->service.profit.create(p,r));}
+    public void allocationQuote(Player p,UUID contract,UUID payment,long amount){var r=service.profit.report(p,contract);UUID allocation=UUID.randomUUID();long created=System.currentTimeMillis();quoteAsync(p,"Отнести "+format(amount)+" уже оплаченных затрат к договору «"+r.title()+"». Эта часть платежа станет недоступна другим сметам. Деньги повторно не списываются",()->service.profit.allocate(p,contract,r.revision(),payment,amount,allocation,created));}
+    public void undoQuote(Player p,UUID contract,UUID allocation){var r=service.profit.report(p,contract);quoteAsync(p,"Снять распределение затрат с договора «"+r.title()+"». Подтверждённый банковский платёж останется выполненным; освободится только его учёт в смете",()->service.profit.reverse(p,contract,r.revision(),allocation));}
     public void takeQuote(Player p,UUID id){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {Company c=service.manage(p,false,true);Map<String,Object> offer=service.contracts.offers(c.town()).stream().filter(o->id.toString().equals(o.get("id"))).findFirst().orElseThrow(()->new IllegalArgumentException("Контракт не найден"));
         quote(p,"Принять заказ «"+offer.get("name")+"», цель "+offer.get("goal")+", награда на счёт компании "+offer.get("reward")+", срок до "+CompanyMenus.date(((Number)offer.get("expires")).longValue()),()->service.take(p,id));} }
     private void admin(CommandSender sender,String[] args){
@@ -86,11 +107,13 @@ public final class CompanyCommand implements CommandExecutor,TabCompleter {
         message(p,"/company create <shop|mine|farm|transport> <название>");
         message(p,"/company invite <игрок>; join <ID>; role <игрок> <manager|worker>; kick <игрок>; leave");
         message(p,"/company deposit <сумма>; withdraw <сумма>; payments; payroll — зарплаты сотрудникам");
+        message(p,"/company profit — сметы и доходность договоров; ? в бюджете означает неизвестные затраты");
         message(p,"/company contracts; take <UUID>; release <UUID>; /t contracts — выполнение заказов");
         message(p,"/company transfer <игрок>; acceptowner; disband; confirm; cancel");
     }
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
-        List<String> values=args.length==1?List.of("help","list","create","members","invite","invitations","join","role","kick","leave","deposit","withdraw","payments","payroll","contracts","take","release","transfer","acceptowner","disband","confirm","cancel")
+        List<String> values=args.length==1?List.of("help","list","create","members","invite","invitations","join","role","kick","leave","deposit","withdraw","payments","payroll","profit","contracts","take","release","transfer","acceptowner","disband","confirm","cancel")
+                :args.length==2&&args[0].equalsIgnoreCase("profit")?List.of("create","budget","materials","payments","costs","allocate","undo")
                 :args.length==2&&args[0].equalsIgnoreCase("create")?List.of("shop","mine","farm","transport")
                 :args.length==3&&args[0].equalsIgnoreCase("role")?List.of("manager","worker"):List.of();
         String prefix=args.length==0?"":args[args.length-1].toLowerCase(Locale.ROOT);return values.stream().filter(s->s.startsWith(prefix)).toList();

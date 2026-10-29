@@ -2,7 +2,8 @@ package ru.neverland.townycompanies.api;
 import java.util.UUID;
 /** Main-thread API for trusted plugins. Escrow is already debited by Contracts. */
 public interface CompaniesApi extends ru.neverland.core.ApiContract {
-    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("canContribute", "canManage", "canTake", "companyName", "settleEscrow"); }
+    @Override default java.util.Set<String> capabilities() { return java.util.Set.of("canContribute", "canManage", "canTake", "companyName", "settleEscrow", "contractAccounting"); }
+    default java.util.Map<String,Object> contractAccounting(UUID company,UUID contract){return java.util.Map.of("available",false);}
     boolean canTake(UUID actor,UUID company,UUID town);
     boolean canManage(UUID actor,UUID company,UUID town);
     boolean canContribute(UUID actor,UUID company,UUID town);

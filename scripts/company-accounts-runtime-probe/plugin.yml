@@ -1,0 +1,6 @@
+name: TntRuntimeProbe
+version: 0.52-company-accounts
+main: ru.neverland.runtime.CompanyAccountsProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyBuilds, NeverLandTownyContracts, NeverLandTownySiegesPlus, NeverLandTownyCompanies, NeverLandTownyControl]

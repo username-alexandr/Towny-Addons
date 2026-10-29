@@ -42,5 +42,6 @@ public final class CompanyPayroll implements CompanyPayrollApi,Listener,AutoClos
     private static ItemStack icon(Material type,String name,List<String> lore){var item=new ItemStack(type);var meta=item.getItemMeta();meta.displayName(MenuStyle.nameComponent(MenuStyle.decode(name)));meta.lore(MenuStyle.loreComponents(lore.stream().map(MenuStyle::decode).toList()));meta.addItemFlags(ItemFlag.values());item.setItemMeta(meta);return item;}
     private static final class View implements InventoryHolder{final UUID owner;Inventory inventory;String toggle;boolean history;View(UUID owner){this.owner=owner;}public Inventory getInventory(){return inventory;}}
     public CompanyPayrollStore store(){return store;}
-    public void close(){store.close();if(Bukkit.isStopping())try{store.stopped().toCompletableFuture().get(2,java.util.concurrent.TimeUnit.SECONDS);}catch(Exception ex){plugin.getLogger().warning("Запись очереди зарплат ещё завершается: "+ex.getMessage());}}
+    public java.util.concurrent.CompletionStage<Void> prepareClose(){store.close();return store.stopped();}
+    public void close(){prepareClose();}
 }

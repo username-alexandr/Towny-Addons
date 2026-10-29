@@ -1,0 +1,1 @@
+PASS 20 assertions; real Folia/Towny/Companies/Contracts commands, native report inventories, actual delayed atomic writer, immutable cost allocation and Control/full-restart lifecycle; explicit offline player/scheduler/view, funded-contract and paid-bank-receipt fixtures; no real bank payout, player acceptance or GUI client claimed

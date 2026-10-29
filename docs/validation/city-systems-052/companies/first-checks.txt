@@ -1,0 +1,20 @@
+PASS actual Companies 0.3 accounting and original payroll enabled
+PASS actual Contracts bridge supplies integer escrow cents and funded status
+PASS creating quote neither writes a report nor accepts the contract
+PASS acknowledged report freezes reward without moving company funds
+PASS worker sees incomplete estimate and clear reason editing is unavailable
+PASS ordinary company worker cannot create a cost change quote
+PASS three confirmed budget categories calculate exact planned remainder
+PASS declared materials do not invent a received contract payout
+PASS only two completed salary/tax receipts are eligible; pending payment excluded
+PASS completed salary source allocated once after durable confirmation
+PASS second attribution above paid source cannot mutate the report
+PASS seeded settlement receipt excludes city refund and uses actual allocated expenses
+PASS native report distinguishes estimate, accounted remainder and declared material evidence
+PASS undo restores accounting capacity without reversing bank payment or changing balance
+PASS deliberately reassigned half receipt gives exact conserved remainder
+PASS blocked actual file writer leaves the prior report visible while region continues
+PASS Control waits for in-flight cost write before unloading plugin classes
+PASS controlled disable drains the accepted report and payroll workers
+PASS Folia re-enable is deferred until full server restart
+PASS eight acknowledged report changes create eight unique audit operations despite repeated confirm

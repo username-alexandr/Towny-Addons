@@ -1,0 +1,30 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 20 assertions; real Folia/Towny/Companies/Contracts commands, native report inventories, actual delayed atomic writer, immutable cost allocation and Control/full-restart lifecycle; explicit offline player/scheduler/view, funded-contract and paid-bank-receipt fixtures; no real bank payout, player acceptance or GUI client claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyBuilds-0.10.1.jar": "f004882b1f0f473c019eaad9f2e2e2f881979da5b8de95c5b81f108e04af4e9f",
+      "TntRuntimeProbe.jar": "b97e71a9ff107ab939f67de7096153e40e32e069c5d011ae63eed2b5838b30bc",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyContracts-0.6.1.jar": "a64320af4631372748dc994f9d13c8072115011f190f0e500ea8f7a2a310d1bf",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64",
+      "NeverLandTownyControl-0.5.4.jar": "8f7918536fb54b840360d4baad4eaa85957c3f3326059693a9a0f8e9aa388d28",
+      "NeverLandTownyCompanies-0.3.0.jar": "0522c856c021f2bf2700de0b2f5f958a65b453526672a1037a12653727291baa"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 9 assertions; real Folia/Towny/Companies/Contracts commands, native report inventories, actual delayed atomic writer, immutable cost allocation and Control/full-restart lifecycle; explicit offline player/scheduler/view, funded-contract and paid-bank-receipt fixtures; no real bank payout, player acceptance or GUI client claimed\n",
+    "jar_sha256": {
+      "NeverLandTownyBuilds-0.10.1.jar": "f004882b1f0f473c019eaad9f2e2e2f881979da5b8de95c5b81f108e04af4e9f",
+      "TntRuntimeProbe.jar": "b97e71a9ff107ab939f67de7096153e40e32e069c5d011ae63eed2b5838b30bc",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyContracts-0.6.1.jar": "a64320af4631372748dc994f9d13c8072115011f190f0e500ea8f7a2a310d1bf",
+      "NeverLandTownySiegesPlus-0.6.1.jar": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64",
+      "NeverLandTownyControl-0.5.4.jar": "8f7918536fb54b840360d4baad4eaa85957c3f3326059693a9a0f8e9aa388d28",
+      "NeverLandTownyCompanies-0.3.0.jar": "0522c856c021f2bf2700de0b2f5f958a65b453526672a1037a12653727291baa"
+    }
+  }
+]

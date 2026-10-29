@@ -237,7 +237,7 @@ public final class ContractService implements MintTownyContractsApi {
         for(ActiveContract c:active(town)) {
             var d=definition(c);if(d==null)continue;
             Map<String,Object> row=new LinkedHashMap<>();row.put("id",c.id().toString());row.put("name",ColorUtil.strip(d.name()));row.put("company",c.companyId()==null?"":c.companyId().toString());row.put("assignee",companyName(c));
-            row.put("progress",c.progress());row.put("goal",c.goal());row.put("reward",economy.format(c.escrow()));row.put("expires",c.expiresAt());
+            row.put("progress",c.progress());row.put("goal",c.goal());row.put("reward",economy.format(c.escrow()));row.put("rewardCents",Math.round(c.escrow()*100));row.put("funded",c.funded());row.put("expires",c.expiresAt());
             row.put("target",d.type()==ContractType.SCOUT?"Разведка территории":d.type()==ContractType.DELIVERY?names.item(d.deliveryItem()):d.target().equalsIgnoreCase("ANY")?"Любая подходящая цель":names.value(d.target()));result.add(Map.copyOf(row));
         }return List.copyOf(result);
     } }

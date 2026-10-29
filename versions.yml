@@ -9,7 +9,7 @@ addons:
   NeverLandTownyBuilds: 0.10.1
   NeverLandTownyCamps: 0.2.0
   NeverLandTownyChronicles: 0.2.1
-  NeverLandTownyContracts: 0.6.0
+  NeverLandTownyContracts: 0.6.1
   NeverLandTownyEspionage: 0.1.24
   NeverLandTownyEvents: 0.4.12
   NeverLandTownyExpeditions: 0.1.26
@@ -30,7 +30,7 @@ addons:
   NeverLandTownyPolicies: 0.3.0
   NeverLandTownyTreasuryPlus: 0.2.0
   NeverLandTownyMarket: 0.1.18
-  NeverLandTownyCompanies: 0.2.0
+  NeverLandTownyCompanies: 0.3.0
   NeverLandTownyJobs: 0.3.0
   NeverLandTownyCitizens: 0.1.13
   NeverLandTownyElections: 0.1.13

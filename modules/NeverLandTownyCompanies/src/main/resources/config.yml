@@ -25,3 +25,7 @@ payroll:
   enabled: true
   maximum-rate: '100.00'
   level-multipliers: [1.00, 1.05, 1.10, 1.15, 1.20]
+
+# Отключает только сметы/распределение затрат; счета и договоры продолжают работать.
+accounting:
+  enabled: true

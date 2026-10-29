@@ -12,7 +12,7 @@ import ru.neverland.townycompanies.api.CompaniesApi;
 
 public final class CompanyService implements CompaniesApi {
     private final JavaPlugin plugin;public final CompanyLedger ledger;public final ContractsBridge contracts=new ContractsBridge();
-    public CompanyPayroll payroll;private final CompanyRepository repository;private boolean ready;
+    public CompanyPayroll payroll;public CompanyProfit profit;private final CompanyRepository repository;private boolean ready;
     public CompanyService(JavaPlugin plugin,CompanyRepository repository) {this.plugin=plugin;this.repository=repository;ledger=new CompanyLedger(repository,new CompanyBank());repository.audit((a,b)->CompanyAudit.changed(plugin,a,b));CompanyAudit.changed(plugin,CompanyLedger.State.empty(),repository.state());}
     public static Town town(UUID player) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {var r=TownyAPI.getInstance().getResident(player);return r==null?null:r.getTownOrNull();} }
     public long interval(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {return Math.max(1,Math.min(168,plugin.getConfig().getLong("tax.interval-hours",24)))*3_600_000L;} }
@@ -114,5 +114,8 @@ public final class CompanyService implements CompaniesApi {
         try {return ledger.settle(new Receipt(contract,company,town,payout,refund),System.currentTimeMillis());}
         catch(Exception ex){plugin.getLogger().severe("Расчёт контракта "+contract+" отложен: "+ex.getMessage());return false;}
     } }
+    @Override public Map<String,Object> contractAccounting(UUID company,UUID contract){return profit==null?Map.of("available",false,"reason","Учёт ещё не запущен"):profit.snapshot(company,contract);}
+    public java.util.concurrent.CompletionStage<Void> prepareClose(){try(var guard=ru.neverland.core.SuiteState.guard()){var parts=new java.util.ArrayList<java.util.concurrent.CompletableFuture<?>>();if(payroll!=null)parts.add(payroll.prepareClose().toCompletableFuture());if(profit!=null)parts.add(profit.prepareClose().toCompletableFuture());return java.util.concurrent.CompletableFuture.allOf(parts.toArray(java.util.concurrent.CompletableFuture[]::new));}}
+    public void awaitClosed(){var done=prepareClose().toCompletableFuture();if(ru.neverland.core.SuiteState.held()&&!done.isDone())throw new IllegalStateException("Закройте общую блокировку до ожидания записи компаний");try{done.get(10,java.util.concurrent.TimeUnit.SECONDS);}catch(InterruptedException error){Thread.currentThread().interrupt();throw new IllegalStateException("Ожидание записи компаний прервано",error);}catch(java.util.concurrent.ExecutionException|java.util.concurrent.TimeoutException error){throw new IllegalStateException("Запись компаний ещё не завершена",error);}}
     public static void message(org.bukkit.command.CommandSender p,String text){ try (var suiteGuard29 = ru.neverland.core.SuiteState.guard()) {p.sendMessage("§6NeverLand §8» §f"+text);} }
 }
