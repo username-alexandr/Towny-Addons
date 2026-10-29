@@ -1,0 +1,1 @@
+java.util.concurrent.CompletionException: java.lang.IllegalArgumentException: Сезонная запись не найдена

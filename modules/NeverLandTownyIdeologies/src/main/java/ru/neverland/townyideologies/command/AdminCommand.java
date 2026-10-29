@@ -46,8 +46,10 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
         }
         if(args.length==2&&args[0].equalsIgnoreCase("reform")){
             var r=ru.neverland.townyideologies.reforms.ReformBook.require(ideologies.data().state(),java.util.UUID.fromString(args[1]));sender.sendMessage("§e"+r.id()+" · "+r.target().townName()+" · "+ideologies.status(r));sender.sendMessage("§7Казна: "+r.cents()/100.0+"; цель "+r.target().ideologyId()+" "+r.target().level());
-            for(var attempt:r.attempts())sender.sendMessage("§7[ideology-reform:"+attempt.id()+"] "+attempt.result()+"; actor="+attempt.actor());return true;
+            for(var attempt:r.attempts())sender.sendMessage("§7[ideology-reform:"+attempt.id()+"] "+attempt.result()+"; actor="+attempt.actor()+"; route="+attempt.route());return true;
         }
+        if(args.length==2&&args[0].equalsIgnoreCase("sync-payment")){ideologies.sync(java.util.UUID.fromString(args[1])).whenComplete((text,error)->reply(sender,error==null?text:"Сверка не завершена: "+error.getMessage()));return true;}
+        if(args.length==3&&args[0].equalsIgnoreCase("retry-payment")&&args[2].equals("confirm")){ideologies.retryPayment(java.util.UUID.fromString(args[1])).whenComplete((text,error)->reply(sender,error==null?text:"Повторная отправка не выполнена: "+error.getMessage()));return true;}
         if(args.length>=5&&args[0].equalsIgnoreCase("reconcile")){
             if(!java.util.Set.of("applied","not-applied").contains(args[2])||!args[3].equals("confirm"))throw new IllegalArgumentException("reconcile <ID> <applied|not-applied> confirm <причина>");
             String reason=String.join(" ",java.util.Arrays.copyOfRange(args,4,args.length));if(reason.trim().length()<8)throw new IllegalArgumentException("Укажите основание сверки не короче 8 символов");
@@ -119,8 +121,9 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
                                                  @NotNull String label, @NotNull String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(!sender.hasPermission("neverlandtownyideologies.admin"))return List.of();
-        if (args.length == 1) return filter(List.of("reload", "info", "set", "reset", "reform", "reconcile"), args[0]);
-        if(args.length==2&&java.util.Set.of("reform","reconcile").contains(args[0]))return filter(ideologies.data().state().reforms().keySet().stream().map(java.util.UUID::toString).toList(),args[1]);
+        if (args.length == 1) return filter(List.of("reload", "info", "set", "reset", "reform", "reconcile", "sync-payment", "retry-payment"), args[0]);
+        if(args.length==2&&java.util.Set.of("reform","reconcile","sync-payment","retry-payment").contains(args[0]))return filter(ideologies.data().state().reforms().keySet().stream().map(java.util.UUID::toString).toList(),args[1]);
+        if(args.length==3&&args[0].equals("retry-payment"))return filter(List.of("confirm"),args[2]);
         if(args.length==3&&args[0].equals("reconcile"))return filter(List.of("applied","not-applied"),args[2]);
         if(args.length==4&&args[0].equals("reconcile"))return filter(List.of("confirm"),args[3]);
         if (args.length == 2 && !args[0].equalsIgnoreCase("reload")) {

@@ -1,4 +1,4 @@
-# TreasuryPlus 0.3.1: подтверждаемые бюджетные операции
+# TreasuryPlus 0.3.2: подтверждаемые бюджетные операции
 
 В 0.3.1 временно занятый бюджет отклоняет запрос возврата до создания квитанции; повторяется тот же UUID. Уже сохранённый возврат при временном ограничении баланса остаётся PREPARED. Удалённый город перед возвратом переводит точную квитанцию в REVIEW. Оплаченные записи и суммы не меняются.
 
@@ -6,11 +6,14 @@
 
 Новые лицензии Research здесь ещё не реализованы. Gateway подготовлен как обязательная основа для них и муниципальных закупок Contracts.
 
+В 0.3.2 добавлен `resolveCategory(String)`: старые значения `project/<id>` разрешаются по текущему `upkeep-categories` в одну из пяти статей. Вызывающий аддон один раз сохраняет результат в своём intent до запроса денег. Повтор по UUID использует эту сохранённую статью даже после reload настроек. Сам `requestDebit` принимает только canonical category. Resolver ничего не списывает и не подтверждает наличие средств.
+
 ## Контракт API v1
 
-Добавлены capability `requestDebit`, `debitStatus`, `requestRefund`, `refundStatus`. Существующие данные городов, доли, отчёты и прежние pending-счета сохраняются. `async-debits` и `flow-gap` — дополнительные поля прежней схемы; повреждённая или неизвестная схема не перезаписывается.
+Добавлены capability `resolveCategory`, `requestDebit`, `debitStatus`, `requestRefund`, `refundStatus`. Существующие данные городов, доли, отчёты и прежние pending-счета сохраняются. `async-debits` и `flow-gap` — дополнительные поля прежней схемы; повреждённая или неизвестная схема не перезаписывается.
 
 ```java
+String resolveCategory(String category);
 CompletionStage<Map<String,Object>> requestDebit(
     UUID operation, UUID town, String category, String source,
     long cents, String reason, UUID actor, String ownerPlugin);
@@ -22,6 +25,8 @@ Map<String,Object> refundStatus(UUID operation);
 ```
 
 Суммы заданы целыми сотыми монеты. Категории: `construction`, `army`, `infrastructure`, `social`, `free`. Максимум одной заявки — 100 000 000 000 сотых; `source` до 64 символов `[a-z0-9_/-]`, имя аддона до 64 `[A-Za-z0-9_-]`, причина до 384 символов без перевода строки. Нулевые/отрицательные/некорректные суммы отклоняются.
+
+Синхронный `IllegalStateException` из проверки готовности (ещё не загруженная/занятая казна, новые банковские события) и exceptional future не являются REJECTED. Сохраняйте свой intent и сверяйте тот же ID: ошибка ACK может прийти после фактической записи файла. Ошибки параметров и совпадение UUID с другим payload требуют исправления caller, а не обхода новым ID.
 
 Future запроса подтверждает сохранение `PREPARED` либо возвращает ранее сохранённую квитанцию. Это **ещё не разрешение выдавать товар или запускать проект**. Клиент читает immutable snapshot через `debitStatus`. Нужно проверять одновременно `status`, исходный ID и весь зафиксированный payload. Несовпадение любого из полей при повторном UUID отклоняется даже для ранее оплаченной квитанции.
 
@@ -70,12 +75,12 @@ Future запроса подтверждает сохранение `PREPARED` �
 
 ## Проверка
 
-Точный JAR: `ceddfadcbb1a97b902afc425ac04beaf33fc49ac7313bfc23ae3c1462c781a73`.
+Точный JAR: `c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2`.
 
-Cold: 5 программ — AsyncBudgetPersistenceSmoke 27 проверок, BankFlowsSmoke 9, ForecastSmoke 11, TreasuryAccessSmoke, TreasurySmoke с 10 000 смешанных операций и DebitSmoke. Проверены delayed physical ACK, невыдача неоплаченного снимка, повреждённая база, точный UUID/payload, budget/refund conservation, reverse pending validation, bounded observer buffer, UTC и прежние отчёты.
+Cold: 6 программ — AsyncBudgetPersistenceSmoke 27 проверок, BankFlowsSmoke 9, ForecastSmoke 11, CategoryResolutionSmoke 2 проверки штатной и пользовательской привязки, TreasuryAccessSmoke, TreasurySmoke с 10 000 смешанных операций и DebitSmoke. Проверены delayed physical ACK, невыдача неоплаченного снимка, повреждённая база, точный UUID/payload, budget/refund conservation, reverse pending validation, bounded observer buffer, UTC и прежние отчёты.
 
-Native: два полных запуска Folia 26.2 с Towny 0.103.2.0 и Control 0.6.1, **23 + 8 проверок**, оба JVM exit 0. Реальные Treasury state machine, журнал и Towny Account/Observer. Подтверждены physical ACK, пауза владельца, непрерывный поток другого города, бюджетный предел, повтор ID, обеспеченный возврат, неизвестные ответы без replay, явная сверка, реальный onDisable под внешним guard, сохранение результата после shutdown и полный рестарт. Recovery при gap содержит явно описанный crash-boundary seed.
+Native: два полных запуска Folia 26.2 с Towny 0.103.2.0 и Control 0.6.1, **24 + 9 проверок**, оба JVM exit 0. Реальные Treasury state machine, журнал и Towny Account/Observer. Подтверждены physical ACK, пауза владельца, непрерывный поток другого города, бюджетный предел, повтор ID, обеспеченный возврат, неизвестные ответы без replay, явная сверка, реальный onDisable под внешним guard, сохранение результата после shutdown и полный рестарт. Recovery при gap содержит явно описанный crash-boundary seed.
 
-Экономический backend в native fixture заменён управляемым EconomyAdapter. Это не проверка конкретной сборки Vault/Essentials и не тест сетевого клиента или кликов GUI. Первая fixture завершилась из-за reflection в probe, подтянувшего отсутствующую optional PlaceholderAPI; исправлен только probe. Это относилось к проверке 0.3.0. Версия 0.3.1 отдельно перепроверена в свежей третьей fixture, включая занятый бюджет и временный предел реального банковского баланса.
+Экономический backend в native fixture заменён управляемым EconomyAdapter. Это не проверка конкретной сборки Vault/Essentials и не тест сетевого клиента или кликов GUI. Первая fixture завершилась из-за reflection в probe, подтянувшего отсутствующую optional PlaceholderAPI; исправлен только probe. Это относилось к проверке 0.3.0. Версии 0.3.1/0.3.2 отдельно перепроверены в свежих третьей/четвёртой fixture, включая занятый бюджет, временный предел реального банковского баланса и resolver.
 
-Доказательства 0.3.1: `docs/validation/city-systems-052/treasury-async-031/` (прежняя проверка 0.3.0 сохранена в `treasury-async/`), воспроизводимая fixture — `scripts/treasury-async-runtime-probe/`. Независимый read-only review закрыл найденные блокировки, starvation, ошибочную связь pending, переполнение возврата и гонку индекса обеспечения. Общий релиз остаётся закрыт до миграции legacy callers и проверки полного совместимого комплекта.
+Доказательства 0.3.2: `docs/validation/city-systems-052/treasury-async-032/` (прежние проверки 0.3.0/0.3.1 сохранены в `treasury-async/` и `treasury-async-031/`), воспроизводимая fixture — `scripts/treasury-async-runtime-probe/`. Независимый read-only review закрыл найденные блокировки, starvation, ошибочную связь pending, переполнение возврата и гонку индекса обеспечения. Общий релиз остаётся закрыт до миграции legacy callers и проверки полного совместимого комплекта.

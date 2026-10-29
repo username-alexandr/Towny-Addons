@@ -1,0 +1,31 @@
+ - NeverLandTownyBuilds (0.10.1), NeverLandTownyCitizens (0.2.0), NeverLandTownyContracts (0.7.0), NeverLandTownyControl (0.6.0), NeverLandTownySeasons (0.2.0), NeverLandTownySpecialization (0.3.0), SeasonMarketsRuntimeProbe (0.52.0), Towny (0.103.2.0)
+com.mojang.authlib.exceptions.MinecraftClientException: Failed to read from https://api.minecraftservices.com/publickeys due to api.minecraftservices.com
+Caused by: java.net.UnknownHostException: api.minecraftservices.com
+[02:07:53 INFO]: [NeverLandTownySeasons] Loading server plugin NeverLandTownySeasons v0.2.0
+[02:07:53 INFO]: [NeverLandTownySpecialization] Loading server plugin NeverLandTownySpecialization v0.3.0
+[02:07:53 INFO]: [SeasonMarketsRuntimeProbe] Loading server plugin SeasonMarketsRuntimeProbe v0.52.0
+[02:07:56 INFO]: [NeverLandTownySeasons] Enabling NeverLandTownySeasons v0.2.0
+[02:07:56 INFO]: [NeverLandTownySpecialization] Enabling NeverLandTownySpecialization v0.3.0
+[02:07:56 INFO]: [NeverLandTownySpecialization] Специализации включены: 7 профилей.
+[02:07:56 INFO]: [SeasonMarketsRuntimeProbe] Enabling SeasonMarketsRuntimeProbe v0.52.0
+[02:07:56 WARN]: [NeverLandTownySeasons] Настройки сезонных запасов требуют проверки; обычный календарь сохраняется: Нужно логическое значение: enabled
+[02:07:58 INFO]: [SeasonMarketsRuntimeProbe] CHECK broken: Citizens enabled and unfrozen
+[02:07:58 INFO]: [SeasonMarketsRuntimeProbe] CHECK broken: Builds enabled and unfrozen
+[02:07:58 INFO]: [SeasonMarketsRuntimeProbe] CHECK broken: Contracts enabled and unfrozen
+[02:07:58 INFO]: [SeasonMarketsRuntimeProbe] CHECK broken: Specialization enabled and unfrozen
+[02:07:58 INFO]: [SeasonMarketsRuntimeProbe] CHECK broken: Seasons enabled and unfrozen
+[02:07:58 INFO]: [SeasonMarketsRuntimeProbe] CHECK broken: Control enabled and unfrozen
+[02:07:59 INFO]: [SeasonMarketsRuntimeProbe] CHECK legacy specialization still authorizes its unique building
+[02:07:59 INFO]: [SeasonMarketsRuntimeProbe] CHECK optional features never rewrite legacy specialization choices
+[02:07:59 INFO]: [SeasonMarketsRuntimeProbe] CHECK full JVM restart retains original calendar independently
+[02:07:59 INFO]: [SeasonMarketsRuntimeProbe] CHECK completed trade remains completed after full restart
+[02:07:59 ERROR]: [SeasonMarketsRuntimeProbe] ADMISSIONS PROBE FAILED
+java.util.concurrent.CompletionException: java.lang.IllegalArgumentException: Сезонная запись не найдена
+	at java.base/java.util.concurrent.CompletableFuture.wrapInCompletionException(CompletableFuture.java:323) ~[?:?]
+	at NeverLandTownySpecialization-0.3.0.jar//ru.neverland.townyspecialization.production.ProductionRepository.lambda$submit$0(ProductionRepository.java:27) ~[?:?]
+Caused by: java.lang.IllegalArgumentException: Сезонная запись не найдена
+	at NeverLandTownySpecialization-0.3.0.jar//ru.neverland.townyspecialization.production.ProfileGoodsProvider.lambda$entry$1(ProfileGoodsProvider.java:47) ~[?:?]
+[02:07:59 INFO]: Stopping server
+[02:07:59 INFO]: [SeasonMarketsRuntimeProbe] Disabling SeasonMarketsRuntimeProbe v0.52.0
+[02:07:59 INFO]: [NeverLandTownySpecialization] Disabling NeverLandTownySpecialization v0.3.0
+[02:07:59 INFO]: [NeverLandTownySeasons] Disabling NeverLandTownySeasons v0.2.0

@@ -36,7 +36,7 @@ public final class ControlAuditProbe extends AdmissionsProbe {
     String newMessages(){return String.join("\n",messages.subList(messageStart,messages.size()));}
     @Override void setup()throws Exception{
         control=(NeverLandTownyControl)Bukkit.getPluginManager().getPlugin("NeverLandTownyControl");menu=field(control,"adminMenu");bank=(BankAudit)field(control,"bankAudit");queue=field(bank,"queue");mayor=administrator();
-        check(control.isEnabled()&&control.getDescription().getVersion().equals("0.6.1"),"actual Control 0.6.1 enabled on Folia with original Towny API");
+        check(control.isEnabled()&&control.getDescription().getVersion().equals("0.6.2"),"actual Control 0.6.2 enabled on Folia with original Towny API");
         index=control.getDataFolder().toPath().resolve("audit-index/derived-v1.sqlite");
         if(restart){resumeControl();return;}
         var u=TownyUniverse.getInstance();u.newTownInternal("AuditSourceCity",T);town=TownyAPI.getInstance().getTown(T);var resident=u.getDataSource().newResident("AuditAdmin",M);resident.setTown(town);town.setMayor(resident);resident.save();var claim=new TownBlock(0,0,u.getWorld(world.getName()));u.addTownBlock(claim);claim.setTown(town);town.setHomeBlock(claim);claim.save();town.setSpawn(origin);town.save();
@@ -53,7 +53,18 @@ public final class ControlAuditProbe extends AdmissionsProbe {
         ))journal.append(r);
         journalFile=AuditJournal.files(journal.directory()).get(0);initial=Files.readAllBytes(journalFile);Files.writeString(proof.resolve("source-file.txt"),journalFile.getFileName().toString());Files.writeString(proof.resolve("source-seeded.sha256"),digest(initial));
         command("nltadmin","logs");check(!mayor.isOp()&&named(42,"Проверка операций"),"non-OP administrator permission opens real logging menu and review button42");
-        click(42);poll(80,()->named(40,"Как читать карточки"),this::signalsReady);
+        click(51);later(2,()->{
+            check(named(0,"Действия администрации")&&named(1,"Прочие операции")&&named(47,"Предыдущая страница"),"second category page exposes every overflow category with navigation");
+            click(0);poll(80,()->named(46,"Фильтры")&&named(22,"Записей не найдено"),()->{
+                click(45);later(2,()->{
+                    check(named(0,"Действия администрации")&&named(1,"Прочие операции"),"return from an overflow log category keeps its category page");
+                    click(47);later(2,()->{
+                        check(named(0,"Все операции")&&named(23,"Экспедиции")&&named(24,"Археология"),"first category page restores stable readable category buttons");
+                        click(42);poll(80,()->named(40,"Как читать карточки"),this::signalsReady);
+                    });
+                });
+            });
+        });
     }
     void signalsReady()throws Exception{
         check(named(0,"Быстрая передача")&&named(1,"Проверить завершение")&&lore(mayor,48).contains("Найдено: 2"),"actual indexed journal produces one three-city chain and one unresolved review, without counting bank legs or resolved operation");

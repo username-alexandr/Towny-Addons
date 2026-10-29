@@ -1,0 +1,11 @@
+PASS actual Ideologies0.2.1 and Treasury async provider enabled
+PASS full JVM restart retains unknown Treasury and local intent together
+PASS full restart retains old pending route without reclassification
+PASS restart and status polls make no second debit for unknown result
+PASS read-only sync of REVIEW cannot invent successful payment
+PASS Treasury reconciliation plus local ACK restores target without replay
+PASS installed but unavailable Treasury rejects payment before new intent
+PASS missing provider does not bypass budget through direct Towny
+PASS busy gateway retains local exact UUID without treating absence as no-payment proof
+PASS explicit retry reuses original exact new-route UUID and charges once
+PASS new paid target retains historical failed attempt without repaying it

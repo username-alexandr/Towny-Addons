@@ -1,5 +1,5 @@
 name: NeverLandTownySeasons
-version: 0.1.10
+version: 0.2.0
 main: ru.neverland.townyseasons.NeverLandTownySeasons
 folia-supported: true
 api-version: '26.2'
@@ -11,10 +11,13 @@ commands:
   townyseasons:
     aliases: [tseasons, nltseasons]
     description: Сезонная экономика и календарь
-    usage: /tseasons [menu|status|set|resume|reload|help]
+    usage: /tseasons [menu|stock|fair|admin|status|set|resume|reload|help]
 permissions:
   neverlandtownyseasons.use:
     description: Просмотр календаря и сезонных эффектов
+    default: true
+  neverlandtownyseasons.manage:
+    description: Подтверждение сезонных запасов и обменов (дополнительно требуется должность мэра)
     default: true
   neverlandtownyseasons.admin:
     description: Фиксация сезона, диагностика и перезагрузка настроек

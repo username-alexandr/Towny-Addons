@@ -201,9 +201,11 @@ final class AdminMenu implements Listener {
         if(entry.activities())button(s,25,Material.CLOCK,"Активные задачи",List.of("Статус и допустимые действия"),()->tasks(player,entry,"status",1));
         back(s,()->modules(player,1,reference));show(player,s);
     }
-    void logs(Player player){
+    void logs(Player player){logs(player,1);}
+    private void logs(Player player,int page){
         var s=screen(player,"Журналы • Категории",AdminAccess.AUDIT);int slot=0;
-        for(var category:AuditCategory.values()){button(s,slot++,Material.valueOf(category.icon),category.title,List.of("Нажмите для просмотра","Даты и время по Москве"),()->logPage(player,category,new AuditQuery(Map.of("category",category.name()),1)));}
+        for(var category:AuditCategory.page(page)){button(s,slot++,Material.valueOf(category.icon),category.title,List.of("Нажмите для просмотра","Даты и время по Москве"),()->logPage(player,category,new AuditQuery(Map.of("category",category.name()),1)));}
+        pagination(s,page,AuditCategory.values().length,next->logs(player,next));
         button(s,40,Material.KNOWLEDGE_BOOK,"Как читать журнал",List.of("Сделка показывает товар и его цену","Списания, переводы и сделки — разные записи","Их суммы нельзя складывать","OBSERVED — команда, не доказательство оплаты"),null);
         button(s,42,Material.COMPARATOR,"Проверка операций",List.of("Операции, требующие сверки","Быстрые переводы через несколько городов","Только подсказки: без автоматических наказаний"),()->signals(player,1));
         button(s,53,Material.SPYGLASS,"Проверить журналы",List.of("Проверка целостности всех файлов","Результат будет отправлен в чат"),()->audit.onCommand(player,plugin.getCommand("nltaudit"),"nltaudit",new String[]{"status"}));back(s,()->home(player));show(player,s);
@@ -241,7 +243,7 @@ final class AdminMenu implements Listener {
         logPage(player,AuditCategory.ALL,new AuditQuery(filters,1));
     }
     private void logPage(Player player,AuditCategory category,AuditQuery query){
-        var loading=screen(player,category.title+" • Чтение",AdminAccess.AUDIT);button(loading,22,Material.CLOCK,"Читаю журнал…",List.of("Можно вернуться назад или закрыть меню"),null);back(loading,()->logs(player));show(player,loading);
+        var loading=screen(player,category.title+" • Чтение",AdminAccess.AUDIT);button(loading,22,Material.CLOCK,"Читаю журнал…",List.of("Можно вернуться назад или закрыть меню"),null);back(loading,()->logs(player,category.page()));show(player,loading);
         try{audit.page(player,query,PAGE_SIZE,(result,error)->{
             if(!current(player,loading))return;
             if(!authorized(player,loading)){player.closeInventory();return;}
@@ -249,7 +251,7 @@ final class AdminMenu implements Listener {
             var s=screen(player,category.title+" • "+query.page(),AdminAccess.AUDIT);int slot=0;
             for(var record:result.rows())button(s,slot++,Material.valueOf(category.icon),AuditCategory.kind(record.kind()),summary(record),()->record(player,record,category,query));
             if(result.rows().isEmpty())button(s,22,Material.GLASS_BOTTLE,"Записей не найдено",List.of("Измените фильтры или обновите страницу","Журнал ведётся с установки аудита"),null);
-            pagination(s,query.page(),result.matched(),p->logPage(player,category,new AuditQuery(query.filters(),p)));back(s,()->logs(player));
+            pagination(s,query.page(),result.matched(),p->logPage(player,category,new AuditQuery(query.filters(),p)));back(s,()->logs(player,category.page()));
             button(s,46,Material.HOPPER,"Фильтры",filterLore(query),()->filters(player,category,query));
             if(AdminAccess.has(player,AdminAccess.EXPORT))button(s,50,Material.WRITABLE_BOOK,"Экспорт CSV",List.of("Текущая категория и все выбранные фильтры","Все страницы, до 100000 записей","Путь к файлу появится в чате"),()->{
                 if(!AdminAccess.has(player,AdminAccess.EXPORT))throw new IllegalArgumentException("Право экспорта отозвано");var args=new ArrayList<String>();args.add("export");query.filters().forEach((k,v)->args.add(k+"="+v));audit.onCommand(player,plugin.getCommand("nltaudit"),"nltaudit",args.toArray(String[]::new));

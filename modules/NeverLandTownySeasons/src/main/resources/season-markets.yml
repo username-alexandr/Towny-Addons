@@ -1,0 +1,58 @@
+# Партии выпускаются Specialization из реально обеспеченных смет Contracts.
+# Ни один план или обмен не создаёт деньги или предметы из воздуха.
+enabled: true
+fair:
+  last-days: 2
+  # Ручная фиксация и RealisticSeasons сообщают сезон без номера дня.
+  # В этом случае ярмарка открыта весь сообщённый сезон.
+  allow-undated-source: true
+# Отложенные запасы и предложения имеют конечный срок; затем вернутся
+# в свободные партии того же города. Точные сроки фиксируются при подтверждении.
+reserve-hours: 24
+offer-hours: 2
+plans:
+  spring:
+    title: Запас к весеннему сезону
+    goods: {farm_provisions: 2, industrial_parts: 1, port_equipment: 1}
+  summer:
+    title: Запас к летнему сезону
+    goods: {farm_provisions: 2, trade_supplies: 1, industrial_parts: 1}
+  autumn:
+    title: Запас к осеннему сезону
+    goods: {trade_supplies: 2, port_equipment: 1, ceremonial_supplies: 1}
+  winter:
+    title: Запас к зимнему сезону
+    goods: {farm_provisions: 4, industrial_parts: 2, defense_kits: 1}
+exchanges:
+  food_for_industry:
+    title: Продовольствие на промышленные узлы
+    give: {farm_provisions: 2}
+    receive: {industrial_parts: 1}
+  industry_for_food:
+    title: Промышленные узлы на продовольствие
+    give: {industrial_parts: 1}
+    receive: {farm_provisions: 2}
+  port_for_trade:
+    title: Портовое оснащение на торговые комплекты
+    give: {port_equipment: 1}
+    receive: {trade_supplies: 1}
+  trade_for_port:
+    title: Торговые комплекты на портовое оснащение
+    give: {trade_supplies: 1}
+    receive: {port_equipment: 1}
+  knowledge_for_ceremony:
+    title: Исследовательские комплекты на праздничные
+    give: {scientific_materials: 1}
+    receive: {ceremonial_supplies: 1}
+  ceremony_for_knowledge:
+    title: Праздничные комплекты на исследовательские
+    give: {ceremonial_supplies: 1}
+    receive: {scientific_materials: 1}
+  defense_for_food:
+    title: Оборонные комплекты на продовольствие
+    give: {defense_kits: 1}
+    receive: {farm_provisions: 2}
+  food_for_defense:
+    title: Продовольствие на оборонные комплекты
+    give: {farm_provisions: 2}
+    receive: {defense_kits: 1}

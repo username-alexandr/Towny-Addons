@@ -1,0 +1,40 @@
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownySpecialization ru.neverland.townyspecialization.SpecializationSmoke
+GateSmoke OK: actual Bukkit service lookup, exclusive project operations, live switching, missing/disabled providers and independent upkeep/power gates
+SpecializationSmoke OK: seven directions, exclusive buildings, requirements, stale choices, cooldown, admin path, city isolation, atomic persistence, bonus limits and Bukkit integration
+TEST NeverLandTownySpecialization ru.neverland.townyspecialization.production.ProductionAuditSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/folia-bootstrap/libraries/org/xerial/sqlite-jdbc/3.49.1.0/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+ProductionAuditSmoke PASS 7 checks; failure, immutable retry, free Suite and SQL worker, durable ACK
+TEST NeverLandTownySpecialization ru.neverland.townyspecialization.production.ProductionSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/folia-bootstrap/libraries/org/xerial/sqlite-jdbc/3.49.1.0/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+ProductionSmoke PASS 32 checks; real SQLite backing, unique source receipts, reservations, multi-city goals, refunds, limits, rollback and restart
+TEST NeverLandTownySpecialization ru.neverland.townyspecialization.production.ProfileGoodsSmoke
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.sqlite.SQLiteJDBCLoader in an unnamed module (file:/workspace/scratch/eb47b830f6d4/folia-bootstrap/libraries/org/xerial/sqlite-jdbc/3.49.1.0/sqlite-jdbc-3.49.1.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+ProfileGoodsSmoke PASS: 40 assertions; backed stock, exact two-mayor terms, reservations, migration, capacities, conservation, rollback and recovery
+BUILD AND SMOKE PASS NeverLandTownySpecialization-0.3.0.jar 4 programs
+Note: /workspace/scratch/eb47b830f6d4/Towny-Addons/shared/core/src/main/java/ru/neverland/core/MenuStyle.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+Final descriptor artifact rebuild:
+Note: /workspace/scratch/eb47b830f6d4/Towny-Addons/shared/core/src/main/java/ru/neverland/core/MenuStyle.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+TEST NeverLandTownySeasons ru.neverland.townyseasons.SeasonClockSmoke
+SeasonClockSmoke PASS: boundaries, offline elapsed time, years, provider mapping, 4000 days
+TEST NeverLandTownySeasons ru.neverland.townyseasons.SeasonMarketsSmoke
+SeasonMarketsSmoke PASS: 17 assertions
+TEST NeverLandTownySeasons ru.neverland.townyseasons.SeasonStorageSmoke
+SeasonStorageSmoke PASS: strict settings, restart, resume, atomic failure, immutable snapshots, corrupted data
+BUILD AND SMOKE PASS NeverLandTownySeasons-0.2.0.jar 3 programs

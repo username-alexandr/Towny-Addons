@@ -1,0 +1,22 @@
+[01:28:50 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK actual Archaeology0.2.0 Control and Towny enabled
+[01:28:50 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK optional restoration journal and signing key loaded
+[01:28:50 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK existing whole artifact signature remains valid before new workflow
+[01:28:50 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK native brushed loot event retains exact existing whole reward
+[01:28:51 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK physical file delay publishes neither entitlement nor physical item
+[01:28:51 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK other suite work continues while restoration file is blocked
+[01:28:51 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK real registered block creates one acknowledged source and mailbox fragment
+[01:28:51 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK repeated native site-block event cannot reroll or create another fragment
+[01:28:51 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK claim cannot touch player inventory before prepared journal ACK
+[01:28:51 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK native signed fragment delivered only after exact player save marker proof
+[01:28:51 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK stacked copied fragment is not a valid input
+[01:28:51 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK changing native PDC UUID invalidates signed fragment
+[01:28:51 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK completed mailbox identity cannot be claimed twice
+[01:28:52 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK native restoration menu has separate exact input confirmation without charge
+[01:28:52 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK deferred confirmation rechecks revoked permission and does not consume fragments
+[01:28:52 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK confirmed restoration consumes every exact signed input once
+[01:28:52 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK restoration output is one ordinary museum-compatible signed artifact with frozen UUID
+[01:28:52 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK spent fragment copies cannot fund another restoration
+[01:28:52 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK missing save acknowledgement retains uncertain identity without automatic redelivery
+[01:28:52 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK unknown transfer blocks another inventory attempt
+[01:28:52 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK feature pause preserves pending operation and legacy artifact validity
+[01:28:54 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK durable administrative audit contains restoration operation receipts

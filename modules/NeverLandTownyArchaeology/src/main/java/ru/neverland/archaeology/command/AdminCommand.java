@@ -66,6 +66,10 @@ public final class AdminCommand implements TabExecutor {
             case "site" -> site(sender, args);
             case "museum" -> museum(sender, args);
             case "info" -> info(sender, args);
+            case "restoration" -> {
+                if(sender instanceof Player player)plugin.restorationMenus().history(player,0,true);
+                else {var service=plugin.restoration();sender.sendMessage("Реставрация: "+(service.ready()?"готова":service.availability()));service.repository().state().operations().values().stream().filter(ru.neverland.archaeology.restoration.RestorationBook.Operation::pending).limit(30).forEach(op->sender.sendMessage(op.id()+" "+op.playerName()+" "+op.phase()+" "+op.recipe().artifact()));sender.sendMessage("Для проверки сохранения получателя откройте /townyarchaeology restoration в игре.");}
+            }
             default -> messages.send(sender, "usage-admin");
         }
         return true;
@@ -119,7 +123,7 @@ public final class AdminCommand implements TabExecutor {
         }
 
         if (!sender.hasPermission(ADMIN_PERMISSION)) return List.of();
-        if (args.length == 1) return filter(List.of("reload", "give", "site", "museum", "info"), args[0]);
+        if (args.length == 1) return filter(List.of("reload", "give", "site", "museum", "info", "restoration"), args[0]);
         if (args.length == 2 && args[0].equalsIgnoreCase("give")) return filter(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[1]);
         if (args.length == 3 && args[0].equalsIgnoreCase("give")) return filter(registry.artifacts().stream().map(ArtifactDefinition::id).toList(), args[2]);
         if (args.length == 2 && args[0].equalsIgnoreCase("site")) return filter(List.of("create"), args[1]);

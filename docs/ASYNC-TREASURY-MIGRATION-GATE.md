@@ -9,7 +9,7 @@
 | Builds | BuildService, ConstructionRefunds, CivicService | Требует миграции |
 | Contracts | MunicipalBank, EconomyService | Требует миграции; новый Procurement использует async API |
 | Espionage | EconomyService | Требует миграции |
-| Ideologies | ReformBank | Требует миграции |
+| Ideologies | ReformBank | Готово 0.2.1: cold 3, Folia 19+11; полный пак ещё не проверен |
 | Justice | JusticeBank | Требует миграции |
 | Market | MarketGateway | Требует миграции |
 | SiegesPlus | RepairBank | Требует миграции |

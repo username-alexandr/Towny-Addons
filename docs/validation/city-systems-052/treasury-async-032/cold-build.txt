@@ -1,0 +1,18 @@
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: /workspace/scratch/eb47b830f6d4/Towny-Addons/modules/NeverLandTownyTreasuryPlus/src/main/java/ru/neverland/townytreasury/gui/TreasuryMenu.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+TEST NeverLandTownyTreasuryPlus ru.neverland.townytreasury.AsyncBudgetPersistenceSmoke
+AsyncBudgetPersistenceSmoke PASS 27 checks
+TEST NeverLandTownyTreasuryPlus ru.neverland.townytreasury.BankFlowsSmoke
+BankFlowsSmoke PASS 9 checks
+TEST NeverLandTownyTreasuryPlus ru.neverland.townytreasury.CategoryResolutionSmoke
+CategoryResolutionSmoke PASS 2 checks
+TEST NeverLandTownyTreasuryPlus ru.neverland.townytreasury.ForecastSmoke
+ForecastSmoke PASS 11 checks
+TEST NeverLandTownyTreasuryPlus ru.neverland.townytreasury.TreasuryAccessSmoke
+TreasuryAccessSmoke PASS
+TEST NeverLandTownyTreasuryPlus ru.neverland.townytreasury.TreasurySmoke
+DebitSmoke OK: bank rejection, intent failure, post-debit failure, callback exceptions, closed economy outcome and no ambiguous retry
+TreasurySmoke OK: allocation conservation, 10000 mixed operations, refund accounting, pending debit restart, atomic failure, UUID isolation, 101 upkeep categories, UTC weeks and CSV
+BUILD AND SMOKE PASS NeverLandTownyTreasuryPlus-0.3.2.jar 6 programs

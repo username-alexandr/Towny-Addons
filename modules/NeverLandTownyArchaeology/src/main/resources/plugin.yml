@@ -1,5 +1,5 @@
 name: NeverLandTownyArchaeology
-version: 0.1.23
+version: 0.2.0
 main: ru.neverland.archaeology.TownyArchaeology
 folia-supported: true
 api-version: '26.2'
@@ -13,12 +13,12 @@ commands:
   archaeology:
     aliases: [arch, археология]
     description: Археология, журнал и передача находок музею
-    usage: /archaeology [journal|donate|nearest|collections]
+    usage: /archaeology [journal|donate|nearest|collections|fragments|restore|search|history]
     permission: townyarchaeology.use
   townyarchaeology:
     aliases: [tarch, neverlandtownyarchaeology, nltarchaeology]
     description: Администрирование NeverLandTownyArchaeology
-    usage: /townyarchaeology <reload|give|site|museum|info>
+    usage: /townyarchaeology <reload|give|site|museum|info|restoration>
     permission: townyarchaeology.admin
   artifact:
     aliases: [artifacts, артефакт]
@@ -28,6 +28,12 @@ permissions:
   townyarchaeology.use:
     default: true
   townyarchaeology.donate:
+    default: true
+  townyarchaeology.restore:
+    description: Получение подписанных фрагментов и сборка целых артефактов
+    default: true
+  townyarchaeology.search:
+    description: Поиск известных раскопок для выбранного артефакта
     default: true
   townyarchaeology.admin:
     default: op

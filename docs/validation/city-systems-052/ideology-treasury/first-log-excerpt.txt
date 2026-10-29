@@ -1,0 +1,47 @@
+ - IdeologyTreasuryRuntimeProbe (0.52.0), NeverLandTownyCitizens (0.2.0), NeverLandTownyControl (0.6.1), NeverLandTownyIdeologies (0.2.1), NeverLandTownyTreasuryPlus (0.3.1), Towny (0.103.2.0)
+[02:02:05 ERROR]: Failed to request yggdrasil public key
+[02:02:08 WARN]: ****************************
+[02:02:08 WARN]: YOU ARE RUNNING THIS SERVER AS AN ADMINISTRATIVE OR ROOT USER. THIS IS NOT ADVISED.
+[02:02:08 WARN]: YOU ARE OPENING YOURSELF UP TO POTENTIAL RISKS WHEN DOING THIS.
+[02:02:08 WARN]: FOR MORE INFORMATION, SEE https://madelinemiller.dev/blog/root-minecraft-server/
+[02:02:08 WARN]: ****************************
+[02:02:09 WARN]: [io.netty.util.internal.MacAddressUtil] Failed to find a usable hardware address from the network interfaces; using random bytes: 26:aa:4d:34:23:83:e5:bb
+[02:02:09 INFO]: [NeverLandTownyIdeologies] Loading server plugin NeverLandTownyIdeologies v0.2.1
+[02:02:09 INFO]: [NeverLandTownyTreasuryPlus] Loading server plugin NeverLandTownyTreasuryPlus v0.3.1
+[02:02:09 INFO]: [IdeologyTreasuryRuntimeProbe] Loading server plugin IdeologyTreasuryRuntimeProbe v0.52.0
+[02:02:09 WARN]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[02:02:09 WARN]: The server will make no attempt to authenticate usernames. Beware.
+[02:02:09 WARN]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[02:02:09 WARN]: To change this, set "online-mode" to "true" in the server.properties file.
+[02:02:11 INFO]: [NeverLandTownyIdeologies] Enabling NeverLandTownyIdeologies v0.2.1
+[02:02:11 INFO]: [NeverLandTownyIdeologies] Загружено идеологий: 7.
+[02:02:11 INFO]: [NeverLandTownyIdeologies] NeverLandTownyIdeologies 0.2.1 включён: 7 идеологий, Paper 26.2, Towny и ItemsAdder-ready.
+[02:02:11 INFO]: [NeverLandTownyTreasuryPlus] Enabling NeverLandTownyTreasuryPlus v0.3.1
+[02:02:11 INFO]: [NeverLandTownyTreasuryPlus] Казна и недельные отчёты включены.
+[02:02:11 INFO]: [IdeologyTreasuryRuntimeProbe] Enabling IdeologyTreasuryRuntimeProbe v0.52.0
+[02:02:11 INFO]: ThreadedAnvilChunkStorage: All dimensions are saved
+[02:02:13 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK actual Ideologies0.2.1 and Treasury async provider enabled
+[02:02:14 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK legacy paid ideology preserves level and selection without new payment
+[02:02:14 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK installed Treasury cannot be bypassed by legacy direct ReformBank.pay
+[02:02:14 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK completed time stages retain frozen50coin quote without payment
+[02:02:14 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK own durable intent freezes route UUID actor before Treasury submission
+[02:02:14 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK physical Treasury ACK delay exposes neither debit nor new ideology
+[02:02:14 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK Treasury PREPARED is not treated as payment success
+[02:02:14 INFO]: [NeverLandTownyIdeologies] Загружено идеологий: 7.
+[02:02:14 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK catalog edit cannot reprice registered payment
+[02:02:15 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK paused consumer preserves prepared request without bank call
+[02:02:15 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK observed Treasury debit alone does not activate local benefits
+[02:02:15 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK local paid ACK also waits physical file before switching ideology
+[02:02:15 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK one exact50coin debit and local ACK activate frozen upgrade once
+[02:02:15 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK same consumer payload returns prior paid result without a new debit
+[02:02:15 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK next frozen reform exceeds actual social allocation
+[02:02:16 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK Treasury refusal leaves ready reform and money unchanged without fallback
+[02:02:16 INFO]: [NeverLandTownyIdeologies] Загружено идеологий: 7.
+[02:02:16 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK unknown bank response leaves prior ideology and exact pending receipt
+[02:02:16 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK local admin cannot override an unverified Treasury REVIEW
+[02:02:16 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK explicit historical direct-bank pending fixture keeps legacy route
+[02:02:16 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK legacy unknown receipt cannot enter new Treasury request API
+[02:02:17 INFO]: Stopping server
+[02:02:17 INFO]: [IdeologyTreasuryRuntimeProbe] Disabling IdeologyTreasuryRuntimeProbe v0.52.0
+[02:02:17 INFO]: [NeverLandTownyTreasuryPlus] Disabling NeverLandTownyTreasuryPlus v0.3.1
+[02:02:17 INFO]: [NeverLandTownyIdeologies] Disabling NeverLandTownyIdeologies v0.2.1

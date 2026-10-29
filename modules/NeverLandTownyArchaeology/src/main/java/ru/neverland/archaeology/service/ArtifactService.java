@@ -58,6 +58,8 @@ public final class ArtifactService implements Listener {
         }
         return List.copyOf(result);
     } }
+    /** Stable output identity for a previously journalled restoration. Existing random/batch creation is unchanged. */
+    public ItemStack createExact(String artifactId,UUID serial){try(var guard=ru.neverland.core.SuiteState.guard()){ArtifactDefinition definition=registry.artifact(artifactId);if(definition==null||serial==null)throw new IllegalArgumentException("Артефакт недоступен; предметы не расходуются");return createPrototype(definition,serial,1);}}
     private ItemStack createPrototype(ArtifactDefinition definition, UUID serial, int batchSize) {
         ItemStack stack = plugin.getConfig().getBoolean("itemsadder.enabled", true) ? itemsAdder.item(definition.itemsAdderIcon()) : null;
         if (stack == null) stack = new ItemStack(definition.material());

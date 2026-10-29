@@ -1,0 +1,48 @@
+ - IdeologyTreasuryRuntimeProbe (0.52.0), NeverLandTownyCitizens (0.2.0), NeverLandTownyControl (0.6.1), NeverLandTownyIdeologies (0.2.1), NeverLandTownyTreasuryPlus (0.3.1), Towny (0.103.2.0)
+[02:06:05 ERROR]: Failed to request yggdrasil public key
+[02:06:07 WARN]: ****************************
+[02:06:07 WARN]: YOU ARE RUNNING THIS SERVER AS AN ADMINISTRATIVE OR ROOT USER. THIS IS NOT ADVISED.
+[02:06:07 WARN]: YOU ARE OPENING YOURSELF UP TO POTENTIAL RISKS WHEN DOING THIS.
+[02:06:07 WARN]: FOR MORE INFORMATION, SEE https://madelinemiller.dev/blog/root-minecraft-server/
+[02:06:07 WARN]: ****************************
+[02:06:09 WARN]: [io.netty.util.internal.MacAddressUtil] Failed to find a usable hardware address from the network interfaces; using random bytes: 55:c2:4c:a1:42:ba:6b:a8
+[02:06:09 INFO]: [NeverLandTownyIdeologies] Loading server plugin NeverLandTownyIdeologies v0.2.1
+[02:06:09 INFO]: [NeverLandTownyTreasuryPlus] Loading server plugin NeverLandTownyTreasuryPlus v0.3.1
+[02:06:09 INFO]: [IdeologyTreasuryRuntimeProbe] Loading server plugin IdeologyTreasuryRuntimeProbe v0.52.0
+[02:06:09 WARN]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[02:06:09 WARN]: The server will make no attempt to authenticate usernames. Beware.
+[02:06:09 WARN]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[02:06:09 WARN]: To change this, set "online-mode" to "true" in the server.properties file.
+[02:06:11 INFO]: [NeverLandTownyIdeologies] Enabling NeverLandTownyIdeologies v0.2.1
+[02:06:11 INFO]: [NeverLandTownyIdeologies] Загружено идеологий: 7.
+[02:06:11 INFO]: [NeverLandTownyIdeologies] NeverLandTownyIdeologies 0.2.1 включён: 7 идеологий, Paper 26.2, Towny и ItemsAdder-ready.
+[02:06:11 INFO]: [NeverLandTownyTreasuryPlus] Enabling NeverLandTownyTreasuryPlus v0.3.1
+[02:06:11 INFO]: [NeverLandTownyTreasuryPlus] Казна и недельные отчёты включены.
+[02:06:11 INFO]: [IdeologyTreasuryRuntimeProbe] Enabling IdeologyTreasuryRuntimeProbe v0.52.0
+[02:06:12 INFO]: ThreadedAnvilChunkStorage: All dimensions are saved
+[02:06:14 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK actual Ideologies0.2.1 and Treasury async provider enabled
+[02:06:14 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK full JVM restart retains unknown Treasury and local intent together
+[02:06:14 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK full restart retains old pending route without reclassification
+[02:06:15 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK restart and status polls make no second debit for unknown result
+[02:06:15 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK read-only sync of REVIEW cannot invent successful payment
+[02:06:15 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK Treasury reconciliation plus local ACK restores target without replay
+[02:06:15 WARN]: [NeverLand API] NeverLandTownyTreasuryPlus SERVICE_UNAVAILABLE:
+[02:06:15 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK installed but unavailable Treasury rejects payment before new intent
+[02:06:15 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK missing provider does not bypass budget through direct Towny
+[02:06:15 INFO]: [NeverLand API] NeverLandTownyTreasuryPlus: связь восстановлена
+[02:06:15 WARN]: [NeverLandTownyIdeologies] Реформа: прежнее состояние сохранено; проверьте незавершённые платежи
+	at NeverLandTownyIdeologies-0.2.1.jar//ru.neverland.townyideologies.reforms.ReformBank.request(ReformBank.java:26) ~[?:?]
+	at NeverLandTownyIdeologies-0.2.1.jar//ru.neverland.townyideologies.service.IdeologyService.pay(IdeologyService.java:66) ~[?:?]
+	at NeverLandTownyIdeologies-0.2.1.jar//ru.neverland.townyideologies.service.IdeologyService.lambda$confirm$4(IdeologyService.java:61) ~[?:?]
+	at NeverLandTownyTreasuryPlus-0.3.1.jar//ru.neverland.townytreasury.service.AsyncBudgetGateway.failed(AsyncBudgetGateway.java:42) ~[?:?]
+	at NeverLandTownyTreasuryPlus-0.3.1.jar//ru.neverland.townytreasury.service.AsyncBudgetGateway.request(AsyncBudgetGateway.java:26) ~[?:?]
+	at NeverLandTownyTreasuryPlus-0.3.1.jar//ru.neverland.townytreasury.service.TreasuryService.requestDebit(TreasuryService.java:109) ~[?:?]
+	at NeverLandTownyIdeologies-0.2.1.jar//ru.neverland.core.ApiServices$Connection.invoke(ApiServices.java:146) ~[?:?]
+	at NeverLandTownyIdeologies-0.2.1.jar//ru.neverland.townyideologies.reforms.ReformBank.request(ReformBank.java:25) ~[?:?]
+[02:06:15 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK busy gateway retains local exact UUID without treating absence as no-payment proof
+[02:06:16 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK explicit retry reuses original exact new-route UUID and charges once
+[02:06:16 INFO]: [IdeologyTreasuryRuntimeProbe] CHECK new paid target retains historical failed attempt without repaying it
+[02:06:16 INFO]: Stopping server
+[02:06:16 INFO]: [IdeologyTreasuryRuntimeProbe] Disabling IdeologyTreasuryRuntimeProbe v0.52.0
+[02:06:16 INFO]: [NeverLandTownyTreasuryPlus] Disabling NeverLandTownyTreasuryPlus v0.3.1
+[02:06:16 INFO]: [NeverLandTownyIdeologies] Disabling NeverLandTownyIdeologies v0.2.1

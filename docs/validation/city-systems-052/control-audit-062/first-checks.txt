@@ -1,0 +1,26 @@
+PASS actual Control 0.6.2 enabled on Folia with original Towny API
+PASS non-OP administrator permission opens real logging menu and review button42
+PASS second category page exposes every overflow category with navigation
+PASS return from an overflow log category keeps its category page
+PASS first category page restores stable readable category buttons
+PASS actual indexed journal produces one three-city chain and one unresolved review, without counting bank legs or resolved operation
+PASS native review cards clearly require verification and make no automatic accusation
+PASS native review detail shows original operation ID
+PASS related-operation lookup includes exact ID across two modules only
+PASS full receipt exposes exact operation and related-record action
+PASS SQLite derived index exists while admin inspection leaves authoritative source bytes unchanged
+PASS deferred old admin click cannot replace a newer window
+PASS revoked admin audit permission closes pending menu action
+PASS OP retains administrative menu access without assigned permission
+PASS completed asynchronous index query cannot reopen a replaced admin menu
+PASS real corrupted source refuses stale or empty indexed results even outside the selected filter
+PASS repairing fixture source recovers exact indexed lookup without changing source bytes
+PASS broken derived cache requests reindex instead of inventing complete results
+PASS actual reindex command rebuilds disposable cache and preserves authoritative history
+PASS actual bounded bank queue accepts immutable pre-captured receipt
+PASS blocked real bank audit append remains pending without false durable records
+PASS global SuiteState remains available while bank audit filesystem worker waits
+PASS actual bank writer preserves the exact immutable receipt ID and observation time
+PASS queued bank observation retains captured Towny name after the real city was renamed
+PASS native queue diagnostics report completed writes without gaps
+PASS real Control shutdown begins with an accepted bank audit receipt still pending

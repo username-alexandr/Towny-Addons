@@ -1,0 +1,14 @@
+{
+  "server-materials.db": {
+    "server-materials.db": {
+      "sha256": "e65ea740edf1c8cadaca6b881bff6d22c54aa310fa4cb13054b8d8b18d89942e",
+      "bytes": 126976
+    }
+  },
+  "production.sqlite": {
+    "production.sqlite": {
+      "sha256": "9cf5383ba22b4bcd78537e5248e7c093e544ea73d85bffc92441bf8b0dee0842",
+      "bytes": 126976
+    }
+  }
+}

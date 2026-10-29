@@ -1,0 +1,9 @@
+{
+  "scope": "Control0.6.2 paginated logging categories, exact return navigation, audit shutdown and replay isolation; real Folia, explicit offline Player/View and seeded audit evidence. No bank payment or network client claimed.",
+  "phases": [
+    26,
+    8
+  ],
+  "jar_sha256": "cfb68b0ff0dc4fc3da4d2e2f4c8e1762cf7229605e1033262069e41ed9c1414c",
+  "source_sha256": "233f71ada452292fdb302c53ae811231c99224f5072021ea89251b670fc87711"
+}

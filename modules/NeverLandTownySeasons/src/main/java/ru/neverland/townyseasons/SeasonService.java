@@ -15,6 +15,9 @@ public final class SeasonService implements TownySeasonsApi {
     private final Map<UUID,String> observed=new HashMap<>();
     private final Map<UUID,String> failures=new HashMap<>();
     private SeasonSettings settings;
+    private java.util.function.Function<UUID,Map<String,Object>> marketView;
+    public void marketView(java.util.function.Function<UUID,Map<String,Object>> view){try(var guard=ru.neverland.core.SuiteState.guard()){marketView=view;}}
+    @Override public Map<String,Object> seasonalMarket(UUID world){try(var guard=ru.neverland.core.SuiteState.guard()){if(marketView!=null)return marketView.apply(world);var date=ru.neverland.townyseasons.markets.CalendarWindow.read(calendar(world));return Map.of("enabled",false,"open",false,"period",date.enabled()?date.key():"DISABLED","reason","Сезонные запасы и ярмарка ещё не загружены");}}
     public SeasonService(JavaPlugin plugin,SeasonRepository repository,SeasonSettings settings) {
         this.plugin=plugin;this.repository=repository;this.settings=settings;
     }

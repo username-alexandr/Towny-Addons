@@ -105,7 +105,8 @@ public final class TreasuryService implements TownyTreasuryApi {
         if(terms.kind()==AsyncDebit.Kind.REFUND){var backing=image.debits().get(terms.backingDebit());long deposits=flows.deposited(terms.town());return city.balance()<=Money.MAX-terms.cents()&&deposits<=Money.MAX-city.balance()-terms.cents()&&backing!=null&&backing.state()==AsyncDebit.State.PAID&&backing.terms().cents()==terms.cents()&&backing.terms().town().equals(terms.town());}
         long available=city.enabled()?city.funds().get(Budget.valueOf(terms.category().toUpperCase(Locale.ROOT))):city.balance();return available>=terms.cents()&&flows.withdrawn(terms.town())<=available-terms.cents();
     }}
-    @Override public Set<String> capabilities(){return Set.of("canSpend","spend","treasury","forecast","requestDebit","debitStatus","requestRefund","refundStatus");}
+    @Override public Set<String> capabilities(){return Set.of("canSpend","spend","treasury","forecast","requestDebit","debitStatus","requestRefund","refundStatus","resolveCategory");}
+    @Override public String resolveCategory(String category){try(var guard=ru.neverland.core.SuiteState.guard()){return settings.category(category).id();}}
     @Override public CompletionStage<Map<String,Object>> requestDebit(UUID operation,UUID town,String category,String source,long cents,String reason,UUID actor,String ownerPlugin){try(var guard=ru.neverland.core.SuiteState.guard()){return asynchronous.request(new AsyncDebit.Terms(operation,town,category,source,cents,reason,actor,ownerPlugin));}}
     @Override public CompletionStage<Map<String,Object>> requestRefund(UUID refundOperation,UUID paidDebitOperation,UUID actor,String ownerPlugin,String reason){return asynchronous.refund(refundOperation,paidDebitOperation,actor,ownerPlugin,reason);}
     @Override public Map<String,Object> refundStatus(UUID operation){return asynchronous.status(operation);}

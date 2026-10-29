@@ -9,6 +9,8 @@ import org.bukkit.event.inventory.*;
 import ru.neverland.core.MenuStyle;
 
 public final class SeasonMenu implements Listener {
+    private ru.neverland.townyseasons.markets.SeasonMarketsMenu markets;
+    public void markets(ru.neverland.townyseasons.markets.SeasonMarketsMenu value){markets=value;}
     private final NeverLandTownySeasons plugin;private final SeasonService service;
     public SeasonMenu(NeverLandTownySeasons plugin,SeasonService service) { this.plugin=plugin;this.service=service; }
     static final class Holder implements InventoryHolder {
@@ -39,6 +41,7 @@ public final class SeasonMenu implements Listener {
         }
         inv.setItem(39,item(Material.WHEAT,"&aЭкономика города",List.of("&fВлияет на будущий выпуск","&fстратегических ресурсов.","&fЗапасы и расходы не изменяются.","","&fЗимой подготовьте запас еды.","&fСезон города — в мире домашнего участка.")));
         inv.setItem(41,item(Material.WATER_BUCKET,"&bПодготовка к стихии",List.of("&fВесной чаще выбирается наводнение.","&fЛетом чаще выбирается засуха.","&fАкведук и канал смягчают наводнение.","","&e/t events &f— событие и необходимые вклады.","&fЗдания и рельеф не затапливаются блоками.")));
+        if(markets!=null)inv.setItem(37,item(Material.CHEST,"&aСезонный запас и ярмарка",List.of("Готовая продукция вашего города","Подготовка к следующему сезону","Обмен с другими городами по согласию мэров")));
         inv.setItem(45,item(Material.ARROW,"&e← Назад",List.of("Вернуться в предыдущее меню")));
         inv.setItem(49,item(Material.CLOCK,"&aОбновить",List.of("Нажмите для обновления календаря")));
         if(player.hasPermission("neverlandtownyseasons.admin"))inv.setItem(53,item(Material.COMPARATOR,"&eУправление сезонами",List.of("/tseasons help","/tseasons status")));
@@ -49,6 +52,7 @@ public final class SeasonMenu implements Listener {
         if(!(e.getWhoClicked() instanceof Player p)||!p.getUniqueId().equals(h.viewer))return;
         if(!p.hasPermission("neverlandtownyseasons.use")){p.closeInventory();return;}
         if(e.getRawSlot()==45)MenuStyle.returnTo(p,h.previous);
+        else if(e.getRawSlot()==37&&markets!=null)try{markets.openStock(p,h.inventory,1);}catch(RuntimeException ex){p.sendMessage(MenuStyle.decode("&c"+ex.getMessage()));}
         else if(e.getRawSlot()==49)try{open(p,h.world,h.previous);}catch(RuntimeException ex){p.closeInventory();p.sendMessage(MenuStyle.decode("&c"+ex.getMessage()));}
     } }
     @EventHandler public void drag(InventoryDragEvent e) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySeasons")){ru.neverland.core.ModuleGate.stopEvent(e);return;} if(e.getView().getTopInventory().getHolder() instanceof Holder)e.setCancelled(true); } }

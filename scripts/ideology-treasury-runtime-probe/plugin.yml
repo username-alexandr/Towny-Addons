@@ -1,0 +1,6 @@
+name: IdeologyTreasuryRuntimeProbe
+version: 0.52.0
+main: ru.neverland.runtime.IdeologyTreasuryProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyCitizens, NeverLandTownyIdeologies, NeverLandTownyTreasuryPlus, NeverLandTownyControl]

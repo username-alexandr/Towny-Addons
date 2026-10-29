@@ -1,0 +1,19 @@
+PASS actual Ideologies0.2.1 and Treasury async provider enabled
+PASS legacy paid ideology preserves level and selection without new payment
+PASS installed Treasury cannot be bypassed by legacy direct ReformBank.pay
+PASS completed time stages retain frozen50coin quote without payment
+PASS own durable intent freezes route UUID actor before Treasury submission
+PASS physical Treasury ACK delay exposes neither debit nor new ideology
+PASS Treasury PREPARED is not treated as payment success
+PASS catalog edit cannot reprice registered payment
+PASS paused consumer preserves prepared request without bank call
+PASS observed Treasury debit alone does not activate local benefits
+PASS local paid ACK also waits physical file before switching ideology
+PASS one exact50coin debit and local ACK activate frozen upgrade once
+PASS same consumer payload returns prior paid result without a new debit
+PASS next frozen reform exceeds actual social allocation
+PASS Treasury refusal leaves ready reform and money unchanged without fallback
+PASS unknown bank response leaves prior ideology and exact pending receipt
+PASS local admin cannot override an unverified Treasury REVIEW
+PASS explicit historical direct-bank pending fixture keeps legacy route
+PASS legacy unknown receipt cannot enter new Treasury request API

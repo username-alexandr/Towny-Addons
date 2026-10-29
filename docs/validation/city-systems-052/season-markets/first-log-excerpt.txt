@@ -1,0 +1,58 @@
+ - NeverLandTownyBuilds (0.10.1), NeverLandTownyCitizens (0.2.0), NeverLandTownyContracts (0.7.0), NeverLandTownyControl (0.6.0), NeverLandTownySeasons (0.2.0), NeverLandTownySpecialization (0.3.0), SeasonMarketsRuntimeProbe (0.52.0), Towny (0.103.2.0)
+[02:37:34 ERROR]: Failed to request yggdrasil public key
+[02:37:35 WARN]: ****************************
+[02:37:35 WARN]: YOU ARE RUNNING THIS SERVER AS AN ADMINISTRATIVE OR ROOT USER. THIS IS NOT ADVISED.
+[02:37:35 WARN]: YOU ARE OPENING YOURSELF UP TO POTENTIAL RISKS WHEN DOING THIS.
+[02:37:35 WARN]: FOR MORE INFORMATION, SEE https://madelinemiller.dev/blog/root-minecraft-server/
+[02:37:35 WARN]: ****************************
+[02:37:36 WARN]: [io.netty.util.internal.MacAddressUtil] Failed to find a usable hardware address from the network interfaces; using random bytes: 55:fa:5f:f6:b0:dc:c0:af
+[02:37:36 INFO]: [NeverLandTownySeasons] Loading server plugin NeverLandTownySeasons v0.2.0
+[02:37:36 INFO]: [NeverLandTownySpecialization] Loading server plugin NeverLandTownySpecialization v0.3.0
+[02:37:36 INFO]: [SeasonMarketsRuntimeProbe] Loading server plugin SeasonMarketsRuntimeProbe v0.52.0
+[02:37:36 WARN]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[02:37:36 WARN]: The server will make no attempt to authenticate usernames. Beware.
+[02:37:36 WARN]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[02:37:36 WARN]: To change this, set "online-mode" to "true" in the server.properties file.
+[02:37:39 INFO]: [NeverLandTownySeasons] Enabling NeverLandTownySeasons v0.2.0
+[02:37:39 INFO]: [NeverLandTownySpecialization] Enabling NeverLandTownySpecialization v0.3.0
+[02:37:39 INFO]: [NeverLandTownySpecialization] Специализации включены: 7 профилей.
+[02:37:39 INFO]: [SeasonMarketsRuntimeProbe] Enabling SeasonMarketsRuntimeProbe v0.52.0
+[02:37:41 INFO]: [SeasonMarketsRuntimeProbe] CHECK first: Citizens enabled and unfrozen
+[02:37:41 INFO]: [SeasonMarketsRuntimeProbe] CHECK first: Builds enabled and unfrozen
+[02:37:41 INFO]: [SeasonMarketsRuntimeProbe] CHECK first: Contracts enabled and unfrozen
+[02:37:41 INFO]: [SeasonMarketsRuntimeProbe] CHECK first: Specialization enabled and unfrozen
+[02:37:41 INFO]: [SeasonMarketsRuntimeProbe] CHECK first: Seasons enabled and unfrozen
+[02:37:41 INFO]: [SeasonMarketsRuntimeProbe] CHECK first: Control enabled and unfrozen
+[02:37:42 INFO]: [SeasonMarketsRuntimeProbe] CHECK legacy specialization still authorizes its unique building
+[02:37:42 INFO]: [SeasonMarketsRuntimeProbe] CHECK optional seasonal catalog and production provider ready
+[02:37:42 INFO]: [SeasonMarketsRuntimeProbe] CHECK real Contracts consumed-material receipt backs eight farm_provisions
+[02:37:43 INFO]: [SeasonMarketsRuntimeProbe] CHECK real Contracts consumed-material receipt backs eight port_equipment
+[02:37:43 INFO]: [SeasonMarketsRuntimeProbe] CHECK ordinary resident cannot prepare city reserves
+[02:37:43 INFO]: [SeasonMarketsRuntimeProbe] CHECK native stock menu uses safe icons and distinguishes real production
+[02:37:43 INFO]: [SeasonMarketsRuntimeProbe] CHECK native seasonal menu cancels inventory movement
+[02:37:43 INFO]: [SeasonMarketsRuntimeProbe] CHECK preview shows frozen quantities and explicit Moscow deadline before reserve
+[02:37:43 INFO]: [SeasonMarketsRuntimeProbe] CHECK native seasonal menu cancels inventory movement
+[02:37:43 INFO]: [SeasonMarketsRuntimeProbe] CHECK real SQLite delay exposes no pending reserve through ACK cache
+[02:37:43 INFO]: [SeasonMarketsRuntimeProbe] CHECK Suite guard stays free while reserve disk ACK waits
+[02:37:43 INFO]: [SeasonMarketsRuntimeProbe] CHECK native seasonal menu cancels inventory movement
+[02:37:43 INFO]: [SeasonMarketsRuntimeProbe] CHECK double click reserves exact one party only after disk ACK
+[02:37:43 INFO]: [SeasonMarketsRuntimeProbe] CHECK module pause rejects new reserve without changing old seasonal coefficients
+[02:37:43 INFO]: [SeasonMarketsRuntimeProbe] CHECK module pause keeps ACK reserve and old coefficients
+[02:37:43 INFO]: [SeasonMarketsRuntimeProbe] CHECK mayor neutrally releases own seasonal preparation
+[02:37:43 INFO]: [SeasonMarketsRuntimeProbe] CHECK exact offer freezes both readable city names
+[02:37:43 INFO]: [SeasonMarketsRuntimeProbe] CHECK first mayor ACK holds backed goods only
+[02:37:43 INFO]: [SeasonMarketsRuntimeProbe] CHECK non-mayor cannot approve exchange
+[02:37:44 INFO]: [SeasonMarketsRuntimeProbe] CHECK sender mayor cannot approve as receiving city
+[02:37:44 INFO]: [SeasonMarketsRuntimeProbe] CHECK native seasonal menu cancels inventory movement
+[02:37:44 INFO]: [SeasonMarketsRuntimeProbe] CHECK second mayor sees stored offer after template changes
+[02:37:44 INFO]: [SeasonMarketsRuntimeProbe] CHECK native seasonal menu cancels inventory movement
+[02:37:44 INFO]: [SeasonMarketsRuntimeProbe] CHECK second mayor atomically acknowledges both exchange directions
+[02:37:44 INFO]: [SeasonMarketsRuntimeProbe] CHECK new client receipt cannot replay an acknowledged trade
+[02:37:44 INFO]: [SeasonMarketsRuntimeProbe] CHECK source stock conserves real production and distinct received/sent counters
+[02:37:44 INFO]: [SeasonMarketsRuntimeProbe] CHECK receiver cannot mistake traded stock for production
+[02:37:49 INFO]: [SeasonMarketsRuntimeProbe] CHECK provider observes one common calendar change and neutrally expires previous-season offer
+[02:37:49 INFO]: [SeasonMarketsRuntimeProbe] CHECK expired offer returns original reserved goods without exchange
+[02:37:49 INFO]: Stopping server
+[02:37:49 INFO]: [SeasonMarketsRuntimeProbe] Disabling SeasonMarketsRuntimeProbe v0.52.0
+[02:37:49 INFO]: [NeverLandTownySpecialization] Disabling NeverLandTownySpecialization v0.3.0
+[02:37:49 INFO]: [NeverLandTownySeasons] Disabling NeverLandTownySeasons v0.2.0

@@ -1,0 +1,10 @@
+[01:29:08 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK actual Archaeology0.2.0 Control and Towny enabled
+[01:29:08 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK optional restoration journal and signing key loaded
+[01:29:08 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK full restart preserves exact receipts and leaves uncertain inventory transfer unreplayed
+[01:29:08 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK restart never automatically puts an uncertain fragment into offline player's inventory
+[01:29:08 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK legacy whole artifact survives new key creation and full restart
+[01:29:08 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK missing exact NBT marker cannot authorize retry or complete unknown delivery
+[01:29:08 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK exact saved owner-marker permits reconciliation without giving or removing any item
+[01:29:08 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK fragment signing key remains separate from old artifact key
+[01:29:09 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK native administrator history exposes exact completed and uncertain identities
+[01:29:11 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK durable administrative audit contains restoration operation receipts

@@ -1,0 +1,35 @@
+PASS first: Citizens enabled and unfrozen
+PASS first: Builds enabled and unfrozen
+PASS first: Contracts enabled and unfrozen
+PASS first: Specialization enabled and unfrozen
+PASS first: Seasons enabled and unfrozen
+PASS first: Control enabled and unfrozen
+PASS legacy specialization still authorizes its unique building
+PASS optional seasonal catalog and production provider ready
+PASS real Contracts consumed-material receipt backs eight farm_provisions
+PASS real Contracts consumed-material receipt backs eight port_equipment
+PASS ordinary resident cannot prepare city reserves
+PASS native stock menu uses safe icons and distinguishes real production
+PASS native seasonal menu cancels inventory movement
+PASS preview shows frozen quantities and explicit Moscow deadline before reserve
+PASS native seasonal menu cancels inventory movement
+PASS real SQLite delay exposes no pending reserve through ACK cache
+PASS Suite guard stays free while reserve disk ACK waits
+PASS native seasonal menu cancels inventory movement
+PASS double click reserves exact one party only after disk ACK
+PASS module pause rejects new reserve without changing old seasonal coefficients
+PASS module pause keeps ACK reserve and old coefficients
+PASS mayor neutrally releases own seasonal preparation
+PASS exact offer freezes both readable city names
+PASS first mayor ACK holds backed goods only
+PASS non-mayor cannot approve exchange
+PASS sender mayor cannot approve as receiving city
+PASS native seasonal menu cancels inventory movement
+PASS second mayor sees stored offer after template changes
+PASS native seasonal menu cancels inventory movement
+PASS second mayor atomically acknowledges both exchange directions
+PASS new client receipt cannot replay an acknowledged trade
+PASS source stock conserves real production and distinct received/sent counters
+PASS receiver cannot mistake traded stock for production
+PASS provider observes one common calendar change and neutrally expires previous-season offer
+PASS expired offer returns original reserved goods without exchange

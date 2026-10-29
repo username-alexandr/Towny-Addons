@@ -1,0 +1,16 @@
+PASS broken: Citizens enabled and unfrozen
+PASS broken: Builds enabled and unfrozen
+PASS broken: Contracts enabled and unfrozen
+PASS broken: Specialization enabled and unfrozen
+PASS broken: Seasons enabled and unfrozen
+PASS broken: Control enabled and unfrozen
+PASS legacy specialization still authorizes its unique building
+PASS optional features never rewrite legacy specialization choices
+PASS full JVM restart retains original calendar independently
+PASS completed trade remains completed after full restart
+PASS exact pending terms survive full JVM and optional catalog failure
+PASS corrupt optional config neither auto-trades nor loses held goods
+PASS bad seasonal config closes only new seasonal work
+PASS old season effects and production recipes survive optional failure
+PASS missing optional goods API leaves original calendar enabled
+PASS native admin protocol reports pending save rather than false success

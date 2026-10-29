@@ -1,0 +1,6 @@
+name: ArchaeologyRestorationRuntimeProbe
+version: 0.52.0
+main: ru.neverland.runtime.ArchaeologyRestorationProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyArchaeology, NeverLandTownyControl]

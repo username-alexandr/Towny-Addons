@@ -1,0 +1,46 @@
+[02:37:51 WARN]: Failed to get system info for Process Loads
+[02:37:51 WARN]: Failed to get system info for Process Virtual Size (MiB)
+[02:37:51 WARN]: Failed to get system info for Process Resident Size (MiB)
+ - NeverLandTownyBuilds (0.10.1), NeverLandTownyCitizens (0.2.0), NeverLandTownyContracts (0.7.0), NeverLandTownyControl (0.6.0), NeverLandTownySeasons (0.2.0), NeverLandTownySpecialization (0.3.0), SeasonMarketsRuntimeProbe (0.52.0), Towny (0.103.2.0)
+[02:37:56 ERROR]: Failed to request yggdrasil public key
+[02:37:58 WARN]: ****************************
+[02:37:58 WARN]: YOU ARE RUNNING THIS SERVER AS AN ADMINISTRATIVE OR ROOT USER. THIS IS NOT ADVISED.
+[02:37:58 WARN]: YOU ARE OPENING YOURSELF UP TO POTENTIAL RISKS WHEN DOING THIS.
+[02:37:58 WARN]: FOR MORE INFORMATION, SEE https://madelinemiller.dev/blog/root-minecraft-server/
+[02:37:58 WARN]: ****************************
+[02:37:59 WARN]: [io.netty.util.internal.MacAddressUtil] Failed to find a usable hardware address from the network interfaces; using random bytes: bf:42:9a:c8:41:9d:b5:47
+[02:37:59 INFO]: [NeverLandTownySeasons] Loading server plugin NeverLandTownySeasons v0.2.0
+[02:37:59 INFO]: [NeverLandTownySpecialization] Loading server plugin NeverLandTownySpecialization v0.3.0
+[02:37:59 INFO]: [SeasonMarketsRuntimeProbe] Loading server plugin SeasonMarketsRuntimeProbe v0.52.0
+[02:37:59 INFO]: [SeasonMarketsRuntimeProbe] STARTUP_RAW_SQLITE sha256=575d7884b71fdf3d15e137e3d31c74f581362c44a8c580b40e9a8842a18b0e76 bytes=126976
+[02:37:59 WARN]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[02:37:59 WARN]: The server will make no attempt to authenticate usernames. Beware.
+[02:37:59 WARN]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[02:37:59 WARN]: To change this, set "online-mode" to "true" in the server.properties file.
+[02:38:02 INFO]: [NeverLandTownySeasons] Enabling NeverLandTownySeasons v0.2.0
+[02:38:02 INFO]: [NeverLandTownySpecialization] Enabling NeverLandTownySpecialization v0.3.0
+[02:38:02 INFO]: [NeverLandTownySpecialization] Специализации включены: 7 профилей.
+[02:38:02 WARN]: [NeverLandTownySeasons] Настройки сезонных запасов требуют проверки; обычный календарь сохраняется: Нужно логическое значение: enabled
+[02:38:02 INFO]: [SeasonMarketsRuntimeProbe] Enabling SeasonMarketsRuntimeProbe v0.52.0
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] CHECK broken: Citizens enabled and unfrozen
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] CHECK broken: Builds enabled and unfrozen
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] CHECK broken: Contracts enabled and unfrozen
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] CHECK broken: Specialization enabled and unfrozen
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] CHECK broken: Seasons enabled and unfrozen
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] CHECK broken: Control enabled and unfrozen
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] CHECK legacy specialization still authorizes its unique building
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] CHECK optional features never rewrite legacy specialization choices
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] CHECK full JVM restart retains original calendar independently
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] CHECK completed trade remains completed after full restart
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] CHECK exact pending terms survive full JVM and optional catalog failure
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] CHECK corrupt optional config neither auto-trades nor loses held goods
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] CHECK bad seasonal config closes only new seasonal work
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] CHECK old season effects and production recipes survive optional failure
+[02:38:05 WARN]: [NeverLand API] NeverLandTownySpecialization SERVICE_UNAVAILABLE:
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] CHECK missing optional goods API leaves original calendar enabled
+[02:38:05 INFO]: [NeverLand API] NeverLandTownySpecialization: связь восстановлена
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] CHECK native admin protocol reports pending save rather than false success
+[02:38:05 INFO]: Stopping server
+[02:38:05 INFO]: [SeasonMarketsRuntimeProbe] Disabling SeasonMarketsRuntimeProbe v0.52.0
+[02:38:05 INFO]: [NeverLandTownySpecialization] Disabling NeverLandTownySpecialization v0.3.0
+[02:38:05 INFO]: [NeverLandTownySeasons] Disabling NeverLandTownySeasons v0.2.0

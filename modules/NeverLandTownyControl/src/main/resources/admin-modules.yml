@@ -114,7 +114,7 @@ modules:
   Seasons:
     command: townyseasons
     permission: neverlandtownyseasons.admin
-    activities: false
+    activities: true
   SiegesPlus:
     command: townysieges
     permission: neverlandtownysiegesplus.admin

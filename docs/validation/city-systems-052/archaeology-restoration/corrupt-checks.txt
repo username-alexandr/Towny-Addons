@@ -1,0 +1,5 @@
+[01:29:25 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK actual Archaeology0.2.0 Control and Towny enabled
+[01:29:25 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK corrupt optional restoration file isolates new feature while old core stays writable
+[01:29:25 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK old artifact issuance remains usable with damaged optional journal
+[01:29:25 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK damaged optional bytes stay untouched for recovery
+[01:29:25 INFO]: [ArchaeologyRestorationRuntimeProbe] CHECK player menu explains unavailable restoration without touching resources

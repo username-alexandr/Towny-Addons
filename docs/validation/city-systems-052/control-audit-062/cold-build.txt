@@ -1,0 +1,43 @@
+ContractMathSmoke OK
+CompanyContractsSmoke OK: ownership, escrow, settlement restart and legacy migration
+ContractMathSmoke OK
+ContractMathSmoke OK
+CompanyContractsSmoke OK: ownership, escrow, settlement restart and legacy migration
+MunicipalContractsSmoke OK: durable money, delivery crash windows, road verification, scout dwell, immutable conditions and restart
+MunicipalTreasurySmoke PASS 30 checks; ACK, replay isolation, exact receipt identity and saved funding pause
+CooperativeProjectsSmoke PASS 21 checks
+MountedOrdersSmoke PASS: 76 checks; personal fishing/melee/bow, transport, region ownership, cancellation, provenance, one-order credit and durable progress
+ResourceDeliveriesSmoke PASS: 25 checks; real SQLite/reward files, player ownership, duplicate clicks, save faults, database rollback, recovery, caps and exactly-once rewards
+ServerMaterialsShutdownSmoke PASS: verified truncate/main-file persistence, real blocked checkpoint refusal and recovery
+ServerMaterialsSmoke PASS: 23 checks; real SQLite, duplicate receipts, stock conservation, project reserves, rollback, CSV, restart and corrupt storage
+ServerProjectsSmoke PASS 18 checks
+ProcurementAuditSmoke PASS 11 checks; failure, immutable retry, free Suite and SQL worker, durable ACK and refund direction
+ProcurementSmoke PASS 29 checks; exact financing/refund proofs, no unpaid publication, duplicate limits, rollback and restart
+TEST NeverLandTownyControl ru.neverland.core.SuiteSchedulerSmoke
+SuiteSchedulerSmoke PASS: 31 checks; contention, affinity, retries, cancellation, freeze, exceptions, reentrancy and retirement
+TEST NeverLandTownyControl ru.neverland.townycontrol.AcknowledgedStateSmoke
+AcknowledgedStateSmoke PASS 10 checks
+TEST NeverLandTownyControl ru.neverland.townycontrol.ActivityAdminSmoke
+ActivityAdminSmoke PASS: persistent pause, restart, extension, module pause composition, strict IDs, overflow, newcomer registration
+TEST NeverLandTownyControl ru.neverland.townycontrol.AdminMenuSmoke
+AdminMenuSmoke PASS: permission inheritance, Events adapter, exclusive categories, bounded pagination, filters, corrupt source refusal
+TEST NeverLandTownyControl ru.neverland.townycontrol.AuditIndexSmoke
+AuditIndexSmoke PASS 1043 checks (1000 shuffled evidence orders)
+TEST NeverLandTownyControl ru.neverland.townycontrol.AuditMoscowDatesSmoke
+AuditMoscowDatesSmoke PASS: exact Moscow day boundaries and menu capacity
+TEST NeverLandTownyControl ru.neverland.townycontrol.AuditPathIsolationSmoke
+AuditPathIsolationSmoke PASS: actual blocked journal cannot hold unrelated ledger work
+TEST NeverLandTownyControl ru.neverland.townycontrol.AuditSmoke
+AuditSmoke PASS: 28 checks; restart, collision, corruption, filters and CSV
+TEST NeverLandTownyControl ru.neverland.townycontrol.BankAuditQueueSmoke
+BankAuditQueueSmoke PASS 15 checks
+TEST NeverLandTownyControl ru.neverland.townycontrol.DeletionSafetySmoke
+TEST NeverLandTownyControl ru.neverland.townycontrol.ModuleSafetySmoke
+ModuleSafetySmoke PASS: graph, durable group, time freeze, journal recovery, corruption and financial preservation
+TEST NeverLandTownyControl ru.neverland.townycontrol.PersonalHistorySmoke
+PersonalHistorySmoke PASS 10 checks
+TEST NeverLandTownyControl ru.neverland.townycontrol.RaidAuditSmoke
+RaidAuditSmoke PASS: 11 assertions; category, labels and review
+TEST NeverLandTownyControl ru.neverland.townycontrol.ShutdownHooksSmoke
+ShutdownHooksSmoke PASS: nonblocking, one receipt, failed-save refusal and instance isolation
+BUILD AND SMOKE PASS NeverLandTownyControl-0.6.2.jar 14 programs

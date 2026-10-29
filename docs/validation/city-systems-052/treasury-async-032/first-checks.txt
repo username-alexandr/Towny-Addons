@@ -1,0 +1,24 @@
+PASS actual Treasury0.3.2 plugin starts on real Folia
+PASS native additive resolver preserves configured project and canonical budget categories without bank IO
+PASS physical Treasury file writer deliberately held
+PASS before durable intent ACK neither receipt nor bank call is published
+PASS global Suite remains available while physical writer waits
+PASS durable prepared receipt and exact budget reservation appear atomically
+PASS legacy boolean spend fails closed before bank and pending blocks new budget use
+PASS same UUID repeats unchanged receipt and rejects changed amount
+PASS paused owner does not invoke a prepared payment
+PASS exact observed bank debit and category decrease occur once despite continuous other-town flows
+PASS paid escrow exposes live available backing
+PASS busy refund creates no rejected intent and preserves the other exact pending reservation
+PASS other payment finishes and is fully refunded before reusing original refund UUID
+PASS temporary actual-bank balance ceiling preserves PREPARED refund UUID without credit or rejection
+PASS full backed refund restores exact original category without fresh allocation
+PASS refunded debit is no longer available escrow backing
+PASS same refund ID and second refund request cannot repeat bank credit
+PASS rich total balance cannot bypass insufficient infrastructure allocation
+PASS lost backend response retains exact REVIEW and budget lock without replay
+PASS manual paid reconciliation updates ledger only after exact receipt decision
+PASS reconciled debit refund conserves original city funds
+PASS unknown refund remains REVIEW with unchanged ledger awaiting restart
+PASS actual onDisable under external Suite returns without waiting for bank or IO
+PASS bank result after shutdown request receives durable PAID and exact budget ACK

@@ -1,0 +1,17 @@
+PASS restart: Citizens enabled and unfrozen
+PASS restart: Builds enabled and unfrozen
+PASS restart: Contracts enabled and unfrozen
+PASS restart: Specialization enabled and unfrozen
+PASS restart: Seasons enabled and unfrozen
+PASS restart: Control enabled and unfrozen
+PASS legacy specialization still authorizes its unique building
+PASS optional features never rewrite legacy specialization choices
+PASS full JVM restart retains original calendar independently
+PASS completed trade remains completed after full restart
+PASS exact pending terms survive full JVM and optional catalog failure
+PASS full restart keeps exactly one admin refund with no duplicate
+PASS repaired optional catalog resumes new seasonal work
+PASS admin journal has one durable direction per city for exact swap
+PASS admin neutral cancellation records actual console actor
+PASS shutdown starts asynchronously with SQL-to-player callbacks outstanding
+PASS shutdown resolves every outstanding owner callback before audit and SQLite close

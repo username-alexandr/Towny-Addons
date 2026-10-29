@@ -8,7 +8,7 @@ import ru.neverland.core.AuditRecord;
 final class AuditSignals {
     enum Type { REVIEW, CHAIN }
     record Card(Type type,String title,String reason,List<AuditRecord> evidence){Card{evidence=List.copyOf(evidence);}}
-    private static final Set<String> PENDING=Set.of("PREPARED","PENDING","PAYING","UNCONFIRMED","REVIEW","REVIEW_CORE","REVIEW_DEBIT","REVIEW_CREDIT","REVIEW_BANK","REVIEW_WORLD");
+    private static final Set<String> PENDING=Set.of("PREPARED","PENDING","PAYING","INVOKING","TREASURY","PROCUREMENT_FUNDING","PROCUREMENT_PUBLISHING","PROCUREMENT_REVIEW","PROCUREMENT_REFUNDING","UNCONFIRMED","REVIEW","REVIEW_CORE","REVIEW_DEBIT","REVIEW_CREDIT","REVIEW_BANK","REVIEW_WORLD");
     static final int MAX_ROWS=20_000,MAX_CARDS=200;
     static final long MAX_CHARACTERS=8_388_608;
     static long characters(AuditRecord r){return r.fields().stream().mapToLong(String::length).sum();}

@@ -1,0 +1,28 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 19 checks; actual Folia, Ideologies and Treasury request/ACK state machines, Towny Account/Observer, delayed bank and local files, budget refusal, unknown/reconciliation, legacy route preservation, exact retry, full JVM restart. Controlled economy adapter, offline actors/scheduler, accelerated stages and explicit legacy pending seed; no live Vault provider or network client claimed.\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyControl-0.6.1.jar": "f8210c29f10d64e1b6470bf4ad72598fd268c0bc74a66397a193d0d42a454256",
+      "NeverLandTownyTreasuryPlus-0.3.1.jar": "ceddfadcbb1a97b902afc425ac04beaf33fc49ac7313bfc23ae3c1462c781a73",
+      "NeverLandTownyIdeologies-0.2.1.jar": "f886b922fb79f0e2e0461aa2e1f7903b5676442cdb1e24397c949ee9e8cf68f1",
+      "IdeologyTreasuryRuntimeProbe.jar": "87863fb383dd4767b21b88d58328d19d2c1182a3fac4ac2988db7e8118cdde2f"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 11 checks; actual Folia, Ideologies and Treasury request/ACK state machines, Towny Account/Observer, delayed bank and local files, budget refusal, unknown/reconciliation, legacy route preservation, exact retry, full JVM restart. Controlled economy adapter, offline actors/scheduler, accelerated stages and explicit legacy pending seed; no live Vault provider or network client claimed.\n",
+    "jar_sha256": {
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70",
+      "NeverLandTownyCitizens-0.2.0.jar": "04d51ba84d4c81c5506c6e7955ff3a838ef67d45ea9a12f27e78866722d4f31b",
+      "NeverLandTownyControl-0.6.1.jar": "f8210c29f10d64e1b6470bf4ad72598fd268c0bc74a66397a193d0d42a454256",
+      "NeverLandTownyTreasuryPlus-0.3.1.jar": "ceddfadcbb1a97b902afc425ac04beaf33fc49ac7313bfc23ae3c1462c781a73",
+      "NeverLandTownyIdeologies-0.2.1.jar": "f886b922fb79f0e2e0461aa2e1f7903b5676442cdb1e24397c949ee9e8cf68f1",
+      "IdeologyTreasuryRuntimeProbe.jar": "87863fb383dd4767b21b88d58328d19d2c1182a3fac4ac2988db7e8118cdde2f"
+    }
+  }
+]

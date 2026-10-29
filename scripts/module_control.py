@@ -9,7 +9,17 @@ TARGET=ROOT/'modules/NeverLandTownyControl/src/main/resources/module-dependencie
 # Audited optional edges, not a blanket softdepend exclusion. Policies preserves an already
 # acknowledged quest-gated choice during Quests failure while refusing any new choice;
 # Quests is an unlock prerequisite, not the provider that charges its ongoing costs.
-ISOLATED_EDGES={('NeverLandTownyPolicies','NeverLandTownyQuests')}
+# Seasons' goods exchange explicitly stops when its late-bound provider is absent;
+# its existing calendar has no dependency on that optional stock ledger.
+# Specialization keeps production/stock and neutral cancellation without the seasonal
+# calendar; new seasonal offers require that provider. Research's optional license
+# payments wait for Treasury, while basic studies and acknowledged bonuses continue.
+ISOLATED_EDGES={
+    ('NeverLandTownyPolicies','NeverLandTownyQuests'),
+    ('NeverLandTownySeasons','NeverLandTownySpecialization'),
+    ('NeverLandTownySpecialization','NeverLandTownySeasons'),
+    ('NeverLandTownyResearch','NeverLandTownyTreasuryPlus'),
+}
 def shutdown_dependencies(name, providers, hard=()):
     result=set(providers)
     for consumer, provider in ISOLATED_EDGES:
@@ -58,6 +68,17 @@ def lifecycle_guard(source, method, hook):
     positive_end=r"if\s*\(ru\.neverland\.core\.ModuleLifecycle\.end\(this\)\)\s*\{"
     return bool(re.search(prefix+early_return,source) or method=='onDisable' and hook=='end' and re.search(prefix+positive_end,source))
 
+def activity_adapter(source):
+    # Async receipt-owned actions can expose the same v1 protocol directly. Do not
+    # require the synchronous ActivityAdmin wrapper or accept a partial protocol.
+    source=re.sub(r'/\*.*?\*/|//[^\n]*','',source,flags=re.S)
+    if re.search(r'\bActivityAdmin\.attach\s*\(',source):return True
+    sender=r'(?:org\.bukkit\.command\.)?CommandSender\s+\w+'
+    return all(re.search(pattern,source) for pattern in (
+        r'public\s+int\s+adminMenuVersion\s*\(\s*\)\s*\{\s*return\s+1\s*;',
+        r'public\s+(?:java\.util\.)?List\s*<\s*(?:java\.util\.)?Map\s*<\s*String\s*,\s*Object\s*>\s*>\s+adminMenuTargets\s*\(\s*'+sender+r'\s*\)',
+        r'public\s+String\s+adminMenuAction\s*\(\s*'+sender+r'\s*,\s*String\s+\w+\s*,\s*String\s+\w+\s*,\s*String\s+\w+\s*,\s*long\s+\w+\s*\)'))
+
 def validate():
     if not TARGET.exists() or yaml.safe_load(TARGET.read_text())!={'schema':1,'modules':dependencies()}:
         raise RuntimeError('Stale module safety graph: run python scripts/module_control.py --write')
@@ -68,8 +89,8 @@ def validate():
         meta=yaml.safe_load((ROOT/'modules'/('NeverLandTowny'+short)/'src/main/resources/plugin.yml').read_text())
         if entry['command'] not in meta['commands'] or entry['permission'] not in meta['permissions']:raise RuntimeError('Invalid admin entry: '+short)
         if entry['activities']:
-            source='\n'.join(p.read_text() for p in (ROOT/'modules'/('NeverLandTowny'+short)/'src/main/java').rglob('*.java'))
-            if 'ActivityAdmin.attach' not in source:raise RuntimeError('Missing activity adapter: '+short)
+            sources=(p.read_text() for p in (ROOT/'modules'/('NeverLandTowny'+short)/'src/main/java').rglob('*.java'))
+            if not any(activity_adapter(source) for source in sources):raise RuntimeError('Missing activity adapter: '+short)
     for name in dependencies():
         p=ROOT/'modules'/name/'src/main/java'
         enabled=[f for f in p.rglob('*.java') if re.search(r'void\s+onEnable\s*\(',f.read_text())]

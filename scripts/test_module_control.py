@@ -2,6 +2,15 @@ import unittest
 import module_control
 
 class LifecycleGuardTest(unittest.TestCase):
+    def test_direct_async_activity_protocol_is_complete(self):
+        source='public int adminMenuVersion(){return 1;} public List<Map<String,Object>> adminMenuTargets(CommandSender sender){return rows;} public String adminMenuAction(CommandSender sender,String id,String name,String action,long minutes){return result;}'
+        self.assertTrue(module_control.activity_adapter(source))
+        for old,new in [('return 1','return 2'),('public int','private int'),('adminMenuTargets','other'),('long minutes','int minutes'),('String action','UUID action')]:
+            self.assertFalse(module_control.activity_adapter(source.replace(old,new)))
+        self.assertFalse(module_control.activity_adapter('/* '+source+' */'))
+        self.assertFalse(module_control.activity_adapter('// ActivityAdmin.attach(this);'))
+        self.assertTrue(module_control.activity_adapter('ru.neverland.core.ActivityAdmin.attach(this,"command","permission",targets);'))
+
     def test_positive_shutdown_gate_with_unconditional_drain(self):
         source='void onDisable(){try(var guard=ru.neverland.core.SuiteState.guard()){if(ru.neverland.core.ModuleLifecycle.end(this)){stop();}}finally{drain();}}'
         self.assertTrue(module_control.lifecycle_guard(source,'onDisable','end'))
@@ -41,11 +50,16 @@ class LifecycleGuardTest(unittest.TestCase):
                 found=next_set
         self.assertEqual(closure('NeverLandTownyQuests'),{'NeverLandTownyQuests'})
         self.assertGreater(len(closure('NeverLandTownyBuilds')),1)
-        self.assertEqual(module_control.ISOLATED_EDGES,{('NeverLandTownyPolicies','NeverLandTownyQuests')})
+        self.assertEqual(module_control.ISOLATED_EDGES,{('NeverLandTownyPolicies','NeverLandTownyQuests'),('NeverLandTownySeasons','NeverLandTownySpecialization'),('NeverLandTownySpecialization','NeverLandTownySeasons'),('NeverLandTownyResearch','NeverLandTownyTreasuryPlus')})
+        self.assertNotIn('NeverLandTownySeasons',graph['NeverLandTownySpecialization'])
+        self.assertNotIn('NeverLandTownyTreasuryPlus',graph['NeverLandTownyResearch'])
+        self.assertNotIn('NeverLandTownySeasons',closure('NeverLandTownySpecialization'))
+        self.assertEqual(module_control.shutdown_dependencies('NeverLandTownySeasons',{'NeverLandTownySpecialization'}),[])
         self.assertEqual(module_control.shutdown_dependencies('NewConsumer',{'NeverLandTownyQuests'}),['NeverLandTownyQuests'])
         self.assertEqual(module_control.shutdown_dependencies('NeverLandTownyPolicies',{'NeverLandTownyQuests','NeverLandTownyUpkeep'}),['NeverLandTownyUpkeep'])
-        with self.assertRaises(RuntimeError):
-            module_control.shutdown_dependencies('NeverLandTownyPolicies',{'NeverLandTownyQuests'},['NeverLandTownyQuests'])
+        for consumer,provider in module_control.ISOLATED_EDGES:
+            with self.assertRaises(RuntimeError):
+                module_control.shutdown_dependencies(consumer,{provider},[provider])
 
     def test_current_dependency_graph_and_lifecycle(self):
         module_control.validate()

@@ -1,0 +1,9 @@
+package ru.neverland.archaeology.restoration;
+import java.util.*;
+import org.bukkit.configuration.ConfigurationSection;
+/** Separate, explicit limits for the additional fragment loot. Existing whole artifacts are untouched. */
+public record RestorationSettings(boolean enabled,double chance,int player24h,int server24h,int mailbox,int searchRadius,Map<String,Integer> parts){
+    public RestorationSettings{if(!Double.isFinite(chance)||chance<0||chance>1||player24h<0||player24h>100||server24h<0||server24h>10000||mailbox<1||mailbox>100||searchRadius<1||searchRadius>5000)throw new IllegalArgumentException("Проверьте вероятность и лимиты реставрации");parts=Map.copyOf(parts);parts.forEach((key,value)->{if(key==null||!key.matches("[a-z0-9_-]{1,32}")||value==null||value<3||value>8)throw new IllegalArgumentException("Нужны 3–8 разных частей на редкость");});}
+    public static RestorationSettings read(ConfigurationSection config){var parts=new HashMap<String,Integer>(Map.of("common",3,"uncommon",4,"rare",5,"epic",6,"legendary",8));var section=config.getConfigurationSection("restoration.parts");if(section!=null)for(String key:section.getKeys(false)){Object value=section.get(key);if(!(value instanceof Number n)||n.doubleValue()!=n.intValue())throw new IllegalArgumentException("Число частей должно быть целым");parts.put(key,n.intValue());}return new RestorationSettings(config.getBoolean("restoration.enabled",true),config.getDouble("restoration.chance-per-brushed-block",0.15),config.getInt("restoration.limits.player-24h",6),config.getInt("restoration.limits.server-24h",120),config.getInt("restoration.limits.mailbox",30),config.getInt("restoration.search-radius",5000),parts);}
+    public RestorationBook.Recipe recipe(String artifact,String rarity){return new RestorationBook.Recipe(artifact,rarity,parts.getOrDefault(rarity,8));}
+}

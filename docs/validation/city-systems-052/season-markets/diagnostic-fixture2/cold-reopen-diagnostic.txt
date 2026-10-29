@@ -1,0 +1,5 @@
+Diagnostic only, not native restart proof.
+Actual ProductionRepository from final Specialization0.3.0 JAR plus the same Folia sqlite-jdbc3.49.1 runtime opened a raw copy of first-db/production.sqlite in three independent JVMs. Each found four entries with HELD/EXPIRED/SWAPPED/CANCELLED and closed normally. Original source DB was never opened.
+
+import java.nio.file.*;import java.util.concurrent.*;import ru.neverland.townyspecialization.production.ProductionRepository;
+public class Reopen {public static void main(String[] args)throws Exception{var p=Path.of(args[0]);var r=new ProductionRepository(p);r.ready().toCompletableFuture().get(5,TimeUnit.SECONDS);var rows=r.goodsEntries(java.util.UUID.fromString("fa87f87d-aea3-364e-85a3-187fb931ecad"),1).toCompletableFuture().get(5,TimeUnit.SECONDS);System.out.println(rows.stream().map(x->x.terms().id()+":"+x.state()).toList());if(rows.size()!=4)throw new AssertionError("rows="+rows.size());r.closeAsync().toCompletableFuture().get(5,TimeUnit.SECONDS);}}

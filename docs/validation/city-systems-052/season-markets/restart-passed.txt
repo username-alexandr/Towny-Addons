@@ -1,0 +1,1 @@
+PASS 17 checks; actual Folia26.2 Towny Contracts Specialization Seasons SQLite calendars, explicit two-mayor menus, delayed physical ACK, conservation, neutral cancellation, optional isolation, full JVM restart. Explicit offline players/schedulers, working-building cache, inventory-confirmed deliveries; no network client or money claimed.

@@ -35,9 +35,11 @@ public final class TownyArchaeology extends JavaPlugin {
     private MuseumService museums;
     private SiteService sites;
     private BukkitTask autosave;
+    private ru.neverland.archaeology.restoration.RestorationService restoration;
+    private ru.neverland.archaeology.restoration.RestorationMenu restorationMenus;
 
     @Override
-    public void onEnable() { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
+    public void onEnable() {
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 
         ru.neverland.archaeology.util.LegacyDataMigrator.migrate(this, "TownyArchaeology");
@@ -54,13 +56,18 @@ public final class TownyArchaeology extends JavaPlugin {
         artifacts = new ArtifactService(this, registry, repository, itemsAdder, messages);
         museums = new MuseumService(this, towny, registry, repository, artifacts, messages);
         sites = new SiteService(this, towny, registry, repository, artifacts);
+        restoration = new ru.neverland.archaeology.restoration.RestorationService(this, registry, repository, artifacts);
+        restorationMenus = new ru.neverland.archaeology.restoration.RestorationMenu(this, restoration);
         ArchaeologyMenuManager menus = new ArchaeologyMenuManager(this, towny, registry, repository,
                 artifacts, museums, itemsAdder, messages);
+        menus.restoration(restorationMenus);
         getServer().getPluginManager().registerEvents(artifacts, this);
         getServer().getPluginManager().registerEvents(sites, this);
         getServer().getPluginManager().registerEvents(menus, this);
+        getServer().getPluginManager().registerEvents(restoration, this);
+        getServer().getPluginManager().registerEvents(restorationMenus, this);
 
-        ArchaeologyCommand userExecutor = new ArchaeologyCommand(registry, artifacts, museums, sites, menus, messages);
+        ArchaeologyCommand userExecutor = new ArchaeologyCommand(registry, artifacts, museums, sites, menus, messages, restorationMenus);
         PluginCommand user = getCommand("archaeology");
         if (user != null) {
             user.setExecutor(userExecutor);
@@ -92,7 +99,7 @@ public final class TownyArchaeology extends JavaPlugin {
                 + " включён: артефактов " + registry.artifacts().size()
                 + ", участков " + repository.sites().size() + ", /t archaeology=true, /t museum="
                 + museumCommand + ", PlaceholderAPI=" + papi + ".");
-    } }
+    }
 
     @Override
     public void onDisable() { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
@@ -100,19 +107,24 @@ public final class TownyArchaeology extends JavaPlugin {
 
         if (sites != null) sites.stop();
         if (autosave != null) autosave.cancel();
+        if (restoration != null) restoration.prepareClose();
         if (repository != null && repository.writable()) repository.save();
         if (towny != null) {
             for (String name : USER_TOWN_COMMANDS) towny.unregister(name);
             towny.unregister("museum");
         }
         getServer().getServicesManager().unregisterAll(this);
-    } }
+    } if(restoration!=null)restoration.awaitClosed(); }
+
+    public ru.neverland.archaeology.restoration.RestorationService restoration(){return restoration;}
+    public ru.neverland.archaeology.restoration.RestorationMenu restorationMenus(){return restorationMenus;}
 
     public void reloadPlugin() { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         reloadConfig();
         messages.reload();
         itemsAdder.reload();
         registry.reload();
+        if(restoration!=null)restoration.reloadSettings();
         sites.start();
         startAutosave();
     } }

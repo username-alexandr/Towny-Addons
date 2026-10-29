@@ -1,5 +1,5 @@
 name: NeverLandTownyIdeologies
-version: 0.2.0
+version: 0.2.1
 main: ru.neverland.townyideologies.NeverLandTownyIdeologies
 folia-supported: true
 api-version: '26.2'
@@ -11,7 +11,7 @@ softdepend: [ItemsAdder, Vault, PlaceholderAPI]
 commands:
   townyideologies:
     description: Администрирование городских идеологий
-    usage: /townyideologies <reload|info|set|reset>
+    usage: /townyideologies <reload|info|set|reset|reform|sync-payment|retry-payment|reconcile>
     aliases: [nlti, neverlandtownyideologies]
     permission: neverlandtownyideologies.admin
 permissions:
