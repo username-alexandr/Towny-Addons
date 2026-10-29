@@ -1,0 +1,22 @@
+PASS real Builds payment and Treasury providers enabled
+PASS exclusive open warehouse is registered
+PASS open warehouse prevents a full snapshot from racing a vanilla inventory transfer
+PASS native file replacement lock exists after initial save
+PASS delayed fsync publishes neither reservation nor upgrade nor bank debit
+PASS retained town cannot mutate during write but reads remain available
+PASS retained resource fund cannot bypass pending snapshot
+PASS filesystem wait leaves the shared ledger available and does not charge early
+PASS one exact debit precedes acknowledged virtual upgrade
+PASS initiating player remains identical in core and bank receipt
+PASS paid materials consumed once and surplus returned once
+PASS insurance reserve grows only after exact treasury debit
+PASS paid physical blueprint activates only after saved bank acknowledgement
+PASS player cancellation returns the saved amount minus the configured fee once
+PASS all cancellation materials reach town warehouse before receipt is closed
+PASS paid physical blueprint activates only after saved bank acknowledgement
+PASS administrator cancellation returns the entire paid amount once
+PASS all cancellation materials reach town warehouse before receipt is closed
+PASS definitive bank refusal restores all reserved materials without creating money or an upgrade
+PASS both physical purchases and both refunds have exactly one bank effect
+PASS unavailable installed Treasury refuses before taking the resource fund or using a direct bank fallback
+PASS paused owner preserves accepted unpaid intent and never publishes upgrade

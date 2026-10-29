@@ -30,7 +30,7 @@ public record BuildPayment(Terms terms,Phase phase,int effectIndex,String audite
     }
     public BuildPayment {if(auditedPhase==null)auditedPhase="";if(auditedPhase.length()>80)throw new IllegalArgumentException("Повреждён этап аудита");Objects.requireNonNull(terms);Objects.requireNonNull(phase);if(effectIndex<0||effectIndex>terms.commands().size()+1)throw new IllegalArgumentException("Повреждён указатель эффектов");if(phaseAt==0)phaseAt=terms.created();if(phaseAt<terms.created()||revision<0)throw new IllegalArgumentException("Повреждена последовательность оплаты");}
     public String auditKey(){return phase.name()+":"+effectIndex+":"+revision;}
-    public String auditOutcome(){return switch(phase){case PREPARED->"PREPARED";case PAID,READY,APPLIED->"PENDING";case ARTIFACT_PENDING,EFFECTS_PENDING->"REVIEW";case REFUNDING->"REFUNDING";case COMPLETE->"COMPLETED";case REFUNDED->"REFUNDED";case REJECTED->"REJECTED";};}
+    public String auditOutcome(){return switch(phase){case PREPARED->"PREPARED";case PAID,READY,APPLIED->"PENDING";case ARTIFACT_PENDING,EFFECTS_PENDING->"REVIEW";case REFUNDING->"PAYING";case COMPLETE->"COMPLETED";case REFUNDED->"REFUNDED";case REJECTED->"REJECTED";};}
     public boolean needsAudit(){return !auditKey().equals(auditedPhase);}
     public BuildPayment auditConfirmed(){return new BuildPayment(terms,phase,effectIndex,auditKey(),phaseAt,revision);}
     public boolean pending(){return !Set.of(Phase.COMPLETE,Phase.REFUNDED,Phase.REJECTED).contains(phase);}

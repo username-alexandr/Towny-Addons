@@ -6,7 +6,7 @@ platform:
   bytecode_java: 17
 addons:
   NeverLandTownyArchaeology: 0.2.0
-  NeverLandTownyBuilds: 0.11.1
+  NeverLandTownyBuilds: 0.11.2
   NeverLandTownyCamps: 0.2.0
   NeverLandTownyChronicles: 0.3.0
   NeverLandTownyContracts: 0.8.1

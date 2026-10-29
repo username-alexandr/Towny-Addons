@@ -47,6 +47,7 @@ public final class BuildPaymentsSmoke {
         var unknown=proof(terms);unknown.put("status","SUCCESS");refuses(()->BuildTreasury.verify(unknown,terms));
         for(String status:List.of("PREPARED","INVOKING","REVIEW","REJECTED")){var receipt=proof(terms);receipt.put("status",status);receipt.put("backingAvailable",false);check(BuildTreasury.verify(receipt,terms).get("status").equals(status),"non-paid status remains non-paid: "+status);}
         var returning=paid.phase(Phase.REFUNDING);check(returning.pending()&&!returning.phase(Phase.REFUNDED).pending(),"refund receipt remains pending until exact core completion");
+        check(returning.auditOutcome().equals("PAYING")&&returning.phase(Phase.REFUNDED).auditOutcome().equals("REFUNDED"),"Control keeps a refund pending until terminal refund evidence");
         refuses(()->returning.phase(Phase.PAID));refuses(()->prepared.phase(Phase.REJECTED).phase(Phase.PREPARED));
         System.out.println("BuildPaymentsSmoke PASS "+checks+" checks; immutable terms, unknown effects, backed exact receipts and audit restart");
     }

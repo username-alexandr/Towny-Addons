@@ -1,0 +1,26 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 22 checks; actual Folia/Towny/Builds/Treasury, delayed native file writer, bank ordering, virtual and physical purchases, insurance, cancellation and JVM restart; explicit offline player, accepted-project and deterministic bank fixtures; no live Vault/client claimed\n",
+    "audited_terminal_receipts": 5,
+    "jar_sha256": {
+      "BuildPaymentsRuntimeProbe.jar": "1508d6697fcfc57454592fd87028ab5281eaea76f09a61582e1101cb409e0863",
+      "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+      "NeverLandTownyBuilds-0.11.2.jar": "f3e7b52b688ede80e2cba74e65647af3fbfc00dc41dc279a324124566db71953",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 8 checks; actual Folia/Towny/Builds/Treasury, delayed native file writer, bank ordering, virtual and physical purchases, insurance, cancellation and JVM restart; explicit offline player, accepted-project and deterministic bank fixtures; no live Vault/client claimed\n",
+    "audited_terminal_receipts": 6,
+    "jar_sha256": {
+      "BuildPaymentsRuntimeProbe.jar": "1508d6697fcfc57454592fd87028ab5281eaea76f09a61582e1101cb409e0863",
+      "NeverLandTownyTreasuryPlus-0.3.2.jar": "c79e2035ba974d365151d1e785a63eab510c3f1d6b8ba414c6ae2f9ea6d09bd2",
+      "NeverLandTownyBuilds-0.11.2.jar": "f3e7b52b688ede80e2cba74e65647af3fbfc00dc41dc279a324124566db71953",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  }
+]
