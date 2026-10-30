@@ -1,0 +1,30 @@
+name: Builds hotfix
+
+on:
+  pull_request:
+    paths:
+      - 'modules/NeverLandTownyBuilds/**'
+      - 'scripts/api-v1-baseline.tsv'
+      - '.github/workflows/build-builds-hotfix.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  builds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.0.0'
+      - run: python scripts/build_suite.py Builds --stage dist/plugins
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NeverLandTownyBuilds-hotfix
+          path: dist/plugins/NeverLandTownyBuilds-*.jar
+          if-no-files-found: error
