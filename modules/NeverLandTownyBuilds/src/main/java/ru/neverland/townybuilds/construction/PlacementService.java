@@ -25,7 +25,7 @@ import ru.neverland.townybuilds.util.ColorUtil;
 public final class PlacementService implements Listener,CommandExecutor {
     private final JavaPlugin plugin;private final TownyHook towny;private final DataStore data;private final DefinitionRegistry definitions;
     private final ConstructionService construction;private final BuildService builds;private final NamespacedKey token,townKey,projectKey;
-    private final Map<UUID,Session> sessions=new HashMap<>();private BukkitTask timer;
+    private final Map<UUID,Session> sessions=new HashMap<>();private BukkitTask timer,blueprintCleanup;
     private static final class Controls {final UUID id=UUID.randomUUID();long sequence,nextInput;}
     private static final class Session {
         final UUID town;final String project;final PlacementDraft draft;final PlacementChoice choice;final ConstructionPreparation check;
@@ -41,8 +41,8 @@ public final class PlacementService implements Listener,CommandExecutor {
         this.plugin=plugin;this.towny=towny;this.data=data;this.definitions=definitions;this.construction=construction;this.builds=builds;
         token=new NamespacedKey(plugin,"placement_token");townKey=new NamespacedKey(plugin,"placement_town");projectKey=new NamespacedKey(plugin,"placement_project");
     }
-    public void start(){stop();timer=SuiteScheduler.get().runTaskTimer(plugin,this::tick,2,2);}
-    public void stop(){if(timer!=null)timer.cancel();timer=null;for(UUID id:List.copyOf(sessions.keySet()))close(id);}
+    public void start(){stop();timer=SuiteScheduler.get().runTaskTimer(plugin,this::tick,2,2);blueprintCleanup=SuiteScheduler.get().runTaskTimer(plugin,this::cleanupOnline,20,20);}
+    public void stop(){if(timer!=null)timer.cancel();timer=null;if(blueprintCleanup!=null)blueprintCleanup.cancel();blueprintCleanup=null;for(UUID id:List.copyOf(sessions.keySet()))close(id);}
     private void close(UUID id){var s=sessions.remove(id);if(s!=null)s.projection.close();}
     private Town resident(Player p){
         if(!plugin.isEnabled()||SuiteState.frozen(plugin.getName())||!data.writable())throw new IllegalArgumentException("Строительство временно недоступно");
@@ -72,6 +72,26 @@ public final class PlacementService implements Listener,CommandExecutor {
         player.getInventory().addItem(item);player.sendMessage("§aЧертёж выдан. ПКМ по земле — проекция, Shift + ПКМ — меню перемещения, поворота и подтверждения. /nltplace — то же меню.");
     }}
     private boolean matches(ItemStack item,UUID id){return item!=null&&item.hasItemMeta()&&id.toString().equals(item.getItemMeta().getPersistentDataContainer().get(token,PersistentDataType.STRING));}
+    /** A paid site is first saved as paused. Keep the item until the debit and site activation are durable. */
+    private void cleanupOnline(){
+        for(Player player:Bukkit.getOnlinePlayers())SuiteScheduler.entity(plugin,player,()->{if(player.isOnline())retirePlacedBlueprints(player);});
+    }
+    private void retirePlacedBlueprints(Player player){try(var guard=SuiteState.guard()){
+        if(!plugin.isEnabled()||data.busy())return;
+        var inventory=player.getInventory();
+        for(int slot=0;slot<inventory.getSize();slot++){
+            var item=inventory.getItem(slot);if(item==null||!item.hasItemMeta())continue;
+            var tags=item.getItemMeta().getPersistentDataContainer();
+            String id=tags.get(token,PersistentDataType.STRING),owner=tags.get(townKey,PersistentDataType.STRING),project=tags.get(projectKey,PersistentDataType.STRING);
+            if(id==null||owner==null||project==null)continue;
+            UUID townId;try{townId=UUID.fromString(owner);UUID.fromString(id);}catch(IllegalArgumentException invalid){continue;}
+            var state=data.existingTown(townId);if(state==null)continue;
+            var draft=state.placements().get(project);if(draft!=null)continue;
+            var site=state.constructionSite(project);var receipt=state.constructionReceipts().get(project);
+            if(site!=null&&!site.adminPaused()&&receipt!=null&&receipt.level()==site.targetStage()
+                &&Set.of("ACTIVE","COMPLETE").contains(receipt.state()))inventory.setItem(slot,null);
+        }
+    }}
     private void use(Player p,ItemStack item,Location clicked){
         var meta=item.getItemMeta().getPersistentDataContainer();Town town=resident(p);String project=meta.get(projectKey,PersistentDataType.STRING);
         if(!town.getUUID().toString().equals(meta.get(townKey,PersistentDataType.STRING)))throw new IllegalArgumentException("Этот чертёж относится к другому городу");
@@ -165,12 +185,12 @@ public final class PlacementService implements Listener,CommandExecutor {
         Town t=resident(p);if(sessions.get(p.getUniqueId())!=s||!t.getUUID().equals(s.town)||!s.draft.equals(data.town(s.town).placements().get(s.project)))throw new IllegalArgumentException("Выбор изменился. Откройте чертёж заново.");
         if(!s.projection.complete())throw new IllegalArgumentException("Дождитесь полной проекции");
         var result=builds.upgradeAt(p,definitions.project(s.project),s.choice);
-        if(result.status()==UpgradeResult.Status.PAYMENT_PENDING){close(p.getUniqueId());p.closeInventory();p.sendMessage("§eМесто и оплата сохраняются. Стройка откроется после подтверждения казны; чертёж повторно не используйте.");return;}
+        if(result.status()==UpgradeResult.Status.PAYMENT_PENDING){close(p.getUniqueId());p.closeInventory();p.sendMessage("§eМесто и оплата сохраняются. После подтверждения казны чертёж исчезнет, а стройка откроется.");return;}
         if(result.status()!=UpgradeResult.Status.CONSTRUCTION_STARTED){
             p.sendMessage("§e"+switch(result.status()){case NOT_MAYOR->"Подтвердить место может мэр или уполномоченный строитель.";case NOT_ENOUGH_MONEY,ECONOMY_ERROR->"Не хватает денег в казне или экономика недоступна.";case PAYMENT_UNAVAILABLE->"Оплата недоступна: городская казна временно не работает.";case BUDGET_UNAVAILABLE->"В бюджете строительства не хватает средств.";case NOT_ENOUGH_RESOURCES->"В фонде не хватает ресурсов.";case CONSTRUCTION_IN_PROGRESS->"Проверьте состояние стройки и возврата в меню здания.";default->result.missingResources().isEmpty()?"Место или условия строительства изменились. Выберите место заново.":String.join("; ",result.missingResources());});p.closeInventory();return;
         }
         var state=data.town(s.town);state.placement(s.project,null);try{data.saveOrThrow();}catch(Exception e){state.placement(s.project,s.draft);plugin.getLogger().warning("Стройка запущена, старый чертёж будет заблокирован площадкой: "+e.getMessage());}
-        for(int i=0;i<p.getInventory().getSize();i++)if(matches(p.getInventory().getItem(i),s.draft.id()))p.getInventory().setItem(i,null);
+        retirePlacedBlueprints(p);
         AuditTrail.record(plugin,"placed",s.draft.id().toString(),"CONSTRUCTION_REFUND","PLACED",AuditTrail.player(p.getUniqueId()),AuditTrail.town(s.town),AuditTrail.town(s.town),"",0,"",s.project+" "+s.choice);
         close(p.getUniqueId());p.closeInventory();p.sendMessage("§aМесто подтверждено. Стройка началась; устанавливайте подсвеченные блоки по слоям.");
     }
@@ -188,6 +208,7 @@ public final class PlacementService implements Listener,CommandExecutor {
     }}
     @EventHandler public void drag(InventoryDragEvent e){if(e.getView().getTopInventory().getHolder() instanceof PlacementMenu)e.setCancelled(true);}
     @EventHandler public void quit(PlayerQuitEvent e){try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()){close(e.getPlayer().getUniqueId());}}
+    @EventHandler public void join(PlayerJoinEvent e){SuiteScheduler.entity(plugin,e.getPlayer(),()->{if(e.getPlayer().isOnline())retirePlacedBlueprints(e.getPlayer());});}
     @EventHandler public void world(PlayerChangedWorldEvent e){try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()){close(e.getPlayer().getUniqueId());}}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()){
         if(!(sender instanceof Player p)){sender.sendMessage("Команда доступна в игре");return true;}
