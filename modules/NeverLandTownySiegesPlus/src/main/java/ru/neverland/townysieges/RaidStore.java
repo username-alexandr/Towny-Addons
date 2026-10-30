@@ -17,6 +17,7 @@ public final class RaidStore implements AutoCloseable {
     public record Result(Hit hit,double hp,String receipt){}
     public record Health(double hp,double maximum,long lastHit){}
     public record Audit(String actor,String attacker,String defender,String action,long time,int blocks){}
+    public record Objective(UUID raid,String kind,int required,int achieved){}
     private final ThreadPoolExecutor worker;
     private final Consumer<Throwable> failure;
     private volatile boolean healthy,closed;
@@ -38,6 +39,7 @@ public final class RaidStore implements AutoCloseable {
             try(var s=db.createStatement()) {
                 s.execute("PRAGMA journal_mode=WAL");s.execute("PRAGMA synchronous=FULL");s.execute("PRAGMA busy_timeout=3000");
                 s.execute("CREATE TABLE IF NOT EXISTS raids(id TEXT PRIMARY KEY,attacker TEXT NOT NULL,defender TEXT NOT NULL,actor TEXT NOT NULL,created INTEGER NOT NULL,starts INTEGER NOT NULL,ends INTEGER NOT NULL,next INTEGER NOT NULL,state TEXT NOT NULL)");
+                s.execute("CREATE TABLE IF NOT EXISTS raid_objectives(raid TEXT PRIMARY KEY,kind TEXT NOT NULL,required INTEGER NOT NULL)");
                 s.execute("CREATE TABLE IF NOT EXISTS hp(key TEXT PRIMARY KEY,town TEXT NOT NULL,material TEXT NOT NULL,generation INTEGER NOT NULL,maximum REAL NOT NULL,hp REAL NOT NULL,last_hit INTEGER NOT NULL,receipt TEXT NOT NULL)");
                 s.execute("CREATE TABLE IF NOT EXISTS impacts(blast TEXT NOT NULL,key TEXT NOT NULL,at INTEGER NOT NULL,PRIMARY KEY(blast,key))");
                 s.execute("CREATE TABLE IF NOT EXISTS owners(key TEXT PRIMARY KEY,actor TEXT NOT NULL)");
@@ -92,8 +94,13 @@ public final class RaidStore implements AutoCloseable {
             while(r.next())list.add(new Raid(UUID.fromString(r.getString("id")),UUID.fromString(r.getString("attacker")),UUID.fromString(r.getString("defender")),UUID.fromString(r.getString("actor")),r.getLong("created"),r.getLong("starts"),r.getLong("ends"),r.getLong("next"),r.getString("state")));
         }return List.copyOf(list);
     }
-    public CompletionStage<List<Raid>> start(Raid raid) {return submit(()->transaction(()->{
+    public CompletionStage<List<Raid>> start(Raid raid) {return start(raid,"LEGACY",0);}
+    /** Objective is frozen in the same commit as declaration; old rows remain legacy raids. */
+    public CompletionStage<List<Raid>> start(Raid raid,String objective,int required) {
+        if(raid==null||!Set.of("LEGACY","CORE","CHUNKS").contains(objective)||required!=(objective.equals("CHUNKS")?Math.max(1,Math.min(16,required)):objective.equals("CORE")?1:0))throw new IllegalArgumentException("Неверная цель рейда");
+        return submit(()->transaction(()->{
         expireSql(raid.created());
+        try(var p=db.prepareStatement("DELETE FROM raid_objectives WHERE raid IN (SELECT id FROM raids WHERE ends<=? AND next<=?)")){p.setLong(1,raid.created());p.setLong(2,raid.created());p.executeUpdate();}
         try(var p=db.prepareStatement("DELETE FROM raids WHERE ends<=? AND next<=?")){p.setLong(1,raid.created());p.setLong(2,raid.created());p.executeUpdate();}
         for(Raid old:readRaids()) {
             if(old.live(raid.created())&&(old.attacker().equals(raid.attacker())||old.defender().equals(raid.attacker())||old.attacker().equals(raid.defender())||old.defender().equals(raid.defender())))throw new IllegalArgumentException("Один из городов уже участвует в рейде");
@@ -102,12 +109,35 @@ public final class RaidStore implements AutoCloseable {
         try(var p=db.prepareStatement("INSERT INTO raids VALUES(?,?,?,?,?,?,?,?,?)")) {
             p.setString(1,raid.id().toString());p.setString(2,raid.attacker().toString());p.setString(3,raid.defender().toString());p.setString(4,raid.actor().toString());p.setLong(5,raid.created());p.setLong(6,raid.starts());p.setLong(7,raid.ends());p.setLong(8,raid.next());p.setString(9,raid.state());p.executeUpdate();
         }
+        try(var p=db.prepareStatement("INSERT INTO raid_objectives(raid,kind,required) VALUES(?,?,?)")){
+            p.setString(1,raid.id().toString());p.setString(2,objective);p.setInt(3,required);p.executeUpdate();
+        }
         audit(raid.actor().toString(),raid.attacker().toString(),raid.defender().toString(),"DECLARE",raid.created(),0);
         return readRaids();
     }));}
+    private Objective objectiveSql(UUID raid)throws SQLException{
+        String kind="LEGACY";int required=0;
+        try(var p=db.prepareStatement("SELECT kind,required FROM raid_objectives WHERE raid=?")){p.setString(1,raid.toString());try(var r=p.executeQuery()){if(r.next()){kind=r.getString(1);required=r.getInt(2);}}}
+        int achieved=0;
+        if(kind.equals("CHUNKS"))try(var p=db.prepareStatement("SELECT COUNT(*) FROM war_chunks WHERE raid=? AND state='CAPTURED'")){p.setString(1,raid.toString());try(var r=p.executeQuery()){if(r.next())achieved=r.getInt(1);}}
+        if(kind.equals("CORE"))try(var p=db.prepareStatement("SELECT COUNT(*) FROM raid_loot WHERE raid=? AND state='DONE'")){p.setString(1,raid.toString());try(var r=p.executeQuery()){if(r.next())achieved=r.getInt(1);}}
+        return new Objective(raid,kind,required,achieved);
+    }
+    public CompletionStage<Objective> objective(UUID raid){if(raid==null)throw new IllegalArgumentException("Рейд не указан");return submit(()->objectiveSql(raid));}
+    /** Victory and release share the transaction, so a late capture cannot change the result. */
+    public CompletionStage<List<Raid>> victory(UUID raid,UUID attacker,UUID actor,long now){
+        if(raid==null||attacker==null||actor==null||now<0)throw new IllegalArgumentException("Неверная заявка о победе");
+        return submit(()->transaction(()->{
+            Raid previous=readRaids().stream().filter(r->r.id().equals(raid)).findFirst().orElseThrow(()->new IllegalArgumentException("Рейд не найден"));
+            if(!previous.attacker().equals(attacker)||!previous.state().equals("OPEN")||!previous.fighting(now)||!previous.fighting(System.currentTimeMillis()))throw new IllegalArgumentException("Победу можно объявить только во время своего рейда");
+            Objective goal=objectiveSql(raid);
+            if(goal.kind().equals("LEGACY")||goal.required()<1||goal.achieved()<goal.required())throw new IllegalArgumentException("Цель рейда ещё не выполнена");
+            concludeSql(raid,"VICTORY",actor.toString(),now);return readRaids();
+        }));
+    }
     /** Exact-ID completion is idempotent only for the same outcome. Cooldown remains unchanged. */
     public CompletionStage<List<Raid>> conclude(UUID raid,String outcome,String actor,long now){
-        if(raid==null||actor==null||now<0||!Set.of("CANCELLED","EXPIRED","SURRENDERED","VICTORY").contains(outcome))throw new IllegalArgumentException("Неверное завершение рейда");
+        if(raid==null||actor==null||now<0||!Set.of("CANCELLED","EXPIRED").contains(outcome))throw new IllegalArgumentException("Неверное завершение рейда");
         return submit(()->transaction(()->{concludeSql(raid,outcome,actor,now);return readRaids();}));
     }
     private boolean concludeSql(UUID raid,String outcome,String actor,long now)throws Exception{

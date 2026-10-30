@@ -115,7 +115,10 @@ public final class RaidController {
     public boolean physicalGate(Player player,UUID defender) {
         try{return authorize(player,defender)!=null;}catch(Exception|LinkageError denied){return false;}
     }
-    public void declare(Player actor,String name)throws Exception {
+    public void declare(Player actor,String name)throws Exception {declare(actor,name,"core");}
+    public void declare(Player actor,String name,String objective)throws Exception {
+        String goal=objective.toLowerCase(Locale.ROOT);
+        if(!Set.of("core","chunks").contains(goal))throw new IllegalArgumentException("Цель: core (кафедра) или chunks (участки)");
         if(!ready())throw new IllegalArgumentException("Рейды отключены или хранилище ещё загружается");
         if(siegeWarInstalled())throw new IllegalArgumentException("Войнами управляет SiegeWar. Боевой TNT работает в его боевых сессиях");
         if(!actor.hasPermission("neverlandtownysiegesplus.raid.use"))throw new IllegalArgumentException("Нет прав на рейды");
@@ -125,24 +128,42 @@ public final class RaidController {
         if(actor.getGameMode()!=GameMode.SURVIVAL||!mobilized(actor.getUniqueId())||!commander(actor,own))
             throw new IllegalArgumentException("Рейд объявляет мобилизованный мэр или генерал");
         if(plugin.camps()!=null&&plugin.camps().settings().enabled()){
-            plugin.camps().muster(actor,target,()->{try{validateCommander(actor,own,target);defenders(target);if(plugin.supplies()!=null)plugin.supplies().declaration(own.getUUID());plugin.hours().declaration(target.getUUID(),System.currentTimeMillis(),(settings.warmupSeconds()+settings.durationSeconds())*1000L);if(plugin.repairs()!=null&&plugin.repairs().busy(target.getUUID()))throw new IllegalArgumentException("У города завершается ремонт");start(actor,own,target);}catch(Exception error){reply(actor,error.getMessage());}});return;
+            plugin.camps().muster(actor,target,()->{try{validateCommander(actor,own,target);defenders(target);if(plugin.supplies()!=null)plugin.supplies().declaration(own.getUUID());plugin.hours().declaration(target.getUUID(),System.currentTimeMillis(),(settings.warmupSeconds()+settings.durationSeconds())*1000L);if(plugin.repairs()!=null&&plugin.repairs().busy(target.getUUID()))throw new IllegalArgumentException("У города завершается ремонт");start(actor,own,target,goal);}catch(Exception error){reply(actor,error.getMessage());}});return;
         }
-        start(actor,own,target);
+        start(actor,own,target,goal);
     }
     void validateCommander(Player actor,Town own,Town target)throws Exception{
         if(!ready())throw new IllegalArgumentException("Рейды сейчас недоступны");relations(own,target);var current=SiegeService.town(actor.getUniqueId());
         if(current==null||!current.getUUID().equals(own.getUUID())||!actor.hasPermission("neverlandtownysiegesplus.raid.use")||actor.getGameMode()!=GameMode.SURVIVAL||!mobilized(actor.getUniqueId())||!commander(actor,own))throw new IllegalArgumentException("Нужен мобилизованный мэр или генерал своего города");
     }
-    private void start(Player actor,Town own,Town target){
+    private void start(Player actor,Town own,Town target,String goal){
+        if(goal.equals("core")&&!plugin.loot().settings().enabled()){reply(actor,"&eЗахват кафедры отключён. Выберите цель chunks.");return;}
+        if(goal.equals("chunks")&&!plugin.getConfig().getBoolean("war-chunks.enabled",true)){reply(actor,"&eЗахват участков отключён. Выберите цель core.");return;}
+        int required=goal.equals("core")?1:plugin.getConfig().getInt("war-objectives.chunks-required",2);
+        if(required<1||required>16){reply(actor,"&eНеверное значение war-objectives.chunks-required (1–16)");return;}
         long now=System.currentTimeMillis(),start=now+settings.warmupSeconds()*1000L,end=start+settings.durationSeconds()*1000L;
         var raid=new RaidStore.Raid(UUID.randomUUID(),own.getUUID(),target.getUUID(),actor.getUniqueId(),now,start,end,end+settings.cooldownSeconds()*1000L,"OPEN");
-        store.start(raid).whenComplete((rows,error)->{if(error==null&&!closed)raids=rows;publish(()->{
+        store.start(raid,goal.equals("core")?"CORE":"CHUNKS",required).whenComplete((rows,error)->{if(error==null&&!closed)raids=rows;publish(()->{
             if(error!=null){reply(actor,"&e"+problem(error));return;}
             if(plugin.camps()!=null&&!plugin.camps().active(own.getUUID(),target.getUUID())){cancel(Bukkit.getConsoleSender(),target.getUUID());reply(actor,"Лагерь потерян до начала рейда");return;}
             AuditTrail.record(plugin,"declare",raid.id().toString(),"RAID_DECLARED","READY",AuditTrail.player(actor.getUniqueId()),AuditTrail.town(own.getUUID()),AuditTrail.town(target.getUUID()),"",0,"","Подготовка "+settings.warmupSeconds()+" сек.; бой "+settings.durationSeconds()+" сек.");
-            notifyTown(own.getUUID(),"Рейд на "+target.getName()+" объявлен. Подготовка: "+settings.warmupSeconds()+" сек. Боевой TNT — только для мобилизованных.");
-            notifyTown(target.getUUID(),"Город "+own.getName()+" объявил рейд. Подготовка: "+settings.warmupSeconds()+" сек. Проверьте ворота и оборону. Выход защитников из игры не останавливает объявленный рейд.");
+            String objective=goal.equals("core")?"кафедра ратуши и завершённая выдача добычи":"захват "+required+" участков";
+            notifyTown(own.getUUID(),"Рейд на "+target.getName()+" объявлен. Цель: "+objective+". Подготовка: "+settings.warmupSeconds()+" сек. Боевой TNT — только для мобилизованных.");
+            notifyTown(target.getUUID(),"Город "+own.getName()+" объявил рейд. Цель: "+objective+". Подготовка: "+settings.warmupSeconds()+" сек. Проверьте оборону.");
         });});
+    }
+    public void claim(Player actor)throws Exception{
+        if(!ready()||siegeWarInstalled())throw new IllegalArgumentException("Подведение итогов армейского рейда недоступно");
+        Town own=SiegeService.town(actor.getUniqueId());if(own==null||!actor.hasPermission("neverlandtownysiegesplus.raid.use")||!commander(actor,own))throw new IllegalArgumentException("Победу объявляет мэр или генерал нападающего города");
+        var raid=raids.stream().filter(r->r.attacker().equals(own.getUUID())&&r.fighting(System.currentTimeMillis())).findFirst().orElseThrow(()->new IllegalArgumentException("Ваш город сейчас не атакует"));
+        UUID id=raid.id(),attacker=own.getUUID(),player=actor.getUniqueId();
+        store.victory(id,attacker,player,System.currentTimeMillis()).whenComplete((rows,error)->{
+            if(error==null&&!closed)raids=rows;
+            publish(()->{if(error!=null){reply(actor,"&e"+problem(error));return;}
+                AuditTrail.record(plugin,"victory",id.toString(),"RAID_VICTORY","VICTORY",AuditTrail.player(player),AuditTrail.town(attacker),AuditTrail.town(raid.defender()),"",0,"","Цель подтверждена хранилищем; временный контроль снят");
+                notifyTown(attacker,"Цель рейда достигнута. Временный захват участков завершён.");notifyTown(raid.defender(),"Рейд завершён: нападающие достигли цели.");
+            });
+        });
     }
     public void cancel(CommandSender sender,UUID town) {
         var cancelled=raids.stream().filter(r->(r.attacker().equals(town)||r.defender().equals(town))&&r.live(System.currentTimeMillis())).toList();
@@ -158,7 +179,10 @@ public final class RaidController {
         reply(sender,"TNT: "+(healthy()?"готов":"отключён/армия или хранилище недоступны")+"; источник рейдов: "+(siegeWarInstalled()?"SiegeWar":"армия города"));
         for(var r:raids)if(r.live(System.currentTimeMillis())) {
             var target=TownyAPI.getInstance().getTown(r.defender());var attacker=TownyAPI.getInstance().getTown(r.attacker());
-            reply(sender,(attacker==null?r.attacker():attacker.getName())+" → "+(target==null?r.defender():target.getName())+": "+(r.fighting(System.currentTimeMillis())?"идёт бой":"подготовка"));
+            String label=(attacker==null?r.attacker():attacker.getName())+" → "+(target==null?r.defender():target.getName())+": "+(r.fighting(System.currentTimeMillis())?"идёт бой":"подготовка");
+            store.objective(r.id()).whenComplete((goal,error)->{if(error!=null){reply(sender,label+"; цель временно недоступна");return;}
+                reply(sender,label+"; цель="+switch(goal.kind()){case "CORE"->"кафедра и выдача добычи";case "CHUNKS"->"участки "+goal.achieved()+"/"+goal.required();default->"не задана для старого рейда";});
+            });
         }
     }
     public String phase(UUID town){return raids.stream().filter(r->(r.attacker().equals(town)||r.defender().equals(town))&&r.live(System.currentTimeMillis())).findFirst().map(r->r.fighting(System.currentTimeMillis())?"Идёт армейский рейд":"Подготовка к армейскому рейду").orElse("Армейских рейдов сейчас нет");}

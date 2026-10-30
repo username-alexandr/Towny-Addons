@@ -1,0 +1,10 @@
+{
+  "name": "NeverLandTownySiegesPlus-0.6.6.jar",
+  "sha256": "7af24efafee723581c9810ad3779dcb7516540fdd03647a94381ef7192970d38",
+  "cold_programs": 16,
+  "native_checks": {
+    "first": 53,
+    "restart": 18
+  },
+  "source_manifest": "META-INF/neverland-build.json"
+}

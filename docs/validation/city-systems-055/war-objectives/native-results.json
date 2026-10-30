@@ -1,0 +1,26 @@
+[
+  {
+    "phase": "first",
+    "exit_code": 0,
+    "result": "PASS 53 assertions; genuine Folia/Towny/TNT/SQLite, offline CraftPlayer actors and explicit Army/camp policy; no real-client Army session claimed\n",
+    "jar_sha256": {
+      "TntRuntimeProbe.jar": "c6c2ea9a208ac5f358a8f75242f7233ea9675f994dfa5f2ac9d0710756943ac4",
+      "NeverLandTownyControl-0.6.4.jar": "697563d4076866c43f689d700716538e74915c1d0aeead509512e05307aeff62",
+      "NeverLandTownySiegesPlus-0.6.6.jar": "7af24efafee723581c9810ad3779dcb7516540fdd03647a94381ef7192970d38",
+      "NeverLandTownyBuilds-0.11.2.jar": "f3e7b52b688ede80e2cba74e65647af3fbfc00dc41dc279a324124566db71953",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  },
+  {
+    "phase": "restart",
+    "exit_code": 0,
+    "result": "PASS 18 assertions; genuine Folia/Towny/TNT/SQLite, offline CraftPlayer actors and explicit Army/camp policy; no real-client Army session claimed\n",
+    "jar_sha256": {
+      "TntRuntimeProbe.jar": "c6c2ea9a208ac5f358a8f75242f7233ea9675f994dfa5f2ac9d0710756943ac4",
+      "NeverLandTownyControl-0.6.4.jar": "697563d4076866c43f689d700716538e74915c1d0aeead509512e05307aeff62",
+      "NeverLandTownySiegesPlus-0.6.6.jar": "7af24efafee723581c9810ad3779dcb7516540fdd03647a94381ef7192970d38",
+      "NeverLandTownyBuilds-0.11.2.jar": "f3e7b52b688ede80e2cba74e65647af3fbfc00dc41dc279a324124566db71953",
+      "Towny-0.103.2.0.jar": "c8d7d59984eaf2606fce4192e860f7f969f3384e5a51b26b97225efbbe747c70"
+    }
+  }
+]
