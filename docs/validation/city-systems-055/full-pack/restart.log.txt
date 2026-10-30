@@ -1,0 +1,462 @@
+Starting org.bukkit.craftbukkit.Main
+[13:47:33 INFO]: [bootstrap] Running Java 25 (OpenJDK 64-Bit Server VM 25.0.5+8-LTS; Azul Systems, Inc. Zulu25.38+107-CA) on Linux 6.18.55 (amd64)
+[13:47:33 INFO]: [bootstrap] Loading Folia 26.2-7-ver/26.2.x@14b7fee (2026-08-25T13:29:28Z) for Minecraft 26.2
+[13:47:33 INFO]: [PluginInitializerManager] Initializing plugins...
+[13:47:33 WARN]: Failed to get system info for Process Loads
+java.lang.NullPointerException: Cannot invoke "oshi.software.os.OSProcess.getUserTime()" because "process" is null
+	at net.minecraft.SystemReport.lambda$putProcessDetails$0(SystemReport.java:191) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.setDetail(SystemReport.java:96) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putProcessDetails(SystemReport.java:188) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$putSoftware$0(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putSoftware(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$new$7(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.<init>(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.<init>(CrashReport.java:32) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.preload(CrashReport.java:240) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+[13:47:33 WARN]: Failed to get system info for Process Virtual Size (MiB)
+java.lang.NullPointerException: Cannot invoke "oshi.software.os.OSProcess.getVirtualSize()" because "process" is null
+	at net.minecraft.SystemReport.lambda$putProcessDetails$1(SystemReport.java:208) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.setDetail(SystemReport.java:96) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putProcessDetails(SystemReport.java:208) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$putSoftware$0(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putSoftware(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$new$7(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.<init>(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.<init>(CrashReport.java:32) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.preload(CrashReport.java:240) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+[13:47:33 WARN]: Failed to get system info for Process Resident Size (MiB)
+java.lang.NullPointerException: Cannot invoke "oshi.software.os.OSProcess.getResidentSetSize()" because "process" is null
+	at net.minecraft.SystemReport.lambda$putProcessDetails$2(SystemReport.java:209) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.setDetail(SystemReport.java:96) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putProcessDetails(SystemReport.java:209) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$putSoftware$0(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.putSoftware(SystemReport.java:115) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.lambda$new$7(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.ignoreErrors(SystemReport.java:120) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.SystemReport.<init>(SystemReport.java:68) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.<init>(CrashReport.java:32) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at net.minecraft.CrashReport.preload(CrashReport.java:240) ~[folia-26.2.jar:26.2-7-14b7fee]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+[13:47:33 INFO]: [PluginInitializerManager] Initialized 42 plugins
+[13:47:33 INFO]: [PluginInitializerManager] Bukkit plugins (42):
+ - NeverLandTownyAchievements (0.2.0), NeverLandTownyArchaeology (0.2.0), NeverLandTownyArmy (0.3.0), NeverLandTownyBuilds (0.11.2), NeverLandTownyCamps (0.2.0), NeverLandTownyChronicles (0.3.0), NeverLandTownyCitizens (0.2.0), NeverLandTownyCompanies (0.3.0), NeverLandTownyContracts (0.8.1), NeverLandTownyControl (0.6.4), NeverLandTownyCouncil (0.3.0), NeverLandTownyCrime (0.2.0), NeverLandTownyDiplomacy (0.2.0), NeverLandTownyDistricts (0.2.3), NeverLandTownyElections (0.2.0), NeverLandTownyEnvironment (0.2.1), NeverLandTownyEspionage (0.2.1), NeverLandTownyEvents (0.5.0), NeverLandTownyExpeditions (0.2.0), NeverLandTownyGovernance (0.2.2), NeverLandTownyIdeologies (0.2.1), NeverLandTownyJobs (0.3.0), NeverLandTownyJustice (0.2.1), NeverLandTownyLogistics (0.3.0), NeverLandTownyMarket (0.2.1), NeverLandTownyPolicies (0.3.1), NeverLandTownyPopulation (0.2.1), NeverLandTownyPower (0.2.1), NeverLandTownyQuests (0.3.0), NeverLandTownyReputation (0.3.0), NeverLandTownyResearch (0.2.0), NeverLandTownyResources (0.2.2), NeverLandTownySeasons (0.2.0), NeverLandTownySiegesPlus (0.6.6), NeverLandTownySpecialization (0.3.0), NeverLandTownyStick (0.2.0), NeverLandTownyTaxes (0.2.0), NeverLandTownyTrade (0.3.1), NeverLandTownyTreasuryPlus (0.3.3), NeverLandTownyUpkeep (0.2.3), QuestsIsolationRuntimeProbe (0.52.0), Towny (0.103.2.0)
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.joml.MemUtil$MemUtilUnsafe (file:/dev/shm/neverland-full-pack-final-1/libraries/org/joml/joml/1.10.8/joml-1.10.8.jar)
+WARNING: Please consider reporting this to the maintainers of class org.joml.MemUtil$MemUtilUnsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+[13:47:36 INFO]: [ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry] Initialising converters for DataConverter...
+[13:47:37 INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, profilesHost=https://api.mojang.com, name=PROD]
+[13:47:37 ERROR]: Failed to request yggdrasil public key
+com.mojang.authlib.exceptions.MinecraftClientException: Failed to read from https://api.minecraftservices.com/publickeys due to api.minecraftservices.com
+	at com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:151) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.getWithEtag(MinecraftClient.java:81) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:65) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilServicesKeyInfo.fetch(YggdrasilServicesKeyInfo.java:114) ~[authlib-9.0.75.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilServicesKeyInfo$1.run(YggdrasilServicesKeyInfo.java:89) ~[authlib-9.0.75.jar:?]
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:545) ~[?:?]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:328) ~[?:?]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:309) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614) ~[?:?]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[?:?]
+Caused by: java.net.UnknownHostException: api.minecraftservices.com
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:569) ~[?:?]
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:307) ~[?:?]
+	at java.base/java.net.Socket.connect(Socket.java:659) ~[?:?]
+	at java.base/sun.security.ssl.SSLSocketImpl.connect(SSLSocketImpl.java:304) ~[?:?]
+	at java.base/sun.net.NetworkClient.doConnect(NetworkClient.java:161) ~[?:?]
+	at java.base/sun.net.www.http.HttpClient.openServer(HttpClient.java:524) ~[?:?]
+	at java.base/sun.net.www.http.HttpClient.openServer(HttpClient.java:612) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsClient.<init>(HttpsClient.java:207) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsClient.New(HttpsClient.java:289) ~[?:?]
+	at java.base/sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.getNewHttpClient(AbstractDelegateHttpsURLConnection.java:196) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1012) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:903) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:876) ~[?:?]
+	at java.base/sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.connect(AbstractDelegateHttpsURLConnection.java:181) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1380) ~[?:?]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1306) ~[?:?]
+	at java.base/java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:493) ~[?:?]
+	at java.base/sun.net.www.protocol.https.HttpsURLConnectionImpl.getResponseCode(HttpsURLConnectionImpl.java:307) ~[?:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:130) ~[authlib-9.0.75.jar:?]
+	... 10 more
+[13:47:37 INFO]: [ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry] Finished initialising converters for DataConverter in 358.3ms
+[13:47:38 INFO]: Loaded 1585 recipes
+[13:47:38 INFO]: Loaded 1688 advancements
+[13:47:38 INFO]: Starting minecraft server version 26.2
+[13:47:38 WARN]: ****************************
+[13:47:38 WARN]: YOU ARE RUNNING THIS SERVER AS AN ADMINISTRATIVE OR ROOT USER. THIS IS NOT ADVISED.
+[13:47:38 WARN]: YOU ARE OPENING YOURSELF UP TO POTENTIAL RISKS WHEN DOING THIS.
+[13:47:38 WARN]: FOR MORE INFORMATION, SEE https://madelinemiller.dev/blog/root-minecraft-server/
+[13:47:38 WARN]: ****************************
+[13:47:38 INFO]: Loading properties
+[13:47:38 INFO]: This server is running Folia version 26.2-7-ver/26.2.x@14b7fee (2026-08-25T13:29:28Z) (Implementing API version 26.2.build.7-beta)
+[13:47:39 INFO]: [spark] This server bundles the spark profiler. For more information please visit https://docs.papermc.io/paper/profiling
+[13:47:39 INFO]: Server Ping Player Sample Count: 12
+[13:47:39 INFO]: Using 4 threads for Netty based IO
+[13:47:39 INFO]: [MoonriseCommon] Paper is using 1 worker threads, 1 I/O threads
+[13:47:39 INFO]: [io.papermc.paper.threadedregions.TickRegions] Initialised EDF Folia scheduler with initial 2 target thread(s)
+[13:47:39 INFO]: Default game type: SURVIVAL
+[13:47:39 INFO]: Generating keypair
+[13:47:39 INFO]: Starting Minecraft server on 127.0.0.1:25671
+[13:47:39 INFO]: Paper: Using libdeflate (Linux x86_64) compression from Velocity.
+[13:47:39 INFO]: Paper: Using OpenSSL 3.x.x (Linux x86_64) cipher from Velocity.
+[13:47:39 WARN]: [io.netty.util.internal.MacAddressUtil] Failed to find a usable hardware address from the network interfaces; using random bytes: d9:df:14:07:1a:4e:ae:c8
+[13:47:39 INFO]: [Towny] Loading server plugin Towny v0.103.2.0
+[13:47:39 INFO]: [NeverLandTownyControl] Loading server plugin NeverLandTownyControl v0.6.4
+[13:47:39 INFO]: [NeverLandTownyCitizens] Loading server plugin NeverLandTownyCitizens v0.2.0
+[13:47:39 INFO]: [NeverLandTownyCouncil] Loading server plugin NeverLandTownyCouncil v0.3.0
+[13:47:39 INFO]: [NeverLandTownyBuilds] Loading server plugin NeverLandTownyBuilds v0.11.2
+[13:47:39 INFO]: [NeverLandTownyDistricts] Loading server plugin NeverLandTownyDistricts v0.2.3
+[13:47:39 INFO]: [NeverLandTownyReputation] Loading server plugin NeverLandTownyReputation v0.3.0
+[13:47:39 INFO]: [NeverLandTownySeasons] Loading server plugin NeverLandTownySeasons v0.2.0
+[13:47:39 INFO]: [NeverLandTownyIdeologies] Loading server plugin NeverLandTownyIdeologies v0.2.1
+[13:47:39 INFO]: [NeverLandTownyPopulation] Loading server plugin NeverLandTownyPopulation v0.2.1
+[13:47:39 INFO]: [NeverLandTownyEvents] Loading server plugin NeverLandTownyEvents v0.5.0
+[13:47:39 INFO]: [NeverLandTownyDiplomacy] Loading server plugin NeverLandTownyDiplomacy v0.2.0
+[13:47:39 INFO]: [NeverLandTownyResources] Loading server plugin NeverLandTownyResources v0.2.2
+[13:47:39 INFO]: [NeverLandTownyContracts] Loading server plugin NeverLandTownyContracts v0.8.1
+[13:47:39 INFO]: [NeverLandTownyTaxes] Loading server plugin NeverLandTownyTaxes v0.2.0
+[13:47:39 INFO]: [NeverLandTownyCamps] Loading server plugin NeverLandTownyCamps v0.2.0
+[13:47:39 INFO]: [NeverLandTownyGovernance] Loading server plugin NeverLandTownyGovernance v0.2.2
+[13:47:39 INFO]: [NeverLandTownyArmy] Loading server plugin NeverLandTownyArmy v0.3.0
+[13:47:39 INFO]: [NeverLandTownyQuests] Loading server plugin NeverLandTownyQuests v0.3.0
+[13:47:39 INFO]: [NeverLandTownyUpkeep] Loading server plugin NeverLandTownyUpkeep v0.2.3
+[13:47:39 INFO]: [NeverLandTownyTrade] Loading server plugin NeverLandTownyTrade v0.3.1
+[13:47:39 INFO]: [NeverLandTownyEspionage] Loading server plugin NeverLandTownyEspionage v0.2.1
+[13:47:39 INFO]: [NeverLandTownyPolicies] Loading server plugin NeverLandTownyPolicies v0.3.1
+[13:47:39 INFO]: [NeverLandTownyTreasuryPlus] Loading server plugin NeverLandTownyTreasuryPlus v0.3.3
+[13:47:39 INFO]: [NeverLandTownyCompanies] Loading server plugin NeverLandTownyCompanies v0.3.0
+[13:47:39 INFO]: [NeverLandTownyJobs] Loading server plugin NeverLandTownyJobs v0.3.0
+[13:47:39 INFO]: [NeverLandTownySiegesPlus] Loading server plugin NeverLandTownySiegesPlus v0.6.6
+[13:47:39 INFO]: [NeverLandTownyEnvironment] Loading server plugin NeverLandTownyEnvironment v0.2.1
+[13:47:39 INFO]: [NeverLandTownyPower] Loading server plugin NeverLandTownyPower v0.2.1
+[13:47:39 INFO]: [NeverLandTownyCrime] Loading server plugin NeverLandTownyCrime v0.2.0
+[13:47:39 INFO]: [NeverLandTownyArchaeology] Loading server plugin NeverLandTownyArchaeology v0.2.0
+[13:47:39 INFO]: [NeverLandTownyChronicles] Loading server plugin NeverLandTownyChronicles v0.3.0
+[13:47:39 INFO]: [NeverLandTownyExpeditions] Loading server plugin NeverLandTownyExpeditions v0.2.0
+[13:47:39 INFO]: [NeverLandTownyStick] Loading server plugin NeverLandTownyStick v0.2.0
+[13:47:39 INFO]: [NeverLandTownyElections] Loading server plugin NeverLandTownyElections v0.2.0
+[13:47:39 INFO]: [NeverLandTownySpecialization] Loading server plugin NeverLandTownySpecialization v0.3.0
+[13:47:39 INFO]: [NeverLandTownyLogistics] Loading server plugin NeverLandTownyLogistics v0.3.0
+[13:47:39 INFO]: [NeverLandTownyMarket] Loading server plugin NeverLandTownyMarket v0.2.1
+[13:47:39 INFO]: [NeverLandTownyJustice] Loading server plugin NeverLandTownyJustice v0.2.1
+[13:47:39 INFO]: [NeverLandTownyAchievements] Loading server plugin NeverLandTownyAchievements v0.2.0
+[13:47:39 INFO]: [NeverLandTownyResearch] Loading server plugin NeverLandTownyResearch v0.2.0
+[13:47:39 INFO]: [QuestsIsolationRuntimeProbe] Loading server plugin QuestsIsolationRuntimeProbe v0.52.0
+[13:47:39 WARN]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[13:47:39 WARN]: The server will make no attempt to authenticate usernames. Beware.
+[13:47:39 WARN]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[13:47:39 WARN]: To change this, set "online-mode" to "true" in the server.properties file.
+[13:47:39 INFO]: Preparing level "world"
+[13:47:40 INFO]: Loading 0 persistent chunks for level 'minecraft:overworld'...
+[13:47:40 INFO]: Preparing spawn area: 100%
+[13:47:40 INFO]: Prepared spawn area in 1 ms
+[13:47:40 INFO]: Loading 0 persistent chunks for level 'minecraft:the_nether'...
+[13:47:40 INFO]: Prepared spawn area in 0 ms
+[13:47:40 INFO]: Loading 0 persistent chunks for level 'minecraft:the_end'...
+[13:47:40 INFO]: Prepared spawn area in 0 ms
+[13:47:40 INFO]: Done preparing level "world" (0.325s)
+[13:47:40 INFO]: [Towny] Enabling Towny v0.103.2.0
+[13:47:40 INFO]: ====================      Towny      ========================
+[13:47:40 INFO]: [Towny] Successfully loaded translations for 45 languages.
+[13:47:40 INFO]: [Towny] Config: Loaded 9 townblock types: default, bank, shop, wilds, inn, farm, embassy, arena, jail.
+[13:47:40 INFO]: [Towny] Database: [Load] flatfile [Save] flatfile
+[13:47:41 INFO]: [Towny] Database: Loaded in 90ms.
+[13:47:41 INFO]: [Towny] Cleaning up old backups...
+[13:47:41 INFO]: [Towny] Successfully cleaned backups.
+[13:47:41 INFO]: [Towny] Making backup...
+[13:47:41 INFO]: [Towny] Time until a New Day: 22 hours, 12 minutes, 19 seconds
+[13:47:41 INFO]: [Towny] Searching for third-party plugins...
+[13:47:41 INFO]: [Towny] Plugins found:
+[13:47:41 INFO]: [Towny] Checking for updates...
+[13:47:41 INFO]: [Towny]   Permissions: TownyPerms, BukkitPermissions
+[13:47:41 INFO]: [Towny] No new updates found.
+[13:47:41 INFO]: [Towny] Towny flatfiles and settings successfully backed up.
+[13:47:41 INFO]: =============================================================
+[13:47:41 INFO]: [Towny] Version: 0.103.2.0 - Plugin Enabled
+[13:47:41 INFO]: =============================================================
+[13:47:41 INFO]: [NeverLandTownyControl] Enabling NeverLandTownyControl v0.6.4
+[13:47:41 INFO]: [NeverLandTownyControl] Управление модулями: 39; отключено с зависимостями: 0
+[13:47:41 INFO]: [NeverLandTownyCitizens] Enabling NeverLandTownyCitizens v0.2.0
+[13:47:41 INFO]: [NeverLandTownyCitizens] Реестр гражданства загружен. Четыре статуса; /t citizens.
+[13:47:41 INFO]: [NeverLandTownyCouncil] Enabling NeverLandTownyCouncil v0.3.0
+[13:47:41 INFO]: [NeverLandTownyCouncil] Четыре министерства готовы; /council и /t ministers.
+[13:47:41 INFO]: [NeverLandTownyBuilds] Enabling NeverLandTownyBuilds v0.11.2
+[13:47:41 INFO]: [NeverLandTownyBuilds] Загружено городских проектов: 101
+[13:47:41 INFO]: [NeverLandTownyBuilds] Семейств схем: 0; сохранённых версий: 0; ошибок новых схем: 0
+[13:47:41 INFO]: [NeverLandTownyBuilds] NeverLandTownyBuilds 0.11.2 включён: процедурные здания и Чудеса, фонды ресурсов и совместное строительство готовы.
+[13:47:41 INFO]: [NeverLandTownyDistricts] Enabling NeverLandTownyDistricts v0.2.3
+[13:47:41 INFO]: [NeverLandTownyDistricts] NeverLandTownyDistricts 0.2.3: семь типов районов включены.
+[13:47:41 INFO]: [NeverLandTownyReputation] Enabling NeverLandTownyReputation v0.3.0
+[13:47:41 INFO]: [NeverLandTownyReputation] NeverLandTownyReputation 0.3.0 включён: связей 0, уровней 8, /t=true, /n=true, PlaceholderAPI=false.
+[13:47:41 INFO]: [NeverLandTownySeasons] Enabling NeverLandTownySeasons v0.2.0
+[13:47:41 INFO]: [NeverLandTownyIdeologies] Enabling NeverLandTownyIdeologies v0.2.1
+[13:47:41 INFO]: [NeverLandTownyIdeologies] Загружено идеологий: 7.
+[13:47:42 INFO]: [NeverLandTownyIdeologies] NeverLandTownyIdeologies 0.2.1 включён: 7 идеологий, Paper 26.2, Towny и ItemsAdder-ready.
+[13:47:42 INFO]: [NeverLandTownyPopulation] Enabling NeverLandTownyPopulation v0.2.1
+[13:47:42 WARN]: [NeverLand API] NeverLandTownyPower DISABLED:
+[13:47:42 WARN]: [NeverLandTownyPopulation] Городские службы временно недоступны; население не убывает из-за ошибки интеграции: Электроснабжение временно недоступно; подтверждённые жители сохранены
+[13:47:42 INFO]: [NeverLandTownyPopulation] NeverLandTownyPopulation 0.2.1 включён: 1 городов.
+[13:47:42 INFO]: [NeverLandTownyEvents] Enabling NeverLandTownyEvents v0.5.0
+[13:47:42 INFO]: [NeverLandTownyEvents] NeverLandTownyEvents 0.5.0 включён: загружено событий 6, PlaceholderAPI=false.
+[13:47:42 INFO]: [NeverLandTownyDiplomacy] Enabling NeverLandTownyDiplomacy v0.2.0
+[13:47:42 INFO]: [NeverLandTownyDiplomacy] Дипломатия: семь типов отношений; /diplomacy. Реестр доступен
+[13:47:42 INFO]: [NeverLandTownyResources] Enabling NeverLandTownyResources v0.2.2
+[13:47:42 INFO]: [NeverLandTownyResources] Городские ресурсы включены: восемь запасов, 101 профилей.
+[13:47:42 INFO]: [NeverLandTownyContracts] Enabling NeverLandTownyContracts v0.8.1
+[13:47:42 INFO]: [NeverLandTownyContracts] NeverLandTownyContracts 0.8.1 включён: шаблонов 8, склад=true, PlaceholderAPI=false.
+[13:47:42 INFO]: [NeverLandTownyTaxes] Enabling NeverLandTownyTaxes v0.2.0
+[13:47:42 INFO]: [NeverLandTownyTaxes] NeverLandTownyTaxes 0.2.0 включён: налоговых политик 0, санкций 0, соглашений 0, PlaceholderAPI=false.
+[13:47:42 INFO]: [NeverLandTownyCamps] Enabling NeverLandTownyCamps v0.2.0
+[13:47:42 INFO]: [NeverLandTownyCamps] Загружено биомных стилей лагеря: 7.
+[13:47:42 INFO]: [NeverLandTownyCamps] Towny обнаружен: контроль диких земель включён.
+[13:47:42 INFO]: [NeverLandTownyCamps] NeverLandTownyCamps 0.2.0 включён: процедурные лагеря готовы.
+[13:47:42 INFO]: [NeverLandTownyGovernance] Enabling NeverLandTownyGovernance v0.2.2
+[13:47:42 INFO]: [NeverLandTownyGovernance] NeverLandTownyGovernance 0.2.2 включён: законов 9, должностей 6, открытых голосований 0, PlaceholderAPI=false.
+[13:47:42 INFO]: [NeverLandTownyArmy] Enabling NeverLandTownyArmy v0.3.0
+[13:47:42 INFO]: [NeverLandTownyQuests] Enabling NeverLandTownyQuests v0.3.0
+[13:47:42 INFO]: [NeverLandTownyQuests] Таймеры восстановлены после административной паузы без учёта времени отключения.
+[13:47:42 INFO]: [NeverLandTownyUpkeep] Enabling NeverLandTownyUpkeep v0.2.3
+[13:47:42 INFO]: [NeverLandTownyUpkeep] Обслуживание включено: 101 профилей; период 3600 сек.
+[13:47:42 INFO]: [NeverLandTownyTrade] Enabling NeverLandTownyTrade v0.3.1
+[13:47:42 INFO]: [NeverLandTownyTrade] NeverLandTownyTrade 0.3.1 включён: экспортов 8, склад=true, лагеря=true, активных перевалочных пунктов=0, налоги=true, PlaceholderAPI=false.
+[13:47:42 INFO]: [NeverLandTownyEspionage] Enabling NeverLandTownyEspionage v0.2.1
+[13:47:42 INFO]: [NeverLandTownyEspionage] NeverLandTownyEspionage 0.2.1 включён: операций 5, активных 0, PlaceholderAPI=false.
+[13:47:42 INFO]: [NeverLandTownyPolicies] Enabling NeverLandTownyPolicies v0.3.1
+[13:47:42 INFO]: [NeverLandTownyPolicies] Политики включены: 7 профилей.
+[13:47:42 INFO]: [NeverLandTownyTreasuryPlus] Enabling NeverLandTownyTreasuryPlus v0.3.3
+[13:47:42 INFO]: [NeverLandTownyTreasuryPlus] Казна и недельные отчёты включены.
+[13:47:42 INFO]: [NeverLandTownyCompanies] Enabling NeverLandTownyCompanies v0.3.0
+[13:47:42 INFO]: [NeverLandTownyCompanies] Предприятия города включены: 0
+[13:47:42 INFO]: [NeverLandTownyJobs] Enabling NeverLandTownyJobs v0.3.0
+[13:47:42 INFO]: [NeverLandTownyJobs] Городские профессии включены: 7 профессий, рабочие места и опыт смен.
+[13:47:42 INFO]: [NeverLandTownySiegesPlus] Enabling NeverLandTownySiegesPlus v0.6.6
+[13:47:43 INFO]: [NeverLandTownySiegesPlus] Sieges+: SiegeWar не установлен; армейские рейды и прочность TNT включены по настройкам
+[13:47:43 INFO]: [NeverLandTownyEnvironment] Enabling NeverLandTownyEnvironment v0.2.1
+[13:47:43 WARN]: [NeverLand API] NeverLandTownyPower DISABLED:
+[13:47:43 WARN]: [NeverLandTownyEnvironment] Экология: Ожидаются данные действующих зданий
+[13:47:43 INFO]: [NeverLandTownyPower] Enabling NeverLandTownyPower v0.2.1
+[13:47:43 INFO]: [NeverLandTownyPower] Энергетика включена: 101 профилей.
+[13:47:43 INFO]: [NeverLandTownyCrime] Enabling NeverLandTownyCrime v0.2.0
+[13:47:43 INFO]: [NeverLandTownyArchaeology] Enabling NeverLandTownyArchaeology v0.2.0
+[13:47:43 INFO]: [NeverLandTownyArchaeology] NeverLandTownyArchaeology 0.2.0 включён: артефактов 28, участков 0, /t archaeology=true, /t museum=true, PlaceholderAPI=false.
+[13:47:43 INFO]: [NeverLandTownyChronicles] Enabling NeverLandTownyChronicles v0.3.0
+[13:47:43 INFO]: [NeverLandTownyChronicles] NeverLandTownyChronicles 0.3.0 включён: городских летописей 1, военных событий 0, PlaceholderAPI=false.
+[13:47:43 INFO]: [NeverLandTownyExpeditions] Enabling NeverLandTownyExpeditions v0.2.0
+[13:47:43 INFO]: [NeverLandTownyExpeditions] Загружено экспедиций: 6.
+[13:47:43 INFO]: [NeverLandTownyStick] Enabling NeverLandTownyStick v0.2.0
+[13:47:43 INFO]: [NeverLandTownyStick] NeverLandTownyStick 0.2.0 включён: выбор участков и согласуемые планы расширения.
+[13:47:43 INFO]: [NeverLandTownyElections] Enabling NeverLandTownyElections v0.2.0
+[13:47:43 INFO]: [NeverLandTownyElections] Выборы мэра, совета и должностей включены. /t elections
+[13:47:43 INFO]: [NeverLandTownySpecialization] Enabling NeverLandTownySpecialization v0.3.0
+[13:47:43 INFO]: [NeverLandTownySpecialization] Специализации включены: 7 профилей.
+[13:47:43 INFO]: [NeverLandTownyLogistics] Enabling NeverLandTownyLogistics v0.3.0
+[13:47:43 INFO]: [NeverLandTownyMarket] Enabling NeverLandTownyMarket v0.2.1
+[13:47:43 INFO]: [NeverLandTownyMarket] Городской и международный рынки включены. Журнал: true
+[13:47:43 INFO]: [NeverLandTownyJustice] Enabling NeverLandTownyJustice v0.2.1
+[13:47:43 INFO]: [NeverLandTownyAchievements] Enabling NeverLandTownyAchievements v0.2.0
+[13:47:43 INFO]: [NeverLandTownyResearch] Enabling NeverLandTownyResearch v0.2.0
+[13:47:43 INFO]: [NeverLandTownyResearch] Исследования включены: 7 профилей.
+[13:47:43 INFO]: [QuestsIsolationRuntimeProbe] Enabling QuestsIsolationRuntimeProbe v0.52.0
+[13:47:43 INFO]: [spark] The spark plugin has been preferred but was not loaded. The bundled spark profiler will enabled instead.
+[13:47:43 INFO]: [spark] The spark profiler will not be enabled because it is currently disabled in the configuration.
+[13:47:43 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+[13:47:43 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_nether
+[13:47:43 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_end
+[13:47:43 INFO]: ThreadedAnvilChunkStorage (world): All chunks are saved
+[13:47:43 INFO]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[13:47:43 INFO]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[13:47:43 INFO]: ThreadedAnvilChunkStorage: All dimensions are saved
+[13:47:43 INFO]: Done (11.164s)! For help, type "help"
+[13:47:43 INFO]: [NeverLand API] NeverLandTownyPower: связь восстановлена
+[13:47:43 INFO]: [NeverLandTownyLogistics] Логистика загружает сохранённые маршруты в фоне.
+[13:47:43 INFO]: [NeverLandTownyExpeditions] NeverLandTownyExpeditions 0.2.0 включён: доступно 6 экспедиций, команды /t expeditions готовы.
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyAchievements 0.2.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyArchaeology 0.2.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyArmy 0.3.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyBuilds 0.11.2
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyCamps 0.2.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyChronicles 0.3.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyCitizens 0.2.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyCompanies 0.3.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyContracts 0.8.1
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyControl 0.6.4
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyCouncil 0.3.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyCrime 0.2.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyDiplomacy 0.2.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyDistricts 0.2.3
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyElections 0.2.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyEnvironment 0.2.1
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyEspionage 0.2.1
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyEvents 0.5.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyExpeditions 0.2.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyGovernance 0.2.2
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyIdeologies 0.2.1
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyJobs 0.3.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyJustice 0.2.1
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyLogistics 0.3.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyMarket 0.2.1
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyPolicies 0.3.1
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyPopulation 0.2.1
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyPower 0.2.1
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyQuests 0.3.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyReputation 0.3.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyResearch 0.2.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyResources 0.2.2
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownySeasons 0.2.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownySiegesPlus 0.6.6
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownySpecialization 0.3.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyStick 0.2.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyTaxes 0.2.0
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyTrade 0.3.1
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyTreasuryPlus 0.3.3
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK exact installed version NeverLandTownyUpkeep 0.2.3
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Achievements enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Archaeology enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Army enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Builds enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Camps enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Chronicles enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Citizens enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Companies enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Contracts enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Control enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Council enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Crime enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Diplomacy enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Districts enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Elections enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Environment enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Espionage enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Events enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Expeditions enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Governance enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Ideologies enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Jobs enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Justice enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Logistics enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Market enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Policies enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Population enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Power enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Reputation enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Research enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Resources enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Seasons enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps SiegesPlus enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Specialization enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Stick enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Taxes enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Trade enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps TreasuryPlus enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK native restart keeps Upkeep enabled and unfrozen
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK targeted enable and repaired legacy file restore Quests with preserved completion
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK restored provider does not duplicate policy history or rewards
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK all three JVM boots retain exact completed quest data
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] CHECK targeted recovery clears only Quests pause without enable all
+[13:47:46 INFO]: [RegionShutdownThread] Awaiting scheduler termination for 60s...
+[13:47:46 INFO]: [RegionShutdownThread] Scheduler halted
+[13:47:46 INFO]: Stopping server
+[13:47:46 INFO]: [QuestsIsolationRuntimeProbe] Disabling QuestsIsolationRuntimeProbe v0.52.0
+[13:47:46 INFO]: [NeverLandTownyResearch] Disabling NeverLandTownyResearch v0.2.0
+[13:47:46 INFO]: [NeverLandTownyAchievements] Disabling NeverLandTownyAchievements v0.2.0
+[13:47:46 INFO]: [NeverLandTownyJustice] Disabling NeverLandTownyJustice v0.2.1
+[13:47:46 INFO]: [NeverLandTownyMarket] Disabling NeverLandTownyMarket v0.2.1
+[13:47:46 INFO]: [NeverLandTownyLogistics] Disabling NeverLandTownyLogistics v0.3.0
+[13:47:46 INFO]: [NeverLandTownySpecialization] Disabling NeverLandTownySpecialization v0.3.0
+[13:47:46 INFO]: [NeverLandTownyElections] Disabling NeverLandTownyElections v0.2.0
+[13:47:46 INFO]: [NeverLandTownyStick] Disabling NeverLandTownyStick v0.2.0
+[13:47:46 INFO]: [NeverLandTownyExpeditions] Disabling NeverLandTownyExpeditions v0.2.0
+[13:47:46 INFO]: [NeverLandTownyChronicles] Disabling NeverLandTownyChronicles v0.3.0
+[13:47:46 INFO]: [NeverLandTownyArchaeology] Disabling NeverLandTownyArchaeology v0.2.0
+[13:47:46 INFO]: [NeverLandTownyCrime] Disabling NeverLandTownyCrime v0.2.0
+[13:47:46 INFO]: [NeverLandTownyPower] Disabling NeverLandTownyPower v0.2.1
+[13:47:46 INFO]: [NeverLandTownyEnvironment] Disabling NeverLandTownyEnvironment v0.2.1
+[13:47:46 INFO]: [NeverLandTownySiegesPlus] Disabling NeverLandTownySiegesPlus v0.6.6
+[13:47:46 INFO]: [NeverLandTownyJobs] Disabling NeverLandTownyJobs v0.3.0
+[13:47:46 INFO]: [NeverLandTownyCompanies] Disabling NeverLandTownyCompanies v0.3.0
+[13:47:46 INFO]: [NeverLandTownyTreasuryPlus] Disabling NeverLandTownyTreasuryPlus v0.3.3
+[13:47:46 INFO]: [NeverLandTownyPolicies] Disabling NeverLandTownyPolicies v0.3.1
+[13:47:46 INFO]: [NeverLandTownyEspionage] Disabling NeverLandTownyEspionage v0.2.1
+[13:47:46 INFO]: [NeverLandTownyTrade] Disabling NeverLandTownyTrade v0.3.1
+[13:47:46 INFO]: [NeverLandTownyUpkeep] Disabling NeverLandTownyUpkeep v0.2.3
+[13:47:46 INFO]: [NeverLandTownyQuests] Disabling NeverLandTownyQuests v0.3.0
+[13:47:46 INFO]: [NeverLandTownyArmy] Disabling NeverLandTownyArmy v0.3.0
+[13:47:46 INFO]: [NeverLandTownyGovernance] Disabling NeverLandTownyGovernance v0.2.2
+[13:47:46 INFO]: [NeverLandTownyCamps] Disabling NeverLandTownyCamps v0.2.0
+[13:47:46 INFO]: [NeverLandTownyTaxes] Disabling NeverLandTownyTaxes v0.2.0
+[13:47:46 INFO]: [NeverLandTownyContracts] Disabling NeverLandTownyContracts v0.8.1
+[13:47:46 INFO]: [NeverLandTownyResources] Disabling NeverLandTownyResources v0.2.2
+[13:47:46 INFO]: [NeverLandTownyDiplomacy] Disabling NeverLandTownyDiplomacy v0.2.0
+[13:47:46 INFO]: [NeverLandTownyEvents] Disabling NeverLandTownyEvents v0.5.0
+[13:47:46 INFO]: [NeverLandTownyPopulation] Disabling NeverLandTownyPopulation v0.2.1
+[13:47:46 INFO]: [NeverLandTownyIdeologies] Disabling NeverLandTownyIdeologies v0.2.1
+[13:47:46 INFO]: [NeverLandTownySeasons] Disabling NeverLandTownySeasons v0.2.0
+[13:47:46 INFO]: [NeverLandTownyReputation] Disabling NeverLandTownyReputation v0.3.0
+[13:47:46 INFO]: [NeverLandTownyDistricts] Disabling NeverLandTownyDistricts v0.2.3
+[13:47:46 INFO]: [NeverLandTownyBuilds] Disabling NeverLandTownyBuilds v0.11.2
+[13:47:46 INFO]: [NeverLandTownyCouncil] Disabling NeverLandTownyCouncil v0.3.0
+[13:47:46 INFO]: [NeverLandTownyCitizens] Disabling NeverLandTownyCitizens v0.2.0
+[13:47:46 INFO]: [NeverLandTownyControl] Disabling NeverLandTownyControl v0.6.4
+[13:47:46 INFO]: [Towny] Disabling Towny v0.103.2.0
+[13:47:46 INFO]: ==============================================================
+[13:47:46 INFO]: [Towny] Finishing File IO Tasks...
+[13:47:46 INFO]: [Towny] Finishing Universe Tasks...
+[13:47:46 INFO]: [Towny] Version: 0.103.2.0 - Plugin Disabled
+[13:47:46 INFO]: =============================================================
+[13:47:46 INFO]: [RegionShutdownThread] Halting chunk systems...
+[13:47:46 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:overworld'
+[13:47:46 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:overworld'
+[13:47:46 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:the_nether'
+[13:47:46 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:the_nether'
+[13:47:46 INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'minecraft:the_end'
+[13:47:46 INFO]: [ChunkHolderManager] Halted chunk system for world 'minecraft:the_end'
+[13:47:46 INFO]: [RegionShutdownThread] Halted chunk systems
+[13:47:46 INFO]: [RegionShutdownThread] Finishing pending teleports...
+[13:47:46 INFO]: [RegionShutdownThread] Finished pending teleports
+[13:47:46 INFO]: [RegionShutdownThread] Saving all worlds
+[13:47:46 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:overworld'
+[13:47:46 INFO]: [RegionShutdownThread] Closing player inventories...
+[13:47:46 INFO]: [RegionShutdownThread] Closed player inventories
+[13:47:46 INFO]: [RegionShutdownThread] Saving chunks...
+[13:47:46 INFO]: [RegionShutdownThread] Saving chunks around region around chunk [8, 4] in world 'world'
+[13:47:46 INFO]: [ChunkHolderManager] Saved 1 block chunks, 1 entity chunks, 0 poi chunks in world 'minecraft:overworld' in 0.02s
+[13:47:46 INFO]: [ChunkHolderManager] Waiting 60s for chunk I/O to halt for world 'minecraft:overworld'
+[13:47:46 INFO]: [ChunkHolderManager] Halted I/O scheduler for world 'minecraft:overworld'
+[13:47:46 INFO]: [RegionShutdownThread] Saved chunks
+[13:47:46 INFO]: [RegionShutdownThread] Saving level data...
+[13:47:46 INFO]: [RegionShutdownThread] Saved level data
+[13:47:46 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:overworld'
+[13:47:46 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:the_nether'
+[13:47:46 INFO]: [RegionShutdownThread] Closing player inventories...
+[13:47:46 INFO]: [RegionShutdownThread] Closed player inventories
+[13:47:46 INFO]: [RegionShutdownThread] Saving chunks...
+[13:47:46 INFO]: [RegionShutdownThread] Saved chunks
+[13:47:46 INFO]: [RegionShutdownThread] Saving level data...
+[13:47:46 INFO]: [RegionShutdownThread] Saved level data
+[13:47:46 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:the_nether'
+[13:47:46 INFO]: [RegionShutdownThread] Saving world data for world 'minecraft:the_end'
+[13:47:46 INFO]: [RegionShutdownThread] Closing player inventories...
+[13:47:46 INFO]: [RegionShutdownThread] Closed player inventories
+[13:47:46 INFO]: [RegionShutdownThread] Saving chunks...
+[13:47:46 INFO]: [RegionShutdownThread] Saved chunks
+[13:47:46 INFO]: [RegionShutdownThread] Saving level data...
+[13:47:46 INFO]: [RegionShutdownThread] Saved level data
+[13:47:46 INFO]: [RegionShutdownThread] Saved world data for world 'minecraft:the_end'
+[13:47:46 INFO]: [RegionShutdownThread] Saved all worlds
+[13:47:46 INFO]: [RegionShutdownThread] Saving global world data...
+[13:47:46 INFO]: [RegionShutdownThread] Saved global world data.
+[13:47:46 INFO]: [RegionShutdownThread] Saving all player data...
+[13:47:46 INFO]: [RegionShutdownThread] Saved all player data
+[13:47:46 INFO]: Waiting for all RegionFile I/O tasks to complete...
+[13:47:46 INFO]: All RegionFile I/O tasks to complete
+[13:47:46 INFO]: [MoonriseCommon] Awaiting termination of worker pool for up to 60s...
+[13:47:46 INFO]: [MoonriseCommon] Awaiting termination of I/O pool for up to 60s...

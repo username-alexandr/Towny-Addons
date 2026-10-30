@@ -1,0 +1,5 @@
+# Full 40-addon Folia isolation gate
+
+Exact 40 freshly rebuilt JAR versions from versions.yml, Towny 0.103.2.0, Folia 26.2 build 7, Java 25. All source manifest hashes matched before launch and all 282 executable cold programs passed. Three sequential JVM starts on one disposable world yielded first: 126, broken Quests config: 84, targeted repair/restart: 83 assertions. Other 39 addons remained enabled; selected project and council policy survived. No watchdog or unexpected addon ERROR. This is an isolation gate with disabled Towny economy, offline Player substitute and explicit completed project fixture. It does not validate real Vault, online clients, payment under load or ransom. The exact JAR hashes are in jars.sha256.json and native-results.json.
+
+The previously staged Chronicles 0.3.0 JAR had a class differing from the independent rebuild despite matching source hashes in its manifest. All 40 JARs in this proof and the distributable were freshly rebuilt and checked again; old binary hashes were not reused.
