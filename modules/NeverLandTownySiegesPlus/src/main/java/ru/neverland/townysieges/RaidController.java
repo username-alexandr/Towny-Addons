@@ -19,17 +19,24 @@ public final class RaidController {
     private volatile TntSettings settings;
     // Immutable authority is published by the storage worker even when notification schedulers are paused.
     private volatile List<RaidStore.Raid> raids=List.of();
+    private final Set<UUID> ransomBlocked=ConcurrentHashMap.newKeySet();
     private volatile boolean loaded,closed;
     private TntRaidEngine engine;
     private final java.util.concurrent.atomic.AtomicBoolean expiring=new java.util.concurrent.atomic.AtomicBoolean();
     public RaidController(NeverLandTownySiegesPlus plugin,SiegeService siege,TntSettings settings) {
         this.plugin=plugin;this.siege=siege;this.settings=settings;
         store=new RaidStore(plugin.getDataFolder().toPath().resolve("raids.db"),e->plugin.getLogger().log(java.util.logging.Level.SEVERE,"Хранилище рейдов недоступно; разрушение приостановлено",e));
-        store.ready().thenCompose(v->store.raids()).whenComplete((rows,error)->{
+        store.ready().thenCompose(v->store.raids().thenCombine(new RansomStore(store).pending(),(rows,offers)->{
+            for(var offer:offers)if(Set.of("ACCEPTED","DEBITING","REVIEW_DEBIT","DEBITED","CREDITING","REVIEW_CREDIT","FUNDED","REFUNDING","REVIEW_REFUND","REFUNDED").contains(offer.state()))ransomBlocked.add(offer.raid());
+            return rows;
+        })).whenComplete((rows,error)->{
             if(error==null&&!closed){raids=rows;loaded=true;}
         });
     }
     public RaidStore store(){return store;}
+    void block(UUID raid){ransomBlocked.add(raid);}
+    void unblock(UUID raid){ransomBlocked.remove(raid);}
+    void replace(List<RaidStore.Raid> rows){if(!closed)raids=rows;}
     public TntSettings settings(){return settings;}
     public void engine(TntRaidEngine value){engine=value;}
     public void reload(TntSettings next){settings=next;}
@@ -42,7 +49,7 @@ public final class RaidController {
         return api;
     }
     boolean mobilized(UUID player)throws Exception{return Boolean.TRUE.equals(army().invoke("isMobilized",new Class<?>[]{UUID.class},player));}
-    private boolean commander(Player player,Town town)throws Exception {
+    boolean commander(Player player,Town town)throws Exception {
         if(player.hasPermission("neverlandtownysiegesplus.admin")||town.isMayor(TownyAPI.getInstance().getResident(player.getUniqueId())))return true;
         Object row=((Optional<?>)army().invoke("serviceRecord",new Class<?>[]{UUID.class},player.getUniqueId())).orElse(null);
         return row instanceof Map<?,?> map&&town.getUUID().equals(map.get("town"))&&"general".equals(map.get("rank"));
@@ -65,12 +72,12 @@ public final class RaidController {
     private long online(UUID town) {return Bukkit.getOnlinePlayers().stream().filter(p->{var t=SiegeService.town(p.getUniqueId());return t!=null&&t.getUUID().equals(town);}).count();}
     private void defenders(Town town){if(online(town.getUUID())<settings.defendersOnline())throw new IllegalArgumentException("В городе недостаточно защитников в сети");}
     public Optional<RaidStore.Raid> raid(UUID attacker,UUID defender,long now) {
-        return raids.stream().filter(r->r.attacker().equals(attacker)&&r.defender().equals(defender)&&r.live(now)).findFirst();
+        return raids.stream().filter(r->r.attacker().equals(attacker)&&r.defender().equals(defender)&&r.live(now)&&!ransomBlocked.contains(r.id())).findFirst();
     }
     /** Immutable declarations; no foreign entity state or world blocks are read here. */
     public List<RaidStore.Raid> declarations(){
         if(!ready()||siegeWarInstalled()||openWars().isEmpty())return List.of();try{army();}catch(Exception|LinkageError unavailable){return List.of();}long now=System.currentTimeMillis();
-        return raids.stream().filter(r->{if(!r.live(now))return false;try{relations(TownyAPI.getInstance().getTown(r.attacker()),TownyAPI.getInstance().getTown(r.defender()));return plugin.camps()==null||plugin.camps().active(r.attacker(),r.defender());}catch(Exception|LinkageError denied){return false;}}).toList();
+        return raids.stream().filter(r->{if(!r.live(now)||ransomBlocked.contains(r.id()))return false;try{relations(TownyAPI.getInstance().getTown(r.attacker()),TownyAPI.getInstance().getTown(r.defender()));return plugin.camps()==null||plugin.camps().active(r.attacker(),r.defender());}catch(Exception|LinkageError denied){return false;}}).toList();
     }
     boolean knownDeclaration(UUID defender){return !closed&&settings.enabled()&&raids.stream().anyMatch(r->r.defender().equals(defender)&&r.live(System.currentTimeMillis()));}
     List<RaidStore.Raid> openWars(){return raids.stream().filter(r->r.live(System.currentTimeMillis())).toList();}

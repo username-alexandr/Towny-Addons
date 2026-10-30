@@ -30,6 +30,18 @@ public final class SiegeCommand implements TabExecutor {
                     if(!(sender instanceof Player p)||args.length<2||args.length>3)throw new IllegalArgumentException("/sieges raid <город> [core|chunks]");
                     plugin.raids().declare(p,args[1],args.length==3?args[2]:"core");
                 }
+                case "ransom"->{
+                    if(args.length==3&&args[1].equalsIgnoreCase("offer")&&sender instanceof Player p){plugin.ransom().offer(p,args[2]);break;}
+                    if(args.length==3&&args[1].equalsIgnoreCase("accept")&&sender instanceof Player p){plugin.ransom().accept(p,UUID.fromString(args[2]));break;}
+                    if(args.length==1||args.length==2&&args[1].equalsIgnoreCase("status")){plugin.ransom().status(sender);break;}
+                    if(!sender.isOp()&&!sender.hasPermission("neverlandtownysiegesplus.admin"))throw new IllegalArgumentException("Сверка выкупа доступна администратору");
+                    if(args.length==3&&args[1].equalsIgnoreCase("show")){plugin.ransom().show(sender,UUID.fromString(args[2]));break;}
+                    if(args.length>=6&&args[1].equalsIgnoreCase("refund")&&args[4].equalsIgnoreCase("confirm")){plugin.ransom().refund(sender,UUID.fromString(args[2]),UUID.fromString(args[3]),String.join(" ",Arrays.copyOfRange(args,5,args.length)));break;}
+                    if(args.length>=8&&args[1].equalsIgnoreCase("resolve")&&Set.of("debit","credit","refund").contains(args[4].toLowerCase(Locale.ROOT))&&Set.of("yes","no").contains(args[5].toLowerCase(Locale.ROOT))&&args[6].equalsIgnoreCase("confirm")){
+                        plugin.ransom().resolve(sender,UUID.fromString(args[2]),UUID.fromString(args[3]),args[4].toLowerCase(Locale.ROOT),args[5].equalsIgnoreCase("yes"),String.join(" ",Arrays.copyOfRange(args,7,args.length)));break;
+                    }
+                    throw new IllegalArgumentException("/sieges ransom offer <сумма> | accept <ID> | status; администратору: show <ID рейда>, refund <ID рейда> <ID предложения> confirm <причина>, resolve <ID рейда> <ID предложения> <debit|credit|refund> <yes|no> confirm <основание>");
+                }
                 case "repair"->{
                     if(args.length==2){if(!(sender instanceof Player p))throw new IllegalArgumentException("Ремонт здания доступен в игре");plugin.repairs().open(p,args[1]);break;}
                     if(!sender.isOp()&&!sender.hasPermission("neverlandtownysiegesplus.admin"))throw new IllegalArgumentException("Квитанции ремонта доступны администратору");
@@ -54,14 +66,15 @@ public final class SiegeCommand implements TabExecutor {
                     }
                     throw new IllegalArgumentException("/sieges loot | /sieges loot show <ID> | /sieges loot resolve <ID> <core|debit|credit> <yes|no> confirm <основание>");
                 }
-                default->{tell(sender,"&e/sieges chunk &f— захват и правила TNT на текущем участке.");tell(sender,"&e/sieges repair <здание> &f— прочность и ремонт из городской казны.");tell(sender,"&e/sieges camp <город> &f— зарегистрировать лагерь у чужого города; &e/sieges camp &f— меню лагеря.");tell(sender,"&e/sieges menu [город] &f— оборонительные постройки и ограничения.");tell(sender,"&e/t sieges &f— открыть меню своего города.");tell(sender,"&e/sieges raid <город> [core|chunks] &f— цель: кафедра либо два участка; &e/sieges raid claim &f— подтвердить победу после выполнения цели.");tell(sender,"&e/sieges raid status &f— текущие рейды; &e/sieges hp &f— прочность блока под прицелом.");if(sender.hasPermission("neverlandtownysiegesplus.admin"))tell(sender,"&e/sieges raid cancel|history <город> &f— остановка и журнал; &e/sieges reload &f— настройки.");}
+                default->{tell(sender,"&e/sieges chunk &f— захват и правила TNT на текущем участке.");tell(sender,"&e/sieges repair <здание> &f— прочность и ремонт из городской казны.");tell(sender,"&e/sieges camp <город> &f— зарегистрировать лагерь у чужого города; &e/sieges camp &f— меню лагеря.");tell(sender,"&e/sieges menu [город] &f— оборонительные постройки и ограничения.");tell(sender,"&e/t sieges &f— открыть меню своего города.");tell(sender,"&e/sieges raid <город> [core|chunks] &f— цель: кафедра либо два участка; &e/sieges raid claim &f— подтвердить победу после выполнения цели.");tell(sender,"&e/sieges ransom offer <сумма> &f— мэр предлагает выкуп; &e/sieges ransom accept <ID> &f— мэр/генерал принимает.");tell(sender,"&e/sieges raid status &f— текущие рейды; &e/sieges hp &f— прочность блока под прицелом.");if(sender.hasPermission("neverlandtownysiegesplus.admin"))tell(sender,"&e/sieges raid cancel|history <город> &f— остановка и журнал; &e/sieges reload &f— настройки.");}
             }
         }catch(Exception|LinkageError e){tell(sender,"&c"+e.getMessage());}
         return true;
     } }
     @Override public List<String> onTabComplete(CommandSender sender,Command command,String alias,String[] args){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if(!sender.hasPermission("neverlandtownysiegesplus.use"))return List.of();
-        var out=new ArrayList<String>();if(args.length==1){out.addAll(List.of("menu","help","camp","raid","hp","repair","chunk","hours"));if(sender.hasPermission("neverlandtownysiegesplus.admin")||sender.isOp())out.addAll(List.of("status","reload","loot"));}
+        var out=new ArrayList<String>();if(args.length==1){out.addAll(List.of("menu","help","camp","raid","ransom","hp","repair","chunk","hours"));if(sender.hasPermission("neverlandtownysiegesplus.admin")||sender.isOp())out.addAll(List.of("status","reload","loot"));}
+        if(args.length==2&&args[0].equalsIgnoreCase("ransom")){out.addAll(List.of("offer","accept","status"));if(sender.hasPermission("neverlandtownysiegesplus.admin")||sender.isOp())out.addAll(List.of("show","resolve","refund"));}
         if(args.length==2&&(args[0].equalsIgnoreCase("menu")||args[0].equalsIgnoreCase("raid")||args[0].equalsIgnoreCase("camp")))TownyAPI.getInstance().getTowns().forEach(t->out.add(t.getName()));
         if(args.length==2&&args[0].equalsIgnoreCase("raid")){out.addAll(List.of("status","claim"));if(sender.hasPermission("neverlandtownysiegesplus.admin"))out.addAll(List.of("cancel","history"));}
         if(args.length==3&&args[0].equalsIgnoreCase("raid")&&!Set.of("cancel","history").contains(args[1].toLowerCase(Locale.ROOT)))out.addAll(List.of("core","chunks"));

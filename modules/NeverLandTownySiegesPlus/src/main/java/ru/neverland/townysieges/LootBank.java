@@ -19,13 +19,16 @@ public class LootBank {
     }
     public long balance(UUID town){double balance=TownyAPI.getInstance().getTown(town).getAccount().getHoldingBalance();if(!Double.isFinite(balance)||balance<0)throw new IllegalStateException("Некорректный баланс казны");return BigDecimal.valueOf(balance).movePointRight(2).setScale(0,RoundingMode.DOWN).longValueExact();}
     public boolean mutate(RaidLootStore.Loot loot,boolean incoming){
-        if(!ready(loot.defender(),loot.attacker()))throw new IllegalStateException("Экономика Towny/Vault недоступна");
-        var account=TownyAPI.getInstance().getTown(incoming?loot.attacker():loot.defender()).getAccount();String token="[raid-loot:"+loot.id()+":"+(incoming?"credit":"debit")+"]";
-        var evidence=new PaymentEvidence(account,incoming,token,loot.cents());
+        return mutate(loot.id(),loot.defender(),loot.attacker(),loot.cents(),incoming,"raid-loot","Захват кафедры ратуши");
+    }
+    public boolean mutate(UUID id,UUID defender,UUID attacker,long cents,boolean incoming,String source,String description){
+        if(cents<=0||!ready(defender,attacker))throw new IllegalStateException("Экономика Towny/Vault недоступна или сумма неверна");
+        var account=TownyAPI.getInstance().getTown(incoming?attacker:defender).getAccount();String token="["+source+":"+id+":"+(incoming?"credit":"debit")+"]";
+        var evidence=new PaymentEvidence(account,incoming,token,cents);
         var observer=new AccountObserver(){public void deposited(Account source,double amount,String reason){evidence.observe(source,true,amount,reason);}public void withdrew(Account source,double amount,String reason){evidence.observe(source,false,amount,reason);}};
         synchronized(account){account.addObserver(observer);try{
-            boolean result;String reason=(incoming?"[NLT|income|free|raid] ":"[NLT|spend|free|raid] ")+token+" Захват кафедры ратуши";
-            try{result=incoming?account.deposit(loot.cents()/100.0,reason):account.withdraw(loot.cents()/100.0,reason);}catch(RuntimeException failure){if(evidence.observed())return true;throw failure;}
+            boolean result;String reason=(incoming?"[NLT|income|free|raid] ":"[NLT|spend|free|raid] ")+token+" "+description;
+            try{result=incoming?account.deposit(cents/100.0,reason):account.withdraw(cents/100.0,reason);}catch(RuntimeException failure){if(evidence.observed())return true;throw failure;}
             return evidence.result(result);
         }finally{account.removeObserver(observer);}}
     }

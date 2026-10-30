@@ -20,6 +20,7 @@ final class WarCaptureStore {
     private static Capture read(ResultSet r)throws SQLException{return new Capture(new Key(UUID.fromString(r.getString("raid")),UUID.fromString(r.getString("world")),r.getInt("x"),r.getInt("z")),UUID.fromString(r.getString("attacker")),UUID.fromString(r.getString("defender")),UUID.fromString(r.getString("actor")),r.getString("method"),r.getLong("at"),r.getString("state"));}
     CompletionStage<List<Capture>> load(){return store.submit(()->{var out=new ArrayList<Capture>();try(var s=store.connection().createStatement();var r=s.executeQuery("SELECT * FROM war_chunks WHERE state='CAPTURED'")){while(r.next())out.add(read(r));}return List.copyOf(out);});}
     CompletionStage<Boolean> capture(Capture c){return store.submit(()->store.transaction(()->{
+        if(RansomStore.blocking(store.connection(),c.key().raid()))throw new IllegalArgumentException("Идёт перевод выкупа; новые участки не захватываются");
         try(var p=store.connection().prepareStatement("SELECT 1 FROM raids WHERE id=? AND attacker=? AND defender=? AND state='OPEN' AND starts<=? AND ends>?")){
             p.setString(1,c.key().raid().toString());p.setString(2,c.attacker().toString());p.setString(3,c.defender().toString());p.setLong(4,System.currentTimeMillis());p.setLong(5,System.currentTimeMillis());try(var r=p.executeQuery()){if(!r.next())throw new IllegalArgumentException("Война уже не идёт");}
         }

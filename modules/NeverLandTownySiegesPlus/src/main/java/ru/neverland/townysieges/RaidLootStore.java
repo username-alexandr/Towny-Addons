@@ -26,6 +26,7 @@ public final class RaidLootStore {
     public static UUID operation(UUID raid,UUID defender){return UUID.nameUUIDFromBytes(("raid-loot:"+raid+":"+defender).getBytes(java.nio.charset.StandardCharsets.UTF_8));}
     public CompletionStage<Loot> arm(RaidController.Permit permit,RaidStore.Key core,byte[] book,LootSettings settings){return arm(permit,core,book,settings,"");}
     public CompletionStage<Loot> arm(RaidController.Permit permit,RaidStore.Key core,byte[] book,LootSettings settings,String policy){byte[] saved=book.clone();return storage.submit(()->{
+        if(!permit.siegeWar()&&RansomStore.blocking(db(),permit.raid()))throw new IllegalArgumentException("Рейд ожидает перевод выкупа; добыча больше не захватывается");
         if(!permit.siegeWar())try(var p=db().prepareStatement("SELECT 1 FROM raids WHERE id=? AND attacker=? AND defender=? AND state='OPEN' AND starts<=? AND ends>?")){
             long now=System.currentTimeMillis();p.setString(1,permit.raid().toString());p.setString(2,permit.attacker().toString());p.setString(3,permit.defender().toString());p.setLong(4,now);p.setLong(5,now);try(var r=p.executeQuery()){if(!r.next())throw new IllegalArgumentException("Рейд уже завершён или его стороны изменились");}
         }

@@ -36,6 +36,7 @@ public final class SiegeMenu implements Listener {
         if(plugin.camps().settings().enabled())inv.setItem(30,item(Material.CAMPFIRE,"&6Осадный лагерь",List.of("&fПостройте костёр и знамя у чужого города.","&fПосмотрите на костёр: /sieges camp <город>","&fЗдесь можно открыть меню своего лагеря.")));
         inv.setItem(32,item(Material.FILLED_MAP,"&eЗахват участка",List.of("&fPvP между воюющими городами — с объявления.","&fTNT поджигайте за границей города.","&fВнутри — после захвата этого чанка.","&fЧасти городских зданий нужно разрушить.","&fПустой чанк нужно удерживать без защитников.","&7Нажмите: правила и прогресс здесь.")));
         inv.setItem(33,item(Material.CLOCK,"&eЧасы нападения",List.of("&f"+plugin.hours().describe(town),"&7Нажмите: посмотреть и настроить расписание")));
+        inv.setItem(39,item(Material.GOLD_INGOT,"&eКапитуляция с выкупом",List.of("&fМэр защитников предлагает сумму из казны:","&e/sieges ransom offer <сумма>","&fМэр или генерал нападающих принимает:","&e/sieges ransom accept <ID предложения>","&fПосле согласия бой останавливается.","&fВойна закончится после подтверждения перевода.","&7Нажмите: показать предложения и их ID.")));
         inv.setItem(40,item(Material.BOOK,"&eПравила осады",List.of("&fОборона работает на территории города.","&fНезавершённые и отключённые здания","&fне предоставляют защиту.","","&fЗдания ремонтируются за счёт казны.","&fЦена зависит от утраченной прочности.","&fОбычные блоки восстанавливают HP после затишья.","&fСодержимое хранилищ защищено.")));
         inv.setItem(45,item(Material.ARROW,"&e← Назад",List.of("Вернуться в предыдущее меню")));
         inv.setItem(49,item(Material.CLOCK,"&aОбновить",List.of("Нажмите для обновления состояния")));
@@ -48,6 +49,7 @@ public final class SiegeMenu implements Listener {
         else if(e.getRawSlot()==33)try{plugin.hours().menu(p);}catch(Exception ex){p.sendMessage(ex.getMessage());}
         else if(e.getRawSlot()==32)plugin.warControl().status(p);
         else if(e.getRawSlot()==31)plugin.raids().status(p);
+        else if(e.getRawSlot()==39)plugin.ransom().status(p);
         else if(e.getRawSlot()==30)try{plugin.camps().menu(p);}catch(Exception ex){p.sendMessage(MenuStyle.decode("&e"+ex.getMessage()));}
         else if(e.getRawSlot()==49)try{open(p,h.town,h.previous);}catch(Exception ex){p.closeInventory();p.sendMessage(MenuStyle.decode("&c"+ex.getMessage()));}
     } }
