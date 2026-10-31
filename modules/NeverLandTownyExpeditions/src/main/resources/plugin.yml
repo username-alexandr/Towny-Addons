@@ -1,5 +1,5 @@
 name: NeverLandTownyExpeditions
-version: 0.2.1
+version: 0.2.2
 main: ru.neverland.mintexpeditions.MintTownyExpeditions
 folia-supported: true
 api-version: '26.2'
@@ -17,7 +17,7 @@ commands:
     permission: mintexpeditions.use
   townyexpeditions:
     description: Администрирование экспедиций
-    usage: /townyexpeditions <list|complete|cancel|reload>
+    usage: /townyexpeditions <list|complete|cancel|payments|resolve|reload>
     aliases: [mintexpeditions, mexp, neverlandtownyexpeditions, nltexpeditions]
     permission: mintexpeditions.admin
 permissions:

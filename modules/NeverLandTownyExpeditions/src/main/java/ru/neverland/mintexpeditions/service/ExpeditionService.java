@@ -433,10 +433,17 @@ public final class ExpeditionService {
    public void claim(Player player) {
       if(!ru.neverland.core.SuiteScheduler.owns(player)){ru.neverland.core.SuiteScheduler.entity(plugin,player,()->claim(player));return;}
       if(!repository.hasReward(player.getUniqueId())){messages.send(player,"no-reward");return;}
-      rewardDelivery.claim(player).whenComplete((done,error)->{if(!stopping&&plugin.isEnabled())ru.neverland.core.SuiteScheduler.entity(plugin,player,()->{
-         if(error==null&&done)player.sendMessage("Сохранённая награда экспедиции выдана.");
-         else player.sendMessage("Выдача не завершена. Сохранённая награда остаётся в очереди; освободите место или попросите администратора проверить начисление.");
-      });if(error!=null)plugin.getLogger().log(Level.WARNING,"Награда требует проверки: "+player.getUniqueId(),error);});
+      rewardDelivery.claim(player).whenComplete((done,error)->{
+         Throwable cause=error;while(cause instanceof CompletionException||cause instanceof ExecutionException)cause=cause.getCause();
+         var deferred=cause instanceof RewardDelivery.DeferredReward d?d:null;
+         if(!stopping&&plugin.isEnabled())ru.neverland.core.SuiteScheduler.entity(plugin,player,()->{
+            if(error==null&&done)messages.send(player,"reward-delivered");
+            else if(deferred!=null)messages.send(player,"reward-deferred",Map.of("reason",deferred.getMessage()));
+            else messages.send(player,"reward-review");
+         });
+         if(deferred!=null)plugin.getLogger().warning("Награда игрока "+player.getUniqueId()+" отложена без подтверждённой выдачи; операция "+deferred.operation()+": "+deferred.getMessage()+". Повтор: /expedition claim после устранения причины.");
+         else if(error!=null)plugin.getLogger().log(Level.WARNING,"Награда игрока "+player.getUniqueId()+" требует сверки; проверьте /townyexpeditions payments перед повтором",error);
+      });
    }
 
    public java.util.concurrent.CompletionStage<Void> readyAsync(){return returnTickets.readyAsync().thenCompose(v->journeys.load().handle((loaded,error)->{if(error!=null)plugin.getLogger().log(Level.SEVERE,"Поэтапные походы приостановлены; обычные экспедиции работают",error);else try(var guard=ru.neverland.core.SuiteState.guard()){for(var expedition:repository.active())if(expedition.planned()){var journey=journeys.get(expedition.id());if(journey!=null)try{reconcile(expedition,journey);}catch(RuntimeException invalid){journeyIssues.add(expedition.id());if(!expedition.timer().paused())expedition.timer(expedition.timer().edit("pause",0,System.currentTimeMillis()));plugin.getLogger().log(Level.SEVERE,"Подтверждения похода требуют сверки: "+expedition.id(),invalid);}}}return (Void)null;}));}
