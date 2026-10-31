@@ -129,7 +129,7 @@ public final class ClaimMapMenu implements Listener {
         for(int i=0;i<Math.min(27,plan.cells().size());i++){
             var cell=plan.cells().get(i);button(v,18+i,Material.YELLOW_STAINED_GLASS_PANE,"Участок "+cell.x()+", "+cell.z(),List.of(cell.world()),null);
         }
-        if(plan.status()==ExpansionPlan.Status.DRAFT)button(v,48,Material.LIME_CONCRETE,"Согласовать план",List.of("Towny ещё раз проверит землю, лимит и цену","Платёж не производится"),()->result(player,claims.approve(player,id,plan.revision())));
+        if(plan.status()==ExpansionPlan.Status.DRAFT)button(v,48,Material.LIME_CONCRETE,"Согласовать план",List.of("Towny ещё раз проверит землю, лимит и цену","Платёж не производится"),()->approve(player,id,plan.revision()));
         if(plan.status()==ExpansionPlan.Status.APPROVED)button(v,48,Material.GOLD_BLOCK,"Перейти к оплате и захвату",List.of("Показать последнее подтверждение"),()->confirm(player,id,plan.revision()));
         if(plan.status()==ExpansionPlan.Status.DRAFT||plan.status()==ExpansionPlan.Status.APPROVED)
             button(v,46,Material.BARRIER,"Отменить план",List.of("Присоединение ещё не началось","Оплата не запрашивалась"),()->result(player,claims.cancel(player,id,plan.revision())));
@@ -142,14 +142,23 @@ public final class ClaimMapMenu implements Listener {
         case INTENT->"Присоединение выполняется или требует сверки";case OBSERVED->"Участки присоединены; проверьте платёж";
         case REVIEW->"Нужна сверка администратора";case CANCELLED->"Отменён";case RECONCILED->"Сверка завершена";
     };}
+    private void approve(Player player,UUID id,int revision){
+        try{result(player,claims.approve(player,id,revision));}
+        catch(Exception error){throw new IllegalStateException(error.getMessage(),error);}
+    }
     private void confirm(Player player,UUID id,int revision){
         Town town=access(player);var plan=claims.view(player,id);
         if(plan.status()!=ExpansionPlan.Status.APPROVED||plan.revision()!=revision)throw new IllegalStateException("План изменился. Откройте его снова");
         var v=view(player,town,"Подтвердить присоединение?");
         button(v,13,Material.FILLED_MAP,"Проверка перед оплатой",List.of("Участков: "+plan.cells().size(),"Смета: "+plan.estimate()+" монет из казны","Towny повторно проверит цену, права и границы","Если что-то изменилось, захват не начнётся"),null);
-        button(v,29,Material.LIME_CONCRETE,"Подтвердить захват",List.of("Списание через Towny и присоединение земли"),()->{access(player);result(player,claims.execute(player,id,revision));});
+        button(v,29,Material.LIME_CONCRETE,"Подтвердить захват",List.of("Списание через Towny и присоединение земли"),()->execute(player,id,revision));
         button(v,33,Material.RED_CONCRETE,"Вернуться",List.of("Без списания"),()->detail(player,id));
         player.openInventory(v.inventory);
+    }
+    private void execute(Player player,UUID id,int revision){
+        access(player);
+        try{result(player,claims.execute(player,id,revision));}
+        catch(Exception error){throw new IllegalStateException(error.getMessage(),error);}
     }
     @EventHandler public void click(InventoryClickEvent event){try(var guard=SuiteState.guard()){
         if(!(event.getView().getTopInventory().getHolder() instanceof View v))return;
