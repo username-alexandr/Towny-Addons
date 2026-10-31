@@ -10,6 +10,7 @@ orders-city: "&7Покупка города доставляется в его �
 orders-date: "&7Дата (МСК): &f{date}"
 orders-refresh: "&fОбновить"
 orders-back: "&fРынок"
+menu-back: "&fНазад"
 page-previous: "&fПредыдущая страница"
 page-next: "&fСледующая страница"
 purchase-pending: "Покупка сохранена и ожидает оплаты. Следите за состоянием в «Покупки и получение». ID: {id}"

@@ -100,7 +100,7 @@ public final class EventMenuManager implements Listener {
         inventory.setItem(49, item(Material.BOOK, "&#65B8FFИстория событий", List.of("&7Показать последние результаты города.")));
         if(events.scenarios().current(town.getUUID()).isPresent())inventory.setItem(42,item(Material.COMPASS,"&bПлан действий",List.of("&7Этапы помощи и решение мэра.","&7Выбор не списывает деньги или предметы.","&eНажмите, чтобы посмотреть условия.")));
         int damaged = events.fires().damage(town.getUUID()).size();
-        inventory.setItem(45, item(Material.ANVIL, "&eРемонт после пожара", damaged == 0 ? List.of(messages.raw("repair-empty")) : List.of(
+        inventory.setItem(45, item(Material.ANVIL, messages.raw("repair-title"), damaged == 0 ? List.of(messages.raw("repair-empty")) : List.of(
                 "&7Мест для восстановления: &f" + damaged,
                 "&7Почините или перестройте участок на свой вкус.", "&7Затем выберите его и нажмите «Ремонт завершён».",
                 "", "&eЛКМ — выбрать участок")));
@@ -141,7 +141,7 @@ public final class EventMenuManager implements Listener {
                     "&7Завершение (МСК): &f" + DATE.format(Instant.ofEpochMilli(entry.endedAt())))));
             if (slot >= 45) break;
         }
-        inventory.setItem(49, item(Material.ARROW, "&#FFFFFFНазад", List.of("&7Вернуться к событию.")));
+        inventory.setItem(49, item(Material.ARROW, messages.raw("menu-back"), List.of(messages.raw("menu-back-hint"))));
         player.openInventory(inventory);
     } }
 

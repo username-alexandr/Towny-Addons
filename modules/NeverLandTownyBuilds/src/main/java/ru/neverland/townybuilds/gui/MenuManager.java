@@ -252,8 +252,8 @@ public final class MenuManager implements Listener {
         }
         if(!construction.active()&&current<project.maxLevel())renderContribution(player,project,holder);
         if(current>0&&!construction.active()&&Bukkit.getPluginManager().isPluginEnabled("NeverLandTownySiegesPlus"))inventory.setItem(14,actionItem("raid-repair",new ItemStack(Material.ANVIL),"&eПрочность и ремонт",List.of("&7Посмотреть общую прочность здания.","&7Ремонт оплачивается из городской казны.","&7Цена зависит от доли повреждений.")));
-        inventory.setItem(24,actionItem("refresh",new ItemStack(Material.CLOCK),"Обновить условия",List.of("&7Проверить материалы и разрешения.")));
-        var back=actionItem("back",backItem(),"&fНазад",List.of("&7Вернуться к списку зданий."));role(back,"back");inventory.setItem(22,back);
+        inventory.setItem(24,actionItem("refresh",new ItemStack(Material.CLOCK),messages.raw("menu-refresh"),List.of(messages.raw("menu-refresh-hint"))));
+        var back=actionItem("back",backItem(),messages.raw("menu-back"),List.of(messages.raw("menu-back-hint")));role(back,"back");inventory.setItem(22,back);
     }
 
     public void openStorage(Player player) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
