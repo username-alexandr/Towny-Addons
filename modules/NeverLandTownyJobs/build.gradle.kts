@@ -10,6 +10,7 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:26.2.build.121-stable")
     compileOnly("com.palmergames.bukkit.towny:towny:0.103.2.0")
+    testRuntimeOnly("org.xerial:sqlite-jdbc:3.49.1.0")
 }
 java { toolchain.languageVersion.set(JavaLanguageVersion.of(25)) }
 configurations.configureEach {
