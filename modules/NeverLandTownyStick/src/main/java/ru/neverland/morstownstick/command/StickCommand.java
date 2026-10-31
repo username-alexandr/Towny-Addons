@@ -96,7 +96,7 @@ public final class StickCommand implements CommandExecutor {
 
     private boolean help(Player player) {
         if (!player.hasPermission("morstownstick.stick")) messages.send(player, "no-permission");
-        else {messages.sendList(player, "help");player.sendMessage(ru.neverland.core.EditableMessages.text(StickCommand.class, "§aПланы расширения: §f/t stick map §7— карта участков для мэра на своей территории; §f/t stick plan §7— сохранить выбранные палкой участки; §f/t stick plans §7— список."));}
+        else {messages.sendList(player, "help");player.sendMessage(ru.neverland.core.EditableMessages.text(StickCommand.class, "§aПланы расширения: §f/t stick map §7— карта для мэра или заместителя с правом; §f/t stick plan §7— сохранить выбранные палкой участки; §f/t stick plans §7— список."));}
         return true;
     }
 

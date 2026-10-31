@@ -14,11 +14,14 @@ TARGET=ROOT/'modules/NeverLandTownyControl/src/main/resources/module-dependencie
 # Specialization keeps production/stock and neutral cancellation without the seasonal
 # calendar; new seasonal offers require that provider. Research's optional license
 # payments wait for Treasury, while basic studies and acknowledged bonuses continue.
+# Stick still lets the mayor use Towny's native claim checks while Council is stopped;
+# all deputy authorizations fail closed until the town-scoped Council decision is available.
 ISOLATED_EDGES={
     ('NeverLandTownyPolicies','NeverLandTownyQuests'),
     ('NeverLandTownySeasons','NeverLandTownySpecialization'),
     ('NeverLandTownySpecialization','NeverLandTownySeasons'),
     ('NeverLandTownyResearch','NeverLandTownyTreasuryPlus'),
+    ('NeverLandTownyStick','NeverLandTownyCouncil'),
 }
 def shutdown_dependencies(name, providers, hard=()):
     result=set(providers)

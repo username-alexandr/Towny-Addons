@@ -16,17 +16,19 @@ public record ExpansionPlan(UUID id, UUID town, UUID author, UUID mayor, int rev
                 ||!cells.containsAll(observedOwned))throw new IllegalArgumentException("Повреждён план расширения");
         for(var cell:cells)if(cell.world()==null||cell.world().isBlank()||cell.world().length()>128||Math.abs((long)cell.x())>30_000_000||Math.abs((long)cell.z())>30_000_000)throw new IllegalArgumentException("Некорректный участок");
         if((status==Status.APPROVED||status==Status.INTENT||status==Status.OBSERVED||status==Status.REVIEW)&&approvedBy==null)throw new IllegalArgumentException("Нет согласования мэра");
-        if(approvedBy!=null&&!approvedBy.equals(mayor))throw new IllegalArgumentException("Согласование другого мэра");
         if(status==Status.OBSERVED&&observedOwned.size()!=cells.size())throw new IllegalArgumentException("Не все участки присоединены");
     }
     public boolean open(){return status==Status.DRAFT||status==Status.APPROVED||status==Status.INTENT||status==Status.REVIEW;}
-    public ExpansionPlan approve(UUID actor,int expected,long now){
-        requireRevision(expected);if(status!=Status.DRAFT||!mayor.equals(actor))throw new IllegalStateException("Этот план может согласовать только указанный мэр");
-        return change(Status.APPROVED,actor,List.of(),"Мэр согласовал смету; присоединение ещё не запускалось",now);
+    public ExpansionPlan approve(UUID actor,int expected,long now){return approve(actor,expected,now,false);}
+    /** Delegation is checked against live Council rights by ClaimService on every use. */
+    public ExpansionPlan approve(UUID actor,int expected,long now,boolean authorized){
+        requireRevision(expected);if(status!=Status.DRAFT||(!mayor.equals(actor)&&!authorized))throw new IllegalStateException("Этот план может согласовать только мэр или уполномоченный заместитель");
+        return change(Status.APPROVED,actor,List.of(),"Смета согласована; присоединение ещё не запускалось",now);
     }
-    public ExpansionPlan intent(UUID actor,int expected,long now){
-        requireRevision(expected);if(status!=Status.APPROVED||!mayor.equals(actor)||!actor.equals(approvedBy))throw new IllegalStateException("Сначала согласуйте текущую версию плана");
-        return change(Status.INTENT,actor,List.of(),"Начало записано. После сбоя нужна сверка; автоматически не повторять",now);
+    public ExpansionPlan intent(UUID actor,int expected,long now){return intent(actor,expected,now,false);}
+    public ExpansionPlan intent(UUID actor,int expected,long now,boolean authorized){
+        requireRevision(expected);if(status!=Status.APPROVED||(!mayor.equals(actor)&&!authorized)||(!authorized&&!actor.equals(approvedBy)))throw new IllegalStateException("Сначала согласуйте текущую версию плана");
+        return change(Status.INTENT,approvedBy,List.of(),"Начало записано. После сбоя нужна сверка; автоматически не повторять",now);
     }
     public ExpansionPlan result(List<CellKey> owned,String reason,long now){
         if(status!=Status.INTENT)throw new IllegalStateException("Запуск не подтверждён");

@@ -13,6 +13,10 @@ public final class AccessRulesSmoke {
         check(!denied.override(resident,"economy",TownAction.BUDGET),"personal denial takes precedence");
         check(denied.change("",resident,TownAction.BUDGET,null).override(resident,"economy",TownAction.BUDGET),"reset inherits role");
         check(denied.override(resident,"",TownAction.TRADE)==null,"unconfigured action inherits original rules");
+        check(initial.override(resident,"",TownAction.CLAIM_LAND)==null,"land claims are not delegated by default");
+        var claim=initial.change("",resident,TownAction.CLAIM_LAND,true);
+        check(Boolean.TRUE.equals(claim.override(resident,"",TownAction.CLAIM_LAND)),"mayor can grant a specific deputy land access");
+        check(Boolean.FALSE.equals(claim.change("",resident,TownAction.CLAIM_LAND,false).override(resident,"",TownAction.CLAIM_LAND)),"mayor can revoke the land grant");
         var personal=role.change("economy",null,TownAction.BUDGET,false).change("",resident,TownAction.BUDGET,true);
         check(personal.override(resident,"economy",TownAction.BUDGET),"personal allow takes precedence");
         check(initial.revision()==0&&denied.revision()==2&&initial.roles().isEmpty(),"immutable revisions");
@@ -23,6 +27,8 @@ public final class AccessRulesSmoke {
         reject(()->new AccessRules(mayor,1,Map.of("economy",Map.of("BUDGET",true)),Map.of()),"noncanonical persisted action rejected");
         check(personal.without(resident).residents().isEmpty(),"resident departure removes overrides");
         Path file=Files.createTempDirectory("council-access-").resolve("access.yml");var repo=new AccessRepository(file);repo.load();
+        repo.commit(Map.of(town,claim),"deputy land access");var grantRestart=new AccessRepository(file);grantRestart.load();
+        check(grantRestart.cities().get(town).equals(claim),"deputy grant survives restart");
         repo.commit(Map.of(town,denied),"mayor denied budget");var restart=new AccessRepository(file);restart.load();
         check(restart.cities().equals(repo.cities())&&restart.history().equals(repo.history()),"permissions and audit survive restart together");
         Files.delete(file);Files.createDirectory(file);Files.writeString(file.resolve("obstruction"),"preserve");

@@ -85,9 +85,9 @@ messages:
     - "&#FFFFFF/t stick list &#AAAAAA— список выделения"
     - "&#FFFFFF/t stick clear &#AAAAAA— очистить выделение"
     - "&#FFFFFF/t claim &#AAAAAA— подготовить план выбранных участков"
-    - "&#FFFFFF/t stick map &#AAAAAA— открыть карту участков (мэр в своём городе)"
+    - "&#FFFFFF/t stick map &#AAAAAA— карта для мэра или заместителя с правом"
     - "&#FFFFFF/t stick plans &#AAAAAA— сохранённые планы города"
-    - "&#FFFFFF/t stick show <ID> &#AAAAAA— смета, участки и команды мэра"
+    - "&#FFFFFF/t stick show <ID> &#AAAAAA— смета, участки и действия по праву"
 
   claim-disabled: "&#FF5555Массовый захват отключён администратором."
   claim-start: "&#AAAAAAНачинаем последовательный захват &#FFFFFF%count% &#AAAAAAчанков..."
