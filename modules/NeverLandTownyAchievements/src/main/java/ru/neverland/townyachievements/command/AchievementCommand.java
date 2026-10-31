@@ -14,7 +14,7 @@ public final class AchievementCommand implements TabExecutor {
         try {
             if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
                 if (!sender.isOp() && !sender.hasPermission("neverlandtownyachievements.admin")) throw new IllegalArgumentException("Нет прав администратора");
-                plugin.reloadAchievements(); sender.sendMessage("§aКаталог обновлён; начатые достижения и награды сохранены."); return true;
+                plugin.reloadAchievements(); sender.sendMessage(ru.neverland.core.EditableMessages.text(AchievementCommand.class, "§aКаталог обновлён; начатые достижения и награды сохранены.")); return true;
             }
             if (!(sender instanceof Player player)) throw new IllegalArgumentException("Из консоли: /townyachievements admin list или reload");
             service.requireTown(player);
@@ -23,15 +23,15 @@ public final class AchievementCommand implements TabExecutor {
             else if (args.length == 2) switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "info" -> menu.achievement(player, args[1]);
                 case "track" -> menu.track(player, ru.neverland.townyachievements.model.Achievement.Track.valueOf(args[1].toUpperCase(Locale.ROOT)));
-                case "title" -> { service.selectTitle(player, args[1]); player.sendMessage("§aТитул города обновлён."); }
-                case "cosmetic" -> { service.selectCosmetic(player, args[1]); player.sendMessage("§aЭффект частиц обновлён."); }
+                case "title" -> { service.selectTitle(player, args[1]); player.sendMessage(ru.neverland.core.EditableMessages.text(AchievementCommand.class, "§aТитул города обновлён.")); }
+                case "cosmetic" -> { service.selectCosmetic(player, args[1]); player.sendMessage(ru.neverland.core.EditableMessages.text(AchievementCommand.class, "§aЭффект частиц обновлён.")); }
                 case "banner" -> BannerRewards.apply(plugin, service, player, args[1]);
                 default -> help(sender);
             } else help(sender);
         } catch (Exception ex) { sender.sendMessage("§c" + ex.getMessage()); }
         return true;
     } }
-    private void help(CommandSender sender) { sender.sendMessage("§e/t achievements [menu|rewards|track <common|trade|industry|military|culture>|info <ID>|title <ID|none>|cosmetic <ID|none>|banner <ID>]"); }
+    private void help(CommandSender sender) { sender.sendMessage(ru.neverland.core.EditableMessages.text(AchievementCommand.class, "§e/t achievements [menu|rewards|track <common|trade|industry|military|culture>|info <ID>|title <ID|none>|cosmetic <ID|none>|banner <ID>]")); }
     @Override public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
         if (args.length == 0 || !sender.isOp() && !sender.hasPermission("neverlandtownyachievements.use")) return List.of();
         var values = new ArrayList<String>();

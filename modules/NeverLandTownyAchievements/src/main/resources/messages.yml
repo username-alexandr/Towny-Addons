@@ -1,0 +1,19 @@
+# Сообщения этого аддона. Изменяйте только значения text; source оставляйте без изменений.
+# Цветовые коды и подстановки сохраняйте. Изменения действуют после перезапуска.
+overrides:
+- source: §aКаталог обновлён; начатые достижения и награды сохранены.
+  text: §aКаталог обновлён; начатые достижения и награды сохранены.
+- source: §aТитул города обновлён.
+  text: §aТитул города обновлён.
+- source: §aЭффект частиц обновлён.
+  text: §aЭффект частиц обновлён.
+- source: §e/t achievements [menu|rewards|track <common|trade|industry|military|culture>|info <ID>|title <ID|none>|cosmetic
+    <ID|none>|banner <ID>]
+  text: §e/t achievements [menu|rewards|track <common|trade|industry|military|culture>|info <ID>|title <ID|none>|cosmetic
+    <ID|none>|banner <ID>]
+- source: §aЧастицы отключены.
+  text: §aЧастицы отключены.
+- source: §aЭффект включён.
+  text: §aЭффект включён.
+- source: §aГородской узор нанесён на знамя.
+  text: §aГородской узор нанесён на знамя.

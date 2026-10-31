@@ -1042,3 +1042,62 @@ ru.neverland.townyenvironment.api.TownyEnvironmentApi	forecast(java.util.UUID,ja
 ru.neverland.townybuilds.api.TownyBuildsApi	armyEstablished(java.util.UUID):boolean throws []
 ru.neverland.townybuilds.api.TownyBuildsApi	capability armyEstablished
 ru.neverland.townybuilds.api.TownyBuildsApi	default armyEstablished(java.util.UUID)
+# Published v0.52.1: contracts absent from the earlier baseline; captured from release JARs.
+ru.neverland.townybuilds.api.BuildingPlanningApi	apiVersion():int throws []
+ru.neverland.townybuilds.api.BuildingPlanningApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townybuilds.api.BuildingPlanningApi	capability development
+ru.neverland.townybuilds.api.BuildingPlanningApi	default apiVersion()
+ru.neverland.townybuilds.api.BuildingPlanningApi	default capabilities()
+ru.neverland.townybuilds.api.BuildingPlanningApi	default integrationDiagnostics()
+ru.neverland.townybuilds.api.BuildingPlanningApi	default storageMetrics()
+ru.neverland.townybuilds.api.BuildingPlanningApi	development(java.util.UUID,java.util.Map<java.lang.String, java.lang.Integer>):java.util.concurrent.CompletableFuture<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.BuildingPlanningApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townybuilds.api.BuildingPlanningApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.mintcontracts.api.BuildingProcurementApi	apiVersion():int throws []
+ru.neverland.mintcontracts.api.BuildingProcurementApi	cancel(org.bukkit.entity.Player,java.util.UUID):java.util.concurrent.CompletionStage<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.mintcontracts.api.BuildingProcurementApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.mintcontracts.api.BuildingProcurementApi	capability cancel
+ru.neverland.mintcontracts.api.BuildingProcurementApi	capability confirm
+ru.neverland.mintcontracts.api.BuildingProcurementApi	capability offers
+ru.neverland.mintcontracts.api.BuildingProcurementApi	capability quote
+ru.neverland.mintcontracts.api.BuildingProcurementApi	capability requests
+ru.neverland.mintcontracts.api.BuildingProcurementApi	capability status
+ru.neverland.mintcontracts.api.BuildingProcurementApi	confirm(org.bukkit.entity.Player,java.util.UUID):java.util.concurrent.CompletionStage<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.mintcontracts.api.BuildingProcurementApi	default apiVersion()
+ru.neverland.mintcontracts.api.BuildingProcurementApi	default capabilities()
+ru.neverland.mintcontracts.api.BuildingProcurementApi	default integrationDiagnostics()
+ru.neverland.mintcontracts.api.BuildingProcurementApi	default storageMetrics()
+ru.neverland.mintcontracts.api.BuildingProcurementApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.mintcontracts.api.BuildingProcurementApi	offers(org.bukkit.entity.Player,java.lang.String):java.util.concurrent.CompletionStage<java.util.List<java.util.Map<java.lang.String, java.lang.Object>>> throws []
+ru.neverland.mintcontracts.api.BuildingProcurementApi	quote(org.bukkit.entity.Player,java.lang.String,java.lang.String):java.util.concurrent.CompletionStage<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.mintcontracts.api.BuildingProcurementApi	requests(org.bukkit.entity.Player,int):java.util.concurrent.CompletionStage<java.util.List<java.util.Map<java.lang.String, java.lang.Object>>> throws []
+ru.neverland.mintcontracts.api.BuildingProcurementApi	status(org.bukkit.entity.Player,java.util.UUID):java.util.concurrent.CompletionStage<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.mintcontracts.api.BuildingProcurementApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyspecialization.api.ProfileGoodsApi	accept(org.bukkit.entity.Player,java.util.UUID,java.util.UUID,java.lang.String):java.util.concurrent.CompletionStage<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyspecialization.api.ProfileGoodsApi	active():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyspecialization.api.ProfileGoodsApi	adminCancel(java.util.UUID,java.util.UUID,java.lang.String,java.lang.String):java.util.concurrent.CompletionStage<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyspecialization.api.ProfileGoodsApi	apiVersion():int throws []
+ru.neverland.townyspecialization.api.ProfileGoodsApi	cancel(org.bukkit.entity.Player,java.util.UUID,java.lang.String):java.util.concurrent.CompletionStage<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyspecialization.api.ProfileGoodsApi	capabilities():java.util.Set<java.lang.String> throws []
+ru.neverland.townyspecialization.api.ProfileGoodsApi	capability accept
+ru.neverland.townyspecialization.api.ProfileGoodsApi	capability active
+ru.neverland.townyspecialization.api.ProfileGoodsApi	capability adminCancel
+ru.neverland.townyspecialization.api.ProfileGoodsApi	capability cancel
+ru.neverland.townyspecialization.api.ProfileGoodsApi	capability confirm
+ru.neverland.townyspecialization.api.ProfileGoodsApi	capability entries
+ru.neverland.townyspecialization.api.ProfileGoodsApi	capability entry
+ru.neverland.townyspecialization.api.ProfileGoodsApi	capability quote
+ru.neverland.townyspecialization.api.ProfileGoodsApi	capability ready
+ru.neverland.townyspecialization.api.ProfileGoodsApi	capability stock
+ru.neverland.townyspecialization.api.ProfileGoodsApi	confirm(org.bukkit.entity.Player,java.util.Map<java.lang.String, java.lang.Object>):java.util.concurrent.CompletionStage<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyspecialization.api.ProfileGoodsApi	default apiVersion()
+ru.neverland.townyspecialization.api.ProfileGoodsApi	default capabilities()
+ru.neverland.townyspecialization.api.ProfileGoodsApi	default integrationDiagnostics()
+ru.neverland.townyspecialization.api.ProfileGoodsApi	default storageMetrics()
+ru.neverland.townyspecialization.api.ProfileGoodsApi	entries(java.util.UUID,int):java.util.concurrent.CompletionStage<java.util.List<java.util.Map<java.lang.String, java.lang.Object>>> throws []
+ru.neverland.townyspecialization.api.ProfileGoodsApi	entry(java.util.UUID):java.util.concurrent.CompletionStage<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyspecialization.api.ProfileGoodsApi	integrationDiagnostics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyspecialization.api.ProfileGoodsApi	quote(org.bukkit.entity.Player,java.util.UUID,java.util.UUID,java.util.UUID,java.lang.String,java.lang.String,java.util.Map<java.lang.String, java.lang.Long>,java.util.Map<java.lang.String, java.lang.Long>,long):java.util.concurrent.CompletionStage<java.util.Map<java.lang.String, java.lang.Object>> throws []
+ru.neverland.townyspecialization.api.ProfileGoodsApi	ready():boolean throws []
+ru.neverland.townyspecialization.api.ProfileGoodsApi	stock(java.util.UUID,int):java.util.concurrent.CompletionStage<java.util.List<java.util.Map<java.lang.String, java.lang.Object>>> throws []
+ru.neverland.townyspecialization.api.ProfileGoodsApi	storageMetrics():java.util.List<java.util.Map<java.lang.String, java.lang.Object>> throws []

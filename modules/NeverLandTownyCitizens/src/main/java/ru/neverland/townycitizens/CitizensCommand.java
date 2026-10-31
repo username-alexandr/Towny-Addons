@@ -14,7 +14,7 @@ public final class CitizensCommand implements TabExecutor {
     private final CitizensMenus menus;
     private final AdmissionsController admissions;
     public CitizensCommand(NeverLandTownyCitizens plugin, CitizensService service, CitizensMenus menus, AdmissionsController admissions) { this.plugin = plugin; this.service = service; this.menus = menus; this.admissions=admissions; }
-    public static void tell(CommandSender sender, String text) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', "&aNeverLand &f• Гражданство &7» &f" + text)); } }
+    public static void tell(CommandSender sender, String text) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', ru.neverland.core.EditableMessages.decorate(CitizensCommand.class,"&aNeverLand &f• Гражданство &7» &f",text))); } }
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyCitizens")){return true;}
         if (!sender.hasPermission("neverlandtownycitizens.use")) { tell(sender, "&cНет права на просмотр гражданства."); return true; }
         try {

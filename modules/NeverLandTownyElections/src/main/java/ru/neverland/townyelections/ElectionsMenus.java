@@ -73,8 +73,8 @@ public final class ElectionsMenus implements Listener {
                 if(slot==53){open(p,h.race(),h.page(),null,h.back());return;}
                 if(slot==48||slot==50){open(p,h.race(),h.page()+(slot==48?-1:1),h.selected(),h.back());return;}
                 if(slot==49){
-                    if(h.race()!=null && e.phase==Election.Phase.NOMINATION){service.nominate(p,h.race());p.sendMessage("§aКандидатура сохранена.");}
-                    else if(h.race()!=null && e.phase==Election.Phase.VOTING){service.vote(p,h.race(),List.copyOf(h.selected()));p.sendMessage("§aГолос сохранён.");}
+                    if(h.race()!=null && e.phase==Election.Phase.NOMINATION){service.nominate(p,h.race());p.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsMenus.class, "§aКандидатура сохранена."));}
+                    else if(h.race()!=null && e.phase==Election.Phase.VOTING){service.vote(p,h.race(),List.copyOf(h.selected()));p.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsMenus.class, "§aГолос сохранён."));}
                     else{ElectionsCommand.help(p);return;}
                     open(p,h.race(),h.page(),null,h.back());return;
                 }

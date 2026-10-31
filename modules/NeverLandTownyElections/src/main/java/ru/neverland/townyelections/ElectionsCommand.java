@@ -8,17 +8,17 @@ public final class ElectionsCommand implements TabExecutor {
     private final NeverLandTownyElections plugin;private final ElectionsService service;private final ElectionsMenus menus;
     public ElectionsCommand(NeverLandTownyElections plugin,ElectionsService service,ElectionsMenus menus){this.plugin=plugin;this.service=service;this.menus=menus;}
     public static void help(CommandSender s){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
-        s.sendMessage("§6Выборы города §8• §f/t elections");
-        s.sendMessage("§e/t elections candidate <должность> §7— выдвинуть себя");
-        s.sendMessage("§e/t elections withdraw §7— снять кандидатуру до голосования");
-        s.sendMessage("§e/t elections vote <должность> <игроки через запятую> §7— сохранить выбор");
-        s.sendMessage("§e/t elections programs §7— программы; program <кандидат> — проверка целей");
-        s.sendMessage("§e/t elections promise §7— команды редактирования своей программы");
-        s.sendMessage("§e/t elections results §7— итоги; history — последние кампании");
+        s.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§6Выборы города §8• §f/t elections"));
+        s.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§e/t elections candidate <должность> §7— выдвинуть себя"));
+        s.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§e/t elections withdraw §7— снять кандидатуру до голосования"));
+        s.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§e/t elections vote <должность> <игроки через запятую> §7— сохранить выбор"));
+        s.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§e/t elections programs §7— программы; program <кандидат> — проверка целей"));
+        s.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§e/t elections promise §7— команды редактирования своей программы"));
+        s.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§e/t elections results §7— итоги; history — последние кампании"));
         if(s.hasPermission("townyelections.admin")){
-            s.sendMessage("§c/elections start <город> §7— досрочный старт; reload — настройки");
-            s.sendMessage("§c/elections resume <город> <UUID кампании> §7— применить сохранённые итоги после проверки");
-            s.sendMessage("§c/elections abort <город> <UUID кампании> §7— закрыть кампанию, сохранив текущую власть");
+            s.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§c/elections start <город> §7— досрочный старт; reload — настройки"));
+            s.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§c/elections resume <город> <UUID кампании> §7— применить сохранённые итоги после проверки"));
+            s.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§c/elections abort <город> <UUID кампании> §7— закрыть кампанию, сохранив текущую власть"));
         }
     } }
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyElections")){return true;}
@@ -37,7 +37,7 @@ public final class ElectionsCommand implements TabExecutor {
                     else service.abort(town,UUID.fromString(args[2]),sender.getName());
                     plugin.getLogger().info("Администратор "+sender.getName()+": "+String.join(" ",args));
                 }
-                sender.sendMessage("§aИзменение сохранено.");return true;
+                sender.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§aИзменение сохранено."));return true;
             }
             if(!(sender instanceof Player p))throw new IllegalArgumentException("Откройте меню из игры; /elections help.");
             var town=ElectionsService.requireTown(p);
@@ -47,23 +47,23 @@ public final class ElectionsCommand implements TabExecutor {
                 case "program" -> {if(args.length>2)throw new IllegalArgumentException("/t elections program [кандидат]");UUID candidate=p.getUniqueId();if(args.length==2){var resident=TownyAPI.getInstance().getResident(args[1]);if(resident==null)throw new IllegalArgumentException("Игрок не найден.");candidate=resident.getUUID();}menus.programs(p,candidate,0);}
                 case "promise" -> {
                     if(args.length==1){ElectionProgramsMenu.editingHelp(p);break;}
-                    var receipt=service.programs().edit(p,Arrays.copyOfRange(args,1,args.length));p.sendMessage("§7Сохраняем программу…");
+                    var receipt=service.programs().edit(p,Arrays.copyOfRange(args,1,args.length));p.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§7Сохраняем программу…"));
                     receipt.whenComplete((message,error)->{if(!plugin.isEnabled()||ru.neverland.core.SuiteState.frozen(plugin.getName()))return;ru.neverland.core.SuiteScheduler.reply(plugin,p,()->{if(error==null)p.sendMessage("§a"+message);else{var cause=error;while(cause.getCause()!=null)cause=cause.getCause();p.sendMessage("§cПрограмма не изменена: "+(cause.getMessage()==null?"сохранение не подтверждено":cause.getMessage()));}});});
                 }
-                case "candidate" -> {if(args.length!=2)throw new IllegalArgumentException("Укажите ID должности из меню.");service.nominate(p,args[1]);p.sendMessage("§aКандидатура сохранена.");}
-                case "withdraw" -> {if(args.length!=1)throw new IllegalArgumentException("/t elections withdraw");service.withdraw(p);p.sendMessage("§aКандидатура снята.");}
+                case "candidate" -> {if(args.length!=2)throw new IllegalArgumentException("Укажите ID должности из меню.");service.nominate(p,args[1]);p.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§aКандидатура сохранена."));}
+                case "withdraw" -> {if(args.length!=1)throw new IllegalArgumentException("/t elections withdraw");service.withdraw(p);p.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§aКандидатура снята."));}
                 case "vote" -> {
                     if(args.length!=3)throw new IllegalArgumentException("/t elections vote <должность> <игрок1,игрок2>");
                     var choices=new ArrayList<UUID>();for(String name:args[2].split(",",-1)){var r=TownyAPI.getInstance().getResident(name);if(r==null)throw new IllegalArgumentException("Игрок не найден: "+name);choices.add(r.getUUID());}
-                    service.vote(p,args[1],choices);p.sendMessage("§aГолос сохранён. Повторное голосование заменяет предыдущий выбор.");
+                    service.vote(p,args[1],choices);p.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§aГолос сохранён. Повторное голосование заменяет предыдущий выбор."));
                 }
                 case "results" -> {
                     var e=service.state(town);p.sendMessage("§6Кампания §f"+e.id+" §7• "+ElectionsMenus.phase(e.phase));
-                    if(e.results.isEmpty())p.sendMessage("§7Подсчёт ещё не проводился.");
+                    if(e.results.isEmpty())p.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§7Подсчёт ещё не проводился."));
                     for(var entry:e.results.entrySet())p.sendMessage("§e"+menus.name(entry.getKey())+" §7— "+entry.getValue()+" §f"+e.winners.getOrDefault(entry.getKey(),List.of()).stream().map(ElectionsMenus::residentName).toList());
                     if(!e.detail.isEmpty())p.sendMessage("§7"+e.detail);
                 }
-                case "history" -> {var e=service.state(town);if(e.history.isEmpty())p.sendMessage("§7История пока пуста.");else e.history.stream().limit(5).forEach(v->p.sendMessage("§7"+v));}
+                case "history" -> {var e=service.state(town);if(e.history.isEmpty())p.sendMessage(ru.neverland.core.EditableMessages.text(ElectionsCommand.class, "§7История пока пуста."));else e.history.stream().limit(5).forEach(v->p.sendMessage("§7"+v));}
                 default -> help(sender);
             }
         }catch(Exception ex){sender.sendMessage("§cВыборы: "+(ex.getMessage()==null?ex.getClass().getSimpleName():ex.getMessage()));}

@@ -71,7 +71,7 @@ public final class SiegeService implements TownySiegesApi {
         failure=error.getMessage()==null?error.getClass().getSimpleName():error.getMessage();
         if(System.currentTimeMillis()-lastFailure>60000) { lastFailure=System.currentTimeMillis(); plugin.getLogger().log(java.util.logging.Level.WARNING,"Осадная интеграция временно недоступна",error); }
     } }
-    public void tell(Player p,String text) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) { long now=System.currentTimeMillis();if(now-messages.getOrDefault(p.getUniqueId(),0L)<3000)return;messages.put(p.getUniqueId(),now);p.sendMessage(ru.neverland.core.MenuStyle.decode("&6[Осада] &f"+text)); } }
+    public void tell(Player p,String text) { try (var suiteGuard13 = ru.neverland.core.SuiteState.guard()) { long now=System.currentTimeMillis();if(now-messages.getOrDefault(p.getUniqueId(),0L)<3000)return;messages.put(p.getUniqueId(),now);p.sendMessage(ru.neverland.core.MenuStyle.decode(ru.neverland.core.EditableMessages.decorate(SiegeService.class,"&6[Осада] &f",text))); } }
     public double defense(Player attacker,Player defender,Location at) { try (var suiteGuard14 = ru.neverland.core.SuiteState.guard()) {
         var a=assess(attacker,at);if(a.town()==null)return 0;if(a.uncertain())return -1;
         try {

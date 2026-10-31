@@ -44,8 +44,10 @@ public final class FishStockSmoke {
         try{await(failed.ready());throw new AssertionError("unwritable store accepted");}catch(ExecutionException expected){checks++;}
         ok(!failed.available(),"unavailable durable store cannot authorize fishing");failed.close();
         var cfg=new org.bukkit.configuration.file.YamlConfiguration();var defaults=FishingSettings.read(cfg);
-        ok(defaults.enabled()&&!defaults.withoutTask()&&defaults.requireOpenWater(),"defaults protect quests while keeping ordinary fishing unchanged");
+        ok(defaults.enabled()&&!defaults.withoutTask()&&defaults.requireOpenWater()&&defaults.minimumSurface()==25&&defaults.minimumSpan()==5&&defaults.minimumDepth()==2,
+            "defaults protect quests with size check while keeping ordinary fishing unchanged");
         cfg.set("stock.radius",0);try{FishingSettings.read(cfg);throw new AssertionError("invalid radius accepted");}catch(IllegalArgumentException expected){checks++;}
+        cfg.set("stock.radius",24);cfg.set("habitat.minimum-water-blocks",500);try{FishingSettings.read(cfg);throw new AssertionError("unreachable pond size accepted");}catch(IllegalArgumentException expected){checks++;}
         System.out.println("FISH_STOCK_SMOKE_PASS: "+checks+" checks");
     }
 }

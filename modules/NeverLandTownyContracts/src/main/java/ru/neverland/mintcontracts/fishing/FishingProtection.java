@@ -47,7 +47,8 @@ public final class FishingProtection implements Listener,AutoCloseable {
     public FishingSettings settings(){return settings;}
     public List<String> instructions(){
         if(!settings.enabled())return List.of("Ограничения водоёмов отключены администратором.");
-        return List.of(settings.requireOpenWater()?"Ловите в открытом водоёме; один блок воды не подходит.":"Выбирайте водоём с рыбой.",
+        return List.of(settings.requireOpenWater()?"Ловите в просторном водоёме: от "+settings.minimumSurface()+" блоков воды, не уже "+settings.minimumSpan()+" блоков в обе стороны.":"Выбирайте водоём с рыбой.",
+            "Нужна глубина от "+settings.minimumDepth()+" блоков. Большой искусственный пруд подходит.",
             "Запас общий: до "+settings.capacity()+" рыб в радиусе "+settings.radius()+" блоков.",
             "Если рыба закончилась, перейдите в другую часть водоёма.",
             "Запас постепенно восстанавливается за "+(settings.recoveryMillis()/60000)+" мин.",
@@ -91,13 +92,16 @@ public final class FishingProtection implements Listener,AutoCloseable {
         if(!protectedTask(player))return;
         switch(event.getState()){
             case BITE -> {
-                // BITE belongs to the hook. Reading its native open-water flag does not inspect foreign chunks.
                 if(!SuiteScheduler.owns(event.getHook())){deny(event,"Поплавок ещё не готов. Перезабросьте удочку.");return;}
-                if(settings.requireOpenWater()&&!event.getHook().isInOpenWater()){
-                    deny(event,"Здесь слишком тесно или мелко. Для задания нужен открытый водоём, а не одиночный блок воды.");return;
+                var location=event.getHook().getLocation();
+                if(settings.requireOpenWater()){
+                    var habitat=FishingHabitat.inspect(location,settings);
+                    if(habitat==WaterSurface.Result.SMALL){deny(event,"Здесь слишком мало воды вокруг поплавка. Перейдите к более просторному водоёму.");return;}
+                    if(habitat==WaterSurface.Result.SHALLOW){deny(event,"Здесь слишком мелко. Перейдите в более глубокое место.");return;}
+                    if(habitat==WaterSurface.Result.UNKNOWN){deny(event,"Не удалось проверить весь водоём. Забросьте удочку дальше от границы участка.");return;}
                 }
                 if(!ready()){deny(event,"Задания на рыбалку временно приостановлены. Их время и прогресс сохраняются.");return;}
-                var location=event.getHook().getLocation();var point=new FishStock.Point(location.getWorld().getUID(),location.getBlockX(),location.getBlockZ());
+                var point=new FishStock.Point(location.getWorld().getUID(),location.getBlockX(),location.getBlockZ());
                 var old=bites.remove(hook);if(old!=null&&old.catchEvent.get()==null)release(old);
                 var bite=new Bite(hook,player,point,System.currentTimeMillis()+settings.leaseMillis());bites.put(hook,bite);
                 stock.reserve(bite.id,player,point,settings,System.currentTimeMillis()).whenComplete((decision,error)->{
@@ -111,7 +115,7 @@ public final class FishingProtection implements Listener,AutoCloseable {
                 var bite=bites.get(hook);
                 // No live hook/foreign region access here: a bite captured immutable habitat and location beforehand.
                 if(bite==null||!bite.player.equals(player)||bite.released||bite.expires<System.currentTimeMillis()){
-                    deny(event,"Для задания перезабросьте удочку в открытый водоём.");return;
+                    deny(event,"Для задания перезабросьте удочку в просторный водоём.");return;
                 }
                 if(!ready()||bite.decision==null){deny(event,"Проверяем запас рыбы. Перезабросьте удочку и повторите попытку.");return;}
                 if(!bite.decision.reserved()){
@@ -148,7 +152,8 @@ public final class FishingProtection implements Listener,AutoCloseable {
     public void status(Player player){
         FishStock.Point point=null;for(var bite:bites.values())if(bite.player.equals(player.getUniqueId())){point=bite.point;break;}
         if(point==null){var location=player.getLocation();point=new FishStock.Point(location.getWorld().getUID(),location.getBlockX(),location.getBlockZ());}
-        player.sendMessage("§bДля задания ловите в открытом водоёме. Лодки и другой транспорт разрешены. Участок имеет общий запас рыбы.");
+        player.sendMessage("§bДля задания нужен просторный водоём глубиной от "+settings.minimumDepth()+" блоков. Маленький пруд не подходит.");
+        player.sendMessage("§7Большой искусственный пруд и ловля с транспорта разрешены. Участок имеет общий запас рыбы.");
         if(!settings.enabled()){player.sendMessage("§7Ограничение водоёмов отключено администратором.");return;}
         stock.inspect(player.getUniqueId(),point,settings,System.currentTimeMillis()).whenComplete((result,error)->SuiteScheduler.player(plugin,player,p->{
             if(error!=null){p.sendMessage("§eЗапас рыбы сейчас не удаётся проверить. Прогресс сохранён.");return;}

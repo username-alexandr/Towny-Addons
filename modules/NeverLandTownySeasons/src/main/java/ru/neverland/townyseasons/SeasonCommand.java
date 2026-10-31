@@ -13,7 +13,7 @@ public final class SeasonCommand implements TabExecutor {
     public void markets(ru.neverland.townyseasons.markets.SeasonMarketsService service,ru.neverland.townyseasons.markets.SeasonMarketsMenu menu){markets=service;stockMenu=menu;}
     private final NeverLandTownySeasons plugin;private final SeasonService service;private final SeasonMenu menu;
     public SeasonCommand(NeverLandTownySeasons plugin,SeasonService service,SeasonMenu menu) { this.plugin=plugin;this.service=service;this.menu=menu; }
-    private static void tell(CommandSender p,String text) { p.sendMessage(MenuStyle.decode("&6[Сезоны] &f"+text)); }
+    private static void tell(CommandSender p,String text) { p.sendMessage(MenuStyle.decode(ru.neverland.core.EditableMessages.decorate(SeasonCommand.class,"&6[Сезоны] &f",text))); }
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySeasons")){return true;}
         try {
             if(!sender.hasPermission("neverlandtownyseasons.use"))throw new IllegalArgumentException("Недостаточно прав");

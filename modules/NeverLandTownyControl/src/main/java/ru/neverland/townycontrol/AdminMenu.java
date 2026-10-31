@@ -83,7 +83,7 @@ final class AdminMenu implements Listener {
         button(s,24,Material.SPYGLASS,"Ремонт для сверки",List.of("Неизвестный результат списания","Или место здания изменилось после оплаты"),()->logPage(player,AuditCategory.BUILDING_REPAIRS,new AuditQuery(Map.of("category","BUILDING_REPAIRS","kind","BUILDING_REPAIR_REVIEW"),1)));
         button(s,29,Material.SPYGLASS,"Записи для сверки",List.of("Прерванные операции и спорные результаты","Актуальное состояние — в квитанции"),()->logPage(player,AuditCategory.RAIDS,new AuditQuery(Map.of("category","RAIDS","kind","RAID_LOOT_REVIEW"),1)));
         button(s,31,Material.PAPER,"Текущие квитанции",List.of("ID захвата и состояние выдачи","Нужен доступ администратора SiegesPlus"),()->{var owner=Bukkit.getPluginManager().getPlugin("NeverLandTownySiegesPlus");if(!(owner instanceof org.bukkit.plugin.java.JavaPlugin addon)||!addon.isEnabled())throw new IllegalArgumentException("Рейды сейчас недоступны");var cmd=addon.getCommand("townysieges");cmd.getExecutor().onCommand(player,cmd,"sieges",new String[]{"loot"});});
-        button(s,33,Material.WRITABLE_BOOK,"Как сверять",List.of("Откройте квитанцию: /sieges loot show <ID>","Сопоставьте банковский журнал и сумму","Сверка требует явного решения и основания"),()->{player.sendMessage("/sieges loot show <ID>");player.sendMessage("/sieges loot resolve <ID> <core|debit|credit> <yes|no> confirm <основание>");});
+        button(s,33,Material.WRITABLE_BOOK,"Как сверять",List.of("Откройте квитанцию: /sieges loot show <ID>","Сопоставьте банковский журнал и сумму","Сверка требует явного решения и основания"),()->{player.sendMessage(ru.neverland.core.EditableMessages.text(AdminMenu.class, "/sieges loot show <ID>"));player.sendMessage(ru.neverland.core.EditableMessages.text(AdminMenu.class, "/sieges loot resolve <ID> <core|debit|credit> <yes|no> confirm <основание>"));});
         button(s,34,Material.GOLD_BLOCK,"Капитуляция и выкуп",List.of("Предложения, списания, зачисления и возвраты","Вся цепочка по одному ID"),()->logPage(player,AuditCategory.RAIDS,new AuditQuery(Map.of("category","RAIDS","kind","RAID_RANSOM"),1)));
         button(s,35,Material.PAPER,"Квитанции выкупа",List.of("Состояния предложений и спорных переводов","Детали: /sieges ransom show <ID рейда>"),()->{var owner=Bukkit.getPluginManager().getPlugin("NeverLandTownySiegesPlus");if(!(owner instanceof org.bukkit.plugin.java.JavaPlugin addon)||!addon.isEnabled())throw new IllegalArgumentException("Рейды сейчас недоступны");var cmd=addon.getCommand("townysieges");cmd.getExecutor().onCommand(player,cmd,"sieges",new String[]{"ransom","status"});});
         button(s,36,Material.SPYGLASS,"Сверка выкупа",List.of("Проверить баланс и банковскую квитанцию","Затем /sieges ransom resolve или refund"),()->logPage(player,AuditCategory.RAIDS,new AuditQuery(Map.of("category","RAIDS","kind","RAID_RANSOM_RECONCILE"),1)));
@@ -98,7 +98,7 @@ final class AdminMenu implements Listener {
         button(s,28,Material.PAPER,"Начисления заказов",List.of("Последние десять записей и их ID","Все страницы: /orders admin list <страница>"),()->incomeCommand(player,"Contracts","orders","list"));
         button(s,30,Material.PAPER,"Начисления зарплат",List.of("Последние десять записей и их ID","Все страницы: /jobpay admin list <страница>"),()->incomeCommand(player,"Jobs","jobpay","list"));
         button(s,34,Material.BARREL,"Серверный склад",List.of("Сданные игроками материалы","История поставок и резервы для строек"),()->incomeCommand(player,"Contracts","orders","resources"));
-        button(s,32,Material.SPYGLASS,"Сверка спорных выплат",List.of("REVIEW: проверить банковский журнал","HELD: проверить квитанцию ресурсов","Решение требует ID и письменного основания"),()->{player.closeInventory();player.sendMessage("/orders admin show <UUID> или /jobpay admin show <UUID>");player.sendMessage("... admin resolve <UUID> <paid|retry|taken|untouched> confirm <основание сверки>");});
+        button(s,32,Material.SPYGLASS,"Сверка спорных выплат",List.of("REVIEW: проверить банковский журнал","HELD: проверить квитанцию ресурсов","Решение требует ID и письменного основания"),()->{player.closeInventory();player.sendMessage(ru.neverland.core.EditableMessages.text(AdminMenu.class, "/orders admin show <UUID> или /jobpay admin show <UUID>"));player.sendMessage(ru.neverland.core.EditableMessages.text(AdminMenu.class, "... admin resolve <UUID> <paid|retry|taken|untouched> confirm <основание сверки>"));});
         back(s,()->home(player));show(player,s);
     }
     void towns(Player player,int page){
@@ -306,7 +306,7 @@ final class AdminMenu implements Listener {
         ru.neverland.core.SuiteScheduler.entity(plugin, player,()->{
             if(!current(player,s))return;
             if(!authorized(player,s)){player.closeInventory();return;}
-            if(System.currentTimeMillis()>s.expires){player.sendMessage("§eПодтверждение истекло. Откройте действие заново");player.closeInventory();return;}
+            if(System.currentTimeMillis()>s.expires){player.sendMessage(ru.neverland.core.EditableMessages.text(AdminMenu.class, "§eПодтверждение истекло. Откройте действие заново"));player.closeInventory();return;}
             attempt(player,action);if(current(player,s))s.busy=false;
         });
     } }

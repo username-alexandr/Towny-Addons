@@ -1,0 +1,40 @@
+# Сообщения этого аддона. Изменяйте только значения text; source оставляйте без изменений.
+# Цветовые коды и подстановки сохраняйте. Изменения действуют после перезапуска.
+overrides:
+- source: '&cНет права на просмотр дипломатии'
+  text: '&cНет права на просмотр дипломатии'
+- source: '&aНастройки проверены. Условия уже предложенных договоров сохранены'
+  text: '&aНастройки проверены. Условия уже предложенных договоров сохранены'
+- source: '&cДействие не выполнено; реестр требует проверки администратором'
+  text: '&cДействие не выполнено; реестр требует проверки администратором'
+- source: '&e/diplomacy &7— ваши договоры; &e/diplomacy list <город>'
+  text: '&e/diplomacy &7— ваши договоры; &e/diplomacy list <город>'
+- source: '&e/diplomacy offer <тип> <город> [дни] [причина]'
+  text: '&e/diplomacy offer <тип> <город> [дни] [причина]'
+- source: '&7Типы: &falliance, trade, nonaggression, vassalage, guarantee'
+  text: '&7Типы: &falliance, trade, nonaggression, vassalage, guarantee'
+- source: '&7Для vassalage вы — сюзерен; для guarantee — гарант.'
+  text: '&7Для vassalage вы — сюзерен; для guarantee — гарант.'
+- source: '&e/diplomacy accept|reject|end <полный-ID>'
+  text: '&e/diplomacy accept|reject|end <полный-ID>'
+- source: '&e/diplomacy embargo <город> [дни] [причина]'
+  text: '&e/diplomacy embargo <город> [дни] [причина]'
+- source: '&e/diplomacy sanctions <город> <trade|diplomatic|all> [дни]'
+  text: '&e/diplomacy sanctions <город> <trade|diplomatic|all> [дни]'
+- source: '&e/diplomacy aid &7— взаимопомощь союзников, условия и квитанции.'
+  text: '&e/diplomacy aid &7— взаимопомощь союзников, условия и квитанции.'
+- source: '&e/diplomacy history|incidents [страница] &7— для руководства.'
+  text: '&e/diplomacy history|incidents [страница] &7— для руководства.'
+- source: '&e/diplomacy as <город> <команда> ...'
+  text: '&e/diplomacy as <город> <команда> ...'
+- source: '&e/diplomacy reload &7— новые настройки.'
+  text: '&e/diplomacy reload &7— новые настройки.'
+- source: '&cДоговор уже отсутствует'
+  text: '&cДоговор уже отсутствует'
+- source: '&cРешение не сохранено; обратитесь к администратору'
+  text: '&cРешение не сохранено; обратитесь к администратору'
+- source: Решение сохраняется; оно действует после подтверждения записи
+  text: Решение сохраняется; оно действует после подтверждения записи
+- source: Решение сохраняется
+  text: Решение сохраняется
+message-prefix-DiplomacyCommand: '&aNeverLand &f• Дипломатия &7» &f'

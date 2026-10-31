@@ -12,7 +12,7 @@ public final class CouncilCommand implements TabExecutor {
     public CouncilCommand(NeverLandTownyCouncil plugin, CouncilService service, CouncilMenus menus,AccessMenus access) { this.plugin = plugin; this.service = service; this.menus = menus;this.access=access; }
     private DelegationMenus delegations;public void delegations(DelegationMenus value){delegations=value;}
     private ru.neverland.townycouncil.spending.SpendingMenus spending;public void spending(ru.neverland.townycouncil.spending.SpendingMenus value){spending=value;}
-    public static void tell(CommandSender sender, String text) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', "&aNeverLand &f• Министры &7» &f" + text)); } }
+    public static void tell(CommandSender sender, String text) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', ru.neverland.core.EditableMessages.decorate(CouncilCommand.class,"&aNeverLand &f• Министры &7» &f",text))); } }
     private Town town(CommandSender sender, String[] args, int index) {
         Town town = args.length > index ? TownyAPI.getInstance().getTown(args[index])
                 : sender instanceof Player p ? service.ownTown(p.getUniqueId()) : null;

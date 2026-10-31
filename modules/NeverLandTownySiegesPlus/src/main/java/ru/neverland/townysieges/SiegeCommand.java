@@ -9,7 +9,7 @@ import ru.neverland.core.MenuStyle;
 public final class SiegeCommand implements TabExecutor {
     private final NeverLandTownySiegesPlus plugin;private final SiegeService service;private final SiegeMenu menu;
     public SiegeCommand(NeverLandTownySiegesPlus plugin,SiegeService service,SiegeMenu menu){this.plugin=plugin;this.service=service;this.menu=menu;}
-    static void tell(CommandSender p,String text){p.sendMessage(MenuStyle.decode("&6[Осады] &f"+text));}
+    static void tell(CommandSender p,String text){p.sendMessage(MenuStyle.decode(ru.neverland.core.EditableMessages.decorate(SiegeCommand.class,"&6[Осады] &f",text)));}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownySiegesPlus")){return true;}
         try{
             if(!sender.hasPermission("neverlandtownysiegesplus.use"))throw new IllegalArgumentException("Недостаточно прав");

@@ -44,7 +44,17 @@ public final class SafetyRuntimeProbe extends JavaPlugin {
     void first()throws Exception{
         check(events.shieldRemainingMillis(T)>86_300_000&&events.shieldRemainingMillis(T)<=86_400_000,"new Towny town receives 24h shield from original creation date");
         check(!events.startEvent(town,registry.get("drought")),"hostile event respects newbie shield");
-        check(events.startEvent(town,registry.get("festival")),"peaceful festival remains available under shield");events.cancel(town);
+        check(!events.startEvent(town,registry.get("festival")),"festival also respects newbie shield");
+        command("start","festival",town.getName());check(events.active(T)==null,"admin normal festival start also respects shield");
+        var eventPlugin=plugin("NeverLandTownyEvents");var eventConfig=eventPlugin.getConfig();
+        boolean requireOnline=eventConfig.getBoolean("scheduler.require-online-resident",true);
+        double chance=eventConfig.getDouble("scheduler.chance-per-check",.35);
+        try{
+            eventConfig.set("scheduler.require-online-resident",false);eventConfig.set("scheduler.chance-per-check",1.0);
+            var randomCheck=EventService.class.getDeclaredMethod("randomCheck");randomCheck.setAccessible(true);
+            for(int i=0;i<8;i++)randomCheck.invoke(events);
+            check(events.active(T)==null,"automatic scheduler skips protected town including festival");
+        }finally{eventConfig.set("scheduler.require-online-resident",requireOnline);eventConfig.set("scheduler.chance-per-check",chance);}
         command("start","drought",town.getName());check(events.active(T)==null,"admin normal start also respects shield");
         command("start","drought",town.getName(),"--force");check(events.active(T)!=null,"explicit admin force bypasses shield");
         int history=events.history(T).size();long started=events.active(T).startedAt();events.contribute(town,7);

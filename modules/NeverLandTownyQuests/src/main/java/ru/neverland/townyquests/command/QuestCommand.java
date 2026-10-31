@@ -16,7 +16,7 @@ public final class QuestCommand implements TabExecutor {
         try {
             if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
                 if (!sender.isOp() && !sender.hasPermission("neverlandtownyquests.admin")) throw new IllegalArgumentException("Нет прав администратора");
-                plugin.reloadQuests(); sender.sendMessage("§aНастройки обновлены. Начатые проекты сохранили свои условия."); return true;
+                plugin.reloadQuests(); sender.sendMessage(ru.neverland.core.EditableMessages.text(QuestCommand.class, "§aНастройки обновлены. Начатые проекты сохранили свои условия.")); return true;
             }
             if(args.length>0&&args[0].equalsIgnoreCase("joint")){if(cooperative==null)throw new IllegalArgumentException("Общие стройки временно недоступны");cooperative.command(sender,Arrays.copyOfRange(args,1,args.length));return true;}
             if (!(sender instanceof Player p)) throw new IllegalArgumentException("Из консоли: /townyquests admin list, joint или reload");
@@ -24,7 +24,7 @@ public final class QuestCommand implements TabExecutor {
             if (args.length == 0 || args.length == 1 && args[0].equalsIgnoreCase("menu")) menu.home(p);
             else if (args.length == 2 && args[0].equalsIgnoreCase("info")) menu.project(p, args[1]);
             else if ((args.length==2||args.length==3&&args[2].equalsIgnoreCase("confirm")) && args[0].equalsIgnoreCase("start")) { service.begin(p, args[1],args.length==3); menu.project(p, args[1]); }
-            else sender.sendMessage("§e/t quests [menu|info <проект>|start <проект>|joint] — городские проекты");
+            else sender.sendMessage(ru.neverland.core.EditableMessages.text(QuestCommand.class, "§e/t quests [menu|info <проект>|start <проект>|joint] — городские проекты"));
         } catch (Exception ex) { sender.sendMessage("§c" + ex.getMessage()); }
         return true;
     } }

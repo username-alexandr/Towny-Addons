@@ -41,13 +41,17 @@ public final class FishingProbe extends TntRuntimeProbe {
         pond(15,false);var hook=hook(15);var bite=event(hook,PlayerFishEvent.State.BITE,null);check(bite.isCancelled(),"single water block cannot begin quest fishing");
         Item sample=world.dropItem(new Location(world,15.5,160,8.5),new ItemStack(Material.COD));var caught=event(hook,PlayerFishEvent.State.CAUGHT_FISH,sample);check(caught.isCancelled()&&caught.getExpToDrop()==0,"single-water fish and experience cancelled");sample.remove();hook.remove();
         check(tasks.get(orderId).progress()==0,"single-water catch grants no task progress");
-        pond(15,true);cancelledCatch(()->attempt(15,true,()->attempt(15,true,()->attempt(16,false,()->{
+        pond(15,false);world.getBlockAt(16,160,8).setType(Material.WATER,false);world.getBlockAt(15,160,9).setType(Material.WATER,false);world.getBlockAt(16,160,9).setType(Material.WATER,false);
+        var tiny=hook(15);check(event(tiny,PlayerFishEvent.State.BITE,null).isCancelled(),"artificial 2x2 water remains too small");tiny.remove();
+        pond(15,3,1);var shallow=hook(15);check(event(shallow,PlayerFishEvent.State.BITE,null).isCancelled(),"large one-deep water reports insufficient depth");shallow.remove();
+        pond(15,3,3);cancelledCatch(()->attempt(15,true,()->attempt(15,true,()->attempt(16,false,()->{
             check(tasks.get(orderId).progress()==2,"chunk-edge recast does not reset depleted stock");pond(49,true);actor.getHandleRaw().setPosRaw(49.5,161,8.5);
             attempt(49,true,()->{check(tasks.get(orderId).progress()==3,"moving to other water grants one legitimate catch");cityCatch();});
         }))));
     }
-    void pond(int x,boolean wide){int radius=wide?3:0;for(int bx=x-3;bx<=x+3;bx++)for(int z=5;z<=11;z++)for(int y=157;y<=163;y++)world.getBlockAt(bx,y,z).setType(Material.AIR,false);
-        for(int bx=x-radius;bx<=x+radius;bx++)for(int z=8-radius;z<=8+radius;z++)for(int y=wide?158:160;y<=160;y++)world.getBlockAt(bx,y,z).setType(Material.WATER,false);
+    void pond(int x,boolean wide){pond(x,wide?3:0,wide?3:1);}
+    void pond(int x,int radius,int depth){for(int bx=x-3;bx<=x+3;bx++)for(int z=5;z<=11;z++)for(int y=157;y<=163;y++)world.getBlockAt(bx,y,z).setType(Material.AIR,false);
+        for(int bx=x-radius;bx<=x+radius;bx++)for(int z=8-radius;z<=8+radius;z++)for(int y=161-depth;y<=160;y++)world.getBlockAt(bx,y,z).setType(Material.WATER,false);
     }
     FishHook hook(int x)throws Exception{
         var level=((CraftWorld)world).getHandle();var nativeHook=new FishingHook((net.minecraft.world.entity.player.Player)actor.getHandleRaw(),level,0,0);nativeHook.setPos(x+.5,160.5,8.5);nativeHook.setNoGravity(true);level.addFreshEntity(nativeHook);
@@ -55,7 +59,7 @@ public final class FishingProbe extends TntRuntimeProbe {
     }
     PlayerFishEvent event(FishHook hook,PlayerFishEvent.State state,Entity item){var event=new PlayerFishEvent(actor,item,hook,EquipmentSlot.HAND,state);event.setExpToDrop(3);Bukkit.getPluginManager().callEvent(event);return event;}
     void cancelledCatch(Work next)throws Exception{
-        var hook=hook(15);event(hook,PlayerFishEvent.State.BITE,null);
+        var hook=hook(15);check(!event(hook,PlayerFishEvent.State.BITE,null).isCancelled(),"large deep artificial pond passes habitat");
         later(5,()->{Item item=world.dropItem(new Location(world,15.5,160,8.5),new ItemStack(Material.COD));var caught=event(hook,PlayerFishEvent.State.CAUGHT_FISH,item);check(!caught.isCancelled(),"stock initially approves cancellation fixture");caught.setCancelled(true);
             later(7,()->{check(tasks.get(orderId).progress()==0,"final foreign cancellation grants no quest progress");item.remove();if(hook.isValid())hook.remove();next.run();});
         });
@@ -79,7 +83,7 @@ public final class FishingProbe extends TntRuntimeProbe {
         });
     }
     void attempt(int x,boolean expected,Work next)throws Exception{
-        var hook=hook(x);check(hook.isInOpenWater(),"sufficient open pond passes habitat");var bite=event(hook,PlayerFishEvent.State.BITE,null);check(!bite.isCancelled(),"valid pond bite reaches stock reservation");
+        var hook=hook(x);var bite=event(hook,PlayerFishEvent.State.BITE,null);check(!bite.isCancelled(),"valid pond bite reaches stock reservation");
         later(5,()->{Item item=world.dropItem(new Location(world,x+.5,160,8.5),new ItemStack(Material.COD));int before=tasks.get(orderId).progress();var caught=event(hook,PlayerFishEvent.State.CAUGHT_FISH,item);check(caught.isCancelled()!=expected,expected?"available stock permits caught fish":"depleted shared stock blocks caught fish");
             if(expected){var replay=event(hook,PlayerFishEvent.State.CAUGHT_FISH,item);check(replay.isCancelled(),"replayed catch cannot receive another approval");}
             later(5,()->{check(tasks.get(orderId).progress()==before+(expected?1:0),"catch credits exactly once or stays unchanged");item.remove();if(hook.isValid())hook.remove();next.run();});

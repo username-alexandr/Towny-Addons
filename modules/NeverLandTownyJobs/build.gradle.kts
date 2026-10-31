@@ -1,7 +1,7 @@
 import org.gradle.api.attributes.java.TargetJvmVersion
 plugins { java }
 group = "ru.neverland"
-version = "0.3.0"
+version = "0.3.1"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -10,6 +10,7 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:26.2.build.121-stable")
     compileOnly("com.palmergames.bukkit.towny:towny:0.103.2.0")
+    testRuntimeOnly("org.xerial:sqlite-jdbc:3.49.1.0")
 }
 java { toolchain.languageVersion.set(JavaLanguageVersion.of(25)) }
 configurations.configureEach {

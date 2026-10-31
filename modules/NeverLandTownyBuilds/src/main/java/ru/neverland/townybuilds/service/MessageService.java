@@ -41,6 +41,8 @@ public final class MessageService {
         return component(key, Map.of());
     } }
 
+    public String raw(String key) { try (var guard = ru.neverland.core.SuiteState.guard()) { return value(key); } }
+
     public Component component(String key, Map<String, ?> replacements) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         String value = value(key);
         for (Map.Entry<String, ?> replacement : replacements.entrySet()) {

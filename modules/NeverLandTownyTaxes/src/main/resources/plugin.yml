@@ -1,5 +1,5 @@
 name: NeverLandTownyTaxes
-version: 0.2.0
+version: 0.2.1
 main: ru.neverland.townytaxes.NeverLandTownyTaxes
 folia-supported: true
 api-version: '26.2'

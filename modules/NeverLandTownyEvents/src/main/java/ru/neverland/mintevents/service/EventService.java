@@ -149,7 +149,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
     public boolean startEvent(Town town, EventDefinition definition) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) { return startEvent(town, definition, false); } }
     public boolean startEvent(Town town, EventDefinition definition, boolean force) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
         if (town == null || definition == null || repository.active(town.getUUID()) != null) return false;
-        if (!force && hostile(definition) && shieldRemainingMillis(town.getUUID()) > 0) return false;
+        if (!force && shieldRemainingMillis(town.getUUID()) > 0) return false;
         if (definition.mode() == EventMode.FIRE && hasFireDamage(town.getUUID())) return false;
         long now = System.currentTimeMillis();
         int residents = Math.max(1, town.getResidents().size());
@@ -176,7 +176,6 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         return true;
     } }
 
-    private static boolean hostile(EventDefinition definition) { return definition.mode() != EventMode.FESTIVAL; }
     public ru.neverland.mintevents.scenarios.ScenarioService scenarios(){return scenarios;}
     private ru.neverland.mintevents.scenarios.ScenarioService.Active scenarioActive(UUID townId){
         ActiveEvent active=repository.active(townId);if(active==null)return null;var town=town(townId);if(town==null)return null;var definition=definition(active);
@@ -207,7 +206,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         if(registered > 0 && registered < 100_000_000_000L) registered *= 1000;
         long until = Math.addExact(registered > 0 ? registered : System.currentTimeMillis(), 86_400_000L);
         repository.shield(town.getUUID(), until);
-        for(Player player : onlineResidents(town)) player.sendMessage("§bЩит новичка: город защищён от неблагоприятных городских событий на 24 часа.");
+        for(Player player : onlineResidents(town)) player.sendMessage("§bЩит новичка: город защищён от городских событий на 24 часа.");
     } }
     public void shield(Town town, long hours) { try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {
         if(hours < 0 || hours > 720) throw new IllegalArgumentException("Щит: от 0 до 720 часов");
@@ -674,7 +673,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         long now = System.currentTimeMillis();
         List<Town> eligible = new ArrayList<>();
         for (Town town : towny.towns()) {
-            if (repository.active(town.getUUID()) != null) continue;
+            if (repository.active(town.getUUID()) != null || shieldRemainingMillis(town.getUUID()) > 0) continue;
             if (now - repository.lastEventAt(town.getUUID()) < cooldown) continue;
             if (requireOnline && onlineResidents(town).isEmpty()) continue;
             eligible.add(town);
@@ -685,7 +684,7 @@ ru.neverland.core.WorldTasks.eachEntity(plugin,this::validateLoadedRaidEntity);
         Town selected = eligible.get(0);
         try {
             double[] weights = new double[definitions.size()];
-            for (int i=0;i<weights.length;i++) weights[i] = hostile(definitions.get(i)) && shieldRemainingMillis(selected.getUUID()) > 0 ? 0 : ru.neverland.core.SeasonsAccess.eventWeight(selected.getUUID(), definitions.get(i).mode().name());
+            for (int i=0;i<weights.length;i++) weights[i] = ru.neverland.core.SeasonsAccess.eventWeight(selected.getUUID(), definitions.get(i).mode().name());
             int choice = WeatherEconomy.choose(weights,ThreadLocalRandom.current().nextDouble());
             if(choice>=0)startEvent(selected,definitions.get(choice));
         } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {

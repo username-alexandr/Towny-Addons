@@ -17,13 +17,13 @@ public final class AtomicFiles {
     /** Called only after a repository has successfully validated its file on load. */
     public static void loaded(Path file) { blocked.remove(file.toAbsolutePath().normalize()); }
     public static boolean writable(Path file) { return !blocked.contains(file.toAbsolutePath().normalize()); }
-    public static void write(Path file,Snapshot snapshot)throws IOException { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
+    public static void write(Path file,Snapshot snapshot)throws IOException {
         Path target=file.toAbsolutePath().normalize();if(!writable(target))throw new IOException("Запись остановлена после ошибки: "+target.getFileName());long start=System.nanoTime();
         byte[] encoded;
         try{encoded=snapshot.encode().getBytes(StandardCharsets.UTF_8);}
         catch(IOException|RuntimeException error){blocked.add(target);measure(target,false,0,System.nanoTime()-start);throw new IOException("Не удалось подготовить сохранение "+file.getFileName(),error);}
         replace(file,encoded);
-    } }
+    }
     /** Only for an immutable snapshot, on a worker that never owns the suite ledger. */
     public static void writeDetached(Path file,String snapshot)throws IOException {
         if(SuiteState.held())throw new IllegalStateException("Detached write must not hold the suite ledger");
