@@ -2,6 +2,7 @@ package ru.neverland.townybuilds.service;
 
 import java.util.Map;
 import org.bukkit.Material;
+import ru.neverland.townybuilds.model.ProjectCategory;
 
 public final class DefinitionOverlaySmoke {
     private DefinitionOverlaySmoke() {
@@ -29,6 +30,15 @@ public final class DefinitionOverlaySmoke {
                 "an explicitly empty requirement map must be able to disable defaults");
         check(DefinitionRegistry.resolveRequirements(false, custom, Map.of()).equals(custom),
                 "custom projects without built-in defaults must retain parsed prerequisites");
+        check(DefinitionRegistry.resolveCategory(false, ProjectCategory.OTHER, ProjectCategory.TRADE)
+                        == ProjectCategory.TRADE,
+                "old projects.yml must inherit building tree categories");
+        check(DefinitionRegistry.resolveCategory(true, ProjectCategory.OTHER, ProjectCategory.TRADE)
+                        == ProjectCategory.OTHER,
+                "explicit administrator category must remain authoritative");
+        check(DefinitionRegistry.resolveCategory(false, ProjectCategory.CULTURE, null)
+                        == ProjectCategory.CULTURE,
+                "new custom projects must retain their parsed category");
 
         System.out.println("Definition overlay smoke test passed.");
     }

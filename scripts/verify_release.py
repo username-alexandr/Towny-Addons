@@ -28,6 +28,43 @@ def load_yaml(path: Path):
         return yaml.safe_load(stream)
 
 
+def building_tree_errors(buildings: dict) -> list[str]:
+    """Check the shipped tree that Builds and CraftoUI both read."""
+    errors = []
+    categories = {"ADMINISTRATION", "PRODUCTION", "TRADE", "INFRASTRUCTURE",
+                  "DEFENSE", "SCIENCE", "CULTURE", "ENERGY", "OTHER"}
+    visiting: set[str] = set()
+    visited: set[str] = set()
+    for project, entry in buildings.items():
+        if entry.get("category") not in categories:
+            errors.append(f"{project}: missing or invalid building-tree category")
+        requirements = entry.get("requires", {})
+        if not isinstance(requirements, dict) or (project != "town_hall" and not requirements):
+            errors.append(f"{project}: missing building-tree prerequisites")
+            continue
+        for dependency, level in requirements.items():
+            target = buildings.get(dependency)
+            if target is None or type(level) is not int or level not in target.get("levels", {}):
+                errors.append(f"{project}: invalid prerequisite {dependency} level {level}")
+
+    def visit(project: str) -> None:
+        if project in visiting:
+            errors.append(f"{project}: cyclic building-tree prerequisites")
+            return
+        if project in visited:
+            return
+        visiting.add(project)
+        for dependency in buildings[project].get("requires", {}):
+            if dependency in buildings:
+                visit(dependency)
+        visiting.remove(project)
+        visited.add(project)
+
+    for project in buildings:
+        visit(project)
+    return errors
+
+
 def project_version(module: Path) -> str | None:
     gradle = module / "build.gradle.kts"
     if gradle.exists():
@@ -411,6 +448,7 @@ def main() -> int:
     }
     if len(configured_ids) != 90 or set(projects["wonders"]) != expected_wonders:
         errors.append("NeverLandTownyBuilds must contain 90 buildings and the 11 expected wonders")
+    errors.extend(building_tree_errors(projects["buildings"]))
     specialization_mapping = {"trade": "trade_exchange", "fortress": "citadel", "agricultural": "seed_vault", "industrial": "industrial_works", "scientific": "academy_of_sciences", "port": "admiralty", "religious": "pilgrimage_center"}
     specialization = load_yaml(modules_dir / "NeverLandTownySpecialization/src/main/resources/specializations.yml").get("specializations", {})
     selection = load_yaml(modules_dir / "NeverLandTownySpecialization/src/main/resources/config.yml").get("selection", {})
