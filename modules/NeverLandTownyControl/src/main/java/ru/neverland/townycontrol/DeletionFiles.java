@@ -32,10 +32,14 @@ final class DeletionFiles {
     }
     enum Decision { APPLY, ALREADY_APPLIED, SKIP }
     static Decision decide(Change change,String current,boolean tile,boolean claimed){
-        if(claimed||tile||protectedBlock(current)||protectedBlock(change.after()))return Decision.SKIP;
+        return decide(change,current,tile,claimed,false);
+    }
+    static Decision decide(Change change,String current,boolean tile,boolean claimed,boolean occupiedFixture){
+        if(claimed||occupiedFixture||(tile&&!removableFixture(current))||protectedBlock(current)||protectedBlock(change.after()))return Decision.SKIP;
         if(current.equals(change.after()))return Decision.ALREADY_APPLIED;
         return current.equals(change.before())?Decision.APPLY:Decision.SKIP;
     }
+    static boolean removableFixture(String data){return Set.of("minecraft:lectern","minecraft:bell").contains(material(data));}
     static boolean protectedBlock(String data){return Set.of("minecraft:bedrock","minecraft:barrier","minecraft:end_portal","minecraft:end_portal_frame","minecraft:nether_portal","minecraft:command_block","minecraft:chain_command_block","minecraft:repeating_command_block","minecraft:structure_block","minecraft:jigsaw").contains(material(data));}
     static String material(String data){int i=data.indexOf('[');return i<0?data:data.substring(0,i);}
     private static void blockData(String data){if(data==null||data.length()>4096||!data.matches("minecraft:[a-z0-9_]+(?:\\[[a-z0-9_=,]+\\])?"))throw new IllegalArgumentException("Неверные данные блока");}

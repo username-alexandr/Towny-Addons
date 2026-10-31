@@ -30,6 +30,18 @@ public final class DeletionSafetySmoke {
         check(decide(change,"minecraft:air",false,false)==Decision.ALREADY_APPLIED,"restart does not reapply completed block");
         check(decide(change,"minecraft:diamond_block",false,false)==Decision.SKIP,"new player block is preserved");
         check(decide(change,"minecraft:oak_planks",true,false)==Decision.SKIP,"tile inventory is preserved");
+        var lectern=new Change(-10,80,40,"minecraft:lectern[facing=north,has_book=false,powered=false]","minecraft:air");
+        var bell=new Change(-9,80,40,"minecraft:bell[attachment=floor,facing=north,powered=false]","minecraft:air");
+        var chest=new Change(-8,80,40,"minecraft:chest[facing=north,type=single,waterlogged=false]","minecraft:air");
+        var fixtures=new LinkedHashMap<String,Change>();var tiles=Set.of("-10:80:40","-9:80:40","-8:80:40");
+        TownDeletionService.addChange(fixtures,tiles,lectern);TownDeletionService.addChange(fixtures,tiles,bell);TownDeletionService.addChange(fixtures,tiles,chest);
+        check(fixtures.size()==2&&fixtures.containsValue(lectern)&&fixtures.containsValue(bell),"empty hall fixtures enter the deletion plan while chests stay excluded");
+        check(decide(lectern,lectern.before(),true,false)==Decision.APPLY&&decide(bell,bell.before(),true,false)==Decision.APPLY,"registered hall lectern and bell can be removed");
+        check(decide(lectern,lectern.before(),true,false,true)==Decision.SKIP,"a book on the lectern is preserved");
+        check(decide(lectern,"minecraft:lectern[facing=south,has_book=false,powered=false]",true,false)==Decision.SKIP,"changed hall fixture is preserved");
+        check(decide(lectern,"minecraft:air",false,false)==Decision.ALREADY_APPLIED,"a restarted deletion does not repeat the fixture change");
+        var fixturePlan=new ChunkPlan(plot,-64,320,List.copyOf(fixtures.values()));Path fixtureFile=root.resolve("fixtures.gz");savePlan(fixtureFile,fixturePlan);
+        check(loadPlan(fixtureFile).equals(fixturePlan),"hall fixture removal plan survives restart");
         check(decide(change,"minecraft:oak_planks",false,true)==Decision.SKIP,"new claimant is preserved");
         check(decide(new Change(-10,80,40,"minecraft:bedrock","minecraft:air"),"minecraft:bedrock",false,false)==Decision.SKIP,"bedrock cannot be erased");
         check(decide(new Change(-10,80,40,"minecraft:stone","minecraft:command_block"),"minecraft:stone",false,false)==Decision.SKIP,"system blocks cannot be restored from foreign snapshots");

@@ -12,6 +12,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
+import org.bukkit.block.Lectern;
 import org.bukkit.block.TileState;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -174,8 +175,8 @@ final class TownDeletionService implements Listener,TabExecutor {
             });
         }catch(Exception ex){fail(job,ex.getMessage(),false);preparationFailed(sender,ex);}
     }
-    private static void addChange(Map<String,Change> result,Set<String> tiles,Change c){
-        String key=c.x()+":"+c.y()+":"+c.z();if(c.before().equals(c.after())||tiles.contains(key)||protectedBlock(c.before())||protectedBlock(c.after()))return;result.put(key,c);
+    static void addChange(Map<String,Change> result,Set<String> tiles,Change c){
+        String key=c.x()+":"+c.y()+":"+c.z();if(c.before().equals(c.after())||(tiles.contains(key)&&!removableFixture(c.before()))||protectedBlock(c.before())||protectedBlock(c.after()))return;result.put(key,c);
     }
     static void validateColumns(ChunkPlan plan,int maximum){
         if(maximum<1||maximum>256)throw new IllegalArgumentException("maximum-column-removals: 1..256");
@@ -244,9 +245,11 @@ final class TownDeletionService implements Listener,TabExecutor {
             if(TownyAPI.getInstance().getTownBlock(new Location(world,plan.plot().x()*16,plan.minY(),plan.plot().z()*16))!=null)throw new IllegalStateException("Участок снова занят городом; откат остановлен");
             int end=Math.min(plan.changes().size(),job.cursor+256);
             for(int i=job.cursor;i<end;i++){
-                var c=plan.changes().get(i);var block=world.getBlockAt(c.x(),c.y(),c.z());
-                var decision=decide(c,block.getBlockData().getAsString(),block.getState() instanceof TileState,false);
-                if(decision==Decision.APPLY){var after=Bukkit.createBlockData(c.after());if(after.getMaterial().isAir()&&block.getState() instanceof TileState){job.skipped++;continue;}block.setBlockData(after,false);job.changed++;}
+                var c=plan.changes().get(i);var block=world.getBlockAt(c.x(),c.y(),c.z());var state=block.getState();
+                var book=state instanceof Lectern lectern?lectern.getInventory().getItem(0):null;
+                boolean occupied=book!=null&&!book.getType().isAir();
+                var decision=decide(c,block.getBlockData().getAsString(),state instanceof TileState,false,occupied);
+                if(decision==Decision.APPLY){var after=Bukkit.createBlockData(c.after());block.setBlockData(after,false);job.changed++;}
                 else if(decision==Decision.SKIP)job.skipped++;
             }
             job.cursor=end;if(end==plan.changes().size()){job.chunk++;job.cursor=0;}
