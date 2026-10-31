@@ -27,6 +27,7 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
     private ru.neverland.townybuilds.construction.CityStyles cityStyles;
     private static final String[] TOWN_COMMANDS = {"builds", "wonderd", "wonders", "inv", "civic", "shop", "army"};
     private MessageService messages;
+    public MessageService messages() { return messages; }
     private ItemsAdderHook itemsAdder;
     private DefinitionRegistry definitions;
     private MenuManager uiMenus;

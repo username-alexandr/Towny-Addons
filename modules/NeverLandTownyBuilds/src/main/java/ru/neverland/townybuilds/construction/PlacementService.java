@@ -185,9 +185,16 @@ public final class PlacementService implements Listener,CommandExecutor {
         Town t=resident(p);if(sessions.get(p.getUniqueId())!=s||!t.getUUID().equals(s.town)||!s.draft.equals(data.town(s.town).placements().get(s.project)))throw new IllegalArgumentException("Выбор изменился. Откройте чертёж заново.");
         if(!s.projection.complete())throw new IllegalArgumentException("Дождитесь полной проекции");
         var result=builds.upgradeAt(p,definitions.project(s.project),s.choice);
-        if(result.status()==UpgradeResult.Status.PAYMENT_PENDING){close(p.getUniqueId());p.closeInventory();p.sendMessage("§eМесто и оплата сохраняются. После подтверждения казны чертёж исчезнет, а стройка откроется.");return;}
+        if(result.status()==UpgradeResult.Status.PAYMENT_PENDING){close(p.getUniqueId());p.closeInventory();((ru.neverland.townybuilds.NeverLandTownyBuilds)plugin).messages().send(p,"placement-payment-pending");return;}
         if(result.status()!=UpgradeResult.Status.CONSTRUCTION_STARTED){
-            p.sendMessage("§e"+switch(result.status()){case NOT_MAYOR->"Подтвердить место может мэр или уполномоченный строитель.";case NOT_ENOUGH_MONEY,ECONOMY_ERROR->"Не хватает денег в казне или экономика недоступна.";case PAYMENT_UNAVAILABLE->"Оплата недоступна: городская казна временно не работает.";case BUDGET_UNAVAILABLE->"В бюджете строительства не хватает средств.";case NOT_ENOUGH_RESOURCES->"В фонде не хватает ресурсов.";case CONSTRUCTION_IN_PROGRESS->"Проверьте состояние стройки и возврата в меню здания.";default->result.missingResources().isEmpty()?"Место или условия строительства изменились. Выберите место заново.":String.join("; ",result.missingResources());});p.closeInventory();return;
+            var messages=((ru.neverland.townybuilds.NeverLandTownyBuilds)plugin).messages();
+            switch(result.status()){
+                case NOT_ENOUGH_MONEY -> messages.send(p,"placement-not-enough-money");
+                case ECONOMY_ERROR -> messages.send(p,"economy-error");
+                case PAYMENT_UNAVAILABLE -> messages.send(p,"payment-unavailable");
+                default -> p.sendMessage("§e"+switch(result.status()){case NOT_MAYOR->"Подтвердить место может мэр или уполномоченный строитель.";case BUDGET_UNAVAILABLE->"В бюджете строительства не хватает средств.";case NOT_ENOUGH_RESOURCES->"В фонде не хватает ресурсов.";case CONSTRUCTION_IN_PROGRESS->"Проверьте состояние стройки и возврата в меню здания.";default->result.missingResources().isEmpty()?"Место или условия строительства изменились. Выберите место заново.":String.join("; ",result.missingResources());});
+            }
+            p.closeInventory();return;
         }
         var state=data.town(s.town);state.placement(s.project,null);try{data.saveOrThrow();}catch(Exception e){state.placement(s.project,s.draft);plugin.getLogger().warning("Стройка запущена, старый чертёж будет заблокирован площадкой: "+e.getMessage());}
         retirePlacedBlueprints(p);
