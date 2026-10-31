@@ -2,6 +2,7 @@ package ru.neverland.mintexpeditions.service;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -10,6 +11,11 @@ import ru.neverland.mintexpeditions.integration.TownyHook;
 
 /** One bounded delivery pipeline: intent ACK -> owning entity effect -> evidence -> done ACK. */
 public final class RewardDelivery {
+    public static final class DeferredReward extends RuntimeException {
+        private final UUID operation;
+        public DeferredReward(UUID operation,String reason){super(reason);this.operation=operation;}
+        public UUID operation(){return operation;}
+    }
     private record Request(Player player,CompletableFuture<Boolean> done){}
     private final JavaPlugin plugin;private final ExpeditionRepository repository;private final TownyHook towny;private final PlayerSaveEvidence evidence;
     private final Map<UUID,Request> requests=new LinkedHashMap<>();private boolean running,stopping;
@@ -25,16 +31,19 @@ public final class RewardDelivery {
         if(running||stopping||requests.isEmpty())return;running=true;var request=requests.values().iterator().next();var player=request.player();
         CompletionStage<Void> chain=repository.saveIfDirtyAsync();
         for(var batch:repository.rewards(player.getUniqueId())){
-            if(batch.money()>0)chain=chain.thenCompose(v->repository.effects().executeAsync(batch.moneyId(),"Награда "+batch.id()+" игроку "+batch.owner()+": "+batch.money(),()->onPlayer(player,()->{
-                if(!eligible(player))return CompletableFuture.completedFuture(false);return CompletableFuture.completedFuture(towny.reward(player,batch.money(),batch.moneyId()));
-            })).thenAccept(ok->{if(!ok)throw new CompletionException(new IllegalStateException("Денежная награда остаётся в очереди"));}));
+            if(batch.money()>0){var refusal=new AtomicReference<>("Денежная награда не выдана");
+                chain=chain.thenCompose(v->repository.effects().executeAsync(batch.moneyId(),"Награда "+batch.id()+" игроку "+batch.owner()+": "+batch.money(),()->onPlayer(player,()->{
+                    if(!eligible(player)){refusal.set("Получать награду можно только онлайн в режиме выживания или приключения");return CompletableFuture.completedFuture(false);}
+                    var payout=towny.reward(player,batch.money(),batch.moneyId());if(!payout.accepted())refusal.set(payout.reason());return CompletableFuture.completedFuture(payout.accepted());
+                })).thenAccept(ok->{if(!ok)throw new DeferredReward(batch.moneyId(),refusal.get());}));
+            }
             var items=batch.items();for(int i=0;i<items.size();i++){final int index=i;var item=items.get(i);
                 chain=chain.thenCompose(v->repository.effects().executeAsync(batch.itemId(index),"Предмет награды "+batch.id()+" игроку "+batch.owner()+" #"+index,()->onPlayer(player,()->{
                     if(!eligible(player))return CompletableFuture.completedFuture(false);
                     var planned=InventoryPlan.insert(player.getInventory().getStorageContents(),item);if(planned==null)return CompletableFuture.completedFuture(false);
                     var proof=evidence.prepare(player,batch.itemId(index));player.getInventory().setStorageContents(planned);
                     return evidence.saveAndVerify(player,proof).thenApply(saved->{if(!saved)throw new CompletionException(new IllegalStateException("Сохранение выданного предмета требует сверки"));return true;});
-                })).thenAccept(ok->{if(!ok)throw new CompletionException(new IllegalStateException("Освободите место и повторите /expedition claim"));}));
+                })).thenAccept(ok->{if(!ok)throw new DeferredReward(batch.itemId(index),"Освободите место и повторите /expedition claim в режиме выживания или приключения");}));
             }
             chain=chain.thenCompose(v->repository.completeRewardAsync(batch));
         }
