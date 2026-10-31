@@ -124,6 +124,12 @@ public final class DefinitionRegistry {
                 String normalizedId = id.toLowerCase(Locale.ROOT);
                 ProjectDefinition inherited = projects.get(normalizedId);
                 ProjectDefinition definition = parseProject(normalizedId, type, projectSection, custom);
+                // An older on-disk projects.yml can predate the explicit categories
+                // used by the current catalog. Keep its prices and names, but let
+                // missing category metadata follow the bundled building tree.
+                definition.setCategory(resolveCategory(
+                        projectSection.contains("category"), definition.category(),
+                        inherited == null ? null : inherited.category()));
                 // Старые projects.yml не содержат появившееся позднее поле requires.
                 // Наследуем только отсутствующее поле из встроенного каталога; явно
                 // заданные администратором требования по-прежнему имеют приоритет.
@@ -278,6 +284,11 @@ public final class DefinitionRegistry {
                                                      Map<String, Integer> configured,
                                                      Map<String, Integer> inherited) {
         return explicitlyConfigured || inherited.isEmpty() ? configured : inherited;
+    }
+
+    static ProjectCategory resolveCategory(boolean explicitlyConfigured,
+                                           ProjectCategory configured, ProjectCategory inherited) {
+        return explicitlyConfigured || inherited == null ? configured : inherited;
     }
 
     public ProjectDefinition project(String id) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
