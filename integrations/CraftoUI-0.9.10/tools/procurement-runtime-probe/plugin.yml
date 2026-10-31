@@ -1,0 +1,6 @@
+name: CraftoUIProcurementProbe
+version: 0.9.0-dev
+main: ru.neverland.runtime.ProcurementUiProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, CraftoUI, NeverLandTownyBuilds, NeverLandTownyContracts, NeverLandTownyTreasuryPlus, NeverLandTownyCitizens, NeverLandTownyControl]

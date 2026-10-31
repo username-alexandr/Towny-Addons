@@ -1,0 +1,13 @@
+name: CraftoUITestOnlyCommandProbe
+version: 0.6.0
+main: cc.crafto.test.CommandProbe
+api-version: '26.2'
+folia-supported: true
+depend: [CraftoUI, Towny, NeverLandTownyCompanies, NeverLandTownyCouncil]
+softdepend: [NeverLandTownyCitizens]
+commands:
+  cuiprobe:
+    permission: craftoui.test.admin
+permissions:
+  craftoui.test.admin:
+    default: op

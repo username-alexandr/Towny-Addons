@@ -1,0 +1,13 @@
+{
+  "id": "classic",
+  "background": "#FFB2B4BC",
+  "panel": "#FF898D99",
+  "button": "#FFA5A8B2",
+  "hover": "#FFC4CAD6",
+  "border": "#FF373B45",
+  "text": "#FF1B202A",
+  "muted": "#FF444B58",
+  "accent": "#FF39B66C",
+  "disabled": "#FF777D88",
+  "shade": "#A0000000"
+}

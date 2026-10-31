@@ -1,0 +1,116 @@
+{
+  "id": "society",
+  "title": "Жители и власть",
+  "theme": "dark",
+  "width": 620,
+  "height": 250,
+  "footer": "Назад — предыдущий экран. Esc — закрыть.",
+  "components": [
+    {
+      "id": "description",
+      "type": "text",
+      "x": 18,
+      "y": 57,
+      "w": 584,
+      "h": 16,
+      "text": "Жители, должности и решения города",
+      "color": "muted",
+      "layoutRole": "description"
+    },
+    {
+      "id": "modules",
+      "type": "grid",
+      "x": 18,
+      "y": 80,
+      "w": 584,
+      "h": 126,
+      "columns": 3,
+      "gap": 6,
+      "rowHeight": 38,
+      "children": [
+        {
+          "id": "citizens",
+          "type": "button",
+          "text": "Гражданство",
+          "action": "addons:citizens",
+          "icon": "minecraft:name_tag",
+          "tooltip": "Жители, гражданство и права проживания.",
+          "directoryId": "button:society/citizens"
+        },
+        {
+          "id": "governance-council",
+          "type": "button",
+          "text": "Городской совет",
+          "action": "quick:governance-council",
+          "icon": "minecraft:lectern",
+          "tooltip": "Выбрать должность, назначить жителя или снять его с должности."
+        },
+        {
+          "id": "council",
+          "type": "button",
+          "text": "Министры города",
+          "action": "addons:council",
+          "icon": "minecraft:lectern",
+          "tooltip": "Назначение министров и управление их полномочиями.",
+          "directoryId": "button:society/council"
+        },
+        {
+          "id": "governance",
+          "type": "button",
+          "text": "Законы и голосования",
+          "action": "addons:governance",
+          "icon": "minecraft:book",
+          "tooltip": "Законы города, предложения и голосования. Для назначения откройте «Городской совет».",
+          "directoryId": "button:society/governance"
+        },
+        {
+          "id": "elections",
+          "type": "button",
+          "text": "Выборы",
+          "action": "addons:elections",
+          "icon": "minecraft:writable_book",
+          "tooltip": "Выборы и кандидаты на выборные должности.",
+          "directoryId": "button:society/elections"
+        },
+        {
+          "id": "policies",
+          "type": "button",
+          "text": "Политики города",
+          "action": "addons:policies",
+          "icon": "minecraft:writable_book",
+          "tooltip": "Городские правила и параметры управления.",
+          "directoryId": "button:town/policies"
+        },
+        {
+          "id": "diplomacy",
+          "type": "button",
+          "text": "Дипломатия",
+          "action": "addons:diplomacy",
+          "icon": "minecraft:white_banner",
+          "tooltip": "Отношения с другими городами и союзы.",
+          "directoryId": "button:society/diplomacy"
+        },
+        {
+          "id": "reputation",
+          "type": "button",
+          "text": "Репутация",
+          "action": "addons:reputation",
+          "icon": "minecraft:experience_bottle",
+          "tooltip": "Репутация и отношения города.",
+          "directoryId": "button:society/reputation"
+        },
+        {
+          "id": "security",
+          "type": "button",
+          "text": "Безопасность города",
+          "action": "hub:security",
+          "icon": "minecraft:shield",
+          "tooltip": "Правопорядок, суд, армия, разведка и осады."
+        }
+      ],
+      "layoutRole": "content"
+    }
+  ],
+  "requiresTown": true,
+  "responsive": true
+}

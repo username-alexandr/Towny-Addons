@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "id": "craftoui",
+  "version": "${version}",
+  "name": "CraftoUI",
+  "description": "Optional configurable Crafto menus for Fabric and Folia",
+  "authors": ["Crafto"],
+  "environment": "client",
+  "entrypoints": { "client": ["cc.crafto.ui.client.CraftoUIClient"] },
+  "jars": [{ "file": "META-INF/jars/mixinextras-fabric-${mixinextras}.jar" }],
+  "depends": { "fabricloader": ">=${loader}", "minecraft": "26.2", "java": ">=25", "fabric-api": ">=${fabric}", "mixinextras": ">=${mixinextras}" }
+}

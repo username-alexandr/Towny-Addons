@@ -1,0 +1,9 @@
+name: CraftoUIApiProbe
+version: '0.1.0'
+main: cc.crafto.ui.probe.ApiProbe
+api-version: '26.2'
+folia-supported: true
+depend: [CraftoUI]
+commands:
+  craftouiprobe:
+    description: LOCAL TEST ONLY

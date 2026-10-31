@@ -1,0 +1,113 @@
+{
+  "id": "town",
+  "title": "Мой город",
+  "theme": "dark",
+  "width": 620,
+  "height": 440,
+  "footer": "Назад — предыдущий экран. Главное меню — начало навигации.",
+  "components": [
+    {
+      "id": "description",
+      "type": "text",
+      "x": 18,
+      "y": 58,
+      "w": 584,
+      "h": 22,
+      "text": "Сначала — сводка и повседневные дела города",
+      "color": "muted"
+    },
+    {
+      "id": "modules",
+      "type": "grid",
+      "x": 18,
+      "y": 88,
+      "w": 584,
+      "h": 250,
+      "columns": 3,
+      "gap": 8,
+      "rowHeight": 72,
+      "children": [
+        {
+          "id": "city-overview",
+          "type": "button",
+          "text": "Экран города",
+          "action": "ui:city",
+          "icon": "minecraft:map",
+          "tooltip": "Сводка: казна, стройки, материалы, приглашения и карта участков."
+        },
+        {
+          "id": "warehouse",
+          "type": "button",
+          "text": "Склад города",
+          "action": "quick:warehouse",
+          "icon": "minecraft:chest",
+          "tooltip": "Открыть /town inv: передать или забрать предметы на складе."
+        },
+        {
+          "id": "builds",
+          "type": "button",
+          "text": "Постройки",
+          "action": "addons:builds",
+          "icon": "minecraft:bricks",
+          "tooltip": "Городские здания, чертежи и действующие стройки.",
+          "directoryId": "button:town/builds"
+        },
+        {
+          "id": "treasuryplus",
+          "type": "button",
+          "text": "Казна города",
+          "action": "addons:treasuryplus",
+          "icon": "minecraft:gold_block",
+          "tooltip": "Баланс казны, бюджет и финансовые операции города.",
+          "directoryId": "button:economy/treasuryplus"
+        },
+        {
+          "id": "districts",
+          "type": "button",
+          "text": "Районы",
+          "action": "addons:districts",
+          "icon": "minecraft:map",
+          "tooltip": "Районы города и их назначение.",
+          "directoryId": "button:town/districts"
+        },
+        {
+          "id": "development",
+          "type": "button",
+          "text": "Развитие города",
+          "action": "hub:development",
+          "icon": "minecraft:crafting_table",
+          "tooltip": "Исследования, население, ресурсы и инфраструктура."
+        },
+        {
+          "id": "society",
+          "type": "button",
+          "text": "Жители и власть",
+          "action": "hub:society",
+          "icon": "minecraft:player_head",
+          "tooltip": "Совет, министры, законы и отношения."
+        },
+        {
+          "id": "chronicles",
+          "type": "button",
+          "text": "История города",
+          "action": "addons:chronicles",
+          "icon": "minecraft:book",
+          "tooltip": "Летопись событий и решений вашего города.",
+          "directoryId": "button:adventures/chronicles"
+        }
+      ]
+    },
+    {
+      "id": "home",
+      "type": "button",
+      "text": "Главное меню",
+      "action": "hub:hub",
+      "x": 18,
+      "y": 365,
+      "w": 180,
+      "h": 28,
+      "tooltip": "Вернуться к основным разделам."
+    }
+  ],
+  "requiresTown": true
+}

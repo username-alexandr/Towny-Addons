@@ -1,0 +1,540 @@
+{
+  "enabled": true,
+  "theme": "dark",
+  "columns": 3,
+  "width": 620,
+  "height": 420,
+  "modules": [
+    {
+      "id": "builds",
+      "plugin": "NeverLandTownyBuilds",
+      "label": "Постройки",
+      "command": "town builds",
+      "permission": "neverlandtownybuilds.use",
+      "holderPermissions": {
+        "ru.neverland.townybuilds.army.ArmyService$ArmyHolder": "neverlandtownybuilds.army.use"
+      },
+      "holders": [
+        "ru.neverland.townybuilds.army.ArmyService$ArmyHolder",
+        "ru.neverland.townybuilds.civic.CivicService$CivicStorageHolder",
+        "ru.neverland.townybuilds.civic.CivicShopMenus$PurchasesHolder",
+        "ru.neverland.townybuilds.civic.CivicShopMenus$ShopHolder",
+        "ru.neverland.townybuilds.gui.EditorManager$EditorIndexHolder",
+        "ru.neverland.townybuilds.gui.EditorManager$EffectEditorHolder",
+        "ru.neverland.townybuilds.gui.EditorManager$ProjectEditorHolder",
+        "ru.neverland.townybuilds.gui.EditorManager$ResourceEditorHolder",
+        "ru.neverland.townybuilds.gui.MenuManager$CategoryHolder",
+        "ru.neverland.townybuilds.gui.MenuManager$DetailsHolder",
+        "ru.neverland.townybuilds.construction.PlacementService$PlacementMenu",
+        "ru.neverland.townybuilds.gui.MenuManager$ProjectListHolder",
+        "ru.neverland.townybuilds.gui.MenuManager$StorageHolder",
+        "ru.neverland.townybuilds.storage.BuildingStorageService$View"
+      ],
+      "inventoryHolders": [
+        "ru.neverland.townybuilds.civic.CivicService$CivicStorageHolder",
+        "ru.neverland.townybuilds.gui.EditorManager$EditorIndexHolder",
+        "ru.neverland.townybuilds.gui.EditorManager$EffectEditorHolder",
+        "ru.neverland.townybuilds.gui.EditorManager$ProjectEditorHolder",
+        "ru.neverland.townybuilds.gui.EditorManager$ResourceEditorHolder",
+        "ru.neverland.townybuilds.gui.MenuManager$StorageHolder",
+        "ru.neverland.townybuilds.storage.BuildingStorageService$View"
+      ],
+      "category": "town",
+      "icon": "minecraft:bricks"
+    },
+    {
+      "id": "districts",
+      "plugin": "NeverLandTownyDistricts",
+      "label": "Районы",
+      "command": "townydistricts",
+      "permission": "neverlandtownydistricts.use",
+      "holders": [
+        "ru.neverland.townydistricts.gui.DistrictMenu$View"
+      ],
+      "inventoryHolders": [],
+      "category": "town",
+      "icon": "minecraft:map"
+    },
+    {
+      "id": "population",
+      "plugin": "NeverLandTownyPopulation",
+      "label": "Население города",
+      "command": "townypopulation",
+      "permission": "neverlandtownypopulation.use",
+      "holders": [
+        "ru.neverland.townypopulation.gui.PopulationMenu$View"
+      ],
+      "inventoryHolders": [],
+      "category": "development",
+      "icon": "minecraft:player_head"
+    },
+    {
+      "id": "specialization",
+      "plugin": "NeverLandTownySpecialization",
+      "label": "Специализация",
+      "command": "townyspecialization",
+      "permission": "neverlandtownyspecialization.use",
+      "holders": [
+        "ru.neverland.townyspecialization.gui.SpecializationMenu$View"
+      ],
+      "inventoryHolders": [],
+      "category": "development",
+      "icon": "minecraft:crafting_table"
+    },
+    {
+      "id": "research",
+      "plugin": "NeverLandTownyResearch",
+      "label": "Исследования",
+      "command": "townyresearch",
+      "permission": "neverlandtownyresearch.use",
+      "holders": [
+        "ru.neverland.townyresearch.gui.ResearchMenu$View"
+      ],
+      "inventoryHolders": [],
+      "category": "development",
+      "icon": "minecraft:enchanted_book"
+    },
+    {
+      "id": "policies",
+      "plugin": "NeverLandTownyPolicies",
+      "label": "Политики города",
+      "command": "townypolicies",
+      "permission": "neverlandtownypolicies.use",
+      "holders": [
+        "ru.neverland.townypolicies.gui.PoliciesMenu$View"
+      ],
+      "inventoryHolders": [],
+      "category": "society",
+      "icon": "minecraft:writable_book"
+    },
+    {
+      "id": "resources",
+      "plugin": "NeverLandTownyResources",
+      "label": "Управление ресурсами",
+      "command": "townyresources",
+      "permission": "neverlandtownyresources.use",
+      "holders": [
+        "ru.neverland.townyresources.gui.ResourcesMenu$View"
+      ],
+      "inventoryHolders": [],
+      "category": "development",
+      "icon": "minecraft:chest"
+    },
+    {
+      "id": "power",
+      "plugin": "NeverLandTownyPower",
+      "label": "Энергоснабжение",
+      "command": "townypower",
+      "permission": "neverlandtownypower.use",
+      "holders": [
+        "ru.neverland.townypower.gui.PowerMenu$View"
+      ],
+      "inventoryHolders": [],
+      "category": "development",
+      "icon": "minecraft:redstone"
+    },
+    {
+      "id": "upkeep",
+      "plugin": "NeverLandTownyUpkeep",
+      "label": "Содержание города",
+      "command": "townyupkeep",
+      "permission": "neverlandtownyupkeep.use",
+      "holders": [
+        "ru.neverland.townyupkeep.gui.UpkeepMenu$View"
+      ],
+      "inventoryHolders": [],
+      "category": "development",
+      "icon": "minecraft:anvil"
+    },
+    {
+      "id": "logistics",
+      "plugin": "NeverLandTownyLogistics",
+      "label": "Логистика",
+      "command": "townylogistics",
+      "permission": "neverlandtownylogistics.use",
+      "holders": [
+        "ru.neverland.townylogistics.gui.LogisticsMenu$View"
+      ],
+      "inventoryHolders": [],
+      "category": "development",
+      "icon": "minecraft:minecart"
+    },
+    {
+      "id": "ideologies",
+      "plugin": "NeverLandTownyIdeologies",
+      "label": "Идеологии",
+      "command": "town ideologies",
+      "permission": "neverlandtownyideologies.use",
+      "holders": [
+        "ru.neverland.townyideologies.gui.MenuManager$ConfirmHolder",
+        "ru.neverland.townyideologies.gui.MenuManager$DetailsHolder",
+        "ru.neverland.townyideologies.gui.MenuManager$IdeologyListHolder"
+      ],
+      "inventoryHolders": [],
+      "category": "development",
+      "icon": "minecraft:writable_book"
+    },
+    {
+      "id": "environment",
+      "plugin": "NeverLandTownyEnvironment",
+      "label": "Экология",
+      "command": "townyenvironment",
+      "permission": "neverlandtownyenvironment.use",
+      "holders": [
+        "ru.neverland.townyenvironment.gui.EnvironmentMenu$View"
+      ],
+      "inventoryHolders": [],
+      "category": "development",
+      "icon": "minecraft:oak_sapling"
+    },
+    {
+      "id": "jobs",
+      "plugin": "NeverLandTownyJobs",
+      "label": "Профессии и работа",
+      "command": "townyjobs",
+      "permission": "neverlandtownyjobs.use",
+      "holders": [
+        "ru.neverland.townyjobs.JobsMenus$View"
+      ],
+      "inventoryHolders": [],
+      "category": "economy",
+      "icon": "minecraft:iron_pickaxe"
+    },
+    {
+      "id": "contracts",
+      "plugin": "NeverLandTownyContracts",
+      "label": "Городские контракты",
+      "command": "town contracts",
+      "permission": "mintcontracts.use",
+      "holders": [
+        "ru.neverland.mintcontracts.gui.ContractMenuHolder",
+        "ru.neverland.mintcontracts.orders.PublicOrders$Board"
+      ],
+      "inventoryHolders": [],
+      "category": "economy",
+      "icon": "minecraft:paper",
+      "holderPermissions": {
+        "ru.neverland.mintcontracts.orders.PublicOrders$Board": "neverland.orders.use"
+      }
+    },
+    {
+      "id": "companies",
+      "plugin": "NeverLandTownyCompanies",
+      "label": "Компании",
+      "command": "townycompanies",
+      "permission": "neverlandtownycompanies.use",
+      "holders": [
+        "ru.neverland.townycompanies.CompanyMenus$View"
+      ],
+      "inventoryHolders": [],
+      "category": "economy",
+      "icon": "minecraft:chest_minecart"
+    },
+    {
+      "id": "market",
+      "plugin": "NeverLandTownyMarket",
+      "label": "Рынок игроков",
+      "command": "townymarket",
+      "permission": "neverlandtownymarket.use",
+      "holders": [
+        "ru.neverland.townymarket.MarketMenus$View"
+      ],
+      "inventoryHolders": [],
+      "category": "economy",
+      "icon": "minecraft:emerald",
+      "layout": "market"
+    },
+    {
+      "id": "trade",
+      "plugin": "NeverLandTownyTrade",
+      "label": "Межгородские поставки",
+      "command": "town trade",
+      "permission": "minttrade.use",
+      "holders": [
+        "ru.neverland.minttrade.contract.SupplyMenus$View",
+        "ru.neverland.minttrade.gui.TradeMenuHolder"
+      ],
+      "inventoryHolders": [],
+      "category": "economy",
+      "icon": "minecraft:gold_ingot"
+    },
+    {
+      "id": "treasuryplus",
+      "plugin": "NeverLandTownyTreasuryPlus",
+      "label": "Казна города",
+      "command": "townytreasury",
+      "permission": "neverlandtownytreasury.use",
+      "holders": [
+        "ru.neverland.townytreasury.gui.TreasuryMenu$View"
+      ],
+      "inventoryHolders": [],
+      "category": "town",
+      "icon": "minecraft:gold_block"
+    },
+    {
+      "id": "camps",
+      "plugin": "NeverLandTownyCamps",
+      "label": "Лагерь",
+      "command": "camp",
+      "permission": "mintcamps.use",
+      "holders": [
+        "ru.neverland.mintcamps.gui.MenuManager$MenuHolder"
+      ],
+      "inventoryHolders": [],
+      "category": "adventures",
+      "icon": "minecraft:campfire",
+      "inventoryTitleWords": [
+        "склад",
+        "хранилищ",
+        "редактор"
+      ]
+    },
+    {
+      "id": "expeditions",
+      "plugin": "NeverLandTownyExpeditions",
+      "label": "Экспедиции",
+      "command": "expedition",
+      "permission": "mintexpeditions.use",
+      "holders": [
+        "ru.neverland.mintexpeditions.gui.ExpeditionMenuHolder"
+      ],
+      "inventoryHolders": [],
+      "category": "adventures",
+      "icon": "minecraft:compass"
+    },
+    {
+      "id": "archaeology",
+      "plugin": "NeverLandTownyArchaeology",
+      "label": "Археология",
+      "command": "archaeology",
+      "permission": "townyarchaeology.use",
+      "holders": [
+        "ru.neverland.archaeology.gui.ArchaeologyMenuHolder"
+      ],
+      "inventoryHolders": [],
+      "category": "adventures",
+      "icon": "minecraft:brush"
+    },
+    {
+      "id": "events",
+      "plugin": "NeverLandTownyEvents",
+      "label": "События",
+      "command": "town events",
+      "permission": "mintevents.use",
+      "holders": [
+        "ru.neverland.mintevents.gui.EventMenuHolder"
+      ],
+      "inventoryHolders": [],
+      "category": "adventures",
+      "icon": "minecraft:totem_of_undying"
+    },
+    {
+      "id": "quests",
+      "plugin": "NeverLandTownyQuests",
+      "label": "Задания города",
+      "command": "townyquests",
+      "permission": "neverlandtownyquests.use",
+      "holders": [
+        "ru.neverland.townyquests.gui.QuestMenu$View"
+      ],
+      "inventoryHolders": [],
+      "category": "adventures",
+      "icon": "minecraft:filled_map"
+    },
+    {
+      "id": "achievements",
+      "plugin": "NeverLandTownyAchievements",
+      "label": "Достижения города",
+      "command": "townyachievements",
+      "permission": "neverlandtownyachievements.use",
+      "holders": [
+        "ru.neverland.townyachievements.gui.AchievementMenu$View"
+      ],
+      "inventoryHolders": [],
+      "category": "adventures",
+      "icon": "minecraft:golden_apple"
+    },
+    {
+      "id": "chronicles",
+      "plugin": "NeverLandTownyChronicles",
+      "label": "История города",
+      "command": "chronicles",
+      "permission": "townychronicles.use",
+      "holders": [
+        "ru.neverland.townychronicles.gui.ChronicleMenuHolder"
+      ],
+      "inventoryHolders": [],
+      "category": "town",
+      "icon": "minecraft:book"
+    },
+    {
+      "id": "seasons",
+      "plugin": "NeverLandTownySeasons",
+      "label": "Сезоны",
+      "command": "townyseasons",
+      "permission": "neverlandtownyseasons.use",
+      "holders": [
+        "ru.neverland.townyseasons.SeasonMenu$Holder"
+      ],
+      "inventoryHolders": [],
+      "category": "adventures",
+      "icon": "minecraft:sunflower"
+    },
+    {
+      "id": "citizens",
+      "plugin": "NeverLandTownyCitizens",
+      "label": "Гражданство",
+      "command": "townycitizens",
+      "permission": "neverlandtownycitizens.use",
+      "holders": [
+        "ru.neverland.townycitizens.CitizensMenus$Holder"
+      ],
+      "inventoryHolders": [],
+      "category": "society",
+      "icon": "minecraft:name_tag"
+    },
+    {
+      "id": "reputation",
+      "plugin": "NeverLandTownyReputation",
+      "label": "Репутация",
+      "command": "reputation",
+      "permission": "townyreputation.use",
+      "holders": [
+        "ru.neverland.reputation.gui.ReputationMenuHolder"
+      ],
+      "inventoryHolders": [],
+      "category": "society",
+      "icon": "minecraft:experience_bottle"
+    },
+    {
+      "id": "council",
+      "plugin": "NeverLandTownyCouncil",
+      "label": "Министры города",
+      "command": "townycouncil",
+      "permission": "neverlandtownycouncil.use",
+      "holders": [
+        "ru.neverland.townycouncil.CouncilMenus$Holder"
+      ],
+      "inventoryHolders": [],
+      "category": "society",
+      "icon": "minecraft:lectern"
+    },
+    {
+      "id": "elections",
+      "plugin": "NeverLandTownyElections",
+      "label": "Выборы",
+      "command": "elections",
+      "permission": "townyelections.use",
+      "holders": [
+        "ru.neverland.townyelections.ElectionsMenus$Holder"
+      ],
+      "inventoryHolders": [],
+      "category": "society",
+      "icon": "minecraft:writable_book"
+    },
+    {
+      "id": "governance",
+      "plugin": "NeverLandTownyGovernance",
+      "label": "Законы и голосования",
+      "command": "governance",
+      "permission": "townygovernance.use",
+      "holders": [
+        "ru.neverland.governance.gui.GovernanceMenuHolder"
+      ],
+      "inventoryHolders": [],
+      "category": "society",
+      "icon": "minecraft:book"
+    },
+    {
+      "id": "diplomacy",
+      "plugin": "NeverLandTownyDiplomacy",
+      "label": "Дипломатия",
+      "command": "townydiplomacy",
+      "permission": "neverlandtownydiplomacy.use",
+      "holders": [
+        "ru.neverland.townydiplomacy.DiplomacyMenus$Holder"
+      ],
+      "inventoryHolders": [],
+      "category": "society",
+      "icon": "minecraft:white_banner"
+    },
+    {
+      "id": "crime",
+      "plugin": "NeverLandTownyCrime",
+      "label": "Правопорядок",
+      "command": "townycrime",
+      "permission": "neverlandtownycrime.use",
+      "holders": [
+        "ru.neverland.townycrime.CrimeMenu$Holder"
+      ],
+      "inventoryHolders": [],
+      "category": "security",
+      "icon": "minecraft:iron_bars"
+    },
+    {
+      "id": "justice",
+      "plugin": "NeverLandTownyJustice",
+      "label": "Суд",
+      "command": "townyjustice",
+      "permission": "neverlandtownyjustice.use",
+      "holders": [
+        "ru.neverland.townyjustice.JusticeMenu$Holder"
+      ],
+      "inventoryHolders": [],
+      "category": "security",
+      "icon": "minecraft:iron_sword"
+    },
+    {
+      "id": "army",
+      "plugin": "NeverLandTownyArmy",
+      "label": "Армия",
+      "command": "townymilitary",
+      "permission": "neverlandtownyarmy.use",
+      "holders": [
+        "ru.neverland.townyarmy.ArmyMenu$Holder"
+      ],
+      "inventoryHolders": [],
+      "category": "security",
+      "icon": "minecraft:shield"
+    },
+    {
+      "id": "espionage",
+      "plugin": "NeverLandTownyEspionage",
+      "label": "Разведка",
+      "command": "espionage",
+      "permission": "mintespionage.use",
+      "holders": [
+        "ru.neverland.mintespionage.gui.EspionageMenuHolder"
+      ],
+      "inventoryHolders": [],
+      "category": "security",
+      "icon": "minecraft:spyglass"
+    },
+    {
+      "id": "siegesplus",
+      "plugin": "NeverLandTownySiegesPlus",
+      "label": "Осады",
+      "command": "townysieges",
+      "permission": "neverlandtownysiegesplus.use",
+      "holders": [
+        "ru.neverland.townysieges.SiegeMenu$Holder"
+      ],
+      "inventoryHolders": [],
+      "category": "security",
+      "icon": "minecraft:crossbow"
+    },
+    {
+      "id": "control",
+      "plugin": "NeverLandTownyControl",
+      "label": "Панель администратора",
+      "command": "nltadmin",
+      "permission": "neverlandtownycontrol.admin",
+      "holders": [
+        "ru.neverland.townycontrol.AdminMenu$Screen"
+      ],
+      "inventoryHolders": [],
+      "category": "management",
+      "icon": "minecraft:command_block"
+    }
+  ]
+}

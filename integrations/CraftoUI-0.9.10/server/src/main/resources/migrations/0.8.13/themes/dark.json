@@ -1,0 +1,13 @@
+{
+  "id": "dark",
+  "background": "#FF20232C",
+  "panel": "#FF292E3A",
+  "button": "#FF343B4A",
+  "hover": "#FF465267",
+  "border": "#FF657089",
+  "text": "#FFF1F4FA",
+  "muted": "#FFADB6C7",
+  "accent": "#FF54D797",
+  "disabled": "#FF343944",
+  "shade": "#A0000000"
+}

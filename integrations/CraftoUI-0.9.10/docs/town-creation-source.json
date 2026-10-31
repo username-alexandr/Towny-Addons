@@ -1,0 +1,9 @@
+{
+  "source": "https://github.com/TownyAdvanced/Towny/blob/master/Towny/src/main/java/com/palmergames/bukkit/towny/command/TownCommand.java",
+  "sha": "bcc810e6b2a31da69b587c47c061d79e9688abed",
+  "command": "town new <name>",
+  "permission": "towny.command.town.new",
+  "permission_source": "https://github.com/TownyAdvanced/Towny/blob/master/Towny/src/main/java/com/palmergames/bukkit/towny/permissions/PermissionNodes.java",
+  "permission_sha": "30f039b1f2aaf94391b308761dd194296787d868",
+  "notes": "Original Towny command validates the current location, membership and money. A priced town uses Towny's own confirmation/transaction; CraftoUI exposes that original pending confirmation."
+}

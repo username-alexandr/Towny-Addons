@@ -1,0 +1,54 @@
+{
+  "id": "management",
+  "title": "Администрация",
+  "theme": "dark",
+  "width": 620,
+  "height": 440,
+  "footer": "Назад — предыдущий экран. Главное меню — начало навигации.",
+  "components": [
+    {
+      "id": "description",
+      "type": "text",
+      "x": 18,
+      "y": 58,
+      "w": 584,
+      "h": 22,
+      "text": "Инструменты для команды сервера",
+      "color": "muted"
+    },
+    {
+      "id": "modules",
+      "type": "grid",
+      "x": 18,
+      "y": 88,
+      "w": 584,
+      "h": 250,
+      "columns": 3,
+      "gap": 8,
+      "rowHeight": 72,
+      "children": [
+        {
+          "id": "control",
+          "type": "button",
+          "text": "Панель администратора",
+          "action": "addons:control",
+          "icon": "minecraft:command_block",
+          "tooltip": "Служебные инструменты администрации.",
+          "directoryId": "button:management/control"
+        }
+      ]
+    },
+    {
+      "id": "home",
+      "type": "button",
+      "text": "Главное меню",
+      "action": "hub:hub",
+      "x": 18,
+      "y": 365,
+      "w": 180,
+      "h": 28,
+      "tooltip": "Вернуться к основным разделам."
+    }
+  ],
+  "permission": "craftoui.admin.menus"
+}

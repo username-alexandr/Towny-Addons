@@ -1,0 +1,150 @@
+{
+  "id": "profile",
+  "title": "Профиль",
+  "theme": "dark",
+  "width": 560,
+  "height": 330,
+  "permission": "craftoui.profile",
+  "footer": "Данные персонажа на текущем сервере",
+  "components": [
+    {
+      "id": "portrait",
+      "type": "panel",
+      "x": 16,
+      "y": 58,
+      "w": 150,
+      "h": 214,
+      "children": [
+        {
+          "id": "skin",
+          "type": "avatar",
+          "x": 12,
+          "y": 12,
+          "w": 126,
+          "h": 168,
+          "mode": "model"
+        },
+        {
+          "id": "nick",
+          "type": "text",
+          "x": 10,
+          "y": 187,
+          "w": 130,
+          "h": 18,
+          "text": "${player.name}"
+        }
+      ],
+      "layoutRole": "aside"
+    },
+    {
+      "id": "stats",
+      "type": "list",
+      "x": 180,
+      "y": 58,
+      "w": 364,
+      "h": 172,
+      "rowHeight": 18,
+      "gap": 4,
+      "children": [
+        {
+          "id": "player_name",
+          "type": "text",
+          "text": "Игрок: ${player.name}"
+        },
+        {
+          "id": "s0",
+          "type": "text",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "text": "Статус: ${player.status}"
+        },
+        {
+          "id": "s1",
+          "type": "text",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "text": "Уровень опыта: ${player.level}"
+        },
+        {
+          "id": "s2",
+          "type": "text",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "text": "Здоровье: ${player.health}"
+        },
+        {
+          "id": "s3",
+          "type": "text",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "text": "Сытость: ${player.food}"
+        },
+        {
+          "id": "s4",
+          "type": "text",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "text": "Мир: ${player.world}"
+        },
+        {
+          "id": "s5",
+          "type": "text",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "text": "Режим: ${player.gamemode}"
+        },
+        {
+          "id": "s6",
+          "type": "text",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "text": "Группа: ${player.group}"
+        }
+      ],
+      "layoutRole": "content"
+    },
+    {
+      "id": "refresh",
+      "type": "button",
+      "x": 180,
+      "y": 242,
+      "w": 176,
+      "h": 30,
+      "text": "Обновить данные",
+      "action": "refresh",
+      "layoutRole": "actions",
+      "shortText": "Обновить"
+    },
+    {
+      "id": "history",
+      "type": "button",
+      "text": "Мои операции",
+      "action": "quick:history",
+      "icon": "minecraft:book",
+      "tooltip": "Ваши награды, переводы, переданные материалы и возвраты.",
+      "x": 368,
+      "y": 242,
+      "w": 176,
+      "h": 30,
+      "layoutRole": "actions",
+      "shortText": "Операции"
+    }
+  ],
+  "responsive": true,
+  "paginate": true,
+  "footerActions": true
+}

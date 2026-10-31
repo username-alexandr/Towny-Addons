@@ -1,0 +1,166 @@
+{
+  "id": "main",
+  "title": "Главное меню",
+  "theme": "dark",
+  "width": 620,
+  "height": 480,
+  "footer": "crafto.cc  •  Играй. Развивайся. Будь частью.",
+  "components": [
+    {
+      "id": "player",
+      "type": "panel",
+      "x": 18,
+      "y": 65,
+      "w": 188,
+      "h": 335,
+      "children": [
+        {
+          "id": "skin",
+          "type": "avatar",
+          "mode": "model",
+          "x": 16,
+          "y": 16,
+          "w": 156,
+          "h": 210
+        },
+        {
+          "id": "name",
+          "type": "text",
+          "x": 14,
+          "y": 241,
+          "w": 160,
+          "h": 20,
+          "text": "${player.name}"
+        },
+        {
+          "id": "status",
+          "type": "text",
+          "x": 14,
+          "y": 269,
+          "w": 160,
+          "h": 20,
+          "text": "● ${player.status}",
+          "color": "accent"
+        },
+        {
+          "id": "level",
+          "type": "text",
+          "x": 14,
+          "y": 297,
+          "w": 160,
+          "h": 16,
+          "text": "Уровень ${player.level}"
+        },
+        {
+          "id": "xp",
+          "type": "progress",
+          "x": 14,
+          "y": 320,
+          "w": 160,
+          "h": 7,
+          "value": "${player.exp}"
+        }
+      ]
+    },
+    {
+      "id": "sections",
+      "type": "grid",
+      "x": 222,
+      "y": 65,
+      "w": 380,
+      "h": 335,
+      "columns": 2,
+      "gap": 10,
+      "rowHeight": 76,
+      "children": [
+        {
+          "id": "orders",
+          "type": "button",
+          "text": "Личные заказы",
+          "action": "quick:orders",
+          "icon": "minecraft:paper",
+          "tooltip": "Открыть доску /orders: выбрать заказ и заработать лично."
+        },
+        {
+          "id": "economy",
+          "type": "button",
+          "text": "Работа и торговля",
+          "action": "hub:economy",
+          "icon": "minecraft:emerald",
+          "tooltip": "Профессии, рынок, поставки, компании и городские контракты."
+        },
+        {
+          "id": "town",
+          "type": "button",
+          "text": "Мой город",
+          "action": "hub:town",
+          "icon": "minecraft:bricks",
+          "tooltip": "Сводка, склад, постройки, казна и развитие."
+        },
+        {
+          "id": "adventures",
+          "type": "button",
+          "text": "Задания и события",
+          "action": "hub:adventures",
+          "icon": "minecraft:compass",
+          "tooltip": "Городские задания, экспедиции, события и достижения."
+        },
+        {
+          "id": "society",
+          "type": "button",
+          "text": "Жители и власть",
+          "action": "hub:society",
+          "icon": "minecraft:lectern",
+          "tooltip": "Гражданство, совет, министры, законы и безопасность."
+        },
+        {
+          "id": "profile",
+          "type": "button",
+          "text": "Мой профиль",
+          "action": "profile",
+          "icon": "minecraft:player_head",
+          "tooltip": "Данные вашего персонажа."
+        },
+        {
+          "id": "help",
+          "type": "button",
+          "text": "Помощь",
+          "action": "help",
+          "icon": "minecraft:book",
+          "tooltip": "Где искать заказы, склад и назначения."
+        },
+        {
+          "id": "settings",
+          "type": "button",
+          "text": "Настройки",
+          "action": "settings",
+          "icon": "minecraft:comparator",
+          "tooltip": "Внешний вид и управление интерфейсом."
+        }
+      ]
+    },
+    {
+      "id": "return",
+      "type": "button",
+      "text": "Вернуться в игру",
+      "action": "survival",
+      "x": 18,
+      "y": 410,
+      "w": 188,
+      "h": 28
+    },
+    {
+      "id": "management",
+      "type": "button",
+      "text": "Администрация",
+      "action": "hub:management",
+      "permission": "craftoui.admin.menus",
+      "hideWhenDenied": true,
+      "x": 422,
+      "y": 410,
+      "w": 180,
+      "h": 28
+    }
+  ],
+  "searchable": false
+}

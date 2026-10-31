@@ -1,0 +1,32 @@
+id: help
+title: Помощь
+theme: classic
+width: 560
+height: 460
+permission: craftoui.use
+footer: CraftoUI
+components:
+  - id: help_text
+    type: text
+    x: 24
+    y: 70
+    w: 512
+    h: 260
+    wrap: true
+    text: |
+      Откройте меню командой /menu или клавишей M.
+
+      Клавишу можно изменить в настройках управления Minecraft.
+      Tab выбирает кнопку, Enter нажимает её. Esc закрывает меню.
+      Колесо мыши прокручивает списки.
+
+      Серые разделы пока недоступны.
+      В настройках CraftoUI можно изменить масштаб и размытие.
+  - id: back
+    type: button
+    x: 24
+    y: 370
+    w: 512
+    h: 32
+    text: Назад
+    action: main

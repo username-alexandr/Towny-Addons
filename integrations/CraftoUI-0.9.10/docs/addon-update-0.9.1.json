@@ -1,0 +1,691 @@
+{
+  "suite": "0.52.1",
+  "source_commit": "45d4efeeee2aeba721b8ba44a46de1ee766df0d3",
+  "added_holders": [
+    {
+      "plugin": "NeverLandTownyPopulation",
+      "id": "population",
+      "holders": [
+        {
+          "holder": "ru.neverland.townypopulation.gui.CohortMenu$View",
+          "source": "NeverLandTownyPopulation/src/main/java/ru/neverland/townypopulation/gui/CohortMenu.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownySpecialization",
+      "id": "specialization",
+      "holders": [
+        {
+          "holder": "ru.neverland.townyspecialization.production.ProductionMenu$View",
+          "source": "NeverLandTownySpecialization/src/main/java/ru/neverland/townyspecialization/production/ProductionMenu.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyResearch",
+      "id": "research",
+      "holders": [
+        {
+          "holder": "ru.neverland.townyresearch.licenses.LicenseMenu$View",
+          "source": "NeverLandTownyResearch/src/main/java/ru/neverland/townyresearch/licenses/LicenseMenu.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyEnvironment",
+      "id": "environment",
+      "holders": [
+        {
+          "holder": "ru.neverland.townyenvironment.gui.DistrictEnvironmentMenu$View",
+          "source": "NeverLandTownyEnvironment/src/main/java/ru/neverland/townyenvironment/gui/DistrictEnvironmentMenu.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyJobs",
+      "id": "jobs",
+      "holders": [
+        {
+          "holder": "ru.neverland.townyjobs.mastery.MasteryService$View",
+          "source": "NeverLandTownyJobs/src/main/java/ru/neverland/townyjobs/mastery/MasteryService.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyMarket",
+      "id": "market",
+      "holders": [
+        {
+          "holder": "ru.neverland.townymarket.personal.LimitService$View",
+          "source": "NeverLandTownyMarket/src/main/java/ru/neverland/townymarket/personal/LimitService.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyTreasuryPlus",
+      "id": "treasuryplus",
+      "holders": [
+        {
+          "holder": "ru.neverland.townytreasury.gui.AsyncDebitMenu$View",
+          "source": "NeverLandTownyTreasuryPlus/src/main/java/ru/neverland/townytreasury/gui/AsyncDebitMenu.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyCamps",
+      "id": "camps",
+      "holders": [
+        {
+          "holder": "ru.neverland.mintcamps.gui.MenuManager$GuestView",
+          "source": "NeverLandTownyCamps/src/main/java/ru/neverland/mintcamps/gui/MenuManager.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyArchaeology",
+      "id": "archaeology",
+      "holders": [
+        {
+          "holder": "ru.neverland.archaeology.restoration.RestorationMenu$View",
+          "source": "NeverLandTownyArchaeology/src/main/java/ru/neverland/archaeology/restoration/RestorationMenu.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyEvents",
+      "id": "events",
+      "holders": [
+        {
+          "holder": "ru.neverland.mintevents.scenarios.ScenarioMenus$Screen",
+          "source": "NeverLandTownyEvents/src/main/java/ru/neverland/mintevents/scenarios/ScenarioMenus.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyQuests",
+      "id": "quests",
+      "holders": [
+        {
+          "holder": "ru.neverland.townyquests.cooperative.CooperativeMenu$View",
+          "source": "NeverLandTownyQuests/src/main/java/ru/neverland/townyquests/cooperative/CooperativeMenu.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyChronicles",
+      "id": "chronicles",
+      "holders": [
+        {
+          "holder": "ru.neverland.townychronicles.chapters.ChapterMenu$View",
+          "source": "NeverLandTownyChronicles/src/main/java/ru/neverland/townychronicles/chapters/ChapterMenu.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownySeasons",
+      "id": "seasons",
+      "holders": [
+        {
+          "holder": "ru.neverland.townyseasons.markets.SeasonMarketsMenu$Holder",
+          "source": "NeverLandTownySeasons/src/main/java/ru/neverland/townyseasons/markets/SeasonMarketsMenu.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyCitizens",
+      "id": "citizens",
+      "holders": [
+        {
+          "holder": "ru.neverland.townycitizens.AdmissionsController$Page",
+          "source": "NeverLandTownyCitizens/src/main/java/ru/neverland/townycitizens/AdmissionsController.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyCouncil",
+      "id": "council",
+      "holders": [
+        {
+          "holder": "ru.neverland.townycouncil.DelegationMenus$View",
+          "source": "NeverLandTownyCouncil/src/main/java/ru/neverland/townycouncil/DelegationMenus.java"
+        },
+        {
+          "holder": "ru.neverland.townycouncil.spending.SpendingMenus$View",
+          "source": "NeverLandTownyCouncil/src/main/java/ru/neverland/townycouncil/spending/SpendingMenus.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyElections",
+      "id": "elections",
+      "holders": [
+        {
+          "holder": "ru.neverland.townyelections.ElectionProgramsMenu$View",
+          "source": "NeverLandTownyElections/src/main/java/ru/neverland/townyelections/ElectionProgramsMenu.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyDiplomacy",
+      "id": "diplomacy",
+      "holders": [
+        {
+          "holder": "ru.neverland.townydiplomacy.aid.AidMenus$Holder",
+          "source": "NeverLandTownyDiplomacy/src/main/java/ru/neverland/townydiplomacy/aid/AidMenus.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyCrime",
+      "id": "crime",
+      "holders": [
+        {
+          "holder": "ru.neverland.townycrime.CrimePatrolMenu$View",
+          "source": "NeverLandTownyCrime/src/main/java/ru/neverland/townycrime/CrimePatrolMenu.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyJustice",
+      "id": "justice",
+      "holders": [
+        {
+          "holder": "ru.neverland.townyjustice.JusticeDossiersMenu$Holder",
+          "source": "NeverLandTownyJustice/src/main/java/ru/neverland/townyjustice/JusticeDossiersMenu.java"
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyArmy",
+      "id": "army",
+      "holders": [
+        {
+          "holder": "ru.neverland.townyarmy.tactics.TacticsMenus$Page",
+          "source": "NeverLandTownyArmy/src/main/java/ru/neverland/townyarmy/tactics/TacticsMenus.java"
+        }
+      ]
+    }
+  ],
+  "added_forms": [
+    {
+      "plugin": "NeverLandTownyPopulation",
+      "id": "population-cohorts",
+      "label": "Жители и районы",
+      "root": "townypopulation",
+      "prefix": "cohorts",
+      "permission": "",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownySpecialization",
+      "id": "production-products",
+      "label": "Городское производство",
+      "root": "townyspecialization",
+      "prefix": "products",
+      "permission": "",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownySpecialization",
+      "id": "production-batches",
+      "label": "Производственные партии",
+      "root": "townyspecialization",
+      "prefix": "batches",
+      "permission": "",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownySpecialization",
+      "id": "production-cooperation",
+      "label": "Совместное производство",
+      "root": "townyspecialization",
+      "prefix": "cooperation",
+      "permission": "",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyResearch",
+      "id": "research-licenses",
+      "label": "Технологические лицензии",
+      "root": "townyresearch",
+      "prefix": "license",
+      "permission": "neverlandtownyresearch.licenses",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyResearch",
+      "id": "license-offer",
+      "label": "Предложить лицензию",
+      "root": "townyresearch",
+      "prefix": "license offer",
+      "permission": "neverlandtownyresearch.licenses",
+      "fields": [
+        {
+          "id": "town",
+          "label": "Город-покупатель",
+          "type": "token",
+          "required": true
+        },
+        {
+          "id": "technology",
+          "label": "Технология",
+          "type": "token",
+          "required": true
+        },
+        {
+          "id": "level",
+          "label": "Уровень",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "amount",
+          "label": "Стоимость",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "hours",
+          "label": "Срок, часы",
+          "type": "number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyEnvironment",
+      "id": "environment-districts",
+      "label": "Экология районов",
+      "root": "townyenvironment",
+      "prefix": "districts",
+      "permission": "",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyJobs",
+      "id": "jobs-mastery",
+      "label": "Мастерские заказы",
+      "root": "townyjobs",
+      "prefix": "mastery",
+      "permission": "neverlandtownyjobs.mastery",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyMarket",
+      "id": "market-personal",
+      "label": "Лимитные заявки рынка",
+      "root": "townymarket",
+      "prefix": "personal",
+      "permission": "neverlandtownymarket.personal",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyMarket",
+      "id": "limit-buy",
+      "label": "Купить по заданной цене",
+      "root": "townymarket",
+      "prefix": "limit-buy",
+      "permission": "neverlandtownymarket.personal",
+      "fields": [
+        {
+          "id": "material",
+          "label": "Материал",
+          "type": "token",
+          "required": true
+        },
+        {
+          "id": "quantity",
+          "label": "Количество",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "price",
+          "label": "Цена за предмет",
+          "type": "number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyMarket",
+      "id": "limit-sell",
+      "label": "Продать по заданной цене",
+      "root": "townymarket",
+      "prefix": "limit-sell",
+      "permission": "neverlandtownymarket.personal",
+      "fields": [
+        {
+          "id": "material",
+          "label": "Материал",
+          "type": "token",
+          "required": true
+        },
+        {
+          "id": "quantity",
+          "label": "Количество",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "price",
+          "label": "Цена за предмет",
+          "type": "number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyCamps",
+      "id": "camp-guests",
+      "label": "Гости лагеря",
+      "root": "camp",
+      "prefix": "guests",
+      "permission": "mintcamps.use",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyCamps",
+      "id": "camp-guest",
+      "label": "Разрешить гостю доступ",
+      "root": "camp",
+      "prefix": "guest",
+      "permission": "mintcamps.use",
+      "fields": [
+        {
+          "id": "player",
+          "label": "Игрок",
+          "type": "player",
+          "required": true
+        },
+        {
+          "id": "rights",
+          "label": "Права: sleep,workbench,storage",
+          "type": "token",
+          "required": true
+        },
+        {
+          "id": "minutes",
+          "label": "Срок, минуты",
+          "type": "number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyCamps",
+      "id": "camp-guest-remove",
+      "label": "Убрать доступ гостя",
+      "root": "camp",
+      "prefix": "guest",
+      "permission": "mintcamps.use",
+      "fields": [
+        {
+          "id": "player",
+          "label": "Игрок",
+          "type": "player",
+          "required": true
+        },
+        {
+          "id": "remove",
+          "label": "Действие",
+          "type": "choice",
+          "required": true,
+          "choices": [
+            "remove"
+          ]
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyQuests",
+      "id": "quests-joint",
+      "label": "Общие стройки сервера",
+      "root": "townyquests",
+      "prefix": "joint",
+      "permission": "",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyChronicles",
+      "id": "chronicles-chapters",
+      "label": "Главы истории города",
+      "root": "chronicles",
+      "prefix": "chapters",
+      "permission": "",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyCitizens",
+      "id": "citizens-applications",
+      "label": "Заявления в гражданство",
+      "root": "townycitizens",
+      "prefix": "applications",
+      "permission": "",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyCouncil",
+      "id": "council-delegations",
+      "label": "Временные поручения",
+      "root": "townycouncil",
+      "prefix": "delegations",
+      "permission": "",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyCouncil",
+      "id": "council-spending",
+      "label": "Ограничения расходов",
+      "root": "townycouncil",
+      "prefix": "spending",
+      "permission": "",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyCouncil",
+      "id": "delegate",
+      "label": "Выдать временное поручение",
+      "root": "townycouncil",
+      "prefix": "delegate",
+      "permission": "",
+      "fields": [
+        {
+          "id": "player",
+          "label": "Житель",
+          "type": "player",
+          "required": true
+        },
+        {
+          "id": "action",
+          "label": "Городское действие",
+          "type": "token",
+          "required": true
+        },
+        {
+          "id": "hours",
+          "label": "Часы",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "reason",
+          "label": "Причина",
+          "type": "text",
+          "required": true
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyCouncil",
+      "id": "spending-limit",
+      "label": "Задать лимиты расходов",
+      "root": "townycouncil",
+      "prefix": "limit",
+      "permission": "",
+      "fields": [
+        {
+          "id": "player",
+          "label": "Житель",
+          "type": "player",
+          "required": true
+        },
+        {
+          "id": "once",
+          "label": "Одна покупка; 0 — без лимита",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "daily",
+          "label": "За 24 часа; 0 — без лимита",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "reason",
+          "label": "Причина",
+          "type": "text",
+          "required": true
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyElections",
+      "id": "elections-programs",
+      "label": "Программы кандидатов",
+      "root": "elections",
+      "prefix": "programs",
+      "permission": "",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyDiplomacy",
+      "id": "diplomacy-aid",
+      "label": "Договоры взаимопомощи",
+      "root": "townydiplomacy",
+      "prefix": "aid list",
+      "permission": "",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyCrime",
+      "id": "crime-patrols",
+      "label": "Патрули города",
+      "root": "townycrime",
+      "prefix": "patrols",
+      "permission": "",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyCrime",
+      "id": "crime-incidents",
+      "label": "Происшествия города",
+      "root": "townycrime",
+      "prefix": "incidents",
+      "permission": "",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyJustice",
+      "id": "justice-dossiers",
+      "label": "Материалы судебных дел",
+      "root": "townyjustice",
+      "prefix": "dossier",
+      "permission": "",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyArmy",
+      "id": "army-tactics",
+      "label": "Тактика и снабжение армии",
+      "root": "townymilitary",
+      "prefix": "tactics",
+      "permission": "",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownyContracts",
+      "id": "orders-fishing",
+      "label": "Рыболовные заказы",
+      "root": "orders",
+      "prefix": "fishing",
+      "permission": "neverland.orders.use",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "id": "ransom-status",
+      "label": "Текущее предложение выкупа",
+      "root": "townysieges",
+      "prefix": "ransom status",
+      "permission": "neverlandtownysiegesplus.ransom",
+      "fields": []
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "id": "ransom-offer",
+      "label": "Предложить выкуп за рейд",
+      "root": "townysieges",
+      "prefix": "ransom offer",
+      "permission": "neverlandtownysiegesplus.ransom",
+      "fields": [
+        {
+          "id": "amount",
+          "label": "Сумма выкупа",
+          "type": "number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "id": "ransom-accept",
+      "label": "Принять предложение выкупа",
+      "root": "townysieges",
+      "prefix": "ransom accept",
+      "permission": "neverlandtownysiegesplus.ransom",
+      "fields": [
+        {
+          "id": "offer",
+          "label": "UUID предложения",
+          "type": "token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "id": "ransom-show",
+      "label": "История выкупа по рейду",
+      "root": "townysieges",
+      "prefix": "ransom show",
+      "permission": "neverlandtownysiegesplus.ransom",
+      "fields": [
+        {
+          "id": "raid",
+          "label": "UUID рейда",
+          "type": "token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "plugin": "Towny",
+      "id": "create-town",
+      "label": "Создать город",
+      "root": "town",
+      "prefix": "new",
+      "permission": "towny.command.town.new",
+      "fields": [
+        {
+          "id": "name",
+          "label": "Название города — без пробелов",
+          "type": "token",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

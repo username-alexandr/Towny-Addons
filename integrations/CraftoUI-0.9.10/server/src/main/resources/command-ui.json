@@ -1,0 +1,1767 @@
+{
+  "modules": [
+    {
+      "plugin": "NeverLandTownyAchievements",
+      "label": "Достижения города",
+      "permission": "neverlandtownyachievements.use",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownyArchaeology",
+      "label": "Археология",
+      "permission": "townyarchaeology.use",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownyArmy",
+      "label": "Армия",
+      "permission": "neverlandtownyarmy.use",
+      "forms": [
+        {
+          "id": "approve",
+          "label": "Одобрить заявку",
+          "root": "townymilitary",
+          "prefix": "approve",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "mobilize",
+          "label": "Призвать на службу",
+          "root": "townymilitary",
+          "prefix": "mobilize",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "release",
+          "label": "Перевести в резерв",
+          "root": "townymilitary",
+          "prefix": "release",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "equip",
+          "label": "Выдать снабжение",
+          "root": "townymilitary",
+          "prefix": "equip",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "record",
+          "label": "Карточка военнослужащего",
+          "root": "townymilitary",
+          "prefix": "record",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "commission",
+          "label": "Назначить генералом",
+          "root": "townymilitary",
+          "prefix": "commission",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            },
+            {
+              "id": "reason",
+              "label": "Причина",
+              "type": "text",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "promote",
+          "label": "Повысить в звании",
+          "root": "townymilitary",
+          "prefix": "promote",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            },
+            {
+              "id": "reason",
+              "label": "Причина",
+              "type": "text",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "demote",
+          "label": "Понизить в звании",
+          "root": "townymilitary",
+          "prefix": "demote",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            },
+            {
+              "id": "reason",
+              "label": "Причина",
+              "type": "text",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "dismiss",
+          "label": "Уволить из армии",
+          "root": "townymilitary",
+          "prefix": "dismiss",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            },
+            {
+              "id": "reason",
+              "label": "Причина",
+              "type": "text",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "warn",
+          "label": "Объявить взыскание",
+          "root": "townymilitary",
+          "prefix": "warn",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            },
+            {
+              "id": "reason",
+              "label": "Причина",
+              "type": "text",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "pardon",
+          "label": "Снять взыскание",
+          "root": "townymilitary",
+          "prefix": "pardon",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            },
+            {
+              "id": "reason",
+              "label": "Причина",
+              "type": "text",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "assign",
+          "label": "Перевести в подразделение",
+          "root": "townymilitary",
+          "prefix": "assign",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            },
+            {
+              "id": "unit",
+              "label": "Подразделение",
+              "type": "choice",
+              "required": true,
+              "choices": [
+                "infantry",
+                "cavalry",
+                "navy",
+                "air"
+              ]
+            },
+            {
+              "id": "reason",
+              "label": "Причина",
+              "type": "text",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "apply",
+          "label": "Подать заявку на службу",
+          "root": "townymilitary",
+          "prefix": "apply",
+          "permission": "",
+          "fields": [
+            {
+              "id": "unit",
+              "label": "Подразделение",
+              "type": "choice",
+              "required": true,
+              "choices": [
+                "infantry",
+                "cavalry",
+                "navy",
+                "air"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "supply",
+          "label": "Поставить снабжение",
+          "root": "townymilitary",
+          "prefix": "supply",
+          "permission": "",
+          "fields": [
+            {
+              "id": "resource",
+              "label": "Ресурс",
+              "type": "token",
+              "required": true
+            },
+            {
+              "id": "amount",
+              "label": "Количество",
+              "type": "number",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "duty",
+          "label": "Дежурство",
+          "root": "townymilitary",
+          "prefix": "duty",
+          "permission": "",
+          "fields": [
+            {
+              "id": "state",
+              "label": "Состояние",
+              "type": "choice",
+              "required": true,
+              "choices": [
+                "on",
+                "off"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "alert",
+          "label": "Мобилизация",
+          "root": "townymilitary",
+          "prefix": "alert",
+          "permission": "",
+          "fields": [
+            {
+              "id": "state",
+              "label": "Состояние",
+              "type": "choice",
+              "required": true,
+              "choices": [
+                "on",
+                "off"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "oath",
+          "label": "Принять присягу",
+          "root": "townymilitary",
+          "prefix": "oath",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "train",
+          "label": "Начать тренировку",
+          "root": "townymilitary",
+          "prefix": "train",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "base-set",
+          "label": "Назначить базу здесь",
+          "root": "townymilitary",
+          "prefix": "base set",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "radio",
+          "label": "Сообщение по рации",
+          "root": "townymilitary",
+          "prefix": "radio",
+          "permission": "",
+          "fields": [
+            {
+              "id": "message",
+              "label": "Текст сообщения",
+              "type": "text",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "army-tactics",
+          "label": "Тактика и снабжение армии",
+          "root": "townymilitary",
+          "prefix": "tactics",
+          "permission": "",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyBuilds",
+      "label": "Постройки",
+      "permission": "neverlandtownybuilds.use",
+      "forms": [
+        {
+          "id": "style",
+          "label": "Стиль города",
+          "root": "townystyle",
+          "prefix": "",
+          "permission": "neverlandtownybuilds.style",
+          "fields": []
+        },
+        {
+          "id": "placement-menu",
+          "label": "Размещение чертежа",
+          "root": "townybuildplace",
+          "prefix": "",
+          "permission": "",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyCamps",
+      "label": "Лагерь",
+      "permission": "mintcamps.use",
+      "forms": [
+        {
+          "id": "camp-guests",
+          "label": "Гости лагеря",
+          "root": "camp",
+          "prefix": "guests",
+          "permission": "mintcamps.use",
+          "fields": []
+        },
+        {
+          "id": "camp-guest",
+          "label": "Разрешить гостю доступ",
+          "root": "camp",
+          "prefix": "guest",
+          "permission": "mintcamps.use",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            },
+            {
+              "id": "rights",
+              "label": "Права: sleep,workbench,storage",
+              "type": "token",
+              "required": true
+            },
+            {
+              "id": "minutes",
+              "label": "Срок, минуты",
+              "type": "number",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "camp-guest-remove",
+          "label": "Убрать доступ гостя",
+          "root": "camp",
+          "prefix": "guest",
+          "permission": "mintcamps.use",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            },
+            {
+              "id": "remove",
+              "label": "Действие",
+              "type": "choice",
+              "required": true,
+              "choices": [
+                "remove"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyChronicles",
+      "label": "История города",
+      "permission": "townychronicles.use",
+      "forms": [
+        {
+          "id": "contributions",
+          "label": "Вклад жителей",
+          "root": "chronicles",
+          "prefix": "contributions",
+          "permission": "townychronicles.contributions",
+          "fields": []
+        },
+        {
+          "id": "thank",
+          "label": "Поблагодарить жителя",
+          "root": "chronicles",
+          "prefix": "thank",
+          "permission": "townychronicles.thank",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Житель города",
+              "type": "player",
+              "required": true
+            },
+            {
+              "id": "message",
+              "label": "Благодарность, 5–160 символов",
+              "type": "text",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "chronicles-chapters",
+          "label": "Главы истории города",
+          "root": "chronicles",
+          "prefix": "chapters",
+          "permission": "",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyCitizens",
+      "label": "Гражданство",
+      "permission": "neverlandtownycitizens.use",
+      "forms": [
+        {
+          "id": "citizens-applications",
+          "label": "Заявления в гражданство",
+          "root": "townycitizens",
+          "prefix": "applications",
+          "permission": "",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyCompanies",
+      "label": "Компании",
+      "permission": "neverlandtownycompanies.use",
+      "forms": [
+        {
+          "id": "invite",
+          "label": "Пригласить в компанию",
+          "root": "townycompanies",
+          "prefix": "invite",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "invitations",
+          "label": "Мои приглашения",
+          "root": "townycompanies",
+          "prefix": "invitations",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "join",
+          "label": "Принять приглашение",
+          "root": "townycompanies",
+          "prefix": "join",
+          "permission": "",
+          "fields": [
+            {
+              "id": "id",
+              "label": "ID компании",
+              "type": "token",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "role",
+          "label": "Назначить должность",
+          "root": "townycompanies",
+          "prefix": "role",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            },
+            {
+              "id": "role",
+              "label": "Должность",
+              "type": "choice",
+              "required": true,
+              "choices": [
+                "manager",
+                "worker"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "kick",
+          "label": "Исключить участника",
+          "root": "townycompanies",
+          "prefix": "kick",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "transfer",
+          "label": "Передать владение",
+          "root": "townycompanies",
+          "prefix": "transfer",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "acceptowner",
+          "label": "Принять владение",
+          "root": "townycompanies",
+          "prefix": "acceptowner",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "leave",
+          "label": "Покинуть компанию",
+          "root": "townycompanies",
+          "prefix": "leave",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "disband",
+          "label": "Распустить компанию",
+          "root": "townycompanies",
+          "prefix": "disband",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "create",
+          "label": "Создать компанию",
+          "root": "townycompanies",
+          "prefix": "create",
+          "permission": "",
+          "fields": [
+            {
+              "id": "kind",
+              "label": "Вид компании",
+              "type": "choice",
+              "required": true,
+              "choices": [
+                "shop",
+                "mine",
+                "farm",
+                "transport"
+              ]
+            },
+            {
+              "id": "name",
+              "label": "Название",
+              "type": "text",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "deposit",
+          "label": "Пополнить счёт",
+          "root": "townycompanies",
+          "prefix": "deposit",
+          "permission": "",
+          "fields": [
+            {
+              "id": "amount",
+              "label": "Сумма",
+              "type": "number",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "withdraw",
+          "label": "Снять со счёта",
+          "root": "townycompanies",
+          "prefix": "withdraw",
+          "permission": "",
+          "fields": [
+            {
+              "id": "amount",
+              "label": "Сумма",
+              "type": "number",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "take",
+          "label": "Принять контракт",
+          "root": "townycompanies",
+          "prefix": "take",
+          "permission": "",
+          "fields": [
+            {
+              "id": "id",
+              "label": "ID / UUID",
+              "type": "token",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "release",
+          "label": "Отказаться от контракта",
+          "root": "townycompanies",
+          "prefix": "release",
+          "permission": "",
+          "fields": [
+            {
+              "id": "id",
+              "label": "ID / UUID",
+              "type": "token",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "members",
+          "label": "Участники",
+          "root": "townycompanies",
+          "prefix": "members",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "payments",
+          "label": "История платежей",
+          "root": "townycompanies",
+          "prefix": "payments",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "contracts",
+          "label": "Контракты компании",
+          "root": "townycompanies",
+          "prefix": "contracts",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "payroll",
+          "label": "Зарплаты компании",
+          "root": "townycompanies",
+          "prefix": "payroll",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "payroll-rate",
+          "label": "Ставка за рабочее действие",
+          "root": "townycompanies",
+          "prefix": "payroll rate",
+          "permission": "neverlandtownycompanies.payroll",
+          "fields": [
+            {
+              "id": "profession",
+              "label": "Профессия",
+              "type": "choice",
+              "required": true,
+              "choices": [
+                "blacksmith",
+                "farmer",
+                "engineer",
+                "guard",
+                "merchant",
+                "researcher",
+                "alchemist"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Сумма за действие, 0 — отключить",
+              "type": "number",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "payroll-budget",
+          "label": "Лимит начислений компании",
+          "root": "townycompanies",
+          "prefix": "payroll budget",
+          "permission": "neverlandtownycompanies.payroll",
+          "fields": [
+            {
+              "id": "amount",
+              "label": "Лимит за 24 часа, 0 — остановить",
+              "type": "number",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "payroll-enable",
+          "label": "Включить зарплаты компании",
+          "root": "townycompanies",
+          "prefix": "payroll on",
+          "permission": "neverlandtownycompanies.payroll",
+          "fields": []
+        },
+        {
+          "id": "payroll-disable",
+          "label": "Остановить новые начисления",
+          "root": "townycompanies",
+          "prefix": "payroll off",
+          "permission": "neverlandtownycompanies.payroll",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyContracts",
+      "label": "Заказы и городские контракты",
+      "permission": "",
+      "forms": [
+        {
+          "id": "personal-board",
+          "label": "Личные заказы",
+          "root": "orders",
+          "prefix": "",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "personal-mine",
+          "label": "Мои принятые заказы",
+          "root": "orders",
+          "prefix": "mine",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "building-materials",
+          "label": "Заказать материалы для здания",
+          "root": "townybuildorders",
+          "prefix": "",
+          "permission": "mintcontracts.buildorders",
+          "fields": [
+            {
+              "id": "building",
+              "label": "ID здания",
+              "type": "token",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "server-materials",
+          "label": "Серверный склад материалов",
+          "root": "orders",
+          "prefix": "admin resources",
+          "permission": "neverland.orders.resources",
+          "fields": []
+        },
+        {
+          "id": "orders-fishing",
+          "label": "Рыболовные заказы",
+          "root": "orders",
+          "prefix": "fishing",
+          "permission": "neverland.orders.use",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyControl",
+      "label": "Панель администратора",
+      "permission": "neverlandtownycontrol.admin",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownyCouncil",
+      "label": "Министры города",
+      "permission": "neverlandtownycouncil.use",
+      "forms": [
+        {
+          "id": "appoint",
+          "label": "Назначить министра",
+          "root": "townycouncil",
+          "prefix": "appoint",
+          "permission": "",
+          "fields": [
+            {
+              "id": "role",
+              "label": "Должность министра",
+              "type": "choice",
+              "required": true,
+              "choices": [
+                "economy",
+                "defense",
+                "construction",
+                "foreign"
+              ]
+            },
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "dismiss",
+          "label": "Снять министра",
+          "root": "townycouncil",
+          "prefix": "dismiss",
+          "permission": "",
+          "fields": [
+            {
+              "id": "role",
+              "label": "Должность министра",
+              "type": "choice",
+              "required": true,
+              "choices": [
+                "economy",
+                "defense",
+                "construction",
+                "foreign"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "permissions",
+          "label": "Полномочия должности",
+          "root": "townycouncil",
+          "prefix": "permissions",
+          "permission": "",
+          "fields": [
+            {
+              "id": "role",
+              "label": "Должность министра",
+              "type": "choice",
+              "required": true,
+              "choices": [
+                "economy",
+                "defense",
+                "construction",
+                "foreign"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "history",
+          "label": "История назначений",
+          "root": "townycouncil",
+          "prefix": "history",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "council-delegations",
+          "label": "Временные поручения",
+          "root": "townycouncil",
+          "prefix": "delegations",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "council-spending",
+          "label": "Ограничения расходов",
+          "root": "townycouncil",
+          "prefix": "spending",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "delegate",
+          "label": "Выдать временное поручение",
+          "root": "townycouncil",
+          "prefix": "delegate",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Житель",
+              "type": "player",
+              "required": true
+            },
+            {
+              "id": "action",
+              "label": "Городское действие",
+              "type": "token",
+              "required": true
+            },
+            {
+              "id": "hours",
+              "label": "Часы",
+              "type": "number",
+              "required": true
+            },
+            {
+              "id": "reason",
+              "label": "Причина",
+              "type": "text",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "spending-limit",
+          "label": "Задать лимиты расходов",
+          "root": "townycouncil",
+          "prefix": "limit",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Житель",
+              "type": "player",
+              "required": true
+            },
+            {
+              "id": "once",
+              "label": "Одна покупка; 0 — без лимита",
+              "type": "number",
+              "required": true
+            },
+            {
+              "id": "daily",
+              "label": "За 24 часа; 0 — без лимита",
+              "type": "number",
+              "required": true
+            },
+            {
+              "id": "reason",
+              "label": "Причина",
+              "type": "text",
+              "required": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyCrime",
+      "label": "Правопорядок",
+      "permission": "neverlandtownycrime.use",
+      "forms": [
+        {
+          "id": "crime-patrols",
+          "label": "Патрули города",
+          "root": "townycrime",
+          "prefix": "patrols",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "crime-incidents",
+          "label": "Происшествия города",
+          "root": "townycrime",
+          "prefix": "incidents",
+          "permission": "",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyDiplomacy",
+      "label": "Дипломатия",
+      "permission": "neverlandtownydiplomacy.use",
+      "forms": [
+        {
+          "id": "diplomacy-aid",
+          "label": "Договоры взаимопомощи",
+          "root": "townydiplomacy",
+          "prefix": "aid list",
+          "permission": "",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyDistricts",
+      "label": "Районы",
+      "permission": "neverlandtownydistricts.use",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownyElections",
+      "label": "Выборы",
+      "permission": "townyelections.use",
+      "forms": [
+        {
+          "id": "elections-programs",
+          "label": "Программы кандидатов",
+          "root": "elections",
+          "prefix": "programs",
+          "permission": "",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyEnvironment",
+      "label": "Экология",
+      "permission": "neverlandtownyenvironment.use",
+      "forms": [
+        {
+          "id": "environment-districts",
+          "label": "Экология районов",
+          "root": "townyenvironment",
+          "prefix": "districts",
+          "permission": "",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyEspionage",
+      "label": "Разведка",
+      "permission": "mintespionage.use",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownyEvents",
+      "label": "События",
+      "permission": "mintevents.use",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownyExpeditions",
+      "label": "Экспедиции",
+      "permission": "mintexpeditions.use",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownyGovernance",
+      "label": "Законы и голосования",
+      "permission": "townygovernance.use",
+      "forms": [
+        {
+          "id": "appoint",
+          "label": "Назначить в совет",
+          "root": "governance",
+          "prefix": "appoint",
+          "permission": "",
+          "fields": [
+            {
+              "id": "office",
+              "label": "Должность в совете",
+              "type": "token",
+              "required": true
+            },
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "dismiss",
+          "label": "Снять с должности",
+          "root": "governance",
+          "prefix": "dismiss",
+          "permission": "",
+          "fields": [
+            {
+              "id": "office",
+              "label": "Должность в совете",
+              "type": "token",
+              "required": true
+            },
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "vote",
+          "label": "Проголосовать",
+          "root": "governance",
+          "prefix": "vote",
+          "permission": "",
+          "fields": [
+            {
+              "id": "id",
+              "label": "ID / UUID",
+              "type": "token",
+              "required": true
+            },
+            {
+              "id": "vote",
+              "label": "Решение",
+              "type": "choice",
+              "required": true,
+              "choices": [
+                "yes",
+                "no",
+                "abstain"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyIdeologies",
+      "label": "Идеологии",
+      "permission": "neverlandtownyideologies.use",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownyJobs",
+      "label": "Профессии и работа",
+      "permission": "neverlandtownyjobs.use",
+      "forms": [
+        {
+          "id": "jobs-mastery",
+          "label": "Мастерские заказы",
+          "root": "townyjobs",
+          "prefix": "mastery",
+          "permission": "neverlandtownyjobs.mastery",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyJustice",
+      "label": "Суд",
+      "permission": "neverlandtownyjustice.use",
+      "forms": [
+        {
+          "id": "justice-dossiers",
+          "label": "Материалы судебных дел",
+          "root": "townyjustice",
+          "prefix": "dossier",
+          "permission": "",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyLogistics",
+      "label": "Логистика",
+      "permission": "neverlandtownylogistics.use",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownyMarket",
+      "label": "Рынок игроков",
+      "permission": "neverlandtownymarket.use",
+      "forms": [
+        {
+          "id": "market-personal",
+          "label": "Лимитные заявки рынка",
+          "root": "townymarket",
+          "prefix": "personal",
+          "permission": "neverlandtownymarket.personal",
+          "fields": []
+        },
+        {
+          "id": "limit-buy",
+          "label": "Купить по заданной цене",
+          "root": "townymarket",
+          "prefix": "limit-buy",
+          "permission": "neverlandtownymarket.personal",
+          "fields": [
+            {
+              "id": "material",
+              "label": "Материал",
+              "type": "token",
+              "required": true
+            },
+            {
+              "id": "quantity",
+              "label": "Количество",
+              "type": "number",
+              "required": true
+            },
+            {
+              "id": "price",
+              "label": "Цена за предмет",
+              "type": "number",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "limit-sell",
+          "label": "Продать по заданной цене",
+          "root": "townymarket",
+          "prefix": "limit-sell",
+          "permission": "neverlandtownymarket.personal",
+          "fields": [
+            {
+              "id": "material",
+              "label": "Материал",
+              "type": "token",
+              "required": true
+            },
+            {
+              "id": "quantity",
+              "label": "Количество",
+              "type": "number",
+              "required": true
+            },
+            {
+              "id": "price",
+              "label": "Цена за предмет",
+              "type": "number",
+              "required": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyPolicies",
+      "label": "Политики города",
+      "permission": "neverlandtownypolicies.use",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownyPopulation",
+      "label": "Население города",
+      "permission": "neverlandtownypopulation.use",
+      "forms": [
+        {
+          "id": "population-cohorts",
+          "label": "Жители и районы",
+          "root": "townypopulation",
+          "prefix": "cohorts",
+          "permission": "",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyPower",
+      "label": "Энергоснабжение",
+      "permission": "neverlandtownypower.use",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownyQuests",
+      "label": "Задания города",
+      "permission": "neverlandtownyquests.use",
+      "forms": [
+        {
+          "id": "quests-joint",
+          "label": "Общие стройки сервера",
+          "root": "townyquests",
+          "prefix": "joint",
+          "permission": "",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyReputation",
+      "label": "Репутация",
+      "permission": "townyreputation.use",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownyResearch",
+      "label": "Исследования",
+      "permission": "neverlandtownyresearch.use",
+      "forms": [
+        {
+          "id": "research-licenses",
+          "label": "Технологические лицензии",
+          "root": "townyresearch",
+          "prefix": "license",
+          "permission": "neverlandtownyresearch.licenses",
+          "fields": []
+        },
+        {
+          "id": "license-offer",
+          "label": "Предложить лицензию",
+          "root": "townyresearch",
+          "prefix": "license offer",
+          "permission": "neverlandtownyresearch.licenses",
+          "fields": [
+            {
+              "id": "town",
+              "label": "Город-покупатель",
+              "type": "token",
+              "required": true
+            },
+            {
+              "id": "technology",
+              "label": "Технология",
+              "type": "token",
+              "required": true
+            },
+            {
+              "id": "level",
+              "label": "Уровень",
+              "type": "number",
+              "required": true
+            },
+            {
+              "id": "amount",
+              "label": "Стоимость",
+              "type": "number",
+              "required": true
+            },
+            {
+              "id": "hours",
+              "label": "Срок, часы",
+              "type": "number",
+              "required": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyResources",
+      "label": "Управление ресурсами",
+      "permission": "neverlandtownyresources.use",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownySeasons",
+      "label": "Сезоны",
+      "permission": "neverlandtownyseasons.use",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "label": "Рейды и оборона",
+      "permission": "neverlandtownysiegesplus.use",
+      "forms": [
+        {
+          "id": "hours",
+          "label": "Часы нападения",
+          "root": "townysieges",
+          "prefix": "hours",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "camp",
+          "label": "Осадный лагерь и снабжение",
+          "root": "townysieges",
+          "prefix": "camp",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "camp-register",
+          "label": "Зарегистрировать лагерь",
+          "root": "townysieges",
+          "prefix": "camp",
+          "permission": "neverlandtownysiegesplus.raid.use",
+          "fields": [
+            {
+              "id": "town",
+              "label": "Целевой город",
+              "type": "token",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "repair",
+          "label": "Ремонт городского здания",
+          "root": "townysieges",
+          "prefix": "repair",
+          "permission": "",
+          "fields": [
+            {
+              "id": "building",
+              "label": "ID здания",
+              "type": "token",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "raid-status",
+          "label": "Текущие рейды",
+          "root": "townysieges",
+          "prefix": "raid status",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "raid-start",
+          "label": "Подготовить рейд на город",
+          "root": "townysieges",
+          "prefix": "raid",
+          "permission": "neverlandtownysiegesplus.raid.use",
+          "fields": [
+            {
+              "id": "town",
+              "label": "Город противника",
+              "type": "token",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "chunk",
+          "label": "Правила TNT на участке",
+          "root": "townysieges",
+          "prefix": "chunk",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "block-health",
+          "label": "Прочность блока под прицелом",
+          "root": "townysieges",
+          "prefix": "hp",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "ransom-status",
+          "label": "Текущее предложение выкупа",
+          "root": "townysieges",
+          "prefix": "ransom status",
+          "permission": "neverlandtownysiegesplus.ransom",
+          "fields": []
+        },
+        {
+          "id": "ransom-offer",
+          "label": "Предложить выкуп за рейд",
+          "root": "townysieges",
+          "prefix": "ransom offer",
+          "permission": "neverlandtownysiegesplus.ransom",
+          "fields": [
+            {
+              "id": "amount",
+              "label": "Сумма выкупа",
+              "type": "number",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "ransom-accept",
+          "label": "Принять предложение выкупа",
+          "root": "townysieges",
+          "prefix": "ransom accept",
+          "permission": "neverlandtownysiegesplus.ransom",
+          "fields": [
+            {
+              "id": "offer",
+              "label": "UUID предложения",
+              "type": "token",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "ransom-show",
+          "label": "История выкупа по рейду",
+          "root": "townysieges",
+          "prefix": "ransom show",
+          "permission": "neverlandtownysiegesplus.ransom",
+          "fields": [
+            {
+              "id": "raid",
+              "label": "UUID рейда",
+              "type": "token",
+              "required": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownySpecialization",
+      "label": "Специализация",
+      "permission": "neverlandtownyspecialization.use",
+      "forms": [
+        {
+          "id": "production-products",
+          "label": "Городское производство",
+          "root": "townyspecialization",
+          "prefix": "products",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "production-batches",
+          "label": "Производственные партии",
+          "root": "townyspecialization",
+          "prefix": "batches",
+          "permission": "",
+          "fields": []
+        },
+        {
+          "id": "production-cooperation",
+          "label": "Совместное производство",
+          "root": "townyspecialization",
+          "prefix": "cooperation",
+          "permission": "",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "plugin": "NeverLandTownyStick",
+      "label": "Проверка предмета",
+      "permission": "",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownyTaxes",
+      "label": "Налоги",
+      "permission": "",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownyTrade",
+      "label": "Межгородские поставки",
+      "permission": "minttrade.use",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownyTreasuryPlus",
+      "label": "Казна города",
+      "permission": "neverlandtownytreasury.use",
+      "forms": []
+    },
+    {
+      "plugin": "NeverLandTownyUpkeep",
+      "label": "Содержание города",
+      "permission": "neverlandtownyupkeep.use",
+      "forms": []
+    },
+    {
+      "plugin": "Towny",
+      "label": "Город и жители",
+      "roots": [
+        "town",
+        "nation",
+        "resident",
+        "invite"
+      ],
+      "forms": [
+        {
+          "id": "create-town",
+          "label": "Создать город",
+          "root": "town",
+          "prefix": "new",
+          "permission": "towny.command.town.new",
+          "fields": [
+            {
+              "id": "name",
+              "label": "Название города — без пробелов",
+              "type": "token",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "add",
+          "label": "Пригласить в город",
+          "root": "town",
+          "prefix": "add",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "kick",
+          "label": "Исключить из города",
+          "root": "town",
+          "prefix": "kick",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "rank-add",
+          "label": "Назначить городскую должность",
+          "root": "town",
+          "prefix": "rank add",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            },
+            {
+              "id": "rank",
+              "label": "Должность",
+              "type": "token",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "rank-remove",
+          "label": "Снять городскую должность",
+          "root": "town",
+          "prefix": "rank remove",
+          "permission": "",
+          "fields": [
+            {
+              "id": "player",
+              "label": "Игрок",
+              "type": "player",
+              "required": true
+            },
+            {
+              "id": "rank",
+              "label": "Должность",
+              "type": "token",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "menu",
+          "label": "Приглашения",
+          "root": "invite",
+          "prefix": "",
+          "permission": "",
+          "fields": []
+        }
+      ]
+    }
+  ]
+}

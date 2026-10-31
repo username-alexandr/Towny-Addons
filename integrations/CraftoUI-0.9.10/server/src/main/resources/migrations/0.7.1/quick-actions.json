@@ -1,0 +1,16 @@
+{
+  "warehouse": {
+    "label": "Склад города",
+    "keywords": "склад хранилище ресурсы warehouse storage",
+    "command": "town inv",
+    "permission": "neverlandtownybuilds.use",
+    "requiredPlugin": "NeverLandTownyBuilds"
+  },
+  "orders": {
+    "label": "Личные заказы",
+    "keywords": "заказы контракты задания orders contracts",
+    "command": "orders",
+    "permission": "neverland.orders.use",
+    "requiredPlugin": "NeverLandTownyContracts"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "id": "security",
+  "title": "Безопасность города",
+  "theme": "dark",
+  "width": 620,
+  "height": 206,
+  "footer": "Назад — предыдущий экран. Esc — закрыть.",
+  "components": [
+    {
+      "id": "description",
+      "type": "text",
+      "x": 18,
+      "y": 57,
+      "w": 584,
+      "h": 16,
+      "text": "Порядок внутри города и защита его границ",
+      "color": "muted",
+      "layoutRole": "description"
+    },
+    {
+      "id": "modules",
+      "type": "grid",
+      "x": 18,
+      "y": 80,
+      "w": 584,
+      "h": 82,
+      "columns": 3,
+      "gap": 6,
+      "rowHeight": 38,
+      "children": [
+        {
+          "id": "crime",
+          "type": "button",
+          "text": "Правопорядок",
+          "action": "addons:crime",
+          "icon": "minecraft:iron_bars",
+          "tooltip": "Нарушения и городской правопорядок.",
+          "directoryId": "button:society/crime"
+        },
+        {
+          "id": "justice",
+          "type": "button",
+          "text": "Суд",
+          "action": "addons:justice",
+          "icon": "minecraft:iron_sword",
+          "tooltip": "Судебные дела и решения.",
+          "directoryId": "button:society/justice"
+        },
+        {
+          "id": "army",
+          "type": "button",
+          "text": "Армия",
+          "action": "addons:army",
+          "icon": "minecraft:shield",
+          "tooltip": "Городская армия, состав и военные действия.",
+          "directoryId": "button:society/army"
+        },
+        {
+          "id": "espionage",
+          "type": "button",
+          "text": "Разведка",
+          "action": "addons:espionage",
+          "icon": "minecraft:spyglass",
+          "tooltip": "Разведка и шпионаж.",
+          "directoryId": "button:society/espionage"
+        },
+        {
+          "id": "siegesplus",
+          "type": "button",
+          "text": "Рейды и оборона",
+          "action": "addons:siegesplus",
+          "icon": "minecraft:crossbow",
+          "tooltip": "Осадный лагерь, снабжение, часы нападения и ремонт зданий. Защиту города проверяет сервер.",
+          "directoryId": "button:society/siegesplus"
+        }
+      ],
+      "layoutRole": "content"
+    }
+  ],
+  "requiresTown": true,
+  "responsive": true
+}

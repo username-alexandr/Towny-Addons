@@ -1,0 +1,144 @@
+{
+  "id": "development",
+  "title": "Развитие города",
+  "theme": "dark",
+  "width": 620,
+  "height": 294,
+  "footer": "Назад — предыдущий экран. Esc — закрыть.",
+  "components": [
+    {
+      "id": "description",
+      "type": "text",
+      "x": 18,
+      "y": 57,
+      "w": 584,
+      "h": 16,
+      "text": "Улучшения и обслуживание города",
+      "color": "muted",
+      "layoutRole": "description"
+    },
+    {
+      "id": "modules",
+      "type": "grid",
+      "x": 18,
+      "y": 80,
+      "w": 584,
+      "h": 170,
+      "columns": 3,
+      "gap": 6,
+      "rowHeight": 38,
+      "children": [
+        {
+          "id": "city-tree",
+          "type": "button",
+          "text": "Дерево зданий и исследований",
+          "action": "ui:tree",
+          "icon": "minecraft:filled_map",
+          "tooltip": "Ветви построек и исследований: что открыто сейчас и что требуется дальше.",
+          "directoryId": "button:development/city-tree"
+        },
+        {
+          "id": "planner",
+          "type": "button",
+          "text": "План развития",
+          "action": "ui:planner",
+          "icon": "minecraft:map",
+          "tooltip": "Выбрать здания и уровни, рассчитать общую смету и недостающие материалы.",
+          "directoryId": "button:development/planner"
+        },
+        {
+          "id": "population",
+          "type": "button",
+          "text": "Население города",
+          "action": "addons:population",
+          "icon": "minecraft:player_head",
+          "tooltip": "Население, жильё и потребности города.",
+          "directoryId": "button:town/population"
+        },
+        {
+          "id": "specialization",
+          "type": "button",
+          "text": "Специализация",
+          "action": "addons:specialization",
+          "icon": "minecraft:crafting_table",
+          "tooltip": "Направление развития и специализация города.",
+          "directoryId": "button:town/specialization"
+        },
+        {
+          "id": "research",
+          "type": "button",
+          "text": "Исследования",
+          "action": "addons:research",
+          "icon": "minecraft:enchanted_book",
+          "tooltip": "Городские исследования и улучшения.",
+          "directoryId": "button:town/research"
+        },
+        {
+          "id": "resources",
+          "type": "button",
+          "text": "Управление ресурсами",
+          "action": "addons:resources",
+          "icon": "minecraft:chest",
+          "tooltip": "Управление ресурсами города. Для передачи предметов откройте «Склад города».",
+          "directoryId": "button:town/resources"
+        },
+        {
+          "id": "power",
+          "type": "button",
+          "text": "Энергоснабжение",
+          "action": "addons:power",
+          "icon": "minecraft:redstone",
+          "tooltip": "Производство и распределение энергии.",
+          "directoryId": "button:town/power"
+        },
+        {
+          "id": "upkeep",
+          "type": "button",
+          "text": "Содержание города",
+          "action": "addons:upkeep",
+          "icon": "minecraft:anvil",
+          "tooltip": "Расходы и обслуживание города.",
+          "directoryId": "button:town/upkeep"
+        },
+        {
+          "id": "logistics",
+          "type": "button",
+          "text": "Логистика",
+          "action": "addons:logistics",
+          "icon": "minecraft:minecart",
+          "tooltip": "Перевозка и снабжение города.",
+          "directoryId": "button:town/logistics"
+        },
+        {
+          "id": "ideologies",
+          "type": "button",
+          "text": "Идеологии",
+          "action": "addons:ideologies",
+          "icon": "minecraft:writable_book",
+          "tooltip": "Идеологии и их улучшения.",
+          "directoryId": "button:town/ideologies"
+        },
+        {
+          "id": "environment",
+          "type": "button",
+          "text": "Экология",
+          "action": "addons:environment",
+          "icon": "minecraft:oak_sapling",
+          "tooltip": "Экология и состояние окружающей среды.",
+          "directoryId": "button:town/environment"
+        },
+        {
+          "id": "city-style",
+          "type": "button",
+          "text": "Стиль города",
+          "action": "quick:city-style",
+          "icon": "minecraft:quartz_block",
+          "tooltip": "Средневековье, Современный или Фэнтези. Выбранный стиль применяется к новым зданиям."
+        }
+      ],
+      "layoutRole": "content"
+    }
+  ],
+  "requiresTown": true,
+  "responsive": true
+}
