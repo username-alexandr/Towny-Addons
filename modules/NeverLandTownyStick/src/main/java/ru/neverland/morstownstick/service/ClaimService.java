@@ -57,11 +57,26 @@ public final class ClaimService {
     }
     private ExpansionPlan find(UUID id){var plan=repository.state().plans().get(id);if(plan==null)throw new IllegalStateException("План не найден");return plan;}
     private ExpansionPlan own(Player player,UUID id){var plan=find(id);Town town=towny.town(player);if(town==null||!town.getUUID().equals(plan.town()))throw new IllegalStateException("План принадлежит другому городу");return plan;}
+    public ExpansionPlan view(Player player,UUID id){try(var guard=SuiteState.guard()){return own(player,id);}}
+    public Optional<ExpansionPlan> openPlan(Player player){try(var guard=SuiteState.guard()){
+        Town town=towny.town(player);
+        return town==null?Optional.empty():repository.state().plans().values().stream()
+            .filter(plan->plan.town().equals(town.getUUID())&&plan.open()).findFirst();
+    }}
     public CompletionStage<ExpansionPlan> create(Player player)throws Exception{try(var guard=SuiteState.guard()){
-        writable();var selected=selections.snapshot(player.getUniqueId());Town town=permitted(player,false,selected.size());
+        return createSelected(player,selections.snapshot(player.getUniqueId()),false);
+    }}
+    /** The map uses its own selection; never mixes it with selections left by the stick. */
+    public CompletionStage<ExpansionPlan> createFromMap(Player player,Collection<CellKey> cells)throws Exception{try(var guard=SuiteState.guard()){
+        Town town=permitted(player,true,cells.size());
+        if(!towny.isOwnedBy(towny.cell(player.getLocation().getBlock()),town))throw new IllegalStateException("Откройте карту, находясь на территории своего города");
+        return createSelected(player,List.copyOf(cells),true);
+    }}
+    private CompletionStage<ExpansionPlan> createSelected(Player player,Collection<CellKey> selected,boolean mayor)throws Exception{
+        writable();Town town=permitted(player,mayor,selected.size());
         for(var p:repository.state().plans().values())if(p.town().equals(town.getUUID())&&p.open())throw new IllegalStateException("У города уже есть открытый план: "+p.id()+". Используйте /t stick show "+p.id());
         var q=quote(player,town,selected);long now=System.currentTimeMillis();var plan=new ExpansionPlan(UUID.randomUUID(),town.getUUID(),player.getUniqueId(),q.mayor(),1,now,now,q.cells(),q.amount(),q.economy(),q.townSize(),ExpansionPlan.Status.DRAFT,null,List.of(),"Смета готова. Деньги не списаны; требуется согласование мэра");return save(player,plan);
-    }}
+    }
     public CompletionStage<ExpansionPlan> revise(Player player,UUID id,int revision)throws Exception{try(var guard=SuiteState.guard()){
         writable();var old=own(player,id);old.requireRevision(revision);Town town=permitted(player,false,old.cells().size());if(old.status()!=ExpansionPlan.Status.DRAFT&&old.status()!=ExpansionPlan.Status.APPROVED)throw new IllegalStateException("Этот план нельзя изменять");if(!old.author().equals(player.getUniqueId())&&!town.getMayor().getUUID().equals(player.getUniqueId()))throw new IllegalStateException("Изменить план может его автор или мэр");
         var selected=selections.snapshot(player.getUniqueId());var q=quote(player,town,selected.isEmpty()?old.cells():selected);permitted(player,false,q.cells().size());var next=new ExpansionPlan(old.id(),old.town(),old.author(),q.mayor(),Math.addExact(old.revision(),1),old.created(),System.currentTimeMillis(),q.cells(),q.amount(),q.economy(),q.townSize(),ExpansionPlan.Status.DRAFT,null,List.of(),"Новая смета; прежнее согласование снято");return save(player,next);
