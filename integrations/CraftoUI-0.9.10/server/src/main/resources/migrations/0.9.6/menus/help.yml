@@ -1,0 +1,174 @@
+id: help
+title: Где найти нужное
+theme: dark
+width: 620
+height: 348
+permission: craftoui.use
+responsive: true
+paginate: true
+footer: Выберите раздел в главном меню или через поиск.
+components:
+- id: guide
+  type: grid
+  x: 16
+  y: 58
+  w: 588
+  h: 240
+  columns: 2
+  minCellWidth: 210
+  rowHeight: 54
+  gap: 6
+  layoutRole: content
+  children:
+  - id: guide_0
+    type: panel
+    children:
+    - id: guide_title_0
+      type: text
+      x: 10
+      y: 7
+      w: 270
+      h: 14
+      text: Личные заказы
+    - id: guide_text_0
+      type: text
+      x: 10
+      y: 25
+      w: 270
+      h: 26
+      wrap: true
+      color: muted
+      text: '/orders: задания для вашего заработка.'
+  - id: guide_1
+    type: panel
+    children:
+    - id: guide_title_1
+      type: text
+      x: 10
+      y: 7
+      w: 270
+      h: 14
+      text: Работа и торговля
+    - id: guide_text_1
+      type: text
+      x: 10
+      y: 25
+      w: 270
+      h: 26
+      wrap: true
+      color: muted
+      text: Профессии, рынок и городские контракты.
+  - id: guide_2
+    type: panel
+    children:
+    - id: guide_title_2
+      type: text
+      x: 10
+      y: 7
+      w: 270
+      h: 14
+      text: Мой город
+    - id: guide_text_2
+      type: text
+      x: 10
+      y: 25
+      w: 270
+      h: 26
+      wrap: true
+      color: muted
+      text: Склад, постройки, казна, участки и развитие.
+  - id: guide_3
+    type: panel
+    children:
+    - id: guide_title_3
+      type: text
+      x: 10
+      y: 7
+      w: 270
+      h: 14
+      text: Жители и власть
+    - id: guide_text_3
+      type: text
+      x: 10
+      y: 25
+      w: 270
+      h: 26
+      wrap: true
+      color: muted
+      text: Главное → Мой город → Жители и власть. Совет — должности, министры — полномочия.
+  - id: guide_4
+    type: panel
+    children:
+    - id: guide_title_4
+      type: text
+      x: 10
+      y: 7
+      w: 270
+      h: 14
+      text: Задания и события
+    - id: guide_text_4
+      type: text
+      x: 10
+      y: 25
+      w: 270
+      h: 26
+      wrap: true
+      color: muted
+      text: Приключения и совместные задачи города.
+  - id: guide_5
+    type: panel
+    children:
+    - id: guide_title_5
+      type: text
+      x: 10
+      y: 7
+      w: 270
+      h: 14
+      text: Поиск и избранное
+    - id: guide_text_5
+      type: text
+      x: 10
+      y: 25
+      w: 270
+      h: 26
+      wrap: true
+      color: muted
+      text: 'K: найти раздел и закрепить его.'
+  - id: guide_6
+    type: panel
+    children:
+    - id: guide_title_6
+      type: text
+      x: 10
+      y: 7
+      w: 270
+      h: 14
+      text: Панель заказов
+    - id: guide_text_6
+      type: text
+      x: 10
+      y: 25
+      w: 270
+      h: 26
+      wrap: true
+      color: muted
+      text: 'Главное меню → Настройки → Панель контрактов.'
+  - id: guide_7
+    type: panel
+    children:
+    - id: guide_title_7
+      type: text
+      x: 10
+      y: 7
+      w: 270
+      h: 14
+      text: Управление меню
+    - id: guide_text_7
+      type: text
+      x: 10
+      y: 25
+      w: 270
+      h: 26
+      wrap: true
+      color: muted
+      text: Назад / Backspace — вернуться. Esc — закрыть.

@@ -1,0 +1,27 @@
+dependencies {
+    implementation project(':api')
+    compileOnly "io.papermc.paper:paper-api:${paper_version}"
+    compileOnly 'net.luckperms:api:5.4'
+    testImplementation "io.papermc.paper:paper-api:${paper_version}"
+}
+base { archivesName = 'CraftoUI-Folia-26.2' }
+jar { from project(':common').sourceSets.main.output; from project(':api').sourceSets.main.output }
+processResources { inputs.property 'version', project.version; filesMatching('plugin.yml') { expand version: project.version } }
+sourceSets {
+    apiProbe {
+        compileClasspath += sourceSets.main.output + configurations.compileClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+tasks.register('apiProbeJar', Jar) {
+    dependsOn apiProbeClasses
+    archiveBaseName = 'CraftoUI-TEST-ONLY-ApiProbe'
+    from sourceSets.apiProbe.output
+}
+tasks.register('writeUiTestClasspath') {
+    doLast {
+        def target = layout.buildDirectory.file('ui-test-classpath.txt').get().asFile
+        target.parentFile.mkdirs()
+        target.text = sourceSets.test.runtimeClasspath.asPath
+    }
+}

@@ -1,0 +1,240 @@
+{
+  "warehouse": {
+    "label": "Склад города",
+    "keywords": "склад хранилище ресурсы warehouse storage",
+    "command": "town inv",
+    "permission": "neverlandtownybuilds.use",
+    "requiredPlugin": "NeverLandTownyBuilds",
+    "requiresTown": true
+  },
+  "orders": {
+    "label": "Личные заказы",
+    "keywords": "личные заказы задания добыча охота рыбалка orders",
+    "command": "orders",
+    "permission": "neverland.orders.use",
+    "requiredPlugin": "NeverLandTownyContracts"
+  },
+  "governance-council": {
+    "label": "Городской совет",
+    "keywords": "совет должности назначить снять governance council",
+    "command": "governance council",
+    "permission": "townygovernance.use",
+    "requiredPlugin": "NeverLandTownyGovernance",
+    "requiresTown": true
+  },
+  "history": {
+    "label": "Мои операции",
+    "command": "nlthistory",
+    "permission": "neverlandtownycontrol.history",
+    "requiredPlugin": "NeverLandTownyControl",
+    "keywords": "история деньги награды зарплата ресурсы материалы возврат"
+  },
+  "city-style": {
+    "label": "Стиль города",
+    "keywords": "стиль средневековье современный фэнтези архитектура здания",
+    "command": "townystyle",
+    "permission": "neverlandtownybuilds.style",
+    "requiredPlugin": "NeverLandTownyBuilds",
+    "requiresTown": true
+  },
+  "contributions": {
+    "label": "Вклад жителей",
+    "keywords": "вклад жители благодарность материалы взносы ремонт защита",
+    "command": "chronicles contributions",
+    "permission": "townychronicles.contributions",
+    "requiredPlugin": "NeverLandTownyChronicles",
+    "requiresTown": true
+  },
+  "company-payroll": {
+    "label": "Зарплаты компании",
+    "keywords": "зарплата компания предприятие ставки лимит начисления выплаты payroll",
+    "command": "townycompanies payroll",
+    "permission": "neverlandtownycompanies.use",
+    "requiredPlugin": "NeverLandTownyCompanies",
+    "requiresTown": true
+  },
+  "raid-hours": {
+    "label": "Часы нападения",
+    "keywords": "часы расписание нападения рейды защита",
+    "command": "townysieges hours",
+    "permission": "neverlandtownysiegesplus.use",
+    "requiredPlugin": "NeverLandTownySiegesPlus",
+    "requiresTown": true
+  },
+  "raid-camp": {
+    "label": "Осадный лагерь",
+    "keywords": "лагерь осада рейд снабжение хлеб железо",
+    "command": "townysieges camp",
+    "permission": "neverlandtownysiegesplus.use",
+    "requiredPlugin": "NeverLandTownySiegesPlus",
+    "requiresTown": true
+  },
+  "population-cohorts": {
+    "label": "Жители и районы",
+    "keywords": "Жители и районы cohorts",
+    "command": "townypopulation cohorts",
+    "permission": "neverlandtownypopulation.use",
+    "requiredPlugin": "NeverLandTownyPopulation",
+    "requiresTown": true
+  },
+  "production-products": {
+    "label": "Городское производство",
+    "keywords": "Городское производство products",
+    "command": "townyspecialization products",
+    "permission": "neverlandtownyspecialization.use",
+    "requiredPlugin": "NeverLandTownySpecialization",
+    "requiresTown": true
+  },
+  "production-batches": {
+    "label": "Производственные партии",
+    "keywords": "Производственные партии batches",
+    "command": "townyspecialization batches",
+    "permission": "neverlandtownyspecialization.use",
+    "requiredPlugin": "NeverLandTownySpecialization",
+    "requiresTown": true
+  },
+  "production-cooperation": {
+    "label": "Совместное производство",
+    "keywords": "Совместное производство cooperation",
+    "command": "townyspecialization cooperation",
+    "permission": "neverlandtownyspecialization.use",
+    "requiredPlugin": "NeverLandTownySpecialization",
+    "requiresTown": true
+  },
+  "research-licenses": {
+    "label": "Технологические лицензии",
+    "keywords": "Технологические лицензии license",
+    "command": "townyresearch license",
+    "permission": "neverlandtownyresearch.licenses",
+    "requiredPlugin": "NeverLandTownyResearch",
+    "requiresTown": true
+  },
+  "environment-districts": {
+    "label": "Экология районов",
+    "keywords": "Экология районов districts",
+    "command": "townyenvironment districts",
+    "permission": "neverlandtownyenvironment.use",
+    "requiredPlugin": "NeverLandTownyEnvironment",
+    "requiresTown": true
+  },
+  "jobs-mastery": {
+    "label": "Мастерские заказы",
+    "keywords": "Мастерские заказы mastery",
+    "command": "townyjobs mastery",
+    "permission": "neverlandtownyjobs.mastery",
+    "requiredPlugin": "NeverLandTownyJobs",
+    "requiresTown": true
+  },
+  "market-personal": {
+    "label": "Лимитные заявки рынка",
+    "keywords": "Лимитные заявки рынка personal",
+    "command": "townymarket personal",
+    "permission": "neverlandtownymarket.personal",
+    "requiredPlugin": "NeverLandTownyMarket",
+    "requiresTown": false
+  },
+  "camp-guests": {
+    "label": "Гости лагеря",
+    "keywords": "Гости лагеря guests",
+    "command": "camp guests",
+    "permission": "mintcamps.use",
+    "requiredPlugin": "NeverLandTownyCamps",
+    "requiresTown": false
+  },
+  "quests-joint": {
+    "label": "Общие стройки сервера",
+    "keywords": "Общие стройки сервера joint",
+    "command": "townyquests joint",
+    "permission": "neverlandtownyquests.use",
+    "requiredPlugin": "NeverLandTownyQuests",
+    "requiresTown": true
+  },
+  "chronicles-chapters": {
+    "label": "Главы истории города",
+    "keywords": "Главы истории города chapters",
+    "command": "chronicles chapters",
+    "permission": "townychronicles.use",
+    "requiredPlugin": "NeverLandTownyChronicles",
+    "requiresTown": true
+  },
+  "citizens-applications": {
+    "label": "Заявления в гражданство",
+    "keywords": "Заявления в гражданство applications",
+    "command": "townycitizens applications",
+    "permission": "neverlandtownycitizens.use",
+    "requiredPlugin": "NeverLandTownyCitizens",
+    "requiresTown": true
+  },
+  "council-delegations": {
+    "label": "Временные поручения",
+    "keywords": "Временные поручения delegations",
+    "command": "townycouncil delegations",
+    "permission": "neverlandtownycouncil.use",
+    "requiredPlugin": "NeverLandTownyCouncil",
+    "requiresTown": true
+  },
+  "council-spending": {
+    "label": "Ограничения расходов",
+    "keywords": "Ограничения расходов spending",
+    "command": "townycouncil spending",
+    "permission": "neverlandtownycouncil.use",
+    "requiredPlugin": "NeverLandTownyCouncil",
+    "requiresTown": true
+  },
+  "elections-programs": {
+    "label": "Программы кандидатов",
+    "keywords": "Программы кандидатов programs",
+    "command": "elections programs",
+    "permission": "townyelections.use",
+    "requiredPlugin": "NeverLandTownyElections",
+    "requiresTown": true
+  },
+  "diplomacy-aid": {
+    "label": "Договоры взаимопомощи",
+    "keywords": "Договоры взаимопомощи aid list",
+    "command": "townydiplomacy aid list",
+    "permission": "neverlandtownydiplomacy.use",
+    "requiredPlugin": "NeverLandTownyDiplomacy",
+    "requiresTown": true
+  },
+  "crime-patrols": {
+    "label": "Патрули города",
+    "keywords": "Патрули города patrols",
+    "command": "townycrime patrols",
+    "permission": "neverlandtownycrime.use",
+    "requiredPlugin": "NeverLandTownyCrime",
+    "requiresTown": true
+  },
+  "crime-incidents": {
+    "label": "Происшествия города",
+    "keywords": "Происшествия города incidents",
+    "command": "townycrime incidents",
+    "permission": "neverlandtownycrime.use",
+    "requiredPlugin": "NeverLandTownyCrime",
+    "requiresTown": true
+  },
+  "justice-dossiers": {
+    "label": "Материалы судебных дел",
+    "keywords": "Материалы судебных дел dossier",
+    "command": "townyjustice dossier",
+    "permission": "neverlandtownyjustice.use",
+    "requiredPlugin": "NeverLandTownyJustice",
+    "requiresTown": true
+  },
+  "army-tactics": {
+    "label": "Тактика и снабжение армии",
+    "keywords": "Тактика и снабжение армии tactics",
+    "command": "townymilitary tactics",
+    "permission": "neverlandtownyarmy.use",
+    "requiredPlugin": "NeverLandTownyArmy",
+    "requiresTown": true
+  },
+  "orders-fishing": {
+    "label": "Рыболовные заказы",
+    "keywords": "Рыболовные заказы fishing",
+    "command": "orders fishing",
+    "permission": "neverland.orders.use",
+    "requiredPlugin": "NeverLandTownyContracts",
+    "requiresTown": false
+  }
+}

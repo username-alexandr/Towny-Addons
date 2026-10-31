@@ -1,0 +1,234 @@
+{
+  "id": "main",
+  "title": "CRAFTO",
+  "theme": "dark",
+  "width": 560,
+  "height": 460,
+  "permission": "craftoui.use",
+  "footer": "crafto.cc     Играй. Развивайся. Будь частью.",
+  "components": [
+    {
+      "id": "profile_card",
+      "type": "panel",
+      "x": 16,
+      "y": 58,
+      "w": 236,
+      "h": 126,
+      "children": [
+        {
+          "id": "avatar",
+          "type": "avatar",
+          "x": 10,
+          "y": 10,
+          "w": 80,
+          "h": 104,
+          "mode": "model"
+        },
+        {
+          "id": "name",
+          "type": "text",
+          "x": 100,
+          "y": 14,
+          "w": 126,
+          "h": 20,
+          "text": "${player.name}"
+        },
+        {
+          "id": "status",
+          "type": "text",
+          "x": 100,
+          "y": 40,
+          "w": 126,
+          "h": 16,
+          "text": "● ${player.status}",
+          "color": "accent"
+        },
+        {
+          "id": "level",
+          "type": "text",
+          "x": 100,
+          "y": 70,
+          "w": 126,
+          "h": 16,
+          "text": "Уровень ${player.level}"
+        },
+        {
+          "id": "xp",
+          "type": "progress",
+          "x": 100,
+          "y": 94,
+          "w": 126,
+          "h": 13,
+          "value": "${player.exp}",
+          "tooltip": "Прогресс до следующего уровня"
+        }
+      ]
+    },
+    {
+      "id": "group",
+      "type": "panel",
+      "x": 16,
+      "y": 196,
+      "w": 236,
+      "h": 44,
+      "children": [
+        {
+          "id": "group_text",
+          "type": "text",
+          "x": 12,
+          "y": 15,
+          "w": 210,
+          "h": 18,
+          "text": "Группа: ${player.group}"
+        }
+      ]
+    },
+    {
+      "id": "welcome_card",
+      "type": "panel",
+      "x": 16,
+      "y": 252,
+      "w": 236,
+      "h": 142,
+      "children": [
+        {
+          "id": "welcome_title",
+          "type": "text",
+          "x": 14,
+          "y": 18,
+          "w": 208,
+          "h": 24,
+          "text": "Впереди новые приключения!"
+        },
+        {
+          "id": "welcome_text",
+          "type": "text",
+          "x": 14,
+          "y": 48,
+          "w": 208,
+          "h": 48,
+          "text": "Профиль и настройки уже доступны. Другие разделы появятся позже.",
+          "wrap": true
+        },
+        {
+          "id": "help",
+          "type": "button",
+          "x": 14,
+          "y": 102,
+          "w": 208,
+          "h": 26,
+          "text": "Как пользоваться меню",
+          "action": "help"
+        }
+      ]
+    },
+    {
+      "id": "sections",
+      "type": "grid",
+      "x": 266,
+      "y": 58,
+      "w": 278,
+      "h": 336,
+      "columns": 2,
+      "gap": 8,
+      "rowHeight": 78,
+      "children": [
+        {
+          "id": "survival",
+          "type": "button",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "text": "Выживание",
+          "icon": "minecraft:grass_block",
+          "action": "survival",
+          "tooltip": "Вернуться в игру"
+        },
+        {
+          "id": "bedwars",
+          "type": "button",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "text": "BedWars",
+          "icon": "minecraft:diamond_sword",
+          "enabled": false,
+          "tooltip": "Режим ещё не подключён"
+        },
+        {
+          "id": "minigames",
+          "type": "button",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "text": "Мини-игры",
+          "icon": "minecraft:golden_apple",
+          "enabled": false,
+          "tooltip": "Раздел пока недоступен"
+        },
+        {
+          "id": "profile",
+          "type": "button",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "text": "Профиль",
+          "icon": "minecraft:player_head",
+          "action": "profile",
+          "permission": "craftoui.profile"
+        },
+        {
+          "id": "friends",
+          "type": "button",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "text": "Друзья",
+          "icon": "minecraft:totem_of_undying",
+          "enabled": false,
+          "tooltip": "Раздел пока недоступен"
+        },
+        {
+          "id": "shop",
+          "type": "button",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "text": "Магазин",
+          "icon": "minecraft:diamond",
+          "enabled": false,
+          "tooltip": "Магазин ещё не подключён"
+        },
+        {
+          "id": "quests",
+          "type": "button",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "text": "Квесты",
+          "icon": "minecraft:map",
+          "enabled": false,
+          "tooltip": "Задания ещё не подключены"
+        },
+        {
+          "id": "settings",
+          "type": "button",
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "text": "Настройки",
+          "icon": "minecraft:comparator",
+          "action": "settings"
+        }
+      ]
+    }
+  ]
+}

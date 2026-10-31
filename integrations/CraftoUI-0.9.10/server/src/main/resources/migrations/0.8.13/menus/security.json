@@ -1,0 +1,90 @@
+{
+  "id": "security",
+  "title": "Безопасность города",
+  "theme": "dark",
+  "width": 620,
+  "height": 440,
+  "footer": "Назад — предыдущий экран. Главное меню — начало навигации.",
+  "components": [
+    {
+      "id": "description",
+      "type": "text",
+      "x": 18,
+      "y": 58,
+      "w": 584,
+      "h": 22,
+      "text": "Порядок внутри города и защита его границ",
+      "color": "muted"
+    },
+    {
+      "id": "modules",
+      "type": "grid",
+      "x": 18,
+      "y": 88,
+      "w": 584,
+      "h": 250,
+      "columns": 3,
+      "gap": 8,
+      "rowHeight": 72,
+      "children": [
+        {
+          "id": "crime",
+          "type": "button",
+          "text": "Правопорядок",
+          "action": "addons:crime",
+          "icon": "minecraft:iron_bars",
+          "tooltip": "Нарушения и городской правопорядок.",
+          "directoryId": "button:society/crime"
+        },
+        {
+          "id": "justice",
+          "type": "button",
+          "text": "Суд",
+          "action": "addons:justice",
+          "icon": "minecraft:iron_sword",
+          "tooltip": "Судебные дела и решения.",
+          "directoryId": "button:society/justice"
+        },
+        {
+          "id": "army",
+          "type": "button",
+          "text": "Армия",
+          "action": "addons:army",
+          "icon": "minecraft:shield",
+          "tooltip": "Городская армия, состав и военные действия.",
+          "directoryId": "button:society/army"
+        },
+        {
+          "id": "espionage",
+          "type": "button",
+          "text": "Разведка",
+          "action": "addons:espionage",
+          "icon": "minecraft:spyglass",
+          "tooltip": "Разведка и шпионаж.",
+          "directoryId": "button:society/espionage"
+        },
+        {
+          "id": "siegesplus",
+          "type": "button",
+          "text": "Осады",
+          "action": "addons:siegesplus",
+          "icon": "minecraft:crossbow",
+          "tooltip": "Осады и защита города.",
+          "directoryId": "button:society/siegesplus"
+        }
+      ]
+    },
+    {
+      "id": "home",
+      "type": "button",
+      "text": "Главное меню",
+      "action": "hub:hub",
+      "x": 18,
+      "y": 365,
+      "w": 180,
+      "h": 28,
+      "tooltip": "Вернуться к основным разделам."
+    }
+  ],
+  "requiresTown": true
+}

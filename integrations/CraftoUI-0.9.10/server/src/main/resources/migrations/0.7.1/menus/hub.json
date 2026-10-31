@@ -1,0 +1,147 @@
+{
+  "id": "hub",
+  "title": "NEVERLAND",
+  "theme": "dark",
+  "width": 620,
+  "height": 480,
+  "footer": "crafto.cc  •  Играй. Развивайся. Будь частью.",
+  "components": [
+    {
+      "id": "player",
+      "type": "panel",
+      "x": 18,
+      "y": 65,
+      "w": 188,
+      "h": 335,
+      "children": [
+        {
+          "id": "skin",
+          "type": "avatar",
+          "mode": "model",
+          "x": 16,
+          "y": 16,
+          "w": 156,
+          "h": 210
+        },
+        {
+          "id": "name",
+          "type": "text",
+          "x": 14,
+          "y": 241,
+          "w": 160,
+          "h": 20,
+          "text": "${player.name}"
+        },
+        {
+          "id": "status",
+          "type": "text",
+          "x": 14,
+          "y": 269,
+          "w": 160,
+          "h": 20,
+          "text": "● ${player.status}",
+          "color": "accent"
+        },
+        {
+          "id": "level",
+          "type": "text",
+          "x": 14,
+          "y": 297,
+          "w": 160,
+          "h": 16,
+          "text": "Уровень ${player.level}"
+        },
+        {
+          "id": "xp",
+          "type": "progress",
+          "x": 14,
+          "y": 320,
+          "w": 160,
+          "h": 7,
+          "value": "${player.exp}"
+        }
+      ]
+    },
+    {
+      "id": "sections",
+      "type": "grid",
+      "x": 222,
+      "y": 65,
+      "w": 380,
+      "h": 335,
+      "columns": 2,
+      "gap": 10,
+      "rowHeight": 76,
+      "children": [
+        {
+          "id": "town",
+          "type": "button",
+          "text": "Город",
+          "action": "hub:town",
+          "icon": "minecraft:bricks"
+        },
+        {
+          "id": "economy",
+          "type": "button",
+          "text": "Заработок",
+          "action": "hub:economy",
+          "icon": "minecraft:emerald"
+        },
+        {
+          "id": "adventures",
+          "type": "button",
+          "text": "Приключения",
+          "action": "hub:adventures",
+          "icon": "minecraft:compass"
+        },
+        {
+          "id": "society",
+          "type": "button",
+          "text": "Общество",
+          "action": "hub:society",
+          "icon": "minecraft:player_head"
+        },
+        {
+          "id": "management",
+          "type": "button",
+          "text": "Управление",
+          "action": "hub:management",
+          "permission": "craftoui.admin.menus",
+          "hideWhenDenied": true,
+          "icon": "minecraft:command_block"
+        },
+        {
+          "id": "profile",
+          "type": "button",
+          "text": "Мой профиль",
+          "action": "profile",
+          "icon": "minecraft:player_head"
+        },
+        {
+          "id": "settings",
+          "type": "button",
+          "text": "Настройки",
+          "action": "settings",
+          "icon": "minecraft:comparator"
+        },
+        {
+          "id": "help",
+          "type": "button",
+          "text": "Помощь",
+          "action": "help",
+          "icon": "minecraft:book"
+        }
+      ]
+    },
+    {
+      "id": "return",
+      "type": "button",
+      "text": "Вернуться в игру",
+      "action": "survival",
+      "x": 18,
+      "y": 410,
+      "w": 188,
+      "h": 28
+    }
+  ]
+}

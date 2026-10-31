@@ -1,0 +1,35 @@
+buildscript {
+    repositories { maven { url = 'https://maven.fabricmc.net/' }; mavenCentral(); gradlePluginPortal() }
+    if (!gradle.startParameter.projectProperties.containsKey('directMinecraft')) {
+        dependencies { classpath 'net.fabricmc:fabric-loom:1.17.21' }
+    }
+}
+version = rootProject.findProperty('client_version') ?: rootProject.version
+configurations { bundledMixinExtras { transitive = false } }
+if (!project.hasProperty('directMinecraft')) {
+    apply plugin: 'net.fabricmc.fabric-loom'
+} else {
+    // Minecraft 26.2 is unobfuscated. No mixins, access wideners or remapping are used.
+    // Alternative for restricted build hosts; see tools/prepare-direct-build.py.
+    dependencies { compileOnly fileTree(rootProject.file(project.property('directMinecraft'))) { include '**/*.jar' } }
+}
+dependencies {
+    if (!project.hasProperty('directMinecraft')) minecraft "com.mojang:minecraft:${minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    implementation project(':common')
+    bundledMixinExtras "io.github.llamalad7:mixinextras-fabric:${mixinextras_version}"
+}
+base { archivesName = 'CraftoUI-Fabric-26.2' }
+jar {
+    from project(':common').sourceSets.main.output
+    // Fabric's nested-JAR resolver selects this fixed version over Loader 0.19.4's 0.5.4.
+    from(configurations.bundledMixinExtras) { into 'META-INF/jars' }
+}
+processResources {
+    inputs.property 'version', project.version
+    inputs.property 'loader', loader_version
+    inputs.property 'fabric', fabric_version
+    inputs.property 'mixinextras', mixinextras_version
+    filesMatching('fabric.mod.json') { expand version: project.version, loader: loader_version, fabric: fabric_version, mixinextras: mixinextras_version }
+}

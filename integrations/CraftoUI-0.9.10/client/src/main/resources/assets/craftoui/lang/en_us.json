@@ -1,0 +1,18 @@
+{
+  "key.craftoui.open": "Open Crafto menu",
+  "key.category.craftoui.menu": "CraftoUI",
+  "key.craftoui.contracts": "Toggle contract tracker",
+  "key.craftoui.contracts_next": "Next tracked contracts",
+  "key.craftoui.personal": "Search, favorites and town",
+  "key.craftoui.placement_forward": "Move building forward",
+  "key.craftoui.placement_back": "Move building backward",
+  "key.craftoui.placement_left": "Move building left",
+  "key.craftoui.placement_right": "Move building right",
+  "craftoui.option.blacksmith": "Blacksmith",
+  "craftoui.option.farmer": "Farmer",
+  "craftoui.option.engineer": "Engineer",
+  "craftoui.option.guard": "Guard",
+  "craftoui.option.merchant": "Merchant",
+  "craftoui.option.researcher": "Researcher",
+  "craftoui.option.alchemist": "Alchemist"
+}

@@ -1,0 +1,6 @@
+name: NavigationProbe
+version: '1.0'
+main: cc.crafto.test.NavigationProbe
+api-version: '26.2'
+folia-supported: true
+depend: [CraftoUI, NeverLandTownyContracts]

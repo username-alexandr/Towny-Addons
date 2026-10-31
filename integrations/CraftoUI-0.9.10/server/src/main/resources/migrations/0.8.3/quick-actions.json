@@ -1,0 +1,25 @@
+{
+  "warehouse": {
+    "label": "Склад города",
+    "keywords": "склад хранилище ресурсы warehouse storage",
+    "command": "town inv",
+    "permission": "neverlandtownybuilds.use",
+    "requiredPlugin": "NeverLandTownyBuilds",
+    "requiresTown": true
+  },
+  "orders": {
+    "label": "Личные заказы",
+    "keywords": "личные заказы задания добыча охота рыбалка orders",
+    "command": "orders",
+    "permission": "neverland.orders.use",
+    "requiredPlugin": "NeverLandTownyContracts"
+  },
+  "governance-council": {
+    "label": "Городской совет",
+    "keywords": "совет должности назначить снять governance council",
+    "command": "governance council",
+    "permission": "townygovernance.use",
+    "requiredPlugin": "NeverLandTownyGovernance",
+    "requiresTown": true
+  }
+}

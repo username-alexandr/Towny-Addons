@@ -1,0 +1,6 @@
+dependencies {
+    api project(':common')
+    compileOnly "io.papermc.paper:paper-api:${paper_version}"
+}
+base { archivesName = 'CraftoUI-API' }
+jar { from project(':common').sourceSets.main.output }

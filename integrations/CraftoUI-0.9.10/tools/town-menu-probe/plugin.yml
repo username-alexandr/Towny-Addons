@@ -1,0 +1,6 @@
+name: TownMenuProbe
+version: '1.0'
+main: cc.crafto.test.TownMenuProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, CraftoUI, NeverLandTownyBuilds, NeverLandTownyCouncil]

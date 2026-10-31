@@ -1,0 +1,137 @@
+{
+  "id": "town",
+  "title": "Город",
+  "theme": "dark",
+  "width": 620,
+  "height": 480,
+  "footer": "NeverLand  •  Выбери раздел для продолжения.",
+  "components": [
+    {
+      "id": "description",
+      "type": "text",
+      "x": 18,
+      "y": 62,
+      "w": 584,
+      "h": 20,
+      "text": "Постройки, ресурсы и развитие",
+      "color": "muted"
+    },
+    {
+      "id": "modules",
+      "type": "grid",
+      "x": 18,
+      "y": 90,
+      "w": 584,
+      "h": 310,
+      "columns": 3,
+      "gap": 8,
+      "rowHeight": 69,
+      "children": [
+        {
+          "id": "builds",
+          "type": "button",
+          "text": "Постройки",
+          "action": "addons:builds",
+          "icon": "minecraft:bricks"
+        },
+        {
+          "id": "districts",
+          "type": "button",
+          "text": "Районы",
+          "action": "addons:districts",
+          "icon": "minecraft:map"
+        },
+        {
+          "id": "population",
+          "type": "button",
+          "text": "Население",
+          "action": "addons:population",
+          "icon": "minecraft:player_head"
+        },
+        {
+          "id": "specialization",
+          "type": "button",
+          "text": "Специализация",
+          "action": "addons:specialization",
+          "icon": "minecraft:crafting_table"
+        },
+        {
+          "id": "research",
+          "type": "button",
+          "text": "Исследования",
+          "action": "addons:research",
+          "icon": "minecraft:enchanted_book"
+        },
+        {
+          "id": "policies",
+          "type": "button",
+          "text": "Политики города",
+          "action": "addons:policies",
+          "icon": "minecraft:writable_book"
+        },
+        {
+          "id": "resources",
+          "type": "button",
+          "text": "Ресурсы",
+          "action": "addons:resources",
+          "icon": "minecraft:chest"
+        },
+        {
+          "id": "power",
+          "type": "button",
+          "text": "Энергоснабжение",
+          "action": "addons:power",
+          "icon": "minecraft:redstone"
+        },
+        {
+          "id": "upkeep",
+          "type": "button",
+          "text": "Содержание",
+          "action": "addons:upkeep",
+          "icon": "minecraft:anvil"
+        },
+        {
+          "id": "logistics",
+          "type": "button",
+          "text": "Логистика",
+          "action": "addons:logistics",
+          "icon": "minecraft:minecart"
+        },
+        {
+          "id": "ideologies",
+          "type": "button",
+          "text": "Идеологии",
+          "action": "addons:ideologies",
+          "icon": "minecraft:writable_book"
+        },
+        {
+          "id": "environment",
+          "type": "button",
+          "text": "Экология",
+          "action": "addons:environment",
+          "icon": "minecraft:oak_sapling"
+        }
+      ]
+    },
+    {
+      "id": "back",
+      "type": "button",
+      "text": "Все разделы",
+      "action": "hub:hub",
+      "x": 18,
+      "y": 410,
+      "w": 180,
+      "h": 28
+    },
+    {
+      "id": "profile",
+      "type": "button",
+      "text": "Мой профиль",
+      "action": "profile",
+      "x": 422,
+      "y": 410,
+      "w": 180,
+      "h": 28
+    }
+  ]
+}

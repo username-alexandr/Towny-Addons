@@ -1,0 +1,99 @@
+{
+  "id": "adventures",
+  "title": "Задания и события",
+  "theme": "dark",
+  "width": 620,
+  "height": 250,
+  "footer": "Назад — предыдущий экран. Esc — закрыть.",
+  "components": [
+    {
+      "id": "description",
+      "type": "text",
+      "x": 18,
+      "y": 57,
+      "w": 584,
+      "h": 16,
+      "text": "Совместные задачи и занятия в мире",
+      "color": "muted",
+      "layoutRole": "description"
+    },
+    {
+      "id": "modules",
+      "type": "grid",
+      "x": 18,
+      "y": 80,
+      "w": 584,
+      "h": 126,
+      "columns": 3,
+      "gap": 6,
+      "rowHeight": 38,
+      "children": [
+        {
+          "id": "quests",
+          "type": "button",
+          "text": "Задания города",
+          "action": "addons:quests",
+          "icon": "minecraft:filled_map",
+          "tooltip": "Совместные цепочки заданий для города.",
+          "directoryId": "button:adventures/quests"
+        },
+        {
+          "id": "events",
+          "type": "button",
+          "text": "События",
+          "action": "addons:events",
+          "icon": "minecraft:totem_of_undying",
+          "tooltip": "Текущие игровые события.",
+          "directoryId": "button:adventures/events"
+        },
+        {
+          "id": "expeditions",
+          "type": "button",
+          "text": "Экспедиции",
+          "action": "addons:expeditions",
+          "icon": "minecraft:compass",
+          "tooltip": "Выбор экспедиции и её прохождение.",
+          "directoryId": "button:adventures/expeditions"
+        },
+        {
+          "id": "archaeology",
+          "type": "button",
+          "text": "Археология",
+          "action": "addons:archaeology",
+          "icon": "minecraft:brush",
+          "tooltip": "Раскопки, находки и музей.",
+          "directoryId": "button:adventures/archaeology"
+        },
+        {
+          "id": "camps",
+          "type": "button",
+          "text": "Лагерь",
+          "action": "addons:camps",
+          "icon": "minecraft:campfire",
+          "tooltip": "Личный лагерь и его развитие.",
+          "directoryId": "button:adventures/camps"
+        },
+        {
+          "id": "achievements",
+          "type": "button",
+          "text": "Достижения города",
+          "action": "addons:achievements",
+          "icon": "minecraft:golden_apple",
+          "tooltip": "Общие достижения и развитие города.",
+          "directoryId": "button:adventures/achievements"
+        },
+        {
+          "id": "seasons",
+          "type": "button",
+          "text": "Сезоны",
+          "action": "addons:seasons",
+          "icon": "minecraft:sunflower",
+          "tooltip": "Сезонные цели и награды.",
+          "directoryId": "button:adventures/seasons"
+        }
+      ],
+      "layoutRole": "content"
+    }
+  ],
+  "responsive": true
+}

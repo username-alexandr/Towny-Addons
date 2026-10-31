@@ -1,0 +1,693 @@
+[
+  {
+    "plugin": "NeverLandTownyAchievements",
+    "version": "0.1.2",
+    "commands": {
+      "townyachievements": {
+        "aliases": [
+          "nltachievements",
+          "cityachievements"
+        ],
+        "description": "Достижения и награды города",
+        "usage": "/townyachievements [menu|rewards|info|title|cosmetic|banner|reload|admin]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyArchaeology",
+    "version": "0.1.20",
+    "commands": {
+      "archaeology": {
+        "aliases": [
+          "arch",
+          "археология"
+        ],
+        "description": "Археология, журнал и передача находок музею",
+        "usage": "/archaeology [journal|donate|nearest|collections]",
+        "permission": "townyarchaeology.use"
+      },
+      "townyarchaeology": {
+        "aliases": [
+          "tarch",
+          "neverlandtownyarchaeology",
+          "nltarchaeology"
+        ],
+        "description": "Администрирование NeverLandTownyArchaeology",
+        "usage": "/townyarchaeology <reload|give|site|museum|info>",
+        "permission": "townyarchaeology.admin"
+      },
+      "artifact": {
+        "aliases": [
+          "artifacts",
+          "артефакт"
+        ],
+        "description": "Административная выдача артефактов",
+        "usage": "/artifact give <игрок> <артефакт> [количество]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyArmy",
+    "version": "0.1.8",
+    "commands": {
+      "townymilitary": {
+        "aliases": [
+          "army",
+          "nltarmy"
+        ],
+        "description": "Армия города",
+        "usage": "/army help"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyBuilds",
+    "version": "0.8.28",
+    "commands": {
+      "townyarmy": {
+        "description": "Состав армии и мобилизация граждан с 18 лет персонажа",
+        "usage": "/townyarmy [list|mobilize|release|age]"
+      },
+      "buildeditor": {
+        "description": "Внутриигровой редактор городских построек",
+        "usage": "/buildeditor",
+        "aliases": [
+          "minteditor",
+          "townybuildeditor"
+        ],
+        "permission": "neverlandtownybuilds.admin.editor"
+      },
+      "townybuilds": {
+        "description": "Административные команды NeverLandTownyBuilds",
+        "usage": "/townybuilds reload",
+        "aliases": [
+          "nltb",
+          "neverlandtownybuilds"
+        ],
+        "permission": "neverlandtownybuilds.admin"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyCamps",
+    "version": "0.1.21",
+    "commands": {
+      "camp": {
+        "description": "Главное меню и команды походного лагеря",
+        "usage": "/camp [create|spawn|tp|home|trust|untrust|pack|fuel|storage]",
+        "permission": "mintcamps.use"
+      },
+      "townycamps": {
+        "description": "Администрирование NeverLandTownyCamps",
+        "usage": "/townycamps <edit|reload|info|pack>",
+        "aliases": [
+          "mintcamps",
+          "neverlandtownycamps",
+          "nltcamps"
+        ],
+        "permission": "mintcamps.admin"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyChronicles",
+    "version": "0.1.18",
+    "commands": {
+      "chronicles": {
+        "description": "Летопись вашего города",
+        "aliases": [
+          "chronicle",
+          "townhistory"
+        ],
+        "usage": "/chronicles [book|stats|категория]",
+        "permission": "townychronicles.use"
+      },
+      "townychronicles": {
+        "description": "Администрирование NeverLandTownyChronicles",
+        "aliases": [
+          "tchronicles",
+          "neverlandtownychronicles",
+          "nltchronicles"
+        ],
+        "usage": "/townychronicles <add|remove|rescan|reload>",
+        "permission": "townychronicles.admin"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyCitizens",
+    "version": "0.1.11",
+    "commands": {
+      "townycitizens": {
+        "aliases": [
+          "nltcitizens",
+          "citizenship"
+        ],
+        "description": "Гражданство и городской реестр",
+        "usage": "/townycitizens [info|set|list|help|reload]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyCompanies",
+    "version": "0.1.14",
+    "commands": {
+      "townycompanies": {
+        "aliases": [
+          "company",
+          "companies",
+          "nltcompanies"
+        ],
+        "description": "Предприятия игроков",
+        "usage": "/company [help|create|members|contracts|deposit|withdraw]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyContracts",
+    "version": "0.3.21",
+    "commands": {
+      "orders": {
+        "description": "Государственные заказы для всех игроков",
+        "usage": "/orders [accept|mine|claim|cancel|admin]",
+        "permission": "neverland.orders.use"
+      },
+      "townycontracts": {
+        "description": "Административное управление городскими заказами",
+        "usage": "/townycontracts <start|cancel|list|reload|payments|deliveries|resolve|resolve-delivery>",
+        "aliases": [
+          "mintcontracts",
+          "mcontracts",
+          "neverlandtownycontracts",
+          "nltcontracts"
+        ],
+        "permission": "mintcontracts.admin"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyControl",
+    "version": "0.4.4",
+    "commands": {
+      "nltoutbox": {
+        "description": "Сверка незавершённых команд наград",
+        "usage": "/nltoutbox <модуль> [UUID done|retry]"
+      },
+      "nltaudit": {
+        "aliases": [
+          "townyaudit"
+        ],
+        "description": "Административный журнал денежных и ресурсных операций",
+        "usage": "/nltaudit <search|export|status|help> [фильтры]"
+      },
+      "nltmodules": {
+        "aliases": [
+          "townymodules"
+        ],
+        "description": "Состояние и безопасное отключение модулей",
+        "usage": "/nltmodules <list|status|plan|disable|enable> [модуль|all]"
+      },
+      "nltadmin": {
+        "description": "Графическое меню администратора и управление аддонами",
+        "usage": "/nltadmin [menu|logs|list|модуль] [действие]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyCouncil",
+    "version": "0.1.13",
+    "commands": {
+      "townycouncil": {
+        "aliases": [
+          "council",
+          "ministers",
+          "nltcouncil"
+        ],
+        "description": "Министры городского совета",
+        "usage": "/council [menu|appoint|dismiss|permissions|history|help|reload]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyCrime",
+    "version": "0.1.8",
+    "commands": {
+      "townycrime": {
+        "aliases": [
+          "nltcrime",
+          "citycrime"
+        ],
+        "description": "Преступность города",
+        "usage": "/townycrime [menu|help|town <город>|reload]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyDiplomacy",
+    "version": "0.1.11",
+    "commands": {
+      "townydiplomacy": {
+        "aliases": [
+          "diplomacy",
+          "nltdiplomacy"
+        ],
+        "description": "Расширенная дипломатия городов",
+        "usage": "/diplomacy help"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyDistricts",
+    "version": "0.1.17",
+    "commands": {
+      "townydistricts": {
+        "description": "Управление городскими районами",
+        "usage": "/townydistricts [create|claim|unclaim|delete|rename|pos1|pos2|clear|map|info|reload]",
+        "aliases": [
+          "districts",
+          "nltdistricts"
+        ]
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyElections",
+    "version": "0.1.11",
+    "commands": {
+      "elections": {
+        "aliases": [
+          "townyelections",
+          "nltelections"
+        ],
+        "description": "Выборы города",
+        "usage": "/elections help",
+        "permission": "townyelections.use"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyEnvironment",
+    "version": "0.1.1",
+    "commands": {
+      "townyenvironment": {
+        "aliases": [
+          "nltenvironment",
+          "cityenvironment"
+        ],
+        "description": "Экология города",
+        "usage": "/townyenvironment [menu|sources|cleaning|reload|admin]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyEspionage",
+    "version": "0.1.21",
+    "commands": {
+      "espionage": {
+        "description": "Городская разведка",
+        "aliases": [
+          "spy",
+          "intelligence"
+        ],
+        "usage": "/espionage [start|reports|active|upgrade|help]",
+        "permission": "mintespionage.use"
+      },
+      "townyespionage": {
+        "description": "Администрирование городской разведки",
+        "aliases": [
+          "mintespionage",
+          "mespionage",
+          "neverlandtownyespionage",
+          "nltespionage"
+        ],
+        "usage": "/townyespionage <list|complete|cancel|set|reload>",
+        "permission": "mintespionage.admin"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyEvents",
+    "version": "0.4.7",
+    "commands": {
+      "townyevents": {
+        "description": "Административное управление городскими событиями",
+        "usage": "/townyevents <start|stop|cancel|restart|pause|resume|extend|shield|success|fail|status|list|raidwave|reload>",
+        "aliases": [
+          "mintevents",
+          "mevents",
+          "neverlandtownyevents",
+          "nltevents"
+        ],
+        "permission": "mintevents.admin"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyExpeditions",
+    "version": "0.1.24",
+    "commands": {
+      "expedition": {
+        "description": "Меню и команды экспедиций",
+        "usage": "/expedition [start|status|return|claim|history]",
+        "aliases": [
+          "exp",
+          "expeditions"
+        ],
+        "permission": "mintexpeditions.use"
+      },
+      "townyexpeditions": {
+        "description": "Администрирование экспедиций",
+        "usage": "/townyexpeditions <list|complete|cancel|reload>",
+        "aliases": [
+          "mintexpeditions",
+          "mexp",
+          "neverlandtownyexpeditions",
+          "nltexpeditions"
+        ],
+        "permission": "mintexpeditions.admin"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyGovernance",
+    "version": "0.1.22",
+    "commands": {
+      "governance": {
+        "aliases": [
+          "gov"
+        ],
+        "description": "Управление городским советом",
+        "usage": "/governance [laws|votes|council|history|propose|repeal|vote|appoint|dismiss]",
+        "permission": "townygovernance.use"
+      },
+      "townygovernance": {
+        "aliases": [
+          "towngovernance",
+          "tgov",
+          "neverlandtownygovernance",
+          "nltgovernance"
+        ],
+        "description": "Администрирование NeverLandTownyGovernance",
+        "usage": "/townygovernance <reload|resolve|enact|repeal|info>",
+        "permission": "townygovernance.admin"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyIdeologies",
+    "version": "0.1.19",
+    "commands": {
+      "townyideologies": {
+        "description": "Администрирование городских идеологий",
+        "usage": "/townyideologies <reload|info|set|reset>",
+        "aliases": [
+          "nlti",
+          "neverlandtownyideologies"
+        ],
+        "permission": "neverlandtownyideologies.admin"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyJobs",
+    "version": "0.1.14",
+    "commands": {
+      "townyjobs": {
+        "aliases": [
+          "nltjobs"
+        ],
+        "description": "Городские профессии",
+        "usage": "/townyjobs [help|choose|work|duty|leave|staff|admin]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyJustice",
+    "version": "0.1.8",
+    "commands": {
+      "townyjustice": {
+        "aliases": [
+          "justice",
+          "nltjustice"
+        ],
+        "description": "Городской суд и розыск",
+        "usage": "/justice help"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyLogistics",
+    "version": "0.1.18",
+    "commands": {
+      "townylogistics": {
+        "aliases": [
+          "logistics",
+          "nltlogistics"
+        ],
+        "description": "Городская логистика",
+        "usage": "/townylogistics [help|nodes|routes|couriers|node|waypoint|link|route|storage|reload]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyMarket",
+    "version": "0.1.15",
+    "commands": {
+      "townymarket": {
+        "aliases": [
+          "nltmarket"
+        ],
+        "description": "Городские и международные рынки",
+        "usage": "/townymarket [local|global|mine|orders|catalog|sell|buy|show|claim]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyPolicies",
+    "version": "0.1.14",
+    "commands": {
+      "townypolicies": {
+        "aliases": [
+          "nltpolicies",
+          "citypolicies"
+        ],
+        "description": "Городские политики и указы",
+        "usage": "/townypolicies [info|choose|confirm|history|reload]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyPopulation",
+    "version": "0.1.21",
+    "commands": {
+      "townypopulation": {
+        "description": "Население города",
+        "usage": "/townypopulation [info|buildings|reload|set]",
+        "aliases": [
+          "population",
+          "nltpopulation"
+        ]
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyPower",
+    "version": "0.1.15",
+    "commands": {
+      "townypower": {
+        "aliases": [
+          "nltpower",
+          "citypower"
+        ],
+        "description": "Энергоснабжение города",
+        "usage": "/townypower [generators|consumers|info|pause|resume|priority|reload]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyQuests",
+    "version": "0.1.3",
+    "commands": {
+      "townyquests": {
+        "aliases": [
+          "nltquests",
+          "cityquests"
+        ],
+        "description": "Городские проекты",
+        "usage": "/townyquests [menu|info|start|reload|admin]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyReputation",
+    "version": "0.2.9",
+    "commands": {
+      "reputation": {
+        "aliases": [
+          "rep"
+        ],
+        "description": "Просмотр и изменение репутации",
+        "usage": "/reputation [profile|player|town|nation|endorse|denounce|top|history]",
+        "permission": "townyreputation.use"
+      },
+      "townyreputation": {
+        "aliases": [
+          "trep",
+          "neverlandtownyreputation",
+          "nltreputation"
+        ],
+        "description": "Администрирование NeverLandTownyReputation",
+        "usage": "/townyreputation <profile|reload|change|set|reset|info|decay>",
+        "permission": "townyreputation.admin"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyResearch",
+    "version": "0.1.16",
+    "commands": {
+      "townyresearch": {
+        "aliases": [
+          "nltresearch",
+          "cityresearch"
+        ],
+        "description": "Исследования города",
+        "usage": "/townyresearch [info|start|cancel|reload]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyResources",
+    "version": "0.1.22",
+    "commands": {
+      "townyresources": {
+        "aliases": [
+          "nltresources",
+          "cityresources"
+        ],
+        "description": "Городские ресурсы",
+        "usage": "/townyresources [buildings|info|pause|resume|keep|priority|reload]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownySeasons",
+    "version": "0.1.8",
+    "commands": {
+      "townyseasons": {
+        "aliases": [
+          "tseasons",
+          "nltseasons"
+        ],
+        "description": "Сезонная экономика и календарь",
+        "usage": "/tseasons [menu|status|set|resume|reload|help]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownySiegesPlus",
+    "version": "0.1.8",
+    "commands": {
+      "townysieges": {
+        "aliases": [
+          "sieges",
+          "nltsieges"
+        ],
+        "description": "Оборона города и осадные ограничения",
+        "usage": "/sieges help"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownySpecialization",
+    "version": "0.1.14",
+    "commands": {
+      "townyspecialization": {
+        "aliases": [
+          "nltspec",
+          "cityspecialization"
+        ],
+        "description": "Специализация города",
+        "usage": "/townyspecialization [info|choose|confirm|reload]"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyStick",
+    "version": "0.1.20",
+    "commands": {
+      "townystick": {
+        "description": "Администрирование NeverLandTownyStick",
+        "usage": "/townystick reload | /townystick <ник>",
+        "aliases": [
+          "townstick",
+          "neverlandtownystick",
+          "nltstick"
+        ],
+        "permission": "morstownstick.admin"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyTaxes",
+    "version": "0.1.19",
+    "commands": {
+      "townytaxes": {
+        "description": "Администрирование налогов, санкций и соглашений NeverLand",
+        "usage": "/townytaxes <policy|sanction|agreement|bank|ledger|reload>",
+        "aliases": [
+          "taxytowny",
+          "taxesadmin",
+          "neverlandtownytaxes",
+          "nlttaxes"
+        ],
+        "permission": "townytaxes.admin"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyTrade",
+    "version": "0.2.17",
+    "commands": {
+      "townytrade": {
+        "description": "Администрирование городской торговли",
+        "usage": "/townytrade <list|complete|cancel|reload|contracts|contract|resolve>",
+        "aliases": [
+          "minttrade",
+          "mtrade",
+          "neverlandtownytrade",
+          "nlttrade"
+        ],
+        "permission": "minttrade.admin"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyTreasuryPlus",
+    "version": "0.1.16",
+    "commands": {
+      "townytreasury": {
+        "description": "Казна и городской бюджет",
+        "aliases": [
+          "nlttreasury",
+          "treasuryplus"
+        ],
+        "usage": "/townytreasury"
+      }
+    }
+  },
+  {
+    "plugin": "NeverLandTownyUpkeep",
+    "version": "0.1.18",
+    "commands": {
+      "townyupkeep": {
+        "aliases": [
+          "nltupkeep",
+          "cityupkeep"
+        ],
+        "description": "Обслуживание городских зданий",
+        "usage": "/townyupkeep [info|pay|help|reload]"
+      }
+    }
+  }
+]

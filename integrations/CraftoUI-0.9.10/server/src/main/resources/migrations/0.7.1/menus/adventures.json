@@ -1,0 +1,109 @@
+{
+  "id": "adventures",
+  "title": "Приключения",
+  "theme": "dark",
+  "width": 620,
+  "height": 480,
+  "footer": "NeverLand  •  Выбери раздел для продолжения.",
+  "components": [
+    {
+      "id": "description",
+      "type": "text",
+      "x": 18,
+      "y": 62,
+      "w": 584,
+      "h": 20,
+      "text": "Экспедиции, события и достижения",
+      "color": "muted"
+    },
+    {
+      "id": "modules",
+      "type": "grid",
+      "x": 18,
+      "y": 90,
+      "w": 584,
+      "h": 310,
+      "columns": 3,
+      "gap": 8,
+      "rowHeight": 69,
+      "children": [
+        {
+          "id": "camps",
+          "type": "button",
+          "text": "Лагерь",
+          "action": "addons:camps",
+          "icon": "minecraft:campfire"
+        },
+        {
+          "id": "expeditions",
+          "type": "button",
+          "text": "Экспедиции",
+          "action": "addons:expeditions",
+          "icon": "minecraft:compass"
+        },
+        {
+          "id": "archaeology",
+          "type": "button",
+          "text": "Археология",
+          "action": "addons:archaeology",
+          "icon": "minecraft:brush"
+        },
+        {
+          "id": "events",
+          "type": "button",
+          "text": "События",
+          "action": "addons:events",
+          "icon": "minecraft:totem_of_undying"
+        },
+        {
+          "id": "quests",
+          "type": "button",
+          "text": "Квесты",
+          "action": "addons:quests",
+          "icon": "minecraft:filled_map"
+        },
+        {
+          "id": "achievements",
+          "type": "button",
+          "text": "Достижения",
+          "action": "addons:achievements",
+          "icon": "minecraft:golden_apple"
+        },
+        {
+          "id": "chronicles",
+          "type": "button",
+          "text": "Хроники",
+          "action": "addons:chronicles",
+          "icon": "minecraft:book"
+        },
+        {
+          "id": "seasons",
+          "type": "button",
+          "text": "Сезоны",
+          "action": "addons:seasons",
+          "icon": "minecraft:sunflower"
+        }
+      ]
+    },
+    {
+      "id": "back",
+      "type": "button",
+      "text": "Все разделы",
+      "action": "hub:hub",
+      "x": 18,
+      "y": 410,
+      "w": 180,
+      "h": 28
+    },
+    {
+      "id": "profile",
+      "type": "button",
+      "text": "Мой профиль",
+      "action": "profile",
+      "x": 422,
+      "y": 410,
+      "w": 180,
+      "h": 28
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "survival": {
+    "type": "close"
+  },
+  "profile": {
+    "type": "open",
+    "menu": "profile",
+    "permission": "craftoui.profile"
+  },
+  "settings": {
+    "type": "settings"
+  },
+  "main": {
+    "type": "open",
+    "menu": "main"
+  },
+  "help": {
+    "type": "open",
+    "menu": "help"
+  },
+  "refresh": {
+    "type": "refresh"
+  },
+  "welcome": {
+    "type": "message",
+    "message": "Добро пожаловать в Crafto!"
+  },
+  "commands": {
+    "type": "commands",
+    "permission": "craftoui.commands"
+  }
+}

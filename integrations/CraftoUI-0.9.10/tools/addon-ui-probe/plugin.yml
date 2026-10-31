@@ -1,0 +1,6 @@
+name: AddonUiProbe
+version: 1.0
+main: cc.crafto.probe.AddonUiProbe
+api-version: '26.2'
+folia-supported: true
+depend: [Towny, NeverLandTownyCouncil, CraftoUI]

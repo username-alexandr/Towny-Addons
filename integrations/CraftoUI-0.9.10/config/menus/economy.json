@@ -1,0 +1,97 @@
+{
+  "id": "economy",
+  "title": "Работа и торговля",
+  "theme": "dark",
+  "width": 620,
+  "height": 250,
+  "footer": "Назад — предыдущий экран. Esc — закрыть.",
+  "components": [
+    {
+      "id": "description",
+      "type": "text",
+      "x": 18,
+      "y": 57,
+      "w": 584,
+      "h": 16,
+      "text": "Личный заработок и торговля",
+      "color": "muted",
+      "layoutRole": "description"
+    },
+    {
+      "id": "modules",
+      "type": "grid",
+      "x": 18,
+      "y": 80,
+      "w": 584,
+      "h": 126,
+      "columns": 3,
+      "gap": 6,
+      "rowHeight": 38,
+      "children": [
+        {
+          "id": "orders",
+          "type": "button",
+          "text": "Личные заказы",
+          "action": "quick:orders",
+          "icon": "minecraft:paper",
+          "tooltip": "Ваша личная доска /orders. Подборка сохраняется до 00:00 МСК."
+        },
+        {
+          "id": "jobs",
+          "type": "button",
+          "text": "Профессии и работа",
+          "action": "addons:jobs",
+          "icon": "minecraft:iron_pickaxe",
+          "tooltip": "Профессии, рабочие места и доход за работу.",
+          "directoryId": "button:economy/jobs"
+        },
+        {
+          "id": "market",
+          "type": "button",
+          "text": "Рынок игроков",
+          "action": "addons:market",
+          "icon": "minecraft:emerald",
+          "tooltip": "Покупка, продажа и получение предметов на рынке.",
+          "directoryId": "button:economy/market"
+        },
+        {
+          "id": "trade",
+          "type": "button",
+          "text": "Межгородские поставки",
+          "action": "addons:trade",
+          "icon": "minecraft:gold_ingot",
+          "tooltip": "Торговые договоры и регулярные поставки между городами.",
+          "directoryId": "button:economy/trade"
+        },
+        {
+          "id": "contracts",
+          "type": "button",
+          "text": "Городские контракты",
+          "action": "addons:contracts",
+          "icon": "minecraft:paper",
+          "tooltip": "Общие контракты города, включая заказы материалов для зданий из городской казны.",
+          "directoryId": "button:economy/contracts"
+        },
+        {
+          "id": "companies",
+          "type": "button",
+          "text": "Компании",
+          "action": "addons:companies",
+          "icon": "minecraft:chest_minecart",
+          "tooltip": "Участники, счёт и зарплаты за подтверждённые действия на рабочей смене.",
+          "directoryId": "button:economy/companies"
+        },
+        {
+          "id": "history",
+          "type": "button",
+          "text": "Мои операции",
+          "action": "quick:history",
+          "icon": "minecraft:book",
+          "tooltip": "Ваши награды, переводы, переданные материалы и возвраты."
+        }
+      ],
+      "layoutRole": "content"
+    }
+  ],
+  "responsive": true
+}

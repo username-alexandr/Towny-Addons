@@ -1,0 +1,35 @@
+name: CraftoUI
+version: '${version}'
+main: cc.crafto.ui.server.CraftoUIPlugin
+api-version: '26.2'
+folia-supported: true
+description: Optional configurable UI bridge for Fabric clients
+authors: [Crafto]
+softdepend: [LuckPerms, Towny, NeverLandTownyBuilds, NeverLandTownyContracts, NeverLandTownyChronicles, NeverLandTownyTreasuryPlus]
+commands:
+  craftoui:
+    description: Открыть меню Crafto
+    aliases: [cui, menu]
+    usage: /craftoui [open <menu>|actions|close|status|reload]
+permissions:
+  craftoui.commands:
+    default: true
+  craftoui.use:
+    default: true
+  craftoui.profile:
+    default: true
+  craftoui.admin.reload:
+    default: op
+
+  craftoui.admin.menus:
+    default: op
+
+  craftoui.contracts:
+    default: true
+
+  craftoui.city:
+    default: true
+
+  craftoui.goals.manage:
+    description: Управление общей целью города
+    default: false

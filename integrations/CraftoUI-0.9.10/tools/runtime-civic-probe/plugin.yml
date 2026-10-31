@@ -1,0 +1,12 @@
+name: CivicProbe
+version: 0.7.0-test-only
+main: cc.crafto.test.CivicProbe
+api-version: '26.2'
+folia-supported: true
+depend: [CraftoUI, Towny, NeverLandTownyBuilds, NeverLandTownyContracts, NeverLandTownyCompanies]
+commands:
+  civicprobe:
+    permission: civicprobe.test
+permissions:
+  civicprobe.test:
+    default: op

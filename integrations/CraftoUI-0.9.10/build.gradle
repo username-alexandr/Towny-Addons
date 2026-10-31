@@ -1,0 +1,29 @@
+plugins { id 'base' }
+allprojects {
+    group = 'cc.crafto'
+    version = rootProject.version
+    repositories {
+        mavenCentral()
+        maven { url = 'https://maven.fabricmc.net/' }
+        maven { url = 'https://repo.papermc.io/repository/maven-public/' }
+    }
+}
+subprojects {
+    apply plugin: 'java-library'
+    java { toolchain { languageVersion = JavaLanguageVersion.of(25) }; withSourcesJar() }
+    tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8'; options.release = 25 }
+    tasks.withType(Jar).configureEach { preserveFileTimestamps = false; reproducibleFileOrder = true }
+    tasks.withType(Test).configureEach { useJUnitPlatform() }
+    dependencies {
+        testImplementation platform('org.junit:junit-bom:5.12.2')
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+}
+tasks.register('release', Copy) {
+    dependsOn ':client:build', ':server:build', ':api:build', ':common:test'
+    into layout.buildDirectory.dir('release')
+    from(project(':client').tasks.named('jar'))
+    from(project(':server').tasks.named('jar'))
+    from(project(':api').tasks.named('jar'))
+}

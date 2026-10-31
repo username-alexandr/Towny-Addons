@@ -1,0 +1,253 @@
+{
+  "suite": "0.51.0",
+  "source_commit": "4022915b64cc5578f875a7a977f989e07378e4f3",
+  "added_holders": [
+    {
+      "plugin": "NeverLandTownyBuilds",
+      "holder": "ru.neverland.townybuilds.construction.CityStyles$View",
+      "permission": "neverlandtownybuilds.style"
+    },
+    {
+      "plugin": "NeverLandTownyContracts",
+      "holder": "ru.neverland.mintcontracts.service.BuildOrders$View",
+      "permission": "mintcontracts.buildorders"
+    },
+    {
+      "plugin": "NeverLandTownyContracts",
+      "holder": "ru.neverland.mintcontracts.orders.ResourceAdmin$Screen",
+      "permission": "neverland.orders.resources"
+    },
+    {
+      "plugin": "NeverLandTownyCompanies",
+      "holder": "ru.neverland.townycompanies.CompanyPayroll$View",
+      "permission": "neverlandtownycompanies.use"
+    },
+    {
+      "plugin": "NeverLandTownyChronicles",
+      "holder": "ru.neverland.townychronicles.service.ContributionsMenu$View",
+      "permission": "townychronicles.contributions"
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "holder": "ru.neverland.townysieges.RaidRepairs$View",
+      "permission": "neverlandtownysiegesplus.use"
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "holder": "ru.neverland.townysieges.RaidHours$View",
+      "permission": "neverlandtownysiegesplus.use"
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "holder": "ru.neverland.townysieges.RaidCamps$View",
+      "permission": "neverlandtownysiegesplus.use"
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "holder": "ru.neverland.townysieges.CampSupplies$View",
+      "permission": "neverlandtownysiegesplus.use"
+    }
+  ],
+  "added_forms": [
+    {
+      "plugin": "NeverLandTownyBuilds",
+      "id": "style",
+      "root": "townystyle",
+      "prefix": ""
+    },
+    {
+      "plugin": "NeverLandTownyBuilds",
+      "id": "placement-menu",
+      "root": "townybuildplace",
+      "prefix": ""
+    },
+    {
+      "plugin": "NeverLandTownyChronicles",
+      "id": "contributions",
+      "root": "chronicles",
+      "prefix": "contributions"
+    },
+    {
+      "plugin": "NeverLandTownyChronicles",
+      "id": "thank",
+      "root": "chronicles",
+      "prefix": "thank"
+    },
+    {
+      "plugin": "NeverLandTownyCompanies",
+      "id": "payroll",
+      "root": "townycompanies",
+      "prefix": "payroll"
+    },
+    {
+      "plugin": "NeverLandTownyCompanies",
+      "id": "payroll-rate",
+      "root": "townycompanies",
+      "prefix": "payroll rate"
+    },
+    {
+      "plugin": "NeverLandTownyCompanies",
+      "id": "payroll-budget",
+      "root": "townycompanies",
+      "prefix": "payroll budget"
+    },
+    {
+      "plugin": "NeverLandTownyCompanies",
+      "id": "payroll-enable",
+      "root": "townycompanies",
+      "prefix": "payroll on"
+    },
+    {
+      "plugin": "NeverLandTownyCompanies",
+      "id": "payroll-disable",
+      "root": "townycompanies",
+      "prefix": "payroll off"
+    },
+    {
+      "plugin": "NeverLandTownyContracts",
+      "id": "personal-board",
+      "root": "orders",
+      "prefix": ""
+    },
+    {
+      "plugin": "NeverLandTownyContracts",
+      "id": "personal-mine",
+      "root": "orders",
+      "prefix": "mine"
+    },
+    {
+      "plugin": "NeverLandTownyContracts",
+      "id": "building-materials",
+      "root": "townybuildorders",
+      "prefix": ""
+    },
+    {
+      "plugin": "NeverLandTownyContracts",
+      "id": "server-materials",
+      "root": "orders",
+      "prefix": "admin resources"
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "id": "hours",
+      "root": "townysieges",
+      "prefix": "hours"
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "id": "camp",
+      "root": "townysieges",
+      "prefix": "camp"
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "id": "camp-register",
+      "root": "townysieges",
+      "prefix": "camp"
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "id": "repair",
+      "root": "townysieges",
+      "prefix": "repair"
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "id": "raid-status",
+      "root": "townysieges",
+      "prefix": "raid status"
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "id": "raid-start",
+      "root": "townysieges",
+      "prefix": "raid"
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "id": "chunk",
+      "root": "townysieges",
+      "prefix": "chunk"
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "id": "block-health",
+      "root": "townysieges",
+      "prefix": "hp"
+    }
+  ],
+  "addons": [
+    {
+      "plugin": "NeverLandTownyArmy",
+      "version": "0.2.0",
+      "file": "NeverLandTownyArmy-0.2.0.jar",
+      "sha256": "db95e90f78b60a38e3bfeb8966bffe66a8e3798bfb7a020ca9164f2d7f11f03c"
+    },
+    {
+      "plugin": "NeverLandTownyBuilds",
+      "version": "0.9.1",
+      "file": "NeverLandTownyBuilds-0.9.1.jar",
+      "sha256": "ee933fcc5feb1f4cbf4741ef66484cfbd188d012d7518797c9dc1a4decab57ac"
+    },
+    {
+      "plugin": "NeverLandTownyChronicles",
+      "version": "0.2.0",
+      "file": "NeverLandTownyChronicles-0.2.0.jar",
+      "sha256": "32d6b63f4466e259d2fd3c70d5dbf2c2fe83edd40c6809aa728ad08af20be7b4"
+    },
+    {
+      "plugin": "NeverLandTownyCompanies",
+      "version": "0.2.0",
+      "file": "NeverLandTownyCompanies-0.2.0.jar",
+      "sha256": "188df5e545c72772c15dd755aa4ef42a19e3f9d8eff9825c719094dde778a239"
+    },
+    {
+      "plugin": "NeverLandTownyContracts",
+      "version": "0.5.1",
+      "file": "NeverLandTownyContracts-0.5.1.jar",
+      "sha256": "5a6c8f92cc0dbc1284490e0d669982356ce6f34516cff0e8c5eae0f1a3493e7a"
+    },
+    {
+      "plugin": "NeverLandTownyControl",
+      "version": "0.5.0",
+      "file": "NeverLandTownyControl-0.5.0.jar",
+      "sha256": "653ef0eb88d49642cf2e97da7d2c5e53ba27b09898bcad17abb7a59dbeb05e43"
+    },
+    {
+      "plugin": "NeverLandTownyEnvironment",
+      "version": "0.2.0",
+      "file": "NeverLandTownyEnvironment-0.2.0.jar",
+      "sha256": "1711a24dd227e906d1493d354f43676e0248c33bc0dfd2387aa4e2f9c4321651"
+    },
+    {
+      "plugin": "NeverLandTownyJobs",
+      "version": "0.2.0",
+      "file": "NeverLandTownyJobs-0.2.0.jar",
+      "sha256": "c5ef14ed601a0cbae45cbee0790167c5354496fa7fb0c5b8741a44dcbd5ad923"
+    },
+    {
+      "plugin": "NeverLandTownyLogistics",
+      "version": "0.2.0",
+      "file": "NeverLandTownyLogistics-0.2.0.jar",
+      "sha256": "a54ee8650e04a4005e7aba8b1c8d9f0e1208c9adc3bade432d7ca10ad9401cc8"
+    },
+    {
+      "plugin": "NeverLandTownyPolicies",
+      "version": "0.2.0",
+      "file": "NeverLandTownyPolicies-0.2.0.jar",
+      "sha256": "f8bbd1413034fcca0bb5225949104de2080bd8129d4318f8dfa2880874b699f0"
+    },
+    {
+      "plugin": "NeverLandTownyQuests",
+      "version": "0.2.0",
+      "file": "NeverLandTownyQuests-0.2.0.jar",
+      "sha256": "6c705241b91ae2e2fcb371aff062a1d272faca7ca5be4de431c483edad0c4271"
+    },
+    {
+      "plugin": "NeverLandTownySiegesPlus",
+      "version": "0.6.1",
+      "file": "NeverLandTownySiegesPlus-0.6.1.jar",
+      "sha256": "bd3bbe79ff21aee926acbf1b5a07ed772974620c2e2443d94f2e44a8f992ab64"
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "id": "economy",
+  "title": "Заработок",
+  "theme": "dark",
+  "width": 620,
+  "height": 480,
+  "footer": "NeverLand  •  Выбери раздел для продолжения.",
+  "components": [
+    {
+      "id": "description",
+      "type": "text",
+      "x": 18,
+      "y": 62,
+      "w": 584,
+      "h": 20,
+      "text": "Работа, контракты и торговля",
+      "color": "muted"
+    },
+    {
+      "id": "modules",
+      "type": "grid",
+      "x": 18,
+      "y": 90,
+      "w": 584,
+      "h": 310,
+      "columns": 3,
+      "gap": 8,
+      "rowHeight": 69,
+      "children": [
+        {
+          "id": "jobs",
+          "type": "button",
+          "text": "Профессии и работа",
+          "action": "addons:jobs",
+          "icon": "minecraft:iron_pickaxe"
+        },
+        {
+          "id": "contracts",
+          "type": "button",
+          "text": "Контракты",
+          "action": "addons:contracts",
+          "icon": "minecraft:paper"
+        },
+        {
+          "id": "companies",
+          "type": "button",
+          "text": "Компании",
+          "action": "addons:companies",
+          "icon": "minecraft:chest_minecart"
+        },
+        {
+          "id": "market",
+          "type": "button",
+          "text": "Рынок",
+          "action": "addons:market",
+          "icon": "minecraft:emerald"
+        },
+        {
+          "id": "trade",
+          "type": "button",
+          "text": "Торговля",
+          "action": "addons:trade",
+          "icon": "minecraft:gold_ingot"
+        },
+        {
+          "id": "treasuryplus",
+          "type": "button",
+          "text": "Казна города",
+          "action": "addons:treasuryplus",
+          "icon": "minecraft:gold_block"
+        }
+      ]
+    },
+    {
+      "id": "back",
+      "type": "button",
+      "text": "Все разделы",
+      "action": "hub:hub",
+      "x": 18,
+      "y": 410,
+      "w": 180,
+      "h": 28
+    },
+    {
+      "id": "profile",
+      "type": "button",
+      "text": "Мой профиль",
+      "action": "profile",
+      "x": 422,
+      "y": 410,
+      "w": 180,
+      "h": 28
+    }
+  ]
+}

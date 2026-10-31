@@ -1,0 +1,114 @@
+{
+  "id": "town",
+  "title": "Мой город",
+  "theme": "dark",
+  "width": 620,
+  "height": 250,
+  "footer": "Назад — предыдущий экран. Esc — закрыть.",
+  "components": [
+    {
+      "id": "description",
+      "type": "text",
+      "x": 18,
+      "y": 57,
+      "w": 584,
+      "h": 16,
+      "text": "Сначала — сводка и повседневные дела города",
+      "color": "muted",
+      "layoutRole": "description"
+    },
+    {
+      "id": "modules",
+      "type": "grid",
+      "x": 18,
+      "y": 80,
+      "w": 584,
+      "h": 126,
+      "columns": 3,
+      "gap": 6,
+      "rowHeight": 38,
+      "children": [
+        {
+          "id": "city-overview",
+          "type": "button",
+          "text": "Экран города",
+          "action": "ui:city",
+          "icon": "minecraft:map",
+          "tooltip": "Сводка: казна, стройки, материалы, приглашения и карта участков."
+        },
+        {
+          "id": "city-tree",
+          "type": "button",
+          "text": "Дерево развития",
+          "action": "ui:tree",
+          "icon": "minecraft:filled_map",
+          "tooltip": "Какие постройки и исследования доступны и что откроется следующим.",
+          "directoryId": "button:town/city-tree"
+        },
+        {
+          "id": "warehouse",
+          "type": "button",
+          "text": "Склад города",
+          "action": "quick:warehouse",
+          "icon": "minecraft:chest",
+          "tooltip": "Открыть /town inv: передать или забрать предметы на складе."
+        },
+        {
+          "id": "builds",
+          "type": "button",
+          "text": "Постройки",
+          "action": "addons:builds",
+          "icon": "minecraft:bricks",
+          "tooltip": "Городские здания, чертежи и действующие стройки.",
+          "directoryId": "button:town/builds"
+        },
+        {
+          "id": "treasuryplus",
+          "type": "button",
+          "text": "Казна города",
+          "action": "addons:treasuryplus",
+          "icon": "minecraft:gold_block",
+          "tooltip": "Баланс казны, бюджет и финансовые операции города.",
+          "directoryId": "button:economy/treasuryplus"
+        },
+        {
+          "id": "districts",
+          "type": "button",
+          "text": "Районы",
+          "action": "addons:districts",
+          "icon": "minecraft:map",
+          "tooltip": "Районы города и их назначение.",
+          "directoryId": "button:town/districts"
+        },
+        {
+          "id": "development",
+          "type": "button",
+          "text": "Развитие города",
+          "action": "hub:development",
+          "icon": "minecraft:crafting_table",
+          "tooltip": "Исследования, население, ресурсы и инфраструктура."
+        },
+        {
+          "id": "society",
+          "type": "button",
+          "text": "Жители и власть",
+          "action": "hub:society",
+          "icon": "minecraft:player_head",
+          "tooltip": "Совет, министры, законы и отношения."
+        },
+        {
+          "id": "chronicles",
+          "type": "button",
+          "text": "История города",
+          "action": "addons:chronicles",
+          "icon": "minecraft:book",
+          "tooltip": "Летопись событий и решений вашего города.",
+          "directoryId": "button:adventures/chronicles"
+        }
+      ],
+      "layoutRole": "content"
+    }
+  ],
+  "requiresTown": true,
+  "responsive": true
+}
