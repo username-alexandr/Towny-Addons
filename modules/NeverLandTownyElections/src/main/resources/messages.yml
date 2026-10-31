@@ -1,0 +1,51 @@
+# Сообщения этого аддона. Изменяйте только значения text; source оставляйте без изменений.
+# Цветовые коды и подстановки сохраняйте. Изменения действуют после перезапуска.
+overrides:
+- source: '§6Своя программа: §f/t elections promise text <текст>'
+  text: '§6Своя программа: §f/t elections promise text <текст>'
+- source: §e/t elections promise building <ID здания> <уровень> §7— завершить здание
+  text: §e/t elections promise building <ID здания> <уровень> §7— завершить здание
+- source: §e/t elections promise population <жителей> §7— увеличить население
+  text: §e/t elections promise population <жителей> §7— увеличить население
+- source: §e/t elections promise pollution <предел> §7— снизить загрязнение
+  text: §e/t elections promise pollution <предел> §7— снизить загрязнение
+- source: §e/t elections promise remove <1–3> §7— убрать цель; clear — очистить программу
+  text: §e/t elections promise remove <1–3> §7— убрать цель; clear — очистить программу
+- source: §7Изменения доступны кандидату до голосования и действуют только после подтверждения сохранения.
+  text: §7Изменения доступны кандидату до голосования и действуют только после подтверждения сохранения.
+- source: §6Выборы города §8• §f/t elections
+  text: §6Выборы города §8• §f/t elections
+- source: §e/t elections candidate <должность> §7— выдвинуть себя
+  text: §e/t elections candidate <должность> §7— выдвинуть себя
+- source: §e/t elections withdraw §7— снять кандидатуру до голосования
+  text: §e/t elections withdraw §7— снять кандидатуру до голосования
+- source: §e/t elections vote <должность> <игроки через запятую> §7— сохранить выбор
+  text: §e/t elections vote <должность> <игроки через запятую> §7— сохранить выбор
+- source: §e/t elections programs §7— программы; program <кандидат> — проверка целей
+  text: §e/t elections programs §7— программы; program <кандидат> — проверка целей
+- source: §e/t elections promise §7— команды редактирования своей программы
+  text: §e/t elections promise §7— команды редактирования своей программы
+- source: §e/t elections results §7— итоги; history — последние кампании
+  text: §e/t elections results §7— итоги; history — последние кампании
+- source: §c/elections start <город> §7— досрочный старт; reload — настройки
+  text: §c/elections start <город> §7— досрочный старт; reload — настройки
+- source: §c/elections resume <город> <UUID кампании> §7— применить сохранённые итоги после проверки
+  text: §c/elections resume <город> <UUID кампании> §7— применить сохранённые итоги после проверки
+- source: §c/elections abort <город> <UUID кампании> §7— закрыть кампанию, сохранив текущую власть
+  text: §c/elections abort <город> <UUID кампании> §7— закрыть кампанию, сохранив текущую власть
+- source: §aИзменение сохранено.
+  text: §aИзменение сохранено.
+- source: §7Сохраняем программу…
+  text: §7Сохраняем программу…
+- source: §aКандидатура сохранена.
+  text: §aКандидатура сохранена.
+- source: §aКандидатура снята.
+  text: §aКандидатура снята.
+- source: §aГолос сохранён. Повторное голосование заменяет предыдущий выбор.
+  text: §aГолос сохранён. Повторное голосование заменяет предыдущий выбор.
+- source: §7Подсчёт ещё не проводился.
+  text: §7Подсчёт ещё не проводился.
+- source: §7История пока пуста.
+  text: §7История пока пуста.
+- source: §aГолос сохранён.
+  text: §aГолос сохранён.

@@ -4,11 +4,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.ServicePriority;
 import com.palmergames.bukkit.towny.TownyCommandAddonAPI;
 public final class NeverLandTownyMarket extends JavaPlugin {
-    private MarketService service;private MarketMenus menus;private boolean registered;
+    private MarketService service;private MarketMenus menus;private MarketMessages messages;private boolean registered;
+    public MarketMessages messages(){return messages;}
     @Override public void onEnable(){
         if (!ru.neverland.core.ModuleLifecycle.begin(this)) return;
 saveDefaultConfig();if(!getDataFolder().toPath().resolve("catalog.yml").toFile().exists())saveResource("catalog.yml",false);
-        service=new MarketService(this);ru.neverland.core.ModuleShutdown.register(this,service::prepareClose);menus=new MarketMenus(this,service);var commands=new MarketCommands(this,service,menus);
+        messages=new MarketMessages(this);service=new MarketService(this);ru.neverland.core.ModuleShutdown.register(this,service::prepareClose);menus=new MarketMenus(this,service,messages);var commands=new MarketCommands(this,service,menus);
         getServer().getPluginManager().registerEvents(menus,this);var command=getCommand("townymarket");if(command!=null){command.setExecutor(commands);command.setTabCompleter(commands);}
         if(!(registered=TownyCommandAddonAPI.addSubCommand(TownyCommandAddonAPI.CommandType.TOWN,"market",commands)))getLogger().severe("Подкоманда /t market занята; используйте /townymarket");
         getServer().getServicesManager().register(MarketApi.class,new MarketApi(service),this,ServicePriority.Normal);service.start();

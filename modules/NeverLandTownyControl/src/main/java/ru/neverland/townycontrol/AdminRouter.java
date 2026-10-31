@@ -45,7 +45,7 @@ final class AdminRouter implements TabExecutor {
         if(e.activities())sender.sendMessage("§f/nltadmin "+name+" list | status|pause|resume|restart|cancel <ID> | extend <минуты> <ID> §7— list показывает поддерживаемые действия");
     }
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
-        if(!allowed(sender)){sender.sendMessage("§cНет прав.");return true;}
+        if(!allowed(sender)){sender.sendMessage(ru.neverland.core.EditableMessages.text(AdminRouter.class, "§cНет прав."));return true;}
         try {
             if(args.length>0&&args[0].equalsIgnoreCase("towns")){
                 if(args.length==1&&sender instanceof org.bukkit.entity.Player p)menu.towns(p,1);
@@ -56,7 +56,7 @@ final class AdminRouter implements TabExecutor {
                 if(args.length==1&&args[0].equalsIgnoreCase("logs"))menu.logs(player);else menu.home(player);return true;
             }
             if(args.length==0||args.length==1&&args[0].equalsIgnoreCase("list")) {
-                sender.sendMessage("§bАддоны — /nltadmin <модуль> для команд:");
+                sender.sendMessage(ru.neverland.core.EditableMessages.text(AdminRouter.class, "§bАддоны — /nltadmin <модуль> для команд:"));
                 for(var e:entries.values())sender.sendMessage("§f"+e.module().substring("NeverLandTowny".length())+" §7| /"+e.command()+(e.activities()?" | управление задачами":" | штатное управление")+" | module disable/enable");
                 return true;
             }

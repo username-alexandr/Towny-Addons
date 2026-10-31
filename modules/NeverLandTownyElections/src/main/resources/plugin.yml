@@ -1,5 +1,5 @@
 name: NeverLandTownyElections
-version: 0.2.0
+version: 0.2.1
 main: ru.neverland.townyelections.NeverLandTownyElections
 folia-supported: true
 api-version: '26.2'

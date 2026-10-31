@@ -88,15 +88,15 @@ final class TownDeletionService implements Listener,TabExecutor {
         var offer=new Offer(UUID.randomUUID(),town.getUUID(),actor(sender),mode,fingerprint(town),System.currentTimeMillis()+60000);offers.put(actor(sender),offer);
         sender.sendMessage("§6Удалить город «"+town.getName()+"»?");
         if(mode==Mode.FULL){
-            sender.sendMessage("§cТерритория вернётся к виду, который был до того, как её занял город.");
-            sender.sendMessage("§cДома, фермы и другие постройки, появившиеся здесь позже, могут исчезнуть.");
+            sender.sendMessage(ru.neverland.core.EditableMessages.text(TownDeletionService.class, "§cТерритория вернётся к виду, который был до того, как её занял город."));
+            sender.sendMessage(ru.neverland.core.EditableMessages.text(TownDeletionService.class, "§cДома, фермы и другие постройки, появившиеся здесь позже, могут исчезнуть."));
         }else{
-            sender.sendMessage("§aОбычные базы и ландшафт останутся. Будут разобраны только городские здания из списка ниже.");
+            sender.sendMessage(ru.neverland.core.EditableMessages.text(TownDeletionService.class, "§aОбычные базы и ландшафт останутся. Будут разобраны только городские здания из списка ниже."));
             sender.sendMessage("§eЗдания: "+(names.isEmpty()?"список пуст — все постройки останутся":String.join(", ",names)));
         }
-        sender.sendMessage("§eСундуки и вещи в них останутся на месте.");
-        if(TownySettings.getTownRuinsEnabled())sender.sendMessage("§eСначала город станет руинами. Территория изменится после его окончательного удаления.");
-        sender.sendMessage("§7Нажмите кнопку ниже. На подтверждение — одна минута.");
+        sender.sendMessage(ru.neverland.core.EditableMessages.text(TownDeletionService.class, "§eСундуки и вещи в них останутся на месте."));
+        if(TownySettings.getTownRuinsEnabled())sender.sendMessage(ru.neverland.core.EditableMessages.text(TownDeletionService.class, "§eСначала город станет руинами. Территория изменится после его окончательного удаления."));
+        sender.sendMessage(ru.neverland.core.EditableMessages.text(TownDeletionService.class, "§7Нажмите кнопку ниже. На подтверждение — одна минута."));
         sender.sendMessage(Component.text("[Да, удалить город]",NamedTextColor.RED).clickEvent(ClickEvent.runCommand("/nltdelete confirm "+offer.token()))
             .append(Component.text("   [Отмена]",NamedTextColor.GREEN).clickEvent(ClickEvent.runCommand("/nltdelete cancel"))));
         if(!(sender instanceof Player))sender.sendMessage("§7Подтвердить командой: /nltdelete confirm "+offer.token());
@@ -118,7 +118,7 @@ final class TownDeletionService implements Listener,TabExecutor {
         Job job=new Job();job.id=UUID.randomUUID();job.town=town.getUUID();job.name=town.getName();job.actor=actor(sender);job.mode=offer.mode().name();job.fingerprint=offer.fingerprint();job.directory=root.resolve(job.id.toString());
         var claims=List.copyOf(town.getTownBlocks());job.plots=claims.stream().map(TerrainProtection::plot).toList();
         if(jobs.values().stream().anyMatch(j->j.town.equals(job.town)&&j.reserves()))throw new IllegalStateException("Удаление уже готовится");
-        save(job);jobs.put(job.id,job);sender.sendMessage("§eПроверяем территорию перед удалением. Пожалуйста, подождите.");
+        save(job);jobs.put(job.id,job);sender.sendMessage(ru.neverland.core.EditableMessages.text(TownDeletionService.class, "§eПроверяем территорию перед удалением. Пожалуйста, подождите."));
         prepare(job,sender,claims,blocks,0);
     }
     private void prepare(Job job,CommandSender sender,List<TownBlock> claims,List<ListedBlock> listed,int index){
@@ -194,8 +194,8 @@ final class TownDeletionService implements Listener,TabExecutor {
             finally{executing.remove(job.town);}
             var remaining=TownyAPI.getInstance().getTown(job.town);
             if(remaining==null){job.state="APPLYING";save(job);apply(job);sender.sendMessage(job.mode.equals("FULL")?"§aГород удалён. Возвращаем территорию к прежнему виду.":"§aГород удалён. Разбираем городские здания; обычные базы сохраняются.");}
-            else if(remaining.isRuined()){job.state="WAITING_DELETE";save(job);sender.sendMessage("§eГород стал руинами. Территория изменится после его окончательного удаления.");}
-            else {job.state="CANCELLED";save(job);sender.sendMessage("§eУдаление отменено. Город и постройки сохранены.");}
+            else if(remaining.isRuined()){job.state="WAITING_DELETE";save(job);sender.sendMessage(ru.neverland.core.EditableMessages.text(TownDeletionService.class, "§eГород стал руинами. Территория изменится после его окончательного удаления."));}
+            else {job.state="CANCELLED";save(job);sender.sendMessage(ru.neverland.core.EditableMessages.text(TownDeletionService.class, "§eУдаление отменено. Город и постройки сохранены."));}
             audit(job,"REQUESTED");
         }catch(Exception ex){boolean removed=TownyAPI.getInstance().getTown(job.town)==null;fail(job,ex.getMessage(),removed);tell(sender,sender instanceof Player?(removed?"§cГород удалён, но изменение территории остановлено. Обратитесь к администрации.":"§cУдаление остановлено. Город и постройки сохранены. Обратитесь к администрации."):"§cУдаление остановлено: "+ex.getMessage());}
     }
@@ -294,10 +294,10 @@ final class TownDeletionService implements Listener,TabExecutor {
         try{
             if(args.length==1&&args[0].equalsIgnoreCase("cancel")){var removed=offers.remove(actor(sender));sender.sendMessage(removed!=null?"§aУдаление отменено. Город сохранён.":"§eНет удаления, которое можно отменить этой кнопкой. Посмотреть состояние: /nltdelete status");return true;}
             if(args.length==2&&args[0].equalsIgnoreCase("confirm")){confirm(sender,UUID.fromString(args[1]));return true;}
-            if(args.length==1&&args[0].equalsIgnoreCase("status")){boolean found=false;for(var j:jobs.values())if(administrator(sender)||j.actor.equals(actor(sender))){found=true;sender.sendMessage(administrator(sender)?"§e"+j.name+" §f"+j.state+"; изменено="+j.changed+", пропущено="+j.skipped+"; "+j.id+(j.error.isEmpty()?"":"; "+j.error):"§e"+j.name+" §f"+playerStatus(j));}if(!found)sender.sendMessage("§eВы ещё не запускали удаление города.");return true;}
+            if(args.length==1&&args[0].equalsIgnoreCase("status")){boolean found=false;for(var j:jobs.values())if(administrator(sender)||j.actor.equals(actor(sender))){found=true;sender.sendMessage(administrator(sender)?"§e"+j.name+" §f"+j.state+"; изменено="+j.changed+", пропущено="+j.skipped+"; "+j.id+(j.error.isEmpty()?"":"; "+j.error):"§e"+j.name+" §f"+playerStatus(j));}if(!found)sender.sendMessage(ru.neverland.core.EditableMessages.text(TownDeletionService.class, "§eВы ещё не запускали удаление города."));return true;}
             if(args.length==2&&Set.of("resume","abandon").contains(args[0].toLowerCase(Locale.ROOT))){
                 if(!administrator(sender))throw new IllegalArgumentException("Нет права "+PERMISSION);Job j=jobs.get(UUID.fromString(args[1]));if(j==null||!j.state.equals("REVIEW"))throw new IllegalArgumentException("Операция не ожидает сверки");
-                if(args[0].equalsIgnoreCase("abandon")){j.state="CANCELLED";save(j);audit(j,"ABANDONED");sender.sendMessage("§eОставшиеся изменения отменены. Уже применённые изменения не обращены.");}
+                if(args[0].equalsIgnoreCase("abandon")){j.state="CANCELLED";save(j);audit(j,"ABANDONED");sender.sendMessage(ru.neverland.core.EditableMessages.text(TownDeletionService.class, "§eОставшиеся изменения отменены. Уже применённые изменения не обращены."));}
                 else {if(TownyAPI.getInstance().getTown(j.town)!=null)throw new IllegalStateException("Город существует; продолжение запрещено");if(j.hashes.size()!=j.plots.size())throw new IllegalStateException("План неполный");j.state="APPLYING";j.error="";save(j);apply(j);}return true;
             }
             if(args.length==2&&Set.of("full","registered").contains(args[1].toLowerCase(Locale.ROOT))){if(!administrator(sender))throw new IllegalArgumentException("Нет права "+PERMISSION);request(sender,named(args[0]),Mode.valueOf(args[1].toUpperCase(Locale.ROOT)));return true;}

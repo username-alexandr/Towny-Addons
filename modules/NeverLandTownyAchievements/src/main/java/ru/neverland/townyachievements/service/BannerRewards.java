@@ -37,6 +37,6 @@ public final class BannerRewards {
         item.setItemMeta(meta); player.getInventory().setItemInMainHand(item);
         AuditTrail.record(plugin, "banner", UUID.randomUUID().toString(), "ACHIEVEMENT_REWARD", "COMPLETED", AuditTrail.player(player.getUniqueId()),
                 AuditTrail.town(town.getUUID()), AuditTrail.player(player.getUniqueId()), id, 1, "", "Нанесён памятный узор на белое знамя");
-        player.sendMessage("§aГородской узор нанесён на знамя.");
+        player.sendMessage(ru.neverland.core.EditableMessages.text(BannerRewards.class, "§aГородской узор нанесён на знамя."));
     } }
 }

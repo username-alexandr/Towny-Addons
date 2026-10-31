@@ -57,7 +57,7 @@ public final class AchievementMenu implements Listener {
         button(v, 43, "CHEST", "Открытые награды", List.of("Титулы, частицы и знамёна", "Титул города: " + (service.title(v.town).isEmpty() ? "не выбран" : service.title(v.town))), () -> rewards(p));
         if (page > 0) button(v, 45, "ARROW", "Предыдущая страница", List.of(), () -> list(p, rewards, track, page - 1));
         button(v, 49, "COMPASS", "Обновить", List.of("Страница " + (page + 1) + "/" + Math.max(1, (entries.size() + 35) / 36), "Снижение показателей не отнимает награды"), () -> list(p, rewards, track, page));
-        button(v, 51, "BARRIER", "Отключить свои частицы", List.of("Открытая косметика сохраняется"), () -> { service.selectCosmetic(p, "none"); p.sendMessage("§aЧастицы отключены."); });
+        button(v, 51, "BARRIER", "Отключить свои частицы", List.of("Открытая косметика сохраняется"), () -> { service.selectCosmetic(p, "none"); p.sendMessage(ru.neverland.core.EditableMessages.text(AchievementMenu.class, "§aЧастицы отключены.")); });
         if ((page + 1) * 36 < entries.size()) button(v, 53, "ARROW", "Следующая страница", List.of(), () -> list(p, rewards, track, page + 1));
         p.openInventory(v.inventory);
     }
@@ -85,7 +85,7 @@ public final class AchievementMenu implements Listener {
         button(v, 13, "SPYGLASS", "Условия", conditions, null);
         String lock = progress.earned() ? "§aДоступно" : "§cСначала откройте достижение";
         button(v, 28, "NAME_TAG", "Титул: " + a.reward().title(), List.of(lock, "Один выбранный титул на весь город", "Выбирает мэр или уполномоченный"), progress.earned() ? () -> { service.selectTitle(p, id); achievement(p, id); } : null);
-        if (!a.reward().cosmetic().isEmpty()) button(v, 30, "FIREWORK_STAR", "Личный эффект частиц", List.of(lock, "Доступен жителям этого города", "Виден вам; включается по желанию"), progress.earned() ? () -> { service.selectCosmetic(p, id); p.sendMessage("§aЭффект включён."); } : null);
+        if (!a.reward().cosmetic().isEmpty()) button(v, 30, "FIREWORK_STAR", "Личный эффект частиц", List.of(lock, "Доступен жителям этого города", "Виден вам; включается по желанию"), progress.earned() ? () -> { service.selectCosmetic(p, id); p.sendMessage(ru.neverland.core.EditableMessages.text(AchievementMenu.class, "§aЭффект включён.")); } : null);
         if (!a.reward().banner().isEmpty()) button(v, 32, "WHITE_BANNER", "Памятное знамя", List.of(lock, "В основной руке: одно чистое белое знамя", "Нажмите, чтобы нанести городской узор", "Копии разрешены, предмет не даёт бонусов"), progress.earned() ? () -> BannerRewards.apply(plugin, service, p, id) : null);
         if (a.reward().happiness() > 0) button(v, 34, "SUNFLOWER", "Бонус довольства", List.of(lock, "+" + a.reward().happiness() + " к довольству Population", "Применяется автоматически после открытия"), null);
         button(v, 45, "ARROW", "К достижениям", List.of(), () -> home(p));

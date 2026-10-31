@@ -396,8 +396,8 @@ public final class MenuManager implements Listener {
     private void handleUpgrade(Player player, ProjectDefinition project, int page, ProjectCategory category) {
         UpgradeResult result = builds.upgrade(player, project);
         switch (result.status()) {
-            case PAYMENT_PENDING -> {player.sendMessage("§eОплата и выбранное место сохраняются. Дождитесь подтверждения; повторно нажимать не нужно.");player.closeInventory();}
-            case PAYMENT_UNAVAILABLE -> player.sendMessage("§eОплата временно недоступна. Требуется работающая городская казна; обратитесь к администратору.");
+            case PAYMENT_PENDING -> {messages.send(player,"payment-pending");player.closeInventory();}
+            case PAYMENT_UNAVAILABLE -> messages.send(player,"payment-unavailable");
             case SUCCESS -> {
                 messages.send(player, "upgrade-success", Map.of("project", project.name(), "level", result.newLevel()));
                 openDetails(player, project, page, category);
@@ -420,8 +420,9 @@ public final class MenuManager implements Listener {
             case NOT_MAYOR -> messages.send(player, "only-mayor-upgrade");
             case MAX_LEVEL -> messages.send(player, "max-level");
             case BUDGET_UNAVAILABLE -> player.sendMessage(ColorUtil.component("&cВ бюджете строительства недостаточно средств или казна недоступна. Откройте /t treasury."));
-            case NOT_ENOUGH_MONEY, ECONOMY_ERROR -> messages.send(player, "not-enough-money",
+            case NOT_ENOUGH_MONEY -> messages.send(player, "not-enough-money",
                     Map.of("amount", MONEY.format(result.requiredMoney())));
+            case ECONOMY_ERROR -> messages.send(player,"economy-error");
             case NOT_ENOUGH_RESOURCES -> messages.send(player, "not-enough-resources",
                     Map.of("resources", String.join(", ", result.missingResources())));
             case NOT_ENOUGH_ARTIFACTS -> messages.send(player, "not-enough-artifacts",

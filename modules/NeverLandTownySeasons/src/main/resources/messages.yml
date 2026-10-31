@@ -1,0 +1,18 @@
+# Сообщения этого аддона. Изменяйте только значения text; source оставляйте без изменений.
+# Цветовые коды и подстановки сохраняйте. Изменения действуют после перезапуска.
+overrides:
+- source: Настройки обновлены.
+  text: Настройки обновлены.
+- source: '&e/t seasons &f— календарь и экономика мира вашего города.'
+  text: '&e/t seasons &f— календарь и экономика мира вашего города.'
+- source: '&e/tseasons stock &f— запас города; &e/tseasons fair &f— ярмарка и история.'
+  text: '&e/tseasons stock &f— запас города; &e/tseasons fair &f— ярмарка и история.'
+- source: '&e/tseasons menu [мир] &f— посмотреть другой мир.'
+  text: '&e/tseasons menu [мир] &f— посмотреть другой мир.'
+- source: '&e/tseasons set <мир> <сезон> &f— зафиксировать сезон.'
+  text: '&e/tseasons set <мир> <сезон> &f— зафиксировать сезон.'
+- source: '&e/tseasons resume <мир> &f— вернуть календарь.'
+  text: '&e/tseasons resume <мир> &f— вернуть календарь.'
+- source: '&e/tseasons status &f— диагностика; &e/tseasons reload &f— настройки.'
+  text: '&e/tseasons status &f— диагностика; &e/tseasons reload &f— настройки.'
+message-prefix-SeasonCommand: '&6[Сезоны] &f'

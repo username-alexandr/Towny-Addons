@@ -18,6 +18,12 @@ public final class ModuleLifecycle {
                 plugin.getLogger().warning("Аддон отключён администратором; данные и задачи сохранены. /nltmodules enable "+plugin.getName()+", затем перезапуск сервера.");
                 plugin.getServer().getPluginManager().disablePlugin(plugin);return false;
             }
+            // Each addon owns its editable messages. Existing administrator changes are never overwritten.
+            try(var bundled=plugin.getResource("messages.yml")) {
+                if(bundled!=null&&!Files.exists(folder.resolve("messages.yml")))plugin.saveResource("messages.yml",false);
+            } catch(Exception translationError) {
+                plugin.getLogger().warning("Файл сообщений не создан; используются встроенные фразы: " + translationError.getMessage());
+            }
             if(entry!=null&&entry.pausedAt()>0) {
                 ModuleTimers.resume(folder,plugin.getName(),entry.pausedAt(),System.currentTimeMillis());
                 ModulePauseStore.resumed(control,plugin.getName(),entry.pausedAt());

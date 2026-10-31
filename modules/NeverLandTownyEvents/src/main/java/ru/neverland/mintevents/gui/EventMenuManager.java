@@ -37,7 +37,7 @@ import java.util.Map;
 public final class EventMenuManager implements Listener {
     private static final int[] CONTRIBUTION_SLOTS = {19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34};
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
-            .withLocale(new Locale("ru")).withZone(ZoneId.systemDefault());
+            .withLocale(new Locale("ru")).withZone(ZoneId.of("Europe/Moscow"));
 
     private final JavaPlugin plugin;
     private final TownyHook towny;
@@ -100,7 +100,7 @@ public final class EventMenuManager implements Listener {
         inventory.setItem(49, item(Material.BOOK, "&#65B8FFИстория событий", List.of("&7Показать последние результаты города.")));
         if(events.scenarios().current(town.getUUID()).isPresent())inventory.setItem(42,item(Material.COMPASS,"&bПлан действий",List.of("&7Этапы помощи и решение мэра.","&7Выбор не списывает деньги или предметы.","&eНажмите, чтобы посмотреть условия.")));
         int damaged = events.fires().damage(town.getUUID()).size();
-        inventory.setItem(45, item(Material.ANVIL, "&eРемонт после пожара", List.of(
+        inventory.setItem(45, item(Material.ANVIL, "&eРемонт после пожара", damaged == 0 ? List.of(messages.raw("repair-empty")) : List.of(
                 "&7Мест для восстановления: &f" + damaged,
                 "&7Почините или перестройте участок на свой вкус.", "&7Затем выберите его и нажмите «Ремонт завершён».",
                 "", "&eЛКМ — выбрать участок")));
@@ -137,8 +137,8 @@ public final class EventMenuManager implements Listener {
             inventory.setItem(slot++, item(icon, name, List.of(
                     entry.success() ? "&#55FF55Успешно завершено" : "&#FF5555Цель не выполнена",
                     "&7Прогресс: &f" + entry.progress() + "/" + entry.goal(),
-                    "&7Начало: &f" + DATE.format(Instant.ofEpochMilli(entry.startedAt())),
-                    "&7Завершение: &f" + DATE.format(Instant.ofEpochMilli(entry.endedAt())))));
+                    "&7Начало (МСК): &f" + DATE.format(Instant.ofEpochMilli(entry.startedAt())),
+                    "&7Завершение (МСК): &f" + DATE.format(Instant.ofEpochMilli(entry.endedAt())))));
             if (slot >= 45) break;
         }
         inventory.setItem(49, item(Material.ARROW, "&#FFFFFFНазад", List.of("&7Вернуться к событию.")));
@@ -162,7 +162,7 @@ public final class EventMenuManager implements Listener {
             if (slot == 49) open(player);
             return;
         }
-        if (slot == 45) { openRepairs(player, town); return; }
+        if (slot == 45) { if(events.fires().damage(town.getUUID()).isEmpty()) { messages.send(player,"repair-empty"); open(player); } else openRepairs(player, town); return; }
         if (slot == 42) { openScenario(player); return; }
         if (slot == 53) { player.closeInventory(); return; }
         if (slot == 49) {
@@ -213,9 +213,9 @@ public final class EventMenuManager implements Listener {
 
     private String buildingName(String id) {
         return switch (id) {
-            case "temple" -> "Священный Храм";
-            case "great_library" -> "Великая Библиотека";
-            case "agrarian_complex" -> "Аграрный Комплекс";
+            case "temple" -> "Священный храм";
+            case "great_library" -> "Великая библиотека";
+            case "agrarian_complex" -> "Аграрный комплекс";
             case "town_hall" -> "Ратуша";
             case "forge" -> "Кузница";
             case "barracks" -> "Казармы";

@@ -86,7 +86,7 @@ public final class MobFarmService implements Listener {
     private boolean audit(Player p,Confirmation c,String outcome){return AuditTrail.record(plugin,"MOB_FARM_"+outcome,c.operation().toString(),"MOB_FARM_ZONE",outcome,
         new AuditRecord.Party("PLAYER",p.getUniqueId().toString(),p.getName(),""),AuditRecord.Party.unknown(),AuditTrail.town(c.town()),"",0,"0",
         "world="+c.world()+"; plot="+c.x()+","+c.z()+"; mobs="+c.allow());}
-    public void show(Player p){requireEnabled();previews.put(p.getUniqueId(),System.currentTimeMillis()+30000);p.sendMessage("§6Оранжевые границы — мобы разрешены. §aЗелёные — защита включена. §7Показ рядом с вами на 30 секунд.");}
+    public void show(Player p){requireEnabled();previews.put(p.getUniqueId(),System.currentTimeMillis()+30000);p.sendMessage(ru.neverland.core.EditableMessages.text(MobFarmService.class, "§6Оранжевые границы — мобы разрешены. §aЗелёные — защита включена. §7Показ рядом с вами на 30 секунд."));}
     public void requireEnabled(){if(SuiteState.frozen(plugin.getName())||!enabled())throw new IllegalStateException("Управление зонами ферм временно отключено; настройки участков сохранены");}
     private void tick(){
         long now=System.currentTimeMillis();previews.entrySet().removeIf(e->e.getValue()<now||Bukkit.getPlayer(e.getKey())==null);

@@ -1,5 +1,5 @@
 name: NeverLandTownySpecialization
-version: 0.3.0
+version: 0.3.1
 main: ru.neverland.townyspecialization.NeverLandTownySpecialization
 folia-supported: true
 api-version: '26.2'

@@ -1,5 +1,5 @@
 name: NeverLandTownyQuests
-version: 0.3.0
+version: 0.3.1
 main: ru.neverland.townyquests.NeverLandTownyQuests
 folia-supported: true
 api-version: '26.2'

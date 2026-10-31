@@ -39,7 +39,7 @@ public final class AdminCommand implements CommandExecutor {
             give(sender, args[1]);
         } else {
             messages.send(sender, "reload-usage");
-            sender.sendMessage("§e/townystick review <ID плана> <результат сверки земли и платежа> — закрыть неизвестный результат без повторного списания или захвата.");
+            sender.sendMessage(ru.neverland.core.EditableMessages.text(AdminCommand.class, "§e/townystick review <ID плана> <результат сверки земли и платежа> — закрыть неизвестный результат без повторного списания или захвата."));
         }
         return true;
     } }

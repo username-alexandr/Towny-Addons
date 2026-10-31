@@ -10,7 +10,7 @@ public final class MarketCommands implements CommandExecutor,TabCompleter {
         if(service.personal.command(sender,args))return true;
         String action=args.length==0?"local":args[0].toLowerCase(Locale.ROOT);
         if(Set.of("reload","resolve","inspect","admin-close").contains(action)){if(!sender.hasPermission("neverlandtownymarket.admin")){MarketService.tell(sender,"&cНет права администратора рынка");return true;}
-            switch(action){case "reload"->{plugin.reloadConfig();service.reload();MarketService.tell(sender,service.available()?"Рынок перезагружен":"Рынок остановлен: проверьте журнал сервера");}
+            switch(action){case "reload"->{plugin.reloadConfig();plugin.messages().reload();service.reload();MarketService.tell(sender,service.available()?"Рынок перезагружен":"Рынок остановлен: проверьте журнал сервера");}
                 case "inspect"->{if(args.length!=2){MarketService.tell(sender,"/townymarket inspect <покупка>");return true;}var o=service.order(args[1]);if(o==null)throw new IllegalArgumentException("Покупка не найдена");MarketService.tell(sender,"Покупка: "+o.id()+"; предложение: "+o.lot());MarketService.tell(sender,"Продавец: "+o.seller()+"; покупатель: "+o.buyer()+"; сумма: "+money(o.total()));MarketService.tell(sender,MarketMenus.phase(o.phase())+"; выдача: "+service.bridge.receipt(o));var payment=service.repo.image().payments().get(o.id());if(payment!=null&&payment.terms()!=null)MarketService.tell(sender,"Квитанция казны: "+payment.terms().operation());}
                 case "resolve"->{if(args.length!=3){MarketService.tell(sender,"/townymarket resolve <полный UUID покупки> <debit-paid|debit-unpaid|credit-paid|credit-unpaid|claim-received|claim-unreceived>");return true;}service.respond(sender,service.resolve(UUID.fromString(args[1]),args[2]),v->MarketService.tell(sender,"Результат сверки сохранён"));}
                 case "admin-close"->{if(args.length!=2)throw new IllegalArgumentException("/townymarket admin-close <полный UUID предложения>");service.respond(sender,service.adminClose(UUID.fromString(args[1])),v->MarketService.tell(sender,"Снятие предложения сохранено; остаток возвращается на склад"));}
@@ -25,7 +25,7 @@ public final class MarketCommands implements CommandExecutor,TabCompleter {
             case "buy"->{if(args.length!=3){help(p);return true;}menus.confirm(p,service.quote(p,args[1],Integer.parseInt(args[2])));}
             case "show"->{if(args.length!=2){help(p);return true;}menus.detail(p,args[1]);}
             case "close"->{if(args.length!=2){help(p);return true;}menus.detail(p,args[1]);MarketService.tell(p,"Для снятия нажмите «Снять предложение» и подтвердите возврат");}
-            case "claim"->{if(args.length!=2){help(p);return true;}String result=service.claim(p,args[1]);MarketService.tell(p,result.equals("CLAIMED")?"Покупка получена":result.equals("MODE")?"Получение доступно в выживании и приключении":MarketPayments.stockNote(result));}
+            case "claim"->{if(args.length!=2){help(p);return true;}String result=service.claim(p,args[1]);MarketService.tell(p,result.equals("CLAIMED")?plugin.messages().text("purchase-claimed"):result.equals("MODE")?plugin.messages().text("purchase-mode"):MarketPayments.stockNote(result));}
             default->help(p);
         }
     }catch(NumberFormatException ex){MarketService.tell(sender,"&cКоличество и номер страницы должны быть целыми числами");}catch(Exception ex){MarketService.tell(sender,"&c"+(ex.getMessage()==null?"Не удалось выполнить действие":ex.getMessage()));}return true;} }

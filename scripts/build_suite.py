@@ -55,7 +55,8 @@ def main():
         'NeverLandTownyGovernance': ('ru.neverland.governance.service.GovernanceRepository','data.yml','towns'),
         'NeverLandTownyReputation': ('ru.neverland.reputation.service.ReputationRepository','data.yml','relations'),
         'NeverLandTownyEvents': ('ru.neverland.mintevents.service.EventRepository','events-data.yml','active'),
-        'NeverLandTownyIdeologies': ('ru.neverland.townyideologies.data.DataStore','towns.yml','towns'),
+        # Ideologies now uses AcknowledgedState.commit rather than dirty/revision/save.
+        # ReformsSmoke tests failed writes and corrupted files through that real commit API.
         'NeverLandTownyChronicles': ('ru.neverland.townychronicles.service.ChronicleRepository','chronicles.yml','towns'),
         'NeverLandTownyTaxes': ('ru.neverland.townytaxes.data.CivicRepository','data.yml','policies'),
         'NeverLandTownyEspionage': ('ru.neverland.mintespionage.service.EspionageRepository','data.yml','towns'),

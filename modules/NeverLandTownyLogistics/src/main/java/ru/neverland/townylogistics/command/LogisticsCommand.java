@@ -16,7 +16,7 @@ public final class LogisticsCommand implements CommandExecutor,TabCompleter {
     private final NeverLandTownyLogistics plugin;private final LogisticsService service;private LogisticsMenu menu;
     public LogisticsCommand(NeverLandTownyLogistics plugin,LogisticsService service){this.plugin=plugin;this.service=service;}
     public void menu(LogisticsMenu menu){ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {this.menu=menu;} }
-    public static void tell(CommandSender sender,String text){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {sender.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8[&aNeverLand &8• &fЛогистика&8] &r"+text));} }
+    public static void tell(CommandSender sender,String text){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {sender.sendMessage(ChatColor.translateAlternateColorCodes('&',ru.neverland.core.EditableMessages.decorate(LogisticsCommand.class,"&8[&aNeverLand &8• &fЛогистика&8] &r",text)));} }
     @Override public boolean onCommand(CommandSender sender,Command c,String label,String[] args){ try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyLogistics")){return true;}
         try{execute(sender,args);}catch(NumberFormatException ex){tell(sender,"&cОжидается целое число.");}catch(IllegalArgumentException|IllegalStateException ex){tell(sender,"&c"+(ex.getMessage()==null?"Проверьте аргументы команды":ex.getMessage()));}
         catch(IOException ex){plugin.getLogger().warning("Операция логистики не завершена: "+ex.getMessage());tell(sender,"&cОшибка доступа к данным. Груз остаётся в журнале; проверьте консоль.");}return true;

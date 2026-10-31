@@ -28,10 +28,10 @@ final class PersonalHistoryMenu implements Listener {
     PersonalHistoryMenu(NeverLandTownyControl plugin){
         this.plugin=plugin;Bukkit.getPluginManager().registerEvents(this,plugin);
         plugin.getCommand("nlthistory").setExecutor((sender,command,label,args)->{
-            if(!(sender instanceof Player player)){sender.sendMessage("История открывается игроком в игре.");return true;}
+            if(!(sender instanceof Player player)){sender.sendMessage(ru.neverland.core.EditableMessages.text(PersonalHistoryMenu.class, "История открывается игроком в игре."));return true;}
             try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()){
-                if(!player.hasPermission(PERMISSION)){player.sendMessage("§eПросмотр личной истории отключён для вашей группы. Обратитесь к администрации.");return true;}
-                if(args.length!=0){player.sendMessage("§e/nlthistory — открыть только свою историю операций.");return true;}
+                if(!player.hasPermission(PERMISSION)){player.sendMessage(ru.neverland.core.EditableMessages.text(PersonalHistoryMenu.class, "§eПросмотр личной истории отключён для вашей группы. Обратитесь к администрации."));return true;}
+                if(args.length!=0){player.sendMessage(ru.neverland.core.EditableMessages.text(PersonalHistoryMenu.class, "§e/nlthistory — открыть только свою историю операций."));return true;}
                 load(player,PersonalHistory.Category.ALL,1,MenuStyle.previousMenu(player));return true;
             }
         });
@@ -46,8 +46,8 @@ final class PersonalHistoryMenu implements Listener {
     }
     private void load(Player player,PersonalHistory.Category category,int page,Inventory previous){
         if(!player.hasPermission(PERMISSION)||!plugin.isEnabled())return;
-        long now=System.nanoTime();if(now-cooldown.getOrDefault(player.getUniqueId(),0L)<1_000_000_000L){player.sendMessage("§7Подождите немного перед обновлением истории.");return;}
-        if(!reading.tryAcquire()){player.sendMessage("§eИстория сейчас загружается у других игроков. Попробуйте чуть позже.");return;}
+        long now=System.nanoTime();if(now-cooldown.getOrDefault(player.getUniqueId(),0L)<1_000_000_000L){player.sendMessage(ru.neverland.core.EditableMessages.text(PersonalHistoryMenu.class, "§7Подождите немного перед обновлением истории."));return;}
+        if(!reading.tryAcquire()){player.sendMessage(ru.neverland.core.EditableMessages.text(PersonalHistoryMenu.class, "§eИстория сейчас загружается у других игроков. Попробуйте чуть позже."));return;}
         cooldown.put(player.getUniqueId(),now);int requested=Math.max(1,Math.min(page,100));
         var view=screen(player,category,requested,previous);view.inventory.setItem(22,item(Material.CLOCK,"Загружаем вашу историю",List.of("Можно закрыть окно: операции продолжат работать.")));player.openInventory(view.inventory);
         var owner=player.getUniqueId();var root=plugin.getDataFolder().toPath().getParent();

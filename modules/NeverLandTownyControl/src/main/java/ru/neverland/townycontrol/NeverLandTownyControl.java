@@ -26,7 +26,7 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
         catch (IllegalStateException ex) { getLogger().severe(ex.getMessage());getServer().getPluginManager().disablePlugin(this);return; }
         // Intentionally outside the ledger: diagnostics must never wait for the occupied lock.
         getCommand("nltlock").setExecutor((sender,command,label,args)->{
-            if(!AdminAccess.admin(sender)){sender.sendMessage("§cНет прав.");return true;}
+            if(!AdminAccess.admin(sender)){sender.sendMessage(ru.neverland.core.EditableMessages.text(NeverLandTownyControl.class, "§cНет прав."));return true;}
             for(String line:SuiteState.diagnostics())sender.sendMessage("§7"+line);
             return true;
         });
@@ -43,12 +43,12 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             var blocked=graph.closure(state.requests());
             ModulePauseStore.save(stateFile,ModulePauseStore.request(state,state.requests(),blocked,System.currentTimeMillis()));
             getCommand("nltoutbox").setExecutor((sender,command,label,args)->{try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()){
-                if(!AdminAccess.admin(sender)){sender.sendMessage("§cНет прав.");return true;}
-                try{if(args.length<1){sender.sendMessage("§f/nltoutbox <модуль> [UUID done|retry]");return true;}
+                if(!AdminAccess.admin(sender)){sender.sendMessage(ru.neverland.core.EditableMessages.text(NeverLandTownyControl.class, "§cНет прав."));return true;}
+                try{if(args.length<1){sender.sendMessage(ru.neverland.core.EditableMessages.text(NeverLandTownyControl.class, "§f/nltoutbox <модуль> [UUID done|retry]"));return true;}
                     Plugin target=Bukkit.getPluginManager().getPlugin(graph.resolve(args[0]));if(target==null)throw new IllegalArgumentException("Модуль не найден");
                     if(args.length==3)CommandOutbox.resolve(target,args[1],args[2].toLowerCase(java.util.Locale.ROOT));
                     for(var entry:CommandOutbox.entries(target))if(!entry.state().equals("DONE"))sender.sendMessage("§e"+entry.id()+" "+entry.state()+" §f"+entry.command());
-                    sender.sendMessage("§7Сверка завершена. retry повторяет внешнюю команду; используйте после проверки результата.");
+                    sender.sendMessage(ru.neverland.core.EditableMessages.text(NeverLandTownyControl.class, "§7Сверка завершена. retry повторяет внешнюю команду; используйте после проверки результата."));
                 }catch(Exception ex){sender.sendMessage("§c"+ex.getMessage());}return true;}});
             getCommand("nltmodules").setExecutor(this);getCommand("nltmodules").setTabCompleter(this);
             var router=new AdminRouter(this,graph);var audit=new AuditCommand(this);
@@ -71,17 +71,17 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
     }
     String auditStatus(){return bankAudit==null?"Банковский аудит не запущен":bankAudit.status();}
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] args) { try (var suiteGuard4 = ru.neverland.core.SuiteState.guard()) {
-        if(!AdminAccess.admin(sender)){sender.sendMessage("§cНет прав.");return true;}
+        if(!AdminAccess.admin(sender)){sender.sendMessage(ru.neverland.core.EditableMessages.text(NeverLandTownyControl.class, "§cНет прав."));return true;}
         try {
             if(graph==null)throw new IllegalStateException("Управление недоступно");
             var state=ModulePauseStore.load(stateFile);
             String action=args.length==0?"list":args[0].toLowerCase(Locale.ROOT);
             if(action.equals("list")&&args.length<=1) {
-                sender.sendMessage("§bАддоны — состояние:");
+                sender.sendMessage(ru.neverland.core.EditableMessages.text(NeverLandTownyControl.class, "§bАддоны — состояние:"));
                 graph.modules().stream().sorted().forEach(name->sender.sendMessage(describe(name,state)));return true;
             }
             if(args.length!=2||!Set.of("status","plan","disable","enable").contains(action)) {
-                sender.sendMessage("§f/nltmodules list | status <модуль> | plan <модуль> | disable <модуль|all> | enable <модуль|all>");return true;
+                sender.sendMessage(ru.neverland.core.EditableMessages.text(NeverLandTownyControl.class, "§f/nltmodules list | status <модуль> | plan <модуль> | disable <модуль|all> | enable <модуль|all>"));return true;
             }
             Set<String> selected=args[1].equalsIgnoreCase("all")?graph.modules():Set.of(graph.resolve(args[1]));
             if(action.equals("status")){selected.stream().sorted().forEach(n->sender.sendMessage(describe(n,state)));return true;}
@@ -94,9 +94,9 @@ public final class NeverLandTownyControl extends JavaPlugin implements CommandEx
             if(action.equals("disable")) {
                 stop(blocked);
                 sender.sendMessage("§eПриостановлены с зависимостями: §f"+shortNames(blocked));
-                sender.sendMessage("§7Завершаем сохранение; после подтверждения аддоны отключатся. Провалы за время паузы не начисляются.");
+                sender.sendMessage(ru.neverland.core.EditableMessages.text(NeverLandTownyControl.class, "§7Завершаем сохранение; после подтверждения аддоны отключатся. Провалы за время паузы не начисляются."));
             } else {
-                sender.sendMessage("§aЗапуск разрешён после полного перезапуска сервера.");
+                sender.sendMessage(ru.neverland.core.EditableMessages.text(NeverLandTownyControl.class, "§aЗапуск разрешён после полного перезапуска сервера."));
                 if(!blocked.isEmpty())sender.sendMessage("§eОстаются отключёнными: §f"+shortNames(blocked)+" §7(их зависимость ещё выключена)");
             }
             getLogger().warning(sender.getName()+": "+String.join(" ",args)+"; disabled="+shortNames(blocked));

@@ -10,7 +10,7 @@ import static ru.neverland.townyarmy.ArmyModel.*;
 public final class ArmyCommand implements CommandExecutor, TabCompleter {
     private final NeverLandTownyArmy plugin; private final ArmyService service; private final ArmyMenu menu;
     public ArmyCommand(NeverLandTownyArmy p, ArmyService s, ArmyMenu m) { plugin = p; service = s; menu = m; }
-    static void say(CommandSender s, String text) { s.sendMessage(MenuStyle.decode("&a[Армия] &f" + text)); }
+    static void say(CommandSender s, String text) { s.sendMessage(MenuStyle.decode(ru.neverland.core.EditableMessages.decorate(ArmyCommand.class,"&a[Армия] &f",text))); }
     static <T>void complete(NeverLandTownyArmy plugin,Player player,java.util.concurrent.CompletionStage<T> future,java.util.function.Consumer<T> success){
         say(player,"&7Изменение сохраняется…");future.whenComplete((value,error)->{if(!plugin.isEnabled()||ru.neverland.core.SuiteState.frozen(plugin.getName()))return;ru.neverland.core.SuiteScheduler.player(plugin,player,online->{if(error==null)success.accept(value);else{Throwable cause=error;while(cause.getCause()!=null)cause=cause.getCause();say(online,"&cИзменение не подтверждено: "+cause.getMessage());}});});
     }

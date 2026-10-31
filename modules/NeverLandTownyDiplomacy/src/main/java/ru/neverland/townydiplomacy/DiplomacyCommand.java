@@ -11,7 +11,7 @@ import static ru.neverland.townydiplomacy.Treaty.*;
 public final class DiplomacyCommand implements TabExecutor {
     private final NeverLandTownyDiplomacy plugin;private final DiplomacyService service;private final DiplomacyMenus menus;
     public DiplomacyCommand(NeverLandTownyDiplomacy plugin,DiplomacyService service,DiplomacyMenus menus) { this.plugin=plugin;this.service=service;this.menus=menus; }
-    public static void tell(CommandSender sender,String text) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&',"&aNeverLand &f• Дипломатия &7» &f"+text)); } }
+    public static void tell(CommandSender sender,String text) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) { sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&',ru.neverland.core.EditableMessages.decorate(DiplomacyCommand.class,"&aNeverLand &f• Дипломатия &7» &f",text))); } }
     @Override public boolean onCommand(CommandSender sender,Command command,String label,String[] original) { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyDiplomacy")){return true;}
         if(!sender.hasPermission("neverlandtownydiplomacy.use")){tell(sender,"&cНет права на просмотр дипломатии");return true;}
         try {
