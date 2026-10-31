@@ -22,6 +22,22 @@ public final class ApiContractProbe {
         }
         return out;
     }
+    static boolean compatibleRecord(String expected, Set<String> current) throws ClassNotFoundException {
+        if(!expected.startsWith("record ") || !expected.endsWith("]"))return false;
+        int bracket=expected.indexOf(" [");if(bracket<0)return false;
+        String name=expected.substring(7,bracket);
+        Class<?> record=Class.forName(name);if(!record.isRecord())return false;
+        RecordComponent[] parts=record.getRecordComponents();
+        for(int oldSize=0;oldSize<parts.length;oldSize++){
+            String prefix="record "+name+" ["+String.join(", ",Arrays.stream(parts).limit(oldSize).map(x->x.getName()+":"+x.getGenericType().getTypeName()).toList());
+            if(!expected.equals(prefix+"]"))continue;
+            String complete="record "+name+" ["+String.join(", ",Arrays.stream(parts).map(x->x.getName()+":"+x.getGenericType().getTypeName()).toList())+"]";
+            if(!current.contains(complete))return false;
+            try {record.getConstructor(Arrays.stream(parts).limit(oldSize).map(RecordComponent::getType).toArray(Class<?>[]::new));return true;}
+            catch(NoSuchMethodException missingOldConstructor) {return false;}
+        }
+        return false;
+    }
     public static void main(String[] args) throws Exception {
         boolean write=args.length>0 && args[0].equals("--write-baseline");
         Path baseline=args.length>1 && args[0].equals("--baseline")?Path.of(args[1]):null;
@@ -48,6 +64,7 @@ public final class ApiContractProbe {
                 if(baseline!=null) {
                     if(!prior.containsKey(name))throw new AssertionError("Missing published baseline for "+name);
                     Set<String> missing=new TreeSet<>(prior.get(name));missing.removeAll(current);
+                    missing.removeIf(signature->{try{return compatibleRecord(signature,current);}catch(ClassNotFoundException missingClass){return false;}});
                     if(!missing.isEmpty())throw new AssertionError(name+": incompatible v1 API: "+missing);
                 }
                 System.out.println("API CONTRACT PASS: "+name+" ("+current.size()+" signatures/capabilities)");
