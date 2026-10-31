@@ -5,6 +5,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.neverland.morstownstick.command.AdminCommand;
 import ru.neverland.morstownstick.command.StickCommand;
+import ru.neverland.morstownstick.gui.ClaimMapMenu;
 import ru.neverland.morstownstick.integration.TownyClaimAdapter;
 import ru.neverland.morstownstick.integration.TownyFacade;
 import ru.neverland.morstownstick.integration.TownCommandInterceptor;
@@ -25,6 +26,7 @@ public final class MORSTownStick extends JavaPlugin {
     private BorderCache borders;
     private ParticleService particles;
     private ClaimService claims;
+    private ClaimMapMenu claimMap;
     private TownCommandInterceptor commandInterceptor;
 
     @Override
@@ -51,7 +53,8 @@ public final class MORSTownStick extends JavaPlugin {
         ru.neverland.core.ModuleShutdown.register(this,claims::prepareClose);
         particles = new ParticleService(this, selections, towny, borders);
 
-        StickCommand stickCommand = new StickCommand(towny, sticks, selections, messages, claims);
+        claimMap = new ClaimMapMenu(this, towny, claims);
+        StickCommand stickCommand = new StickCommand(towny, sticks, selections, messages, claims, claimMap);
         if (!towny.registerStickCommand(stickCommand)) {
             getLogger().severe("Не удалось зарегистрировать /t stick: команда уже занята другим аддоном.");
             getServer().getPluginManager().disablePlugin(this);
@@ -62,6 +65,7 @@ public final class MORSTownStick extends JavaPlugin {
         admin.setExecutor(new AdminCommand(this, messages, sticks));
 
         PluginManager manager = getServer().getPluginManager();
+        manager.registerEvents(claimMap, this);
         manager.registerEvents(new StickListener(this, towny, sticks, selections, claims, messages), this);
         commandInterceptor = new TownCommandInterceptor(this, selections, claims, stickCommand);
         if (!commandInterceptor.install()) {
@@ -87,6 +91,7 @@ public final class MORSTownStick extends JavaPlugin {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (commandInterceptor != null) commandInterceptor.uninstall();
+        if (claimMap != null) claimMap.stop();
         if (particles != null) particles.stop();
         if (claims != null) claims.shutdown();
         if (selections != null) selections.clearAll();

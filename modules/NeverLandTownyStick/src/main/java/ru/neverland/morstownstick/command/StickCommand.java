@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import ru.neverland.morstownstick.integration.TownyFacade;
+import ru.neverland.morstownstick.gui.ClaimMapMenu;
 import ru.neverland.morstownstick.model.CellKey;
 import ru.neverland.morstownstick.service.ClaimService;
 import ru.neverland.morstownstick.service.MessageService;
@@ -21,14 +22,16 @@ public final class StickCommand implements CommandExecutor {
     private final SelectionService selections;
     private final MessageService messages;
     private final ClaimService claims;
+    private final ClaimMapMenu map;
 
     public StickCommand(TownyFacade towny, StickService sticks, SelectionService selections,
-                        MessageService messages, ClaimService claims) {
+                        MessageService messages, ClaimService claims, ClaimMapMenu map) {
         this.towny = towny;
         this.sticks = sticks;
         this.selections = selections;
         this.messages = messages;
         this.claims = claims;
+        this.map = map;
     }
 
     @Override
@@ -42,6 +45,7 @@ public final class StickCommand implements CommandExecutor {
             case "give" -> give(player);
             case "list" -> list(player);
             case "clear" -> clear(player);
+            case "map" -> { try { map.open(player); } catch (RuntimeException error) { player.sendMessage("§c"+error.getMessage()); } yield true; }
             case "claim", "plan", "plans", "show", "approve", "execute", "revise", "cancel" -> { claims.command(player,args); yield true; }
             case "help", "?" -> help(player);
             default -> help(player);
@@ -92,7 +96,7 @@ public final class StickCommand implements CommandExecutor {
 
     private boolean help(Player player) {
         if (!player.hasPermission("morstownstick.stick")) messages.send(player, "no-permission");
-        else {messages.sendList(player, "help");player.sendMessage(ru.neverland.core.EditableMessages.text(StickCommand.class, "§aПланы расширения: §f/t stick plan §7— сохранить выбранные участки; §f/t stick plans §7— список. Согласование и запуск доступны мэру по ID и версии плана."));}
+        else {messages.sendList(player, "help");player.sendMessage(ru.neverland.core.EditableMessages.text(StickCommand.class, "§aПланы расширения: §f/t stick map §7— карта участков для мэра на своей территории; §f/t stick plan §7— сохранить выбранные палкой участки; §f/t stick plans §7— список."));}
         return true;
     }
 
