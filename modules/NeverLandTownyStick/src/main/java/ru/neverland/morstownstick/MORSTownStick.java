@@ -26,6 +26,7 @@ public final class MORSTownStick extends JavaPlugin {
     private BorderCache borders;
     private ParticleService particles;
     private ClaimService claims;
+    private ClaimMapMenu claimMap;
     private TownCommandInterceptor commandInterceptor;
 
     @Override
@@ -52,7 +53,7 @@ public final class MORSTownStick extends JavaPlugin {
         ru.neverland.core.ModuleShutdown.register(this,claims::prepareClose);
         particles = new ParticleService(this, selections, towny, borders);
 
-        ClaimMapMenu claimMap = new ClaimMapMenu(this, towny, claims);
+        claimMap = new ClaimMapMenu(this, towny, claims);
         StickCommand stickCommand = new StickCommand(towny, sticks, selections, messages, claims, claimMap);
         if (!towny.registerStickCommand(stickCommand)) {
             getLogger().severe("Не удалось зарегистрировать /t stick: команда уже занята другим аддоном.");
@@ -90,6 +91,7 @@ public final class MORSTownStick extends JavaPlugin {
         if (!ru.neverland.core.ModuleLifecycle.end(this)) return;
 
         if (commandInterceptor != null) commandInterceptor.uninstall();
+        if (claimMap != null) claimMap.stop();
         if (particles != null) particles.stop();
         if (claims != null) claims.shutdown();
         if (selections != null) selections.clearAll();
