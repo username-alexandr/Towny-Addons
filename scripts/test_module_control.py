@@ -56,7 +56,7 @@ class LifecycleGuardTest(unittest.TestCase):
                 found=next_set
         self.assertEqual(closure('NeverLandTownyQuests'),{'NeverLandTownyQuests'})
         self.assertGreater(len(closure('NeverLandTownyBuilds')),1)
-        self.assertEqual(module_control.ISOLATED_EDGES,{('NeverLandTownyPolicies','NeverLandTownyQuests'),('NeverLandTownySeasons','NeverLandTownySpecialization'),('NeverLandTownySpecialization','NeverLandTownySeasons'),('NeverLandTownyResearch','NeverLandTownyTreasuryPlus')})
+        self.assertEqual(module_control.ISOLATED_EDGES,{('NeverLandTownyPolicies','NeverLandTownyQuests'),('NeverLandTownySeasons','NeverLandTownySpecialization'),('NeverLandTownySpecialization','NeverLandTownySeasons'),('NeverLandTownyResearch','NeverLandTownyTreasuryPlus'),('NeverLandTownyStick','NeverLandTownyCouncil')})
         self.assertNotIn('NeverLandTownySeasons',graph['NeverLandTownySpecialization'])
         self.assertNotIn('NeverLandTownyTreasuryPlus',graph['NeverLandTownyResearch'])
         self.assertNotIn('NeverLandTownySeasons',closure('NeverLandTownySpecialization'))

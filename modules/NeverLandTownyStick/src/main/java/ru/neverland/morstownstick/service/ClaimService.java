@@ -29,10 +29,15 @@ public final class ClaimService {
     public void shutdown(){prepareClose();}
     public void awaitClosed(){repository.awaitClosed();}
     private void writable(){if(closing||!repository.ready()||repository.busy())throw new IllegalStateException("Планы загружаются, сохраняются или требуют проверки администратора");if(!active.isEmpty())throw new IllegalStateException("Дождитесь завершения текущего присоединения земли");if(!plugin.getConfig().getBoolean("claim.enabled",true))throw new IllegalStateException("Планы расширения временно отключены. Сохранённые планы не потеряны");}
+    public boolean canClaim(Player player,Town town){
+        if(town==null||town.getMayor()==null)return false;
+        if(town.getMayor().getUUID().equals(player.getUniqueId()))return true;
+        return towny.isMayorOrAssistant(player)&&CouncilAccess.check(player,town.getUUID(),"claim_land",false);
+    }
     private Town permitted(Player player,boolean mayor,int count){
         if(!player.hasPermission("morstownstick.claim"))throw new IllegalStateException("У вас нет права создавать и согласовывать планы расширения");
         Town town=towny.town(player);if(town==null)throw new IllegalStateException("Сначала вступите в город");
-        if(mayor?!town.getMayor().getUUID().equals(player.getUniqueId()):!towny.isMayorOrAssistant(player))throw new IllegalStateException(mayor?"Это действие доступно только действующему мэру":"Это действие доступно мэру и его заместителям");
+        if(mayor?!canClaim(player,town):!towny.isMayorOrAssistant(player))throw new IllegalStateException(mayor?"Расширять город может мэр или заместитель с выданным мэром правом в Совете":"Это действие доступно мэру и его заместителям");
         if(plugin.getConfig().getBoolean("claim.respect-towny-claim-permissions",true)&&(!player.hasPermission("towny.command.town.claim.town")||(count>1&&!player.hasPermission("towny.command.town.claim.town.multiple"))))throw new IllegalStateException("Towny не разрешает вам присоединять такое количество участков");
         return town;
     }
@@ -75,29 +80,29 @@ public final class ClaimService {
     private CompletionStage<ExpansionPlan> createSelected(Player player,Collection<CellKey> selected,boolean mayor)throws Exception{
         writable();Town town=permitted(player,mayor,selected.size());
         for(var p:repository.state().plans().values())if(p.town().equals(town.getUUID())&&p.open())throw new IllegalStateException("У города уже есть открытый план: "+p.id()+". Используйте /t stick show "+p.id());
-        var q=quote(player,town,selected);long now=System.currentTimeMillis();var plan=new ExpansionPlan(UUID.randomUUID(),town.getUUID(),player.getUniqueId(),q.mayor(),1,now,now,q.cells(),q.amount(),q.economy(),q.townSize(),ExpansionPlan.Status.DRAFT,null,List.of(),"Смета готова. Деньги не списаны; требуется согласование мэра");return save(player,plan);
+        var q=quote(player,town,selected);long now=System.currentTimeMillis();var plan=new ExpansionPlan(UUID.randomUUID(),town.getUUID(),player.getUniqueId(),q.mayor(),1,now,now,q.cells(),q.amount(),q.economy(),q.townSize(),ExpansionPlan.Status.DRAFT,null,List.of(),"Смета готова. Деньги не списаны; требуется согласование мэра или уполномоченного заместителя");return save(player,plan);
     }
     public CompletionStage<ExpansionPlan> revise(Player player,UUID id,int revision)throws Exception{try(var guard=SuiteState.guard()){
         writable();var old=own(player,id);old.requireRevision(revision);Town town=permitted(player,false,old.cells().size());if(old.status()!=ExpansionPlan.Status.DRAFT&&old.status()!=ExpansionPlan.Status.APPROVED)throw new IllegalStateException("Этот план нельзя изменять");if(!old.author().equals(player.getUniqueId())&&!town.getMayor().getUUID().equals(player.getUniqueId()))throw new IllegalStateException("Изменить план может его автор или мэр");
         var selected=selections.snapshot(player.getUniqueId());var q=quote(player,town,selected.isEmpty()?old.cells():selected);permitted(player,false,q.cells().size());var next=new ExpansionPlan(old.id(),old.town(),old.author(),q.mayor(),Math.addExact(old.revision(),1),old.created(),System.currentTimeMillis(),q.cells(),q.amount(),q.economy(),q.townSize(),ExpansionPlan.Status.DRAFT,null,List.of(),"Новая смета; прежнее согласование снято");return save(player,next);
     }}
     public CompletionStage<ExpansionPlan> approve(Player player,UUID id,int revision)throws Exception{try(var guard=SuiteState.guard()){
-        writable();var p=own(player,id);p.requireRevision(revision);recheck(player,p);return save(player,p.approve(player.getUniqueId(),revision,System.currentTimeMillis()));
+        writable();var p=own(player,id);p.requireRevision(revision);recheck(player,p);return save(player,p.approve(player.getUniqueId(),revision,System.currentTimeMillis(),true));
     }}
     public CompletionStage<ExpansionPlan> cancel(Player player,UUID id,int revision){try(var guard=SuiteState.guard()){
         writable();var p=own(player,id);p.requireRevision(revision);Town town=permitted(player,false,p.cells().size());if(!p.author().equals(player.getUniqueId())&&!town.getMayor().getUUID().equals(player.getUniqueId()))throw new IllegalStateException("Отменить план может его автор или мэр");return save(player,p.cancel(System.currentTimeMillis()));
     }}
     public CompletionStage<ExpansionPlan> execute(Player player,UUID id,int revision)throws Exception{try(var guard=SuiteState.guard()){
-        writable();var p=own(player,id);p.requireRevision(revision);recheck(player,p);var intent=p.intent(player.getUniqueId(),revision,System.currentTimeMillis());active.put(id,player.getUniqueId());
+        writable();var p=own(player,id);p.requireRevision(revision);recheck(player,p);var intent=p.intent(player.getUniqueId(),revision,System.currentTimeMillis(),true);active.put(id,player.getUniqueId());
         var committed=save(player,intent);committed.whenComplete((value,error)->{try(var locked=SuiteState.guard()){
             if(error!=null){active.remove(id);return;}if(closing)return;
-            SuiteScheduler.entityLater(plugin,player,()->launch(player,intent),()->observe(intent,null,"Мэр вышел до запуска. Требуется сверка; повтор запрещён"),1);
+            SuiteScheduler.entityLater(plugin,player,()->launch(player,intent),()->observe(intent,null,"Уполномоченный игрок вышел до запуска. Требуется сверка; повтор запрещён"),1);
         }});return committed;
     }}
     private void launch(Player player,ExpansionPlan intent){
         if(closing||!active.containsKey(intent.id()))return;
         try{
-            if(!player.isOnline())throw new IllegalStateException("Мэр вышел до запуска");
+            if(!player.isOnline())throw new IllegalStateException("Уполномоченный игрок вышел до запуска");
             if(!plugin.getConfig().getBoolean("claim.enabled",true))throw new IllegalStateException("Модуль присоединения отключён до запуска");
             recheck(player,intent);Town town=towny.town(player);
             var accepted=adapter.validateAndCharge(player,town,intent.cells().stream().map(CellKey::worldCoord).toList(),()->{try{recheck(player,intent);}catch(com.palmergames.bukkit.towny.exceptions.TownyException error){throw error;}catch(Exception error){throw new IllegalStateException(error.getMessage(),error);}});
@@ -133,11 +138,11 @@ public final class ClaimService {
         var p=own(player,id);tell(player,"План "+p.id()+" • версия "+p.revision()+" • "+label(p));tell(player,"Участков: "+p.cells().size()+". Оценка цены: "+AuditTrail.money(p.estimate())+(p.economy()?" монет из казны":" (экономика Towny выключена)"));
         tell(player,"Оплату выполняет Towny; смета не подтверждает списание. "+p.note());
         for(var c:p.cells())tell(player,c.world()+" ["+c.x()+", "+c.z()+"]");
-        if(p.status()==ExpansionPlan.Status.DRAFT)tell(player,"Мэр: /t stick approve "+id+" "+p.revision());
-        if(p.status()==ExpansionPlan.Status.APPROVED)tell(player,"Мэр: /t stick execute "+id+" "+p.revision());
+        if(p.status()==ExpansionPlan.Status.DRAFT)tell(player,"Мэр или заместитель с правом: /t stick approve "+id+" "+p.revision());
+        if(p.status()==ExpansionPlan.Status.APPROVED)tell(player,"Мэр или заместитель с правом: /t stick execute "+id+" "+p.revision());
         if(p.status()==ExpansionPlan.Status.DRAFT||p.status()==ExpansionPlan.Status.APPROVED){tell(player,"Обновить смету: /t stick revise "+id+" "+p.revision());tell(player,"Отменить без запуска: /t stick cancel "+id+" "+p.revision());}
     }}
-    private String label(ExpansionPlan p){return switch(p.status()){case DRAFT->"Ожидает согласования мэра";case APPROVED->"Согласовано; ещё не запущено";case INTENT->active.containsKey(p.id())?"Присоединение выполняется":"Нужна сверка администратора; повтор запрещён";case REVIEW->"Нужна сверка администратора";case OBSERVED->"Все участки присоединены; платеж проверяется отдельно";case CANCELLED->"Отменено до запуска";case RECONCILED->"Администратор завершил сверку";};}
+    private String label(ExpansionPlan p){return switch(p.status()){case DRAFT->"Ожидает согласования мэра или уполномоченного заместителя";case APPROVED->"Согласовано; ещё не запущено";case INTENT->active.containsKey(p.id())?"Присоединение выполняется":"Нужна сверка администратора; повтор запрещён";case REVIEW->"Нужна сверка администратора";case OBSERVED->"Все участки присоединены; платеж проверяется отдельно";case CANCELLED->"Отменено до запуска";case RECONCILED->"Администратор завершил сверку";};}
     private void reply(CommandSender sender,Runnable action){if(closing||sender==null||!plugin.isEnabled())return;SuiteScheduler.reply(plugin,sender,action);}
     private void tell(CommandSender sender,String value){sender.sendMessage("§a[Территории] §f"+value);}
     private static Throwable root(Throwable e){while(e.getCause()!=null)e=e.getCause();return e;}

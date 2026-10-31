@@ -1,5 +1,5 @@
 name: NeverLandTownyCouncil
-version: 0.3.1
+version: 0.3.2
 main: ru.neverland.townycouncil.NeverLandTownyCouncil
 folia-supported: true
 api-version: '26.2'
@@ -14,6 +14,9 @@ commands:
     description: Министры городского совета
     usage: /council [menu|access|appoint|dismiss|permissions|history|help|reload]
 permissions:
+  neverlandtownycouncil.action.claim_land:
+    description: Действие расширения города, выдаваемое мэром через права Council
+    default: false
   neverlandtownycouncil.use:
     default: true
   neverlandtownycouncil.manage:

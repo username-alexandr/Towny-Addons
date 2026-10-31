@@ -14,7 +14,14 @@ public final class ExpansionPlanSmoke {
         var done=i.result(d.cells(),"observed",1003);check(done.status()==ExpansionPlan.Status.OBSERVED&&!done.open(),"all ownership observed separately from payment");denied(()->done.intent(d.mayor(),1,1004));check(a.cancel(1003).status()==ExpansionPlan.Status.CANCELLED,"unlaunched approval cancellation safe");
         denied(()->new ExpansionPlan(d.id(),d.town(),d.author(),d.mayor(),1,1000,1001,Collections.nCopies(65,d.cells().get(0)),0,false,1,ExpansionPlan.Status.DRAFT,null,List.of(),""));
         denied(()->new ExpansionPlan(d.id(),d.town(),d.author(),d.mayor(),1,1000,1001,d.cells(),Double.NaN,false,1,ExpansionPlan.Status.DRAFT,null,List.of(),""));
-        denied(()->new ExpansionPlan(d.id(),d.town(),d.author(),d.mayor(),1,1000,1001,d.cells(),0,false,1,ExpansionPlan.Status.APPROVED,d.author(),List.of(),""));
+        denied(()->new ExpansionPlan(d.id(),d.town(),d.author(),d.mayor(),1,1000,1001,d.cells(),0,false,1,ExpansionPlan.Status.APPROVED,null,List.of(),""));
+        var deputy=new UUID(7,7);denied(()->d.approve(deputy,1,1001));
+        var delegated=d.approve(deputy,1,1001,true);check(delegated.approvedBy().equals(deputy),"deputy approval is recorded");
+        denied(()->delegated.intent(deputy,1,1002));
+        denied(()->a.intent(deputy,1,1002));check(a.intent(deputy,1,1002,true).approvedBy().equals(d.mayor()),"authorized deputy can execute the mayor's approval");
+        var launched=delegated.intent(d.mayor(),1,1002,true);check(launched.approvedBy().equals(deputy),"mayor can execute an approved plan without erasing the approver");
+        var delegatedImage=org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(new java.io.StringReader(ExpansionRepository.encode(new ExpansionRepository.Snapshot(Map.of(d.id(),delegated)))));
+        check(ExpansionRepository.decode(delegatedImage).plans().get(d.id()).approvedBy().equals(deputy),"delegate approval survives restart");
         var snapshot=new ExpansionRepository.Snapshot(Map.of(d.id(),d));var copy=org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(new java.io.StringReader(ExpansionRepository.encode(snapshot)));check(ExpansionRepository.decode(copy).equals(snapshot),"exact schema roundtrip");
         copy.set("plans."+d.id()+".economy",null);try{ExpansionRepository.decode(copy);throw new AssertionError("missing economic condition accepted");}catch(java.io.IOException expected){checks++;}
         var duplicate=new ExpansionPlan(new UUID(5,5),d.town(),d.author(),d.mayor(),1,1000,1000,d.cells(),25,true,1,ExpansionPlan.Status.DRAFT,null,List.of(),"");denied(()->snapshot.with(duplicate));

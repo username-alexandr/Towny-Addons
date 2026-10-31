@@ -49,7 +49,7 @@ public final class ClaimMapMenu implements Listener {
     private Town access(Player player){
         if(!player.hasPermission("morstownstick.claim"))throw new IllegalStateException("У вас нет права присоединять участки");
         Town town=towny.town(player);
-        if(town==null||town.getMayor()==null||!town.getMayor().getUUID().equals(player.getUniqueId()))throw new IllegalStateException("Карта присоединения доступна только мэру");
+        if(!claims.canClaim(player,town))throw new IllegalStateException("Карта доступна мэру и заместителю, которому мэр выдал право расширять город в Совете");
         if(!towny.isOwnedBy(towny.cell(player.getLocation().getBlock()),town))throw new IllegalStateException("Для присоединения земли находиться нужно на территории своего города");
         return town;
     }
