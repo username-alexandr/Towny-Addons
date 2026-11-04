@@ -5,6 +5,7 @@ on:
     paths:
       - 'modules/NeverLandTownyStick/**'
       - 'integrations/CraftoUI-0.9.15/**'
+      - 'integrations/CraftoUI-0.9.16/**'
       - '.github/workflows/build-stick-hotfix.yml'
   workflow_dispatch:
 

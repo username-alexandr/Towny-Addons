@@ -68,13 +68,14 @@ public final class ClaimMapMenu implements Listener {
         Town town=access(player);CellKey current=towny.cell(player.getLocation().getBlock());
         render(player,town,current.x(),current.z(),Set.of());
     }}
-    /** Opens a selected adjacent plot from the city map without relaxing any claim checks. */
+    /** Focuses a free plot; only a plot touching the city can be selected before the path is built. */
     public void open(Player player,CellKey selected){try(var guard=SuiteState.guard()){
         Town town=access(player);
         if(!selected.sameWorld(player.getWorld()))throw new IllegalStateException("Откройте карту в мире выбранного участка");
         if(!towny.isClaimableWorld(selected)||!towny.isWilderness(selected))throw new IllegalStateException("Этот участок уже занят или недоступен");
-        if(!BfsPlanner.plan(Set.of(selected),towny.ownedCells(town)).unreachable().isEmpty())throw new IllegalStateException("Участок должен граничить с городом стороной");
-        render(player,town,selected.x(),selected.z(),Set.of(selected));
+        Set<CellKey> initial=BfsPlanner.plan(Set.of(selected),towny.ownedCells(town)).unreachable().isEmpty()?Set.of(selected):Set.of();
+        if(initial.isEmpty())player.sendMessage("§eДля дальнего участка сначала выберите цепочку свободных участков от границы города");
+        render(player,town,selected.x(),selected.z(),initial);
     }}
     private void render(Player player,Town town,int centerX,int centerZ,Set<CellKey> selected){
         String world=player.getWorld().getName();var owned=towny.ownedCells(town);
