@@ -45,7 +45,12 @@ public final class StickCommand implements CommandExecutor {
             case "give" -> give(player);
             case "list" -> list(player);
             case "clear" -> clear(player);
-            case "map" -> { try { map.open(player); } catch (RuntimeException error) { player.sendMessage("§c"+error.getMessage()); } yield true; }
+            case "map" -> { try {
+                if(args.length==1)map.open(player);
+                else if(args.length==3)map.open(player,new CellKey(player.getWorld().getName(),Integer.parseInt(args[1]),Integer.parseInt(args[2])));
+                else throw new IllegalArgumentException("Использование: /t stick map [X Z]");
+            } catch (NumberFormatException error) { player.sendMessage("§cУкажите координаты участка целыми числами"); }
+              catch (RuntimeException error) { player.sendMessage("§c"+error.getMessage()); } yield true; }
             case "claim", "plan", "plans", "show", "approve", "execute", "revise", "cancel" -> { claims.command(player,args); yield true; }
             case "help", "?" -> help(player);
             default -> help(player);
