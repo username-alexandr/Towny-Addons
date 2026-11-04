@@ -53,12 +53,12 @@ public final class TownCommandInterceptor implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
                              @NotNull String label, @NotNull String[] args) { try (var suiteGuard3 = ru.neverland.core.SuiteState.guard()) {
         if (isStickCommand(args)) {
-            if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick"))return true;
+            if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){sender.sendMessage("§cРасширение города временно отключено администратором");return true;}
             return stickCommand.onCommand(sender, command, label + " stick", stickArguments(args));
         }
         if (sender instanceof Player player && isPlainClaim(args)
                 && selections.count(player.getUniqueId()) > 0) {
-            if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick"))return true;
+            if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){sender.sendMessage("§cРасширение города временно отключено администратором");return true;}
             claims.start(player);
             return true;
         }

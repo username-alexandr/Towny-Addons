@@ -1,0 +1,105 @@
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -1,7 +1,7 @@
+ org.gradle.jvmargs=-Xmx2G
+ org.gradle.parallel=false
+ org.gradle.workers.max=2
+-version=0.9.15
++version=0.9.16
+ client_version=0.9.17
+ minecraft_version=26.2
+ loader_version=0.19.4
+--- a/server/src/main/java/cc/crafto/ui/server/CivicWorkbench.java
++++ b/server/src/main/java/cc/crafto/ui/server/CivicWorkbench.java
+@@ -317,7 +317,7 @@
+         }
+     }
+     private void map(Player p,State s,TownyCivic.Context c,CivicView v)throws Exception{
+-        require(c.town()!=null,"Сначала вступите в город");v.title="Карта участков";v.lines.add("Ваш город — зелёный, другие — красный, свободные — серый. Выберите клетку. Управление доступно, когда вы стоите на выбранном участке.");
++        require(c.town()!=null,"Сначала вступите в город");v.title="Карта участков";v.lines.add("Стойте в своём городе. Выберите свободный участок: к дальнему участку можно провести цепочку свободной земли от границы города.");
+         int cx=c.x(),cz=c.z();if(!s.id.isEmpty()){String[] xy=s.id.split(",");cx=Integer.parseInt(xy[0]);cz=Integer.parseInt(xy[1]);}
+         JsonArray cells=new JsonArray();for(int z=cz-4;z<=cz+4;z++)for(int x=cx-4;x<=cx+4;x++){
+             Object plot=towny.plot(c,x,z),town=plot==null?null:call(plot,"getTownOrNull"),owner=plot==null?null:call(plot,"getResidentOrNull");
+@@ -327,6 +327,16 @@
+         v.map=object("cells",cells,"size",c.size(),"cx",cx,"cz",cz);
+         for(var offset:List.of(new int[]{0,-9},new int[]{-9,0},new int[]{9,0},new int[]{0,9}))v.rows.add(new Row(offset[0]<0?"← Запад":offset[0]>0?"Восток →":offset[1]<0?"↑ Север":"Юг ↓","",new Action("map-pan",(cx+offset[0])+","+(cz+offset[1]))));
+         v.rows.add(new Row("К моему участку","",new Action("map-pan","")));
++    }
++    private String claimPlanReason(Player p,TownyCivic.Context c)throws Exception{
++        if(c.town()==null)return "Сначала вступите в город";
++        if(towny.addon("NeverLandTownyStick")==null)return "Расширение города сейчас недоступно";
++        if(!has(p,"morstownstick.claim"))return "Нет разрешения присоединять участки";
++        Object here=towny.plot(c,c.x(),c.z());
++        Object owner=here==null?null:call(here,"getTownOrNull");
++        if(owner==null||!c.town().equals(call(owner,"getUUID")))return "Встаньте на территорию своего города";
++        if(c.remaining()==0)return "Город достиг лимита участков";
++        return "";
+     }
+     private void plot(Player p,State s,TownyCivic.Context c,CivicView v)throws Exception{
+         require(s.selectedWorld.equals(c.world().toString()),"Вы перешли в другой мир. Обновите карту.");
+@@ -335,7 +345,8 @@
+         boolean local=x==c.x()&&z==c.z(),ownTown=town!=null&&c.town()!=null&&call(town,"getUUID").equals(c.town());String far=local?"":"Подойдите к выбранному участку";
+         v.lines.add("Город: "+(town==null?"не занят":call(town,"getName"))+" · владелец: "+(owner==null?"город / отсутствует":call(owner,"getName")));
+         if(plot!=null)v.lines.add("Тип: "+call(plot,"getTypeName")+" · правила: "+call(plot,"getPermissions"));
+-        if(town==null)v.rows.add(new Row("Захватить для города","Сначала показать цену и последствия","",new Action("review-plot-claim",s.id,c.world().toString()),!far.isEmpty()?far:c.town()==null?"Сначала вступите в город":!has(p,"towny.command.town.claim")?"Нужно право захвата территории":c.remaining()==0?"Исчерпан лимит участков":""));
++        if(town==null){String reason=claimPlanReason(p,c);
++            v.rows.add(new Row("Открыть план расширения",reason.isEmpty()?"Выберите свободные участки цепочкой от границы города; цену покажем перед оплатой":reason,"",new Action("open-stick-map",s.id,c.world().toString()),reason));}
+         if(ownTown){
+             v.rows.add(new Row("Освободить территорию города","Предпросмотр возврата и изменений","",new Action("review-plot-unclaim",s.id,c.world().toString()),!far.isEmpty()?far:!has(p,"towny.command.town.unclaim")?"Нужно право освобождения территории":(boolean)call(plot,"isHomeBlock")?"Главный участок нельзя освободить здесь":""));
+             double price=((Number)call(plot,"getPlotPrice")).doubleValue();
+@@ -350,6 +361,17 @@
+             send.accept(object("op","review","request",s.request,"token",s.token,"confirmation",confirmation,"title",review.title(),"lines",review.lines(),"targetKey",review.targetKey(),"confirmLabel",action.kind().equals("review-order-accept")?"Да, принять заказ":"Подтвердить"));return;
+         }
+         switch(action.kind()){
++            case "open-stick-map" -> {
++                var c=towny.capture(p);
++                require(c.town()!=null&&action.extra().equals(c.world().toString()),"Город или мир изменился. Откройте карту заново");
++                require(action.id().matches("-?[0-9]{1,10},-?[0-9]{1,10}"),"Неверные координаты участка");
++                String[] xy=action.id().split(",",-1);int x,z;
++                try{x=Integer.parseInt(xy[0]);z=Integer.parseInt(xy[1]);}
++                catch(NumberFormatException e){throw new IllegalArgumentException("Неверные координаты участка",e);}
++                require(towny.plot(c,x,z)==null,"Участок уже занят. Обновите карту");
++                String reason=claimPlanReason(p,c);require(reason.isEmpty(),reason);
++                plugin.civicAnchor(p);dispatch(p,"Towny","town","stick map "+x+" "+z);return;
++            }
+             case "inspect-tree" -> {require(s.route.equals("tree")&&action.id().matches("(building|research|content|specialization):[a-z0-9_-]{1,64}"),"Узел дерева недоступен");s.id=action.id();}
+             case "clear-tree" -> {require(s.route.equals("tree"),"Дерево недоступно");s.id="";}
+             case "procurement-offers" -> navigate(s,"procurement-offers",action.id());
+--- a/README.md
++++ b/README.md
+@@ -1,4 +1,4 @@
+-# CraftoUI 0.9.17 (Fabric) + 0.9.15 (Folia)
++# CraftoUI 0.9.17 (Fabric) + 0.9.16 (Folia)
+ 
+ Город развивается на полноэкранном дереве зданий и исследований: колесо меняет масштаб, перетаскивание сдвигает холст, нажатие на узел показывает справа описание, зависимости и материалы. Сводка города и раздел развития направляют в дерево; смета остаётся отдельным вспомогательным инструментом. Видимые ветви зависят от фактически выполненных условий аддонов.
+ 
+@@ -6,4 +6,4 @@
+ 
+ Стартовые категории упрощены; подписи административных разделов показывают доступные игроку действия. Сервер обновляет только неизменённые стандартные конфигурации, сохраняя резервные копии. Права на действия и API сторонних аддонов остаются обязательными.
+ 
+-Minecraft 26.2, Java 25, Fabric Loader 0.19.4, Fabric API 0.161.0+26.2; для построек нужен NeverLandTownyBuilds 0.11.5, для выбора направления — NeverLandTownySpecialization 0.3.1. Исходники, Gradle Wrapper, примеры конфигураций и темы находятся в этом архиве. Установка и ограничения: [INSTALL.txt](INSTALL.txt), [изменения и проверки](docs/UPDATE-0.9.17.md), [протокол](docs/PROTOCOL.md).
++Minecraft 26.2, Java 25, Fabric Loader 0.19.4, Fabric API 0.161.0+26.2; для построек нужен NeverLandTownyBuilds 0.11.5, для выбора направления — NeverLandTownySpecialization 0.3.1. Для расширения из карты нужен NeverLandTownyStick 0.2.5. Исходники, Gradle Wrapper, примеры конфигураций и темы находятся в этом архиве. Установка и ограничения: [INSTALL.txt](INSTALL.txt), [изменения и проверки](docs/UPDATE-0.9.16-CLAIM-CHAIN.md), [протокол](docs/PROTOCOL.md).
+--- a/INSTALL.txt
++++ b/INSTALL.txt
+@@ -1,9 +1,10 @@
+-CraftoUI 0.9.17 (Fabric) + 0.9.15 (Folia)
++CraftoUI 0.9.17 (Fabric) + 0.9.16 (Folia)
+ 
+ 1. На сервере Folia 26.2 в Pterodactyl остановите процесс, удалите старый
+-   CraftoUI-Folia*.jar из plugins и загрузите jars/CraftoUI-Folia-26.2-0.9.15.jar.
++   CraftoUI-Folia*.jar из plugins и загрузите jars/CraftoUI-Folia-26.2-0.9.16.jar.
+    Сохраните plugins/CraftoUI и настройки аддонов. После запуска проверьте журнал
+-   загрузки. Изменённые вручную меню не перезаписываются; свежие шаблоны лежат
++   загрузки. Для цепочки участков установите NeverLandTownyStick 0.2.5.
++   Изменённые вручную меню не перезаписываются; свежие шаблоны лежат
+    в исходниках server/src/main/resources/menus. Копии заменяемых меню — в backups/0.9.17.
+ 2. В сборке Crafto Launcher (GML) для Minecraft 26.2 и Fabric Loader 0.19.4
+    удалите старый CraftoUI-Fabric*.jar из mods и добавьте
+@@ -14,5 +15,5 @@
+    при отсутствии API сервер использует штатное меню /orders.
+ 
+ Сторонние плагины, включая Towny/Builds/Contracts, должны быть установлены и
+-настроены независимо. Общая API-библиотека для разработки: jars/CraftoUI-API-0.9.15.jar.
+-Подробности: docs/UPDATE-0.9.17.md и docs/PROTOCOL.md.
++настроены независимо. Общая API-библиотека для разработки: jars/CraftoUI-API-0.9.16.jar.
++Подробности: docs/UPDATE-0.9.16-CLAIM-CHAIN.md и docs/PROTOCOL.md.

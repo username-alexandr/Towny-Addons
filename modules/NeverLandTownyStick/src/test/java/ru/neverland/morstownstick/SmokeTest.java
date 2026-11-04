@@ -18,6 +18,8 @@ public final class SmokeTest {
         BfsPlanner.Plan plan = BfsPlanner.plan(List.of(second, isolated, first), Set.of(town));
         if (!plan.ordered().equals(List.of(first, second))) throw new AssertionError("BFS order: " + plan.ordered());
         if (!plan.unreachable().equals(List.of(isolated))) throw new AssertionError("BFS unreachable");
+        if (BfsPlanner.plan(Set.of(second),Set.of(town)).unreachable().isEmpty())
+            throw new AssertionError("A remote cell must not be selected without a connecting path");
         if (BorderGeometry.outsideEdges(List.of(town, first), 16).size() != 6)
             throw new AssertionError("Shared town edge was not removed");
         if (BorderGeometry.individualEdges(List.of(town, first), 16).size() != 8)

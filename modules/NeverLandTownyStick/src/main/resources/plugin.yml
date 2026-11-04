@@ -1,5 +1,5 @@
 name: NeverLandTownyStick
-version: 0.2.3
+version: 0.2.5
 main: ru.neverland.morstownstick.MORSTownStick
 folia-supported: true
 api-version: '26.2'
