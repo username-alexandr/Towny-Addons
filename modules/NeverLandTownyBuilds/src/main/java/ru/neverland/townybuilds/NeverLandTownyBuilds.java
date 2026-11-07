@@ -67,6 +67,61 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
             construction.adminFinish(actor,town,project,receipt);
         }
     }
+    /** Catalog for test construction; one next level at a time keeps saved levels and benefits consistent. */
+    public java.util.List<java.util.Map<String,String>> uiAdminBuildingCatalog(java.util.UUID townId) {
+        try(var guard=ru.neverland.core.SuiteState.guard()) {
+            var town=com.palmergames.bukkit.towny.TownyAPI.getInstance().getTown(townId);
+            if(town==null)throw new IllegalArgumentException("Город больше не существует");
+            var state=dataStore.existingTown(townId);
+            var result=new java.util.ArrayList<java.util.Map<String,String>>();
+            for(var project:definitions.all()){
+                int next=(state==null?0:state.level(project.id()))+1;
+                if(next>project.maxLevel()||!construction.supports(project.id(),next))continue;
+                var site=state==null?null:state.constructionSite(project.id());
+                result.add(java.util.Map.of("project",project.id(),"title",ru.neverland.townybuilds.util.ColorUtil.plain(project.name()),
+                        "level",Integer.toString(next),"town",townId.toString(),"name",town.getName(),
+                        "site",site==null?"":site.worldId()+" "+site.originX()+","+site.originY()+","+site.originZ()));
+            }
+            result.sort(java.util.Comparator.comparing((java.util.Map<String,String> r)->r.get("title")));
+            return java.util.List.copyOf(result);
+        }
+    }
+    public void uiAdminCreateBuilding(org.bukkit.entity.Player actor,java.util.UUID townId,String projectId,int next,
+                                       org.bukkit.Location ground)throws Exception {
+        try(var guard=ru.neverland.core.SuiteState.guard()){
+            if(!actor.isOp()&&!actor.hasPermission("neverlandtownybuilds.admin"))throw new IllegalArgumentException("Нет права администратора построек");
+            if(!isEnabled()||!dataStore.writable()||!ru.neverland.core.SuiteScheduler.owns(actor))throw new IllegalStateException("Данные или область Folia сейчас недоступны");
+            var town=com.palmergames.bukkit.towny.TownyAPI.getInstance().getTown(townId);
+            var project=definitions.project(projectId);
+            if(town==null||project==null||!construction.supports(projectId,next))throw new IllegalArgumentException("Город или чертёж недоступен");
+            var state=dataStore.town(townId);
+            if(next!=state.level(projectId)+1||next>project.maxLevel())throw new IllegalArgumentException("Уровень здания изменился. Откройте каталог снова");
+            var existing=state.constructionSite(projectId);
+            if(payments.pending(townId,projectId)||existing!=null&&existing.active())
+                throw new IllegalStateException("Эта стройка уже начата или ожидает оплаты");
+            ru.neverland.townybuilds.construction.PlacementChoice choice=null;
+            if(existing==null){
+                var target=actor.getTargetBlockExact(Math.max(6,getConfig().getInt("settings.construction.target-distance",16)),org.bukkit.FluidCollisionMode.NEVER);
+                if(target==null||!target.getType().isSolid()||ground==null||ground.getWorld()==null
+                        ||!target.getWorld().getUID().equals(ground.getWorld().getUID())||target.getX()!=ground.getBlockX()
+                        ||target.getY()!=ground.getBlockY()||target.getZ()!=ground.getBlockZ())
+                    throw new IllegalArgumentException("Вы смотрите на другое место. Выберите точку заново");
+                choice=new ru.neverland.townybuilds.construction.PlacementChoice(target.getWorld().getUID(),target.getX(),target.getY()+1,target.getZ(),actor.getFacing());
+            }else if(ground!=null||!actor.getWorld().getUID().equals(existing.worldId()))
+                throw new IllegalArgumentException("Улучшение строится на прежнем месте в том же мире");
+            var prepared=construction.prepare(actor,town,project,next-1,next,choice);
+            if(prepared.status()!=ru.neverland.townybuilds.construction.ConstructionPreparation.Status.READY)
+                throw new IllegalStateException(prepared.details().isEmpty()?"Площадка не подходит: "+prepared.status():String.join("; ",prepared.details()));
+            var intent=java.util.UUID.randomUUID();
+            ru.neverland.core.AuditTrail.require(ru.neverland.core.AuditTrail.record(this,"create",intent.toString(),"ADMIN_BUILD_TEST_FREE","STARTED",
+                    ru.neverland.core.AuditTrail.player(actor.getUniqueId()),ru.neverland.core.AuditRecord.Party.system(),ru.neverland.core.AuditTrail.town(townId),"",0,"",
+                    projectId+" уровень "+next+"; место "+(existing==null?ground.getWorld().getName()+" "+ground.getBlockX()+","+ground.getBlockY()+","+ground.getBlockZ():existing.worldId()+" "+existing.originX()+","+existing.originY()+","+existing.originZ())));
+            constructionRefunds.beginFree(actor,town,prepared);
+            var site=state.constructionSite(projectId);var receipt=state.constructionReceipts().get(projectId);
+            if(site!=null&&site.active()&&receipt!=null&&receipt.state().equals("ACTIVE"))construction.adminFinish(actor,townId,projectId,receipt.id());
+            else actor.sendMessage("§aЗдание создано по схеме; строительные блоки уже были на месте.");
+        }
+    }
     private DataStore dataStore;
     private EffectService effects;
     private RussianItemNames itemNames;

@@ -106,7 +106,7 @@ public final class ConstructionRefunds {
     public void beginFree(Player player,Town town,ConstructionPreparation preparation) {
         String project=preparation.site().projectId();var state=data.town(town.getUUID());
         var prior=receipt(town.getUUID(),project);
-        if(prior!=null&&(!prior.state().equals("DONE")||!prior.remaining().isEmpty()))throw new IllegalStateException("Дождитесь завершения предыдущего возврата");
+        if(prior!=null&&(!Set.of("DONE","COMPLETE").contains(prior.state())||!prior.remaining().isEmpty()))throw new IllegalStateException("Дождитесь завершения предыдущего возврата");
         state.receipt(project,construction.captureReceipt(preparation,0,List.of()));
         construction.commit(preparation,player,town);
     }

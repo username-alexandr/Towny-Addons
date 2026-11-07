@@ -42,7 +42,7 @@ enum AuditCategory implements Predicate<AuditRecord> {
     ACHIEVEMENTS("Достижения и награды","NETHER_STAR",Set.of("CITY_ACHIEVEMENT","ACHIEVEMENT_REWARD")),
     QUESTS("Городские проекты","KNOWLEDGE_BOOK",Set.of("CITY_PROJECT")),
     TOWN_DELETION("Удаление городов","GRASS_BLOCK",Set.of("ADMIN_TOWN_DELETE")),
-    ADMIN("Действия администрации","COMMAND_BLOCK",Set.of("ADMIN_ACTIVITY","ADMIN_MODULE","ADMIN_INCOME","ADMIN_BUILD_TEST")),
+    ADMIN("Действия администрации","COMMAND_BLOCK",Set.of("ADMIN_ACTIVITY","ADMIN_MODULE","ADMIN_INCOME","ADMIN_BUILD_TEST","ADMIN_BUILD_TEST_FREE")),
     OTHER("Прочие операции","PAPER",Set.of());
     final String title,icon;final Set<String> kinds;
     AuditCategory(String title,String icon,Set<String> kinds){this.title=title;this.icon=icon;this.kinds=kinds;}
@@ -64,7 +64,7 @@ enum AuditCategory implements Predicate<AuditRecord> {
         case "MOB_FARM_ZONE"->"Защита участка от мобов";
         case "BUILD_CONTRIBUTION"->"Материалы для строительства";
         case "CONSTRUCTION_REFUND"->"Оплата и возврат строительства";
-        case "ADMIN_TOWN_DELETE"->"Удаление города и откат территории";case "ADMIN_BUILD_TEST"->"Администратор завершил оплаченное здание";
+        case "ADMIN_TOWN_DELETE"->"Удаление города и откат территории";case "ADMIN_BUILD_TEST"->"Администратор завершил оплаченное здание";case "ADMIN_BUILD_TEST_FREE"->"Администратор создал тестовое здание";
         case "PUBLIC_ORDER_REWARD"->"Награда государственного заказа";case "JOB_SALARY"->"Зарплата профессии";case "ADMIN_INCOME"->"Сверка денежной выплаты";case "BANK_TRANSFER"->"Перевод между счетами";case "BANK_COMMAND"->"Банковская команда";case "BANK_LEG"->"Изменение счёта";
         case "CARAVAN_DEAL"->"Сделка каравана";case "TRADE_PAYMENT"->"Оплата торговли";case "TRADE_TARIFF"->"Торговый тариф";case "TRADE_REFUND"->"Возврат торговли";case "TRADE_COMPENSATION"->"Компенсация задержки каравана";case "SUPPLY_AGREEMENT"->"Договор поставки";case "SUPPLY_DEAL"->"Поставка";
         case "MARKET_DEAL"->"Сделка рынка";case "SHOP_DEAL"->"Сделка магазина";case "MARKET_DELIVERY"->"Выдача рынка";case "SHOP_DELIVERY"->"Выдача магазина";

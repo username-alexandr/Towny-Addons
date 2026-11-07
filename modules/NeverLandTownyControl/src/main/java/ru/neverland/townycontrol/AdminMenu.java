@@ -66,7 +66,7 @@ final class AdminMenu implements Listener {
         });
         button(s,24,Material.GRASS_BLOCK,"Удаление городов",List.of("Предупреждение и подтверждение","Режим сохранения обычных баз"),()->towns(player,1));
         button(s,20,Material.TNT,"Рейды и добыча",List.of("Лагеря, нападения и захват кафедры","Казна, ресурсы и сверка выдачи"),()->raids(player));
-        button(s,21,Material.BRICKS,"Завершить постройку",List.of("Выбрать любую оплаченную стройку города","Поставить все оставшиеся блоки по чертежу","Без повторного списания денег и ресурсов"),()->buildSites(player,1));
+        button(s,21,Material.BRICKS,"Строительство для админа",List.of("Достроить оплаченную площадку","Или поставить тестовое здание из каталога"),()->buildSites(player,1));
         button(s,23,Material.IRON_SWORD,"Проверка войны",List.of("Проверить два города и условия рейда","Запустить бой с подтверждением или остановить"),()->warAttackers(player,1));
         button(s,42,Material.GOLD_INGOT,"Серверные выплаты",List.of("Заказы и зарплаты: диагностика и сверка"),()->income(player));
         button(s,40,Material.COMMAND_BLOCK,"Команды наград",List.of("Очередь выдачи и спорные результаты","Сверка перед повторным выполнением"),()->rewardCommands(player,1));
@@ -105,13 +105,14 @@ final class AdminMenu implements Listener {
     }
     @SuppressWarnings("unchecked")
     private void buildSites(Player player,int page)throws Exception{
-        var s=screen(player,"Постройки • Оплаченные", "neverlandtownybuilds.admin");
+        var s=screen(player,"Постройки • Активные", "neverlandtownybuilds.admin");
         var addon=enabledAddon("Builds");
         var rows=(List<Map<String,String>>)call(addon,"uiAdminConstructionSites",new Class<?>[]{});
         int slot=0;
         for(var row:rows.stream().skip((page-1L)*PAGE_SIZE).limit(PAGE_SIZE).toList())
             button(s,slot++,Material.BRICKS,clean(row.get("name")+" • "+row.get("title")),List.of("Уровень "+row.get("level"),"Координаты: "+row.get("coordinates"),"Оплата: "+row.get("receipt")),()->buildConfirm(player,row,page));
-        if(rows.isEmpty())button(s,22,Material.PAPER,"Нет активных оплаченных строек",List.of("Сначала игроки выбирают место и оплачивают здание"),null);
+        if(rows.isEmpty())button(s,22,Material.PAPER,"Нет начатых строек",List.of("Выберите тестовое здание или оплатите обычную стройку"),null);
+        button(s,40,Material.GOLDEN_PICKAXE,"Создать тестовое здание",List.of("Выбрать город и любое доступное здание","Указать место взглядом и подтвердить","Без списания ресурсов и денег; запись в журнале"),()->buildCatalogTowns(player,1));
         pagination(s,page,rows.size(),n->attempt(player,()->buildSites(player,n)));back(s,()->home(player));show(player,s);
     }
     private void buildConfirm(Player player,Map<String,String> row,int page){
@@ -122,6 +123,38 @@ final class AdminMenu implements Listener {
             call(addon,"uiAdminFinishConstruction",new Class<?>[]{Player.class,UUID.class,String.class,UUID.class},player,UUID.fromString(row.get("town")),row.get("project"),UUID.fromString(row.get("receipt")));
             player.closeInventory();
         });back(s,()->buildSites(player,page));show(player,s);
+    }
+    private void buildCatalogTowns(Player player,int page){
+        var s=screen(player,"Тестовая стройка • Город","neverlandtownybuilds.admin");enabledAddon("Builds");var all=warTowns();int slot=0;
+        for(var town:all.stream().skip((page-1L)*PAGE_SIZE).limit(PAGE_SIZE).toList())
+            button(s,slot++,Material.GRASS_BLOCK,clean(town.getName()),List.of("Выбрать постройку для этого города"),()->buildCatalog(player,town.getUUID(),1));
+        pagination(s,page,all.size(),n->buildCatalogTowns(player,n));back(s,()->buildSites(player,1));show(player,s);
+    }
+    @SuppressWarnings("unchecked")
+    private void buildCatalog(Player player,UUID town,int page)throws Exception{
+        var addon=enabledAddon("Builds");var all=(List<Map<String,String>>)call(addon,"uiAdminBuildingCatalog",new Class<?>[]{UUID.class},town);
+        var s=screen(player,"Тестовая стройка • Здание","neverlandtownybuilds.admin");int slot=0;
+        for(var row:all.stream().skip((page-1L)*PAGE_SIZE).limit(PAGE_SIZE).toList())
+            button(s,slot++,Material.BRICKS,clean(row.get("title")),List.of("Город: "+clean(row.get("name")),"Следующий уровень: "+row.get("level"),"Здание: "+row.get("project")),()->buildCatalogConfirm(player,row,page));
+        if(all.isEmpty())button(s,22,Material.PAPER,"Нет следующих уровней",List.of("Город достиг максимума доступных чертежей"),null);
+        pagination(s,page,all.size(),n->attempt(player,()->buildCatalog(player,town,n)));back(s,()->buildCatalogTowns(player,1));show(player,s);
+    }
+    private void buildCatalogConfirm(Player player,Map<String,String> row,int page){
+        boolean upgrade=!row.get("site").isEmpty();Location ground=null;
+        if(!upgrade){
+            var target=player.getTargetBlockExact(16,FluidCollisionMode.NEVER);
+            if(target==null||!target.getType().isSolid())throw new IllegalArgumentException("Наведитесь на твёрдый блок земли в выбранном городе");
+            ground=target.getLocation().clone();
+        }
+        final Location selectedGround=ground;
+        var s=screen(player,"Тестовая стройка • Подтвердить","neverlandtownybuilds.admin");s.expires=System.currentTimeMillis()+30_000;
+        String place=upgrade?"Прежняя площадка: "+row.get("site"):"Место: "+ground.getWorld().getName()+" "+ground.getBlockX()+","+ground.getBlockY()+","+ground.getBlockZ();
+        button(s,4,Material.BRICKS,clean(row.get("title")),List.of("Город: "+clean(row.get("name")),"Уровень: "+row.get("level"),place),null);
+        button(s,22,Material.LIME_CONCRETE,"Создать здание полностью",List.of("Для проверки без списания денег и материалов","Вся площадка должна принадлежать городу",upgrade?"Подойдите к прежней площадке":"Оставьте прицел на выбранном блоке","Проверка схемы и препятствий повторится"),()->{
+            call(enabledAddon("Builds"),"uiAdminCreateBuilding",new Class<?>[]{Player.class,UUID.class,String.class,int.class,Location.class},
+                    player,UUID.fromString(row.get("town")),row.get("project"),Integer.parseInt(row.get("level")),selectedGround);
+            player.closeInventory();
+        });back(s,()->buildCatalog(player,UUID.fromString(row.get("town")),page));show(player,s);
     }
     private List<com.palmergames.bukkit.towny.object.Town> warTowns(){
         return TownyAPI.getInstance().getTowns().stream().sorted(Comparator.comparing(t->t.getName().toLowerCase(Locale.ROOT))).toList();
