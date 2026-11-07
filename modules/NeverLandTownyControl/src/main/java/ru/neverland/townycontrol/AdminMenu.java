@@ -159,8 +159,9 @@ final class AdminMenu implements Listener {
         var s=screen(player,"Война • Подтверждение","neverlandtownysiegesplus.admin");s.expires=System.currentTimeMillis()+30_000;
         button(s,4,Material.TNT,clean(source.getName()+" → "+target.getName()),List.of("Цель: "+(goal.equals("core")?"кафедра":"участки"),"Начнётся настоящий рейд с уведомлением городов","Защита новичка, армия и часы нападения проверяются снова"),null);
         button(s,22,Material.LIME_CONCRETE,"Объявить рейд",List.of("Только если вы мобилизованный мэр или генерал","Свой лагерь и припасы обязательны","Остановка: Проверка войны → Остановить рейд"),()->{
-            call(enabledAddon("SiegesPlus"),"uiAdminStartWar",new Class<?>[]{Player.class,UUID.class,UUID.class,String.class},player,attacker,defender,goal);
+            // The raid may open its own camp muster inventory; close only this admin screen first.
             player.closeInventory();
+            call(enabledAddon("SiegesPlus"),"uiAdminStartWar",new Class<?>[]{Player.class,UUID.class,UUID.class,String.class},player,attacker,defender,goal);
         });back(s,()->warReview(player,attacker,defender,page));show(player,s);
     }
     private void warStopTowns(Player player,int page){
