@@ -82,7 +82,7 @@ public final class ClaimService {
                 }catch(Throwable failure){result.completeExceptionally(failure);}
             });
         }catch(Throwable failure){result.completeExceptionally(failure);}
-        return result.orTimeout(35,TimeUnit.SECONDS);
+        return result;
     }
     public ExpansionPlan view(Player player,UUID id){try(var guard=SuiteState.guard()){return own(player,id);}}
     public Optional<ExpansionPlan> openPlan(Player player){try(var guard=SuiteState.guard()){
