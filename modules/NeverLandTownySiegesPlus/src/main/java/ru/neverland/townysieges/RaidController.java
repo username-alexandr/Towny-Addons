@@ -123,6 +123,39 @@ public final class RaidController {
         try{return authorize(player,defender)!=null;}catch(Exception|LinkageError denied){return false;}
     }
     public void declare(Player actor,String name)throws Exception {declare(actor,name,"core");}
+    /** Read-only rehearsal: same essential protection and preparation gates as declaration. */
+    public List<String> adminReadiness(Player actor,UUID source,UUID targetId) {
+        var lines=new ArrayList<String>();
+        Town attacker=TownyAPI.getInstance().getTown(source),defender=TownyAPI.getInstance().getTown(targetId);
+        if(!ready())lines.add("§cРейды или хранилище недоступны");
+        if(siegeWarInstalled())lines.add("§cВойны ведёт SiegeWar; армейский рейд здесь не запускается");
+        try{relations(attacker,defender);lines.add("§aЗащита новичка, союз и армейские здания: готовы");}
+        catch(Exception|LinkageError error){lines.add("§c"+error.getMessage());}
+        if(defender!=null){
+            try{defenders(defender);lines.add("§aЗащитников в сети достаточно");}
+            catch(Exception error){lines.add("§c"+error.getMessage());}
+            try{plugin.hours().declaration(targetId,System.currentTimeMillis(),(settings.warmupSeconds()+settings.durationSeconds())*1000L);lines.add("§aВремя нападения разрешено");}
+            catch(Exception error){lines.add("§c"+error.getMessage());}
+        }
+        if(attacker!=null){
+            try{army();plugin.supplies().declaration(source);lines.add("§aАрмия и припасы готовы");}
+            catch(Exception|LinkageError error){lines.add("§c"+error.getMessage());}
+            if(plugin.camps()!=null&&plugin.camps().settings().enabled()&&defender!=null&&!plugin.camps().active(source,targetId))
+                lines.add("§eЛагерь ещё не установлен: /sieges camp "+defender.getName());
+        }
+        if(attacker==null||!source.equals(Optional.ofNullable(SiegeService.town(actor.getUniqueId())).map(Town::getUUID).orElse(null)))
+            lines.add("§eЗапуск доступен участнику нападающего города; проверку можно смотреть для любого города");
+        else {
+            try{if(actor.getGameMode()!=GameMode.SURVIVAL||!actor.hasPermission("neverlandtownysiegesplus.raid.use")
+                    ||!mobilized(actor.getUniqueId())||!commander(actor,attacker))throw new IllegalArgumentException("Нужен мобилизованный мэр или генерал в режиме выживания");
+                lines.add("§aИнициатор готов объявить рейд");}
+            catch(Exception|LinkageError error){lines.add("§c"+error.getMessage());}
+        }
+        if(openWars().stream().anyMatch(r->r.live(System.currentTimeMillis())&&
+                (r.attacker().equals(source)||r.defender().equals(source)||r.attacker().equals(targetId)||r.defender().equals(targetId))))
+            lines.add("§cОдин из городов уже участвует в рейде");
+        return List.copyOf(lines);
+    }
     public void declare(Player actor,String name,String objective)throws Exception {
         String goal=objective.toLowerCase(Locale.ROOT);
         if(!Set.of("core","chunks").contains(goal))throw new IllegalArgumentException("Цель: core (кафедра) или chunks (участки)");

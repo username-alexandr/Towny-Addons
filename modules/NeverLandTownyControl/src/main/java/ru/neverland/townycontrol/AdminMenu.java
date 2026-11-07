@@ -66,6 +66,8 @@ final class AdminMenu implements Listener {
         });
         button(s,24,Material.GRASS_BLOCK,"Удаление городов",List.of("Предупреждение и подтверждение","Режим сохранения обычных баз"),()->towns(player,1));
         button(s,20,Material.TNT,"Рейды и добыча",List.of("Лагеря, нападения и захват кафедры","Казна, ресурсы и сверка выдачи"),()->raids(player));
+        button(s,21,Material.BRICKS,"Завершить постройку",List.of("Выбрать любую оплаченную стройку города","Поставить все оставшиеся блоки по чертежу","Без повторного списания денег и ресурсов"),()->buildSites(player,1));
+        button(s,23,Material.IRON_SWORD,"Проверка войны",List.of("Проверить два города и условия рейда","Запустить бой с подтверждением или остановить"),()->warAttackers(player,1));
         button(s,42,Material.GOLD_INGOT,"Серверные выплаты",List.of("Заказы и зарплаты: диагностика и сверка"),()->income(player));
         button(s,40,Material.COMMAND_BLOCK,"Команды наград",List.of("Очередь выдачи и спорные результаты","Сверка перед повторным выполнением"),()->rewardCommands(player,1));
         button(s,33,Material.COMPASS,"Справочник аддонов",List.of("Игровых аддонов: "+router.entries().size(),"Штатные команды и доступные задачи"),()->modules(player,1,true));show(player,s);
@@ -88,6 +90,91 @@ final class AdminMenu implements Listener {
         button(s,35,Material.PAPER,"Квитанции выкупа",List.of("Состояния предложений и спорных переводов","Детали: /sieges ransom show <ID рейда>"),()->{var owner=Bukkit.getPluginManager().getPlugin("NeverLandTownySiegesPlus");if(!(owner instanceof org.bukkit.plugin.java.JavaPlugin addon)||!addon.isEnabled())throw new IllegalArgumentException("Рейды сейчас недоступны");var cmd=addon.getCommand("townysieges");cmd.getExecutor().onCommand(player,cmd,"sieges",new String[]{"ransom","status"});});
         button(s,36,Material.SPYGLASS,"Сверка выкупа",List.of("Проверить баланс и банковскую квитанцию","Затем /sieges ransom resolve или refund"),()->logPage(player,AuditCategory.RAIDS,new AuditQuery(Map.of("category","RAIDS","kind","RAID_RANSOM_RECONCILE"),1)));
         back(s,()->home(player));show(player,s);
+    }
+    private org.bukkit.plugin.Plugin enabledAddon(String name){
+        var addon=Bukkit.getPluginManager().getPlugin("NeverLandTowny"+name);
+        if(addon==null||!addon.isEnabled()||SuiteState.frozen(addon.getName()))throw new IllegalArgumentException("Аддон "+name+" сейчас недоступен");
+        return addon;
+    }
+    private Object call(org.bukkit.plugin.Plugin addon,String method,Class<?>[] types,Object... args)throws Exception{
+        try{return addon.getClass().getMethod(method,types).invoke(addon,args);}
+        catch(java.lang.reflect.InvocationTargetException error){
+            if(error.getCause() instanceof Exception cause)throw cause;
+            throw new IllegalStateException("Ошибка аддона "+addon.getName(),error.getCause());
+        }catch(NoSuchMethodException error){throw new IllegalArgumentException("Обновите аддон "+addon.getName()+" для админского меню");}
+    }
+    @SuppressWarnings("unchecked")
+    private void buildSites(Player player,int page)throws Exception{
+        var s=screen(player,"Постройки • Оплаченные", "neverlandtownybuilds.admin");
+        var addon=enabledAddon("Builds");
+        var rows=(List<Map<String,String>>)call(addon,"uiAdminConstructionSites",new Class<?>[]{});
+        int slot=0;
+        for(var row:rows.stream().skip((page-1L)*PAGE_SIZE).limit(PAGE_SIZE).toList())
+            button(s,slot++,Material.BRICKS,clean(row.get("name")+" • "+row.get("title")),List.of("Уровень "+row.get("level"),"Координаты: "+row.get("coordinates"),"Оплата: "+row.get("receipt")),()->buildConfirm(player,row,page));
+        if(rows.isEmpty())button(s,22,Material.PAPER,"Нет активных оплаченных строек",List.of("Сначала игроки выбирают место и оплачивают здание"),null);
+        pagination(s,page,rows.size(),n->attempt(player,()->buildSites(player,n)));back(s,()->home(player));show(player,s);
+    }
+    private void buildConfirm(Player player,Map<String,String> row,int page){
+        var s=screen(player,"Постройка • Подтверждение","neverlandtownybuilds.admin");s.expires=System.currentTimeMillis()+30_000;
+        button(s,4,Material.BRICKS,clean(row.get("name")+" • "+row.get("title")),List.of("Уровень "+row.get("level"),"Место: "+row.get("coordinates"),"Квитанция: "+row.get("receipt")),null);
+        button(s,22,Material.LIME_CONCRETE,"Построить полностью",List.of("Все недостающие блоки по сохранённой схеме","Оплаченные ресурсы и деньги сохраняются","Подойдите к площадке: её чанки должны быть загружены","Изменённые игроками блоки не перезаписываются"),()->{
+            var addon=enabledAddon("Builds");
+            call(addon,"uiAdminFinishConstruction",new Class<?>[]{Player.class,UUID.class,String.class,UUID.class},player,UUID.fromString(row.get("town")),row.get("project"),UUID.fromString(row.get("receipt")));
+            player.closeInventory();
+        });back(s,()->buildSites(player,page));show(player,s);
+    }
+    private List<com.palmergames.bukkit.towny.object.Town> warTowns(){
+        return TownyAPI.getInstance().getTowns().stream().sorted(Comparator.comparing(t->t.getName().toLowerCase(Locale.ROOT))).toList();
+    }
+    private void warAttackers(Player player,int page){
+        var s=screen(player,"Война • Нападающий","neverlandtownysiegesplus.admin");enabledAddon("SiegesPlus");
+        var all=warTowns();int slot=0;
+        for(var town:all.stream().skip((page-1L)*PAGE_SIZE).limit(PAGE_SIZE).toList())
+            button(s,slot++,Material.IRON_SWORD,clean(town.getName()),List.of("Выбрать защищающийся город","Проверка доступна для любой пары городов"),()->warTargets(player,town.getUUID(),1));
+        button(s,40,Material.BARRIER,"Остановить рейд",List.of("Нейтральная остановка без поражения","Выбрать город-участник"),()->warStopTowns(player,1));
+        pagination(s,page,all.size(),n->warAttackers(player,n));back(s,()->home(player));show(player,s);
+    }
+    private void warTargets(Player player,UUID attacker,int page){
+        var source=TownyAPI.getInstance().getTown(attacker);if(source==null)throw new IllegalArgumentException("Нападающий город больше не существует");
+        var s=screen(player,"Война • Защитник","neverlandtownysiegesplus.admin");var all=warTowns().stream().filter(t->!t.getUUID().equals(attacker)).toList();int slot=0;
+        for(var town:all.stream().skip((page-1L)*PAGE_SIZE).limit(PAGE_SIZE).toList())
+            button(s,slot++,Material.SHIELD,clean(town.getName()),List.of("Нападающий: "+clean(source.getName()),"Показать условия и цели нападения"),()->warReview(player,attacker,town.getUUID(),page));
+        pagination(s,page,all.size(),n->warTargets(player,attacker,n));back(s,()->warAttackers(player,1));show(player,s);
+    }
+    @SuppressWarnings("unchecked")
+    private void warReview(Player player,UUID attacker,UUID defender,int page)throws Exception{
+        var addon=enabledAddon("SiegesPlus");var source=TownyAPI.getInstance().getTown(attacker);var target=TownyAPI.getInstance().getTown(defender);
+        if(source==null||target==null)throw new IllegalArgumentException("Один из городов больше не существует");
+        var status=(List<String>)call(addon,"uiAdminWarReadiness",new Class<?>[]{Player.class,UUID.class,UUID.class},player,attacker,defender);
+        var s=screen(player,"Война • Проверка","neverlandtownysiegesplus.admin");
+        button(s,4,Material.SPYGLASS,clean(source.getName()+" → "+target.getName()),status,null);
+        button(s,20,Material.LECTERN,"Цель: кафедра",List.of("Настоящий рейд: возможны разрушения и добыча","Все обычные ограничения сохраняются","Следующий шаг — подтверждение"),()->warConfirm(player,attacker,defender,"core",page));
+        button(s,24,Material.FILLED_MAP,"Цель: участки",List.of("Настоящий рейд: возможны разрушения и захват","Все обычные ограничения сохраняются","Следующий шаг — подтверждение"),()->warConfirm(player,attacker,defender,"chunks",page));
+        button(s,31,Material.COMPASS,"Обновить проверку",List.of("Снова проверить защиту и готовность городов"),()->warReview(player,attacker,defender,page));
+        back(s,()->warTargets(player,attacker,page));show(player,s);
+    }
+    private void warConfirm(Player player,UUID attacker,UUID defender,String goal,int page){
+        var source=TownyAPI.getInstance().getTown(attacker);var target=TownyAPI.getInstance().getTown(defender);
+        if(source==null||target==null)throw new IllegalArgumentException("Один из городов больше не существует");
+        var s=screen(player,"Война • Подтверждение","neverlandtownysiegesplus.admin");s.expires=System.currentTimeMillis()+30_000;
+        button(s,4,Material.TNT,clean(source.getName()+" → "+target.getName()),List.of("Цель: "+(goal.equals("core")?"кафедра":"участки"),"Начнётся настоящий рейд с уведомлением городов","Защита новичка, армия и часы нападения проверяются снова"),null);
+        button(s,22,Material.LIME_CONCRETE,"Объявить рейд",List.of("Только если вы мобилизованный мэр или генерал","Свой лагерь и припасы обязательны","Остановка: Проверка войны → Остановить рейд"),()->{
+            call(enabledAddon("SiegesPlus"),"uiAdminStartWar",new Class<?>[]{Player.class,UUID.class,UUID.class,String.class},player,attacker,defender,goal);
+            player.closeInventory();
+        });back(s,()->warReview(player,attacker,defender,page));show(player,s);
+    }
+    private void warStopTowns(Player player,int page){
+        var s=screen(player,"Война • Остановка","neverlandtownysiegesplus.admin");var all=warTowns();int slot=0;
+        for(var town:all.stream().skip((page-1L)*PAGE_SIZE).limit(PAGE_SIZE).toList())
+            button(s,slot++,Material.BARRIER,clean(town.getName()),List.of("Остановить активный рейд города","Без поражения и начисления наград"),()->warStopConfirm(player,town.getUUID(),page));
+        pagination(s,page,all.size(),n->warStopTowns(player,n));back(s,()->warAttackers(player,1));show(player,s);
+    }
+    private void warStopConfirm(Player player,UUID town,int page){
+        var target=TownyAPI.getInstance().getTown(town);if(target==null)throw new IllegalArgumentException("Город больше не существует");
+        var s=screen(player,"Война • Подтвердить остановку","neverlandtownysiegesplus.admin");s.expires=System.currentTimeMillis()+30_000;
+        button(s,22,Material.BARRIER,"Остановить рейд: "+clean(target.getName()),List.of("Нейтральная остановка действующего рейда","Города не получат поражение за отмену"),()->{
+            call(enabledAddon("SiegesPlus"),"uiAdminStopWar",new Class<?>[]{Player.class,UUID.class},player,town);player.closeInventory();
+        });back(s,()->warStopTowns(player,page));show(player,s);
     }
     private void income(Player player){
         var s=screen(player,"Экономика • Серверные выплаты");

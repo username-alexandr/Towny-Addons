@@ -26,6 +26,29 @@ public final class NeverLandTownySiegesPlus extends JavaPlugin {
     public RaidLoot loot(){return loot;}
     private YamlConfiguration configuration()throws Exception{var yaml=new YamlConfiguration();yaml.load(new File(getDataFolder(),"config.yml"));try(var stream=getResource("config.yml")){yaml.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(stream,StandardCharsets.UTF_8)));}return yaml;}
     public RaidController raids(){return raids;}
+    public java.util.List<String> uiAdminWarReadiness(org.bukkit.entity.Player actor,java.util.UUID attacker,java.util.UUID defender){
+        try(var guard=ru.neverland.core.SuiteState.guard()){
+            if(!actor.isOp()&&!actor.hasPermission("neverlandtownysiegesplus.admin"))throw new IllegalArgumentException("Нет права администратора войн");
+            return raids.adminReadiness(actor,attacker,defender);
+        }
+    }
+    public void uiAdminStartWar(org.bukkit.entity.Player actor,java.util.UUID attacker,java.util.UUID defender,String goal)throws Exception{
+        try(var guard=ru.neverland.core.SuiteState.guard()){
+            if(!actor.isOp()&&!actor.hasPermission("neverlandtownysiegesplus.admin"))throw new IllegalArgumentException("Нет права администратора войн");
+            var own=SiegeService.town(actor.getUniqueId());
+            if(own==null||!own.getUUID().equals(attacker))throw new IllegalArgumentException("Начать бой может только участник выбранного нападающего города");
+            var target=com.palmergames.bukkit.towny.TownyAPI.getInstance().getTown(defender);
+            if(target==null)throw new IllegalArgumentException("Город больше не существует");
+            raids.declare(actor,target.getName(),goal);
+        }
+    }
+    public void uiAdminStopWar(org.bukkit.entity.Player actor,java.util.UUID town){
+        try(var guard=ru.neverland.core.SuiteState.guard()){
+            if(!actor.isOp()&&!actor.hasPermission("neverlandtownysiegesplus.admin"))throw new IllegalArgumentException("Нет права администратора войн");
+            if(com.palmergames.bukkit.towny.TownyAPI.getInstance().getTown(town)==null)throw new IllegalArgumentException("Город больше не существует");
+            raids.cancel(actor,town);
+        }
+    }
     public TntRaidEngine tnt(){return tnt;}
     public void reloadSieges()throws Exception{ try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {var config=configuration();var next=SiegeSettings.load(config);var nextTnt=TntSettings.load(config);var nextLoot=LootSettings.load(config);var nextCamp=CampSettings.load(config);var nextDefense=LootDefense.load(config);var nextWar=WarSettings.load(config);var nextSupply=CampSupplies.Settings.load(config);hours.reload(config);service.reload(next);raids.reload(nextTnt);loot.reload(nextLoot);loot.defense(nextDefense);camps.reload(nextCamp);warControl.reload(nextWar);supplies.reload(nextSupply);reloadConfig();} }
     @Override public void onEnable(){ try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {

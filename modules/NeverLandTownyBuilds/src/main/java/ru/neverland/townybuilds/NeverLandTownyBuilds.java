@@ -40,6 +40,33 @@ public final class NeverLandTownyBuilds extends JavaPlugin {
         if (project == null) throw new IllegalArgumentException("Постройка больше не существует");
         uiMenus.openDetails(player, project);
     } }
+    /** Administrative menu bridge; returns paid, active sites only. */
+    public java.util.List<java.util.Map<String,String>> uiAdminConstructionSites() {
+        try (var guard=ru.neverland.core.SuiteState.guard()) {
+            var rows=new java.util.ArrayList<java.util.Map<String,String>>();
+            for(var entry:dataStore.towns().entrySet()) {
+                var town=com.palmergames.bukkit.towny.TownyAPI.getInstance().getTown(entry.getKey());
+                if(town==null)continue;
+                for(var site:entry.getValue().constructionSites().values()) {
+                    var receipt=entry.getValue().constructionReceipts().get(site.projectId());
+                    if(!site.active()||receipt==null||!receipt.state().equals("ACTIVE"))continue;
+                    var definition=definitions.project(site.projectId());
+                    rows.add(java.util.Map.of("town",entry.getKey().toString(),"name",town.getName(),
+                            "project",site.projectId(),"title",definition==null?site.projectId():ru.neverland.townybuilds.util.ColorUtil.plain(definition.name()),
+                            "level",Integer.toString(site.targetStage()),"receipt",receipt.id().toString(),
+                            "world",site.worldId().toString(),"coordinates",site.originX()+" "+site.originY()+" "+site.originZ()));
+                }
+            }
+            rows.sort(java.util.Comparator.comparing((java.util.Map<String,String> row)->row.get("name")).thenComparing(row->row.get("title")));
+            return java.util.List.copyOf(rows);
+        }
+    }
+    public void uiAdminFinishConstruction(org.bukkit.entity.Player actor,java.util.UUID town,String project,java.util.UUID receipt) {
+        try(var guard=ru.neverland.core.SuiteState.guard()) {
+            if(!actor.isOp()&&!actor.hasPermission("neverlandtownybuilds.admin"))throw new IllegalArgumentException("Нет права администратора построек");
+            construction.adminFinish(actor,town,project,receipt);
+        }
+    }
     private DataStore dataStore;
     private EffectService effects;
     private RussianItemNames itemNames;
