@@ -70,6 +70,7 @@ public final class ConstructionService implements Listener {
     public void refunds(ConstructionRefunds value) { refunds=value; }
     private boolean refundBlocked(UUID town, String project) { return refunds!=null&&refunds.blocks(town,project); }
     private final Map<UUID, ObstructionPreview> obstructionPreviews = new HashMap<>();
+    private final Set<UUID> adminFinishing = new java.util.HashSet<>();
     private record Obstruction(Location location, Material material) {}
     private record ObstructionPreview(long expiresAt, List<Obstruction> blocks) {}
     private BukkitTask renderTask;
@@ -356,6 +357,94 @@ public final class ConstructionService implements Listener {
         }
         return new ConstructionProgress(true, site.targetStage(), placed, total, (site.adminPaused()?"Пауза • ":"")+plan.stageName());
     } }
+
+    /** Complete only an already purchased, registered site; never invent a building or debit the bank. */
+    public void adminFinish(Player actor, UUID townId, String project, UUID receiptId) {
+        try(var guard=ru.neverland.core.SuiteState.guard()) {
+            if(!running||!plugin.isEnabled()||!dataStore.writable())throw new IllegalStateException("Строительство сейчас недоступно");
+            Town town=towny.town(townId);
+            TownData data=dataStore.existingTown(townId);
+            ConstructionSite site=data==null?null:data.constructionSite(project);
+            ConstructionReceipt receipt=data==null?null:data.constructionReceipts().get(project);
+            if(town==null||site==null||receipt==null||!site.active()||!receipt.id().equals(receiptId)
+                    ||!receipt.state().equals("ACTIVE")||receipt.level()!=site.targetStage())
+                throw new IllegalArgumentException("Оплаченная стройка изменилась. Откройте список заново");
+            if(!adminFinishing.add(receiptId))throw new IllegalStateException("Эта стройка уже завершается");
+            try {
+                World world=Bukkit.getWorld(site.worldId());BlueprintPlan plan=planForSite(site,site.targetStage());
+                if(world==null||plan==null||!ru.neverland.core.SuiteScheduler.owns(actor)||!ownsPlan(world,site,plan))
+                    throw new IllegalStateException("Подойдите к площадке: все её чанки должны быть доступны в одной области Folia");
+                if(site.adminPaused()||refundBlocked(townId,project)||repairBlocked(townId,site,plan))
+                    throw new IllegalStateException("Стройка приостановлена либо ожидает ремонта или возврата");
+                Set<BlockOffset> excavated=ExcavationPlanner.offsets(plan,site.buildFromStage());
+                var pending=new ArrayList<Map.Entry<BlockOffset,BlueprintBlock>>();
+                for(var entry:orderedEntries(plan)) {
+                    if(entry.getValue().stage()<site.buildFromStage())continue;
+                    Location at=site.location(world,entry.getKey());
+                    if(!world.isChunkLoaded(at.getBlockX()>>4,at.getBlockZ()>>4)||
+                            towny.townAt(at)==null||!towny.townAt(at).getUUID().equals(townId))
+                        throw new IllegalStateException("Вся площадка должна принадлежать городу и быть загружена");
+                    Block block=at.getBlock();var snapshot=receipt.changes().get(entry.getKey());
+                    if(snapshot==null)throw new IllegalStateException("Нет квитанции блока "+coordinates(at));
+                    BlockData before=Bukkit.createBlockData(snapshot.before()),expected=Bukkit.createBlockData(snapshot.expected());
+                    if(expected.getMaterial()!=entry.getValue().material())
+                        throw new IllegalStateException("Чертёж отличается от оплаченной квитанции; нужна сверка");
+                    if(!block.getBlockData().equals(before)&&!block.getBlockData().equals(expected)
+                            &&!(block.getType().isAir()&&excavated.contains(entry.getKey())))
+                        throw new IllegalStateException("Изменён блок "+coordinates(at)+"; постройка сохранена для проверки");
+                    if(block.getType()!=expected.getMaterial()&&block.getState() instanceof Container container
+                            &&!container.getInventory().isEmpty())
+                        throw new IllegalStateException("Освободите контейнер на "+coordinates(at));
+                    if(block.getType()!=entry.getValue().material()&&entry.getValue().role()==BlockRole.RESIDENT)
+                        pending.add(entry);
+                }
+                ru.neverland.core.AuditTrail.require(ru.neverland.core.AuditTrail.record(plugin,"start",receiptId.toString(),"ADMIN_BUILD_TEST","STARTED",
+                        ru.neverland.core.AuditTrail.player(actor.getUniqueId()),ru.neverland.core.AuditRecord.Party.system(),ru.neverland.core.AuditTrail.town(townId),"",0,"",project+" уровень "+site.targetStage()+"; блоков "+pending.size()));
+                actor.sendMessage("§eЗавершаем "+project+": осталось поставить "+pending.size()+" блоков. При прерывании можно повторить действие.");
+                finishAdminBatch(actor,town,site,receiptId,plan,pending,0);
+            }catch(Exception error){adminFinishing.remove(receiptId);throw new IllegalStateException(error.getMessage(),error);}
+        }
+    }
+
+    private void finishAdminBatch(Player actor,Town town,ConstructionSite site,UUID receiptId,BlueprintPlan plan,
+                                  List<Map.Entry<BlockOffset,BlueprintBlock>> pending,int index) {
+        try(var guard=ru.neverland.core.SuiteState.guard()) {
+            UUID townId=town.getUUID();World world=Bukkit.getWorld(site.worldId());
+            var data=dataStore.existingTown(townId);
+            var receipt=data==null?null:data.constructionReceipts().get(site.projectId());
+            if(!running||world==null||!actor.isOnline()||!ru.neverland.core.SuiteScheduler.owns(actor)
+                    ||!dataStore.writable()||data==null||data.constructionSite(site.projectId())!=site
+                    ||!site.active()||receipt==null||!receipt.id().equals(receiptId)||!receipt.state().equals("ACTIVE")
+                    ||site.adminPaused()||refundBlocked(townId,site.projectId())||repairBlocked(townId,site,plan)
+                    ||!ownsPlan(world,site,plan))throw new IllegalStateException("Стройка изменилась; оставшиеся блоки не тронуты");
+            int end=Math.min(index+48,pending.size());
+            for(int i=index;i<end;i++) {
+                var entry=pending.get(i);Location at=site.location(world,entry.getKey());
+                if(!world.isChunkLoaded(at.getBlockX()>>4,at.getBlockZ()>>4)||
+                        towny.townAt(at)==null||!towny.townAt(at).getUUID().equals(townId))
+                    throw new IllegalStateException("Площадка изменилась на "+coordinates(at));
+                Block block=at.getBlock();var snapshot=receipt.changes().get(entry.getKey());
+                if(snapshot==null||!block.getBlockData().equals(Bukkit.createBlockData(snapshot.before()))
+                        &&!(block.getType().isAir()&&ExcavationPlanner.offsets(plan,site.buildFromStage()).contains(entry.getKey()))
+                        &&block.getType()!=entry.getValue().material())
+                    throw new IllegalStateException("Изменён блок "+coordinates(at)+"; дальнейшее строительство остановлено");
+                if(block.getType()!=entry.getValue().material())block.setType(entry.getValue().material(),false);
+                applyExpectedState(block,entry.getValue(),site);
+            }
+            if(end<pending.size()) {
+                Location origin=site.location(world,new BlockOffset(0,0,0));
+                ru.neverland.core.SuiteScheduler.regionLater(plugin,origin,()->finishAdminBatch(actor,town,site,receiptId,plan,pending,end),1);
+            }else {
+                checkCompletion(actor,town,site);
+                if(site.active())throw new IllegalStateException("Часть здания осталась незавершённой; проверьте площадку");
+                ru.neverland.core.AuditTrail.record(plugin,"done",receiptId.toString(),"ADMIN_BUILD_TEST","COMPLETED",
+                        ru.neverland.core.AuditTrail.player(actor.getUniqueId()),ru.neverland.core.AuditRecord.Party.system(),ru.neverland.core.AuditTrail.town(townId),"",0,"",site.projectId()+" уровень "+site.targetStage());
+                actor.sendMessage("§aЗдание "+site.projectId()+" полностью построено. Деньги и ресурсы повторно не списаны.");
+                adminFinishing.remove(receiptId);
+            }
+        }catch(Exception error){adminFinishing.remove(receiptId);plugin.getLogger().warning("Админское завершение "+receiptId+": "+error.getMessage());
+            ru.neverland.core.SuiteScheduler.reply(plugin,actor,()->actor.sendMessage("§cЗавершение остановлено: "+error.getMessage()+". Оплаченная стройка остаётся доступной для проверки."));}
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlace(BlockPlaceEvent event) { try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyBuilds")){ru.neverland.core.ModuleGate.stopEvent(event);return;}
