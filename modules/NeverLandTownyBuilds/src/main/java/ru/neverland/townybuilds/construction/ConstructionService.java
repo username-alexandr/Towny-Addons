@@ -402,7 +402,7 @@ public final class ConstructionService implements Listener {
                         ru.neverland.core.AuditTrail.player(actor.getUniqueId()),ru.neverland.core.AuditRecord.Party.system(),ru.neverland.core.AuditTrail.town(townId),"",0,"",project+" уровень "+site.targetStage()+"; блоков "+pending.size()));
                 actor.sendMessage("§eЗавершаем "+project+": осталось поставить "+pending.size()+" блоков. При прерывании можно повторить действие.");
                 finishAdminBatch(actor,town,site,receiptId,plan,pending,0);
-            }catch(Exception error){adminFinishing.remove(receiptId);throw error;}
+            }catch(Exception error){adminFinishing.remove(receiptId);throw new IllegalStateException(error.getMessage(),error);}
         }
     }
 
