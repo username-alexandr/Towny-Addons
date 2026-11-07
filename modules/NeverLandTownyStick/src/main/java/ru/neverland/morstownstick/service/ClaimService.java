@@ -2,11 +2,13 @@ package ru.neverland.morstownstick.service;
 
 import com.palmergames.bukkit.towny.*;
 import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.WorldCoord;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.neverland.core.*;
 import ru.neverland.morstownstick.integration.*;
+import ru.neverland.morstownstick.integration.ClaimBiomePreflight.Verdict;
 import ru.neverland.morstownstick.model.CellKey;
 import ru.neverland.morstownstick.plan.*;
 import java.util.*;
@@ -42,26 +44,46 @@ public final class ClaimService {
         return town;
     }
     private record Quote(List<CellKey> cells,double amount,boolean economy,int townSize,UUID mayor){}
-    private Quote quote(Player player,Town town,Collection<CellKey> chosen)throws Exception{
+    private Quote quote(Player player,Town town,Collection<CellKey> chosen,Verdict allowedBiomes)throws Exception{
         int maximum=Math.max(1,Math.min(64,plugin.getConfig().getInt("plans.max-chunks",64)));
         if(chosen.isEmpty()||chosen.size()>maximum)throw new IllegalStateException("Выберите от 1 до "+maximum+" участков для одного плана");
         for(var cell:chosen){if(!towny.isClaimableWorld(cell))throw new IllegalStateException("В мире "+cell.world()+" присоединение запрещено");if(!towny.isWilderness(cell))throw new IllegalStateException("Участок ["+cell.x()+", "+cell.z()+"] уже занят. Измените план");}
         var order=BfsPlanner.plan(chosen,towny.ownedCells(town));if(!order.unreachable().isEmpty())throw new IllegalStateException("Все участки должны соединяться с границей города");
         if(!town.hasUnlimitedClaims()&&town.availableTownBlocks()<chosen.size())throw new IllegalStateException("Городу не хватает доступных участков для всего плана");
         boolean economy=TownySettings.isUsingEconomy();if(economy&&(!TownyEconomyHandler.isActive()||TownyEconomyHandler.activeAdapter()==null))throw new IllegalStateException("Экономика Towny недоступна. Присоединение не запущено");
-        var accepted=adapter.validateOnly(player,town,order.ordered().stream().map(CellKey::worldCoord).toList());
+        var accepted=adapter.validateOnly(player,town,order.ordered().stream().map(CellKey::worldCoord).toList(),allowedBiomes);
         if(accepted.size()!=chosen.size()||!new HashSet<>(accepted.stream().map(CellKey::from).toList()).equals(new HashSet<>(chosen)))throw new IllegalStateException("Towny отклонил часть участков. Измените план");
         double amount=economy?(chosen.size()==1?town.getTownBlockCost():town.getTownBlockCostN(chosen.size())):0;
         if(!Double.isFinite(amount)||amount<0)throw new IllegalStateException("Towny вернул некорректную стоимость земли");
         return new Quote(order.ordered(),amount,economy,town.getNumTownBlocks(),town.getMayor().getUUID());
     }
-    private void recheck(Player player,ExpansionPlan plan)throws Exception{
+    private void recheck(Player player,ExpansionPlan plan,Verdict allowedBiomes)throws Exception{
         Town town=permitted(player,true,plan.cells().size());if(!town.getUUID().equals(plan.town()))throw new IllegalStateException("План принадлежит другому городу");
-        var now=quote(player,town,plan.cells());if(!now.mayor().equals(plan.mayor())||Double.compare(now.amount(),plan.estimate())!=0||now.economy()!=plan.economy()||now.townSize()!=plan.townSize()||!now.cells().equals(plan.cells()))throw new IllegalStateException("Мэр, границы или цена изменились. Обновите план и согласуйте новую версию");
+        var now=quote(player,town,plan.cells(),allowedBiomes);if(!now.mayor().equals(plan.mayor())||Double.compare(now.amount(),plan.estimate())!=0||now.economy()!=plan.economy()||now.townSize()!=plan.townSize()||!now.cells().equals(plan.cells()))throw new IllegalStateException("Мэр, границы или цена изменились. Обновите план и согласуйте новую версию");
         if(!adapter.canAfford(town,plan.cells().size()))throw new IllegalStateException("В казне недостаточно денег для всего плана");
     }
     private ExpansionPlan find(UUID id){var plan=repository.state().plans().get(id);if(plan==null)throw new IllegalStateException("План не найден");return plan;}
     private ExpansionPlan own(Player player,UUID id){var plan=find(id);Town town=towny.town(player);if(town==null||!town.getUUID().equals(plan.town()))throw new IllegalStateException("План принадлежит другому городу");return plan;}
+    @FunctionalInterface private interface BiomeAction<T> { CompletionStage<T> run(Verdict allowed)throws Exception; }
+    private <T> CompletionStage<T> withBiomes(Player player,Collection<CellKey> cells,BiomeAction<T> action){
+        CompletableFuture<T> result=new CompletableFuture<>();
+        try{
+            adapter.checkBiomes(cells.stream().map(CellKey::worldCoord).toList()).whenComplete((allowed,error)->{
+                if(error!=null){result.completeExceptionally(error);return;}
+                try{
+                    SuiteScheduler.entityLater(plugin,player,()->{
+                        try(var guard=SuiteState.guard()){
+                            if(!player.isOnline())throw new IllegalStateException("Игрок вышел до проверки участков");
+                            action.run(allowed).whenComplete((value,failure)->{
+                                if(failure!=null)result.completeExceptionally(failure);else result.complete(value);
+                            });
+                        }catch(Throwable failure){result.completeExceptionally(failure);}
+                    },()->result.completeExceptionally(new IllegalStateException("Игрок вышел до проверки участков")),1);
+                }catch(Throwable failure){result.completeExceptionally(failure);}
+            });
+        }catch(Throwable failure){result.completeExceptionally(failure);}
+        return result;
+    }
     public ExpansionPlan view(Player player,UUID id){try(var guard=SuiteState.guard()){return own(player,id);}}
     public Optional<ExpansionPlan> openPlan(Player player){try(var guard=SuiteState.guard()){
         Town town=towny.town(player);
@@ -80,35 +102,63 @@ public final class ClaimService {
     private CompletionStage<ExpansionPlan> createSelected(Player player,Collection<CellKey> selected,boolean mayor)throws Exception{
         writable();Town town=permitted(player,mayor,selected.size());
         for(var p:repository.state().plans().values())if(p.town().equals(town.getUUID())&&p.open())throw new IllegalStateException("У города уже есть открытый план: "+p.id()+". Используйте /t stick show "+p.id());
-        var q=quote(player,town,selected);long now=System.currentTimeMillis();var plan=new ExpansionPlan(UUID.randomUUID(),town.getUUID(),player.getUniqueId(),q.mayor(),1,now,now,q.cells(),q.amount(),q.economy(),q.townSize(),ExpansionPlan.Status.DRAFT,null,List.of(),"Смета готова. Деньги не списаны; требуется согласование мэра или уполномоченного заместителя");return save(player,plan);
+        List<CellKey> cells=List.copyOf(selected);
+        return withBiomes(player,cells,allowed->{
+            writable();Town current=permitted(player,mayor,cells.size());
+            if(!current.getUUID().equals(town.getUUID()))throw new IllegalStateException("Город изменился во время проверки");
+            if(mayor&&!towny.isOwnedBy(towny.cell(player.getLocation().getBlock()),current))throw new IllegalStateException("Откройте карту, находясь на территории своего города");
+            for(var p:repository.state().plans().values())if(p.town().equals(current.getUUID())&&p.open())throw new IllegalStateException("У города уже есть открытый план: "+p.id());
+            var q=quote(player,current,cells,allowed);long now=System.currentTimeMillis();
+            var plan=new ExpansionPlan(UUID.randomUUID(),current.getUUID(),player.getUniqueId(),q.mayor(),1,now,now,q.cells(),q.amount(),q.economy(),q.townSize(),ExpansionPlan.Status.DRAFT,null,List.of(),"Смета готова. Деньги не списаны; требуется согласование мэра или уполномоченного заместителя");
+            return save(player,plan);
+        });
     }
     public CompletionStage<ExpansionPlan> revise(Player player,UUID id,int revision)throws Exception{try(var guard=SuiteState.guard()){
         writable();var old=own(player,id);old.requireRevision(revision);Town town=permitted(player,false,old.cells().size());if(old.status()!=ExpansionPlan.Status.DRAFT&&old.status()!=ExpansionPlan.Status.APPROVED)throw new IllegalStateException("Этот план нельзя изменять");if(!old.author().equals(player.getUniqueId())&&!town.getMayor().getUUID().equals(player.getUniqueId()))throw new IllegalStateException("Изменить план может его автор или мэр");
-        var selected=selections.snapshot(player.getUniqueId());var q=quote(player,town,selected.isEmpty()?old.cells():selected);permitted(player,false,q.cells().size());var next=new ExpansionPlan(old.id(),old.town(),old.author(),q.mayor(),Math.addExact(old.revision(),1),old.created(),System.currentTimeMillis(),q.cells(),q.amount(),q.economy(),q.townSize(),ExpansionPlan.Status.DRAFT,null,List.of(),"Новая смета; прежнее согласование снято");return save(player,next);
+        var selected=selections.snapshot(player.getUniqueId());List<CellKey> cells=List.copyOf(selected.isEmpty()?old.cells():selected);
+        return withBiomes(player,cells,allowed->{
+            writable();var fresh=own(player,id);fresh.requireRevision(revision);Town current=permitted(player,false,cells.size());
+            if(fresh.status()!=ExpansionPlan.Status.DRAFT&&fresh.status()!=ExpansionPlan.Status.APPROVED)throw new IllegalStateException("Этот план нельзя изменять");
+            if(!fresh.author().equals(player.getUniqueId())&&!current.getMayor().getUUID().equals(player.getUniqueId()))throw new IllegalStateException("Изменить план может его автор или мэр");
+            var q=quote(player,current,cells,allowed);
+            var next=new ExpansionPlan(fresh.id(),fresh.town(),fresh.author(),q.mayor(),Math.addExact(fresh.revision(),1),fresh.created(),System.currentTimeMillis(),q.cells(),q.amount(),q.economy(),q.townSize(),ExpansionPlan.Status.DRAFT,null,List.of(),"Новая смета; прежнее согласование снято");
+            return save(player,next);
+        });
     }}
     public CompletionStage<ExpansionPlan> approve(Player player,UUID id,int revision)throws Exception{try(var guard=SuiteState.guard()){
-        writable();var p=own(player,id);p.requireRevision(revision);recheck(player,p);return save(player,p.approve(player.getUniqueId(),revision,System.currentTimeMillis(),true));
+        writable();var p=own(player,id);p.requireRevision(revision);
+        return withBiomes(player,p.cells(),allowed->{
+            writable();var fresh=own(player,id);fresh.requireRevision(revision);recheck(player,fresh,allowed);
+            return save(player,fresh.approve(player.getUniqueId(),revision,System.currentTimeMillis(),true));
+        });
     }}
     public CompletionStage<ExpansionPlan> cancel(Player player,UUID id,int revision){try(var guard=SuiteState.guard()){
         writable();var p=own(player,id);p.requireRevision(revision);Town town=permitted(player,false,p.cells().size());if(!p.author().equals(player.getUniqueId())&&!town.getMayor().getUUID().equals(player.getUniqueId()))throw new IllegalStateException("Отменить план может его автор или мэр");return save(player,p.cancel(System.currentTimeMillis()));
     }}
     public CompletionStage<ExpansionPlan> execute(Player player,UUID id,int revision)throws Exception{try(var guard=SuiteState.guard()){
-        writable();var p=own(player,id);p.requireRevision(revision);recheck(player,p);var intent=p.intent(player.getUniqueId(),revision,System.currentTimeMillis(),true);active.put(id,player.getUniqueId());
-        var committed=save(player,intent);committed.whenComplete((value,error)->{try(var locked=SuiteState.guard()){
-            if(error!=null){active.remove(id);return;}if(closing)return;
-            SuiteScheduler.entityLater(plugin,player,()->launch(player,intent),()->observe(intent,null,"Уполномоченный игрок вышел до запуска. Требуется сверка; повтор запрещён"),1);
-        }});return committed;
+        writable();var p=own(player,id);p.requireRevision(revision);
+        return withBiomes(player,p.cells(),allowed->{
+            writable();var fresh=own(player,id);fresh.requireRevision(revision);recheck(player,fresh,allowed);
+            var intent=fresh.intent(player.getUniqueId(),revision,System.currentTimeMillis(),true);active.put(id,player.getUniqueId());
+            var committed=save(player,intent);committed.whenComplete((value,error)->{try(var locked=SuiteState.guard()){
+                if(error!=null){active.remove(id);return;}if(closing)return;
+                SuiteScheduler.entityLater(plugin,player,()->launch(player,intent),()->observe(intent,null,"Уполномоченный игрок вышел до запуска. Требуется сверка; повтор запрещён"),1);
+            }});return committed;
+        });
     }}
     private void launch(Player player,ExpansionPlan intent){
         if(closing||!active.containsKey(intent.id()))return;
-        try{
+        withBiomes(player,intent.cells(),allowed->{
             if(!player.isOnline())throw new IllegalStateException("Уполномоченный игрок вышел до запуска");
             if(!plugin.getConfig().getBoolean("claim.enabled",true))throw new IllegalStateException("Модуль присоединения отключён до запуска");
-            recheck(player,intent);Town town=towny.town(player);
-            var accepted=adapter.validateAndCharge(player,town,intent.cells().stream().map(CellKey::worldCoord).toList(),()->{try{recheck(player,intent);}catch(com.palmergames.bukkit.towny.exceptions.TownyException error){throw error;}catch(Exception error){throw new IllegalStateException(error.getMessage(),error);}});
+            recheck(player,intent,allowed);Town town=towny.town(player);
+            var accepted=adapter.validateAndCharge(player,town,intent.cells().stream().map(CellKey::worldCoord).toList(),allowed,()->{try{recheck(player,intent,allowed);}catch(com.palmergames.bukkit.towny.exceptions.TownyException error){throw error;}catch(Exception error){throw new IllegalStateException(error.getMessage(),error);}});
             if(accepted.size()!=intent.cells().size()||!new HashSet<>(accepted.stream().map(CellKey::from).toList()).equals(new HashSet<>(intent.cells())))throw new IllegalStateException("Состав участков изменился при проверке Towny");
             adapter.claimObserved(player,town,accepted,(ignored,error)->observe(intent,player,error==null?"Towny закончил обработку. Владение проверено; списание средств этим подтверждением не доказано":"Towny завершился с ошибкой. Проверьте участки и банковский журнал"));
-        }catch(Exception error){observe(intent,player,"Присоединение не подтверждено: "+String.valueOf(error.getMessage()));}
+            return CompletableFuture.completedFuture(null);
+        }).whenComplete((ignored,error)->{
+            if(error!=null&&!closing)SuiteScheduler.get().runTask(plugin,()->observe(intent,player,"Присоединение не подтверждено: "+String.valueOf(root(error).getMessage())));
+        });
     }
     private List<CellKey> owned(ExpansionPlan p){Town town=TownyAPI.getInstance().getTown(p.town());return town==null?List.of():p.cells().stream().filter(cell->towny.isOwnedBy(cell,town)).toList();}
     private void observe(ExpansionPlan intent,Player player,String reason){try(var guard=SuiteState.guard()){

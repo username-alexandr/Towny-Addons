@@ -1,0 +1,77 @@
+--- a/server/src/main/java/cc/crafto/ui/server/CivicWorkbench.java
++++ b/server/src/main/java/cc/crafto/ui/server/CivicWorkbench.java
+@@ -316,7 +316,7 @@
+         }
+     }
+     private void map(Player p,State s,TownyCivic.Context c,CivicView v)throws Exception{
+-        require(c.town()!=null,"Сначала вступите в город");v.title="Карта участков";v.lines.add("Ваш город — зелёный, другие — красный, свободные — серый. Выберите клетку. Управление доступно, когда вы стоите на выбранном участке.");
++        require(c.town()!=null,"Сначала вступите в город");v.title="Карта участков";v.lines.add("Ваш город — зелёный, другие — красный, свободные — серый. Свободный участок у границы можно добавить в план, оставаясь в городе.");
+         int cx=c.x(),cz=c.z();if(!s.id.isEmpty()){String[] xy=s.id.split(",");cx=Integer.parseInt(xy[0]);cz=Integer.parseInt(xy[1]);}
+         JsonArray cells=new JsonArray();for(int z=cz-4;z<=cz+4;z++)for(int x=cx-4;x<=cx+4;x++){
+             Object plot=towny.plot(c,x,z),town=plot==null?null:call(plot,"getTownOrNull"),owner=plot==null?null:call(plot,"getResidentOrNull");
+@@ -327,6 +327,23 @@
+         for(var offset:List.of(new int[]{0,-9},new int[]{-9,0},new int[]{9,0},new int[]{0,9}))v.rows.add(new Row(offset[0]<0?"← Запад":offset[0]>0?"Восток →":offset[1]<0?"↑ Север":"Юг ↓","",new Action("map-pan",(cx+offset[0])+","+(cz+offset[1]))));
+         v.rows.add(new Row("К моему участку","",new Action("map-pan","")));
+     }
++    private String claimPlanReason(Player p,TownyCivic.Context c,int x,int z)throws Exception{
++        if(c.town()==null)return "Сначала вступите в город";
++        if(towny.addon("NeverLandTownyStick")==null)return "Расширение города сейчас недоступно";
++        if(!has(p,"morstownstick.claim")||!has(p,"towny.command.town.claim.town"))return "Нет разрешения присоединять участки";
++        Object here=towny.plot(c,c.x(),c.z());
++        Object owner=here==null?null:call(here,"getTownOrNull");
++        if(owner==null||!c.town().equals(call(owner,"getUUID")))return "Встаньте на территорию своего города";
++        if(c.remaining()==0)return "Город достиг лимита участков";
++        boolean adjacent=false;
++        for(int[] offset:new int[][]{{0,-1},{0,1},{-1,0},{1,0}}){
++            Object plot=towny.plot(c,x+offset[0],z+offset[1]);
++            Object neighbour=plot==null?null:call(plot,"getTownOrNull");
++            if(neighbour!=null&&c.town().equals(call(neighbour,"getUUID"))){adjacent=true;break;}
++        }
++        if(!adjacent)return "Участок должен граничить с городом стороной";
++        return "";
++    }
+     private void plot(Player p,State s,TownyCivic.Context c,CivicView v)throws Exception{
+         require(s.selectedWorld.equals(c.world().toString()),"Вы перешли в другой мир. Обновите карту.");
+         String[] xy=s.id.split(",");int x=Integer.parseInt(xy[0]),z=Integer.parseInt(xy[1]);Object plot=towny.plot(c,x,z),town=plot==null?null:call(plot,"getTownOrNull"),owner=plot==null?null:call(plot,"getResidentOrNull");
+@@ -334,7 +351,8 @@
+         boolean local=x==c.x()&&z==c.z(),ownTown=town!=null&&c.town()!=null&&call(town,"getUUID").equals(c.town());String far=local?"":"Подойдите к выбранному участку";
+         v.lines.add("Город: "+(town==null?"не занят":call(town,"getName"))+" · владелец: "+(owner==null?"город / отсутствует":call(owner,"getName")));
+         if(plot!=null)v.lines.add("Тип: "+call(plot,"getTypeName")+" · правила: "+call(plot,"getPermissions"));
+-        if(town==null)v.rows.add(new Row("Захватить для города","Сначала показать цену и последствия","",new Action("review-plot-claim",s.id,c.world().toString()),!far.isEmpty()?far:c.town()==null?"Сначала вступите в город":!has(p,"towny.command.town.claim")?"Нужно право захвата территории":c.remaining()==0?"Исчерпан лимит участков":""));
++        if(town==null){String reason=claimPlanReason(p,c,x,z);
++            v.rows.add(new Row("Добавить в план расширения",reason.isEmpty()?"План покажет цену и потребует подтверждения перед оплатой":reason,"",new Action("open-stick-map",s.id,c.world().toString()),reason));}
+         if(ownTown){
+             v.rows.add(new Row("Освободить территорию города","Предпросмотр возврата и изменений","",new Action("review-plot-unclaim",s.id,c.world().toString()),!far.isEmpty()?far:!has(p,"towny.command.town.unclaim")?"Нужно право освобождения территории":(boolean)call(plot,"isHomeBlock")?"Главный участок нельзя освободить здесь":""));
+             double price=((Number)call(plot,"getPlotPrice")).doubleValue();
+@@ -349,6 +367,20 @@
+             send.accept(object("op","review","request",s.request,"token",s.token,"confirmation",confirmation,"title",review.title(),"lines",review.lines(),"targetKey",review.targetKey(),"confirmLabel",action.kind().equals("review-order-accept")?"Да, принять заказ":"Подтвердить"));return;
+         }
+         switch(action.kind()){
++            case "open-stick-map" -> {
++                var c=towny.capture(p);
++                require(c.town()!=null&&action.extra().equals(c.world().toString()),"Город или мир изменился. Откройте карту заново");
++                String[] xy=action.id().split(",",-1);
++                require(xy.length==2&&action.id().matches("-?[0-9]{1,10},-?[0-9]{1,10}"),"Неверные координаты участка");
++                int x,z;
++                try{x=Integer.parseInt(xy[0]);z=Integer.parseInt(xy[1]);}
++                catch(NumberFormatException e){throw new IllegalArgumentException("Неверные координаты участка",e);}
++                require(towny.plot(c,x,z)==null,"Участок уже занят. Обновите карту");
++                String reason=claimPlanReason(p,c,x,z);require(reason.isEmpty(),reason);
++                plugin.civicAnchor(p);
++                dispatch(p,"Towny","town","stick map "+x+" "+z);
++                return;
++            }
+             case "inspect-tree" -> {require(s.route.equals("tree")&&action.id().matches("(building|research|content|specialization):[a-z0-9_-]{1,64}"),"Узел дерева недоступен");s.id=action.id();}
+             case "clear-tree" -> {require(s.route.equals("tree"),"Дерево недоступно");s.id="";}
+             case "procurement-offers" -> navigate(s,"procurement-offers",action.id());
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -1,7 +1,7 @@
+ org.gradle.jvmargs=-Xmx2G
+ org.gradle.parallel=false
+ org.gradle.workers.max=2
+-version=0.9.14
++version=0.9.15
+ client_version=0.9.16
+ minecraft_version=26.2
+ loader_version=0.19.4

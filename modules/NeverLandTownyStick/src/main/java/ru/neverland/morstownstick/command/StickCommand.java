@@ -35,7 +35,7 @@ public final class StickCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){return true;}
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {if(ru.neverland.core.SuiteState.frozen("NeverLandTownyStick")){sender.sendMessage("§cРасширение города временно отключено администратором");return true;}
         if (!(sender instanceof Player player)) {
             messages.send(sender, "players-only");
             return true;
@@ -45,7 +45,12 @@ public final class StickCommand implements CommandExecutor {
             case "give" -> give(player);
             case "list" -> list(player);
             case "clear" -> clear(player);
-            case "map" -> { try { map.open(player); } catch (RuntimeException error) { player.sendMessage("§c"+error.getMessage()); } yield true; }
+            case "map" -> { try {
+                if(args.length==1)map.open(player);
+                else if(args.length==3)map.open(player,new CellKey(player.getWorld().getName(),Integer.parseInt(args[1]),Integer.parseInt(args[2])));
+                else throw new IllegalArgumentException("Использование: /t stick map [X Z]");
+            } catch (NumberFormatException error) { player.sendMessage("§cУкажите координаты участка целыми числами"); }
+              catch (RuntimeException error) { player.sendMessage("§c"+error.getMessage()); } yield true; }
             case "claim", "plan", "plans", "show", "approve", "execute", "revise", "cancel" -> { claims.command(player,args); yield true; }
             case "help", "?" -> help(player);
             default -> help(player);

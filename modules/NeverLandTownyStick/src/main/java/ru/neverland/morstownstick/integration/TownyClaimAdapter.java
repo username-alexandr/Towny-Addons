@@ -7,7 +7,7 @@ import com.palmergames.bukkit.towny.exceptions.TownyException;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.WorldCoord;
 import com.palmergames.bukkit.towny.tasks.TownClaim;
-import org.bukkit.Bukkit;
+import com.palmergames.bukkit.towny.utils.AreaSelectionUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -29,9 +29,11 @@ public final class TownyClaimAdapter {
     private final Method vetAllowed;
     private final Method firePreClaim;
     private final Method vetPayment;
+    private final ClaimBiomePreflight biomes;
 
     public TownyClaimAdapter(JavaPlugin plugin) {
         this.plugin = plugin;
+        this.biomes = new ClaimBiomePreflight(plugin);
         try {
             catchRuined = method("catchRuinedTown", Player.class);
             catchBankrupt = method("catchBankruptTownWithLand", Town.class);
@@ -45,25 +47,21 @@ public final class TownyClaimAdapter {
     }
 
     @SuppressWarnings("unchecked")
-    public List<WorldCoord> validateOnly(Player player,Town town,List<WorldCoord> requested)throws TownyException {
-        requireBiomeOwnership(requested);
+    public java.util.concurrent.CompletionStage<ClaimBiomePreflight.Verdict> checkBiomes(List<WorldCoord> requested) {
+        return biomes.check(requested);
+    }
+
+    public List<WorldCoord> validateOnly(Player player,Town town,List<WorldCoord> requested,ClaimBiomePreflight.Verdict biomes)throws TownyException {
         invoke(catchRuined,player);invoke(catchBankrupt,town);
-        List<WorldCoord> accepted=(List<WorldCoord>)invoke(vetSelection,player,town,new ArrayList<>(requested));
+        List<WorldCoord> accepted=vetSelection(player,town,requested,biomes);
         invoke(vetAllowed,town,false,accepted);return List.copyOf(accepted);
     }
 
-    @SuppressWarnings("unchecked")
-    public List<WorldCoord> validateAndCharge(Player player, Town town, List<WorldCoord> requested) throws TownyException { try (var suiteGuard1 = ru.neverland.core.SuiteState.guard()) {
-        return validateAndCharge(player,town,requested,()->{});
-    } }
-
     @FunctionalInterface public interface FinalCheck {void check()throws TownyException;}
-    @SuppressWarnings("unchecked")
-    public List<WorldCoord> validateAndCharge(Player player,Town town,List<WorldCoord> requested,FinalCheck beforePayment)throws TownyException {
-        requireBiomeOwnership(requested);
+    public List<WorldCoord> validateAndCharge(Player player,Town town,List<WorldCoord> requested,ClaimBiomePreflight.Verdict biomes,FinalCheck beforePayment)throws TownyException {
         invoke(catchRuined, player);
         invoke(catchBankrupt, town);
-        List<WorldCoord> accepted = (List<WorldCoord>) invoke(vetSelection, player, town, new ArrayList<>(requested));
+        List<WorldCoord> accepted = vetSelection(player,town,requested,biomes);
         invoke(vetAllowed, town, false, accepted);
         invoke(firePreClaim, player, town, false, accepted);
         if(accepted.size()!=requested.size()||!new java.util.HashSet<>(accepted).equals(new java.util.HashSet<>(requested)))throw new IllegalStateException("Towny изменил состав плана; оплата не запрашивается");
@@ -72,13 +70,23 @@ public final class TownyClaimAdapter {
         return new ArrayList<>(accepted);
     }
 
-    private static void requireBiomeOwnership(List<WorldCoord> cells){
-        if(!com.palmergames.bukkit.towny.TownySettings.isUnwantedBiomeClaimingEnabled()&&!com.palmergames.bukkit.towny.TownySettings.isOceanClaimingBlocked())return;
-        int size=com.palmergames.bukkit.towny.TownySettings.getTownBlockSize();
-        if(size<1||(long)size*size*cells.size()>16384)throw new IllegalStateException("Для проверки биомов Towny разделите план на меньшие части");
-        for(var cell:cells){var world=cell.getBukkitWorld();int x=Math.multiplyExact(cell.getX(),size),z=Math.multiplyExact(cell.getZ(),size);
-            if(world==null||!Bukkit.isOwnedByCurrentRegion(world,Math.floorDiv(x,16),Math.floorDiv(z,16),Math.floorDiv(Math.addExact(x,size-1),16),Math.floorDiv(Math.addExact(z,size-1),16)))throw new IllegalStateException("Подойдите к выбранным участкам или разделите план: Towny должен безопасно проверить их биомы");
-        }
+    @SuppressWarnings("unchecked")
+    private List<WorldCoord> vetSelection(Player player,Town town,List<WorldCoord> requested,ClaimBiomePreflight.Verdict biomes)throws TownyException {
+        if(!biomes.isCurrent())throw new IllegalStateException("Правила биомов Towny изменились во время проверки. Откройте план заново");
+        if(!com.palmergames.bukkit.towny.TownySettings.isUnwantedBiomeClaimingEnabled()
+                && !com.palmergames.bukkit.towny.TownySettings.isOceanClaimingBlocked())
+            return (List<WorldCoord>)invoke(vetSelection,player,town,new ArrayList<>(requested));
+        // Towny's proximity and wilderness filters are reused unchanged. The
+        // biome filter was performed on each selected region by the preflight.
+        List<WorldCoord> accepted=AreaSelectionUtil.filterOutTownOwnedBlocks(new ArrayList<>(requested));
+        if(!biomes.allowed().containsAll(accepted))
+            throw new IllegalStateException("Биом одного из участков запрещён правилами Towny; деньги не списаны");
+        if(accepted.isEmpty())throw new IllegalStateException("Не осталось свободных участков для захвата");
+        accepted=AreaSelectionUtil.filterInvalidProximityToHomeblock(accepted,town);
+        if(accepted.isEmpty())throw new IllegalStateException("Участки слишком близко к центру другого города");
+        accepted=AreaSelectionUtil.filterInvalidProximityTownBlocks(accepted,town);
+        if(accepted.isEmpty())throw new IllegalStateException("Участки слишком близко к другому городу");
+        return accepted;
     }
 
     public boolean canAfford(Town town, int count) throws TownyException { try (var suiteGuard2 = ru.neverland.core.SuiteState.guard()) {
