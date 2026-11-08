@@ -9,6 +9,7 @@ import org.bukkit.scheduler.BukkitTask;
 import ru.neverland.townychronicles.integration.BuildBridge;
 import ru.neverland.townychronicles.integration.TownyHook;
 import ru.neverland.townychronicles.model.ChronicleCategory;
+import ru.neverland.townychronicles.model.ChronicleEntry;
 import ru.neverland.townychronicles.model.TownChronicleState;
 import ru.neverland.townychronicles.util.TimeUtil;
 
@@ -82,7 +83,26 @@ public final class ChronicleTracker {
     public void renamed(Town town,String oldName){ try (var suiteGuard5 = ru.neverland.core.SuiteState.guard()) {TownChronicleState state=repository.state(town.getUUID());if(oldName!=null&&!oldName.isBlank()&&!oldName.equals(town.getName()))chronicles.record(town.getUUID(),ChronicleCategory.CUSTOM,"Город получил новое имя",List.of("Прежнее название: "+oldName,"Новое название: "+town.getName()),"","Towny");state.name(town.getName());repository.markDirty();} }
     public void mayorChanged(Town town,String oldMayor,String newMayor,UUID newId){ try (var suiteGuard6 = ru.neverland.core.SuiteState.guard()) {TownChronicleState state=repository.state(town.getUUID());if(newMayor!=null&&!newMayor.isBlank()&&!newMayor.equals(oldMayor))chronicles.record(town.getUUID(),ChronicleCategory.MAYOR,"Новый мэр — "+newMayor,List.of("Предыдущий мэр: "+safe(oldMayor),"Город: "+town.getName()),newMayor,"Towny");state.mayor(newMayor,newId);repository.markDirty();} }
     public void nationChanged(Town town,String oldNation,String newNation,UUID newId){ try (var suiteGuard7 = ru.neverland.core.SuiteState.guard()) {TownChronicleState state=repository.state(town.getUUID());String title;if(newNation==null||newNation.isBlank())title="Город покинул нацию "+safe(oldNation);else if(oldNation==null||oldNation.isBlank())title="Город вступил в нацию "+newNation;else title="Город сменил нацию";chronicles.record(town.getUUID(),ChronicleCategory.NATION,title,List.of("Прежняя нация: "+safe(oldNation),"Новая нация: "+safe(newNation)),"","Towny");state.nation(newNation,newId);repository.markDirty();} }
-    public void dissolve(UUID townId,String name,String reason){ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {TownChronicleState state=repository.state(townId);if(!state.active())return;chronicles.record(townId,name,ChronicleCategory.DISSOLUTION,System.currentTimeMillis(),"Город "+name+" исчез",List.of(reason),"","Towny",true);state.active(false);state.lastSeen(System.currentTimeMillis());repository.markDirty();repository.requestSave();} }
+    public void dissolve(UUID townId,String name,String reason){ try (var suiteGuard8 = ru.neverland.core.SuiteState.guard()) {
+        TownChronicleState state=repository.state(townId);
+        if(!state.active())return;
+        String title="Город "+name+" исчез";
+        // The old async event failure could leave an entry behind without marking
+        // the town inactive. Reconcile that half-finished deletion without a duplicate.
+        boolean recorded=recordedDeletion(repository.entries(townId),title,state.lastSeen());
+        if(!recorded)chronicles.record(townId,name,ChronicleCategory.DISSOLUTION,System.currentTimeMillis(),title,List.of(reason),"","Towny",true);
+        state.active(false);
+        state.lastSeen(System.currentTimeMillis());
+        repository.markDirty();
+        repository.requestSave();
+    } }
+    static boolean recordedDeletion(List<ChronicleEntry> entries,String title,long lastSeen){
+        return entries.stream().anyMatch(entry->
+                entry.category()==ChronicleCategory.DISSOLUTION
+                && entry.source().equals("Towny")
+                && entry.title().equals(title)
+                && entry.timestamp()>=lastSeen);
+    }
     public void conquered(Town town){ try (var suiteGuard9 = ru.neverland.core.SuiteState.guard()) {if(!plugin.getConfig().getBoolean("tracking.record-conquests",true))return;chronicles.record(town.getUUID(),ChronicleCategory.WAR,"Город был завоёван",List.of("Город перешёл под власть победителя."),"","Towny");} }
     public void ruined(Town town,String mayor){ try (var suiteGuard10 = ru.neverland.core.SuiteState.guard()) {chronicles.record(town.getUUID(),ChronicleCategory.DISSOLUTION,"Город оказался в руинах",List.of("Последний мэр: "+safe(mayor)),mayor,"Towny");repository.state(town.getUUID()).active(false);repository.markDirty();} }
     public void reclaimed(Town town,String resident){ try (var suiteGuard11 = ru.neverland.core.SuiteState.guard()) {chronicles.record(town.getUUID(),ChronicleCategory.RECOVERY,"Город восстановлен из руин",List.of("Возродил город: "+resident),resident,"Towny");repository.state(town.getUUID()).active(true);process(town,false);} }
