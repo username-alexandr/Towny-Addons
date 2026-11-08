@@ -36,7 +36,7 @@ construction-unavailable: "Не удалось загрузить чертёж �
 construction-not-resident: "Строить городское здание могут только жители этого города."
 construction-protected: "Этот блок относится к городскому зданию и защищён чертежом."
 construction-wrong-block: "По чертежу здесь требуется: &e{expected}&f."
-construction-progress: "Прогресс этапа: &a{placed}&8/&f{total} &7({percent}%)."
+construction-progress-hud: "&#63E6BE{percent}%"
 construction-complete: "Этап завершён! Постройка {project} достигла уровня &a{level}&f; декоративные элементы установлены автоматически."
 wonder-placement-complete: "Чудо света {project} успешно размещено. Повторные награды и эффекты не начислялись."
 construction-guide: "&#FFD45AПоставьте: &f{expected} &8• &#63E6BE[{x}, {y}, {z}] &8• &f{distance} м"

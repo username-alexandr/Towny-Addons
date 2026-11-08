@@ -19,6 +19,12 @@ public final class ConstructionLayersSmoke {
         ok(first.missing().size()==2&&first.placed()==0,"only first unfinished layer");
         placed.add(a);var partial=ConstructionLayers.inspect(plan,1,1,(p,v)->placed.contains(p));
         ok(partial.number()==1&&partial.placed()==1&&partial.total()==2,"partial layer cannot advance");
+        var progress=ConstructionLayers.inspectWithProgress(plan,1,1,(p,v)->placed.contains(p));
+        ok(progress.placed()==1&&progress.total()==3&&progress.percent()==33,"whole-stage progress excludes decorations and later upgrades");
+        placed.add(c);
+        progress=ConstructionLayers.inspectWithProgress(plan,1,1,(p,v)->placed.contains(p));
+        ok(progress.layer().number()==1&&progress.percent()==66,"preplaced upper blocks count without revealing the next layer");
+        placed.remove(c);
         placed.add(b);var second=ConstructionLayers.inspect(plan,1,1,(p,v)->placed.contains(p));
         ok(second.y()==3&&second.number()==2&&second.missing().get(0).offset().equals(c),"next layer opens only when complete");
         var restart=ConstructionLayers.inspect(plan,1,1,(p,v)->placed.contains(p));

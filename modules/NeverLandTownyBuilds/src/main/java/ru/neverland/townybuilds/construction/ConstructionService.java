@@ -494,8 +494,8 @@ public final class ConstructionService implements Listener {
             }, () -> ru.neverland.core.SuiteScheduler.region(plugin, event.getBlockPlaced().getLocation(), () ->
                     event.getBlockPlaced().getWorld().dropItemNaturally(event.getBlockPlaced().getLocation(),suppliedBlock)), 1);
             ConstructionProgress progress = progress(playerTown, site.projectId());
-            messages.send(event.getPlayer(), "construction-progress", Map.of(
-                    "placed", progress.placed(), "total", progress.total(), "percent", progress.percent()));
+            ru.neverland.core.SuiteScheduler.player(plugin, event.getPlayer(), player ->
+                    player.sendActionBar(messages.component("construction-progress-hud", Map.of("percent", progress.percent()))));
             checkCompletion(event.getPlayer(), playerTown, site);
         });
     } }
@@ -875,14 +875,15 @@ public final class ConstructionService implements Listener {
                 if (plan == null || !ownsPlan(world, site, plan)) continue;
                 if (plan.blocks().keySet().stream().map(offset -> site.location(world, offset))
                         .anyMatch(loc -> !world.isChunkLoaded(loc.getBlockX() >> 4, loc.getBlockZ() >> 4))) continue;
-                ConstructionLayers.Layer layer = ConstructionLayers.inspect(plan, site.buildFromStage(), site.targetStage(),
+                ConstructionLayers.Inspection inspection = ConstructionLayers.inspectWithProgress(plan, site.buildFromStage(), site.targetStage(),
                         (offset, expected) -> site.location(world, offset).getBlock().getType() == expected.material());
+                ConstructionLayers.Layer layer = inspection.layer();
                 if (layer.complete()) { checkCompletion(player, town, site); continue; }
                 String remaining = remainingMaterials(layer);
                 for (ConstructionLayers.Cell cell : layer.missing()) {
                     Location location = site.location(world, cell.offset());
                     double squared = location.clone().add(0.5, 0.5, 0.5).distanceSquared(eye);
-                    if (squared <= distance * distance) targets.add(new PreviewTarget(location, cell.block(), squared, site, layer, remaining));
+                    if (squared <= distance * distance) targets.add(new PreviewTarget(location, cell.block(), squared, site, layer, remaining, inspection.percent()));
                 }
             }
             targets.sort(Comparator.comparingDouble(PreviewTarget::distanceSquared)
@@ -898,7 +899,7 @@ public final class ConstructionService implements Listener {
             PreviewTarget nearest = targets.get(0);
             renderOutline(player, nearest.location(), outline);
             renderGuideDisplay(player, nearest);
-            player.sendActionBar(messages.component("construction-layer-guide", guideValues(nearest)));
+            player.sendActionBar(messages.component("construction-progress-hud", Map.of("percent", nearest.percent())));
         });
         Set<UUID> viewers = new java.util.HashSet<>(guideDisplays.keySet());
         viewers.addAll(blockDisplays.viewers());
@@ -1012,7 +1013,7 @@ public final class ConstructionService implements Listener {
 
     private record LocatedBlock(UUID townId, ConstructionSite site, BlueprintBlock expected) { }
     private record PreviewTarget(Location location, BlueprintBlock expected, double distanceSquared,
-                                 ConstructionSite site, ConstructionLayers.Layer layer, String remaining) { }
+                                 ConstructionSite site, ConstructionLayers.Layer layer, String remaining, int percent) { }
     public java.util.List<ru.neverland.core.ActivityAdmin.Target> adminTargets(){ try (var suiteGuard16 = ru.neverland.core.SuiteState.guard()) {
         ru.neverland.core.ApiServices.primaryThread();var result=new java.util.ArrayList<ru.neverland.core.ActivityAdmin.Target>();
         dataStore.towns().forEach((id,town)->town.constructionSites().values().stream().filter(ConstructionSite::active).forEach(site->result.add(new ru.neverland.core.ActivityAdmin.Target(id+"/"+site.projectId(),site.projectId()+" / этап "+site.targetStage(),java.util.Set.of("status","pause","resume","cancel"),(action,minutes)->{
